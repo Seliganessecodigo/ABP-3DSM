@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -7,6 +14,7 @@ export enum UserRole {
 }
 
 @Entity({ name: 'users' })
+@Unique('uq_users_email', ['email'])
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
@@ -14,7 +22,7 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 160 })
   name!: string
 
-  @Column({ type: 'varchar', length: 320, unique: true })
+  @Column({ type: 'varchar', length: 320 })
   email!: string
 
   @Column({ type: 'varchar', length: 255 })

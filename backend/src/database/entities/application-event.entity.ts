@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import {
 import { ApplicationEntity } from './application.entity'
 
 @Entity({ name: 'application_events' })
+@Index('IDX_application_events_application_occurred_at', ['applicationId', 'occurredAt'])
 export class ApplicationEventEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string

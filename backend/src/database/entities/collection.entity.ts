@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +13,7 @@ import { ApplicationState } from './application-state'
 
 @Entity({ name: 'collections' })
 @Unique('uq_collections_application_interval_start', ['application', 'intervalStart'])
+@Index('IDX_collections_interval', ['intervalStart', 'intervalEnd'])
 export class CollectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
