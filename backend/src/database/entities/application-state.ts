@@ -1,0 +1,6 @@
+export enum ApplicationState {
+  AVAILABLE = 'AVAILABLE',
+  UNAVAILABLE = 'UNAVAILABLE',
+  NO_METRICS = 'NO_METRICS',
+  REMOVED = 'REMOVED',
+}
