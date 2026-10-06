@@ -17,7 +17,7 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 
 - Cobrir descoberta e monitoramento dinâmico: novos serviços, remoção confirmada, indisponibilidade, retorno e ausência de métricas.
 - Coletar métricas periodicamente; informar intervalo e hora da última atualização. A UI atualiza sem reload.
-- Apresentar serviço individual com estado, localização disponível (país/região/cidade e coordenadas quando fornecidas), métricas, energia e CO₂e; mapa é opcional e falta de coordenadas não bloqueia a tela.
+- Apresentar serviço individual com estado, localização, métricas, energia e CO₂e. Seguir o contrato da origem: na versão documentada do Agregador de Métricas, código regional, país, região e coordenadas são obrigatórios; cidade pode ser nula. Resposta inválida da origem é falha de integração; não fabricar campos nem descartar silenciosamente o serviço histórico. Mapa é opcional.
 - Disponibilizar totais agregados, ranking por energia/CO₂e e comparação de pelo menos dois serviços no mesmo período.
 - Dashboard público pode ser consultado sem login; alteração de configuração exige JWT e autorização conferidos no backend.
 - Manter interface responsiva, acessível por texto/ícone além de cor, e adequada a acompanhamento contínuo.
