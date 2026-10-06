@@ -4,9 +4,9 @@
 
 - Frontend lint and production build.
 - Backend lint, typecheck, unit tests, production build, and database migrations against a temporary PostgreSQL service.
-- SonarQube Cloud analysis. The scan waits for the configured quality gate and fails the workflow when the gate fails.
+- SonarQube Cloud Quality Gate on pull requests to `develop`, and main-branch analysis on pushes to `main`.
 
-The `Deploy staging` workflow calls this same CI workflow as a required job. It only builds deployable artifacts and deploys to Azure after every CI job succeeds. A push to `develop` no longer starts an independent deployment that can race the CI workflow.
+The `Deploy staging` workflow calls this same CI workflow as a required job. On pushes to `develop`, it skips SonarQube branch analysis because the current SonarQube plan only exposes analysis results for the main branch. Frontend/backend checks still gate staging deployment. Pull request analysis remains part of the merge checks, and pushes to `main` run SonarQube against the main branch.
 
 ## Connect SonarQube Cloud
 
@@ -16,7 +16,7 @@ The `Deploy staging` workflow calls this same CI workflow as a required job. It 
 4. In that environment, add the secret `SONAR_TOKEN` with the token value, and add these variables using the values shown by SonarQube Cloud:
    - `SONAR_ORGANIZATION`
    - `SONAR_PROJECT_KEY`
-5. Open a pull request to `develop`. The `SonarQube Cloud quality gate` job must complete successfully before the PR can merge.
+5. Open a pull request to `develop`. The `SonarQube Cloud quality gate` job must complete successfully before the PR can merge. Merges to `develop` skip branch analysis; when the sprint is released to `main`, a push to `main` runs the main-branch analysis.
 
 Until these three Sonar values are configured, Sonar analysis will fail closed and block CI and staging deployment. Do not put the token in the repository or in a workflow file.
 
