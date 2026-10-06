@@ -4,7 +4,7 @@
 
 - Frontend lint and production build.
 - Backend lint, typecheck, unit tests, production build, and database migrations against a temporary PostgreSQL service.
-- SonarQube Cloud Quality Gate on pull requests to `develop`, and main-branch analysis on pushes to `main`.
+- SonarQube Cloud Quality Gate on pull requests to `develop`, with backend LCOV coverage, and main-branch analysis on pushes to `main`.
 
 The `Deploy staging` workflow calls this same CI workflow as a required job. On pushes to `develop`, it skips SonarQube branch analysis because the current SonarQube plan only exposes analysis results for the main branch. Frontend/backend checks still gate staging deployment. Pull request analysis remains part of the merge checks, and pushes to `main` run SonarQube against the main branch.
 
@@ -32,4 +32,4 @@ Also block force pushes and branch deletion. Apply an equivalent ruleset to `mai
 
 ## Backend tests
 
-The backend uses Jest with `ts-jest`. Run `npm test` from `backend`, use `npm run test:watch` while developing, or generate a coverage report with `npm run test:cov`. Unit tests are stored beside their source files as `*.spec.ts`; add tests for new backend behavior with each feature.
+The backend uses Jest with `ts-jest`. Run `npm test` from `backend`, use `npm run test:watch` while developing, or generate a coverage report with `npm run test:cov`. CI generates and uploads `backend/coverage/lcov.info` before Sonar analysis. Unit tests are stored beside their source files as `*.spec.ts`; add tests for new backend behavior with each feature. Frontend source and declarative database entity/configuration files are excluded from line coverage until executable frontend behavior has a coverage-producing test suite; database migrations are excluded because CI applies them against PostgreSQL. Migration SQL is also excluded from duplication checks because repeated DDL structure is expected.
