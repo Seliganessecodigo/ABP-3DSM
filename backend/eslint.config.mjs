@@ -13,6 +13,18 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/**/*.spec.ts'],
+    languageOptions: {
+      globals: {
+        beforeEach: 'readonly',
+        describe: 'readonly',
+        expect: 'readonly',
+        it: 'readonly',
+        jest: 'readonly',
+      },
+    },
+  },
+  {
     ignores: ['dist/**', 'node_modules/**'],
   },
 )

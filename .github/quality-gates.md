@@ -3,7 +3,7 @@
 ## Pull request checks
 
 - Frontend lint and production build.
-- Backend lint, typecheck, production build, and database migrations against a temporary PostgreSQL service.
+- Backend lint, typecheck, unit tests, production build, and database migrations against a temporary PostgreSQL service.
 - SonarQube Cloud analysis. The scan waits for the configured quality gate and fails the workflow when the gate fails.
 
 The `Deploy staging` workflow calls this same CI workflow as a required job. It only builds deployable artifacts and deploys to Azure after every CI job succeeds. A push to `develop` no longer starts an independent deployment that can race the CI workflow.
@@ -30,6 +30,6 @@ In GitHub, open **Settings → Rules → Rulesets → New branch ruleset** and c
 
 Also block force pushes and branch deletion. Apply an equivalent ruleset to `main` when production release protection is needed. The GitHub connector available here can read repository settings but cannot create rulesets, so this last step must be saved in the repository settings UI.
 
-## Tests
+## Backend tests
 
-The current repository has no automated unit or integration test scripts. Add those suites with feature work, then add their commands to the existing frontend/backend CI jobs so regressions fail before merge.
+The backend uses Jest with `ts-jest`. Run `npm test` from `backend`, use `npm run test:watch` while developing, or generate a coverage report with `npm run test:cov`. Unit tests are stored beside their source files as `*.spec.ts`; add tests for new backend behavior with each feature.
