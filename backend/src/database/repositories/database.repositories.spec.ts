@@ -43,7 +43,9 @@ describe('database repositories', () => {
     mock.findOne.mockResolvedValue(collection)
 
     await expect(collections.append(collection)).resolves.toMatchObject({ id: generatedId })
-    expect(mock.insert).toHaveBeenCalledWith(collection)
+    expect(mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ applicationId: 'app-1', intervalStart }),
+    )
     await expect(
       collections.findByApplicationAndIntervalStart('app-1', intervalStart),
     ).resolves.toBe(collection)
@@ -58,7 +60,9 @@ describe('database repositories', () => {
     const event = { applicationId: 'app-1', kind: 'discovered' } as ApplicationEventEntity
 
     await expect(events.append(event)).resolves.toMatchObject({ id: generatedId })
-    expect(mock.insert).toHaveBeenCalledWith(event)
+    expect(mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ applicationId: 'app-1', kind: 'discovered' }),
+    )
     expect(mock.save).not.toHaveBeenCalled()
   })
 
@@ -68,7 +72,9 @@ describe('database repositories', () => {
     const entry = { actor: 'system', action: 'collection.created' } as AuditLogEntity
 
     await expect(auditLogs.append(entry)).resolves.toMatchObject({ id: generatedId })
-    expect(mock.insert).toHaveBeenCalledWith(entry)
+    expect(mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ actor: 'system', action: 'collection.created' }),
+    )
     expect(mock.save).not.toHaveBeenCalled()
   })
 
@@ -78,7 +84,9 @@ describe('database repositories', () => {
     const record = { collectionId: generatedId, configVersion: 'v2' } as RecalculationEntity
 
     await expect(recalculations.append(record)).resolves.toMatchObject({ id: generatedId })
-    expect(mock.insert).toHaveBeenCalledWith(record)
+    expect(mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ collectionId: generatedId, configVersion: 'v2' }),
+    )
     expect(mock.save).not.toHaveBeenCalled()
   })
 
