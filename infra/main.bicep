@@ -3,6 +3,12 @@ targetScope = 'resourceGroup'
 @description('Azure region for the staging resources.')
 param location string = resourceGroup().location
 
+@description('Azure region for the API and its App Service plan.')
+param apiLocation string = 'brazilsouth'
+
+@description('Azure region for PostgreSQL.')
+param postgresLocation string = 'brazilsouth'
+
 @description('Environment name used to make globally unique resource names.')
 param environmentName string = 'greener-staging'
 
@@ -19,6 +25,8 @@ param postgresAdminPassword string
 param telemetryDailyQuotaGb int = 1
 
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location, environmentName)
+var apiResourceToken = uniqueString(subscription().id, resourceGroup().id, apiLocation, environmentName)
+var postgresResourceToken = uniqueString(subscription().id, resourceGroup().id, postgresLocation, environmentName)
 var tags = {
   application: 'GreenER'
   environment: 'staging'
@@ -105,8 +113,8 @@ resource keyVaultSecretsOfficer 'Microsoft.Authorization/roleAssignments@2022-04
 }
 
 resource pgServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
-  name: 'azpg${resourceToken}'
-  location: location
+  name: 'azpg${postgresResourceToken}'
+  location: postgresLocation
   tags: tags
   sku: {
     name: 'Standard_B1ms'
@@ -139,7 +147,7 @@ resource pgServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
 
 resource pgDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: pgServer
-  name: 'azdb${resourceToken}'
+  name: 'azdb${postgresResourceToken}'
   properties: {
     charset: 'UTF8'
     collation: 'en_US.utf8'
@@ -148,7 +156,7 @@ resource pgDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08
 
 resource pgAzureServicesFirewall 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = {
   parent: pgServer
-  name: 'azfw${resourceToken}'
+  name: 'azfw${postgresResourceToken}'
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
@@ -170,8 +178,8 @@ resource databaseSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
-  name: 'azasp${resourceToken}'
-  location: location
+  name: 'azasp${apiResourceToken}'
+  location: apiLocation
   tags: tags
   kind: 'linux'
   sku: {
@@ -200,8 +208,8 @@ resource staticWebApp 'Microsoft.Web/staticSites@2024-04-01' = {
 }
 
 resource apiApp 'Microsoft.Web/sites@2024-04-01' = {
-  name: 'azapp${resourceToken}'
-  location: location
+  name: 'azapp${apiResourceToken}'
+  location: apiLocation
   tags: tags
   kind: 'app,linux'
   identity: {
