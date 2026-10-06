@@ -27,19 +27,22 @@ param telemetryDailyQuotaGb int = 1
 var resourceToken = uniqueString(subscription().id, resourceGroup().id, location, environmentName)
 var apiResourceToken = uniqueString(subscription().id, resourceGroup().id, apiLocation, environmentName)
 var postgresResourceToken = uniqueString(subscription().id, resourceGroup().id, postgresLocation, environmentName)
+var globalNameSuffix = substring(resourceToken, 0, 8)
+var keyVaultNameSuffix = substring(resourceToken, 0, 7)
+var postgresNameSuffix = substring(postgresResourceToken, 0, 8)
 var tags = {
   application: 'GreenER'
   environment: 'staging'
   managedBy: 'bicep'
 }
 var pgFqdn = '${pgServer.name}.postgres.database.azure.com'
-var databaseName = 'azdb${resourceToken}'
+var databaseName = 'greener_staging'
 var connectionString = 'postgresql://${postgresAdminLogin}:${uriComponent(postgresAdminPassword)}@${pgFqdn}:5432/${databaseName}?sslmode=require'
 var keyVaultSecretsUserRoleId = '4633458b-17de-408a-b874-0445c86b69e6'
 var keyVaultSecretsOfficerRoleId = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
 
 resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'azlaw${resourceToken}'
+  name: 'log-greener-staging-eus2'
   location: location
   tags: tags
   properties: {
@@ -56,7 +59,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'azai${resourceToken}'
+  name: 'appi-greener-staging-eus2'
   location: location
   kind: 'web'
   tags: tags
@@ -70,13 +73,13 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource appIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'azid${resourceToken}'
+  name: 'id-greener-staging-api'
   location: location
   tags: tags
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
-  name: 'azkv${resourceToken}'
+  name: 'kv-green-staging-${keyVaultNameSuffix}'
   location: location
   tags: tags
   properties: {
@@ -113,7 +116,7 @@ resource keyVaultSecretsOfficer 'Microsoft.Authorization/roleAssignments@2022-04
 }
 
 resource pgServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
-  name: 'azpg${postgresResourceToken}'
+  name: 'pg-greener-staging-brs-${postgresNameSuffix}'
   location: postgresLocation
   tags: tags
   sku: {
@@ -147,7 +150,7 @@ resource pgServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
 
 resource pgDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: pgServer
-  name: 'azdb${postgresResourceToken}'
+  name: databaseName
   properties: {
     charset: 'UTF8'
     collation: 'en_US.utf8'
@@ -156,7 +159,7 @@ resource pgDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08
 
 resource pgAzureServicesFirewall 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = {
   parent: pgServer
-  name: 'azfw${postgresResourceToken}'
+  name: 'allow-azure-services'
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
@@ -165,7 +168,7 @@ resource pgAzureServicesFirewall 'Microsoft.DBforPostgreSQL/flexibleServers/fire
 
 resource databaseSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
-  name: 'azsec${resourceToken}'
+  name: 'DATABASE-URL'
   properties: {
     value: connectionString
     contentType: 'GreenER PostgreSQL staging DATABASE_URL'
@@ -178,7 +181,7 @@ resource databaseSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
-  name: 'azasp${apiResourceToken}'
+  name: 'plan-greener-api-staging-brs'
   location: apiLocation
   tags: tags
   kind: 'linux'
@@ -194,7 +197,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
 }
 
 resource staticWebApp 'Microsoft.Web/staticSites@2024-04-01' = {
-  name: 'azswa${resourceToken}'
+  name: 'swa-greener-staging-eus2-${globalNameSuffix}'
   location: location
   tags: tags
   sku: {
@@ -208,7 +211,7 @@ resource staticWebApp 'Microsoft.Web/staticSites@2024-04-01' = {
 }
 
 resource apiApp 'Microsoft.Web/sites@2024-04-01' = {
-  name: 'azapp${apiResourceToken}'
+  name: 'app-greener-api-staging-brs-${substring(apiResourceToken, 0, 8)}'
   location: apiLocation
   tags: tags
   kind: 'app,linux'
@@ -273,7 +276,7 @@ resource apiApp 'Microsoft.Web/sites@2024-04-01' = {
 
 resource apiDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: apiApp
-  name: 'azdia${resourceToken}'
+  name: 'diag-greener-api'
   properties: {
     workspaceId: workspace.id
     logs: [

@@ -6,7 +6,7 @@ O deploy automático ocorre somente depois de uma execução bem-sucedida do wor
 
 1. Entre na assinatura Azure for Students: `az login --tenant eabe64c5-68f5-4a76-8301-9577a679e449`.
 2. Confirme `az account show --subscription 12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` e verifique o nome **Azure for Students** antes de continuar.
-3. A infraestrutura do grupo `azrggreenerstaging` já foi provisionada. Frontend e serviços auxiliares ficam em East US 2; API e PostgreSQL 17 B1ms ficam em Brazil South.
+3. A infraestrutura do grupo `azrggreenerstaging` já foi provisionada. Frontend e serviços auxiliares ficam em East US 2; API e PostgreSQL 17 B1ms ficam em Brazil South. Os nomes usam o padrão `tipo-projeto-ambiente-componente-região`; serviços com nome globalmente único recebem um sufixo curto.
 4. Para repetir uma implantação de infraestrutura, execute `./infra/deploy-staging.ps1 -PreviewOnly`, revise o `what-if` e então execute `./infra/deploy-staging.ps1`. O script valida assinatura e tenant, compila Bicep e gera uma senha PostgreSQL forte em memória. Ela passa por um arquivo temporário com acesso restrito, removido automaticamente ao fim, e é armazenada no Key Vault pelo deployment.
 5. URLs atuais: API `https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net`; frontend `https://wonderful-glacier-044773e0f.1.azurestaticapps.net`. O token do Static Web App deve ser copiado diretamente do portal Azure para o GitHub Secret, nunca para um arquivo do repositório.
 
@@ -46,7 +46,7 @@ Depois de criar os recursos e cadastrar as variáveis e secrets, uma execução 
 ## Restrições de custo e acesso
 
 - O plano da API em Brazil South e o Static Web App em East US 2 são configurados nos níveis gratuitos.
-- O PostgreSQL usa B1ms, 32 GB, sem alta disponibilidade e backup geo-redundante; confirme que a oferta estudantil está aplicada no portal antes de considerar o serviço gratuito.
+- O servidor PostgreSQL `pg-greener-staging-brs-ecxiqsrl` usa B1ms, 32 GB, sem alta disponibilidade e backup geo-redundante; confirme que a oferta estudantil está aplicada no portal antes de considerar o serviço gratuito.
 - O workspace de logs tem retenção de 30 dias e limite diário de ingestão configurável.
 - O firewall PostgreSQL `0.0.0.0` permite conexões a partir de serviços Azure; o servidor continua exposto por endpoint público. Não use este ambiente para dados reais.
 - O limite de ingestão de logs não é um orçamento financeiro. Crie alertas de orçamento no Cost Management e confira periodicamente o saldo/consumo no Education Hub.
