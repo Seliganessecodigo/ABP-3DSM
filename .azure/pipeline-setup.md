@@ -1,62 +1,43 @@
-# Configuração do deploy de staging no GitHub
+# Deploy de staging e gates de qualidade
 
-O deploy automático ocorre somente depois de uma execução bem-sucedida do workflow `CI` para `develop`. A execução manual também só publica o ref `develop`. Pull requests só executam CI. Não existe workflow de produção nem gatilho em `main`.
+## Staging no Azure
 
-## 1. Infraestrutura já provisionada
+A assinatura `Azure for Students` usa o tenant `eabe64c5-68f5-4a76-8301-9577a679e449` e o subscription ID `12692f32-f4bd-4549-b1f4-2d0c0fcf13aa`. O resource group é `azrggreenerstaging`.
 
-1. Entre na assinatura Azure for Students: `az login --tenant eabe64c5-68f5-4a76-8301-9577a679e449`.
-2. Confirme `az account show --subscription 12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` e verifique o nome **Azure for Students** antes de continuar.
-3. A infraestrutura do grupo `azrggreenerstaging` já foi provisionada. Frontend e serviços auxiliares ficam em East US 2; API e PostgreSQL 17 B1ms ficam em Brazil South. Os nomes usam o padrão `tipo-projeto-ambiente-componente-região`; serviços com nome globalmente único recebem um sufixo curto.
-4. Para repetir uma implantação de infraestrutura, execute `./infra/deploy-staging.ps1 -PreviewOnly`, revise o `what-if` e então execute `./infra/deploy-staging.ps1`. O script valida assinatura e tenant, compila Bicep e gera uma senha PostgreSQL forte em memória. Ela passa por um arquivo temporário com acesso restrito, removido automaticamente ao fim, e é armazenada no Key Vault pelo deployment.
-5. URLs atuais: API `https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net`; frontend `https://wonderful-glacier-044773e0f.1.azurestaticapps.net`. O token do Static Web App deve ser copiado diretamente do portal Azure para o GitHub Secret, nunca para um arquivo do repositório.
+- Frontend: https://wonderful-glacier-044773e0f.1.azurestaticapps.net
+- API: https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net
+- API health: `/health`
+- App Service: `app-greener-api-staging-brs-ecxiqsrl`
+- Static Web App: `swa-greener-staging-eus2-nyg4tklq`
 
-## 2. Criar a identidade OIDC do GitHub Actions
+O GitHub Actions publica somente o branch `develop`. A identidade `id-greener-github-deploy` autentica por OIDC usando o environment `staging`; tem a role `Website Contributor` limitada ao App Service da API. O token de publicação do frontend fica como secret do environment `staging` e não deve ser gravado no repositório.
 
-Crie uma **User Assigned Managed Identity** dedicada ao pipeline em um resource group de identidade separado. Configure uma credencial federada com:
+Para repetir manualmente: **Actions → Deploy staging → Run workflow**, selecionando `develop`. Pushes para `develop` executam CI e só iniciam a publicação depois do sucesso dos quality gates.
 
-- Issuer: `https://token.actions.githubusercontent.com`
-- Subject: `repo:Seliganessecodigo/ABP-3DSM:environment:staging`
-- Audience: `api://AzureADTokenExchange`
+A infraestrutura está definida em `infra/main.bicep`. Antes de reaplicar mudanças de infraestrutura, rode `./infra/deploy-staging.ps1 -PreviewOnly`, revise o `what-if` e confira o saldo/custo estimado no Azure for Students.
 
-Atribua `Website Contributor` no resource group da aplicação para permitir o deploy do pacote no App Service. Não reutilize a identidade gerenciada da aplicação.
+## SonarQube Cloud
 
-## 3. Configurar o environment `staging` no GitHub
+O CI executa lint, typecheck, build e migrações de PostgreSQL, além da análise SonarQube Cloud. O scan espera pelo quality gate; falhas bloqueiam o CI e o deploy.
 
-Em **Settings → Environments**, crie `staging` e configure:
+Configure no repositório GitHub, em **Settings → Environments → quality**:
 
-### Variables
+- Secret `SONAR_TOKEN`: token de análise criado no SonarQube Cloud.
+- Variable `SONAR_ORGANIZATION`: chave da organização exibida no SonarQube Cloud.
+- Variable `SONAR_PROJECT_KEY`: chave do projeto importado.
 
-| Nome | Valor |
-| --- | --- |
-| `AZURE_TENANT_ID` | `eabe64c5-68f5-4a76-8301-9577a679e449` |
-| `AZURE_SUBSCRIPTION_ID` | `12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` |
-| `AZURE_RESOURCE_GROUP` | `azrggreenerstaging` |
-| `AZURE_API_APP_NAME` | `app-greener-api-staging-brs-ecxiqsrl` |
-| `VITE_API_URL` | `https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net` |
+Importe `Seliganessecodigo/ABP-3DSM` no SonarQube Cloud como projeto público antes de criar o token. Mantenha o token somente como secret no environment `quality`.
 
-### Secrets
+## Regras de branch no GitHub
 
-| Nome | Valor |
-| --- | --- |
-| `AZURE_CLIENT_ID` | Client ID da identidade OIDC dedicada ao GitHub Actions |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Deployment token do Static Web App de staging |
+Em **Settings → Rules → Rulesets**, crie um ruleset direcionado a `develop` que exija PR e os checks:
 
-Depois de criar os recursos e cadastrar as variáveis e secrets, uma execução CI bem-sucedida em `develop` compila e publica API e frontend. A primeira implantação também pode ser disparada em **Actions → Deploy staging → Run workflow**, selecionando `develop`.
+- `Frontend build and lint`
+- `Backend build, lint, typecheck, and migrations`
+- `SonarQube Cloud quality gate`
 
-## Restrições de custo e acesso
+Bloqueie force push e remoção da branch. No fim da sprint, aplique proteção equivalente a `main`. A integração GitHub disponível para este ambiente permite consultar configurações, mas não criar rulesets; salve essa parte pelo GitHub UI.
 
-- O plano da API em Brazil South e o Static Web App em East US 2 são configurados nos níveis gratuitos.
-- O servidor PostgreSQL `pg-greener-staging-brs-ecxiqsrl` usa B1ms, 32 GB, sem alta disponibilidade e backup geo-redundante; confirme que a oferta estudantil está aplicada no portal antes de considerar o serviço gratuito.
-- O workspace de logs tem retenção de 30 dias e limite diário de ingestão configurável.
-- O firewall PostgreSQL `0.0.0.0` permite conexões a partir de serviços Azure; o servidor continua exposto por endpoint público. Não use este ambiente para dados reais.
-- O limite de ingestão de logs não é um orçamento financeiro. Crie alertas de orçamento no Cost Management e confira periodicamente o saldo/consumo no Education Hub.
+## Limites conhecidos
 
-
-## Estado atual do deploy
-
-O workflow de deploy foi corrigido para disparar no push em `develop` e usa os nomes atuais da infraestrutura. Antes de publicar, configure no environment `staging`:
-
-- Variables: `AZURE_TENANT_ID=eabe64c5-68f5-4a76-8301-9577a679e449`, `AZURE_SUBSCRIPTION_ID=12692f32-f4bd-4549-b1f4-2d0c0fcf13aa`, `AZURE_RESOURCE_GROUP=azrggreenerstaging`, `AZURE_API_APP_NAME=app-greener-api-staging-brs-ecxiqsrl`, `AZURE_CLIENT_ID=<client id da identidade de deploy>`, `VITE_API_URL=https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net`.
-- Secrets: `AZURE_STATIC_WEB_APPS_API_TOKEN=<token de deploy do Static Web App>` e, se usar OIDC, `AZURE_CLIENT_ID=<client id>` como secret em vez de variable.
-
-O recurso App Service atual est� em estado `QuotaExceeded` em Brazil South; um start n�o o ativou. O deploy da API precisa aguardar libera��o de quota ou migra��o planejada para regi�o dispon�vel. A execu��o `37409612846` validou os builds e falhou nas credenciais de publica��o, antes de alterar o conte�do do site ou da API.
+Ainda não há scripts de testes unitários ou de integração no frontend/backend. Inclua testes automatizados junto com as features e adicione os comandos correspondentes aos jobs de CI. O App Service F1 é gratuito; o PostgreSQL B1ms é cobrado e consome o crédito estudantil. Configure alertas de custo e acompanhe o saldo.
