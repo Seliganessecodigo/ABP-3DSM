@@ -83,6 +83,10 @@ jobs:
         working-directory: backend
         run: npm run typecheck
 
+      - name: Unit tests
+        working-directory: backend
+        run: npm test -- --runInBand
+
       - name: Build
         working-directory: backend
         run: npm run build
