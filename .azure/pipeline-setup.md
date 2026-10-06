@@ -2,13 +2,13 @@
 
 O deploy automático ocorre somente depois de uma execução bem-sucedida do workflow `CI` para `develop`. A execução manual também só publica o ref `develop`. Pull requests só executam CI. Não existe workflow de produção nem gatilho em `main`.
 
-## 1. Provisionar a infraestrutura
+## 1. Infraestrutura já provisionada
 
 1. Entre na assinatura Azure for Students: `az login --tenant eabe64c5-68f5-4a76-8301-9577a679e449`.
 2. Confirme `az account show --subscription 12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` e verifique o nome **Azure for Students** antes de continuar.
-3. No repositório, execute `./infra/deploy-staging.ps1 -PreviewOnly` e revise o `what-if`.
-4. Execute `./infra/deploy-staging.ps1` para criar os recursos de staging. O script confirma assinatura e tenant antes de qualquer gravação, compila Bicep e solicita a senha PostgreSQL sem persistir em arquivo.
-5. Guarde os nomes e URLs retornados pelo deployment; o token de deploy do Static Web App pode ser consultado no portal Azure e deve ser copiado diretamente para o GitHub Secret, nunca para um arquivo do repositório.
+3. A infraestrutura do grupo `azrggreenerstaging` já foi provisionada. Frontend e serviços auxiliares ficam em East US 2; API e PostgreSQL 17 B1ms ficam em Brazil South.
+4. Para repetir uma implantação de infraestrutura, execute `./infra/deploy-staging.ps1 -PreviewOnly`, revise o `what-if` e então execute `./infra/deploy-staging.ps1`. O script valida assinatura e tenant, compila Bicep e gera uma senha PostgreSQL forte em memória. Ela passa por um arquivo temporário com acesso restrito, removido automaticamente ao fim, e é armazenada no Key Vault pelo deployment.
+5. URLs atuais: API `https://azappecxiqsrlijpgo.azurewebsites.net`; frontend `https://black-beach-07872580f.4.azurestaticapps.net`. O token do Static Web App deve ser copiado diretamente do portal Azure para o GitHub Secret, nunca para um arquivo do repositório.
 
 ## 2. Criar a identidade OIDC do GitHub Actions
 
@@ -30,9 +30,9 @@ Em **Settings → Environments**, crie `staging` e configure:
 | --- | --- |
 | `AZURE_TENANT_ID` | `eabe64c5-68f5-4a76-8301-9577a679e449` |
 | `AZURE_SUBSCRIPTION_ID` | `12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` |
-| `AZURE_RESOURCE_GROUP` | Resource group de staging criado pelo script |
-| `AZURE_API_APP_NAME` | Output `apiAppName` do deployment |
-| `VITE_API_URL` | Output `apiUrl` do deployment, sem barra final |
+| `AZURE_RESOURCE_GROUP` | `azrggreenerstaging` |
+| `AZURE_API_APP_NAME` | `azappecxiqsrlijpgo` |
+| `VITE_API_URL` | `https://azappecxiqsrlijpgo.azurewebsites.net` |
 
 ### Secrets
 
@@ -45,7 +45,7 @@ Depois de criar os recursos e cadastrar as variáveis e secrets, uma execução 
 
 ## Restrições de custo e acesso
 
-- O plano da API e o Static Web App são configurados nos níveis gratuitos.
+- O plano da API em Brazil South e o Static Web App em East US 2 são configurados nos níveis gratuitos.
 - O PostgreSQL usa B1ms, 32 GB, sem alta disponibilidade e backup geo-redundante; confirme que a oferta estudantil está aplicada no portal antes de considerar o serviço gratuito.
 - O workspace de logs tem retenção de 30 dias e limite diário de ingestão configurável.
 - O firewall PostgreSQL `0.0.0.0` permite conexões a partir de serviços Azure; o servidor continua exposto por endpoint público. Não use este ambiente para dados reais.

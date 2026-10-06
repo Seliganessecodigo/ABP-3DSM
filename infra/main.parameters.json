@@ -5,6 +5,12 @@
     "location": {
       "value": "eastus2"
     },
+    "apiLocation": {
+      "value": "brazilsouth"
+    },
+    "postgresLocation": {
+      "value": "brazilsouth"
+    },
     "environmentName": {
       "value": "greener-staging"
     },
