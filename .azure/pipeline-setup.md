@@ -8,7 +8,7 @@ O deploy automático ocorre somente depois de uma execução bem-sucedida do wor
 2. Confirme `az account show --subscription 12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` e verifique o nome **Azure for Students** antes de continuar.
 3. A infraestrutura do grupo `azrggreenerstaging` já foi provisionada. Frontend e serviços auxiliares ficam em East US 2; API e PostgreSQL 17 B1ms ficam em Brazil South.
 4. Para repetir uma implantação de infraestrutura, execute `./infra/deploy-staging.ps1 -PreviewOnly`, revise o `what-if` e então execute `./infra/deploy-staging.ps1`. O script valida assinatura e tenant, compila Bicep e gera uma senha PostgreSQL forte em memória. Ela passa por um arquivo temporário com acesso restrito, removido automaticamente ao fim, e é armazenada no Key Vault pelo deployment.
-5. URLs atuais: API `https://azappecxiqsrlijpgo.azurewebsites.net`; frontend `https://black-beach-07872580f.4.azurestaticapps.net`. O token do Static Web App deve ser copiado diretamente do portal Azure para o GitHub Secret, nunca para um arquivo do repositório.
+5. URLs atuais: API `https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net`; frontend `https://wonderful-glacier-044773e0f.1.azurestaticapps.net`. O token do Static Web App deve ser copiado diretamente do portal Azure para o GitHub Secret, nunca para um arquivo do repositório.
 
 ## 2. Criar a identidade OIDC do GitHub Actions
 
@@ -31,8 +31,8 @@ Em **Settings → Environments**, crie `staging` e configure:
 | `AZURE_TENANT_ID` | `eabe64c5-68f5-4a76-8301-9577a679e449` |
 | `AZURE_SUBSCRIPTION_ID` | `12692f32-f4bd-4549-b1f4-2d0c0fcf13aa` |
 | `AZURE_RESOURCE_GROUP` | `azrggreenerstaging` |
-| `AZURE_API_APP_NAME` | `azappecxiqsrlijpgo` |
-| `VITE_API_URL` | `https://azappecxiqsrlijpgo.azurewebsites.net` |
+| `AZURE_API_APP_NAME` | `app-greener-api-staging-brs-ecxiqsrl` |
+| `VITE_API_URL` | `https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net` |
 
 ### Secrets
 
@@ -50,3 +50,13 @@ Depois de criar os recursos e cadastrar as variáveis e secrets, uma execução 
 - O workspace de logs tem retenção de 30 dias e limite diário de ingestão configurável.
 - O firewall PostgreSQL `0.0.0.0` permite conexões a partir de serviços Azure; o servidor continua exposto por endpoint público. Não use este ambiente para dados reais.
 - O limite de ingestão de logs não é um orçamento financeiro. Crie alertas de orçamento no Cost Management e confira periodicamente o saldo/consumo no Education Hub.
+
+
+## Estado atual do deploy
+
+O workflow de deploy foi corrigido para disparar no push em `develop` e usa os nomes atuais da infraestrutura. Antes de publicar, configure no environment `staging`:
+
+- Variables: `AZURE_TENANT_ID=eabe64c5-68f5-4a76-8301-9577a679e449`, `AZURE_SUBSCRIPTION_ID=12692f32-f4bd-4549-b1f4-2d0c0fcf13aa`, `AZURE_RESOURCE_GROUP=azrggreenerstaging`, `AZURE_API_APP_NAME=app-greener-api-staging-brs-ecxiqsrl`, `AZURE_CLIENT_ID=<client id da identidade de deploy>`, `VITE_API_URL=https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net`.
+- Secrets: `AZURE_STATIC_WEB_APPS_API_TOKEN=<token de deploy do Static Web App>` e, se usar OIDC, `AZURE_CLIENT_ID=<client id>` como secret em vez de variable.
+
+O recurso App Service atual est� em estado `QuotaExceeded` em Brazil South; um start n�o o ativou. O deploy da API precisa aguardar libera��o de quota ou migra��o planejada para regi�o dispon�vel. A execu��o `37409612846` validou os builds e falhou nas credenciais de publica��o, antes de alterar o conte�do do site ou da API.
