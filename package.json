@@ -1,0 +1,15 @@
+{
+  "name": "green-er",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GreenER local development orchestration",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:detached": "docker compose up --build --detach",
+    "dev:down": "docker compose down",
+    "dev:logs": "docker compose logs --follow"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
