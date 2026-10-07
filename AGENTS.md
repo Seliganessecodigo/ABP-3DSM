@@ -46,6 +46,10 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 - Escolha as verificações pertinentes ao escopo e declare claramente as que não executou.
 - Frontend: `npm ci`, `npm run lint` e `npm run build` dentro de `frontend/`.
 - Backend: `npm ci`, `npm run lint`, `npm run typecheck`, `npm test -- --runInBand` e `npm run build` dentro de `backend/`, conforme o escopo.
+- Em PRs para `develop`, inclua o gate do SonarQube Cloud nas verificações obrigatórias. Para código novo, mantenha cobertura >= 80%, duplicação <= 3%, ratings A em confiabilidade, segurança e manutenibilidade e 100% dos security hotspots revisados. Esses são os limites atuais do projeto; confira o resultado do quality gate se a configuração mudar.
+- Ao adicionar ou alterar comportamento executável do backend, escreva testes que cubram os novos caminhos e execute `npm run test:cov` em `backend/`. Verifique o relatório LCOV e cubra o código de produção afetado; arquivos `*.spec.ts` não contam como fonte e as exclusões de cobertura estão em `sonar-project.properties`.
+- Analise e corrija os apontamentos do Sonar introduzidos pela PR antes de concluí-la. O gate compara código novo; testes representativos devem validar sucesso, falhas relevantes e limites do comportamento, sem reduzir a qualidade dos testes para perseguir percentual.
+- Consulte [`.github/quality-gates.md`](.github/quality-gates.md) para o fluxo da CI, cobertura e configuração do SonarQube.
 - Ambiente completo: Docker Compose na raiz; o comando habitual é `npm run dev`.
 - Não diga que testes/build passaram sem executá-los ou sem evidência fornecida pelo usuário/CI.
 
