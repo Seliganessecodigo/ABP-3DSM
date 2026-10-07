@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
 import { ApplicationEntity } from '../../database/entities/application.entity'
+import { ApplicationState } from '../../database/entities/application-state'
 
 @Injectable()
 export class ApplicationsRepository {
@@ -31,5 +32,46 @@ export class ApplicationsRepository {
       .returning('id')
       .execute()
     return result.raw.length > 0
+  }
+
+  async findMissingForUpdate(
+    manager: EntityManager,
+    currentIds: string[],
+  ): Promise<ApplicationEntity[]> {
+    const query = manager
+      .getRepository(ApplicationEntity)
+      .createQueryBuilder('application')
+      .where('application.state <> :removed', {
+        removed: ApplicationState.REMOVED,
+      })
+    if (currentIds.length > 0) {
+      query.andWhere('application.id NOT IN (:...currentIds)', { currentIds })
+    }
+    return query.setLock('pessimistic_write').getMany()
+  }
+
+  async markRemoved(
+    manager: EntityManager,
+    id: string,
+    at: Date,
+  ): Promise<void> {
+    await manager.update(
+      ApplicationEntity,
+      { id },
+      {
+        state: ApplicationState.REMOVED,
+        removedAt: at,
+        lastCheckedAt: at,
+      },
+    )
+  }
+
+  findForCollection(): Promise<ApplicationEntity[]> {
+    return this.applications
+      .createQueryBuilder('application')
+      .where('application.state <> :removed', {
+        removed: ApplicationState.REMOVED,
+      })
+      .getMany()
   }
 }

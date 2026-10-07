@@ -92,6 +92,16 @@ describeDatabase('descoberta de aplicações com HTTP e PostgreSQL', () => {
     ])
   })
 
+  afterEach(async () => {
+    await database.query(
+      'DELETE FROM application_events WHERE "applicationId" LIKE $1',
+      [`${prefix}%`],
+    )
+    await database.query('DELETE FROM applications WHERE id LIKE $1', [
+      `${prefix}%`,
+    ])
+  })
+
   async function cycleId(): Promise<string> {
     const [cycle] = (await database.query(
       'INSERT INTO monitoring_cycles ("startedAt") VALUES (now()) RETURNING id',
