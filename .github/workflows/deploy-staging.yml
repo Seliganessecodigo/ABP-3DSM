@@ -81,7 +81,9 @@ jobs:
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'azrggreenerstaging' }}
           AZURE_API_APP_NAME: ${{ vars.AZURE_API_APP_NAME || 'app-greener-api-staging-brs-ecxiqsrl' }}
-        run: az webapp config set --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --startup-file 'npm run start:azure'
+        run: |
+          az webapp config set --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --startup-file 'npm run start:azure'
+          az webapp config appsettings set --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --settings INITIAL_CATALOG_SYNC_AFTER_LISTEN=true --output none
 
       - name: Deploy API package
         env:

@@ -9,7 +9,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
-    "start:azure": "npm run migration:run:prod && (npm run applications:discover:prod || echo 'Initial catalog discovery failed; API will start without the initial catalog') && npm run start:prod",
+    "start:azure": "npm run migration:run:prod && npm run start:prod",
     "applications:discover": "ts-node -e \"require('./src/scripts/discover-applications').runCli()\"",
     "applications:discover:prod": "node -e \"require('./dist/scripts/discover-applications').runCli()\"",
     "test": "jest --config ./jest.config.js",
