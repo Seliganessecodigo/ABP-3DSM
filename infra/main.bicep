@@ -245,6 +245,10 @@ resource apiApp 'Microsoft.Web/sites@2024-04-01' = {
           value: 'production'
         }
         {
+          name: 'INITIAL_CATALOG_SYNC_AFTER_LISTEN'
+          value: 'true'
+        }
+        {
           name: 'PORT'
           value: '8080'
         }
