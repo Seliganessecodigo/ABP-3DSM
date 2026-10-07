@@ -4,7 +4,7 @@ import { AppModule } from '../app.module'
 import { InitialCatalogSyncRunner } from '../modules/applications/initial-catalog-sync.runner'
 import { IntegrationError } from '../integrations/integration-error'
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const context = await NestFactory.createApplicationContext(AppModule)
   try {
     const count = await context
@@ -16,8 +16,13 @@ async function main(): Promise<void> {
   }
 }
 
-void main().catch((error: unknown) => {
-  const code = error instanceof IntegrationError ? error.code : 'UNEXPECTED_ERROR'
-  console.error(`Initial catalog synchronization failed: ${code}`)
-  process.exitCode = 1
-})
+export async function runCli(): Promise<void> {
+  try {
+    await main()
+  } catch (error) {
+    const code =
+      error instanceof IntegrationError ? error.code : 'UNEXPECTED_ERROR'
+    console.error(`Initial catalog synchronization failed: ${code}`)
+    process.exitCode = 1
+  }
+}

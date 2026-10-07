@@ -59,4 +59,31 @@ describe('sincronização inicial do catálogo', () => {
       },
     })
   })
+
+  it('registra falhas inesperadas com código estável', async () => {
+    const cycle = { id: 'unexpected-startup-cycle' }
+    const failure = new Error('database unavailable')
+    const cycles = {
+      start: jest.fn().mockResolvedValue(cycle),
+      finish: jest.fn().mockResolvedValue(undefined),
+    }
+    const discovery = { discover: jest.fn().mockRejectedValue(failure) }
+    const runner = new InitialCatalogSyncRunner(
+      cycles as unknown as MonitoringCyclesRepository,
+      discovery as unknown as DiscoveryService,
+    )
+
+    await expect(runner.run()).rejects.toBe(failure)
+    expect(cycles.finish).toHaveBeenCalledWith(cycle.id, {
+      status: MonitoringCycleStatus.FAILED,
+      discoveredCount: 0,
+      processedCount: 0,
+      failedCount: 1,
+      persistedCount: 0,
+      details: {
+        source: 'startup-catalog-discovery',
+        errorCode: 'UNEXPECTED_ERROR',
+      },
+    })
+  })
 })
