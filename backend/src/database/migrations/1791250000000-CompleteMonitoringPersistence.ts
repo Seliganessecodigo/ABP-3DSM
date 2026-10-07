@@ -23,7 +23,7 @@ export class CompleteMonitoringPersistence1791250000000 implements MigrationInte
     await queryRunner.query(`ALTER TABLE "collections" ADD "calculationConfigId" uuid`)
     await queryRunner.query(
       `CREATE TABLE "monitoring_cycles" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "status" "public"."monitoring_cycles_status_enum" NOT NULL DEFAULT 'RUNNING',
         "startedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
         "finishedAt" TIMESTAMP WITH TIME ZONE,
@@ -48,7 +48,7 @@ export class CompleteMonitoringPersistence1791250000000 implements MigrationInte
     )
     await queryRunner.query(
       `CREATE TABLE "carbon_regions" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "code" character varying(128) NOT NULL,
         "version" character varying(128) NOT NULL,
         "country" character varying(128),
@@ -70,7 +70,7 @@ export class CompleteMonitoringPersistence1791250000000 implements MigrationInte
     )
     await queryRunner.query(
       `CREATE TABLE "calculation_configs" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "key" character varying(128) NOT NULL,
         "version" character varying(128) NOT NULL,
         "parameters" jsonb NOT NULL,
@@ -88,7 +88,7 @@ export class CompleteMonitoringPersistence1791250000000 implements MigrationInte
     )
     await queryRunner.query(
       `CREATE TABLE "recalculations" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "collectionId" uuid NOT NULL,
         "previousConfigVersion" character varying(128),
         "configVersion" character varying(128) NOT NULL,
@@ -101,7 +101,7 @@ export class CompleteMonitoringPersistence1791250000000 implements MigrationInte
     )
     await queryRunner.query(
       `CREATE TABLE "audit_logs" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "actor" character varying(128) NOT NULL,
         "actorUserId" uuid,
         "action" character varying(128) NOT NULL,

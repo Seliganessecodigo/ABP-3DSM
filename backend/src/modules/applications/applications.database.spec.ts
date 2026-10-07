@@ -53,6 +53,34 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
     await app.listen(0, '127.0.0.1')
   })
 
+  it('gera UUIDs com a função nativa do PostgreSQL', async () => {
+    const generatedUuidDefaults = await database.query(
+      `SELECT column_default FROM information_schema.columns
+       WHERE table_schema = 'public'
+         AND data_type = 'uuid'
+         AND column_default IS NOT NULL`,
+    )
+
+    expect(generatedUuidDefaults.length).toBeGreaterThan(0)
+    expect(
+      generatedUuidDefaults.every(({ column_default }: { column_default: string }) =>
+        column_default.includes('gen_random_uuid()'),
+      ),
+    ).toBe(true)
+
+    const [cycle] = await database.query(
+      `INSERT INTO monitoring_cycles ("startedAt") VALUES (now()) RETURNING id`,
+    )
+
+    expect(cycle.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    )
+
+    await database.query('DELETE FROM monitoring_cycles WHERE id = $1', [
+      cycle.id,
+    ])
+  })
+
   afterAll(async () => {
     await app?.close()
     if (database?.isInitialized) {

@@ -4,7 +4,6 @@ export class InitialSchema1791240000000 implements MigrationInterface {
   name = 'InitialSchema1791240000000'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
     await queryRunner.query(
       `CREATE TYPE "public"."applications_state_enum" AS ENUM('AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED')`,
     )
@@ -29,7 +28,7 @@ export class InitialSchema1791240000000 implements MigrationInterface {
     )
     await queryRunner.query(
       `CREATE TABLE "users" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "name" character varying(160) NOT NULL,
         "email" character varying(320) NOT NULL,
         "passwordHash" character varying(255) NOT NULL,
@@ -44,7 +43,7 @@ export class InitialSchema1791240000000 implements MigrationInterface {
     )
     await queryRunner.query(
       `CREATE TABLE "application_events" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "applicationId" character varying(128) NOT NULL,
         "kind" character varying(64) NOT NULL,
         "occurredAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -55,7 +54,7 @@ export class InitialSchema1791240000000 implements MigrationInterface {
     )
     await queryRunner.query(
       `CREATE TABLE "collections" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "applicationId" character varying(128) NOT NULL,
         "intervalStart" TIMESTAMP WITH TIME ZONE NOT NULL,
         "intervalEnd" TIMESTAMP WITH TIME ZONE NOT NULL,
