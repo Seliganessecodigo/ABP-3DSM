@@ -31,6 +31,8 @@ npm run dev
 
 O comando constrói e inicia frontend, API e PostgreSQL. O banco usa um volume persistente; as migrations pendentes são aplicadas quando a API inicia. Em seguida, a API consulta `/services` e cadastra no catálogo local as aplicações ainda desconhecidas, registrando o ciclo de descoberta. Se o agregador estiver indisponível, a API continua iniciando e o erro aparece nos logs.
 
+No staging do Azure, o comando de inicialização da API também aplica as migrations de produção antes de iniciar o servidor e tenta sincronizar o catálogo com `/services`. Falha da integração é registrada e não impede a API de iniciar; falha de migration impede a inicialização para evitar servir contra um schema incompatível.
+
 | Serviço | Endereço local |
 | --- | --- |
 | Frontend | http://localhost:5173 |

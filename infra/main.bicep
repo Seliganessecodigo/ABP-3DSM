@@ -227,7 +227,7 @@ resource apiApp 'Microsoft.Web/sites@2024-04-01' = {
     keyVaultReferenceIdentity: appIdentity.id
     siteConfig: {
       linuxFxVersion: 'NODE|24-lts'
-      appCommandLine: 'npm run start:prod'
+      appCommandLine: 'npm run start:azure'
       alwaysOn: false
       http20Enabled: true
       ftpsState: 'Disabled'

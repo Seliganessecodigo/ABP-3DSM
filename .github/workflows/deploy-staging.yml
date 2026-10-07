@@ -77,6 +77,12 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Configure API startup
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'azrggreenerstaging' }}
+          AZURE_API_APP_NAME: ${{ vars.AZURE_API_APP_NAME || 'app-greener-api-staging-brs-ecxiqsrl' }}
+        run: az webapp config set --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --startup-file 'npm run start:azure'
+
       - name: Deploy API package
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'azrggreenerstaging' }}
