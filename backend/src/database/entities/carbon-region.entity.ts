@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Unique } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 @Entity({ name: 'carbon_regions' })
 @Unique('uq_carbon_regions_code_version', ['code', 'version'])
@@ -28,11 +35,20 @@ export class CarbonRegionEntity {
   @Column({ type: 'varchar', length: 64 })
   unit!: string
 
-  @Column({ type: 'varchar', length: 512 })
-  source!: string
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  source!: string | null
 
-  @Column({ type: 'timestamptz' })
-  validFrom!: Date
+  @Column({ type: 'timestamptz', nullable: true })
+  validFrom!: Date | null
+
+  @Column({ type: 'timestamptz', nullable: true })
+  queriedAt!: Date | null
+
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  contractVersion!: string | null
+
+  @Column({ type: 'numeric', precision: 7, scale: 4, nullable: true })
+  renewableSharePercent!: string | null
 
   @Column({ type: 'timestamptz', nullable: true })
   validUntil!: Date | null
