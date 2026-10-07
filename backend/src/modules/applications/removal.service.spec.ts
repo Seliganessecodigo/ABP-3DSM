@@ -215,7 +215,10 @@ describeDatabase('remoção confirmada por snapshot válido', () => {
   })
 
   it('retoma a mesma identidade sem preencher a lacuna de coletas', async () => {
-    const [before] = await database.query('SELECT "firstSeenAt" FROM applications WHERE id = $1', [`${prefix}a`]) as [{firstSeenAt:Date}]
+    const [before] = (await database.query(
+      'SELECT "firstSeenAt" FROM applications WHERE id = $1',
+      [`${prefix}a`],
+    )) as [{ firstSeenAt: Date }]
     payload = [service('b')]
     await app.get(RemovalService).reconcile(await cycleId())
     payload = [service('a'), service('b')]
@@ -223,27 +226,86 @@ describeDatabase('remoção confirmada por snapshot válido', () => {
     expect(await app.get(ReturnService).reconcile(id)).toBe(1)
     expect(await app.get(ReturnService).reconcile(id)).toBe(0)
 
-    const [application] = await database.query('SELECT id, state, "removedAt", "firstSeenAt" FROM applications WHERE id = $1', [`${prefix}a`]) as [{id:string;state:string;removedAt:Date|null;firstSeenAt:Date}]
+    const [application] = (await database.query(
+      'SELECT id, state, "removedAt", "firstSeenAt" FROM applications WHERE id = $1',
+      [`${prefix}a`],
+    )) as [
+      { id: string; state: string; removedAt: Date | null; firstSeenAt: Date },
+    ]
     expect(application).toMatchObject({ id: `${prefix}a`, removedAt: null })
-    expect(application.state).not.toBe('REMOVED')
+    expect(application.state).toBe('UNAVAILABLE')
     expect(application.firstSeenAt).toEqual(before.firstSeenAt)
-    const events = await database.query('SELECT kind, "cycleId", actor FROM application_events WHERE "applicationId" = $1 ORDER BY "occurredAt"', [`${prefix}a`]) as Array<{kind:string;cycleId:string;actor:string}>
-    expect(events.map((event) => event.kind)).toEqual(['discovered', 'removed', 'returned'])
-    expect(events[2]).toMatchObject({ cycleId: id, actor: 'system' })
-    const [{ count }] = await database.query('SELECT count(*)::int AS count FROM collections WHERE "applicationId" = $1', [`${prefix}a`]) as [{count:number}]
+    const events = (await database.query(
+      'SELECT kind, "cycleId", actor, "occurredAt", details FROM application_events WHERE "applicationId" = $1 ORDER BY "occurredAt"',
+      [`${prefix}a`],
+    )) as Array<{
+      kind: string
+      cycleId: string
+      actor: string
+      occurredAt: Date
+      details: Record<string, unknown>
+    }>
+    expect(events.map((event) => event.kind)).toEqual([
+      'discovered',
+      'removed',
+      'returned',
+    ])
+    expect(events[2]).toMatchObject({
+      cycleId: id,
+      actor: 'system',
+      details: { source: 'metrics-aggregator' },
+    })
+    expect(events[2].occurredAt).toBeInstanceOf(Date)
+    const [{ count }] = (await database.query(
+      'SELECT count(*)::int AS count FROM collections WHERE "applicationId" = $1',
+      [`${prefix}a`],
+    )) as [{ count: number }]
     expect(count).toBe(0)
-    expect((await app.get(ApplicationsRepository).findForCollection()).map((item) => item.id))
-      .toContain(`${prefix}a`)
+    expect(
+      (await app.get(ApplicationsRepository).findForCollection()).map(
+        (item) => item.id,
+      ),
+    ).toContain(`${prefix}a`)
   })
 
   it('não retorna em snapshot inválido ou falha da origem', async () => {
     payload = [service('b')]
     await app.get(RemovalService).reconcile(await cycleId())
-    payload = [service('a'), { ...service('b'), location: { region_code: 'br-sudeste' } }]
-    await expect(app.get(ReturnService).reconcile(await cycleId())).rejects.toMatchObject({ code: 'INVALID_UPSTREAM_RESPONSE' })
+    payload = [
+      service('a'),
+      { ...service('b'), location: { region_code: 'br-sudeste' } },
+    ]
+    await expect(
+      app.get(ReturnService).reconcile(await cycleId()),
+    ).rejects.toMatchObject({ code: 'INVALID_UPSTREAM_RESPONSE' })
     status = 500
-    await expect(app.get(ReturnService).reconcile(await cycleId())).rejects.toMatchObject({ code: 'UPSTREAM_UNAVAILABLE' })
-    const [application] = await database.query('SELECT state FROM applications WHERE id = $1', [`${prefix}a`]) as [{state:string}]
+    await expect(
+      app.get(ReturnService).reconcile(await cycleId()),
+    ).rejects.toMatchObject({ code: 'UPSTREAM_UNAVAILABLE' })
+    const [application] = (await database.query(
+      'SELECT state FROM applications WHERE id = $1',
+      [`${prefix}a`],
+    )) as [{ state: string }]
     expect(application.state).toBe('REMOVED')
+  })
+
+  it('desfaz o retorno se o evento não puder ser vinculado ao ciclo', async () => {
+    payload = [service('b')]
+    await app.get(RemovalService).reconcile(await cycleId())
+    payload = [service('a'), service('b')]
+    await expect(
+      app.get(ReturnService).reconcile(randomUUID()),
+    ).rejects.toThrow()
+    const [application] = (await database.query(
+      'SELECT state, "removedAt" FROM applications WHERE id = $1',
+      [`${prefix}a`],
+    )) as [{ state: string; removedAt: Date }]
+    expect(application.state).toBe('REMOVED')
+    expect(application.removedAt).toBeInstanceOf(Date)
+    const [{ count }] = (await database.query(
+      'SELECT count(*)::int AS count FROM application_events WHERE "applicationId" = $1 AND kind = $2',
+      [`${prefix}a`, 'returned'],
+    )) as [{ count: number }]
+    expect(count).toBe(0)
   })
 })

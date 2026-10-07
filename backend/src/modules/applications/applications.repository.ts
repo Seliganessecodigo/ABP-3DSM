@@ -96,7 +96,9 @@ export class ApplicationsRepository {
     return manager
       .getRepository(ApplicationEntity)
       .createQueryBuilder('application')
-      .where('application.state = :removed', { removed: ApplicationState.REMOVED })
+      .where('application.state = :removed', {
+        removed: ApplicationState.REMOVED,
+      })
       .andWhere('application.id IN (:...currentIds)', { currentIds })
       .setLock('pessimistic_write')
       .getMany()
