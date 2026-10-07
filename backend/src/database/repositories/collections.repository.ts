@@ -10,7 +10,9 @@ export class CollectionsRepository {
     private readonly repository: Repository<CollectionEntity>,
   ) {}
 
-  async append(collection: Partial<CollectionEntity>): Promise<CollectionEntity> {
+  async append(
+    collection: Partial<CollectionEntity>,
+  ): Promise<CollectionEntity> {
     const entity = this.repository.create(collection)
     const values = { ...collection }
     delete values.application
@@ -28,5 +30,12 @@ export class CollectionsRepository {
     intervalStart: Date,
   ): Promise<CollectionEntity | null> {
     return this.repository.findOne({ where: { applicationId, intervalStart } })
+  }
+
+  findHistoryByApplication(applicationId: string): Promise<CollectionEntity[]> {
+    return this.repository.find({
+      where: { applicationId },
+      order: { intervalStart: 'ASC', id: 'ASC' },
+    })
   }
 }

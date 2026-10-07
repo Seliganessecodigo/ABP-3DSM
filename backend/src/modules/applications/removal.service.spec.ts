@@ -14,6 +14,7 @@ import { DiscoveryService } from './discovery.service'
 import { ApplicationsRepository } from './applications.repository'
 import { RemovalService } from './removal.service'
 import { ReturnService } from './return.service'
+import { CollectionsRepository } from '../../database/repositories/collections.repository'
 
 const databaseUrl = process.env.TEST_DATABASE_URL
 const describeDatabase = databaseUrl ? describe : describe.skip
@@ -307,5 +308,91 @@ describeDatabase('remoção confirmada por snapshot válido', () => {
       [`${prefix}a`, 'returned'],
     )) as [{ count: number }]
     expect(count).toBe(0)
+  })
+
+  it('mantém duas coletas reais e uma lacuna no intervalo removido', async () => {
+    const applicationId = `${prefix}a`
+    const firstId = randomUUID()
+    const firstStart = new Date(Date.now() - 3_600_000)
+    const firstEnd = new Date(firstStart.getTime() + 60_000)
+    await database.query(
+      `INSERT INTO collections (id, "applicationId", "intervalStart", "intervalEnd", "collectedAt", metrics, "metricUnits", state, "energyKwh", "carbonGrams")
+      VALUES ($1,$2,$3,$4,$5,$6,$7,'AVAILABLE',$8,$9)`,
+      [
+        firstId,
+        applicationId,
+        firstStart,
+        firstEnd,
+        firstEnd,
+        JSON.stringify({ cpuPercent: 50 }),
+        JSON.stringify({ cpuPercent: '%' }),
+        '1.25',
+        '106.25',
+      ],
+    )
+
+    payload = [service('b')]
+    await app.get(RemovalService).reconcile(await cycleId())
+    payload = [service('a'), service('b')]
+    await app.get(ReturnService).reconcile(await cycleId())
+
+    const secondId = randomUUID()
+    const secondStart = new Date(Date.now() + 1_000)
+    const secondEnd = new Date(secondStart.getTime() + 60_000)
+    await database.query(
+      `INSERT INTO collections (id, "applicationId", "intervalStart", "intervalEnd", "collectedAt", metrics, "metricUnits", state, "energyKwh", "carbonGrams")
+      VALUES ($1,$2,$3,$4,$5,$6,$7,'AVAILABLE',$8,$9)`,
+      [
+        secondId,
+        applicationId,
+        secondStart,
+        secondEnd,
+        secondEnd,
+        JSON.stringify({ cpuPercent: 60 }),
+        JSON.stringify({ cpuPercent: '%' }),
+        '1.50',
+        '127.50',
+      ],
+    )
+
+    const history = await app
+      .get(CollectionsRepository)
+      .findHistoryByApplication(applicationId)
+    expect(history.map((collection) => collection.id)).toEqual([
+      firstId,
+      secondId,
+    ])
+    expect(history.map((collection) => Number(collection.energyKwh))).toEqual([
+      1.25, 1.5,
+    ])
+    expect(history.map((collection) => Number(collection.carbonGrams))).toEqual(
+      [106.25, 127.5],
+    )
+    const events = (await database.query(
+      'SELECT kind, actor, "occurredAt" FROM application_events WHERE "applicationId"=$1 ORDER BY "occurredAt"',
+      [applicationId],
+    )) as Array<{ kind: string; actor: string; occurredAt: Date }>
+    expect(events.map((event) => event.kind)).toEqual([
+      'discovered',
+      'removed',
+      'returned',
+    ])
+    expect(
+      events.every(
+        (event) => event.actor === 'system' && event.occurredAt instanceof Date,
+      ),
+    ).toBe(true)
+    const [application] = (await database.query(
+      'SELECT id FROM applications WHERE id=$1',
+      [applicationId],
+    )) as [{ id: string }]
+    expect(application.id).toBe(applicationId)
+    expect(
+      history.some(
+        (collection) =>
+          collection.intervalStart >= events[1].occurredAt &&
+          collection.intervalStart < events[2].occurredAt,
+      ),
+    ).toBe(false)
   })
 })
