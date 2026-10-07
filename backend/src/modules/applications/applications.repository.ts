@@ -74,6 +74,7 @@ export class ApplicationsRepository {
       })
       .getMany()
   }
+
   async findByIdsForUpdate(
     manager: EntityManager,
     ids: string[],
@@ -83,6 +84,22 @@ export class ApplicationsRepository {
       .getRepository(ApplicationEntity)
       .createQueryBuilder('application')
       .where('application.id IN (:...ids)', { ids })
+      .setLock('pessimistic_write')
+      .getMany()
+  }
+
+  async findReturnedForUpdate(
+    manager: EntityManager,
+    currentIds: string[],
+  ): Promise<ApplicationEntity[]> {
+    if (currentIds.length === 0) return []
+    return manager
+      .getRepository(ApplicationEntity)
+      .createQueryBuilder('application')
+      .where('application.state = :removed', {
+        removed: ApplicationState.REMOVED,
+      })
+      .andWhere('application.id IN (:...currentIds)', { currentIds })
       .setLock('pessimistic_write')
       .getMany()
   }
@@ -102,5 +119,22 @@ export class ApplicationsRepository {
     >,
   ): Promise<void> {
     await manager.update(ApplicationEntity, { id }, values)
+  }
+
+  async restore(
+    manager: EntityManager,
+    id: string,
+    state: ApplicationState,
+    at: Date,
+  ): Promise<void> {
+    await manager.update(
+      ApplicationEntity,
+      { id },
+      {
+        state,
+        removedAt: null,
+        lastCheckedAt: at,
+      },
+    )
   }
 }
