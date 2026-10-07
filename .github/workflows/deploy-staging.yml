@@ -46,6 +46,12 @@ jobs:
           npm run build
           npm prune --omit=dev
 
+      - name: Verify production migration command without npm bin shim
+        working-directory: backend
+        run: |
+          rm -f node_modules/.bin/typeorm
+          npm run migration:run:prod -- --help
+
       - name: Create deployment package
         working-directory: backend
         run: zip -qr ../api.zip package.json package-lock.json dist node_modules
