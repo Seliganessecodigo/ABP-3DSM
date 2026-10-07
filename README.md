@@ -29,7 +29,7 @@ Inicie os serviços:
 npm run dev
 ```
 
-O comando constrói e inicia frontend, API e PostgreSQL. O banco usa um volume persistente; as migrations pendentes são aplicadas quando a API inicia.
+O comando constrói e inicia frontend, API e PostgreSQL. O banco usa um volume persistente; as migrations pendentes são aplicadas quando a API inicia. Em seguida, a API consulta `/services` e cadastra no catálogo local as aplicações ainda desconhecidas, registrando o ciclo de descoberta. Se o agregador estiver indisponível, a API continua iniciando e o erro aparece nos logs.
 
 | Serviço | Endereço local |
 | --- | --- |
@@ -55,4 +55,5 @@ Para reconstruir as imagens depois de alterar dependências ou Dockerfiles, exec
 - Se `npm run dev` não encontrar Docker, inicie o Docker Desktop e confirme que `docker compose version` funciona.
 - Se uma porta estiver ocupada, altere `FRONTEND_PORT`, `API_PORT` ou `POSTGRES_PORT` no `.env`.
 - Se a API não ficar saudável, consulte os logs com `npm run dev:logs`; o serviço depende de PostgreSQL saudável e aplica migrations antes de iniciar.
+- Para repetir manualmente a descoberta sem reiniciar a API, execute `docker compose exec api npm run applications:discover`.
 - Não versione o arquivo `.env`; ele contém a configuração privada da máquina local. O `.env.example` é o modelo versionado.

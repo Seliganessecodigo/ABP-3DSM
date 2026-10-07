@@ -9,6 +9,7 @@ import { DiscoveryService } from './discovery.service'
 import { RemovalService } from './removal.service'
 import { MetadataSyncService } from './metadata-sync.service'
 import { ReturnService } from './return.service'
+import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), IntegrationsModule],
@@ -20,6 +21,7 @@ import { ReturnService } from './return.service'
     RemovalService,
     MetadataSyncService,
     ReturnService,
+    InitialCatalogSyncRunner,
   ],
 })
 export class ApplicationsModule {}
