@@ -7,6 +7,7 @@ import { ApplicationsService } from './applications.service'
 import { IntegrationsModule } from '../../integrations/integrations.module'
 import { DiscoveryService } from './discovery.service'
 import { RemovalService } from './removal.service'
+import { MetadataSyncService } from './metadata-sync.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), IntegrationsModule],
@@ -16,6 +17,7 @@ import { RemovalService } from './removal.service'
     ApplicationsService,
     DiscoveryService,
     RemovalService,
+    MetadataSyncService,
   ],
 })
 export class ApplicationsModule {}

@@ -11,6 +11,7 @@ import { AddApplicationLocation1791260000000 } from '../../database/migrations/1
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { DiscoveryService } from './discovery.service'
+import { MetadataSyncService } from './metadata-sync.service'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeDatabase = testDatabaseUrl ? describe : describe.skip
@@ -214,5 +215,112 @@ describeDatabase('descoberta de aplicações com HTTP e PostgreSQL', () => {
       new URL(`/applications/${longId}`, await app.getUrl()),
     )
     expect(response.status).toBe(200)
+  })
+
+  it('registra uma mudança conjunta de nome e localização uma única vez', async () => {
+    await app.get(DiscoveryService).discover(await cycleId())
+    payload = [
+      {
+        ...servicePayload()[0],
+        name: 'API renomeada',
+        location: {
+          ...servicePayload()[0].location,
+          city: 'Campinas',
+          latitude: -22.9,
+        },
+      },
+    ]
+    const id = await cycleId()
+    expect(await app.get(MetadataSyncService).reconcile(id)).toBe(1)
+    expect(await app.get(MetadataSyncService).reconcile(id)).toBe(0)
+
+    const [application] = (await database.query(
+      'SELECT name, city, latitude FROM applications WHERE id = $1',
+      [`${prefix}api`],
+    )) as [{ name: string; city: string; latitude: number }]
+    expect(application).toMatchObject({
+      name: 'API renomeada',
+      city: 'Campinas',
+      latitude: -22.9,
+    })
+    const events = (await database.query(
+      'SELECT kind, "cycleId", actor, details FROM application_events WHERE "applicationId" = $1 ORDER BY "occurredAt"',
+      [`${prefix}api`],
+    )) as Array<Record<string, unknown>>
+    expect(events.map((event) => event.kind)).toEqual([
+      'discovered',
+      'registration_changed',
+    ])
+    expect(events[1]).toMatchObject({
+      cycleId: id,
+      actor: 'system',
+      details: {
+        before: {
+          name: 'API de teste',
+          location: { city: null, latitude: -23.5 },
+        },
+        after: {
+          name: 'API renomeada',
+          location: { city: 'Campinas', latitude: -22.9 },
+        },
+      },
+    })
+  })
+
+  it('não altera cadastro após snapshot parcialmente inválido', async () => {
+    await app.get(DiscoveryService).discover(await cycleId())
+    payload = [
+      { ...servicePayload()[0], name: 'Nome não confirmado' },
+      {
+        ...servicePayload()[0],
+        id: `${prefix}broken`,
+        location: { region_code: 'br-sudeste' },
+      },
+    ]
+    await expect(
+      app.get(MetadataSyncService).reconcile(await cycleId()),
+    ).rejects.toMatchObject({ code: 'INVALID_UPSTREAM_RESPONSE' })
+    const [application] = (await database.query(
+      'SELECT name FROM applications WHERE id = $1',
+      [`${prefix}api`],
+    )) as [{ name: string }]
+    expect(application.name).toBe('API de teste')
+    const [{ count }] = (await database.query(
+      'SELECT count(*)::int AS count FROM application_events WHERE "applicationId" = $1',
+      [`${prefix}api`],
+    )) as [{ count: number }]
+    expect(count).toBe(1)
+  })
+
+  it.each([
+    { name: 'Nome novo', location: servicePayload()[0].location },
+    {
+      name: 'API de teste',
+      location: { ...servicePayload()[0].location, city: 'Campinas' },
+    },
+  ])('registra mudança isolada de nome ou localização', async (changed) => {
+    await app.get(DiscoveryService).discover(await cycleId())
+    payload = [{ ...servicePayload()[0], ...changed }]
+    expect(await app.get(MetadataSyncService).reconcile(await cycleId())).toBe(
+      1,
+    )
+    const [{ count }] = (await database.query(
+      'SELECT count(*)::int AS count FROM application_events WHERE "applicationId" = $1 AND kind = $2',
+      [`${prefix}api`, 'registration_changed'],
+    )) as [{ count: number }]
+    expect(count).toBe(1)
+  })
+
+  it('desfaz mudança de cadastro se o evento não puder ser vinculado ao ciclo', async () => {
+    await app.get(DiscoveryService).discover(await cycleId())
+    payload = [{ ...servicePayload()[0], name: 'Nome não persistido' }]
+    await expect(
+      app.get(MetadataSyncService).reconcile(randomUUID()),
+    ).rejects.toThrow()
+    const [application] = (await database.query(
+      'SELECT name FROM applications WHERE id = $1',
+      [`${prefix}api`],
+    )) as [{ name: string }]
+    expect(application.name).toBe('API de teste')
   })
 })

@@ -74,4 +74,33 @@ export class ApplicationsRepository {
       })
       .getMany()
   }
+  async findByIdsForUpdate(
+    manager: EntityManager,
+    ids: string[],
+  ): Promise<ApplicationEntity[]> {
+    if (ids.length === 0) return []
+    return manager
+      .getRepository(ApplicationEntity)
+      .createQueryBuilder('application')
+      .where('application.id IN (:...ids)', { ids })
+      .setLock('pessimistic_write')
+      .getMany()
+  }
+
+  async updateMetadata(
+    manager: EntityManager,
+    id: string,
+    values: Pick<
+      ApplicationEntity,
+      | 'name'
+      | 'regionCode'
+      | 'country'
+      | 'region'
+      | 'city'
+      | 'latitude'
+      | 'longitude'
+    >,
+  ): Promise<void> {
+    await manager.update(ApplicationEntity, { id }, values)
+  }
 }
