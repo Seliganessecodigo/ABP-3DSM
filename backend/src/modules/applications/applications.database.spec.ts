@@ -5,6 +5,8 @@ import { AppModule } from '../../app.module'
 import { InitialSchema1791240000000 } from '../../database/migrations/1791240000000-InitialSchema'
 import { CompleteMonitoringPersistence1791250000000 } from '../../database/migrations/1791250000000-CompleteMonitoringPersistence'
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
+import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
+import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { configureOpenApi } from '../../openapi'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
@@ -24,6 +26,8 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
         InitialSchema1791240000000,
         CompleteMonitoringPersistence1791250000000,
         AddApplicationLocation1791260000000,
+        CarbonFactorSnapshots1791340000000,
+        DiscoverApplications1791350000000,
       ],
     })
     await database.initialize()
@@ -52,7 +56,9 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
   afterAll(async () => {
     await app?.close()
     if (database?.isInitialized) {
-      await database.query('DELETE FROM applications WHERE id = $1', ['catalog-test-app'])
+      await database.query('DELETE FROM applications WHERE id = $1', [
+        'catalog-test-app',
+      ])
       await database.destroy()
     }
     if (previousDatabaseUrl === undefined) {
@@ -146,7 +152,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
               expect.objectContaining({
                 name: 'id',
                 in: 'path',
-                schema: { type: 'string', minLength: 1, maxLength: 128 },
+                schema: { type: 'string', minLength: 1 },
               }),
             ]),
             responses: { '200': expect.anything(), '404': expect.anything() },

@@ -151,7 +151,9 @@ describe('catálogo de aplicações', () => {
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
-          useValue: { find: async () => Promise.reject(new Error('private db detail')) },
+          useValue: {
+            find: async () => Promise.reject(new Error('private db detail')),
+          },
         },
       ],
     }).compile()
@@ -203,7 +205,9 @@ describe('catálogo de aplicações', () => {
     await app.listen(0, '127.0.0.1')
 
     try {
-      const response = await fetch(new URL('/applications/billing-api', await app.getUrl()))
+      const response = await fetch(
+        new URL('/applications/billing-api', await app.getUrl()),
+      )
 
       expect(response.status).toBe(200)
       expect(await response.json()).toMatchObject({
@@ -231,7 +235,9 @@ describe('catálogo de aplicações', () => {
     await app.listen(0, '127.0.0.1')
 
     try {
-      const response = await fetch(new URL('/applications/missing-api', await app.getUrl()))
+      const response = await fetch(
+        new URL('/applications/missing-api', await app.getUrl()),
+      )
 
       expect(response.status).toBe(404)
     } finally {
@@ -255,7 +261,9 @@ describe('catálogo de aplicações', () => {
     await app.listen(0, '127.0.0.1')
 
     try {
-      const response = await fetch(new URL('/applications/%20', await app.getUrl()))
+      const response = await fetch(
+        new URL('/applications/%20', await app.getUrl()),
+      )
 
       expect(response.status).toBe(400)
     } finally {
@@ -263,7 +271,7 @@ describe('catálogo de aplicações', () => {
     }
   })
 
-  it('rejeita ID maior que a capacidade da identidade persistida', async () => {
+  it('consulta IDs longos sem impor limite ausente do contrato da origem', async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [ApplicationsController],
       providers: [
@@ -283,7 +291,7 @@ describe('catálogo de aplicações', () => {
         new URL(`/applications/${'x'.repeat(129)}`, await app.getUrl()),
       )
 
-      expect(response.status).toBe(400)
+      expect(response.status).toBe(404)
     } finally {
       await app.close()
     }

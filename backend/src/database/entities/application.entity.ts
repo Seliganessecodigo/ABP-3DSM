@@ -12,11 +12,14 @@ import { CollectionEntity } from './collection.entity'
 
 @Entity({ name: 'applications' })
 export class ApplicationEntity {
-  @PrimaryColumn({ type: 'varchar', length: 128 })
+  @PrimaryColumn({ type: 'text' })
   id!: string
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text' })
   name!: string
+
+  @Column({ type: 'text', nullable: true })
+  metricsPath!: string | null
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   location!: string | null
@@ -39,7 +42,11 @@ export class ApplicationEntity {
   @Column({ type: 'double precision', nullable: true })
   longitude!: number | null
 
-  @Column({ type: 'enum', enum: ApplicationState, default: ApplicationState.AVAILABLE })
+  @Column({
+    type: 'enum',
+    enum: ApplicationState,
+    default: ApplicationState.AVAILABLE,
+  })
   state!: ApplicationState
 
   @CreateDateColumn({ type: 'timestamptz' })
