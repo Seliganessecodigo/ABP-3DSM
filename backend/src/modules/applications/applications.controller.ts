@@ -26,13 +26,13 @@ export class ApplicationsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Consultar aplicação conhecida pelo ID' })
-  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1, maxLength: 128 } })
+  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
   @ApiOkResponse({ type: ApplicationDto })
   @ApiNotFoundResponse({ description: 'Aplicação não encontrada' })
   @ApiBadRequestResponse({ description: 'ID inválido' })
   @ApiServiceUnavailableResponse({ description: 'Catálogo indisponível' })
   getById(@Param('id') id: string) {
-    if (!id.trim() || id.length > 128) {
+    if (!id.trim()) {
       throw new BadRequestException({
         code: 'INVALID_APPLICATION_ID',
         message: 'ID de aplicação inválido',

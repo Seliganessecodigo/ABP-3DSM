@@ -10,13 +10,19 @@ import {
 import { ApplicationEntity } from './application.entity'
 
 @Entity({ name: 'application_events' })
-@Index('IDX_application_events_application_occurred_at', ['applicationId', 'occurredAt'])
+@Index('IDX_application_events_application_occurred_at', [
+  'applicationId',
+  'occurredAt',
+])
 export class ApplicationEventEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @Column({ type: 'varchar', length: 128 })
+  @Column({ type: 'text' })
   applicationId!: string
+
+  @Column({ type: 'uuid', nullable: true })
+  cycleId!: string | null
 
   @ManyToOne(() => ApplicationEntity, (application) => application.events, {
     onDelete: 'RESTRICT',

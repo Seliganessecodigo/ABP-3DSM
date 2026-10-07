@@ -14,18 +14,25 @@ import { CarbonRegionEntity } from './carbon-region.entity'
 import { CalculationConfigEntity } from './calculation-config.entity'
 
 @Entity({ name: 'collections' })
-@Unique('uq_collections_application_interval_start', ['application', 'intervalStart'])
+@Unique('uq_collections_application_interval_start', [
+  'application',
+  'intervalStart',
+])
 @Index('IDX_collections_interval', ['intervalStart', 'intervalEnd'])
 export class CollectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @Column({ type: 'varchar', length: 128 })
+  @Column({ type: 'text' })
   applicationId!: string
 
-  @ManyToOne(() => ApplicationEntity, (application) => application.collections, {
-    onDelete: 'RESTRICT',
-  })
+  @ManyToOne(
+    () => ApplicationEntity,
+    (application) => application.collections,
+    {
+      onDelete: 'RESTRICT',
+    },
+  )
   @JoinColumn({ name: 'applicationId' })
   application!: ApplicationEntity
 
@@ -78,7 +85,10 @@ export class CollectionEntity {
   @Column({ type: 'uuid', nullable: true })
   calculationConfigId!: string | null
 
-  @ManyToOne(() => CalculationConfigEntity, { nullable: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => CalculationConfigEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'calculationConfigId' })
   calculationConfig!: CalculationConfigEntity | null
 
