@@ -10,6 +10,7 @@ import { CompleteMonitoringPersistence1791250000000 } from '../../database/migra
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
+import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
 import { DiscoveryService } from './discovery.service'
 import { ApplicationsRepository } from './applications.repository'
 import { RemovalService } from './removal.service'
@@ -62,6 +63,7 @@ describeDatabase('remoção confirmada por snapshot válido', () => {
         AddApplicationLocation1791260000000,
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
+        ApplicationOperationalStatus1791360000000,
       ],
     })
     await database.initialize()
