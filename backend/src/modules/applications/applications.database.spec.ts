@@ -7,7 +7,10 @@ import { CompleteMonitoringPersistence1791250000000 } from '../../database/migra
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
+import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
 import { configureOpenApi } from '../../openapi'
+import { ApplicationStateReason } from '../../database/entities/application-state-reason'
+import { StatusClassificationService } from './status-classification.service'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeWithDatabase = testDatabaseUrl ? describe : describe.skip
@@ -28,6 +31,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
         AddApplicationLocation1791260000000,
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
+        ApplicationOperationalStatus1791360000000,
       ],
     })
     await database.initialize()
@@ -131,6 +135,54 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
     })
   })
 
+  it('preserva a última observação stale e atualiza o estado na recuperação', async () => {
+    const classifier = app.get(StatusClassificationService)
+    const validAt = new Date('2026-10-07T10:00:00.000Z')
+    const failedAt = new Date('2026-10-07T10:01:00.000Z')
+    const recoveredAt = new Date('2026-10-07T10:02:00.000Z')
+
+    await classifier.record('catalog-test-app', {
+      kind: 'metrics',
+      result: 'valid',
+      observedAt: validAt,
+      carbonFactorAvailable: true,
+    })
+    await classifier.record('catalog-test-app', {
+      kind: 'source_failure',
+      reason: ApplicationStateReason.SOURCE_TIMEOUT,
+      observedAt: failedAt,
+    })
+
+    let response = await fetch(
+      new URL('/applications/catalog-test-app', await app.getUrl()),
+    )
+    expect(await response.json()).toMatchObject({
+      state: 'UNAVAILABLE',
+      reason: 'SOURCE_TIMEOUT',
+      isStale: true,
+      isCalculable: false,
+      lastCheckedAt: failedAt.toISOString(),
+      lastObservationAt: validAt.toISOString(),
+    })
+
+    await classifier.record('catalog-test-app', {
+      kind: 'metrics',
+      result: 'valid',
+      observedAt: recoveredAt,
+      carbonFactorAvailable: true,
+    })
+    response = await fetch(
+      new URL('/applications/catalog-test-app', await app.getUrl()),
+    )
+    expect(await response.json()).toMatchObject({
+      state: 'AVAILABLE',
+      reason: null,
+      isStale: false,
+      isCalculable: true,
+      lastObservationAt: recoveredAt.toISOString(),
+    })
+  })
+
   it('preserva uma região longa sem aplicar limite ausente do contrato externo', async () => {
     const longRegion = 'Região '.repeat(25)
     await database.query(
@@ -190,6 +242,14 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
       components: {
         schemas: {
           ApplicationLocationDto: { properties: { city: { nullable: true } } },
+          ApplicationDto: {
+            properties: {
+              reason: { nullable: true },
+              lastObservationAt: { nullable: true },
+              isStale: { type: 'boolean' },
+              isCalculable: { nullable: true },
+            },
+          },
         },
       },
     })

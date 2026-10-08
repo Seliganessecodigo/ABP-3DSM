@@ -10,6 +10,7 @@ import { RemovalService } from './removal.service'
 import { MetadataSyncService } from './metadata-sync.service'
 import { ReturnService } from './return.service'
 import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
+import { StatusClassificationService } from './status-classification.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), IntegrationsModule],
@@ -22,6 +23,7 @@ import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
     MetadataSyncService,
     ReturnService,
     InitialCatalogSyncRunner,
+    StatusClassificationService,
   ],
 })
 export class ApplicationsModule {}
