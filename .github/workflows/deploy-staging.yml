@@ -95,7 +95,12 @@ jobs:
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'azrggreenerstaging' }}
           AZURE_API_APP_NAME: ${{ vars.AZURE_API_APP_NAME || 'app-greener-api-staging-brs-ecxiqsrl' }}
-        run: az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --src-path api.zip --type zip --async false
+        run: az webapp deploy --resource-group "$AZURE_RESOURCE_GROUP" --name "$AZURE_API_APP_NAME" --src-path api.zip --type zip --async false --track-status false
+
+      - name: Verify deployed API endpoints
+        env:
+          STAGING_API_BASE_URL: ${{ vars.VITE_API_URL || 'https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net' }}
+        run: bash scripts/smoke-test-staging-api.sh
 
   deploy-frontend:
     name: Deploy frontend to Static Web Apps
