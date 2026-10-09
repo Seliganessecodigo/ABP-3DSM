@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test": "playwright test",
+    "test:e2e": "playwright test --project=chromium",
+    "test:unit": "playwright test --project=unit"
   },
   "dependencies": {
     "react": "^19.2.8",
