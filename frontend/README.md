@@ -1,5 +1,37 @@
 # React + TypeScript + Vite
 
+## Testes do catálogo GreenER
+
+O fluxo público do catálogo é verificado em Chromium com Playwright. O runner
+inicia o Vite automaticamente em `127.0.0.1:4173`; essa porta precisa estar livre.
+As respostas HTTP da API GreenER são controladas pelo teste, sem depender do
+backend, banco ou APIs auxiliares. O payload segue o DTO de catálogo de #162.
+
+Execute dentro de `frontend/`:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+O primeiro ciclo TDD está na fase **red**: o teste espera uma linha com nome e ID
+da aplicação recebida pela API, enquanto a tela atual ainda é a página inicial.
+Essa falha é intencional e deve ser resolvida na próxima etapa de implementação.
+O runner deve carregar a página e falhar na asserção de comportamento; falhas de
+instalação, navegador ou servidor não comprovam o red.
+
+Screenshots e traces das falhas ficam em `test-results/`, ignorado pelo Git. Para
+abrir um trace, execute `npx playwright show-trace <caminho-do-trace.zip>`.
+
+Conforme a spec de #25, os próximos ciclos incluem filtros, paginação, erros e
+detalhe, com testes pelo navegador e testes isolados das regras de filtro e
+paginação. Eles serão adicionados por comportamento durante os ciclos TDD.
+
+Referências oficiais: [instalação](https://playwright.dev/docs/intro),
+[servidor de testes](https://playwright.dev/docs/test-webserver) e
+[respostas HTTP controladas](https://playwright.dev/docs/mock).
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
