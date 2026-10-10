@@ -8,6 +8,8 @@ As rotas públicas `GET /applications` e `GET /applications/{id}` leem somente o
 
 O DTO expõe ID, nome, estado GreenER, horários disponíveis e localização normalizada (`regionCode`, `country`, `region`, `city`, `latitude`, `longitude`). `city` pode ser nula. Registros históricos sem localização completa continuam na lista com `location: null`; a coluna legada de texto não é apresentada como localização válida. As rotas não consultam a API auxiliar nem calculam energia ou CO₂e.
 
+O estado atual inclui `reason`, `lastObservationAt`, `isStale` e `isCalculable`. `lastCheckedAt` registra a tentativa mais recente; `lastObservationAt` só avança com métricas válidas. Falha de origem mantém a última observação e marca o estado como stale. Métrica ausente ou inválida nunca gera zero. Uma aplicação fica `AVAILABLE` mesmo sem fator regional, mas `isCalculable` será falso e `reason` apontará `CARBON_FACTOR_UNAVAILABLE`. Remoção continua restrita a snapshot `/services` completo e válido, persistida com evento confirmado.
+
 O contrato OpenAPI 1.0.0 está em `GET /openapi.json` e a interface de documentação em `GET /docs`. A migration de localização mantém os campos novos nulos para registros legados; o adapter de integração deve preencher todos os campos obrigatórios ao cadastrar ou atualizar aplicações válidas.
 
 `MetadataSyncService.reconcile(cycleId)` compara nome e todos os campos de localização de identidades conhecidas com um snapshot `/services` completo e válido. Quando algum desses campos muda, atualiza o cadastro e anexa um evento `registration_changed` com valores anteriores e novos, horário, ciclo e ator `system` na mesma transação. Repetir os dados não cria evento. Alterações de `metrics_path` não fazem parte desta regra de evento de cadastro.

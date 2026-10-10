@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { ApplicationState } from '../../database/entities/application-state'
+import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 
 export class ApplicationLocationDto {
   @ApiProperty()
@@ -33,6 +34,18 @@ export class ApplicationDto {
 
   @ApiProperty({ enum: ApplicationState })
   state!: ApplicationState
+
+  @ApiProperty({ enum: ApplicationStateReason, nullable: true })
+  reason!: ApplicationStateReason | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  lastObservationAt!: Date | null
+
+  @ApiProperty({ description: 'Indica se o último estado foi mantido com dados stale.' })
+  isStale!: boolean
+
+  @ApiProperty({ type: Boolean, nullable: true, description: 'Calculabilidade das métricas; null quando ainda não observada.' })
+  isCalculable!: boolean | null
 
   @ApiProperty({ type: String, format: 'date-time' })
   firstSeenAt!: Date
