@@ -5,6 +5,10 @@ export interface CatalogEntry {
   name: string
   state: ApplicationState
   location: { regionCode: string; region: string } | null
+  firstSeenAt?: string
+  lastCheckedAt?: string | null
+  removedAt?: string | null
+  updatedAt?: string
 }
 
 export interface CatalogQuery {
@@ -21,10 +25,26 @@ export interface CatalogPage<T extends CatalogEntry> {
   pageCount: number
 }
 
-// Interface para os testes isolados. O comportamento permanece na fase red.
 export function selectCatalog<T extends CatalogEntry>(
-  _applications: readonly T[],
-  _query: CatalogQuery,
+  applications: readonly T[],
+  query: CatalogQuery,
 ): CatalogPage<T> {
-  throw new Error('Filtro e paginação do catálogo ainda não implementados')
+  const term = query.search.trim().toLocaleLowerCase()
+  const filtered = applications.filter((application) => {
+    const matchesState = query.state === 'ALL' || application.state === query.state
+    const searchable = [
+      application.name,
+      application.id,
+      application.location?.regionCode,
+      application.location?.region,
+    ].filter(Boolean).join(' ').toLocaleLowerCase()
+    return matchesState && (!term || searchable.includes(term))
+  })
+
+  const pageSize = Number.isFinite(query.pageSize) ? Math.max(1, Math.floor(query.pageSize)) : 10
+  const pageCount = Math.ceil(filtered.length / pageSize)
+  const requestedPage = Number.isFinite(query.page) ? Math.max(1, Math.floor(query.page)) : 1
+  const page = pageCount === 0 ? 1 : Math.min(requestedPage, pageCount)
+  const start = (page - 1) * pageSize
+  return { items: filtered.slice(start, start + pageSize), total: filtered.length, page, pageCount }
 }

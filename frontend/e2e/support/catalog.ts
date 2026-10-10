@@ -53,6 +53,11 @@ export async function mockApi(page: Page, handler: (route: Route) => Promise<voi
       await route.continue()
       return
     }
+    const pathname = new URL(route.request().url()).pathname
+    if (!/^\/(?:api\/)?applications(?:\/[^/?]+)?$/.test(pathname)) {
+      await route.continue()
+      return
+    }
     await handler(route)
   })
 }
