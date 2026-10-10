@@ -12,6 +12,8 @@ frontend/dist/
 backend/dist/
 coverage/
 *.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
 
 # Local editor and OS files
 .idea/
