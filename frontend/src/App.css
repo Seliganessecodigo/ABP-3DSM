@@ -57,6 +57,7 @@ td strong { color: #21352b; font-size: 12px; }
 .error-icon { color: #b44e4d; background: #fff0ef; font-weight: 800; }
 .error-box .button { margin-top: 12px; }
 .notice, .empty-state { border: 1px solid #e1e9e4; border-radius: 10px; padding: 20px; color: #687970; background: white; font-size: 13px; }
+output.notice { display: block; }
 .empty-state h2, .empty-state h1 { margin-bottom: 7px; color: #20382d; font-size: 17px; }
 .empty-state p { margin: 0; }
 .detail-content { max-width: 1120px; }
