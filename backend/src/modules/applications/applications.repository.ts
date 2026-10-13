@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationState } from '../../database/entities/application-state'
+import { ApplicationStateReason } from '../../database/entities/application-state-reason'
+import type { ClassifiedStatus } from './application-status-classifier'
 
 @Injectable()
 export class ApplicationsRepository {
@@ -17,6 +19,15 @@ export class ApplicationsRepository {
 
   findById(id: string) {
     return this.applications.findOneBy({ id })
+  }
+
+  findByIdForUpdate(manager: EntityManager, id: string) {
+    return manager
+      .getRepository(ApplicationEntity)
+      .createQueryBuilder('application')
+      .where('application.id = :id', { id })
+      .setLock('pessimistic_write')
+      .getOne()
   }
 
   async insertIfAbsent(
@@ -60,6 +71,9 @@ export class ApplicationsRepository {
       { id },
       {
         state: ApplicationState.REMOVED,
+        stateReason: null,
+        isStale: false,
+        isCalculable: false,
         removedAt: at,
         lastCheckedAt: at,
       },
@@ -73,6 +87,25 @@ export class ApplicationsRepository {
         removed: ApplicationState.REMOVED,
       })
       .getMany()
+  }
+
+  async updateOperationalStatus(
+    manager: EntityManager,
+    id: string,
+    status: ClassifiedStatus,
+  ): Promise<void> {
+    await manager.update(
+      ApplicationEntity,
+      { id },
+      {
+        state: status.state,
+        stateReason: status.reason,
+        isStale: status.isStale,
+        isCalculable: status.isCalculable,
+        lastCheckedAt: status.lastCheckedAt,
+        lastObservationAt: status.lastObservationAt,
+      },
+    )
   }
 
   async findByIdsForUpdate(
@@ -132,6 +165,12 @@ export class ApplicationsRepository {
       { id },
       {
         state,
+        stateReason:
+          state === ApplicationState.UNAVAILABLE
+            ? ApplicationStateReason.METRICS_MISSING
+            : null,
+        isStale: false,
+        isCalculable: false,
         removedAt: null,
         lastCheckedAt: at,
       },

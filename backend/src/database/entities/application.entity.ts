@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 import { ApplicationEventEntity } from './application-event.entity'
 import { ApplicationState } from './application-state'
+import { ApplicationStateReason } from './application-state-reason'
 import { CollectionEntity } from './collection.entity'
 
 @Entity({ name: 'applications' })
@@ -48,6 +49,18 @@ export class ApplicationEntity {
     default: ApplicationState.AVAILABLE,
   })
   state!: ApplicationState
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  stateReason!: ApplicationStateReason | null
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastObservationAt!: Date | null
+
+  @Column({ type: 'boolean', default: false })
+  isStale!: boolean
+
+  @Column({ type: 'boolean', nullable: true })
+  isCalculable!: boolean | null
 
   @CreateDateColumn({ type: 'timestamptz' })
   firstSeenAt!: Date

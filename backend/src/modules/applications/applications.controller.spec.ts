@@ -4,11 +4,46 @@ import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationsController } from './applications.controller'
 import { ApplicationsRepository } from './applications.repository'
 import { ApplicationsService } from './applications.service'
+import { configureOpenApi } from '../../openapi'
 
 describe('catálogo de aplicações', () => {
   const firstSeenAt = new Date('2026-10-06T10:00:00.000Z')
   const lastCheckedAt = new Date('2026-10-06T10:05:00.000Z')
   const updatedAt = new Date('2026-10-06T10:05:00.000Z')
+
+  it('documenta estado operacional, razão, timestamps e calculabilidade no OpenAPI', async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [ApplicationsController],
+      providers: [
+        ApplicationsService,
+        ApplicationsRepository,
+        {
+          provide: getRepositoryToken(ApplicationEntity),
+          useValue: { find: async () => [] },
+        },
+      ],
+    }).compile()
+    const app = moduleRef.createNestApplication()
+    configureOpenApi(app)
+    await app.listen(0, '127.0.0.1')
+
+    try {
+      const response = await fetch(new URL('/openapi.json', await app.getUrl()))
+      const document = (await response.json()) as {
+        components: { schemas: { ApplicationDto: { properties: Record<string, unknown> } } }
+      }
+      expect(response.status).toBe(200)
+      expect(document.components.schemas.ApplicationDto.properties).toMatchObject({
+        state: expect.anything(),
+        reason: expect.objectContaining({ nullable: true }),
+        lastObservationAt: expect.objectContaining({ nullable: true }),
+        isStale: expect.objectContaining({ type: 'boolean' }),
+        isCalculable: expect.objectContaining({ nullable: true }),
+      })
+    } finally {
+      await app.close()
+    }
+  })
 
   it('responde com uma coleção vazia quando nenhuma aplicação foi cadastrada', async () => {
     const moduleRef = await Test.createTestingModule({
@@ -86,6 +121,10 @@ describe('catálogo de aplicações', () => {
             longitude: -46.6333,
           },
           state: 'AVAILABLE',
+          reason: null,
+          lastObservationAt: null,
+          isStale: false,
+          isCalculable: null,
           firstSeenAt: '2026-10-06T10:00:00.000Z',
           lastCheckedAt: '2026-10-06T10:05:00.000Z',
           removedAt: null,
@@ -192,6 +231,10 @@ describe('catálogo de aplicações', () => {
                 latitude: -23.5505,
                 longitude: -46.6333,
                 state: 'AVAILABLE',
+                stateReason: 'SOURCE_TIMEOUT',
+                lastObservationAt: new Date('2026-10-07T10:00:00.000Z'),
+                isStale: true,
+                isCalculable: false,
                 firstSeenAt,
                 lastCheckedAt,
                 removedAt: null,
@@ -213,6 +256,11 @@ describe('catálogo de aplicações', () => {
       expect(await response.json()).toMatchObject({
         id: 'billing-api',
         location: { regionCode: 'br-sudeste', city: null },
+        state: 'AVAILABLE',
+        reason: 'SOURCE_TIMEOUT',
+        lastObservationAt: '2026-10-07T10:00:00.000Z',
+        isStale: true,
+        isCalculable: false,
       })
     } finally {
       await app.close()
