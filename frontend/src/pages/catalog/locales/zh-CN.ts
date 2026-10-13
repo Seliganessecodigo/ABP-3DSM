@@ -1,0 +1,36 @@
+import ptBR from './pt-BR.ts'
+import type { Widen } from '../../../i18n/types.ts'
+
+const messages = {
+  eyebrow: '监控',
+  title: '应用程序',
+  description: '受监控应用程序目录及其当前状态。',
+  refresh: '刷新目录',
+  searchLabel: '按名称、标识符或区域搜索应用程序',
+  searchPlaceholder: '按名称、标识符或区域搜索...',
+  filterLabel: '按状态筛选应用程序',
+  loading: '正在加载应用程序...',
+  errorTitle: '无法获取目录',
+  stale: '正在显示最近一次有效数据；数据可能已过期。',
+  errorNotRemoved: '这并不表示应用程序已被移除。',
+  emptyTitle: '没有已识别的应用程序',
+  empty: '目录中尚无应用程序。',
+  noResults: '没有符合搜索条件的应用程序',
+  adjustFilters: '请检查搜索词或所选筛选条件。',
+  app: '应用程序',
+  actions: '操作',
+  details: '查看详情',
+  page: '第 {{page}} 页，共 {{count}} 页',
+  total_one: '{{count}} 个应用程序',
+  total_other: '{{count}} 个应用程序',
+  previous: '上一页',
+  next: '下一页',
+  previousAria: '上一页',
+  nextAria: '下一页',
+  noneSelected: '未选择应用程序',
+  selectHint: '从列表中选择应用程序以查看详情、指标和历史记录。',
+  updated: '目录已更新',
+  stateHint: '应用程序状态通过文字和视觉标识显示。',
+} satisfies Widen<typeof ptBR>
+
+export default messages

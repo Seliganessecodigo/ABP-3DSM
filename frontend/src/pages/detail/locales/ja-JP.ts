@@ -1,0 +1,22 @@
+import ptBR from './pt-BR.ts'
+import type { Widen } from '../../../i18n/types.ts'
+
+const messages = {
+  back: '一覧に戻る',
+  loading: 'アプリケーションを読み込み中...',
+  notFound: 'アプリケーションが見つかりません',
+  notFoundHint: 'この識別子は一覧にありません。',
+  error: 'アプリケーションを取得できませんでした',
+  errorHint: 'リクエストに失敗しました。もう一度お試しください。',
+  eyebrow: '監視対象アプリケーション',
+  identity: '識別情報と状態',
+  id: '識別子',
+  firstSeen: '初回確認',
+  removedAt: '削除日時',
+  location: '位置情報',
+  regionCode: '地域コード',
+  latitude: '緯度',
+  longitude: '経度',
+} satisfies Widen<typeof ptBR>
+
+export default messages

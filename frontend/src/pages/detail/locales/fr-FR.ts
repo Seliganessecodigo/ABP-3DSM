@@ -1,0 +1,22 @@
+import ptBR from './pt-BR.ts'
+import type { Widen } from '../../../i18n/types.ts'
+
+const messages = {
+  back: 'Retour au catalogue',
+  loading: 'Chargement de l’application...',
+  notFound: 'Application introuvable',
+  notFoundHint: 'Cet identifiant n’est pas disponible dans le catalogue.',
+  error: 'Impossible de consulter cette application',
+  errorHint: 'La demande a échoué. Réessayez.',
+  eyebrow: 'Application surveillée',
+  identity: 'Identification et état',
+  id: 'Identifiant',
+  firstSeen: 'Première observation',
+  removedAt: 'Supprimée le',
+  location: 'Emplacement',
+  regionCode: 'Code régional',
+  latitude: 'Latitude',
+  longitude: 'Longitude',
+} satisfies Widen<typeof ptBR>
+
+export default messages
