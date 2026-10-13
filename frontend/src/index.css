@@ -25,3 +25,7 @@ button,
 a {
   font: inherit;
 }
+
+#root { min-height: 100vh; }
+h1, h2, p { margin-top: 0; }
+:focus-visible { outline: 3px solid #51b891; outline-offset: 3px; }

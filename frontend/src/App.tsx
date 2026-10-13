@@ -1,4 +1,3 @@
-import './App.css'
 import { useRoute } from './app/useRoute.ts'
 import { AppShell } from './components/AppShell.tsx'
 import { CatalogPage } from './pages/catalog/CatalogPage.tsx'

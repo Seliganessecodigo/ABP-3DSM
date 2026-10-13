@@ -1,3 +1,5 @@
+import './AppShell.css'
+import '../styles/shared.css'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 

@@ -3,15 +3,16 @@
 `App.tsx` compõe o layout compartilhado e a página correspondente à rota.
 `app/useRoute.ts` concentra a navegação e a leitura da URL.
 
-- `pages/<tela>/`: componente da página, hooks específicos, parâmetros de URL e `locales/` com os oito idiomas.
+- `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os oito idiomas.
 - `components/`: interface reutilizada por páginas, como `AppShell` e `LanguageSelector`.
 - `features/applications/`: contrato e validação das respostas HTTP, acesso à API, cache e seleção do catálogo.
 - `utils/`: funções independentes de React, como formatação de datas.
+- `styles/shared.css`: estilos visuais usados por várias páginas, como botões, cabeçalhos e mensagens. `index.css` contém a base global; cada componente compartilhado importa seu próprio CSS.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
 
 ## Adicionar uma página
 
-1. Crie `pages/<tela>/<Tela>Page.tsx` e mantenha os hooks específicos na mesma pasta.
+1. Crie `pages/<tela>/<Tela>Page.tsx` e mantenha os hooks específicos na mesma pasta. Importe os estilos da tela de `<Tela>Page.module.css` e aplique as classes pelo objeto `styles`, para evitar colisões entre páginas. Seletores de elementos, como `table` ou `td`, devem ficar dentro de uma classe local.
 2. Crie `pages/<tela>/locales/<locale>.json` para cada idioma suportado. O nome da pasta da tela é o namespace usado em `useTranslation('<tela>')`.
 3. Importe os oito arquivos em `pages/<tela>/i18n.ts` e exporte o mapa de traduções com `satisfies Record<Locale, typeof ptBR>`, seguindo as páginas existentes. O arquivo `pt-BR.json` define as chaves obrigatórias, verificadas no build; o fallback de idioma continua sendo `en-US`. O registro central descobre automaticamente esse módulo.
 4. Registre o caminho e os parâmetros em `app/useRoute.ts` e associe a página em `App.tsx`. O conteúdo da página fica no seu componente; o layout é fornecido por `AppShell`.
