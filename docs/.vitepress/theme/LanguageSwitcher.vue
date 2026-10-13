@@ -5,16 +5,27 @@ import { useRoute, withBase } from 'vitepress'
 const route = useRoute()
 const localePrefix = /^\/(en-US|es-ES|fr-FR|de-DE|it-IT|ja-JP|zh-CN)(?=\/|$)/
 const pagePath = computed(() => route.path.replace(localePrefix, '') || '/')
+const currentLocale = computed(() => route.path.match(localePrefix)?.[1] ?? 'pt-BR')
+const switcherLabel = computed(() => ({
+  'pt-BR': 'Selecionar idioma',
+  'en-US': 'Select language',
+  'es-ES': 'Seleccionar idioma',
+  'fr-FR': 'Choisir la langue',
+  'de-DE': 'Sprache auswählen',
+  'it-IT': 'Seleziona la lingua',
+  'ja-JP': '言語を選択',
+  'zh-CN': '选择语言',
+}[currentLocale.value] ?? 'Select language'))
 
 const languages = [
-  { code: 'pt-BR', prefix: '', flag: '🇧🇷', label: 'Português (Brasil)' },
-  { code: 'en-US', prefix: '/en-US', flag: '🇺🇸', label: 'English' },
-  { code: 'es-ES', prefix: '/es-ES', flag: '🇪🇸', label: 'Español' },
-  { code: 'fr-FR', prefix: '/fr-FR', flag: '🇫🇷', label: 'Français' },
-  { code: 'de-DE', prefix: '/de-DE', flag: '🇩🇪', label: 'Deutsch' },
-  { code: 'it-IT', prefix: '/it-IT', flag: '🇮🇹', label: 'Italiano' },
-  { code: 'ja-JP', prefix: '/ja-JP', flag: '🇯🇵', label: '日本語' },
-  { code: 'zh-CN', prefix: '/zh-CN', flag: '🇨🇳', label: '简体中文' },
+  { code: 'pt-BR', prefix: '', flag: 'br', label: 'Português (Brasil)' },
+  { code: 'en-US', prefix: '/en-US', flag: 'us', label: 'English' },
+  { code: 'es-ES', prefix: '/es-ES', flag: 'es', label: 'Español' },
+  { code: 'fr-FR', prefix: '/fr-FR', flag: 'fr', label: 'Français' },
+  { code: 'de-DE', prefix: '/de-DE', flag: 'de', label: 'Deutsch' },
+  { code: 'it-IT', prefix: '/it-IT', flag: 'it', label: 'Italiano' },
+  { code: 'ja-JP', prefix: '/ja-JP', flag: 'jp', label: '日本語' },
+  { code: 'zh-CN', prefix: '/zh-CN', flag: 'cn', label: '简体中文' },
 ]
 
 function href(prefix: string) {
@@ -28,7 +39,7 @@ function isActive(code: string) {
 </script>
 
 <template>
-  <nav class="doc-language-switcher" :aria-label="'Choose language'">
+  <nav class="doc-language-switcher" :aria-label="switcherLabel">
     <a
       v-for="language in languages"
       :key="language.code"
@@ -39,7 +50,7 @@ function isActive(code: string) {
       :aria-current="isActive(language.code) ? 'page' : undefined"
       :title="language.label"
     >
-      <span aria-hidden="true">{{ language.flag }}</span>
+      <img class="doc-language-switcher__flag" :src="withBase(`/flags/${language.flag}.svg`)" alt="" aria-hidden="true" width="18" height="14">
       <span>{{ language.code.slice(0, 2).toUpperCase() }}</span>
     </a>
   </nav>
