@@ -38,6 +38,8 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 - Nunca exponha ou versione segredos. Use `.env.example` apenas com valores demonstrativos e mantenha `.env` fora do Git.
 - Se a alteração atravessar frontend e backend, alinhe os contratos e tipos entre as camadas; não duplique regra de domínio no cliente.
 - Atualize README/documentação quando mudar comandos locais, variáveis, contratos ou operação.
+- A documentação do site é Markdown em `docs/`: `docs/` raiz é `pt-BR`; os outros idiomas ficam em `docs/<locale>/`. Ao alterar uma página publicada, mantenha a página equivalente atualizada nos oito locales e execute `npm run docs:build`.
+- `README.md` é o resumo de entrada do repositório; mantenha os detalhes no Markdown da documentação para que GitHub e ferramentas de IA possam lê-los sem depender do HTML gerado.
 
 ## Git e pull requests
 
