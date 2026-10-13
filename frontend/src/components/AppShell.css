@@ -1,0 +1,31 @@
+.app-layout { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); background: #f4f7f5; }
+.sidebar { position: sticky; top: 0; height: 100vh; min-height: 620px; display: flex; flex-direction: column; padding: 25px 15px 18px; color: #e5f4ee; background: linear-gradient(165deg, #064f3e, #00382f 78%); }
+.brand { display: flex; flex-direction: column; gap: 4px; padding: 0 9px 28px; color: white; text-decoration: none; font-size: 21px; font-weight: 750; letter-spacing: -.04em; }
+.brand small { color: #91b6a9; font-size: 9px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.sidebar nav { display: flex; flex-direction: column; gap: 5px; }
+.nav-heading { margin: 16px 9px 4px; color: #91b6a9; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.sidebar nav button, .sidebar nav a { display: flex; align-items: center; gap: 11px; min-height: 39px; border: 0; border-radius: 8px; padding: 0 10px; color: #e5f4ee; background: transparent; text-align: left; text-decoration: none; font-size: 13px; }
+.sidebar nav button:disabled { opacity: .86; }
+.sidebar nav a.selected { background: #08745a; color: white; font-weight: 650; }
+.sidebar-foot { margin-top: auto; padding: 18px 10px 4px; color: #91b6a9; font-size: 11px; }
+.workspace { min-width: 0; }
+.topbar { height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 clamp(18px, 4vw, 48px); border-bottom: 1px solid #e7eeea; background: rgba(255,255,255,.82); color: #547064; font-size: 12px; }
+.topbar div { display: flex; align-items: center; gap: 17px; font-size: 16px; }
+.avatar { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: white; background: #075844; font-size: 10px; font-weight: 700; }
+@media (max-width: 900px) {
+  .app-layout { grid-template-columns: 190px minmax(0, 1fr); }
+  .sidebar { padding-inline: 11px; }
+}
+@media (max-width: 640px) {
+  .app-layout { display: block; }
+  .sidebar { position: static; width: 100%; height: auto; min-height: 0; padding: 10px 14px; }
+  .brand { padding: 0 4px 9px; font-size: 18px; }
+  .brand small, .sidebar-foot, .nav-heading, .sidebar nav button { display: none; }
+  .sidebar nav { display: block; }
+  .sidebar nav a { width: fit-content; min-height: 34px; padding-inline: 10px; }
+  .topbar { height: 44px; padding-inline: 16px; }
+}
+.topbar-actions { display: flex; align-items: center; gap: 14px; }
+@media (max-width: 640px) {
+  .topbar-actions { gap: 8px; }
+}

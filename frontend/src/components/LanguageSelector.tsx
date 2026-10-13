@@ -1,3 +1,4 @@
+import './LanguageSelector.css'
 import { useTranslation } from 'react-i18next'
 import { localeNames, supportedLocales, type Locale } from '../i18n.ts'
 
