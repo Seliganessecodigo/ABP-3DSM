@@ -1,0 +1,18 @@
+import { t as _plugin_vue_export_helper_default } from "./plugin-vue_export-helper.BOaGB7Aw.js";
+import { useSSRContext } from "vue";
+import { ssrRenderAttrs } from "vue/server-renderer";
+//#region en-US/architecture.md
+var __pageData = JSON.parse("{\"title\":\"Architecture\",\"description\":\"\",\"frontmatter\":{},\"headers\":[],\"relativePath\":\"en-US/architecture.md\",\"filePath\":\"en-US/architecture.md\",\"lastUpdated\":0}");
+var _sfc_main = { name: "en-US/architecture.md" };
+function _sfc_ssrRender(_ctx, _push, _parent, _attrs, $props, $setup, $data, $options) {
+	_push(`<div${ssrRenderAttrs(_attrs)}><h1 id="architecture" tabindex="-1">Architecture <a class="header-anchor" href="#architecture" aria-label="Permalink to “Architecture”">​</a></h1><h2 id="components" tabindex="-1">Components <a class="header-anchor" href="#components" aria-label="Permalink to “Components”">​</a></h2><p>The local environment uses Docker Compose to run three services: the frontend, API, and PostgreSQL.</p><table tabindex="0"><thead><tr><th>Area</th><th>Responsibility</th><th>Technologies</th></tr></thead><tbody><tr><td><code>frontend/</code></td><td>User interface, navigation, and presentation</td><td>React 19, TypeScript, Vite, i18next</td></tr><tr><td><code>backend/</code></td><td>API, use cases, and external integrations</td><td>NestJS, TypeScript, TypeORM</td></tr><tr><td>PostgreSQL</td><td>Application and domain data persistence</td><td>PostgreSQL 18</td></tr></tbody></table><p>The frontend calls only the GreenER API. Only the backend connects to the Metrics Aggregator and Carbon Intensity Service.</p><h2 id="code-organization" tabindex="-1">Code organization <a class="header-anchor" href="#code-organization" aria-label="Permalink to “Code organization”">​</a></h2><ul><li><code>frontend/src/pages/</code> keeps each screen with its hooks, translations, and CSS Modules.</li><li><code>frontend/src/features/</code> owns domain contracts, validation, HTTP access, cache, and pure rules.</li><li><code>backend/src/modules/</code> groups endpoints and use cases by domain.</li><li><code>backend/src/integrations/</code> adapts and validates responses from auxiliary APIs.</li><li><code>backend/src/database/</code> contains entities, migrations, and repositories.</li></ul><h2 id="data-and-reliability" tabindex="-1">Data and reliability <a class="header-anchor" href="#data-and-reliability" aria-label="Permalink to “Data and reliability”">​</a></h2><p>The backend integrates with data sources and persists their data. It follows documented contracts, schemas, and units. Errors, missing values, invalid responses, stale data, and valid zero values are distinct states; screens must preserve that distinction.</p><p>See the <a href="https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md" target="_blank" rel="noreferrer">external API contracts in the repository</a> and the <a href="https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md" target="_blank" rel="noreferrer">frontend organization guide</a> for implementation details.</p></div>`);
+}
+var _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+	const ssrContext = useSSRContext();
+	(ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("en-US/architecture.md");
+	return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+var architecture_default = /*#__PURE__*/ _plugin_vue_export_helper_default(_sfc_main, [["ssrRender", _sfc_ssrRender]]);
+//#endregion
+export { __pageData, architecture_default as default };

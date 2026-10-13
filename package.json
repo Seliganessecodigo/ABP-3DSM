@@ -7,7 +7,10 @@
     "dev": "docker compose up --build",
     "dev:detached": "docker compose up --build --detach",
     "dev:down": "docker compose down",
-    "dev:logs": "docker compose logs --follow"
+    "dev:logs": "docker compose logs --follow",
+    "docs:dev": "npm --prefix docs run dev",
+    "docs:build": "npm --prefix docs run build",
+    "docs:preview": "npm --prefix docs run preview"
   },
   "engines": {
     "node": ">=24"
