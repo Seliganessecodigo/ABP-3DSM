@@ -1,6 +1,8 @@
 ﻿# Internacionalização do frontend
 
-O frontend usa `i18next` com `react-i18next`; os recursos de idioma e a configuração ficam em `frontend/src/i18n.ts`. Consulte `frontend/README.md` para o fluxo de criação de chaves, fallback e formatação regional.
+O frontend usa `i18next` com `react-i18next`. A configuração fica em `frontend/src/i18n.ts`; cada página mantém suas traduções em `frontend/src/pages/<tela>/locales/<locale>.ts`. Esses arquivos são registrados automaticamente no namespace da tela. Textos compartilhados ficam em `frontend/src/i18n/locales/`, no namespace `common`.
+
+Cada página tem um componente e hooks próprios, junto das traduções. `App.tsx` compõe as páginas e o layout; o módulo de aplicações concentra acesso HTTP, validação das respostas e cache. Consulte [a organização do frontend](../frontend/src/README.md) e [o README da área](../frontend/README.md) para criar páginas, chaves, fallback e formatação regional.
 
 Locales suportados: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` e `zh-CN`. A escolha permanece no navegador via `localStorage` (`greener:locale`). Não persiste no backend. O fallback para traduções ausentes é inglês (`en-US`).
 
