@@ -1,0 +1,36 @@
+import ptBR from './pt-BR.ts'
+import type { Widen } from '../../../i18n/types.ts'
+
+const messages = {
+  eyebrow: 'Monitorización',
+  title: 'Aplicaciones',
+  description: 'Catálogo de las aplicaciones monitorizadas y su estado actual.',
+  refresh: 'Actualizar catálogo',
+  searchLabel: 'Buscar aplicaciones por nombre, identificador o región',
+  searchPlaceholder: 'Buscar por nombre, identificador o región...',
+  filterLabel: 'Filtrar aplicaciones por estado',
+  loading: 'Cargando aplicaciones...',
+  errorTitle: 'No se pudo consultar el catálogo',
+  stale: 'Se muestran los últimos datos válidos; podrían estar desactualizados.',
+  errorNotRemoved: 'Esto no significa que se hayan eliminado aplicaciones.',
+  emptyTitle: 'No hay aplicaciones reconocidas',
+  empty: 'El catálogo aún no tiene aplicaciones.',
+  noResults: 'Ninguna aplicación coincide con la búsqueda',
+  adjustFilters: 'Revisa el término o los filtros seleccionados.',
+  app: 'Aplicación',
+  actions: 'Acciones',
+  details: 'Ver detalles',
+  page: 'Página {{page}} de {{count}}',
+  total_one: '{{count}} aplicación',
+  total_other: '{{count}} aplicaciones',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  previousAria: 'Página anterior',
+  nextAria: 'Página siguiente',
+  noneSelected: 'Ninguna aplicación seleccionada',
+  selectHint: 'Selecciona una aplicación para ver sus detalles, métricas e historial.',
+  updated: 'Catálogo actualizado',
+  stateHint: 'Los estados se muestran con texto e indicadores visuales.',
+} satisfies Widen<typeof ptBR>
+
+export default messages

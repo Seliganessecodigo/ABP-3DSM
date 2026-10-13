@@ -1,0 +1,19 @@
+const messages = {
+  back: 'Voltar ao catálogo',
+  loading: 'Carregando aplicação...',
+  notFound: 'Aplicação não encontrada',
+  notFoundHint: 'Este identificador não está disponível no catálogo.',
+  error: 'Não foi possível consultar esta aplicação',
+  errorHint: 'A consulta falhou. Tente novamente.',
+  eyebrow: 'Aplicação monitorada',
+  identity: 'Identificação e situação',
+  id: 'Identificador',
+  firstSeen: 'Primeira observação',
+  removedAt: 'Removida em',
+  location: 'Localização',
+  regionCode: 'Código regional',
+  latitude: 'Latitude',
+  longitude: 'Longitude',
+} as const
+
+export default messages
