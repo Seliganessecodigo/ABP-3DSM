@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute, withBase } from 'vitepress'
+import { useData, useRoute, withBase } from 'vitepress'
 
+const { site } = useData()
 const route = useRoute()
 const localePrefix = /^\/(en-US|es-ES|fr-FR|de-DE|it-IT|ja-JP|zh-CN)(?=\/|$)/
-const pagePath = computed(() => route.path.replace(localePrefix, '') || '/')
-const currentLocale = computed(() => route.path.match(localePrefix)?.[1] ?? 'pt-BR')
+const pathWithoutBase = computed(() => {
+  const basePrefix = site.value.base.replace(/\/$/, '')
+  return basePrefix && (route.path === basePrefix || route.path.startsWith(`${basePrefix}/`))
+    ? route.path.slice(basePrefix.length) || '/'
+    : route.path
+})
+const pagePath = computed(() => pathWithoutBase.value.replace(localePrefix, '') || '/')
+const currentLocale = computed(() => pathWithoutBase.value.match(localePrefix)?.[1] ?? 'pt-BR')
 const switcherLabel = computed(() => ({
   'pt-BR': 'Selecionar idioma',
   'en-US': 'Select language',
@@ -34,7 +41,7 @@ function href(prefix: string) {
 }
 
 function isActive(code: string) {
-  return code === 'pt-BR' ? !localePrefix.test(route.path) : route.path.startsWith(`/${code}/`)
+  return code === 'pt-BR' ? !localePrefix.test(pathWithoutBase.value) : pathWithoutBase.value.startsWith(`/${code}/`)
 }
 </script>
 
