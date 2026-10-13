@@ -95,3 +95,9 @@ td strong { color: #21352b; font-size: 12px; }
   .detail-card { padding: 16px; }
   .detail-card dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
 }
+
+.topbar-actions { display: flex; align-items: center; gap: 14px; }
+.language-control { display: flex; align-items: center; gap: 7px; color: var(--muted, #65746b); font-size: 12px; }
+.language-control select { max-width: 180px; min-height: 34px; padding: 5px 28px 5px 9px; border: 1px solid #cbd5ce; border-radius: 7px; background: var(--surface, #fff); color: var(--text, #203027); font: inherit; }
+.language-control select:focus-visible { outline: 3px solid #7bbf96; outline-offset: 2px; }
+@media (max-width: 640px) { .topbar-actions { gap: 8px; } .language-control > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); } .language-control select { max-width: 136px; } }
