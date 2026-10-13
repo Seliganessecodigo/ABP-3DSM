@@ -12,7 +12,7 @@
 .state-badge { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; border-radius: 99px; padding: 4px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .state-available { border-color: #a6dfc8; color: #08704e; background: #e8f8f0; }
 .state-unavailable { border-color: #f0c0c1; color: #b33d40; background: #fff0f0; }
-.state-no_metrics { border-color: #efdaad; color: #a7660e; background: #fff7e8; }
+.state-no_metrics { border-color: #efdaad; color: #8c5309; background: #fff7e8; }
 .state-removed { border-color: #d4d9dd; color: #61707a; background: #f0f3f5; }
 .error-icon { width: 39px; height: 39px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; color: #b44e4d; background: #fff0ef; font-size: 18px; font-weight: 800; }
 .error-box h2 { margin: 0 0 5px; color: #263a30; font-size: 13px; }
