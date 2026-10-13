@@ -1,5 +1,6 @@
 ---
 layout: home
+isHome: false
 hero:
   name: GreenER
   text: Energia e impatto ambientale, nel loro contesto

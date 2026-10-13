@@ -1,5 +1,6 @@
 ---
 layout: home
+isHome: false
 hero:
   name: GreenER
   text: 了解能源与环境影响及其背景
