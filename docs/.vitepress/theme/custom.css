@@ -64,6 +64,11 @@
   border-left: 1px solid var(--vp-c-divider);
 }
 
+.VPNavBarTranslations,
+.VPNavScreenTranslations {
+  display: none !important;
+}
+
 .doc-language-switcher__item {
   display: inline-flex;
   min-width: 42px;
@@ -79,6 +84,16 @@
   font-weight: 700;
   text-decoration: none;
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.doc-language-switcher__flag {
+  display: block;
+  width: 18px;
+  height: 14px;
+  flex: none;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 12%);
 }
 
 .doc-language-switcher__item:hover,
