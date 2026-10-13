@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 type Route = { kind: 'catalog' } | { kind: 'detail'; id: string }
 function routeFromLocation(): Route {
-  const match = window.location.pathname.match(/^\/services\/(.+)$/)
+  const match = /^\/services\/(.+)$/.exec(window.location.pathname)
   if (!match) return { kind: 'catalog' }
   try { return { kind: 'detail', id: decodeURIComponent(match[1]) } } catch { return { kind: 'detail', id: match[1] } }
 }

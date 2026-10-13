@@ -1,6 +1,6 @@
 ﻿# Internacionalização do frontend
 
-O frontend usa `i18next` com `react-i18next`. A configuração fica em `frontend/src/i18n.ts`; cada página mantém suas traduções em `frontend/src/pages/<tela>/locales/<locale>.ts`. Esses arquivos são registrados automaticamente no namespace da tela. Textos compartilhados ficam em `frontend/src/i18n/locales/`, no namespace `common`.
+O frontend usa `i18next` com `react-i18next`. A configuração fica em `frontend/src/i18n.ts`; cada página mantém suas traduções em `frontend/src/pages/<tela>/locales/<locale>.json`. O módulo `i18n.ts` da tela importa e verifica os oito idiomas em TypeScript e é registrado automaticamente no namespace da tela. Textos compartilhados ficam em `frontend/src/i18n/locales/`, no namespace `common`.
 
 Cada página tem um componente e hooks próprios, junto das traduções. `App.tsx` compõe as páginas e o layout; o módulo de aplicações concentra acesso HTTP, validação das respostas e cache. Consulte [a organização do frontend](../frontend/src/README.md) e [o README da área](../frontend/README.md) para criar páginas, chaves, fallback e formatação regional.
 

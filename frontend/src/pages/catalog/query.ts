@@ -19,5 +19,5 @@ export function makeUrl(query: { search: string; state: State | 'ALL'; page: num
   if (query.state !== 'ALL') params.set('state', query.state)
   if (query.page > 1) params.set('page', String(query.page))
   const queryString = params.toString()
-  return `/${queryString ? `?${queryString}` : ''}`
+  return queryString ? '/?' + queryString : '/'
 }

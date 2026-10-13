@@ -11,10 +11,10 @@ export function useApplicationDetail(id: string) {
     const controller = new AbortController()
     getApplication(id, controller.signal).then((result) => {
       if (!controller.signal.aborted) setApplication(result)
-    }).catch((failure: unknown) => {
+    }).catch((error_: unknown) => {
       if (controller.signal.aborted) return
-      const status = failure instanceof ApplicationRequestError ? failure.status : 0
-      const code = failure instanceof ApplicationRequestError ? failure.code : ''
+      const status = error_ instanceof ApplicationRequestError ? error_.status : 0
+      const code = error_ instanceof ApplicationRequestError ? error_.code : ''
       if (status === 404 || code === 'APPLICATION_NOT_FOUND') setNotFound(true)
       else setError(true)
     }).finally(() => { if (!controller.signal.aborted) setLoading(false) })

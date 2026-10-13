@@ -3,14 +3,14 @@ import { formatDate } from '../../utils/formatDate.ts'
 import { stateLabel } from '../../features/applications/presentation.ts'
 import { useApplicationDetail } from './useApplicationDetail.ts'
 
-export function ApplicationDetailPage({ id, navigate }: { id: string; navigate: (url: string) => void }) {
+export function ApplicationDetailPage({ id, navigate }: Readonly<{ id: string; navigate: (url: string) => void }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
   const { t: tCommon } = useTranslation('common')
   const { application, loading, notFound, error, retry } = useApplicationDetail(id)
   const backUrl = `/${window.location.search}`
   return <main className="content detail-content">
     <a className="back-link" href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>← {tDetail('back')}</a>
-    {loading && <p className="notice" role="status">{tDetail('loading')}</p>}
+    {loading && <output className="notice">{tDetail('loading')}</output>}
     {notFound && <section className="empty-state"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></section>}
     {error && <div className="error-box" role="alert"><span className="error-icon" aria-hidden="true">!</span><div><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><button className="button" onClick={retry}>{tCommon('actions.retry')}</button></div></div>}
     {application && <><div className="page-heading detail-heading"><div><p className="eyebrow">{tDetail('eyebrow')}</p><h1>{application.name}</h1><p className="identifier">{application.id}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>

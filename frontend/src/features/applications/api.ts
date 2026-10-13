@@ -8,8 +8,17 @@ export interface Application extends CatalogEntry {
   removedAt: string | null
   updatedAt: string
 }
-const apiBase = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, '')
-const endpoint = (id?: string) => `${apiBase ?? '/api'}/applications${id === undefined ? '' : `/${encodeURIComponent(id)}`}`
+function trimTrailingSlashes(value: string) {
+  let end = value.length
+  while (value[end - 1] === '/') end -= 1
+  return value.slice(0, end)
+}
+
+const apiBase = trimTrailingSlashes((import.meta.env.VITE_API_URL as string | undefined) ?? '/api')
+const endpoint = (id?: string) => {
+  const suffix = id === undefined ? '' : '/' + encodeURIComponent(id)
+  return apiBase + '/applications' + suffix
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 function isDate(value: unknown): value is string { return typeof value === 'string' && Number.isFinite(Date.parse(value)) }

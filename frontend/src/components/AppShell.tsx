@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 
-export function AppShell({ children, navigate, detail = false }: { children: React.ReactNode; navigate: (url: string) => void; detail?: boolean }) {
+export function AppShell({ children, navigate, detail = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; detail?: boolean }>) {
   const { t } = useTranslation('common')
   return <div className="app-layout">
     <aside className="sidebar">
