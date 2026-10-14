@@ -248,10 +248,13 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
           ApplicationLocationDto: { properties: { city: { nullable: true } } },
           ApplicationDto: {
             properties: {
-              reason: { nullable: true },
+              reason: {
+                type: 'string',
+                enum: Object.values(ApplicationStateReason),
+              },
               lastObservationAt: { nullable: true },
               isStale: { type: 'boolean' },
-              isCalculable: { nullable: true },
+              isCalculable: { type: 'boolean' },
             },
           },
         },
