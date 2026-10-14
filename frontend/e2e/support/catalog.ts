@@ -12,6 +12,10 @@ export interface ApplicationResponse {
     longitude: number
   } | null
   state: 'AVAILABLE' | 'UNAVAILABLE' | 'NO_METRICS' | 'REMOVED'
+  reason: 'NO_OBSERVATION' | 'METRICS_VALID' | 'METRICS_MISSING' | 'SOURCE_TIMEOUT' | 'SOURCE_ERROR' | 'REQUIRED_FIELD_MISSING' | 'INVALID_FIELD' | 'MONITORING_CYCLE_DELAYED' | 'CARBON_FACTOR_UNAVAILABLE' | 'REMOVAL_CONFIRMED'
+  lastObservationAt: string | null
+  isStale: boolean
+  isCalculable: boolean
   firstSeenAt: string
   lastCheckedAt: string | null
   removedAt: string | null
@@ -24,6 +28,10 @@ export function application(overrides: Partial<ApplicationResponse> = {}): Appli
     name: 'app-pagamentos',
     location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo', latitude: -23.55, longitude: -46.63 },
     state: 'AVAILABLE',
+    reason: 'METRICS_VALID',
+    lastObservationAt: '2026-10-09T17:30:00.000Z',
+    isStale: false,
+    isCalculable: true,
     firstSeenAt: '2026-10-09T12:00:00.000Z',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
     removedAt: null,

@@ -28,4 +28,6 @@
   "selectHint": "从列表中选择应用程序以查看详情、指标和历史记录。",
   "updated": "目录已更新",
   "stateHint": "应用程序状态通过文字和视觉标识显示。"
+  ,"regionFilter": "按区域筛选"
+  ,"allRegions": "所有区域"
 }

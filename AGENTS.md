@@ -68,3 +68,17 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 - Para estrutura, propriedade de pastas e criação de telas frontend, use [`frontend/src/README.md`](frontend/src/README.md) como referência canônica; atualize-o quando a estrutura mudar.
 - Em alterações de schema de API, entidades, fluxo entre camadas, segurança, integração auxiliar ou decisão arquitetural, atualize também o OpenAPI/documentação e/ou ADR correspondente.
 - Skills descrevem convenções; não substituem a issue, critérios de aceite nem aprovação de decisões de produto.
+
+## Agent skills
+
+### Issue tracker
+
+Issues e especificações são rastreados no GitHub Issues deste repositório. Veja `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+A triagem usa os labels padrão das skills de engenharia. Veja `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+O repositório usa um único contexto, com `GLOSSARY.md` e ADRs em `docs/adr/`. Veja `docs/agents/domain.md`.

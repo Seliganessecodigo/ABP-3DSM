@@ -2,6 +2,8 @@
 .search-wrap span { font-size: 22px; line-height: 1; }
 .search-wrap input { width: 100%; min-width: 0; border: 0; outline: 0; color: #20372d; background: transparent; font: inherit; font-size: 13px; }
 .search-wrap input::placeholder { color: #5f6e65; }
+.region-filter { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; color: #53655c; font-size: 12px; font-weight: 600; }
+.region-filter select { min-height: 34px; border: 1px solid #dce5df; border-radius: 8px; padding: 0 8px; color: #394a41; background: #fff; font: inherit; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0 18px; }
 .filter { min-height: 34px; border: 1px solid #dce5df; border-radius: 8px; padding: 0 12px; color: #53655c; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; }
 .filter.active { border-color: #087454; color: white; background: #087454; }

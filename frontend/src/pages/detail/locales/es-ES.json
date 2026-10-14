@@ -13,5 +13,6 @@
   "location": "Ubicación",
   "regionCode": "Código regional",
   "latitude": "Latitud",
-  "longitude": "Longitud"
+  "longitude": "Longitud",
+  "operationalCondition": "Condición operativa", "reason": "Motivo", "freshness": "Actualidad", "calculability": "Calculabilidad"
 }

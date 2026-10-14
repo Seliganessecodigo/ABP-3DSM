@@ -211,6 +211,15 @@ test('estado é reconhecível por texto além de cor', async ({ page }) => {
   await expect(row(page, 'svc-0065')).toContainText('Removida')
 })
 
+test('catálogo mostra motivo e frescor de uma observação válida', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+  const applicationRow = row(page, 'svc-0142')
+  await expect(applicationRow).toContainText(/métricas válidas/i)
+  await expect(applicationRow).toContainText(/observação válida/i)
+  await expect(applicationRow).toContainText(/14:30/)
+})
+
 test('última verificação usa o horário fornecido no fuso da pessoa', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')

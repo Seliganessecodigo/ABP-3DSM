@@ -13,7 +13,7 @@ const applications: CatalogEntry[] = [
   { id: 'svc-005', name: 'api-pagamentos', state: 'AVAILABLE', location: null },
 ]
 
-const query: CatalogQuery = { search: '', state: 'ALL', page: 1, pageSize: 10 }
+const query: CatalogQuery = { search: '', state: 'ALL', regionCode: '', page: 1, pageSize: 10 }
 
 test('catálogo vazio retorna zero itens e zero páginas', () => {
   expect(selectCatalog([], query)).toEqual({ items: [], total: 0, page: 1, pageCount: 0 })
