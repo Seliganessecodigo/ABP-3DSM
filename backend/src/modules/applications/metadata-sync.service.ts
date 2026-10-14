@@ -13,10 +13,13 @@ export class MetadataSyncService {
     private readonly events: ApplicationEventsRepository,
   ) {}
 
-  async reconcile(cycleId: string): Promise<number> {
-    const snapshot = await this.adapter.fetchServices()
+  async reconcile(
+    cycleId: string,
+    snapshot?: Awaited<ReturnType<MetricsAggregatorAdapter['fetchServices']>>,
+  ): Promise<number> {
+    const services = snapshot ?? (await this.adapter.fetchServices())
     const observedAt = new Date()
-    const byId = new Map(snapshot.map((service) => [service.id, service]))
+    const byId = new Map(services.map((service) => [service.id, service]))
     return this.dataSource.transaction(async (manager) => {
       const known = await this.applications.findByIdsForUpdate(manager, [
         ...byId.keys(),

@@ -13,10 +13,13 @@ export class RemovalService {
     private readonly events: ApplicationEventsRepository,
   ) {}
 
-  async reconcile(cycleId: string): Promise<number> {
-    const snapshot = await this.adapter.fetchServices()
+  async reconcile(
+    cycleId: string,
+    snapshot?: Awaited<ReturnType<MetricsAggregatorAdapter['fetchServices']>>,
+  ): Promise<number> {
+    const services = snapshot ?? (await this.adapter.fetchServices())
     const observedAt = new Date()
-    const currentIds = snapshot.map((service) => service.id)
+    const currentIds = services.map((service) => service.id)
     return this.dataSource.transaction(async (manager) => {
       const missing = await this.applications.findMissingForUpdate(
         manager,
