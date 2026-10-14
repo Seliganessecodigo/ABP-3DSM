@@ -4,6 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common'
 import { ApplicationEntity } from '../../database/entities/application.entity'
+import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { ApplicationsRepository } from './applications.repository'
 
 function toResponse(application: ApplicationEntity) {
@@ -22,10 +23,14 @@ function toResponse(application: ApplicationEntity) {
     name: application.name,
     location,
     state: application.state,
-    reason: application.stateReason ?? null,
+    reason:
+      application.stateReason ??
+      (application.lastObservationAt
+        ? ApplicationStateReason.METRICS_VALID
+        : ApplicationStateReason.NO_OBSERVATION),
     lastObservationAt: application.lastObservationAt ?? null,
     isStale: application.isStale ?? false,
-    isCalculable: application.isCalculable ?? null,
+    isCalculable: application.isCalculable ?? false,
     firstSeenAt: application.firstSeenAt,
     lastCheckedAt: application.lastCheckedAt,
     removedAt: application.removedAt,

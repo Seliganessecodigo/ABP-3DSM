@@ -35,10 +35,10 @@ describe('catálogo de aplicações', () => {
       expect(response.status).toBe(200)
       expect(document.components.schemas.ApplicationDto.properties).toMatchObject({
         state: expect.anything(),
-        reason: expect.objectContaining({ nullable: true }),
+        reason: expect.objectContaining({ type: 'string' }),
         lastObservationAt: expect.objectContaining({ nullable: true }),
         isStale: expect.objectContaining({ type: 'boolean' }),
-        isCalculable: expect.objectContaining({ nullable: true }),
+        isCalculable: expect.objectContaining({ type: 'boolean' }),
       })
     } finally {
       await app.close()
@@ -121,10 +121,10 @@ describe('catálogo de aplicações', () => {
             longitude: -46.6333,
           },
           state: 'AVAILABLE',
-          reason: null,
+          reason: 'NO_OBSERVATION',
           lastObservationAt: null,
           isStale: false,
-          isCalculable: null,
+          isCalculable: false,
           firstSeenAt: '2026-10-06T10:00:00.000Z',
           lastCheckedAt: '2026-10-06T10:05:00.000Z',
           removedAt: null,

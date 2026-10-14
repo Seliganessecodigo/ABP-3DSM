@@ -33,7 +33,7 @@ export default new DataSource({
     RecalculationEntity,
     AuditLogEntity,
   ],
-  migrations: [resolve(__dirname, 'migrations/**/*{.ts,.js}')],
+  migrations: [resolve(__dirname, 'migrations/*[!c].{ts,js}')],
   migrationsTableName: 'migrations',
   synchronize: false,
   migrationsRun: false,

@@ -11,6 +11,7 @@ import { MetadataSyncService } from './metadata-sync.service'
 import { ReturnService } from './return.service'
 import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
 import { StatusClassificationService } from './status-classification.service'
+import { MetricsStatusObservationService } from './metrics-status-observation.service'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), IntegrationsModule],
@@ -24,6 +25,7 @@ import { StatusClassificationService } from './status-classification.service'
     ReturnService,
     InitialCatalogSyncRunner,
     StatusClassificationService,
+    MetricsStatusObservationService,
   ],
 })
 export class ApplicationsModule {}

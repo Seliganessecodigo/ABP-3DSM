@@ -35,8 +35,8 @@ export class ApplicationDto {
   @ApiProperty({ enum: ApplicationState })
   state!: ApplicationState
 
-  @ApiProperty({ enum: ApplicationStateReason, nullable: true })
-  reason!: ApplicationStateReason | null
+  @ApiProperty({ enum: ApplicationStateReason })
+  reason!: ApplicationStateReason
 
   @ApiProperty({ type: String, format: 'date-time', nullable: true })
   lastObservationAt!: Date | null
@@ -44,8 +44,8 @@ export class ApplicationDto {
   @ApiProperty({ description: 'Indica se o último estado foi mantido com dados stale.' })
   isStale!: boolean
 
-  @ApiProperty({ type: Boolean, nullable: true, description: 'Calculabilidade das métricas; null quando ainda não observada.' })
-  isCalculable!: boolean | null
+  @ApiProperty({ type: Boolean, description: 'Calculabilidade das métricas; false quando ainda não há evidência suficiente.' })
+  isCalculable!: boolean
 
   @ApiProperty({ type: String, format: 'date-time' })
   firstSeenAt!: Date

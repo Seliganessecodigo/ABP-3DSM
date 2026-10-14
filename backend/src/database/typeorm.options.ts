@@ -1,4 +1,6 @@
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm'
+import { config as loadEnv } from 'dotenv'
+import { resolve } from 'node:path'
 import { ApplicationEntity } from './entities/application.entity'
 import { ApplicationEventEntity } from './entities/application-event.entity'
 import { CollectionEntity } from './entities/collection.entity'
@@ -8,6 +10,8 @@ import { CarbonRegionEntity } from './entities/carbon-region.entity'
 import { CalculationConfigEntity } from './entities/calculation-config.entity'
 import { RecalculationEntity } from './entities/recalculation.entity'
 import { AuditLogEntity } from './entities/audit-log.entity'
+
+loadEnv({ path: resolve(__dirname, '../../../.env') })
 
 export function typeOrmOptions(): TypeOrmModuleOptions {
   const url = process.env.DATABASE_URL

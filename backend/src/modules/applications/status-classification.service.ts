@@ -24,6 +24,7 @@ export class StatusClassificationService {
   async record(
     applicationId: string,
     evidence: Exclude<StatusEvidence, { kind: 'removal_confirmed' }>,
+    cycleId: string | null = null,
   ): Promise<ClassifiedStatus> {
     return this.dataSource.transaction(async (manager) => {
       const application = await this.applications.findByIdForUpdate(
@@ -60,7 +61,7 @@ export class StatusClassificationService {
       if (changed) {
         await this.events.appendInTransaction(manager, {
           applicationId,
-          cycleId: null,
+          cycleId,
           kind: 'status_changed',
           actor: 'system',
           occurredAt: evidence.observedAt,

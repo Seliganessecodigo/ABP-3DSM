@@ -12,9 +12,13 @@ describe('sincronização inicial do catálogo', () => {
       finish: jest.fn().mockResolvedValue(undefined),
     }
     const discovery = { discover: jest.fn().mockResolvedValue(8) }
+    const observations = {
+      observeAll: jest.fn().mockResolvedValue({ processedCount: 8, failedCount: 0 }),
+    }
     const runner = new InitialCatalogSyncRunner(
       cycles as unknown as MonitoringCyclesRepository,
       discovery as unknown as DiscoveryService,
+      observations as never,
     )
 
     await expect(runner.run()).resolves.toBe(8)
@@ -23,6 +27,7 @@ describe('sincronização inicial do catálogo', () => {
       source: 'startup-catalog-discovery',
     })
     expect(discovery.discover).toHaveBeenCalledWith(cycle.id)
+    expect(observations.observeAll).toHaveBeenCalledWith(cycle.id)
     expect(cycles.finish).toHaveBeenCalledWith(cycle.id, {
       status: MonitoringCycleStatus.SUCCEEDED,
       discoveredCount: 8,
@@ -41,9 +46,11 @@ describe('sincronização inicial do catálogo', () => {
       finish: jest.fn().mockResolvedValue(undefined),
     }
     const discovery = { discover: jest.fn().mockRejectedValue(failure) }
+    const observations = { observeAll: jest.fn() }
     const runner = new InitialCatalogSyncRunner(
       cycles as unknown as MonitoringCyclesRepository,
       discovery as unknown as DiscoveryService,
+      observations as never,
     )
 
     await expect(runner.run()).rejects.toBe(failure)
@@ -68,9 +75,11 @@ describe('sincronização inicial do catálogo', () => {
       finish: jest.fn().mockResolvedValue(undefined),
     }
     const discovery = { discover: jest.fn().mockRejectedValue(failure) }
+    const observations = { observeAll: jest.fn() }
     const runner = new InitialCatalogSyncRunner(
       cycles as unknown as MonitoringCyclesRepository,
       discovery as unknown as DiscoveryService,
+      observations as never,
     )
 
     await expect(runner.run()).rejects.toBe(failure)

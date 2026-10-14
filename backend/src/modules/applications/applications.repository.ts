@@ -71,7 +71,7 @@ export class ApplicationsRepository {
       { id },
       {
         state: ApplicationState.REMOVED,
-        stateReason: null,
+        stateReason: ApplicationStateReason.REMOVAL_CONFIRMED,
         isStale: false,
         isCalculable: false,
         removedAt: at,
