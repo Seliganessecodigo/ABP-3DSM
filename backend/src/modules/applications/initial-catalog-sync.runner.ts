@@ -5,6 +5,7 @@ import {
 import { MonitoringCyclesRepository } from '../../database/repositories/monitoring-cycles.repository'
 import { IntegrationError } from '../../integrations/integration-error'
 import { DiscoveryService } from './discovery.service'
+import { MetricsStatusObservationService } from './metrics-status-observation.service'
 
 @Injectable()
 export class InitialCatalogSyncRunner {
@@ -13,6 +14,7 @@ export class InitialCatalogSyncRunner {
   constructor(
     private readonly cycles: MonitoringCyclesRepository,
     private readonly discovery: DiscoveryService,
+    private readonly observations: MetricsStatusObservationService,
   ) {}
 
   async run(): Promise<number> {
@@ -20,11 +22,13 @@ export class InitialCatalogSyncRunner {
 
     try {
       const discoveredCount = await this.discovery.discover(cycle.id)
+      const { processedCount, failedCount } =
+        await this.observations.observeAll(cycle.id)
       await this.cycles.finish(cycle.id, {
         status: MonitoringCycleStatus.SUCCEEDED,
         discoveredCount,
-        processedCount: discoveredCount,
-        failedCount: 0,
+        processedCount,
+        failedCount,
         persistedCount: discoveredCount,
         details: { source: this.source },
       })

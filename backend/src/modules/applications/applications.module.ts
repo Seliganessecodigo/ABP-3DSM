@@ -11,6 +11,7 @@ import { MetadataSyncService } from './metadata-sync.service'
 import { ReturnService } from './return.service'
 import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
 import { StatusClassificationService } from './status-classification.service'
+import { MetricsStatusObservationService } from './metrics-status-observation.service'
 import { MonitoringCycleRunner } from './monitoring-cycle.runner'
 import { MonitoringScheduler } from './monitoring-scheduler'
 import {
@@ -36,6 +37,7 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     ReturnService,
     InitialCatalogSyncRunner,
     StatusClassificationService,
+    MetricsStatusObservationService,
     MonitoringCycleRunner,
     {
       provide: MonitoringScheduler,

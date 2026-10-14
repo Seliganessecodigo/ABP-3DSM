@@ -81,6 +81,7 @@ describe('StatusClassificationService', () => {
     applications.findByIdForUpdate.mockResolvedValue(
       makeApplication({
         state: ApplicationState.AVAILABLE,
+        stateReason: ApplicationStateReason.METRICS_VALID,
         isCalculable: true,
         lastObservationAt: new Date('2026-10-07T11:00:00.000Z'),
       }),
