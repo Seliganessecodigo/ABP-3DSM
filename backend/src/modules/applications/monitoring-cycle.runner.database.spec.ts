@@ -216,6 +216,121 @@ describeDatabase('monitoring cycle with isolated PostgreSQL', () => {
     ).toHaveLength(0)
   })
 
+  it('recovers after a database write failure without storing zero or losing the next observation', async () => {
+    await database.query(`
+      CREATE FUNCTION fail_cycle_test_collection_write() RETURNS trigger AS $$
+      BEGIN RAISE EXCEPTION 'forced test database failure'; END;
+      $$ LANGUAGE plpgsql
+    `)
+    await database.query(`
+      CREATE TRIGGER fail_cycle_test_collection_write
+      BEFORE INSERT ON collections
+      FOR EACH ROW WHEN (NEW."applicationId" = 'cycle-test-a')
+      EXECUTE FUNCTION fail_cycle_test_collection_write()
+    `)
+
+    try {
+      await runner.run()
+
+      const [failedCycle] = await database
+        .getRepository(MonitoringCycleEntity)
+        .find()
+      expect(failedCycle).toMatchObject({
+        status: 'FAILED',
+        processedCount: 1,
+        failedCount: 1,
+        persistedCount: 0,
+      })
+      const staleApplication = await database
+        .getRepository(ApplicationEntity)
+        .findOneByOrFail({ id: 'cycle-test-a' })
+      expect(staleApplication).toMatchObject({
+        state: ApplicationState.UNAVAILABLE,
+        stateReason: ApplicationStateReason.SOURCE_ERROR,
+        isStale: true,
+        lastObservationAt: null,
+      })
+      expect(
+        await database.getRepository(CollectionEntity).find(),
+      ).toHaveLength(0)
+    } finally {
+      await database.query(
+        'DROP TRIGGER IF EXISTS fail_cycle_test_collection_write ON collections',
+      )
+      await database.query(
+        'DROP FUNCTION IF EXISTS fail_cycle_test_collection_write()',
+      )
+    }
+
+    upstream.fetchMetrics.mockResolvedValue({
+      collectionIntervalSeconds: 60,
+      metrics: { cpuPercent: 7, memoryGb: 2, diskGb: 3, networkGb: 4 },
+      receivedAt: new Date(receivedAt.getTime() + 60_000),
+    })
+    await runner.run()
+
+    const recoveredApplication = await database
+      .getRepository(ApplicationEntity)
+      .findOneByOrFail({ id: 'cycle-test-a' })
+    expect(recoveredApplication).toMatchObject({
+      state: ApplicationState.AVAILABLE,
+      isStale: false,
+      lastObservationAt: new Date(receivedAt.getTime() + 60_000),
+    })
+    expect(await database.getRepository(CollectionEntity).find()).toHaveLength(
+      1,
+    )
+    const cycles = await database.getRepository(MonitoringCycleEntity).find({
+      order: { startedAt: 'ASC' },
+    })
+    expect(cycles.map(({ status }) => status)).toEqual(['FAILED', 'SUCCEEDED'])
+  })
+
+  it('discovers, removes, and returns an application through successive cycles', async () => {
+    await runner.run()
+    upstream.fetchServices.mockResolvedValue([])
+    await runner.run()
+    const removed = await database
+      .getRepository(ApplicationEntity)
+      .findOneByOrFail({ id: 'cycle-test-a' })
+    expect(removed.state).toBe(ApplicationState.REMOVED)
+
+    upstream.fetchServices.mockResolvedValue([service('a')])
+    upstream.fetchMetrics.mockResolvedValue({
+      collectionIntervalSeconds: 60,
+      metrics: { cpuPercent: 3, memoryGb: 2, diskGb: 3, networkGb: 4 },
+      receivedAt: new Date(receivedAt.getTime() + 60_000),
+    })
+    await runner.run()
+
+    const returned = await database
+      .getRepository(ApplicationEntity)
+      .findOneByOrFail({ id: 'cycle-test-a' })
+    expect(returned).toMatchObject({
+      state: ApplicationState.AVAILABLE,
+      removedAt: null,
+      isStale: false,
+    })
+    expect(
+      (
+        await database
+          .getRepository(ApplicationEventEntity)
+          .find({ where: { applicationId: 'cycle-test-a' } })
+      ).map(({ kind }) => kind),
+    ).toEqual([
+      'discovered',
+      'status_changed',
+      'removed',
+      'returned',
+      'status_changed',
+    ])
+    expect(
+      await database.getRepository(CollectionEntity).find({
+        where: { applicationId: 'cycle-test-a' },
+      }),
+    ).toHaveLength(2)
+  })
+
   it('does not confirm removal if the services snapshot is invalid', async () => {
     const [known] = await database.query(
       'INSERT INTO applications (id, name, state, "firstSeenAt", "lastCheckedAt", "isStale", "isCalculable") VALUES ($1, $2, $3, now(), now(), false, false) RETURNING id',
