@@ -12,6 +12,18 @@ import { ReturnService } from './return.service'
 import { InitialCatalogSyncRunner } from './initial-catalog-sync.runner'
 import { StatusClassificationService } from './status-classification.service'
 import { MetricsStatusObservationService } from './metrics-status-observation.service'
+import { MonitoringCycleRunner } from './monitoring-cycle.runner'
+import { MonitoringScheduler } from './monitoring-scheduler'
+import {
+  getMonitoringMetricsConcurrency,
+  getMonitoringScheduleIntervalSeconds,
+} from '../../config/monitoring-schedule.config'
+
+export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
+  return new MonitoringScheduler(getMonitoringScheduleIntervalSeconds(), () =>
+    runner.run(),
+  )
+}
 
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), IntegrationsModule],
@@ -26,6 +38,16 @@ import { MetricsStatusObservationService } from './metrics-status-observation.se
     InitialCatalogSyncRunner,
     StatusClassificationService,
     MetricsStatusObservationService,
+    MonitoringCycleRunner,
+    {
+      provide: MonitoringScheduler,
+      useFactory: createMonitoringScheduler,
+      inject: [MonitoringCycleRunner],
+    },
+    {
+      provide: 'MONITORING_METRICS_CONCURRENCY',
+      useFactory: getMonitoringMetricsConcurrency,
+    },
   ],
 })
 export class ApplicationsModule {}
