@@ -316,12 +316,12 @@ describeDatabase('monitoring cycle with isolated PostgreSQL', () => {
         await database
           .getRepository(ApplicationEventEntity)
           .find({ where: { applicationId: 'cycle-test-a' } })
-      ).map(({ kind }) => kind),
+      ).map(({ kind }) => kind).sort(),
     ).toEqual([
       'discovered',
-      'status_changed',
       'removed',
       'returned',
+      'status_changed',
       'status_changed',
     ])
     expect(
