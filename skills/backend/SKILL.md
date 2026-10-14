@@ -14,15 +14,20 @@ description: Implementar ou revisar API, domínio, integrações, persistência 
 ## Arquitetura e implementação
 
 - Use módulos NestJS por domínio e injeção de dependências. Controllers tratam HTTP/DTOs; services coordenam casos de uso; regras puras ficam fora do transporte e ORM.
+- Antes de criar pasta, provider ou abstração, procure a implementação existente mais próxima. Cada módulo é dono do seu caso de uso; extraia algo para `common/shared` somente quando for realmente transversal e tiver contrato claro.
+- Mantenha o fluxo explícito: controller → service/caso de uso → repository ou adapter. Não permita dependências circulares entre módulos; compartilhe contratos pequenos por exports existentes, sem importar detalhes internos de outro módulo.
 - Separe acesso a dados em repositories injetáveis. Controllers não acessam TypeORM/DataSource diretamente e services de domínio não dependem de HTTP. Repositories não devem absorver regras de negócio.
 - Separe acesso a serviços auxiliares em adapters/providers injetáveis, distintos dos repositories: providers cuidam de HTTP externo; repositories cuidam da persistência PostgreSQL.
 - Apenas backend chama APIs auxiliares. Isole cada integração em adapter/provider com timeout, validação do payload, limites de concorrência e tratamento explícito de erros.
 - Integre com o Agregador de Métricas (`/services` e `/metrics/{id_servico}`) e Serviço de Intensidade de Carbono conforme o contrato oficial atual. Normalize schemas externos para tipos/modelos internos; não espalhe payload de terceiros pela API pública do GreenER.
 - Valide DTOs e parâmetros na borda da API. Respostas e erros devem ser estáveis e não revelar stack trace, segredo ou dado sensível.
+- Converta dados externos e de persistência para tipos de domínio na fronteira correspondente. Não propague `any`, entidades TypeORM ou payloads de terceiros por todas as camadas.
 - Use PostgreSQL/TypeORM conforme padrões existentes. Toda mudança estrutural persistente requer migration versionada; não habilite sincronização automática do schema em produção.
 - Não apague ou sobrescreva histórico para representar mudança de estado/configuração. Mantenha versões e eventos conforme os requisitos da issue e do modelo atual.
 - Diferencie zero legítimo de ausente, inválido, stale ou não calculável. Não substitua falha por zero nem remova aplicações por timeout/erro de origem.
 - Ciclos de coleta devem impedir sobreposição e limitar concorrência conforme decisão/documentação aprovada. Falha em uma aplicação não deve cancelar o processamento independente das demais.
+- Torne operações repetíveis seguras quando houver retries, scheduler ou entrega duplicada; defina idempotência e limites de transação no caso de uso, sem reter transações abertas durante I/O externo.
+- Evite consultas N+1, leituras/escritas redundantes e paralelismo sem limite. Use paginação/limites definidos no contrato e selecione somente dados necessários ao caso de uso.
 - Proteja rotas no backend; esconder botão ou rota no frontend não constitui autorização. Nunca registre senha, token, conexão ou payload sensível.
 - Não invente fatores de carbono, coeficientes, unidades, limites ou política de retry; peça aprovação via issue quando faltarem.
 - Para operações de domínio que usem múltiplos repositories, delimite transação na camada de aplicação/service. Não mantenha chamada HTTP externa dentro de transação longa de banco.
@@ -37,7 +42,7 @@ description: Implementar ou revisar API, domínio, integrações, persistência 
 
 ## Testes e verificação
 
-Adicione/ajuste testes pertinentes ao comportamento alterado. Cubra regras de domínio, casos inválidos e falhas sem depender de serviços reais.
+Adicione/ajuste testes pertinentes ao comportamento alterado. Cubra regras de domínio, casos inválidos, falhas e limites relevantes sem depender de serviços reais. Testes devem observar o contrato público da unidade e não duplicar a implementação interna.
 
 Execute na pasta `backend/`, conforme o escopo:
 

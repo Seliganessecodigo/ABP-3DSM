@@ -35,10 +35,10 @@ describe('catálogo de aplicações', () => {
       expect(response.status).toBe(200)
       expect(document.components.schemas.ApplicationDto.properties).toMatchObject({
         state: expect.anything(),
-        reason: expect.objectContaining({ nullable: true }),
+        reason: expect.objectContaining({ type: 'string' }),
         lastObservationAt: expect.objectContaining({ nullable: true }),
         isStale: expect.objectContaining({ type: 'boolean' }),
-        isCalculable: expect.objectContaining({ nullable: true }),
+        isCalculable: expect.objectContaining({ type: 'boolean' }),
       })
     } finally {
       await app.close()

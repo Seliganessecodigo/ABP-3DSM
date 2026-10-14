@@ -1,0 +1,14 @@
+.detail-content { max-width: 1120px; }
+.back-link { display: inline-block; margin-bottom: 22px; color: #087454; font-size: 12px; font-weight: 650; text-decoration: none; }
+:global(.page-heading).detail-heading { margin-bottom: 23px; }
+.detail-heading :global(.state-badge) { font-size: 12px; }
+.detail-card { margin-bottom: 16px; border: 1px solid #e0e8e3; border-radius: 10px; padding: 20px; background: white; }
+.detail-card h2 { margin-bottom: 17px; color: #24392e; font-size: 15px; }
+.detail-card dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 24px; margin: 0; }
+.detail-card dl > div { min-width: 0; }
+.detail-card dt { margin-bottom: 5px; color: #76847c; font-size: 11px; }
+.detail-card dd { margin: 0; overflow-wrap: anywhere; color: #24392e; font-size: 13px; font-weight: 600; }
+@media (max-width: 640px) {
+  .detail-card { padding: 16px; }
+  .detail-card dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+}

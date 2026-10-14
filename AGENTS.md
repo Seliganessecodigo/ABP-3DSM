@@ -28,11 +28,18 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 
 - Leia a issue vinculada e os arquivos afetados antes de editar. Mantenha o escopo da issue e registre dependências reais.
 - Faça mudanças pequenas e coerentes, preserve padrões já existentes e evite adicionar dependências sem necessidade clara.
+- Antes de criar uma abstração ou mover responsabilidades, verifique como as telas/módulos existentes resolvem o mesmo problema. Estenda o padrão atual; proponha uma mudança arquitetural separada quando ele não atender ao caso.
+- Mantenha cada arquivo no limite de responsabilidade da sua camada. Componentes de composição conectam módulos; não absorvem páginas, chamadas HTTP, regras de domínio ou estilos específicos de várias telas.
+- Ao dividir trabalho entre pessoas/agentes, combine antes os arquivos de propriedade, interfaces e critérios de aceite. Prefira mudanças em pastas distintas; coordene explicitamente qualquer arquivo compartilhado e integre em branches/PRs revisáveis.
+- Trate contratos e dados como fronteiras: valide entradas externas, mantenha tipos explícitos e preserve estados distintos de sucesso, vazio, erro e indisponibilidade. Não esconda falhas com valores padrão que alterem o significado dos dados.
+- Faça otimizações com base em fluxo ou medição observável. Evite cache, memoização, concorrência, abstrações e dependências adicionais sem necessidade demonstrada; preserve cancelamento, limites e comportamento atual quando tocar em carregamento assíncrono.
 - Não implemente requisito de backlog como se fosse decisão técnica aprovada quando houver dependência de produto explícita.
 - Não leia nem edite `node_modules/`, `dist/`, cobertura ou artefatos gerados, salvo quando a tarefa tratar diretamente desses artefatos.
 - Nunca exponha ou versione segredos. Use `.env.example` apenas com valores demonstrativos e mantenha `.env` fora do Git.
 - Se a alteração atravessar frontend e backend, alinhe os contratos e tipos entre as camadas; não duplique regra de domínio no cliente.
 - Atualize README/documentação quando mudar comandos locais, variáveis, contratos ou operação.
+- A documentação do site é Markdown em `docs/`: `docs/` raiz é `pt-BR`; os outros idiomas ficam em `docs/<locale>/`. Ao alterar uma página publicada, mantenha a página equivalente atualizada nos oito locales e execute `npm run docs:build`.
+- `README.md` é o resumo de entrada do repositório; mantenha os detalhes no Markdown da documentação para que GitHub e ferramentas de IA possam lê-los sem depender do HTML gerado.
 
 ## Git e pull requests
 
@@ -58,5 +65,6 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 - Para trabalho em `frontend/`, leia e siga [`skills/frontend/SKILL.md`](skills/frontend/SKILL.md).
 - Para trabalho em `backend/`, leia e siga [`skills/backend/SKILL.md`](skills/backend/SKILL.md).
 - Em mudanças que tocam ambas as pastas, siga as duas skills e coordene o contrato.
+- Para estrutura, propriedade de pastas e criação de telas frontend, use [`frontend/src/README.md`](frontend/src/README.md) como referência canônica; atualize-o quando a estrutura mudar.
 - Em alterações de schema de API, entidades, fluxo entre camadas, segurança, integração auxiliar ou decisão arquitetural, atualize também o OpenAPI/documentação e/ou ADR correspondente.
 - Skills descrevem convenções; não substituem a issue, critérios de aceite nem aprovação de decisões de produto.
