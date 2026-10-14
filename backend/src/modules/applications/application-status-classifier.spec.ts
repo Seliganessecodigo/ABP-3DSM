@@ -14,7 +14,7 @@ describe('classifyStatus', () => {
       ),
     ).toEqual({
       state: ApplicationState.AVAILABLE,
-      reason: null,
+      reason: ApplicationStateReason.METRICS_VALID,
       isStale: false,
       isCalculable: true,
       lastCheckedAt: observedAt,
@@ -108,7 +108,7 @@ describe('classifyStatus', () => {
       ),
     ).toMatchObject({
       state: ApplicationState.AVAILABLE,
-      reason: null,
+      reason: ApplicationStateReason.METRICS_VALID,
       isStale: false,
       isCalculable: true,
       lastObservationAt: recoveredAt,
@@ -120,7 +120,7 @@ describe('classifyStatus', () => {
       classifyStatus({ kind: 'removal_confirmed', observedAt }, previousObservation),
     ).toMatchObject({
       state: ApplicationState.REMOVED,
-      reason: null,
+      reason: ApplicationStateReason.REMOVAL_CONFIRMED,
       isCalculable: false,
       lastObservationAt: previousObservation,
     })

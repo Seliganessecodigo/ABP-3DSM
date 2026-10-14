@@ -180,7 +180,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
     )
     expect(await response.json()).toMatchObject({
       state: 'AVAILABLE',
-      reason: null,
+      reason: ApplicationStateReason.METRICS_VALID,
       isStale: false,
       isCalculable: true,
       lastObservationAt: recoveredAt.toISOString(),

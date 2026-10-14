@@ -20,7 +20,7 @@ export type StatusEvidence =
 
 export interface ClassifiedStatus {
   state: ApplicationState
-  reason: ApplicationStateReason | null
+  reason: ApplicationStateReason
   isStale: boolean
   isCalculable: boolean
   lastCheckedAt: Date
@@ -39,7 +39,11 @@ export function classifyStatus(
   }
 
   if (evidence.kind === 'removal_confirmed') {
-    return { ...base, state: ApplicationState.REMOVED, reason: null }
+    return {
+      ...base,
+      state: ApplicationState.REMOVED,
+      reason: ApplicationStateReason.REMOVAL_CONFIRMED,
+    }
   }
 
   if (evidence.kind === 'source_failure') {
@@ -79,7 +83,7 @@ export function classifyStatus(
     ...base,
     state: ApplicationState.AVAILABLE,
     reason: evidence.carbonFactorAvailable
-      ? null
+      ? ApplicationStateReason.METRICS_VALID
       : ApplicationStateReason.CARBON_FACTOR_UNAVAILABLE,
     isCalculable: evidence.carbonFactorAvailable,
     lastObservationAt: evidence.observedAt,

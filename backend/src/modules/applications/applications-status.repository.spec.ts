@@ -38,7 +38,7 @@ describe('ApplicationsRepository operational status methods', () => {
     const lastObservationAt = new Date('2026-10-07T11:00:00.000Z')
     const status: ClassifiedStatus = {
       state: ApplicationState.UNAVAILABLE,
-      reason: null,
+      reason: ApplicationStateReason.SOURCE_TIMEOUT,
       isStale: true,
       isCalculable: false,
       lastCheckedAt: observedAt,
@@ -56,7 +56,7 @@ describe('ApplicationsRepository operational status methods', () => {
       { id: 'api' },
       {
         state: ApplicationState.UNAVAILABLE,
-        stateReason: null,
+        stateReason: ApplicationStateReason.SOURCE_TIMEOUT,
         isStale: true,
         isCalculable: false,
         lastCheckedAt: observedAt,
@@ -80,7 +80,7 @@ describe('ApplicationsRepository operational status methods', () => {
       { id: 'api' },
       {
         state: ApplicationState.REMOVED,
-        stateReason: null,
+        stateReason: ApplicationStateReason.REMOVAL_CONFIRMED,
         isStale: false,
         isCalculable: false,
         removedAt,
