@@ -177,7 +177,8 @@ export class MonitoringCycleRunner {
     const worker = async (): Promise<void> => {
       while (nextIndex < items.length) {
         const index = nextIndex++
-        await operation(items[index])
+        // A worker waits so it never exceeds the configured concurrency cap.
+        await operation(items[index]) // NOSONAR
       }
     }
     await Promise.all(
