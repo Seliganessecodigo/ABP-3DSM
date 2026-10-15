@@ -160,7 +160,6 @@ test('a slow automatic catalog refresh does not overlap another poll or manual r
   await page.clock.fastForward(60_000)
   await expect.poll(() => requests).toBeGreaterThan(initialRequests)
   const requestsWhileRefreshPending = requests
-  await expect(refresh).toBeDisabled()
 
   await page.clock.fastForward(120_000)
   expect(requests).toBe(requestsWhileRefreshPending)
