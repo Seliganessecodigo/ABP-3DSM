@@ -17,5 +17,6 @@
   "operationalCondition": "Operational condition",
   "reason": "Reason",
   "freshness": "Freshness",
+  "freshnessRemoved": "Not applicable to a removed application",
   "calculability": "Calculability"
 }

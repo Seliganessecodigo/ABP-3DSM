@@ -14,5 +14,5 @@
   "regionCode": "Regionscode",
   "latitude": "Breitengrad",
   "longitude": "Längengrad",
-  "operationalCondition": "Betriebszustand", "reason": "Grund", "freshness": "Aktualität", "calculability": "Berechenbarkeit"
+  "operationalCondition": "Betriebszustand", "reason": "Grund", "freshness": "Aktualität", "freshnessRemoved": "Für eine entfernte Anwendung nicht anwendbar", "calculability": "Berechenbarkeit"
 }

@@ -152,6 +152,20 @@ test('busca e estado são combinados na tabela', async ({ page }) => {
   await expect(row(page, 'svc-outro-nome')).toHaveCount(0)
 })
 
+test('filtro regional combina com o catálogo e permanece na URL e no retorno', async ({ page }) => {
+  await mockCatalog(page, [application(), application({ id: 'svc-outro', location: { regionCode: 'US-VA', country: 'Estados Unidos', region: 'Virginia', city: null, latitude: 38.9, longitude: -77.04 } })])
+  await page.goto('/')
+  const regionFilter = page.getByRole('combobox', { name: /filtrar por região/i })
+  await regionFilter.selectOption('BR-SP')
+  await expect(row(page, 'svc-0142')).toBeVisible()
+  await expect(row(page, 'svc-outro')).toHaveCount(0)
+  expect(new URL(page.url()).searchParams.get('region')).toBe('BR-SP')
+  await row(page, 'svc-0142').getByRole('link', { name: /ver detalhes/i }).click()
+  await page.getByRole('link', { name: /voltar ao catálogo/i }).click()
+  await expect(regionFilter).toHaveValue('BR-SP')
+  await expect(row(page, 'svc-0142')).toBeVisible()
+})
+
 test('busca sem resultado é distinta de catálogo vazio e pode ser corrigida', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')

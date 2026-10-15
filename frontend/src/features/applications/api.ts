@@ -27,11 +27,11 @@ const endpoint = (id?: string) => {
 
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 function isDate(value: unknown): value is string { return typeof value === 'string' && Number.isFinite(Date.parse(value)) }
-const reasons: readonly ApplicationStateReason[] = ['NO_OBSERVATION', 'METRICS_VALID', 'METRICS_MISSING', 'SOURCE_TIMEOUT', 'SOURCE_ERROR', 'REQUIRED_FIELD_MISSING', 'INVALID_FIELD', 'MONITORING_CYCLE_DELAYED', 'CARBON_FACTOR_UNAVAILABLE', 'REMOVAL_CONFIRMED']
+const reasons: ReadonlySet<ApplicationStateReason> = new Set(['NO_OBSERVATION', 'METRICS_VALID', 'METRICS_MISSING', 'SOURCE_TIMEOUT', 'SOURCE_ERROR', 'REQUIRED_FIELD_MISSING', 'INVALID_FIELD', 'MONITORING_CYCLE_DELAYED', 'CARBON_FACTOR_UNAVAILABLE', 'REMOVAL_CONFIRMED'])
 export function parseApplication(value: unknown): Application {
   if (!isRecord(value) || typeof value.id !== 'string' || !value.id || typeof value.name !== 'string' || !value.name ||
     !['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'].includes(String(value.state)) ||
-    !reasons.includes(value.reason as ApplicationStateReason) || !(value.lastObservationAt === null || isDate(value.lastObservationAt)) ||
+    !reasons.has(value.reason as ApplicationStateReason) || !(value.lastObservationAt === null || isDate(value.lastObservationAt)) ||
     typeof value.isStale !== 'boolean' || typeof value.isCalculable !== 'boolean' ||
     !isDate(value.firstSeenAt) || !isDate(value.updatedAt) ||
     !(value.lastCheckedAt === null || isDate(value.lastCheckedAt)) || !(value.removedAt === null || isDate(value.removedAt))) {
