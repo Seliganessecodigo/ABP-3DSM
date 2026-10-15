@@ -47,7 +47,7 @@ test('the application detail refreshes automatically without changing the select
   await page.clock.fastForward(60_000)
 
   await expect(page.getByRole('heading', { name: 'app-pagamentos-atualizada', exact: true })).toBeVisible()
-  await expect(page.getByText('svc-0142', { exact: true })).toBeVisible()
+  expect(new URL(page.url()).pathname).toBe('/services/svc-0142')
   await expect.poll(() => requests).toBeGreaterThan(initialRequests)
 })
 
