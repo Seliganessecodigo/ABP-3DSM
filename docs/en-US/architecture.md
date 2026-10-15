@@ -25,3 +25,7 @@ The frontend calls only the GreenER API. Only the backend connects to the Metric
 The backend integrates with data sources and persists their data. It follows documented contracts, schemas, and units. Errors, missing values, invalid responses, stale data, and valid zero values are distinct states; screens must preserve that distinction.
 
 See the [external API contracts in the repository](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) and the [frontend organization guide](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) for implementation details.
+
+## Further reading
+
+[Methodology and data](./product/methodology) · [API reference](./reference/api) · [Operations and diagnosis](./operations)

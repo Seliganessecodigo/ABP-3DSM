@@ -25,3 +25,7 @@ El frontend solo llama a la API de GreenER. Únicamente el backend se conecta al
 El backend integra las fuentes de datos y los persiste. Sigue los contratos, esquemas y unidades documentados. Los errores, los valores ausentes, las respuestas no válidas, los datos desactualizados y los ceros válidos son estados distintos; las pantallas deben conservar esa diferencia.
 
 Consulta los [contratos de las API externas en el repositorio](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) y la [guía de organización del frontend](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) para ver los detalles de implementación.
+
+## Lecturas relacionadas
+
+[Metodología y datos](./product/methodology) · [Referencia de la API](./reference/api) · [Operación y diagnóstico](./operations)

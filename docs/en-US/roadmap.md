@@ -21,3 +21,9 @@ The GreenER backlog is organized into six product epics and one technical founda
 - Public queries and administrative changes have different access rules; authorization is enforced by the backend.
 
 [Open in GitHub backlog](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## Dependencies and boundaries
+
+Dependency order without a date commitment: recognize applications and collect evidence → approve the model and persist versioned results → present summaries/history → compare and simulate. Administration and preferences follow their authorization/design dependencies. Sprint and capacity are managed in Projects; this page promises no calendar.
+
+[Vision and scope](./product/vision) · [Quality and acceptance](./product/quality) · [Decisions and dependencies](./product/decisions)

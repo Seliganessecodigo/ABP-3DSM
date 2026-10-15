@@ -21,3 +21,9 @@ GreenERのバックログは六つの製品エピックと、技術基盤・品�
 - 公開参照と管理変更ではアクセス規則が異なり、認可はバックエンドで行う。
 
 [GitHubバックログで開く](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## 依存関係と制約
+
+期限の約束ではなく依存順序です：認識・収集 → モデル承認・版付き結果 → 概要・履歴 → 比較・simulation。管理・設定は認可とdesignの依存に従い、Sprint・能力はProjectsで管理します。
+
+[ビジョンと範囲](./product/vision) · [品質と受け入れ](./product/quality) · [決定と依存事項](./product/decisions)

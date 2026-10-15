@@ -21,3 +21,9 @@ GreenER 待办列表由六个产品史诗和一个技术基础与质量史诗组
 - 公开查询与管理变更具有不同的访问规则；权限由后端执行。
 
 [在 GitHub 待办列表中打开](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## 依赖与边界
+
+依赖顺序并非日期承诺：识别/采集 → 批准模型/版本化结果 → 摘要/历史 → 比较/模拟。管理和偏好遵循权限/设计依赖，Sprint和容量由Projects管理。
+
+[愿景与范围](./product/vision) · [质量与验收](./product/quality) · [决策与依赖](./product/decisions)

@@ -21,3 +21,9 @@ Das GreenER-Backlog besteht aus sechs Produkt-Epics und einem Epic für technisc
 - Öffentliche Abfragen und administrative Änderungen haben unterschiedliche Zugriffsregeln; das Backend setzt die Autorisierung durch.
 
 [Im GitHub-Backlog öffnen](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## Abhängigkeiten und Grenzen
+
+Abhängigkeiten ohne Terminversprechen: erkennen/sammeln → Modell freigeben/versionierte Ergebnisse → Übersicht/Historie → Vergleich/Simulation. Administration/Präferenzen folgen Autorisierung/Design. Sprint/Kapazität in Projects.
+
+[Vision und Umfang](./product/vision) · [Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)

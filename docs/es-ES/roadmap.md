@@ -21,3 +21,9 @@ El backlog de GreenER se organiza en seis épicas de producto y una épica de fu
 - Las consultas públicas y los cambios administrativos tienen reglas de acceso distintas; el backend aplica la autorización.
 
 [Abrir en el backlog de GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## Dependencias y límites
+
+Orden de dependencia, sin compromiso de fechas: reconocer aplicaciones/recopilar → aprobar modelo/resultados versionados → resumen/historial → comparación/simulación. Administración y preferencias siguen autorización/diseño. Sprint y capacidad se definen en Projects.
+
+[Visión y alcance](./product/vision) · [Calidad y aceptación](./product/quality) · [Decisiones y dependencias](./product/decisions)

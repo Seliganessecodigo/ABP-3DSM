@@ -25,8 +25,14 @@ features:
 
 GreenER é um projeto acadêmico de Desenvolvimento de Software Multiplataforma da Fatec Jacareí. Seu objetivo é ajudar a acompanhar aplicações, estimar o consumo de energia e apresentar emissões equivalentes de CO₂ (CO₂e).
 
-## Estado atual
+## Estado e caminhos de leitura
 
-O frontend já oferece um catálogo de aplicações e uma página de detalhe. O backend fornece a API do catálogo e realiza a descoberta inicial das aplicações. Dashboard, cálculos ambientais, análises e administração fazem parte do escopo do produto e estão organizados no [backlog de épicos](./roadmap).
+A documentação distingue comportamento disponível, escopo planejado e decisões pendentes. O catálogo e o detalhe têm interface; o backend também dispõe de coleta periódica e consultas de evidências. A presença de uma rota não significa que toda a experiência correspondente esteja entregue na UI.
 
-As estimativas dependem dos dados e contratos das fontes. Ausência, erro ou dado desatualizado não significa consumo ou emissão zero.
+- [Visão e escopo](./product/vision)
+- [Guia de uso](./guide/monitoring)
+- [Metodologia e dados](./product/methodology)
+- [Qualidade e aceite](./product/quality)
+- [Decisões e dependências](./product/decisions)
+- [Referência da API](./reference/api)
+- [Operação e diagnóstico](./operations)
