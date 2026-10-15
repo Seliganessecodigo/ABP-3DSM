@@ -11,6 +11,7 @@ import { ApplicationOperationalStatus1791360000000 } from '../../database/migrat
 import { configureOpenApi } from '../../openapi'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { StatusClassificationService } from './status-classification.service'
+import { CollectionsRepository } from '../../database/repositories/collections.repository'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeWithDatabase = testDatabaseUrl ? describe : describe.skip
@@ -67,8 +68,9 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
 
     expect(generatedUuidDefaults.length).toBeGreaterThan(0)
     expect(
-      generatedUuidDefaults.every(({ column_default }: { column_default: string }) =>
-        column_default.includes('gen_random_uuid()'),
+      generatedUuidDefaults.every(
+        ({ column_default }: { column_default: string }) =>
+          column_default.includes('gen_random_uuid()'),
       ),
     ).toBe(true)
 
@@ -137,6 +139,162 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
       id: 'catalog-test-app',
       location: { regionCode: 'br-sudeste', city: null },
     })
+  })
+
+  it('consulta a última observação válida pela API da aplicação', async () => {
+    const collectedAt = new Date('2026-10-07T10:00:00.000Z')
+    const intervalStart = new Date('2026-10-07T09:59:30.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+      [
+        'catalog-test-app',
+        intervalStart,
+        collectedAt,
+        collectedAt,
+        {
+          cpuPercent: 0,
+          memoryGb: 1.5,
+          diskGb: 2,
+          networkGb: 3,
+          collectionIntervalSeconds: 30,
+        },
+        { cpuPercent: '%', memoryGb: 'GB', diskGb: 'GB', networkGb: 'GB' },
+        'AVAILABLE',
+      ],
+    )
+
+    try {
+      await database.query(
+        `INSERT INTO applications (id, name, state)
+         VALUES ($1, $2, $3)`,
+        ['catalog-other-app', 'Other Catalog App', 'AVAILABLE'],
+      )
+      const classifier = app.get(StatusClassificationService)
+      await classifier.record('catalog-test-app', {
+        kind: 'metrics',
+        result: 'valid',
+        observedAt: collectedAt,
+        carbonFactorAvailable: false,
+      })
+      await classifier.record('catalog-test-app', {
+        kind: 'source_failure',
+        reason: ApplicationStateReason.SOURCE_TIMEOUT,
+        observedAt: new Date(collectedAt.getTime() + 1_000),
+      })
+
+      const response = await fetch(
+        new URL(
+          '/applications/catalog-test-app/collections/latest',
+          await app.getUrl(),
+        ),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        id: collection.id,
+        applicationId: 'catalog-test-app',
+        intervalStart: intervalStart.toISOString(),
+        intervalEnd: collectedAt.toISOString(),
+        collectedAt: collectedAt.toISOString(),
+        collectionIntervalSeconds: 30,
+        isStale: true,
+        state: 'UNAVAILABLE',
+        reason: 'SOURCE_TIMEOUT',
+        metrics: {
+          cpu: { value: 0, unit: '%', status: 'available' },
+          memory: { value: 1.5, unit: 'GB', status: 'available' },
+          disk: { value: 2, unit: 'GB', status: 'available' },
+          network: { value: 3, unit: 'GB', status: 'available' },
+        },
+      })
+
+      const byId = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+      expect(byId.status).toBe(200)
+      expect(await byId.json()).toMatchObject({ id: collection.id })
+
+      const outsideApplication = await fetch(
+        new URL(
+          `/applications/catalog-other-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+      expect(outsideApplication.status).toBe(404)
+      expect(await outsideApplication.json()).toMatchObject({
+        code: 'COLLECTION_NOT_FOUND',
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+      await database.query('DELETE FROM applications WHERE id = $1', [
+        'catalog-other-app',
+      ])
+    }
+
+    const noEvidence = await fetch(
+      new URL(
+        '/applications/catalog-test-app/collections/latest',
+        await app.getUrl(),
+      ),
+    )
+    expect(noEvidence.status).toBe(404)
+    expect(await noEvidence.json()).toMatchObject({
+      code: 'COLLECTION_NOT_FOUND',
+    })
+
+    const missingApplication = await fetch(
+      new URL(
+        '/applications/catalog-missing-app/collections/latest',
+        await app.getUrl(),
+      ),
+    )
+    expect(missingApplication.status).toBe(404)
+    expect(await missingApplication.json()).toMatchObject({
+      code: 'APPLICATION_NOT_FOUND',
+    })
+
+    const missingCollection = await fetch(
+      new URL(
+        '/applications/catalog-test-app/collections/00000000-0000-0000-0000-000000000000',
+        await app.getUrl(),
+      ),
+    )
+    expect(missingCollection.status).toBe(404)
+    expect(await missingCollection.json()).toMatchObject({
+      code: 'COLLECTION_NOT_FOUND',
+    })
+  })
+
+  it('retorna erro estável quando o armazenamento das evidências falha', async () => {
+    const collections = app.get(CollectionsRepository)
+    const findLatest = jest
+      .spyOn(collections, 'findLatestByApplication')
+      .mockRejectedValue(new Error('database unavailable'))
+
+    try {
+      const response = await fetch(
+        new URL(
+          '/applications/catalog-test-app/collections/latest',
+          await app.getUrl(),
+        ),
+      )
+
+      expect(response.status).toBe(503)
+      expect(await response.json()).toMatchObject({
+        code: 'APPLICATION_EVIDENCE_UNAVAILABLE',
+      })
+    } finally {
+      findLatest.mockRestore()
+    }
   })
 
   it('preserva a última observação stale e atualiza o estado na recuperação', async () => {
@@ -242,6 +400,24 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
             responses: { '200': expect.anything(), '404': expect.anything() },
           },
         },
+        '/applications/{id}/collections/latest': {
+          get: {
+            responses: {
+              '200': expect.anything(),
+              '404': expect.anything(),
+              '503': expect.anything(),
+            },
+          },
+        },
+        '/applications/{id}/collections/{collectionId}': {
+          get: {
+            responses: {
+              '200': expect.anything(),
+              '404': expect.anything(),
+              '503': expect.anything(),
+            },
+          },
+        },
       },
       components: {
         schemas: {
@@ -255,6 +431,13 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
               lastObservationAt: { nullable: true },
               isStale: { type: 'boolean' },
               isCalculable: { type: 'boolean' },
+            },
+          },
+          CollectionEvidenceDto: {
+            properties: {
+              collectionIntervalSeconds: expect.anything(),
+              collectedAt: expect.anything(),
+              isStale: expect.anything(),
             },
           },
         },

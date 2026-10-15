@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { QueryDeepPartialEntity, Repository } from 'typeorm'
 import { CollectionEntity } from '../entities/collection.entity'
+import { ApplicationState } from '../entities/application-state'
 
 @Injectable()
 export class CollectionsRepository {
@@ -36,6 +37,24 @@ export class CollectionsRepository {
     return this.repository.find({
       where: { applicationId },
       order: { intervalStart: 'ASC', id: 'ASC' },
+    })
+  }
+
+  findLatestByApplication(
+    applicationId: string,
+  ): Promise<CollectionEntity | null> {
+    return this.repository.findOne({
+      where: { applicationId, state: ApplicationState.AVAILABLE },
+      order: { collectedAt: 'DESC', id: 'DESC' },
+    })
+  }
+
+  findByApplicationAndId(
+    applicationId: string,
+    id: string,
+  ): Promise<CollectionEntity | null> {
+    return this.repository.findOne({
+      where: { applicationId, id, state: ApplicationState.AVAILABLE },
     })
   }
 }
