@@ -1,19 +1,23 @@
-# Product epics
+# Product backlog
 
-The GreenER backlog groups user stories into six epics. Acceptance criteria and tasks remain in the linked issues; check GitHub for current status.
+The GreenER backlog is organized into six product epics and one technical foundations and quality epic. Each page summarizes scope and links to native GitHub issues, which hold acceptance criteria, tasks, dependencies, and current status.
 
 | Epic | Scope |
 | --- | --- |
-| [EP01 — Application Catalog](https://github.com/Seliganessecodigo/ABP-3DSM/issues/1) | Browse and navigate monitored applications. |
-| [EP02 — Application Monitoring](https://github.com/Seliganessecodigo/ABP-3DSM/issues/2) | Application discovery, lifecycle, states, and collection. |
-| [EP03 — Environmental Impact Calculation](https://github.com/Seliganessecodigo/ABP-3DSM/issues/3) | Estimate energy and CO₂e with traceable methods and limitations. |
-| [EP04 — Environmental Dashboard](https://github.com/Seliganessecodigo/ABP-3DSM/issues/4) | Summaries and aggregated indicators by period. |
-| [EP05 — Analysis and Simulation](https://github.com/Seliganessecodigo/ABP-3DSM/issues/5) | Compare applications and simulate regional scenarios. |
-| [EP06 — Configuration and Administration](https://github.com/Seliganessecodigo/ABP-3DSM/issues/6) | Configure and administer monitoring with authorization. |
+| [EP00 — Technical foundations, quality, and delivery process](./backlog/ep00) | Groups cross-cutting technology, architecture, data, security, operations, failure handling, and accessibility requirements. Child tasks are verifiable technical deliveries; quality remains applicable to every later change. |
+| [EP01 — Application catalog](./backlog/ep01) | Lets people find and navigate the applications monitored by GreenER. |
+| [EP02 — Application monitoring](./backlog/ep02) | Covers discovery and lifecycle, periodic refresh, states, and application-level failures. |
+| [EP03 — Environmental impact calculation](./backlog/ep03) | Presents calculations with traceable evidence, units, methodology, and limitations. |
+| [EP04 — Environmental dashboard](./backlog/ep04) | Aggregates indicators and supports detail and history investigation. |
+| [EP05 — Analysis and simulation](./backlog/ep05) | Helps prioritize and compare applications and preview a regional scenario without changing official results. |
+| [EP06 — Configuration and administration](./backlog/ep06) | Covers languages, themes, authorization, and monitoring and account administration. |
 
 ## Product principles
 
-- Failed or missing observations are never converted into zero consumption.
-- Energy and CO₂e retain their units, period, coverage, and context.
-- Configuration or methodology changes must not rewrite historical results.
-- The public dashboard does not require login; administrative changes are authorized by the backend.
+- Missing, failed, or stale observations never become zero consumption.
+- Energy and CO₂e retain units, period, coverage, and context.
+- Configuration or methodology changes do not rewrite original history.
+- Recalculation preview is not saved and does not change official results.
+- Public queries and administrative changes have different access rules; authorization is enforced by the backend.
+
+[Open in GitHub backlog](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)

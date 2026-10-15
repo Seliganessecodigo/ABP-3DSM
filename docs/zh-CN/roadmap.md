@@ -1,19 +1,23 @@
-# 产品史诗任务
+# 产品待办列表
 
-GreenER 待办列表将用户故事归入六个史诗任务。验收标准和具体任务保留在关联的 issue 中；最新状态请查看 GitHub。
+GreenER 待办列表由六个产品史诗和一个技术基础与质量史诗组成。每页概述范围并链接到 GitHub 原生 issue；验收标准、任务、依赖关系和最新状态均以 issue 为准。
 
-| 史诗任务 | 范围 |
+| 史诗 | 范围 |
 | --- | --- |
-| [EP01 — 应用目录](https://github.com/Seliganessecodigo/ABP-3DSM/issues/1) | 查看和浏览受监控的应用。 |
-| [EP02 — 应用监控](https://github.com/Seliganessecodigo/ABP-3DSM/issues/2) | 应用发现、生命周期、状态和数据采集。 |
-| [EP03 — 环境影响计算](https://github.com/Seliganessecodigo/ABP-3DSM/issues/3) | 使用可追溯的方法和限制估算能源与 CO₂e。 |
-| [EP04 — 环境仪表板](https://github.com/Seliganessecodigo/ABP-3DSM/issues/4) | 按时间范围汇总数据和指标。 |
-| [EP05 — 分析与模拟](https://github.com/Seliganessecodigo/ABP-3DSM/issues/5) | 比较应用并模拟区域场景。 |
-| [EP06 — 配置与管理](https://github.com/Seliganessecodigo/ABP-3DSM/issues/6) | 在授权控制下配置和管理监控。 |
+| [EP00 — 技术基础、质量与交付流程](./backlog/ep00) | 汇总技术、架构、数据、安全、运维、故障处理和无障碍等横向要求。子任务是可验证的技术交付；任务完成后，后续变更仍须满足这些质量要求。 |
+| [EP01 — 应用目录](./backlog/ep01) | 查找和浏览 GreenER 监控的应用。 |
+| [EP02 — 应用监控](./backlog/ep02) | 涵盖发现与生命周期、定期刷新、状态以及应用级故障。 |
+| [EP03 — 环境影响计算](./backlog/ep03) | 以可追溯的依据、单位、方法和限制呈现计算结果。 |
+| [EP04 — 环境仪表板](./backlog/ep04) | 汇总指标，并支持查看详情和历史。 |
+| [EP05 — 分析与模拟](./backlog/ep05) | 帮助排序和比较应用，并预览区域情景且不改变正式结果。 |
+| [EP06 — 配置与管理](./backlog/ep06) | 涵盖语言、主题、权限、监控设置和账户管理。 |
 
 ## 产品原则
 
-- 失败或缺失的观测数据不会被转换为零能耗。
-- 能源和 CO₂e 数据保留单位、时间范围、覆盖情况和背景信息。
-- 配置或方法变更不得改写历史结果。
-- 公共仪表板无需登录；管理操作由后端授权。
+- 缺失、错误或过期的观测值绝不会转为零能耗。
+- 能耗和 CO₂e 保留单位、周期、覆盖范围和上下文。
+- 配置或方法变化不会改写原始历史。
+- 重新计算预览不保存，也不改变正式结果。
+- 公开查询与管理变更具有不同的访问规则；权限由后端执行。
+
+[在 GitHub 待办列表中打开](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
