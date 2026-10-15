@@ -153,12 +153,13 @@ test('a slow automatic catalog refresh does not overlap another poll or manual r
 
   await page.goto('/')
   await expect(row(page, 'svc-0142')).toBeVisible()
+  const refresh = page.getByRole('button', { name: /atualizar catálogo/i })
+  await expect(refresh).toBeEnabled()
   const initialRequests = requests
   holdRefresh = true
   await page.clock.fastForward(60_000)
   await expect.poll(() => requests).toBeGreaterThan(initialRequests)
   const requestsWhileRefreshPending = requests
-  const refresh = page.getByRole('button', { name: /atualizar catálogo/i })
   await expect(refresh).toBeDisabled()
 
   await page.clock.fastForward(120_000)
