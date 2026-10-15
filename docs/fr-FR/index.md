@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Bien démarrer
-      link: /getting-started
+      link: /fr-FR/getting-started
     - theme: alt
       text: Découvrir les épopées
-      link: /roadmap
+      link: /fr-FR/roadmap
 features:
   - title: Suivi
     details: Découverte et surveillance des applications avec des états explicites.
@@ -25,8 +25,14 @@ features:
 
 GreenER est un projet académique du cursus de développement logiciel multiplateforme de Fatec Jacareí, au Brésil. Son objectif est de suivre les applications, d’estimer leur consommation énergétique et de présenter les émissions équivalentes de CO₂ (CO₂e).
 
-## État actuel
+## État et parcours de lecture
 
-Le frontend propose actuellement un catalogue d’applications et une page de détail. Le backend fournit l’API du catalogue et effectue la découverte initiale des applications. Les tableaux de bord, les calculs environnementaux, les analyses et l’administration font partie du périmètre produit et sont organisés dans le [backlog des épopées](./roadmap).
+La documentation distingue comportement disponible, périmètre prévu et décisions en attente. Catalogue/détail ont une interface ; le backend fournit aussi collecte périodique et preuves. Une route API ne prouve pas la livraison de toute l’expérience UI.
 
-Les estimations dépendent des données sources et des contrats documentés. L’absence de données, une erreur ou des données périmées ne signifient pas une consommation ou des émissions nulles.
+- [Vision et périmètre](./product/vision)
+- [Guide d’utilisation](./guide/monitoring)
+- [Méthodologie et données](./product/methodology)
+- [Qualité et acceptation](./product/quality)
+- [Décisions et dépendances](./product/decisions)
+- [Référence de l’API](./reference/api)
+- [Exploitation et diagnostic](./operations)

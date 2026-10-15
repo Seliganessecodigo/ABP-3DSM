@@ -21,3 +21,9 @@ Il backlog GreenER è organizzato in sei epic di prodotto e un epic di fondament
 - Consultazioni pubbliche e modifiche amministrative hanno regole di accesso diverse; il backend applica l’autorizzazione.
 
 [Apri nel backlog GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## Dipendenze e limiti
+
+Ordine dipendenze senza date promesse: riconoscere/raccogliere → approvare modello/risultati versionati → riepilogo/storico → confronto/simulazione. Amministrazione/preferenze seguono autorizzazione/design. Sprint/capacità in Projects.
+
+[Visione e ambito](./product/vision) · [Qualità e accettazione](./product/quality) · [Decisioni e dipendenze](./product/decisions)

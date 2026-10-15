@@ -25,3 +25,7 @@ O frontend chama apenas a API GreenER. Somente o backend acessa o Agregador de M
 O backend é responsável por integrar fontes e persistir dados. Contratos, schemas e unidades documentados devem ser respeitados. Erro, ausência, resposta inválida e dado desatualizado são estados diferentes de zero válido; as telas devem preservar essa distinção.
 
 Consulte os [contratos das APIs externas no repositório](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) e a [organização do frontend](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) para detalhes de implementação.
+
+## Leitura de apoio
+
+[Metodologia e dados](./product/methodology) · [Referência da API](./reference/api) · [Operação e diagnóstico](./operations)

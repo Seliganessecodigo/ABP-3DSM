@@ -21,3 +21,9 @@ Le backlog GreenER comprend six épopées produit et une épopée de fondations 
 - Les consultations publiques et les changements administratifs ont des règles d’accès différentes; le backend applique l’autorisation.
 
 [Ouvrir dans le backlog GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+
+## Dépendances et limites
+
+Ordre de dépendance, sans engagement de dates : reconnaître/collecter → approuver modèle/résultats versionnés → résumé/historique → comparaison/simulation. Administration/préférences suivent autorisation/design. Sprint et capacité dans Projects.
+
+[Vision et périmètre](./product/vision) · [Qualité et acceptation](./product/quality) · [Décisions et dépendances](./product/decisions)
