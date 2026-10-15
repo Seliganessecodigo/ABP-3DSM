@@ -13,5 +13,7 @@
   "location": "Standort",
   "regionCode": "Regionscode",
   "latitude": "Breitengrad",
-  "longitude": "Längengrad"
+  "longitude": "Längengrad",
+  "refreshHeading": "Automatische Aktualisierung",
+  "refreshStatus": "Aktualisierungsintervall: {{seconds}} s · Letzter Versuch: {{lastAttempt}} · Letzte gültige Antwort: {{lastResponse}}"
 }

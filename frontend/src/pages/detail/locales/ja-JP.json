@@ -13,5 +13,7 @@
   "location": "位置情報",
   "regionCode": "地域コード",
   "latitude": "緯度",
-  "longitude": "経度"
+  "longitude": "経度",
+  "refreshHeading": "自動更新",
+  "refreshStatus": "画面の更新間隔: {{seconds}} 秒 · 最終試行: {{lastAttempt}} · 最終有効応答: {{lastResponse}}"
 }

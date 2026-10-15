@@ -27,5 +27,7 @@
   "noneSelected": "Aucune application sélectionnée",
   "selectHint": "Sélectionnez une application pour consulter ses détails, ses métriques et son historique.",
   "updated": "Catalogue actualisé",
-  "stateHint": "Les états sont indiqués par du texte et des repères visuels."
+  "stateHint": "Les états sont indiqués par du texte et des repères visuels.",
+  "refreshHeading": "Actualisation automatique",
+  "refreshStatus": "Fréquence de l?interface : {{seconds}} s · Dernière tentative : {{lastAttempt}} · Dernière réponse valide : {{lastResponse}}"
 }
