@@ -27,5 +27,7 @@
   "noneSelected": "Nenhuma aplicação selecionada",
   "selectHint": "Selecione uma aplicação na lista para ver detalhes, métricas e histórico.",
   "updated": "Catálogo atualizado",
-  "stateHint": "Os estados das aplicações são apresentados com texto e indicadores visuais."
+  "stateHint": "Os estados das aplicações são apresentados com texto e indicadores visuais.",
+  "refreshHeading": "Atualização automática",
+  "refreshStatus": "Frequência da interface: {{seconds}} s · Última tentativa: {{lastAttempt}} · Última resposta válida: {{lastResponse}}"
 }

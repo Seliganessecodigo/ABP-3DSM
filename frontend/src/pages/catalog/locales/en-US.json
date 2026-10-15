@@ -27,5 +27,7 @@
   "noneSelected": "No application selected",
   "selectHint": "Select an application to view its details, metrics, and history.",
   "updated": "Catalog updated",
-  "stateHint": "Application statuses use text and visual indicators."
+  "stateHint": "Application statuses use text and visual indicators.",
+  "refreshHeading": "Automatic refresh",
+  "refreshStatus": "UI refresh interval: {{seconds}} s · Last attempt: {{lastAttempt}} · Last valid response: {{lastResponse}}"
 }

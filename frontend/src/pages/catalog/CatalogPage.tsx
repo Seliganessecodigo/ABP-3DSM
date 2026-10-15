@@ -14,7 +14,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const [search, setSearch] = useState(initial.search)
   const [selectedState, setSelectedState] = useState<State | 'ALL'>(initial.state)
   const [page, setPage] = useState(initial.page)
-  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, refreshing, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refresh, retry } = useCatalog()
   const query = useMemo(() => ({ search, state: selectedState, page, pageSize: 10 }), [search, selectedState, page])
   const result = useMemo(() => selectCatalog(applications, query), [applications, query])
   useEffect(() => {
@@ -26,11 +26,11 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const updateSearch = (value: string) => { setSearch(value); setPage(1) }
   return <main className="content">
       <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div>
-        <button className="button secondary" onClick={refresh} disabled={refreshing}>↻ {tCatalog('refresh')}</button></div>
+        <button className="button secondary" onClick={refresh} disabled={refreshing || loading}>↻ {tCatalog('refresh')}</button></div>
       <label className={styles['search-wrap']}><span aria-hidden="true">⌕</span><input type="search" aria-label={tCatalog('searchLabel')} placeholder={tCatalog('searchPlaceholder')} value={search} onChange={(event) => updateSearch(event.target.value)} /></label>
       <div className={styles['filters']} aria-label={tCatalog('filterLabel')}>{states.map(({ value }) => <button key={value} className={selectedState === value ? `${styles.filter} ${styles.active}` : styles.filter} aria-pressed={selectedState === value} onClick={() => { setSelectedState(value); setPage(1) }}>{stateLabel(value, tCommon)} ({counts[value]})</button>)}</div>
       {loading && <output className="notice">{tCatalog('loading')}</output>}
-      {error && <div className="error-box" role="alert"><span className="error-icon" aria-hidden="true">!</span><div><h2>{tCatalog('errorTitle')}</h2><p>{hasSnapshot ? tCatalog('stale') : tCatalog('errorNotRemoved')}</p><button className="button" onClick={retry}>{tCommon('actions.retry')}</button></div></div>}
+      {error && <div className="error-box" role="alert"><span className="error-icon" aria-hidden="true">!</span><div><h2>{tCatalog('errorTitle')}</h2><p>{hasSnapshot ? tCatalog('stale') : tCatalog('errorNotRemoved')}</p><button className="button" onClick={retry} disabled={refreshing || loading}>{tCommon('actions.retry')}</button></div></div>}
       {!loading && hasSnapshot && applications.length === 0 && <section className="empty-state"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></section>}
       {!loading && hasSnapshot && applications.length > 0 && result.total === 0 && <section className="empty-state"><h2>{tCatalog('noResults')}</h2><p>{tCatalog('adjustFilters')}</p></section>}
       {!loading && hasSnapshot && result.total > 0 && <>
@@ -40,6 +40,10 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
           <div className={styles['pagination']}><span>{tCatalog('total', { count: result.total })} · {tCatalog('page', { page: result.page, count: result.pageCount })}</span><div><button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>← {tCatalog('previous')}</button><button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => setPage((current) => current + 1)}>{tCatalog('next')} →</button></div></div>
       </>}
       <div className={styles['below-panels']}><section className={styles['selection-panel']}><span className={styles['panel-icon']} aria-hidden="true">◉</span><div><h2>{tCatalog('noneSelected')}</h2><p>{tCatalog('selectHint')}</p></div></section>
-        {!error && <section className={styles['info-panel']}><span className={styles['info-icon']} aria-hidden="true">i</span><div><h2>{tCatalog('updated')}</h2><p>{tCatalog('stateHint')}</p></div></section>}</div>
+        <section className={styles['info-panel']}><span className={styles['info-icon']} aria-hidden="true">i</span><div><h2>{tCatalog('refreshHeading')}</h2><p>{tCatalog('refreshStatus', {
+          seconds: pollingIntervalMs / 1000,
+          lastAttempt: formatDate(lastAttemptAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')),
+          lastResponse: formatDate(lastResponseAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')),
+        })}</p><p>{tCatalog('stateHint')}</p></div></section></div>
   </main>
 }
