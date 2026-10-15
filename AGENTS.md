@@ -44,8 +44,10 @@ Este arquivo define orientações compartilhadas para qualquer agente de IA que 
 ## Git e pull requests
 
 - Para cada tarefa, crie uma branch a partir de `develop` e abra PR com destino a `develop`. Não promova mudanças para `main` antes do encerramento da sprint.
-- Use Conventional Commits em commits e títulos de PR, no formato `type(scope): descrição` (por exemplo, `feat(frontend): exibir catálogo de aplicações`).
-- Na PR, inclua resumo, issue relacionada (`Refs #N`), decisões/limitações, verificações executadas e evidência visual quando houver interface.
+- Nomeie branches como `<tipo>/<issue>-<descricao-curta>` (por exemplo, `feat/157-monitoramento-dinamico`). Use tipo em minúsculas, número da issue quando houver e descrição kebab-case sem acentos; sem issue, use `<tipo>/<descricao-curta>`. Mantenha o mesmo nome durante a tarefa.
+- Escreva commits e títulos de PR em Conventional Commits no formato `tipo(escopo): descrição`, em português, com descrição curta iniciada por verbo e sem ponto final. Tipos: `feat` (funcionalidade), `fix` (correção), `docs` (documentação), `test` (testes), `refactor` (mudança interna sem alterar comportamento), `perf` (desempenho medido), `build` (build/dependências), `ci` (pipeline), `chore` (manutenção) e `revert` (reversão). Use escopo obrigatório e específico, como `frontend`, `backend`, `docs`, `ci` ou `repo`; em mudanças independentes, prefira commits separados. Exemplo: `fix(backend): preservar histórico durante falha de coleta`.
+- Para breaking changes, marque o tipo com `!` e explique a quebra no corpo do commit ou da PR. Inclua `Refs #N` no corpo quando houver issue relacionada.
+- O título da PR deve seguir o mesmo formato e descrever o conjunto entregue. No corpo, inclua resumo, issue relacionada (`Refs #N`), decisões/limitações, verificações executadas e evidência visual quando houver interface.
 - Não feche issue só porque uma PR foi aberta; feche após merge e confirme o escopo entregue.
 
 ## Verificação
