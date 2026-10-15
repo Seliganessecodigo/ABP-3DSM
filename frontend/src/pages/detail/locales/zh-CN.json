@@ -14,6 +14,7 @@
   "regionCode": "区域代码",
   "latitude": "纬度",
   "longitude": "经度",
+  "operationalCondition": "运行状况", "reason": "原因", "freshness": "新鲜度", "freshnessRemoved": "不适用于已移除的应用程序", "calculability": "可计算性",
   "refreshHeading": "自动更新",
   "refreshStatus": "界面更新间隔：{{seconds}} 秒 · 上次尝试：{{lastAttempt}} · 上次有效响应：{{lastResponse}}"
 }

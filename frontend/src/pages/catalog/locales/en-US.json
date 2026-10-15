@@ -6,6 +6,8 @@
   "searchLabel": "Search applications by name, ID, or region",
   "searchPlaceholder": "Search by name, ID, or region...",
   "filterLabel": "Filter applications by status",
+  "regionFilter": "Filter by region",
+  "allRegions": "All regions",
   "loading": "Loading applications...",
   "errorTitle": "Could not load the catalog",
   "stale": "Showing the latest valid data; it may be out of date.",

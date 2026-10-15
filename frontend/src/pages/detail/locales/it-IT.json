@@ -14,6 +14,7 @@
   "regionCode": "Codice regionale",
   "latitude": "Latitudine",
   "longitude": "Longitudine",
+  "operationalCondition": "Condizione operativa", "reason": "Motivo", "freshness": "Aggiornamento", "freshnessRemoved": "Non applicabile a un'applicazione rimossa", "calculability": "Calcolabilità",
   "refreshHeading": "Aggiornamento automatico",
-  "refreshStatus": "Intervallo dell?interfaccia: {{seconds}} s · Ultimo tentativo: {{lastAttempt}} · Ultima risposta valida: {{lastResponse}}"
+  "refreshStatus": "Intervallo dell’interfaccia: {{seconds}} s · Ultimo tentativo: {{lastAttempt}} · Ultima risposta valida: {{lastResponse}}"
 }

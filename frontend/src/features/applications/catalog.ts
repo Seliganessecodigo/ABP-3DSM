@@ -14,6 +14,7 @@ export interface CatalogEntry {
 export interface CatalogQuery {
   search: string
   state: ApplicationState | 'ALL'
+  regionCode: string
   page: number
   pageSize: number
 }
@@ -32,13 +33,14 @@ export function selectCatalog<T extends CatalogEntry>(
   const term = query.search.trim().toLocaleLowerCase()
   const filtered = applications.filter((application) => {
     const matchesState = query.state === 'ALL' || application.state === query.state
+    const matchesRegion = !query.regionCode || application.location?.regionCode === query.regionCode
     const searchable = [
       application.name,
       application.id,
       application.location?.regionCode,
       application.location?.region,
     ].filter(Boolean).join(' ').toLocaleLowerCase()
-    return matchesState && (!term || searchable.includes(term))
+    return matchesState && matchesRegion && (!term || searchable.includes(term))
   })
 
   const pageSize = Number.isFinite(query.pageSize) ? Math.max(1, Math.floor(query.pageSize)) : 10

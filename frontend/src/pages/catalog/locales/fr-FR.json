@@ -6,6 +6,8 @@
   "searchLabel": "Rechercher des applications par nom, identifiant ou région",
   "searchPlaceholder": "Rechercher par nom, identifiant ou région...",
   "filterLabel": "Filtrer les applications par état",
+  "regionFilter": "Filtrer par région",
+  "allRegions": "Toutes les régions",
   "loading": "Chargement des applications...",
   "errorTitle": "Impossible de consulter le catalogue",
   "stale": "Affichage des dernières données valides, qui peuvent être obsolètes.",

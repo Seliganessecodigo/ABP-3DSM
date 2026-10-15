@@ -6,6 +6,8 @@
   "searchLabel": "Buscar aplicaciones por nombre, identificador o región",
   "searchPlaceholder": "Buscar por nombre, identificador o región...",
   "filterLabel": "Filtrar aplicaciones por estado",
+  "regionFilter": "Filtrar por región",
+  "allRegions": "Todas las regiones",
   "loading": "Cargando aplicaciones...",
   "errorTitle": "No se pudo consultar el catálogo",
   "stale": "Se muestran los últimos datos válidos; podrían estar desactualizados.",

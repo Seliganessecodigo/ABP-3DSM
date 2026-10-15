@@ -10,7 +10,7 @@ test('troca o idioma, persiste a preferência e atualiza o atributo lang', async
   await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
   await expect.poll(() => page.evaluate(() => localStorage.getItem('greener:locale'))).toBe('en-US')
   await page.reload()
-  await expect(page.getByRole('combobox')).toHaveValue('en-US')
+  await expect(page.getByRole('combobox', { name: 'Language' })).toHaveValue('en-US')
   await expect(page.getByRole('heading', { level: 1, name: 'Applications' })).toBeVisible()
 })
 
@@ -27,8 +27,9 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
   ]
   await mockCatalog(page, [application()])
   await page.goto('/')
+  const languageSelector = page.getByRole('combobox').filter({ has: page.locator('option[value="en-US"]') })
   for (const item of cases) {
-    await page.getByRole('combobox').selectOption(item.locale)
+    await languageSelector.selectOption(item.locale)
     await expect(page.locator('html')).toHaveAttribute('lang', item.locale)
     await expect(page.getByRole('heading', { level: 1, name: item.title, exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: new RegExp(`^${item.available} \\(`) })).toBeVisible()
