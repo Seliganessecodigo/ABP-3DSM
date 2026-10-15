@@ -22,3 +22,9 @@ Verträge und Entscheidungen in Issues und technischen Dokumenten prüfen. Keine
 ## Website-Dokumentation
 
 Veröffentlichte Inhalte werden als Markdown in `docs/` gepflegt. Die entsprechende Seite in allen acht Sprachen aktualisieren und die Website mit `npm run docs:build` prüfen.
+
+## Git
+
+Branches: `typ/nummer-beschreibung` mit Issue, sonst `typ/beschreibung`; kleingeschriebenes kebab-case ohne Akzente. Commits/PR-Titel: `typ(bereich): beschreibung`, Beschreibung portugiesisch, mit Verb und ohne Schlusspunkt. `Refs #N`, Entscheidungen/Grenzen, beobachtete Checks angeben. Vollständiger Standard in [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
+
+[Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)

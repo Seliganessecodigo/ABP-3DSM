@@ -45,11 +45,15 @@ describe('StatusClassificationService', () => {
   })
 
   it('persists a new operational state and appends the transition event atomically', async () => {
-    const result = await service.record('billing-api', {
-      kind: 'source_failure',
-      reason: ApplicationStateReason.SOURCE_TIMEOUT,
-      observedAt,
-    })
+    const result = await service.record(
+      'billing-api',
+      {
+        kind: 'source_failure',
+        reason: ApplicationStateReason.SOURCE_TIMEOUT,
+        observedAt,
+      },
+      'cycle-42',
+    )
 
     expect(result).toMatchObject({
       state: ApplicationState.UNAVAILABLE,
@@ -65,7 +69,7 @@ describe('StatusClassificationService', () => {
       manager,
       expect.objectContaining({
         applicationId: 'billing-api',
-        cycleId: null,
+        cycleId: 'cycle-42',
         kind: 'status_changed',
         actor: 'system',
         occurredAt: observedAt,

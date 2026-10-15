@@ -22,3 +22,9 @@ CI 会运行前端和后端的 lint、测试与构建，并执行 SonarQube Clou
 ## 文档网站
 
 发布内容以 Markdown 形式保存在 `docs/`。请同步更新全部八种语言的对应页面，并运行 `npm run docs:build` 验证网站。
+
+## Git
+
+分支有issue时为`type/number-description`，否则`type/description`，使用小写、无重音kebab-case。提交与PR标题为`type(scope): description`，描述用葡萄牙语、动词开头、无句号。包括`Refs #N`、决定/限制及实际检查结果。完整标准见[AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md)。
+
+[质量与验收](./product/quality) · [决策与依赖](./product/decisions)

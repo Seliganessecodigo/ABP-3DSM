@@ -22,3 +22,9 @@ Confirm contracts and decisions in issues and technical documents. Do not invent
 ## Documentation site
 
 Published content is maintained as Markdown in `docs/`. Update the equivalent page in all eight locales and validate the site with `npm run docs:build`.
+
+## Git
+
+Branches: `type/number-description` with an issue, or `type/description` without one; lowercase, unaccented kebab-case. Commits and PR titles: `type(scope): description`, with the description in Portuguese, starting with a verb and without a final period. Include `Refs #N`, decisions/limitations and observed checks. Full conventions and allowed types are in [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
+
+[Quality and acceptance](./product/quality) · [Decisions and dependencies](./product/decisions)

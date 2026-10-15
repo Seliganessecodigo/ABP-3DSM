@@ -14,5 +14,7 @@
   "regionCode": "地域コード",
   "latitude": "緯度",
   "longitude": "経度",
-  "operationalCondition": "運用状態", "reason": "理由", "freshness": "鮮度", "freshnessRemoved": "削除済みのアプリケーションには適用されません", "calculability": "計算可能性"
+  "operationalCondition": "運用状態", "reason": "理由", "freshness": "鮮度", "freshnessRemoved": "削除済みのアプリケーションには適用されません", "calculability": "計算可能性",
+  "refreshHeading": "自動更新",
+  "refreshStatus": "画面の更新間隔: {{seconds}} 秒 · 最終試行: {{lastAttempt}} · 最終有効応答: {{lastResponse}}"
 }

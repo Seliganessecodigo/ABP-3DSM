@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Per iniziare
-      link: /getting-started
+      link: /it-IT/getting-started
     - theme: alt
       text: Esplora gli epic
-      link: /roadmap
+      link: /it-IT/roadmap
 features:
   - title: Monitoraggio
     details: Individuazione e monitoraggio delle applicazioni con stati chiari.
@@ -25,8 +25,14 @@ features:
 
 GreenER è un progetto accademico del corso di sviluppo software multipiattaforma di Fatec Jacareí, in Brasile. Il suo obiettivo è monitorare le applicazioni, stimare il consumo energetico e mostrare le emissioni equivalenti di CO₂ (CO₂e).
 
-## Stato attuale
+## Stato e percorsi di lettura
 
-Il frontend offre attualmente un catalogo delle applicazioni e una pagina di dettaglio. Il backend fornisce l’API del catalogo e svolge l’individuazione iniziale delle applicazioni. Dashboard, calcoli ambientali, analisi e amministrazione fanno parte dell’ambito del prodotto e sono organizzati nel [backlog degli epic](./roadmap).
+Documentazione distingue disponibile, pianificato e pendente. Catalogo/dettaglio hanno UI; backend offre raccolta periodica e consultazione evidenze. Una rotta API non significa intera esperienza UI consegnata.
 
-Le stime dipendono dai dati di origine e dai contratti documentati. Dati mancanti, errori o dati obsoleti non significano consumo o emissioni pari a zero.
+- [Visione e ambito](./product/vision)
+- [Guida all’uso](./guide/monitoring)
+- [Metodologia e dati](./product/methodology)
+- [Qualità e accettazione](./product/quality)
+- [Decisioni e dipendenze](./product/decisions)
+- [Riferimento API](./reference/api)
+- [Operazione e diagnosi](./operations)

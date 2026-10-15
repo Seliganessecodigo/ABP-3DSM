@@ -29,5 +29,7 @@
   "noneSelected": "Keine Anwendung ausgewählt",
   "selectHint": "Anwendung auswählen, um Details, Metriken und Verlauf anzuzeigen.",
   "updated": "Verzeichnis aktualisiert",
-  "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt."
+  "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt.",
+  "refreshHeading": "Automatische Aktualisierung",
+  "refreshStatus": "Aktualisierungsintervall: {{seconds}} s · Letzter Versuch: {{lastAttempt}} · Letzte gültige Antwort: {{lastResponse}}"
 }

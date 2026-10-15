@@ -14,13 +14,16 @@ export class ReturnService {
     private readonly events: ApplicationEventsRepository,
   ) {}
 
-  async reconcile(cycleId: string): Promise<number> {
-    const snapshot = await this.adapter.fetchServices()
+  async reconcile(
+    cycleId: string,
+    snapshot?: Awaited<ReturnType<MetricsAggregatorAdapter['fetchServices']>>,
+  ): Promise<number> {
+    const services = snapshot ?? (await this.adapter.fetchServices())
     const observedAt = new Date()
     return this.dataSource.transaction(async (manager) => {
       const returned = await this.applications.findReturnedForUpdate(
         manager,
-        snapshot.map((service) => service.id),
+        services.map((service) => service.id),
       )
       for (const application of returned) {
         await this.applications.restore(

@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Get started
-      link: /getting-started
+      link: /en-US/getting-started
     - theme: alt
       text: Explore the epics
-      link: /roadmap
+      link: /en-US/roadmap
 features:
   - title: Monitoring
     details: Application discovery and monitoring with clear states.
@@ -25,8 +25,14 @@ features:
 
 GreenER is an academic project in the Multiplatform Software Development program at Fatec Jacareí, Brazil. Its goal is to monitor applications, estimate energy consumption, and report equivalent carbon emissions (CO₂e).
 
-## Current status
+## Status and reading paths
 
-The frontend currently provides an application catalog and detail page. The backend provides the catalog API and performs initial application discovery. Dashboards, environmental calculations, analysis, and administration remain part of the product scope and are organized in the [epic backlog](./roadmap).
+The documentation distinguishes available behavior, planned scope and pending decisions. Catalog and detail have an interface; the backend also provides periodic collection and evidence queries. An API route does not imply delivery of the entire corresponding UI experience.
 
-Estimates depend on source data and documented contracts. Missing, failed, or stale data does not mean zero consumption or emissions.
+- [Vision and scope](./product/vision)
+- [User guide](./guide/monitoring)
+- [Methodology and data](./product/methodology)
+- [Quality and acceptance](./product/quality)
+- [Decisions and dependencies](./product/decisions)
+- [API reference](./reference/api)
+- [Operations and diagnosis](./operations)

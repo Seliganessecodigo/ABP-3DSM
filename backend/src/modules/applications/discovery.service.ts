@@ -14,12 +14,15 @@ export class DiscoveryService {
     private readonly events: ApplicationEventsRepository,
   ) {}
 
-  async discover(cycleId: string): Promise<number> {
-    const services = await this.adapter.fetchServices()
+  async discover(
+    cycleId: string,
+    services?: Awaited<ReturnType<MetricsAggregatorAdapter['fetchServices']>>,
+  ): Promise<number> {
+    const snapshot = services ?? (await this.adapter.fetchServices())
     const observedAt = new Date()
     return this.dataSource.transaction(async (manager) => {
       let discovered = 0
-      for (const service of services) {
+      for (const service of snapshot) {
         const inserted = await this.applications.insertIfAbsent(manager, {
           id: service.id,
           name: service.name,

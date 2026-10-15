@@ -22,3 +22,9 @@ Confirme contratos e decisões nas issues e nos documentos técnicos. Não inven
 ## Documentação do site
 
 O conteúdo publicado é mantido em Markdown em `docs/`. Atualize a página equivalente nos oito locales e valide o site com `npm run docs:build`.
+
+## Git
+
+Branches: `tipo/numero-descricao` quando houver issue, ou `tipo/descricao` sem issue; minúsculas e kebab-case sem acentos. Commits e títulos de PR: `tipo(escopo): descrição`, em português, com verbo e sem ponto final. Inclua `Refs #N`, decisões/limitações e verificações observadas. O padrão completo e os tipos permitidos estão no [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
+
+[Qualidade e aceite](./product/quality) · [Decisões e dependências](./product/decisions)

@@ -27,7 +27,9 @@
   "noneSelected": "アプリケーションが選択されていません",
   "selectHint": "一覧から選択すると、詳細、メトリクス、履歴を確認できます。",
   "updated": "一覧を更新しました",
-  "stateHint": "状態はテキストと視覚的なアイコンで示されます。"
-  ,"regionFilter": "地域で絞り込む"
-  ,"allRegions": "すべての地域"
+  "stateHint": "状態はテキストと視覚的なアイコンで示されます。",
+  "regionFilter": "地域で絞り込む",
+  "allRegions": "すべての地域",
+  "refreshHeading": "自動更新",
+  "refreshStatus": "画面の更新間隔: {{seconds}} 秒 · 最終試行: {{lastAttempt}} · 最終有効応答: {{lastResponse}}"
 }
