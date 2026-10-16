@@ -31,5 +31,16 @@
   "regionFilter": "地域で絞り込む",
   "allRegions": "すべての地域",
   "refreshHeading": "自動更新",
-  "refreshStatus": "画面の更新間隔: {{seconds}} 秒 · 最終試行: {{lastAttempt}} · 最終有効応答: {{lastResponse}}"
+  "refreshStatus": "画面の更新間隔: {{seconds}} 秒 · 最終試行: {{lastAttempt}} · 最終有効応答: {{lastResponse}}",
+  "columnFilters": "列ごとのフィルター", "regionCode": "地域コード", "cityMissing": "都市情報なし",
+  "from": "確認開始", "to": "確認終了", "timeZone": "タイムゾーン: {{timeZone}}",
+  "invalidDateRange": "開始日時は終了日時以前にしてください。", "clearFilters": "フィルターをクリア",
+  "activeFilters": "適用中のフィルター", "range": "全{{count}}件中 {{start}}～{{end}}件を表示",
+  "pageSize": "1ページあたり", "all": "すべて", "nameFilter": "名前または識別子",
+  "countryFilter": "国", "regionCodeFilter": "地域コード", "cityFilter": "都市", "stateFilter": "状態",
+  "filterDialogDescription": "項目を組み合わせてアプリケーションを絞り込みます。", "closeFilters": "列フィルターを閉じる",
+  "namePlaceholder": "名前またはIDの一部を入力...", "countryPlaceholder": "国を入力...",
+  "regionPlaceholder": "地域を入力...", "cityPlaceholder": "都市を入力...",
+  "filterCombinationNote": "全体検索と各フィルターを組み合わせます。",
+  "clearPreservesSort": "フィルターをクリアしても並び順は維持されます。", "applyFilters": "フィルターを適用"
 }
