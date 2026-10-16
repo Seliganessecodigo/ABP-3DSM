@@ -31,5 +31,16 @@
   "updated": "Catalogo aggiornato",
   "stateHint": "Gli stati sono indicati con testo e indicatori visivi.",
   "refreshHeading": "Aggiornamento automatico",
-  "refreshStatus": "Intervallo dell?interfaccia: {{seconds}} s · Ultimo tentativo: {{lastAttempt}} · Ultima risposta valida: {{lastResponse}}"
+  "refreshStatus": "Intervallo dell?interfaccia: {{seconds}} s · Ultimo tentativo: {{lastAttempt}} · Ultima risposta valida: {{lastResponse}}",
+  "columnFilters": "Filtri per colonna", "regionCode": "Codice regionale", "cityMissing": "Città non indicata",
+  "from": "Verificata dal", "to": "Verificata fino al", "timeZone": "Fuso orario: {{timeZone}}",
+  "invalidDateRange": "La data iniziale deve precedere o coincidere con la data finale.", "clearFilters": "Cancella filtri",
+  "activeFilters": "Filtri attivi", "range": "Visualizzate {{start}}–{{end}} di {{count}} applicazioni",
+  "pageSize": "Elementi per pagina", "all": "Tutte", "nameFilter": "Nome o identificativo",
+  "countryFilter": "Paese", "regionCodeFilter": "Codice regionale", "cityFilter": "Città", "stateFilter": "Stato",
+  "filterDialogDescription": "Combina i campi per filtrare le applicazioni.", "closeFilters": "Chiudi filtri per colonna",
+  "namePlaceholder": "Inserisci parte di un nome o ID...", "countryPlaceholder": "Inserisci un paese...",
+  "regionPlaceholder": "Inserisci una regione...", "cityPlaceholder": "Inserisci una città...",
+  "filterCombinationNote": "La ricerca generale e i filtri attivi vengono combinati.",
+  "clearPreservesSort": "La cancellazione dei filtri mantiene l’ordinamento corrente.", "applyFilters": "Applica filtri"
 }
