@@ -563,6 +563,30 @@ test('controle desktop acompanha a marca e anima a transição entre larguras', 
   await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)
 })
 
+test('preferências da sidebar alternam tema e mantêm os ícones ao recolher', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 960 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const sidebar = page.getByRole('complementary')
+  const themeToggle = page.getByRole('button', { name: 'Modo escuro' })
+  await expect(themeToggle).toHaveAttribute('aria-pressed', 'false')
+  await expect(sidebar).toHaveCSS('background-color', 'rgb(0, 61, 49)')
+  await themeToggle.click()
+  await expect(themeToggle).toHaveAttribute('aria-pressed', 'true')
+  await expect(sidebar).toHaveCSS('background-color', 'rgb(8, 46, 37)')
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Modo escuro' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(sidebar).toHaveCSS('background-color', 'rgb(8, 46, 37)')
+
+  await page.getByRole('button', { name: 'Recolher navegação' }).click()
+  const collapsedThemeToggle = page.getByRole('button', { name: 'Modo escuro' })
+  await expect(collapsedThemeToggle).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Idioma' })).toBeVisible()
+  await collapsedThemeToggle.click()
+  await expect(sidebar).toHaveCSS('background-color', 'rgb(0, 61, 49)')
+})
+
 test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await mockCatalog(page, [application()])
@@ -570,11 +594,11 @@ test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({
 
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   const closeButton = page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' })
-  const languageSelector = page.getByRole('dialog').getByRole('combobox', { name: 'Idioma' })
+  const themeToggle = page.getByRole('dialog').getByRole('button', { name: 'Modo escuro' })
   await expect(closeButton).toBeFocused()
 
   await page.keyboard.press('Shift+Tab')
-  await expect(languageSelector).toBeFocused()
+  await expect(themeToggle).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(closeButton).toBeFocused()
 })
