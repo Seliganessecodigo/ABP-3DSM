@@ -443,6 +443,29 @@ test('sidebar desktop recolhe, expande e reinicia expandida após recarga', asyn
   await expect(page.getByRole('button', { name: 'Recolher navegação' })).toHaveAttribute('aria-expanded', 'true')
 })
 
+test('controle desktop acompanha a marca e anima a transição entre larguras', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const sidebar = page.getByRole('complementary')
+  const collapse = page.getByRole('button', { name: 'Recolher navegação' })
+  const topRowPosition = await collapse.evaluate((element) => element.getBoundingClientRect().top)
+  expect(topRowPosition).toBeLessThan(80)
+  expect(await page.locator('.app-layout').evaluate((element) => getComputedStyle(element).transitionProperty)).toContain('grid-template-columns')
+
+  await collapse.click()
+  const expand = page.getByRole('button', { name: 'Expandir navegação' })
+  await expect.poll(() => expand.evaluate((element) => element.getBoundingClientRect().top)).toBeLessThan(80)
+  const alignment = await expand.evaluate((element) => {
+    const sidebarRect = element.closest('aside')!.getBoundingClientRect()
+    const buttonRect = element.getBoundingClientRect()
+    return Math.abs((sidebarRect.left + sidebarRect.width / 2) - (buttonRect.left + buttonRect.width / 2))
+  })
+  expect(alignment).toBeLessThan(2)
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)
+})
+
 test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await mockCatalog(page, [application()])

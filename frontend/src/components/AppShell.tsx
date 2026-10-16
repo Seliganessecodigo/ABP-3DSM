@@ -73,7 +73,14 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
-      <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><span className="brand-name">GreenER</span><span className="brand-initial" aria-hidden="true">G</span><small>{t('app.tagline')}</small></a>
+      <div className="sidebar-brand-row">
+        <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}>
+          <span className="brand-name">GreenER</span><span className="brand-initial" aria-hidden="true">G</span><small>{t('app.tagline')}</small>
+        </a>
+        <button className="sidebar-collapse-toggle" type="button" aria-label={t(desktopExpanded ? 'nav.collapse' : 'nav.expand')} aria-expanded={desktopExpanded} onClick={() => setDesktopExpanded((expanded) => !expanded)}>
+          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m9.5 3.5-4.5 4.5 4.5 4.5" /></svg>
+        </button>
+      </div>
       <img className="sidebar-leaf-mark" src={leafMark} width={32} height={22} alt="" />
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
@@ -89,7 +96,6 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
         <button aria-label={t('nav.settings')} disabled><span aria-hidden="true">⚙</span> <span className="nav-label">{t('nav.settings')}</span></button>
       </nav>
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading"><p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p><LanguageSelector /></section>
-      <div className="sidebar-foot"><button className="sidebar-collapse-toggle" type="button" aria-label={t(desktopExpanded ? 'nav.collapse' : 'nav.expand')} aria-expanded={desktopExpanded} onClick={() => setDesktopExpanded((expanded) => !expanded)}><span aria-hidden="true">{desktopExpanded ? '‹' : '›'}</span></button></div>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
     <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><span>{t('topbar')}</span><div className="topbar-actions"><span className="avatar" aria-label={t('account')}>ER</span></div></header>{children}</div>
