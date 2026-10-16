@@ -17,7 +17,7 @@ test('selecionar Aplicações no drawer móvel fecha o menu e foca a nova págin
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   await page.getByRole('dialog').getByRole('link', { name: 'Aplicações', exact: true }).click()
 
-  await expect(page).toHaveURL('/')
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
   await expect(page.getByRole('navigation')).toBeHidden()
   await expect(page.getByRole('main')).toBeFocused()
 })
