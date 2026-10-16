@@ -34,5 +34,20 @@
   "state.AVAILABLE": "Available",
   "state.UNAVAILABLE": "Unavailable",
   "state.NO_METRICS": "No metrics",
-  "state.REMOVED": "Removed"
+  "state.REMOVED": "Removed",
+  "date.lastObservation": "Last valid observation",
+  "freshness.stale": "Stale observation",
+  "freshness.current": "Current observation",
+  "calculability.available": "Energy and CO₂e estimates available",
+  "calculability.unavailable": "Energy and CO₂e estimates unavailable",
+  "reason.NO_OBSERVATION": "No valid observation yet",
+  "reason.METRICS_VALID": "Valid metrics",
+  "reason.METRICS_MISSING": "Metrics missing",
+  "reason.SOURCE_TIMEOUT": "The source took too long to respond",
+  "reason.SOURCE_ERROR": "The source returned an error",
+  "reason.REQUIRED_FIELD_MISSING": "The source did not provide a required field",
+  "reason.INVALID_FIELD": "The source provided an invalid field",
+  "reason.MONITORING_CYCLE_DELAYED": "The monitoring cycle is delayed",
+  "reason.CARBON_FACTOR_UNAVAILABLE": "Carbon factor unavailable",
+  "reason.REMOVAL_CONFIRMED": "Removal confirmed"
 }

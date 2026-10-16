@@ -6,6 +6,8 @@
   "searchLabel": "Buscar aplicaciones por nombre, identificador o región",
   "searchPlaceholder": "Buscar por nombre, identificador o región...",
   "filterLabel": "Filtrar aplicaciones por estado",
+  "regionFilter": "Filtrar por región",
+  "allRegions": "Todas las regiones",
   "loading": "Cargando aplicaciones...",
   "errorTitle": "No se pudo consultar el catálogo",
   "stale": "Se muestran los últimos datos válidos; podrían estar desactualizados.",
@@ -27,5 +29,7 @@
   "noneSelected": "Ninguna aplicación seleccionada",
   "selectHint": "Selecciona una aplicación para ver sus detalles, métricas e historial.",
   "updated": "Catálogo actualizado",
-  "stateHint": "Los estados se muestran con texto e indicadores visuales."
+  "stateHint": "Los estados se muestran con texto e indicadores visuales.",
+  "refreshHeading": "Actualización automática",
+  "refreshStatus": "Frecuencia de la interfaz: {{seconds}} s · Último intento: {{lastAttempt}} · Última respuesta válida: {{lastResponse}}"
 }

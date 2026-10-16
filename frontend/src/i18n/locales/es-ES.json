@@ -34,5 +34,6 @@
   "state.AVAILABLE": "Disponible",
   "state.UNAVAILABLE": "No disponible",
   "state.NO_METRICS": "Sin métricas",
-  "state.REMOVED": "Eliminada"
+  "state.REMOVED": "Eliminada",
+  "date.lastObservation": "Última observación válida", "freshness.stale": "Observación desactualizada", "freshness.current": "Observación actual", "calculability.available": "Estimaciones de energía y CO₂e disponibles", "calculability.unavailable": "Estimaciones de energía y CO₂e no disponibles", "reason.NO_OBSERVATION": "Aún no hay observación válida", "reason.METRICS_VALID": "Métricas válidas", "reason.METRICS_MISSING": "Faltan métricas", "reason.SOURCE_TIMEOUT": "La fuente tardó demasiado en responder", "reason.SOURCE_ERROR": "La fuente devolvió un error", "reason.REQUIRED_FIELD_MISSING": "La fuente no proporcionó un campo obligatorio", "reason.INVALID_FIELD": "La fuente proporcionó un campo no válido", "reason.MONITORING_CYCLE_DELAYED": "El ciclo de monitoreo está retrasado", "reason.CARBON_FACTOR_UNAVAILABLE": "Factor de carbono no disponible", "reason.REMOVAL_CONFIRMED": "Eliminación confirmada"
 }

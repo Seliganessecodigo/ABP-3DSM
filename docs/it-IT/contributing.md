@@ -22,3 +22,9 @@ Verifica contratti e decisioni nelle issue e nei documenti tecnici. Non inventar
 ## Documentazione del sito
 
 I contenuti pubblicati sono mantenuti in Markdown in `docs/`. Aggiorna la pagina equivalente in tutte e otto le lingue e verifica il sito con `npm run docs:build`.
+
+## Git
+
+Branch: `tipo/numero-descrizione` con issue, `tipo/descrizione` altrimenti; minuscolo e kebab-case senza accenti. Commit/titoli PR: `tipo(ambito): descrizione`, descrizione in portoghese con verbo e senza punto finale. Includere `Refs #N`, decisioni/limiti, verifiche osservate. Vedere [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
+
+[Qualità e accettazione](./product/quality) · [Decisioni e dipendenze](./product/decisions)

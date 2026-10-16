@@ -6,6 +6,8 @@
   "searchLabel": "Anwendungen nach Name, Kennung oder Region suchen",
   "searchPlaceholder": "Nach Name, Kennung oder Region suchen...",
   "filterLabel": "Anwendungen nach Status filtern",
+  "regionFilter": "Nach Region filtern",
+  "allRegions": "Alle Regionen",
   "loading": "Anwendungen werden geladen...",
   "errorTitle": "Verzeichnis konnte nicht geladen werden",
   "stale": "Die letzten gültigen Daten werden angezeigt. Sie sind möglicherweise veraltet.",
@@ -27,5 +29,7 @@
   "noneSelected": "Keine Anwendung ausgewählt",
   "selectHint": "Anwendung auswählen, um Details, Metriken und Verlauf anzuzeigen.",
   "updated": "Verzeichnis aktualisiert",
-  "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt."
+  "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt.",
+  "refreshHeading": "Automatische Aktualisierung",
+  "refreshStatus": "Aktualisierungsintervall: {{seconds}} s · Letzter Versuch: {{lastAttempt}} · Letzte gültige Antwort: {{lastResponse}}"
 }

@@ -25,3 +25,7 @@ Il frontend chiama solo l'API GreenER. Solo il backend si collega all'Aggregator
 Il backend integra le fonti e ne persiste i dati rispettando contratti, schemi e unità documentati. Errori, valori assenti, risposte non valide, dati obsoleti e zeri validi sono stati distinti; l'interfaccia deve conservarne la differenza.
 
 Consulta i [contratti delle API esterne nel repository](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) e la [guida all'organizzazione del frontend](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) per i dettagli di implementazione.
+
+## Letture correlate
+
+[Metodologia e dati](./product/methodology) · [Riferimento API](./reference/api) · [Operazione e diagnosi](./operations)

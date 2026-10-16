@@ -6,10 +6,11 @@ Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia 
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend já oferece catálogo e detalhe de aplicações; o backend disponibiliza a API do catálogo e a descoberta inicial. Dashboard, cálculos ambientais, análise e administração continuam organizados no backlog.
+O frontend oferece catálogo e detalhe de aplicações; o backend disponibiliza descoberta, coleta periódica, estado operacional e consulta de evidências persistidas. A apresentação completa dessas evidências, os cálculos ambientais, o dashboard, as análises e a administração têm entregas próprias no backlog. A [visão do produto](docs/product/vision.md) distingue disponibilidade por camada e escopo planejado.
 
 ## Épicos
 
+- [EP00 — Fundações técnicas, qualidade e processo de entrega](https://github.com/Seliganessecodigo/ABP-3DSM/issues/99)
 - [EP01 — Catálogo de Aplicações](https://github.com/Seliganessecodigo/ABP-3DSM/issues/1)
 - [EP02 — Monitoramento de Aplicações](https://github.com/Seliganessecodigo/ABP-3DSM/issues/2)
 - [EP03 — Cálculo de Impacto Ambiental](https://github.com/Seliganessecodigo/ABP-3DSM/issues/3)
@@ -20,6 +21,8 @@ O frontend já oferece catálogo e detalhe de aplicações; o backend disponibil
 ## Documentação multilíngue
 
 O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês e chinês simplificado.
+
+Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos oito idiomas.
 
 | Idioma | Fonte Markdown |
 | --- | --- |

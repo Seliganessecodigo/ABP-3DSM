@@ -25,3 +25,7 @@
 バックエンドがデータソースと連携し、データを永続化します。文書化された契約、スキーマ、単位に従います。エラー、欠損値、不正な応答、古いデータ、有効なゼロ値はそれぞれ異なる状態であり、画面でも区別を保ちます。
 
 実装の詳細は、[リポジトリ内の外部API契約](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)と[フロントエンド構成ガイド](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md)を参照してください。
+
+## 関連資料
+
+[方法論とデータ](./product/methodology) · [APIリファレンス](./reference/api) · [運用と診断](./operations)

@@ -83,6 +83,8 @@ test('aplicação removida continua consultável com horário de remoção', asy
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   await expect(page.getByRole('main')).toContainText('Removida')
   await expect(page.getByRole('main')).toContainText('15:00')
+  await expect(page.getByText(/não se aplica.*observação|observação.*não se aplica/i)).toBeVisible()
+  await expect(page.getByRole('main')).not.toContainText(/observação atual/i)
 })
 
 test('carregamento do detalhe identifica a espera e mantém retorno acessível', async ({ page }) => {
@@ -140,6 +142,21 @@ test('retorno conserva busca, estado, página e contexto de período', async ({ 
   await expect(row(page, 'svc-011')).toBeVisible()
   await expect(row(page, 'svc-001')).toHaveCount(0)
   expect(new URL(page.url()).searchParams.get('period')).toBe('2026-10')
+})
+
+test('retorno do detalhe restaura posição e foco no serviço selecionado', async ({ page }) => {
+  await mockCatalog(page, largeCatalog())
+  await page.goto('/')
+  await search(page).fill('api-')
+  await page.getByRole('button', { name: /próxima página/i }).click()
+  const detailLink = row(page, 'svc-011').getByRole('link', { name: /ver detalhes/i })
+  await detailLink.focus()
+  await detailLink.click()
+  const returnState = await page.evaluate(() => window.sessionStorage.getItem('greener:catalog-return'))
+  expect(returnState).not.toBeNull()
+  await page.getByRole('link', { name: /voltar ao catálogo/i }).click()
+  await expect(row(page, 'svc-011').getByRole('link', { name: /ver detalhes/i })).toBeFocused()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 })
 
 test('volta do navegador conserva o contexto da lista', async ({ page }) => {

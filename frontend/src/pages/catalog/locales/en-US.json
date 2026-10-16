@@ -6,6 +6,8 @@
   "searchLabel": "Search applications by name, ID, or region",
   "searchPlaceholder": "Search by name, ID, or region...",
   "filterLabel": "Filter applications by status",
+  "regionFilter": "Filter by region",
+  "allRegions": "All regions",
   "loading": "Loading applications...",
   "errorTitle": "Could not load the catalog",
   "stale": "Showing the latest valid data; it may be out of date.",
@@ -27,5 +29,7 @@
   "noneSelected": "No application selected",
   "selectHint": "Select an application to view its details, metrics, and history.",
   "updated": "Catalog updated",
-  "stateHint": "Application statuses use text and visual indicators."
+  "stateHint": "Application statuses use text and visual indicators.",
+  "refreshHeading": "Automatic refresh",
+  "refreshStatus": "UI refresh interval: {{seconds}} s · Last attempt: {{lastAttempt}} · Last valid response: {{lastResponse}}"
 }
