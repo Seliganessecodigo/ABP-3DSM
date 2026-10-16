@@ -1,12 +1,4 @@
 {
-  "evidenceRefresh": "刷新数据",
-  "evidenceHeading": "运行证据", "evidenceCalculability": "环境可计算性",
-  "evidenceLoading": "正在加载证据...", "evidenceError": "无法查询证据。已保留当前显示的观测记录。",
-  "evidenceEmpty": "此应用没有可用证据。", "evidenceSelectionUnavailable": "所选证据不可用。",
-  "evidenceStale": "观测记录已过期", "evidenceCurrent": "最近一次有效观测", "evidenceShowingPrevious": "保留并显示之前的证据",
-  "evidenceInterval": "表示的时间区间", "evidenceReceived": "GreenER 接收时间", "evidenceMetric": "指标", "evidenceValue": "数值", "evidenceStatus": "状态",
-  "evidenceAvailable": "有效", "evidenceZero": "明确为零", "evidenceMissing": "缺失", "evidenceInvalid": "无效", "evidenceNoValue": "无数值",
-  "evidenceZeroNote": "明确的零是有效值；缺失不等于零。", "metricCpu": "CPU", "metricMemory": "内存", "metricDisk": "磁盘", "metricNetwork": "出站网络",
   "back": "返回目录",
   "loading": "正在加载应用程序...",
   "notFound": "未找到应用程序",

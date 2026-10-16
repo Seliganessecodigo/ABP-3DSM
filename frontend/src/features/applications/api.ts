@@ -13,14 +13,6 @@ export interface Application extends CatalogEntry {
   removedAt: string | null
   updatedAt: string
 }
-export type MetricStatus = 'available' | 'missing' | 'invalid'
-export interface MetricEvidence { value: number | null; unit: string | null; status: MetricStatus }
-export interface CollectionEvidence {
-  id: string; applicationId: string; intervalStart: string; intervalEnd: string; collectedAt: string
-  collectionIntervalSeconds: number | null; isStale: boolean; state: string; reason: string
-  lastCheckedAt: string | null
-  metrics: { cpu: MetricEvidence; memory: MetricEvidence; disk: MetricEvidence; network: MetricEvidence }
-}
 function trimTrailingSlashes(value: string) {
   let end = value.length
   while (value[end - 1] === '/') end -= 1
@@ -32,7 +24,6 @@ const endpoint = (id?: string) => {
   const suffix = id === undefined ? '' : '/' + encodeURIComponent(id)
   return apiBase + '/applications' + suffix
 }
-const collectionEndpoint = (id: string, collectionId?: string) => endpoint(id) + '/collections/' + (collectionId === undefined ? 'latest' : encodeURIComponent(collectionId))
 
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 function isDate(value: unknown): value is string { return typeof value === 'string' && Number.isFinite(Date.parse(value)) }
@@ -89,34 +80,4 @@ export async function getApplications(signal: AbortSignal): Promise<Application[
 
 export async function getApplication(id: string, signal: AbortSignal): Promise<Application> {
   return parseApplication(await getJson(endpoint(id), signal))
-}
-
-function parseMetric(value: unknown): MetricEvidence {
-  if (!isRecord(value) || !['available', 'missing', 'invalid'].includes(String(value.status)) ||
-    !(value.value === null || (typeof value.value === 'number' && Number.isFinite(value.value))) ||
-    !(value.unit === null || typeof value.unit === 'string') ||
-    (value.status === 'available') !== (value.value !== null)) throw new Error('Métrica incompatível com evidência')
-  return { value: value.value as number | null, unit: value.unit as string | null, status: value.status as MetricStatus }
-}
-
-export function parseCollectionEvidence(value: unknown): CollectionEvidence {
-  if (!isRecord(value) || typeof value.id !== 'string' || typeof value.applicationId !== 'string' ||
-    !isDate(value.intervalStart) || !isDate(value.intervalEnd) || !isDate(value.collectedAt) ||
-    !(value.collectionIntervalSeconds === null || (typeof value.collectionIntervalSeconds === 'number' && Number.isFinite(value.collectionIntervalSeconds))) ||
-    typeof value.isStale !== 'boolean' || typeof value.state !== 'string' || typeof value.reason !== 'string' ||
-    !(value.lastCheckedAt === null || isDate(value.lastCheckedAt)) || !isRecord(value.metrics)) {
-    throw new Error('Evidência incompatível com a aplicação')
-  }
-  return { id: value.id, applicationId: value.applicationId, intervalStart: value.intervalStart, intervalEnd: value.intervalEnd,
-    collectedAt: value.collectedAt, collectionIntervalSeconds: value.collectionIntervalSeconds as number | null,
-    isStale: value.isStale, state: value.state, reason: value.reason, lastCheckedAt: value.lastCheckedAt as string | null,
-    metrics: { cpu: parseMetric(value.metrics.cpu), memory: parseMetric(value.metrics.memory), disk: parseMetric(value.metrics.disk), network: parseMetric(value.metrics.network) } }
-}
-
-export async function getLatestCollectionEvidence(id: string, signal: AbortSignal): Promise<CollectionEvidence> {
-  return parseCollectionEvidence(await getJson(collectionEndpoint(id), signal))
-}
-
-export async function getCollectionEvidence(id: string, collectionId: string, signal: AbortSignal): Promise<CollectionEvidence> {
-  return parseCollectionEvidence(await getJson(collectionEndpoint(id, collectionId), signal))
 }

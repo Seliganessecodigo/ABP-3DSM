@@ -56,18 +56,14 @@ export function largeCatalog(): ApplicationResponse[] {
 }
 
 export async function mockApi(page: Page, handler: (route: Route) => Promise<void>) {
-  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?(?:\?.*)?$/, async (route) => {
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\?.*)?$/, async (route) => {
     if (route.request().isNavigationRequest()) {
       await route.continue()
       return
     }
     const pathname = new URL(route.request().url()).pathname
-    if (!/^\/(?:api\/)?applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/.test(pathname)) {
+    if (!/^\/(?:api\/)?applications(?:\/[^/?]+)?$/.test(pathname)) {
       await route.continue()
-      return
-    }
-    if (pathname.includes('/collections/')) {
-      await route.fulfill({ status: 404, json: { code: 'COLLECTION_NOT_FOUND', message: 'No collection evidence available in this test' } })
       return
     }
     await handler(route)
