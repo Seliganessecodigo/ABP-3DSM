@@ -1,0 +1,20 @@
+.card { margin-bottom: 16px; border: 1px solid #e0e8e3; border-radius: 10px; padding: 20px; background: white; }
+.card h2 { margin-bottom: 17px; color: #24392e; font-size: 15px; }
+.card > p { margin: 0 0 12px; color: #64716d; font-size: 12px; }
+.freshness { font-weight: 600; }
+.dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 18px 0; }
+.dates > div { min-width: 0; }
+.dates dt { margin-bottom: 5px; color: #76847c; font-size: 11px; }
+.dates dd { margin: 0; color: #24392e; font-size: 12px; overflow-wrap: anywhere; }
+.table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 12px; }
+.table thead { background: #f3f8f5; color: #64716d; }
+.table th, .table td { padding: 12px 10px; border-bottom: 1px solid #e0e8e3; }
+.table tbody th { color: #24392e; font-weight: 500; }
+.table tbody th, .table td { overflow-wrap: anywhere; }
+.table tbody td:last-child { color: #087454; font-weight: 600; }
+.note { margin: 12px 0 0 !important; }
+@media (max-width: 640px) {
+  .card { padding: 16px; }
+  .dates { grid-template-columns: 1fr; gap: 12px; }
+  .table th, .table td { padding: 10px 6px; }
+}
