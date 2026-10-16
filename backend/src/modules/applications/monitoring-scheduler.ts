@@ -52,18 +52,20 @@ export class MonitoringScheduler
     } catch {
       this.logger.error("A scheduled monitoring cycle failed unexpectedly.");
     } finally {
-      while (this.pendingSkippedAt) {
-        const skippedAt = this.pendingSkippedAt;
-        this.pendingSkippedAt = null;
-        try {
-          await this.recordSkippedCycle?.(skippedAt);
-        } catch {
-          this.logger.error(
-            "A skipped monitoring cycle could not be recorded.",
-          );
-        }
-      }
+      await this.recordPendingSkippedCycle();
       this.cycleInProgress = false;
     }
+  }
+
+  private async recordPendingSkippedCycle(): Promise<void> {
+    const skippedAt = this.pendingSkippedAt;
+    if (!skippedAt) return;
+    this.pendingSkippedAt = null;
+    try {
+      await this.recordSkippedCycle?.(skippedAt);
+    } catch {
+      this.logger.error("A skipped monitoring cycle could not be recorded.");
+    }
+    return this.recordPendingSkippedCycle();
   }
 }

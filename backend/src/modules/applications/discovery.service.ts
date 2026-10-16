@@ -22,8 +22,8 @@ export class DiscoveryService {
     const snapshot = services ?? (await this.adapter.fetchServices(signal));
     const observedAt = new Date();
     return this.dataSource.transaction(async (manager) => {
-      let discovered = 0;
-      for (const service of snapshot) {
+      return snapshot.reduce<Promise<number>>(async (countPromise, service) => {
+        const count = await countPromise;
         const inserted = await this.applications.insertIfAbsent(manager, {
           id: service.id,
           name: service.name,
@@ -40,7 +40,7 @@ export class DiscoveryService {
           lastCheckedAt: observedAt,
           removedAt: null,
         });
-        if (!inserted) continue;
+        if (!inserted) return count;
         await this.events.appendInTransaction(manager, {
           applicationId: service.id,
           cycleId,
@@ -49,9 +49,8 @@ export class DiscoveryService {
           occurredAt: observedAt,
           details: null,
         });
-        discovered++;
-      }
-      return discovered;
+        return count + 1;
+      }, Promise.resolve(0));
     });
   }
 }

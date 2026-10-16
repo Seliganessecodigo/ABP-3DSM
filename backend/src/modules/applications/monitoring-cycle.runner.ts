@@ -32,6 +32,17 @@ interface CycleCounts {
   persistedCount: number;
 }
 
+interface CycleFailure {
+  applicationId: string | null;
+  errorCode: string;
+  integration?: string;
+}
+
+interface ApplicationProcessingState {
+  hasUsefulResult: boolean;
+  failures: CycleFailure[];
+}
+
 @Injectable()
 export class MonitoringCycleRunner implements OnApplicationShutdown {
   private activeController: AbortController | null = null;
@@ -114,12 +125,10 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       failedCount: 0,
       persistedCount: 0,
     };
-    let hasUsefulResult = false;
-    const failures: Array<{
-      applicationId: string | null;
-      errorCode: string;
-      integration?: string;
-    }> = [];
+    const processing: ApplicationProcessingState = {
+      hasUsefulResult: false,
+      failures: [],
+    };
     let snapshot: ServiceSummary[];
 
     try {
@@ -163,7 +172,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         new Date(),
       );
       if (!incidentPersisted) {
-        failures.push({
+        processing.failures.push({
           applicationId: null,
           errorCode: "DATABASE_WRITE_FAILED",
           integration: "incident-persistence",
@@ -186,222 +195,286 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       throw error;
     }
     counts.processedCount = targets.length;
-    await this.forEachLimited(targets, async (application) => {
-      let observation:
-        | Awaited<ReturnType<MetricsAggregatorAdapter["fetchMetrics"]>>
-        | undefined;
-      let metricsFailed = false;
-      let metricsError: unknown;
-      try {
-        observation = await this.adapter.fetchMetrics(application.id, signal);
-      } catch (error) {
-        metricsFailed = true;
-        metricsError = error;
-      }
-
-      let carbonFactorAvailable = false;
-      if (application.regionCode) {
-        try {
-          await this.carbonFactors.capture(application.regionCode, signal);
-          carbonFactorAvailable = true;
-          hasUsefulResult = true;
-        } catch (error) {
-          if (signal.aborted || this.isCancellation(error)) return;
-          const persistenceFailure =
-            error instanceof CarbonFactorPersistenceError;
-          failures.push({
-            applicationId: application.id,
-            errorCode: persistenceFailure
-              ? "DATABASE_WRITE_FAILED"
-              : this.getErrorCode(error),
-            integration: "carbon-factor",
-          });
-          if (persistenceFailure) {
-            this.logPersistenceFailure(
-              application.id,
-              cycle.id,
-              "persist-carbon-factor",
-            );
-          } else {
-            const incidentPersisted = await this.incidents.recordFailure(
-              {
-                source: "carbon-intensity",
-                applicationId: application.id,
-                integration: MonitoringIntegration.CARBON_FACTOR,
-              },
-              this.getSafeReason(error, MonitoringIntegration.CARBON_FACTOR),
-              cycle.id,
-              new Date(),
-              this.getHttpAttempts(error),
-            );
-            if (!incidentPersisted) {
-              failures.push({
-                applicationId: application.id,
-                errorCode: "DATABASE_WRITE_FAILED",
-                integration: "incident-persistence",
-              });
-            }
-          }
-        }
-        if (carbonFactorAvailable) {
-          const incidentPersisted = await this.incidents.recordSuccess(
-            {
-              source: "carbon-intensity",
-              applicationId: application.id,
-              integration: MonitoringIntegration.CARBON_FACTOR,
-            },
-            cycle.id,
-            new Date(),
-          );
-          if (!incidentPersisted) {
-            failures.push({
-              applicationId: application.id,
-              errorCode: "DATABASE_WRITE_FAILED",
-              integration: "incident-persistence",
-            });
-          }
-        }
-      }
-
-      if (metricsFailed) {
-        if (signal.aborted || this.isCancellation(metricsError)) return;
-        failures.push({
-          applicationId: application.id,
-          errorCode: this.getErrorCode(metricsError),
-          integration: "metrics",
-        });
-        const incidentPersisted = await this.incidents.recordFailure(
-          {
-            source: "metrics-aggregator",
-            applicationId: application.id,
-            integration: MonitoringIntegration.METRICS,
-          },
-          this.getSafeReason(metricsError, MonitoringIntegration.METRICS),
-          cycle.id,
-          new Date(),
-          this.getHttpAttempts(metricsError),
-        );
-        if (!incidentPersisted) {
-          failures.push({
-            applicationId: application.id,
-            errorCode: "DATABASE_WRITE_FAILED",
-            integration: "incident-persistence",
-          });
-        }
-        try {
-          await this.statuses.record(
-            application.id,
-            this.getFailureEvidence(metricsError, new Date()),
-            cycle.id,
-          );
-        } catch {
-          this.logPersistenceFailure(
-            application.id,
-            cycle.id,
-            "record-metric-failure-status",
-          );
-          failures.push({
-            applicationId: application.id,
-            errorCode: "DATABASE_WRITE_FAILED",
-            integration: "status",
-          });
-        }
-        return;
-      }
-
-      if (!observation) return;
-
-      try {
-        const intervalEnd = observation.receivedAt;
-        const intervalStart = new Date(
-          intervalEnd.getTime() - observation.collectionIntervalSeconds * 1000,
-        );
-        const existing =
-          await this.collections.findByApplicationAndIntervalStart(
-            application.id,
-            intervalStart,
-          );
-        if (!existing) {
-          await this.collections.append({
-            applicationId: application.id,
-            intervalStart,
-            intervalEnd,
-            collectedAt: observation.receivedAt,
-            metrics: {
-              cpuPercent: observation.metrics.cpuPercent,
-              memoryGb: observation.metrics.memoryGb,
-              diskGb: observation.metrics.diskGb,
-              networkGb: observation.metrics.networkGb,
-              collectionIntervalSeconds: observation.collectionIntervalSeconds,
-            },
-            metricUnits: {
-              cpuPercent: "%",
-              memoryGb: "GB",
-              diskGb: "GB",
-              networkGb: "GB",
-            },
-            state: ApplicationState.AVAILABLE,
-            reason: null,
-          });
-          counts.persistedCount++;
-        }
-        hasUsefulResult = true;
-        await this.statuses.record(
-          application.id,
-          {
-            kind: "metrics",
-            result: "valid",
-            observedAt: observation.receivedAt,
-            carbonFactorAvailable,
-          },
-          cycle.id,
-        );
-        const incidentPersisted = await this.incidents.recordSuccess(
-          {
-            source: "metrics-aggregator",
-            applicationId: application.id,
-            integration: MonitoringIntegration.METRICS,
-          },
-          cycle.id,
-          observation.receivedAt,
-        );
-        if (!incidentPersisted) {
-          failures.push({
-            applicationId: application.id,
-            errorCode: "DATABASE_WRITE_FAILED",
-            integration: "incident-persistence",
-          });
-        }
-      } catch {
-        failures.push({
-          applicationId: application.id,
-          errorCode: "DATABASE_WRITE_FAILED",
-          integration: "metrics-persistence",
-        });
-        this.logPersistenceFailure(
-          application.id,
-          cycle.id,
-          "persist-metric-observation",
-        );
-      }
-    });
-
+    await this.forEachLimited(targets, (application) =>
+      this.processApplication(
+        application,
+        cycle.id,
+        signal,
+        counts,
+        processing,
+      ),
+    );
     if (signal.aborted) {
       await this.finishCancelled(cycle.id, counts);
       return;
     }
 
-    const status =
-      failures.length + counts.failedCount === 0
-        ? MonitoringCycleStatus.SUCCEEDED
-        : !hasUsefulResult
-          ? MonitoringCycleStatus.FAILED
-          : MonitoringCycleStatus.PARTIAL;
-    counts.failedCount += failures.length;
+    const status = getCycleStatus(
+      processing.failures.length + counts.failedCount,
+      processing.hasUsefulResult,
+    );
+    counts.failedCount += processing.failures.length;
     await this.cycles.finish(cycle.id, {
       ...counts,
       status,
-      details: { source: "scheduled-monitoring", failures },
+      details: {
+        source: "scheduled-monitoring",
+        failures: processing.failures,
+      },
+    });
+  }
+
+  private async processApplication(
+    application: ApplicationEntity,
+    cycleId: string,
+    signal: AbortSignal,
+    counts: CycleCounts,
+    processing: ApplicationProcessingState,
+  ): Promise<void> {
+    let observation:
+      Awaited<ReturnType<MetricsAggregatorAdapter["fetchMetrics"]>> | undefined;
+    let metricsError: unknown;
+    try {
+      observation = await this.adapter.fetchMetrics(application.id, signal);
+    } catch (error) {
+      metricsError = error;
+    }
+
+    const carbonFactorAvailable = await this.captureCarbonFactor(
+      application,
+      cycleId,
+      signal,
+      processing,
+    );
+    if (signal.aborted || this.isCancellation(metricsError)) return;
+    if (metricsError) {
+      await this.recordMetricsFailure(
+        application,
+        metricsError,
+        cycleId,
+        processing,
+      );
+      return;
+    }
+    if (!observation) return;
+    await this.persistObservation(
+      application,
+      observation,
+      carbonFactorAvailable,
+      cycleId,
+      counts,
+      processing,
+    );
+  }
+
+  private async captureCarbonFactor(
+    application: ApplicationEntity,
+    cycleId: string,
+    signal: AbortSignal,
+    processing: ApplicationProcessingState,
+  ): Promise<boolean> {
+    if (!application.regionCode) return false;
+    try {
+      await this.carbonFactors.capture(application.regionCode, signal);
+    } catch (error) {
+      if (signal.aborted || this.isCancellation(error)) return false;
+      const persistenceFailure = error instanceof CarbonFactorPersistenceError;
+      processing.failures.push({
+        applicationId: application.id,
+        errorCode: persistenceFailure
+          ? "DATABASE_WRITE_FAILED"
+          : this.getErrorCode(error),
+        integration: "carbon-factor",
+      });
+      if (persistenceFailure) {
+        this.logPersistenceFailure(
+          application.id,
+          cycleId,
+          "persist-carbon-factor",
+        );
+      } else if (
+        !(await this.incidents.recordFailure(
+          {
+            source: "carbon-intensity",
+            applicationId: application.id,
+            integration: MonitoringIntegration.CARBON_FACTOR,
+          },
+          this.getSafeReason(error, MonitoringIntegration.CARBON_FACTOR),
+          cycleId,
+          new Date(),
+          this.getHttpAttempts(error),
+        ))
+      ) {
+        this.addPersistenceFailure(
+          application.id,
+          "incident-persistence",
+          processing,
+        );
+      }
+      return false;
+    }
+
+    processing.hasUsefulResult = true;
+    if (
+      !(await this.incidents.recordSuccess(
+        {
+          source: "carbon-intensity",
+          applicationId: application.id,
+          integration: MonitoringIntegration.CARBON_FACTOR,
+        },
+        cycleId,
+        new Date(),
+      ))
+    )
+      this.addPersistenceFailure(
+        application.id,
+        "incident-persistence",
+        processing,
+      );
+    return true;
+  }
+
+  private async recordMetricsFailure(
+    application: ApplicationEntity,
+    error: unknown,
+    cycleId: string,
+    processing: ApplicationProcessingState,
+  ): Promise<void> {
+    processing.failures.push({
+      applicationId: application.id,
+      errorCode: this.getErrorCode(error),
+      integration: "metrics",
+    });
+    if (
+      !(await this.incidents.recordFailure(
+        {
+          source: "metrics-aggregator",
+          applicationId: application.id,
+          integration: MonitoringIntegration.METRICS,
+        },
+        this.getSafeReason(error, MonitoringIntegration.METRICS),
+        cycleId,
+        new Date(),
+        this.getHttpAttempts(error),
+      ))
+    )
+      this.addPersistenceFailure(
+        application.id,
+        "incident-persistence",
+        processing,
+      );
+
+    try {
+      await this.statuses.record(
+        application.id,
+        this.getFailureEvidence(error, new Date()),
+        cycleId,
+      );
+    } catch {
+      this.logPersistenceFailure(
+        application.id,
+        cycleId,
+        "record-metric-failure-status",
+      );
+      processing.failures.push({
+        applicationId: application.id,
+        errorCode: "DATABASE_WRITE_FAILED",
+        integration: "status",
+      });
+    }
+  }
+
+  private async persistObservation(
+    application: ApplicationEntity,
+    observation: Awaited<ReturnType<MetricsAggregatorAdapter["fetchMetrics"]>>,
+    carbonFactorAvailable: boolean,
+    cycleId: string,
+    counts: CycleCounts,
+    processing: ApplicationProcessingState,
+  ): Promise<void> {
+    try {
+      const intervalEnd = observation.receivedAt;
+      const intervalStart = new Date(
+        intervalEnd.getTime() - observation.collectionIntervalSeconds * 1000,
+      );
+      const existing = await this.collections.findByApplicationAndIntervalStart(
+        application.id,
+        intervalStart,
+      );
+      if (!existing) {
+        await this.collections.append({
+          applicationId: application.id,
+          intervalStart,
+          intervalEnd,
+          collectedAt: observation.receivedAt,
+          metrics: {
+            cpuPercent: observation.metrics.cpuPercent,
+            memoryGb: observation.metrics.memoryGb,
+            diskGb: observation.metrics.diskGb,
+            networkGb: observation.metrics.networkGb,
+            collectionIntervalSeconds: observation.collectionIntervalSeconds,
+          },
+          metricUnits: {
+            cpuPercent: "%",
+            memoryGb: "GB",
+            diskGb: "GB",
+            networkGb: "GB",
+          },
+          state: ApplicationState.AVAILABLE,
+          reason: null,
+        });
+        counts.persistedCount++;
+      }
+      processing.hasUsefulResult = true;
+      await this.statuses.record(
+        application.id,
+        {
+          kind: "metrics",
+          result: "valid",
+          observedAt: observation.receivedAt,
+          carbonFactorAvailable,
+        },
+        cycleId,
+      );
+      if (
+        !(await this.incidents.recordSuccess(
+          {
+            source: "metrics-aggregator",
+            applicationId: application.id,
+            integration: MonitoringIntegration.METRICS,
+          },
+          cycleId,
+          observation.receivedAt,
+        ))
+      )
+        this.addPersistenceFailure(
+          application.id,
+          "incident-persistence",
+          processing,
+        );
+    } catch {
+      processing.failures.push({
+        applicationId: application.id,
+        errorCode: "DATABASE_WRITE_FAILED",
+        integration: "metrics-persistence",
+      });
+      this.logPersistenceFailure(
+        application.id,
+        cycleId,
+        "persist-metric-observation",
+      );
+    }
+  }
+
+  private addPersistenceFailure(
+    applicationId: string,
+    integration: string,
+    processing: ApplicationProcessingState,
+  ): void {
+    processing.failures.push({
+      applicationId,
+      errorCode: "DATABASE_WRITE_FAILED",
+      integration,
     });
   }
 
@@ -411,10 +484,10 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
   ): Promise<void> {
     let nextIndex = 0;
     const worker = async (): Promise<void> => {
-      while (nextIndex < items.length) {
-        const index = nextIndex++;
-        await operation(items[index]);
-      }
+      if (nextIndex >= items.length) return;
+      const index = nextIndex++;
+      await operation(items[index]);
+      return worker();
     };
     await Promise.all(
       Array.from({ length: Math.min(this.concurrency, items.length) }, worker),
@@ -540,4 +613,14 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       },
     });
   }
+}
+
+function getCycleStatus(
+  failedCount: number,
+  hasUsefulResult: boolean,
+): MonitoringCycleStatus {
+  if (failedCount === 0) return MonitoringCycleStatus.SUCCEEDED;
+  return hasUsefulResult
+    ? MonitoringCycleStatus.PARTIAL
+    : MonitoringCycleStatus.FAILED;
 }

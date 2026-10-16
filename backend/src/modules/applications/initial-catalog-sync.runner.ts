@@ -100,12 +100,7 @@ export class InitialCatalogSyncRunner implements OnApplicationShutdown {
         return discoveredCount;
       }
       await this.cycles.finish(cycle.id, {
-        status:
-          failedCount === 0
-            ? MonitoringCycleStatus.SUCCEEDED
-            : successfulOperationCount > 0
-              ? MonitoringCycleStatus.PARTIAL
-              : MonitoringCycleStatus.FAILED,
+        status: getCycleStatus(failedCount, successfulOperationCount),
         discoveredCount,
         processedCount,
         failedCount,
@@ -159,7 +154,8 @@ export class InitialCatalogSyncRunner implements OnApplicationShutdown {
     if (error.status === 404) {
       if (integration === MonitoringIntegration.CARBON_FACTOR)
         return "FACTOR_UNAVAILABLE";
-      if (integration === MonitoringIntegration.METRICS) return "MISSING_METRICS";
+      if (integration === MonitoringIntegration.METRICS)
+        return "MISSING_METRICS";
       return "UPSTREAM_REJECTED";
     }
     if (error.status === 429) return "RATE_LIMITED";
@@ -183,4 +179,14 @@ export class InitialCatalogSyncRunner implements OnApplicationShutdown {
       details: { source: this.source, errorCode: "CYCLE_CANCELLED" },
     });
   }
+}
+
+function getCycleStatus(
+  failedCount: number,
+  successfulOperationCount: number,
+): MonitoringCycleStatus {
+  if (failedCount === 0) return MonitoringCycleStatus.SUCCEEDED;
+  return successfulOperationCount > 0
+    ? MonitoringCycleStatus.PARTIAL
+    : MonitoringCycleStatus.FAILED;
 }

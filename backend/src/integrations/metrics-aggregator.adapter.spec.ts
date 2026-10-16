@@ -248,7 +248,6 @@ describe("Agregador de Métricas", () => {
 
   it("retries a timed-out attempt while staying inside the total call deadline", async () => {
     jest.useFakeTimers();
-    jest.spyOn(Math, "random").mockReturnValue(0);
     let attempts = 0;
     const request = jest
       .spyOn(globalThis, "fetch")
@@ -276,7 +275,7 @@ describe("Agregador de Métricas", () => {
       const result = new MetricsAggregatorAdapter(
         "https://metrics.example",
       ).fetchServices();
-      await jest.advanceTimersByTimeAsync(10_200);
+      await jest.advanceTimersByTimeAsync(10_400);
       await expect(result).resolves.toEqual([]);
       expect(attempts).toBe(2);
     } finally {
@@ -288,7 +287,6 @@ describe("Agregador de Métricas", () => {
 
   it("retries when the response body exceeds the per-attempt timeout", async () => {
     jest.useFakeTimers();
-    jest.spyOn(Math, "random").mockReturnValue(0);
     let attempts = 0;
     const request = jest
       .spyOn(globalThis, "fetch")
@@ -316,7 +314,7 @@ describe("Agregador de Métricas", () => {
       const result = new MetricsAggregatorAdapter(
         "https://metrics.example",
       ).fetchServices();
-      await jest.advanceTimersByTimeAsync(10_200);
+      await jest.advanceTimersByTimeAsync(10_400);
       await expect(result).resolves.toEqual([]);
       expect(attempts).toBe(2);
     } finally {

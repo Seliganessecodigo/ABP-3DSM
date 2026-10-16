@@ -12,6 +12,22 @@ import { type StatusEvidence } from "./application-status-classifier";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
 import { MonitoringIntegration } from "../../database/entities/monitoring-incident.entity";
 
+interface ObservationCounts {
+  processedCount: number;
+  failedCount: number;
+  successfulOperationCount: number;
+  cancelled: boolean;
+}
+
+type MetricsResult =
+  | { kind: "valid"; observedAt: Date }
+  | {
+      kind: "failed";
+      error: unknown;
+      evidence: Exclude<StatusEvidence, { kind: "removal_confirmed" }>;
+    }
+  | { kind: "cancelled" };
+
 @Injectable()
 export class MetricsStatusObservationService {
   constructor(
@@ -34,180 +50,216 @@ export class MetricsStatusObservationService {
     cancelled?: boolean;
   }> {
     const applications = await this.applications.findForCollection();
-    let processedCount = 0;
-    let failedCount = 0;
-    let successfulOperationCount = 0;
-    let cancelled = false;
+    const counts: ObservationCounts = {
+      processedCount: 0,
+      failedCount: 0,
+      successfulOperationCount: 0,
+      cancelled: false,
+    };
+    await this.forEachLimited(applications, (application) =>
+      this.observeApplication(application, cycleId, signal, counts),
+    );
+    const { cancelled, ...result } = counts;
+    return cancelled ? { ...result, cancelled: true } : result;
+  }
 
-    await this.forEachLimited(applications, async (application) => {
-      if (signal?.aborted || cancelled) {
-        cancelled = true;
-        return;
-      }
-      processedCount++;
-      const checkedAt = new Date();
-      let evidence: Exclude<StatusEvidence, { kind: "removal_confirmed" }> = {
-        kind: "source_failure",
-        reason: ApplicationStateReason.SOURCE_ERROR,
-        observedAt: checkedAt,
-      };
-      let metricsValid = false;
-      let metricsFailed = false;
-      let carbonFactorAvailable = false;
-      let metricsObservedAt = checkedAt;
-      let metricsError: unknown;
-      try {
-        const observation = await this.metrics.fetchMetrics(
-          application.id,
-          signal,
-        );
-        metricsValid = true;
-        metricsObservedAt = observation.receivedAt;
-      } catch (error) {
-        if (signal?.aborted || this.isCancellation(error)) {
-          cancelled = true;
-          return;
-        }
-        metricsFailed = true;
-        metricsError = error;
-        evidence =
-          error instanceof IntegrationError &&
-          error.code === "INVALID_UPSTREAM_RESPONSE"
-            ? {
-                kind: "metrics" as const,
-                result: "invalid" as const,
-                observedAt: checkedAt,
-                carbonFactorAvailable: false,
-              }
-            : error instanceof IntegrationError && error.status === 404
-              ? {
-                  kind: "metrics" as const,
-                  result: "missing" as const,
-                  observedAt: checkedAt,
-                  carbonFactorAvailable: false,
-                }
-              : error instanceof IntegrationError &&
-                  (error.code === "UPSTREAM_TIMEOUT" || error.status === 408)
-                ? {
-                    kind: "source_failure" as const,
-                    reason: ApplicationStateReason.SOURCE_TIMEOUT,
-                    observedAt: checkedAt,
-                  }
-                : {
-                    kind: "source_failure" as const,
-                    reason: ApplicationStateReason.SOURCE_ERROR,
-                    observedAt: checkedAt,
-                  };
-      }
+  private async observeApplication(
+    application: Awaited<
+      ReturnType<ApplicationsRepository["findForCollection"]>
+    >[number],
+    cycleId: string,
+    signal: AbortSignal | undefined,
+    counts: ObservationCounts,
+  ): Promise<void> {
+    if (signal?.aborted || counts.cancelled) {
+      counts.cancelled = true;
+      return;
+    }
+    counts.processedCount++;
+    const checkedAt = new Date();
+    const metrics = await this.fetchMetrics(application.id, checkedAt, signal);
+    if (metrics.kind === "cancelled") {
+      counts.cancelled = true;
+      return;
+    }
+    const carbonFactorAvailable = await this.captureCarbonFactor(
+      application.id,
+      application.regionCode,
+      cycleId,
+      signal,
+      counts,
+    );
+    if (counts.cancelled) return;
 
-      if (application.regionCode) {
-        try {
-          await this.carbonFactors.capture(application.regionCode, signal);
-          carbonFactorAvailable = true;
-          successfulOperationCount++;
-          if (
-            !(await this.incidents.recordSuccess(
-              {
-                source: "carbon-intensity",
-                applicationId: application.id,
-                integration: MonitoringIntegration.CARBON_FACTOR,
-              },
-              cycleId,
-              new Date(),
-            ))
-          )
-            failedCount++;
-        } catch (error) {
-          if (signal?.aborted || this.isCancellation(error)) {
-            cancelled = true;
-            return;
+    const evidence =
+      metrics.kind === "valid"
+        ? {
+            kind: "metrics" as const,
+            result: "valid" as const,
+            observedAt: metrics.observedAt,
+            carbonFactorAvailable,
           }
-          failedCount++;
-          if (error instanceof CarbonFactorPersistenceError) {
-            this.logPersistenceFailure(
-              application.id,
-              cycleId,
-              "persist-carbon-factor",
-            );
-          } else if (
-            !(await this.incidents.recordFailure(
-              {
-                source: "carbon-intensity",
-                applicationId: application.id,
-                integration: MonitoringIntegration.CARBON_FACTOR,
-              },
-              this.getSafeReason(error, MonitoringIntegration.CARBON_FACTOR),
-              cycleId,
-              new Date(),
-              this.getHttpAttempts(error),
-            ))
-          ) {
-            failedCount++;
-          }
-        }
-      }
-
-      if (metricsFailed) {
-        failedCount++;
-        if (
-          !(await this.incidents.recordFailure(
-            {
-              source: "metrics-aggregator",
-              applicationId: application.id,
-              integration: MonitoringIntegration.METRICS,
-            },
-            this.getSafeReason(metricsError, MonitoringIntegration.METRICS),
-            cycleId,
-            checkedAt,
-            this.getHttpAttempts(metricsError),
-          ))
-        )
-          failedCount++;
-      } else {
-        evidence = {
-          kind: "metrics",
-          result: "valid",
-          observedAt: metricsObservedAt,
-          carbonFactorAvailable,
-        };
-      }
-
-      try {
-        await this.classification.record(application.id, evidence, cycleId);
-      } catch {
-        failedCount++;
-        this.logPersistenceFailure(
-          application.id,
+        : metrics.evidence;
+    if (metrics.kind === "failed") {
+      counts.failedCount++;
+      if (
+        !(await this.incidents.recordFailure(
+          {
+            source: "metrics-aggregator",
+            applicationId: application.id,
+            integration: MonitoringIntegration.METRICS,
+          },
+          this.getSafeReason(metrics.error, MonitoringIntegration.METRICS),
           cycleId,
-          "record-operational-status",
-        );
-        return;
-      }
-      if (metricsValid) {
-        successfulOperationCount++;
-        if (
-          !(await this.incidents.recordSuccess(
-            {
-              source: "metrics-aggregator",
-              applicationId: application.id,
-              integration: MonitoringIntegration.METRICS,
-            },
-            cycleId,
-            metricsObservedAt,
-          ))
-        )
-          failedCount++;
-      }
-    });
+          checkedAt,
+          this.getHttpAttempts(metrics.error),
+        ))
+      )
+        counts.failedCount++;
+    }
 
-    return cancelled
-      ? {
-          processedCount,
-          failedCount,
-          successfulOperationCount,
-          cancelled: true,
-        }
-      : { processedCount, failedCount, successfulOperationCount };
+    try {
+      await this.classification.record(application.id, evidence, cycleId);
+    } catch {
+      counts.failedCount++;
+      this.logPersistenceFailure(
+        application.id,
+        cycleId,
+        "record-operational-status",
+      );
+      return;
+    }
+    if (metrics.kind === "valid") {
+      counts.successfulOperationCount++;
+      if (
+        !(await this.incidents.recordSuccess(
+          {
+            source: "metrics-aggregator",
+            applicationId: application.id,
+            integration: MonitoringIntegration.METRICS,
+          },
+          cycleId,
+          metrics.observedAt,
+        ))
+      )
+        counts.failedCount++;
+    }
+  }
+
+  private async fetchMetrics(
+    applicationId: string,
+    checkedAt: Date,
+    signal?: AbortSignal,
+  ): Promise<MetricsResult> {
+    try {
+      const observation = await this.metrics.fetchMetrics(
+        applicationId,
+        signal,
+      );
+      return { kind: "valid", observedAt: observation.receivedAt };
+    } catch (error) {
+      if (signal?.aborted || this.isCancellation(error))
+        return { kind: "cancelled" };
+      return {
+        kind: "failed",
+        error,
+        evidence: this.getFailureEvidence(error, checkedAt),
+      };
+    }
+  }
+
+  private getFailureEvidence(
+    error: unknown,
+    observedAt: Date,
+  ): Exclude<StatusEvidence, { kind: "removal_confirmed" }> {
+    if (
+      error instanceof IntegrationError &&
+      error.code === "INVALID_UPSTREAM_RESPONSE"
+    ) {
+      return {
+        kind: "metrics",
+        result: "invalid",
+        observedAt,
+        carbonFactorAvailable: false,
+      };
+    }
+    if (error instanceof IntegrationError && error.status === 404) {
+      return {
+        kind: "metrics",
+        result: "missing",
+        observedAt,
+        carbonFactorAvailable: false,
+      };
+    }
+    if (
+      error instanceof IntegrationError &&
+      (error.code === "UPSTREAM_TIMEOUT" || error.status === 408)
+    ) {
+      return {
+        kind: "source_failure",
+        reason: ApplicationStateReason.SOURCE_TIMEOUT,
+        observedAt,
+      };
+    }
+    return {
+      kind: "source_failure",
+      reason: ApplicationStateReason.SOURCE_ERROR,
+      observedAt,
+    };
+  }
+
+  private async captureCarbonFactor(
+    applicationId: string,
+    regionCode: string | null,
+    cycleId: string,
+    signal: AbortSignal | undefined,
+    counts: ObservationCounts,
+  ): Promise<boolean> {
+    if (!regionCode) return false;
+    try {
+      await this.carbonFactors.capture(regionCode, signal);
+    } catch (error) {
+      if (signal?.aborted || this.isCancellation(error)) {
+        counts.cancelled = true;
+        return false;
+      }
+      counts.failedCount++;
+      if (error instanceof CarbonFactorPersistenceError) {
+        this.logPersistenceFailure(
+          applicationId,
+          cycleId,
+          "persist-carbon-factor",
+        );
+      } else if (
+        !(await this.incidents.recordFailure(
+          {
+            source: "carbon-intensity",
+            applicationId,
+            integration: MonitoringIntegration.CARBON_FACTOR,
+          },
+          this.getSafeReason(error, MonitoringIntegration.CARBON_FACTOR),
+          cycleId,
+          new Date(),
+          this.getHttpAttempts(error),
+        ))
+      )
+        counts.failedCount++;
+      return false;
+    }
+    counts.successfulOperationCount++;
+    if (
+      !(await this.incidents.recordSuccess(
+        {
+          source: "carbon-intensity",
+          applicationId,
+          integration: MonitoringIntegration.CARBON_FACTOR,
+        },
+        cycleId,
+        new Date(),
+      ))
+    )
+      counts.failedCount++;
+    return true;
   }
 
   private async forEachLimited<T>(
@@ -216,10 +268,10 @@ export class MetricsStatusObservationService {
   ): Promise<void> {
     let nextIndex = 0;
     const worker = async (): Promise<void> => {
-      while (nextIndex < items.length) {
-        const index = nextIndex++;
-        await operation(items[index]);
-      }
+      if (nextIndex >= items.length) return;
+      const index = nextIndex++;
+      await operation(items[index]);
+      return worker();
     };
     await Promise.all(
       Array.from({ length: Math.min(this.concurrency, items.length) }, worker),
