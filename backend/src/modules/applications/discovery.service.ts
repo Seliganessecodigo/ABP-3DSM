@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common'
-import { DataSource } from 'typeorm'
-import { ApplicationState } from '../../database/entities/application-state'
-import { ApplicationEventsRepository } from '../../database/repositories/application-events.repository'
-import { MetricsAggregatorAdapter } from '../../integrations/metrics-aggregator.adapter'
-import { ApplicationsRepository } from './applications.repository'
+import { Injectable } from "@nestjs/common";
+import { DataSource } from "typeorm";
+import { ApplicationState } from "../../database/entities/application-state";
+import { ApplicationEventsRepository } from "../../database/repositories/application-events.repository";
+import { MetricsAggregatorAdapter } from "../../integrations/metrics-aggregator.adapter";
+import { ApplicationsRepository } from "./applications.repository";
 
 @Injectable()
 export class DiscoveryService {
@@ -16,12 +16,13 @@ export class DiscoveryService {
 
   async discover(
     cycleId: string,
-    services?: Awaited<ReturnType<MetricsAggregatorAdapter['fetchServices']>>,
+    services?: Awaited<ReturnType<MetricsAggregatorAdapter["fetchServices"]>>,
+    signal?: AbortSignal,
   ): Promise<number> {
-    const snapshot = services ?? (await this.adapter.fetchServices())
-    const observedAt = new Date()
+    const snapshot = services ?? (await this.adapter.fetchServices(signal));
+    const observedAt = new Date();
     return this.dataSource.transaction(async (manager) => {
-      let discovered = 0
+      let discovered = 0;
       for (const service of snapshot) {
         const inserted = await this.applications.insertIfAbsent(manager, {
           id: service.id,
@@ -38,19 +39,19 @@ export class DiscoveryService {
           firstSeenAt: observedAt,
           lastCheckedAt: observedAt,
           removedAt: null,
-        })
-        if (!inserted) continue
+        });
+        if (!inserted) continue;
         await this.events.appendInTransaction(manager, {
           applicationId: service.id,
           cycleId,
-          kind: 'discovered',
-          actor: 'system',
+          kind: "discovered",
+          actor: "system",
           occurredAt: observedAt,
           details: null,
-        })
-        discovered++
+        });
+        discovered++;
       }
-      return discovered
-    })
+      return discovered;
+    });
   }
 }

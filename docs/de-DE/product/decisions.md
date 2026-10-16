@@ -11,6 +11,7 @@ Offene Punkte werden nicht stillschweigend zu freigegebenen Funktionen. PDF v1.1
 | D03 | GreenER-Empfang ist kein Quellzeitstempel. | Abgeleitete Intervalle kennzeichnen, Gültigkeit nicht erfinden. #154/#155. |
 | D04 | RNFs übergreifend, Grundlagen/Qualität in EP00. | Abgeschlossene Tasks beenden keine Qualitätspflicht. |
 | D05 | Regionale Simulation bei gleicher Energie. | Szenario verändert keine Messungen/offiziellen Ergebnisse. US-15. |
+| D06 | Monitoringfehler haben je Identität einen Vorfall und gelten nach drei aufeinanderfolgenden gültigen Beobachtungen als behoben. | Insgesamt 30 s Frist pro externem Aufruf, höchstens drei HTTP-Versuche einschließlich des ersten; Wiederholungen nur bei vorübergehenden Fehlern. Zyklen überlappen nicht, gültige Beobachtungen bleiben erhalten. #243. |
 
 D01 und EP00 am 15.10.2026 bestätigt; andere Regeln in Backlog/versionierten Verträgen.
 
@@ -22,7 +23,7 @@ D01 und EP00 am 15.10.2026 bestätigt; andere Regeln in Backlog/versionierten Ve
 | Zeit/Abdeckung | Grenzen, Zeitzone, Granularität, Rundung, Teilergebnisse. | #49/#156/#174/#175/#178 |
 | Vorschau | Rechte, Volumen-/Zeitraumgrenzen, Faktorwahl. | #91/#263/#264 |
 | Zugriff/Konten | Rollen, Bootstrap, Sitzungen, Passwort/Wiederherstellung. | #90/#91/#158/#160/#245 |
-| Quellen/Betrieb | Timeout, Retry, Quoten, Parallelität, Verzögerung. | #155/#243 |
+| Quellen/Betrieb | Quoten und Parallelitätsgrenzen mit den API-Verantwortlichen bestätigen. Die Timeout-/Retry-/Verzögerungsrichtlinie aus #243 ist freigegeben. | #155/#243 |
 | Kontinuität | Aufbewahrung, Backup/Restore, Verfügbarkeit/Leistung. | #110/#120/#125/#166 |
 | Figma-Extras | CSV, Spalten, Vorperiode, Effizienz pro Transaktion. | #61/#248/#252 |
 

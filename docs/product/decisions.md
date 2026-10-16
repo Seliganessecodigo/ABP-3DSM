@@ -11,6 +11,7 @@ Este registro mantém escolhas de produto visíveis sem transformar lacunas em f
 | D03 | Recebimento GreenER não é timestamp da origem. | Identificar intervalos derivados e não inventar vigência do fator. #154/#155. |
 | D04 | RNFs são transversais; EP00 agrupa fundações e qualidade. | Tasks técnicas concluídas não dispensam qualidade nas próximas entregas. |
 | D05 | Simulação regional mantém energia. | Alterar fator no cenário não altera medições nem resultados oficiais. US-15. |
+| D06 | Falhas de monitoramento têm incidente por identidade e recuperação após três observações válidas consecutivas. | Timeout total de 30 s por chamada externa, até três tentativas HTTP no total com retry limitado a falhas temporárias; ciclos não se sobrepõem e preservam observações válidas. #243. |
 
 D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regras estão registradas no backlog e nos contratos versionados.
 
@@ -22,7 +23,7 @@ D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regra
 | Tempo e cobertura | Bordas do período, timezone, granularidade, arredondamento e resultados parciais. | #49/#156/#174/#175/#178 |
 | Prévia de recálculo | Permissão, limite de volume/período e política de escolha do fator. | #91/#263/#264 |
 | Acesso e contas | Matriz de papéis, bootstrap, sessão e políticas de senha/recuperação. | #90/#91/#158/#160/#245 |
-| Fontes e operação | Timeout, retry, cotas, limites de concorrência e tratamento de atrasos aprovados. | #155/#243 |
+| Fontes e operação | Cotas e limites de concorrência ainda precisam ser confirmados com os responsáveis pelas APIs. A política de timeout/retry/atraso do #243 está aprovada. | #155/#243 |
 | Continuidade | Retenção, backup/restauração, metas de disponibilidade e desempenho. | #110/#120/#125/#166 |
 | Extras do protótipo | CSV, colunas configuráveis, período anterior e eficiência por transação. | #61/#248/#252 |
 

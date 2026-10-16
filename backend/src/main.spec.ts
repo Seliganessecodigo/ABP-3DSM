@@ -27,6 +27,7 @@ describe('inicialização da API', () => {
       }),
     }
     const app = {
+      enableShutdownHooks: jest.fn(),
       enableCors: jest.fn(),
       listen: jest.fn(async () => {
         events.push('listen')
@@ -49,6 +50,7 @@ describe('inicialização da API', () => {
     process.env.INITIAL_CATALOG_SYNC_AFTER_LISTEN = 'true'
     const runner = { run: jest.fn().mockResolvedValue(8) }
     const app = {
+      enableShutdownHooks: jest.fn(),
       enableCors: jest.fn(),
       listen: jest.fn().mockResolvedValue(undefined),
       get: jest.fn().mockReturnValue(runner),
@@ -71,6 +73,7 @@ describe('inicialização da API', () => {
     process.env.INITIAL_CATALOG_SYNC_AFTER_LISTEN = 'true'
     const runner = { run: jest.fn().mockRejectedValue(new Error('private detail')) }
     const app = {
+      enableShutdownHooks: jest.fn(),
       enableCors: jest.fn(),
       listen: jest.fn().mockResolvedValue(undefined),
       get: jest.fn().mockReturnValue(runner),
@@ -96,6 +99,7 @@ describe('inicialização da API', () => {
       run: jest.fn().mockRejectedValue(new IntegrationError('UPSTREAM_UNAVAILABLE')),
     }
     const app = {
+      enableShutdownHooks: jest.fn(),
       enableCors: jest.fn(),
       listen: jest.fn().mockResolvedValue(undefined),
       get: jest.fn().mockReturnValue(runner),
@@ -117,6 +121,7 @@ describe('inicialização da API', () => {
   it('não inicia a sincronização em segundo plano quando a configuração está desativada', async () => {
     delete process.env.INITIAL_CATALOG_SYNC_AFTER_LISTEN
     const app = {
+      enableShutdownHooks: jest.fn(),
       enableCors: jest.fn(),
       listen: jest.fn().mockResolvedValue(undefined),
       get: jest.fn(),

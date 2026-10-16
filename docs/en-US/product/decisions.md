@@ -11,6 +11,7 @@ This register keeps product choices visible without treating gaps as approved fe
 | D03 | GreenER receipt time is not a source timestamp. | Identify derived intervals; never invent factor validity. #154/#155. |
 | D04 | NFRs are cross-cutting; EP00 groups foundations and quality. | Completed technical tasks do not waive later quality requirements. |
 | D05 | Regional simulation keeps energy constant. | A scenario factor does not alter measurements or official results. US-15. |
+| D06 | Monitoring failures have one incident per identity and recover after three consecutive valid observations. | 30-second total deadline per external call, at most three HTTP attempts including the initial call, retries limited to transient failures; cycles never overlap and valid observations are preserved. #243. |
 
 D01 and the EP00 restructuring were confirmed on 2026-10-15. Other rules are recorded in the backlog and versioned contracts.
 
@@ -22,7 +23,7 @@ D01 and the EP00 restructuring were confirmed on 2026-10-15. Other rules are rec
 | Time and coverage | Boundaries, timezone, granularity, rounding and partial results. | #49/#156/#174/#175/#178 |
 | Recalculation preview | Permission, volume/period limits and factor-selection policy. | #91/#263/#264 |
 | Access and accounts | Role matrix, bootstrap, sessions, password/recovery policies. | #90/#91/#158/#160/#245 |
-| Sources and operations | Approved timeout, retry, quotas, concurrency and delay handling. | #155/#243 |
+| Sources and operations | Quotas and concurrency limits still require confirmation with API owners. The #243 timeout/retry/delay policy is approved. | #155/#243 |
 | Continuity | Retention, backup/restore and availability/performance targets. | #110/#120/#125/#166 |
 | Prototype extras | CSV, configurable columns, previous period and efficiency per transaction. | #61/#248/#252 |
 

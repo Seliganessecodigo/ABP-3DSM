@@ -11,6 +11,7 @@ Ce registre rend les choix visibles sans approuver une fonctionnalité par omiss
 | D03 | Réception GreenER distincte de l’horodatage source. | Identifier intervalles dérivés ; ne pas inventer de validité. #154/#155. |
 | D04 | RNFs transversaux, fondations/qualité dans EP00. | Tâches achevées ne dispensent pas de qualité future. |
 | D05 | Simulation régionale à énergie constante. | Scénario sans modification des mesures/résultats officiels. US-15. |
+| D06 | Les échecs de surveillance ont un incident par identité et récupèrent après trois observations valides consécutives. | Délai total de 30 s par appel externe, trois tentatives HTTP maximum, appel initial inclus, retries limités aux erreurs temporaires ; les cycles ne se chevauchent pas et les observations valides sont conservées. #243. |
 
 D01 et EP00 confirmés le 15/10/2026 ; autres règles dans backlog et contrats versionnés.
 
@@ -22,7 +23,7 @@ D01 et EP00 confirmés le 15/10/2026 ; autres règles dans backlog et contrats v
 | Temps/couverture | Bornes, fuseau, granularité, arrondi, résultats partiels. | #49/#156/#174/#175/#178 |
 | Recalcul | Permissions, limites volume/période, choix du facteur. | #91/#263/#264 |
 | Accès/comptes | Rôles, bootstrap, sessions, mots de passe/récupération. | #90/#91/#158/#160/#245 |
-| Sources/exploitation | Timeout, retry, quotas, concurrence, retards. | #155/#243 |
+| Sources/exploitation | Confirmer quotas et limites de concurrence avec les responsables des API. La politique timeout/retry/retards de #243 est approuvée. | #155/#243 |
 | Continuité | Rétention, sauvegarde/restauration, disponibilité/performance. | #110/#120/#125/#166 |
 | Extras Figma | CSV, colonnes, période précédente, efficacité par transaction. | #61/#248/#252 |
 

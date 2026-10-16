@@ -1,27 +1,28 @@
-import type { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { config as loadEnv } from 'dotenv'
-import { resolve } from 'node:path'
-import { ApplicationEntity } from './entities/application.entity'
-import { ApplicationEventEntity } from './entities/application-event.entity'
-import { CollectionEntity } from './entities/collection.entity'
-import { UserEntity } from './entities/user.entity'
-import { MonitoringCycleEntity } from './entities/monitoring-cycle.entity'
-import { CarbonRegionEntity } from './entities/carbon-region.entity'
-import { CalculationConfigEntity } from './entities/calculation-config.entity'
-import { RecalculationEntity } from './entities/recalculation.entity'
-import { AuditLogEntity } from './entities/audit-log.entity'
+import type { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { config as loadEnv } from "dotenv";
+import { resolve } from "node:path";
+import { ApplicationEntity } from "./entities/application.entity";
+import { ApplicationEventEntity } from "./entities/application-event.entity";
+import { CollectionEntity } from "./entities/collection.entity";
+import { UserEntity } from "./entities/user.entity";
+import { MonitoringCycleEntity } from "./entities/monitoring-cycle.entity";
+import { CarbonRegionEntity } from "./entities/carbon-region.entity";
+import { CalculationConfigEntity } from "./entities/calculation-config.entity";
+import { RecalculationEntity } from "./entities/recalculation.entity";
+import { AuditLogEntity } from "./entities/audit-log.entity";
+import { MonitoringIncidentEntity } from "./entities/monitoring-incident.entity";
 
-loadEnv({ path: resolve(__dirname, '../../../.env') })
+loadEnv({ path: resolve(__dirname, "../../../.env") });
 
 export function typeOrmOptions(): TypeOrmModuleOptions {
-  const url = process.env.DATABASE_URL
+  const url = process.env.DATABASE_URL;
 
   if (!url) {
-    throw new Error('DATABASE_URL must be configured before starting the API')
+    throw new Error("DATABASE_URL must be configured before starting the API");
   }
 
   return {
-    type: 'postgres',
+    type: "postgres",
     url,
     entities: [
       ApplicationEntity,
@@ -33,11 +34,13 @@ export function typeOrmOptions(): TypeOrmModuleOptions {
       CalculationConfigEntity,
       RecalculationEntity,
       AuditLogEntity,
+      MonitoringIncidentEntity,
     ],
     synchronize: false,
     migrationsRun: false,
     retryAttempts: 10,
     retryDelay: 3000,
-    logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  }
+    logging:
+      process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  };
 }
