@@ -31,5 +31,16 @@
   "updated": "Verzeichnis aktualisiert",
   "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt.",
   "refreshHeading": "Automatische Aktualisierung",
-  "refreshStatus": "Aktualisierungsintervall: {{seconds}} s · Letzter Versuch: {{lastAttempt}} · Letzte gültige Antwort: {{lastResponse}}"
+  "refreshStatus": "Aktualisierungsintervall: {{seconds}} s · Letzter Versuch: {{lastAttempt}} · Letzte gültige Antwort: {{lastResponse}}",
+  "columnFilters": "Spaltenfilter", "regionCode": "Regionscode", "cityMissing": "Stadt nicht angegeben",
+  "from": "Geprüft ab", "to": "Geprüft bis", "timeZone": "Zeitzone: {{timeZone}}",
+  "invalidDateRange": "Das Startdatum muss vor oder am Enddatum liegen.", "clearFilters": "Filter zurücksetzen",
+  "activeFilters": "Aktive Filter", "range": "{{start}}–{{end}} von {{count}} Anwendungen",
+  "pageSize": "Einträge pro Seite", "all": "Alle", "nameFilter": "Name oder Kennung",
+  "countryFilter": "Land", "regionCodeFilter": "Regionscode", "cityFilter": "Stadt", "stateFilter": "Status",
+  "filterDialogDescription": "Kombinieren Sie Felder, um Anwendungen einzugrenzen.", "closeFilters": "Spaltenfilter schließen",
+  "namePlaceholder": "Teil eines Namens oder einer Kennung...", "countryPlaceholder": "Land eingeben...",
+  "regionPlaceholder": "Region eingeben...", "cityPlaceholder": "Stadt eingeben...",
+  "filterCombinationNote": "Allgemeine Suche und aktive Filter werden kombiniert.",
+  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden"
 }
