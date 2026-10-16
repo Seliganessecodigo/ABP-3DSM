@@ -1,6 +1,27 @@
 import { expect, test } from '@playwright/test'
 import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, unavailable } from './support/catalog.ts'
 
+test('navegação mantém Aplicações ativa no detalhe', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await page.goto('/services/svc-0142')
+
+  const navigation = page.getByRole('navigation')
+  await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).toHaveAttribute('aria-current', 'page')
+})
+
+test('selecionar Aplicações no drawer móvel fecha o menu e foca a nova página', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockCatalog(page, [application()])
+  await page.goto('/services/svc-0142')
+
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  await page.getByRole('dialog').getByRole('link', { name: 'Aplicações', exact: true }).click()
+
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
+  await expect(page.getByRole('navigation')).toBeHidden()
+  await expect(page.getByRole('main')).toBeFocused()
+})
+
 test('seleção abre somente o ID escolhido mesmo com nomes iguais', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'svc-outro' })])
   await page.goto('/')
