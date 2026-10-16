@@ -39,3 +39,29 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
   }
 })
 
+test('controles do menu móvel são acessíveis nos oito idiomas', async ({ page }) => {
+  const cases = [
+    { locale: 'pt-BR', open: 'Abrir menu', close: 'Fechar menu' },
+    { locale: 'en-US', open: 'Open menu', close: 'Close menu' },
+    { locale: 'es-ES', open: 'Abrir menú', close: 'Cerrar menú' },
+    { locale: 'fr-FR', open: 'Ouvrir le menu', close: 'Fermer le menu' },
+    { locale: 'de-DE', open: 'Menü öffnen', close: 'Menü schließen' },
+    { locale: 'it-IT', open: 'Apri menu', close: 'Chiudi menu' },
+    { locale: 'ja-JP', open: 'メニューを開く', close: 'メニューを閉じる' },
+    { locale: 'zh-CN', open: '打开菜单', close: '关闭菜单' },
+  ]
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Abrir menu', exact: true }).click()
+
+  for (const [index, item] of cases.entries()) {
+    if (index > 0) await page.getByRole('button', { name: cases[index - 1].open, exact: true }).click()
+    await page.getByRole('dialog').getByRole('combobox').selectOption(item.locale)
+    const opener = page.getByRole('button', { name: item.open, exact: true })
+    await expect(page.getByRole('dialog').getByRole('button', { name: item.close, exact: true })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(opener).toHaveAttribute('aria-expanded', 'false')
+  }
+})
+

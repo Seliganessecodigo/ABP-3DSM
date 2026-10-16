@@ -24,7 +24,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const counts = useMemo(() => Object.fromEntries(states.map(({ value }) => [value,
     value === 'ALL' ? applications.length : applications.filter((item) => item.state === value).length])) as Record<State | 'ALL', number>, [applications])
   const updateSearch = (value: string) => { setSearch(value); setPage(1) }
-  return <main className="content">
+  return <main className="content" tabIndex={-1}>
       <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div>
         <button className="button secondary" onClick={refresh} disabled={refreshing}>↻ {tCatalog('refresh')}</button></div>
       <label className={styles['search-wrap']}><span aria-hidden="true">⌕</span><input type="search" aria-label={tCatalog('searchLabel')} placeholder={tCatalog('searchPlaceholder')} value={search} onChange={(event) => updateSearch(event.target.value)} /></label>

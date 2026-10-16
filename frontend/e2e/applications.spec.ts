@@ -346,3 +346,104 @@ test('menu destaca Aplicações e mantém funcionalidades adiadas desabilitadas'
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
 })
+
+test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const opener = page.getByRole('button', { name: 'Abrir menu' })
+  await expect(opener).toHaveAttribute('aria-expanded', 'false')
+  await expect(opener).toHaveAttribute('aria-controls', 'shared-sidebar')
+  await expect(page.getByRole('navigation')).toBeHidden()
+
+  await opener.click()
+  await expect(opener).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByRole('navigation')).toBeVisible()
+  await expect.poll(() => page.getByRole('dialog').evaluate((element) => element.getBoundingClientRect().width)).toBe(320)
+  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Metodologia', 'Configurações']) {
+    const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
+    await expect(destination).toBeVisible()
+    await expect(destination).toBeDisabled()
+  }
+
+  const navigation = page.getByRole('navigation')
+  for (const close of ['X', 'Escape', 'clique fora'] as const) {
+    if (close !== 'X') await opener.click()
+    if (close === 'X') await page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' }).click()
+    if (close === 'Escape') await page.keyboard.press('Escape')
+    if (close === 'clique fora') await page.getByRole('button', { name: 'Fechar menu' }).last().click({ position: { x: 330, y: 300 } })
+
+    await expect(opener).toHaveAttribute('aria-expanded', 'false')
+    await expect(navigation).toBeHidden()
+    await expect(opener).toBeFocused()
+  }
+})
+
+test('redimensionar para desktop encerra a abertura temporária do menu móvel', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const opener = page.getByRole('button', { name: 'Abrir menu' })
+  await opener.click()
+  await expect(opener).toHaveAttribute('aria-expanded', 'true')
+  await page.setViewportSize({ width: 1024, height: 844 })
+  await expect(opener).toBeHidden()
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(opener).toHaveAttribute('aria-expanded', 'false')
+  await expect(page.getByRole('navigation')).toBeHidden()
+})
+
+test('sidebar desktop recolhe, expande e reinicia expandida após recarga', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const collapse = page.getByRole('button', { name: 'Recolher navegação' })
+  await expect(collapse).toHaveAttribute('aria-expanded', 'true')
+  const sidebar = page.getByRole('complementary')
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(222)
+  await collapse.click()
+  const expand = page.getByRole('button', { name: 'Expandir navegação' })
+  await expect(expand).toHaveAttribute('aria-expanded', 'false')
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Aplicações', exact: true })).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Aplicações', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Idioma' })).toBeVisible()
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await expect(expand).toHaveAttribute('aria-expanded', 'false')
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Recolher navegação' })).toHaveAttribute('aria-expanded', 'true')
+})
+
+test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  const closeButton = page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' })
+  const languageSelector = page.getByRole('dialog').getByRole('combobox', { name: 'Idioma' })
+  await expect(closeButton).toBeFocused()
+
+  await page.keyboard.press('Shift+Tab')
+  await expect(languageSelector).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(closeButton).toBeFocused()
+})
+
+test('drawer aberto impede a rolagem do conteúdo ao fundo', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 600 })
+  await mockCatalog(page, largeCatalog())
+  await page.goto('/')
+  expect(await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight)).toBe(true)
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+
+  await page.mouse.move(100, 500)
+  await page.mouse.wheel(0, 500)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+})

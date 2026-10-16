@@ -9,7 +9,7 @@ export function ApplicationDetailPage({ id, navigate }: Readonly<{ id: string; n
   const { t: tCommon } = useTranslation('common')
   const { application, loading, notFound, error, retry } = useApplicationDetail(id)
   const backUrl = `/${window.location.search}`
-  return <main className={`content ${styles['detail-content']}`}>
+  return <main className={`content ${styles['detail-content']}`} tabIndex={-1}>
     <a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>← {tDetail('back')}</a>
     {loading && <output className="notice">{tDetail('loading')}</output>}
     {notFound && <section className="empty-state"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></section>}
