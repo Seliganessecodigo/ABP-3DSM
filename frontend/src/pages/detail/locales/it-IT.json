@@ -1,4 +1,12 @@
 {
+  "evidenceRefresh": "Aggiorna dati",
+  "evidenceHeading": "Evidenze operative", "evidenceCalculability": "Calcolabilità ambientale",
+  "evidenceLoading": "Caricamento delle evidenze...", "evidenceError": "Impossibile consultare le evidenze. L’osservazione visualizzata è stata conservata.",
+  "evidenceEmpty": "Nessuna evidenza disponibile per questa applicazione.", "evidenceSelectionUnavailable": "L’evidenza selezionata non è disponibile.",
+  "evidenceStale": "Osservazione non aggiornata", "evidenceCurrent": "Ultima osservazione valida", "evidenceShowingPrevious": "È mostrata l’evidenza precedente",
+  "evidenceInterval": "Intervallo rappresentato", "evidenceReceived": "Ricevuto da GreenER", "evidenceMetric": "Metrica", "evidenceValue": "Valore", "evidenceStatus": "Stato",
+  "evidenceAvailable": "Valido", "evidenceZero": "Zero esplicito", "evidenceMissing": "Assente", "evidenceInvalid": "Non valido", "evidenceNoValue": "Nessun valore",
+  "evidenceZeroNote": "Lo zero esplicito è valido; l’assenza non equivale a zero.", "metricCpu": "CPU", "metricMemory": "Memoria", "metricDisk": "Disco", "metricNetwork": "Rete in uscita",
   "back": "Torna al catalogo",
   "loading": "Caricamento dell’applicazione...",
   "notFound": "Applicazione non trovata",

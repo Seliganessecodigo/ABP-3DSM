@@ -1,4 +1,12 @@
 {
+  "evidenceRefresh": "Daten aktualisieren",
+  "evidenceHeading": "Betriebsnachweise", "evidenceCalculability": "Umweltbezogene Berechenbarkeit",
+  "evidenceLoading": "Nachweise werden geladen...", "evidenceError": "Nachweise konnten nicht geladen werden. Die angezeigte Beobachtung bleibt erhalten.",
+  "evidenceEmpty": "Für diese Anwendung sind keine Nachweise verfügbar.", "evidenceSelectionUnavailable": "Der ausgewählte Nachweis ist nicht verfügbar.",
+  "evidenceStale": "Veraltete Beobachtung", "evidenceCurrent": "Letzte gültige Beobachtung", "evidenceShowingPrevious": "Vorheriger Nachweis bleibt angezeigt",
+  "evidenceInterval": "Dargestellter Zeitraum", "evidenceReceived": "Bei GreenER empfangen", "evidenceMetric": "Metrik", "evidenceValue": "Wert", "evidenceStatus": "Status",
+  "evidenceAvailable": "Gültig", "evidenceZero": "Explizite Null", "evidenceMissing": "Fehlt", "evidenceInvalid": "Ungültig", "evidenceNoValue": "Kein Wert",
+  "evidenceZeroNote": "Eine explizite Null ist gültig; fehlende Daten bedeuten nicht null.", "metricCpu": "CPU", "metricMemory": "Speicher", "metricDisk": "Datenträger", "metricNetwork": "Ausgehendes Netzwerk",
   "back": "Zurück zum Verzeichnis",
   "loading": "Anwendung wird geladen...",
   "notFound": "Anwendung nicht gefunden",
