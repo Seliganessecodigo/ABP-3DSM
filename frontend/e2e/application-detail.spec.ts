@@ -159,6 +159,39 @@ test('retorno do detalhe restaura posição e foco no serviço selecionado', asy
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 })
 
+test('detalhe exibe evidência atual, valores parciais e intervalo selecionado', async ({ page }) => {
+  const current = {
+    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T17:32:00.000Z', isCalculable: true,
+    metrics: {
+      cpu: { value: 38, unit: '%', status: 'available' },
+      memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' },
+      network: { value: 1.2, unit: 'Mbps', status: 'available' },
+    },
+  }
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/latest')) return route.fulfill({ json: current })
+    if (pathname.endsWith('/collections/collection-history')) return route.fulfill({ json: { ...current, id: 'collection-history', isStale: true } })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142?collectionId=collection-history')
+  const evidence = page.getByRole('region', { name: /evidências operacionais/i })
+  await expect(evidence).toContainText(/CPU/i)
+  await expect(evidence).toContainText('38 %')
+  await expect(evidence).toContainText(/Memória/i)
+  await expect(evidence).toContainText(/ausente|não disponível/i)
+  await expect(evidence).toContainText(/0 GB\/s/)
+  await expect(evidence).toContainText(/intervalo representado/i)
+  await expect(evidence).toContainText(/recebido pelo GreenER/i)
+  await expect(evidence).toContainText(/desatualizada|antiga/i)
+  await expect(evidence).toContainText('14:32')
+})
+
 test('volta do navegador conserva o contexto da lista', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')
@@ -168,6 +201,52 @@ test('volta do navegador conserva o contexto da lista', async ({ page }) => {
   await page.goBack()
   await expect(search(page)).toHaveValue('pagamentos')
   await expect(row(page, 'svc-0142')).toBeVisible()
+})
+
+test('falha ao atualizar preserva evidência e permite nova tentativa', async ({ page }) => {
+  const evidence = {
+    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T17:32:00.000Z',
+    metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: 'GB', status: 'missing' },
+      disk: { value: 0, unit: 'GB', status: 'available' }, network: { value: 1.2, unit: 'Mbps', status: 'available' } },
+  }
+  let failedOnce = false
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/latest')) {
+      if (!failedOnce) { failedOnce = true; return route.fulfill({ json: evidence }) }
+      if (failedOnce) { failedOnce = false; return route.fulfill({ status: 503, json: { code: 'APPLICATION_EVIDENCE_UNAVAILABLE' } }) }
+    }
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142')
+  const evidenceRegion = page.getByRole('region', { name: /evidências operacionais/i })
+  await expect(evidenceRegion).toContainText('38 %')
+  await evidenceRegion.getByRole('button', { name: /atualizar dados/i }).click()
+  await expect(evidenceRegion.getByRole('alert')).toBeVisible()
+  await expect(evidenceRegion).toContainText('38 %')
+  await evidenceRegion.getByRole('button', { name: /tentar novamente/i }).click()
+  await expect(evidenceRegion.getByRole('alert')).toHaveCount(0)
+  await expect(evidenceRegion).toContainText('38 %')
+})
+
+test('evidência inexistente e intervalo selecionado indisponível não usam fallback', async ({ page }) => {
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/latest')) return route.fulfill({ status: 404, json: { code: 'COLLECTION_NOT_FOUND' } })
+    if (pathname.includes('/collections/')) return route.fulfill({ status: 404, json: { code: 'COLLECTION_NOT_FOUND' } })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142')
+  const evidence = page.getByRole('region', { name: /evidências operacionais/i })
+  await expect(evidence).toContainText(/nenhuma evidência disponível/i)
+  await page.goto('/services/svc-0142?collectionId=collection-missing')
+  await expect(evidence).toContainText(/evidência selecionada não está disponível/i)
+  await expect(evidence.getByRole('table')).toHaveCount(0)
 })
 
 test('resposta atrasada de uma seleção anterior não substitui a aplicação atual', async ({ page }) => {
