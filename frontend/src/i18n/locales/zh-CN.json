@@ -1,9 +1,6 @@
 {
   "language.label": "语言",
-  "theme.label": "主题",
-  "theme.light": "浅色",
-  "theme.dark": "深色",
-  "theme.system": "使用系统主题",
+  "theme.darkMode": "深色模式",
   "account": "账户",
   "app.tagline": "更环保地使用能源",
   "topbar": "GreenER · 监控",

@@ -1,25 +1,47 @@
 import { expect, test } from '@playwright/test'
 import { application, gate, mixedCatalog, mockApi, mockCatalog, row, unavailable } from './support/catalog.ts'
 
+test('interruptor único Modo escuro alterna entre claro e escuro', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await mockCatalog(page, [])
+  await page.goto('/')
+  const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
+  await expect(toggle).toHaveAttribute('aria-checked', 'false')
+  await expect(toggle.locator('.theme-switch > span')).toHaveCSS('transition-duration', '0.18s')
+  await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-checked', 'true')
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
+  await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-checked', 'false')
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
+  await expect(page.getByRole('button', { name: 'Usar tema do sistema', exact: true })).toHaveCount(0)
+})
+
+test('interruptor respeita a preferência por movimento reduzido', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await mockCatalog(page, [])
+  await page.goto('/')
+  await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true }).locator('.theme-switch > span'))
+    .toHaveCSS('transition-property', 'none')
+})
+
 test('preferências de tema têm nomes acessíveis nos oito idiomas', async ({ page }) => {
   await mockCatalog(page, [])
   await page.goto('/')
   const language = page.getByRole('combobox').filter({ has: page.locator('option[value="en-US"]') })
   const cases = [
-    ['pt-BR', 'Claro', 'Escuro', 'Usar tema do sistema'],
-    ['en-US', 'Light', 'Dark', 'Use system theme'],
-    ['es-ES', 'Claro', 'Oscuro', 'Usar tema del sistema'],
-    ['fr-FR', 'Clair', 'Sombre', 'Utiliser le thème du système'],
-    ['de-DE', 'Hell', 'Dunkel', 'Systemdesign verwenden'],
-    ['it-IT', 'Chiaro', 'Scuro', 'Usa il tema di sistema'],
-    ['ja-JP', 'ライト', 'ダーク', 'システムのテーマを使用'],
-    ['zh-CN', '浅色', '深色', '使用系统主题'],
+    ['pt-BR', 'Modo escuro'],
+    ['en-US', 'Dark mode'],
+    ['es-ES', 'Modo oscuro'],
+    ['fr-FR', 'Mode sombre'],
+    ['de-DE', 'Dunkelmodus'],
+    ['it-IT', 'Modalità scura'],
+    ['ja-JP', 'ダークモード'],
+    ['zh-CN', '深色模式'],
   ]
-  for (const [locale, light, dark, system] of cases) {
+  for (const [locale, label] of cases) {
     await language.selectOption(locale)
-    await expect(page.getByRole('button', { name: light, exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: dark, exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: system, exact: true })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('switch', { name: label, exact: true })).toBeVisible()
   }
 })
 
@@ -27,40 +49,41 @@ test('escolha explícita persiste na recarga e na navegação sem perder filtros
   await page.emulateMedia({ colorScheme: 'light' })
   await mockCatalog(page, [application()])
   await page.goto('/?search=pagamentos')
-  await page.getByRole('button', { name: 'Escuro', exact: true }).click()
+  await page.getByRole('switch', { name: 'Modo escuro', exact: true }).click()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Escuro', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true })).toHaveAttribute('aria-checked', 'true')
   await row(page, 'svc-0142').getByRole('link').click()
   await expect(page.getByRole('heading', { name: 'Identificação e situação', exact: true })).toBeVisible()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.getByRole('link', { name: /voltar/i }).click()
   await expect(page).toHaveURL(/search=pagamentos/)
-  await page.getByRole('button', { name: 'Claro', exact: true }).click()
+  await page.getByRole('switch', { name: 'Modo escuro', exact: true }).click()
   await page.reload()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
-  await expect(page.getByRole('button', { name: 'Claro', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true })).toHaveAttribute('aria-checked', 'false')
 })
 
-test('sistema acompanha mudanças, escolha manual prevalece e ação restaura o acompanhamento', async ({ page }) => {
+test('sistema acompanha mudanças até a primeira escolha manual', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
   await mockCatalog(page, [])
   await page.goto('/')
-  const system = page.getByRole('button', { name: 'Usar tema do sistema', exact: true })
-  await expect(system).toHaveAttribute('aria-pressed', 'true')
+  const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
+  await expect(toggle).toHaveAttribute('aria-checked', 'true')
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.emulateMedia({ colorScheme: 'light' })
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
-  await page.getByRole('button', { name: 'Escuro', exact: true }).click()
+  await expect(toggle).toHaveAttribute('aria-checked', 'false')
+  await toggle.click()
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.emulateMedia({ colorScheme: 'light' })
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
-  await system.click()
+  await toggle.click()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
   await page.reload()
-  await expect(system).toHaveAttribute('aria-pressed', 'true')
+  await expect(toggle).toHaveAttribute('aria-checked', 'false')
   await page.emulateMedia({ colorScheme: 'dark' })
-  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
 })
 
 for (const saved of ['light', 'dark', 'system', 'invalid', null]) {
@@ -80,24 +103,21 @@ test('controles funcionam por teclado na sidebar recolhida e no mobile', async (
   await mockCatalog(page, mixedCatalog)
   await page.goto('/')
   await page.getByRole('button', { name: 'Recolher navegação' }).click()
-  const dark = page.getByRole('button', { name: 'Escuro', exact: true })
+  const dark = page.getByRole('switch', { name: 'Modo escuro', exact: true })
   await dark.focus()
   await page.keyboard.press('Enter')
-  await expect(dark).toHaveAttribute('aria-pressed', 'true')
+  await expect(dark).toHaveAttribute('aria-checked', 'true')
   await expect(dark).toBeFocused()
   await expect(dark).toHaveCSS('outline-style', 'solid')
-  await page.keyboard.press('Tab')
-  const system = page.getByRole('button', { name: 'Usar tema do sistema', exact: true })
-  await expect(system).toBeFocused()
   await page.keyboard.press('Space')
-  await expect(system).toHaveAttribute('aria-pressed', 'true')
+  await expect(dark).toHaveAttribute('aria-checked', 'false')
   await page.setViewportSize({ width: 390, height: 844 })
   await page.getByRole('button', { name: 'Abrir menu' }).click()
-  await expect(system).toBeVisible()
-  const size = await system.boundingBox()
+  await expect(dark).toBeVisible()
+  const size = await dark.boundingBox()
   expect(size?.height).toBeGreaterThanOrEqual(44)
-  await page.getByRole('button', { name: 'Claro', exact: true }).click()
-  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
+  await dark.click()
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.keyboard.press('Escape')
   await expect(page.getByRole('button', { name: 'Abrir menu' })).toBeFocused()
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
@@ -111,11 +131,11 @@ test('armazenamento bloqueado não impede carregar e escolher o tema na sessão'
   await mockCatalog(page, [])
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: 'Aplicações', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Claro', exact: true }).click()
+  await page.getByRole('switch', { name: 'Modo escuro', exact: true }).click()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
   await page.emulateMedia({ colorScheme: 'light' })
   await page.emulateMedia({ colorScheme: 'dark' })
-  await expect(page.getByRole('button', { name: 'Claro', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true })).toHaveAttribute('aria-checked', 'false')
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
 })
 
@@ -123,7 +143,8 @@ test('texto, estados e controles mantêm contraste nos dois temas', async ({ pag
   await mockCatalog(page, mixedCatalog)
   await page.goto('/')
   for (const name of ['Claro', 'Escuro']) {
-    await page.getByRole('button', { name, exact: true }).click()
+    const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
+    if ((await toggle.getAttribute('aria-checked')) !== String(name === 'Escuro')) await toggle.click()
     const checks = await page.evaluate(() => {
       function luminance(color: string) {
         const channels = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map((channel) => {
@@ -140,7 +161,7 @@ test('texto, estados e controles mantêm contraste nos dois temas', async ({ pag
         const color = getComputedStyle(element).backgroundColor
         return color === 'rgba(0, 0, 0, 0)' && element.parentElement ? background(element.parentElement) : color
       }
-      const text = [...document.querySelectorAll('h1, .page-heading p, th, td, .identifier, .detail-link, .state-badge, .theme-selector button, .button:not(:disabled)')]
+      const text = [...document.querySelectorAll('h1, .page-heading p, th, td, .identifier, .detail-link, .state-badge, .theme-toggle, .button:not(:disabled)')]
         .filter((element) => element.getClientRects().length > 0)
         .map((element) => ({ label: element.textContent, minimum: 4.5, actual: ratio(getComputedStyle(element).color, background(element)) }))
       const search = document.querySelector('input[type="search"]')!.parentElement!
@@ -165,7 +186,8 @@ for (const theme of ['Claro', 'Escuro']) {
       }
     })
     await page.goto('/')
-    await page.getByRole('button', { name: theme, exact: true }).click()
+    const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
+    if ((await toggle.getAttribute('aria-checked')) !== String(theme === 'Escuro')) await toggle.click()
     try {
       await expect(page.getByText('Carregando aplicações...', { exact: true })).toBeVisible()
     } finally { pending.release() }

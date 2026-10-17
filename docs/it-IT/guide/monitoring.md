@@ -38,6 +38,6 @@ Segnalare ambiente, ID, filtri, data/ora con fuso, azione, atteso/osservato. Scr
 
 ## Preferenza del tema
 
-Nelle preferenze di navigazione, scegli **Chiaro** o **Scuro**. **Usa il tema di sistema** ripristina l’adeguamento automatico all’aspetto del sistema, anche quando cambia durante l’utilizzo. Alla prima visita, GreenER segue il sistema.
+Nelle preferenze di navigazione, usa l’interruttore **Modalità scura**: disattivato applica il tema chiaro; attivato applica quello scuro. Alla prima visita, GreenER segue l’aspetto del sistema e i suoi cambiamenti finché non usi l’interruttore. Da quel momento prevale la scelta esplicita; questa interfaccia non offre un’azione per tornare a seguire il sistema.
 
 La scelta si applica a catalogo, dettagli e layout globale senza modificare filtri o dati. Viene salvata in questo browser con la chiave `greener-theme` per la visita successiva. Se l’archiviazione è bloccata, la scelta funziona durante la sessione ma può perdersi al ricaricamento.

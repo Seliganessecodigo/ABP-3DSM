@@ -42,6 +42,6 @@ Ao relatar um problema, informe ambiente, ID, filtros, horário com fuso, ação
 
 ## Preferência de tema
 
-Nas preferências da navegação, escolha **Claro** ou **Escuro**. A ação **Usar tema do sistema** restaura o acompanhamento automático da aparência do sistema, inclusive quando ela muda durante o uso. No primeiro acesso, o GreenER segue o sistema.
+Nas preferências da navegação, use o interruptor **Modo escuro**: desligado aplica claro; ligado aplica escuro. No primeiro acesso, o GreenER acompanha a aparência do sistema, inclusive suas mudanças durante o uso, até você acionar o interruptor. A partir daí, vale a escolha explícita; esta interface não oferece uma ação para voltar a seguir o sistema.
 
 A escolha vale para o catálogo, detalhe e layout global, sem alterar filtros ou dados. Ela fica neste navegador, na chave local `greener-theme`, e é recuperada no próximo acesso. Se o navegador bloquear o armazenamento, a escolha continua válida durante a sessão, mas poderá não sobreviver à recarga.

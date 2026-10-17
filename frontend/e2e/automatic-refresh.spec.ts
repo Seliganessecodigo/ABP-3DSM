@@ -147,7 +147,7 @@ test('a slow automatic catalog refresh does not overlap another poll or manual r
   const refreshGate = gate()
   await mockApi(page, async (route) => {
     requests += 1
-    if (holdRefresh) await refreshGate
+    if (holdRefresh) await refreshGate.wait
     await route.fulfill({ json: [application()] })
   })
 
@@ -159,6 +159,7 @@ test('a slow automatic catalog refresh does not overlap another poll or manual r
   holdRefresh = true
   await page.clock.fastForward(60_000)
   await expect.poll(() => requests).toBeGreaterThan(initialRequests)
+  await expect(refresh).toBeDisabled()
   const requestsWhileRefreshPending = requests
 
   await page.clock.fastForward(120_000)

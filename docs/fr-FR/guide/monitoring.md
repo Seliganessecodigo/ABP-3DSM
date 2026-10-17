@@ -38,6 +38,6 @@ Signaler environnement, ID, filtres, date/heure avec fuseau, action et résultat
 
 ## Préférence de thème
 
-Dans les préférences de navigation, choisissez **Clair** ou **Sombre**. **Utiliser le thème du système** rétablit le suivi automatique de l’apparence du système, y compris ses changements pendant l’utilisation. Lors de la première visite, GreenER suit le système.
+Dans les préférences de navigation, utilisez l’interrupteur **Mode sombre** : désactivé pour le thème clair, activé pour le thème sombre. Lors de la première visite, GreenER suit l’apparence du système, y compris ses changements pendant l’utilisation, jusqu’à l’activation de l’interrupteur. Votre choix explicite prévaut ensuite ; cette interface ne propose pas d’action pour rétablir le suivi du système.
 
 Le choix s’applique au catalogue, aux détails et à la présentation globale sans modifier les filtres ni les données. Il est conservé dans ce navigateur sous `greener-theme` pour la prochaine visite. Si le stockage est bloqué, le choix fonctionne pendant la session mais peut être perdu au rechargement.
