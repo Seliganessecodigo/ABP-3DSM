@@ -510,6 +510,7 @@ test('redimensionar para desktop encerra a abertura temporária do menu móvel',
   await expect(opener).toHaveAttribute('aria-expanded', 'true')
   await page.setViewportSize({ width: 1024, height: 844 })
   await expect(opener).toBeHidden()
+  await expect(page.locator('.mobile-menu-toggle')).toHaveAttribute('aria-expanded', 'false')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(opener).toHaveAttribute('aria-expanded', 'false')
