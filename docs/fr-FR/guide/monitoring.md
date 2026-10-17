@@ -35,3 +35,9 @@ L’interface affiche l’heure de tentative et de réponse valide. Après un su
 Le sélecteur propose huit langues et mémorise la préférence dans ce navigateur. La langue ne change ni identité ni instants.
 
 Signaler environnement, ID, filtres, date/heure avec fuseau, action et résultat attendu/observé. Exclure secrets/données privées des captures et suivre [Exploitation](../operations).
+
+## Préférence de thème
+
+Dans les préférences de navigation, choisissez **Clair** ou **Sombre**. **Utiliser le thème du système** rétablit le suivi automatique de l’apparence du système, y compris ses changements pendant l’utilisation. Lors de la première visite, GreenER suit le système.
+
+Le choix s’applique au catalogue, aux détails et à la présentation globale sans modifier les filtres ni les données. Il est conservé dans ce navigateur sous `greener-theme` pour la prochaine visite. Si le stockage est bloqué, le choix fonctionne pendant la session mais peut être perdu au rechargement.

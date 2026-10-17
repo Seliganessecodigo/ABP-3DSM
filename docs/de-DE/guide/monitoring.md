@@ -35,3 +35,9 @@ Die UI zeigt Versuchs- und gültige Antwortzeiten. Bei Fehler nach Erfolg bleibe
 Der Sprachwähler bietet acht Sprachen und speichert die Auswahl in diesem Browser. Sprache verändert weder Identität noch Beobachtungszeitpunkte.
 
 Fehlerbericht: Umgebung, ID, Filter, Uhrzeit mit Zeitzone, Aktion, Soll-/Ist-Ergebnis. Screenshots ohne Geheimnisse/private Daten; siehe [Betrieb](../operations).
+
+## Designpräferenz
+
+Wählen Sie in den Navigationseinstellungen **Hell** oder **Dunkel**. **Systemdesign verwenden** stellt die automatische Anpassung an das System wieder her, auch bei Änderungen während der Nutzung. Beim ersten Besuch folgt GreenER dem System.
+
+Die Auswahl gilt für Katalog, Details und das globale Layout, ohne Filter oder Daten zu ändern. Sie wird in diesem Browser unter `greener-theme` für den nächsten Besuch gespeichert. Bei blockiertem Speicher gilt sie während der Sitzung, kann aber beim Neuladen verloren gehen.

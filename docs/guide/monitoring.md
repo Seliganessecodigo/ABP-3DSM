@@ -39,3 +39,9 @@ A API já expõe evidências de coletas, mas o bloco completo de métricas e fre
 O seletor oferece oito idiomas e guarda a preferência neste navegador. Alterar idioma não cria outra aplicação nem muda os instantes das observações.
 
 Ao relatar um problema, informe ambiente, ID, filtros, horário com fuso, ação executada e resultado esperado/observado. Inclua captura sem credenciais ou dados privados. Para falha de ambiente, siga [Operação e diagnóstico](../operations).
+
+## Preferência de tema
+
+Nas preferências da navegação, escolha **Claro** ou **Escuro**. A ação **Usar tema do sistema** restaura o acompanhamento automático da aparência do sistema, inclusive quando ela muda durante o uso. No primeiro acesso, o GreenER segue o sistema.
+
+A escolha vale para o catálogo, detalhe e layout global, sem alterar filtros ou dados. Ela fica neste navegador, na chave local `greener-theme`, e é recuperada no próximo acesso. Se o navegador bloquear o armazenamento, a escolha continua válida durante a sessão, mas poderá não sobreviver à recarga.

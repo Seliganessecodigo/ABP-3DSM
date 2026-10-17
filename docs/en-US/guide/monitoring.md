@@ -39,3 +39,9 @@ The API already exposes collection evidence; full metric and freshness presentat
 The selector offers eight languages and stores the preference in this browser. Changing language does not create another application or change observation instants.
 
 Report environment, application ID, filters, time with timezone, action and expected/observed result. Attach screenshots without credentials or private data. For environment failures, follow [Operations and diagnosis](../operations).
+
+## Theme preference
+
+In the navigation preferences, choose **Light** or **Dark**. **Use system theme** restores automatic tracking of the system appearance, including changes while the app is open. On the first visit, GreenER follows the system.
+
+The choice applies to the catalog, details and global layout without changing filters or data. It is saved in this browser under `greener-theme` for the next visit. If storage is blocked, the choice still works during the session but may not survive a reload.

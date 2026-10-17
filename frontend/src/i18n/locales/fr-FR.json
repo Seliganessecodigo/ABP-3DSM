@@ -1,6 +1,9 @@
 {
   "language.label": "Langue",
-  "theme.darkMode": "Mode sombre",
+  "theme.label": "Thème",
+  "theme.light": "Clair",
+  "theme.dark": "Sombre",
+  "theme.system": "Utiliser le thème du système",
   "account": "Compte",
   "app.tagline": "Une énergie plus responsable",
   "topbar": "GreenER · Suivi",

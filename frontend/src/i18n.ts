@@ -19,10 +19,16 @@ const resources = Object.fromEntries(supportedLocales.map((locale) => [
   Object.fromEntries(Object.entries(namespaces).map(([namespace, translations]) => [namespace, translations[locale]])),
 ]))
 
-const storedLocale = localStorage.getItem('greener:locale')
+let storedLocale: string | null = null
+try { storedLocale = localStorage.getItem('greener:locale') }
+catch { /* Use the browser locale when storage is unavailable. */ }
 const browserLocale = navigator.languages?.find((locale) => supportedLocales.includes(locale as Locale))
 const initialLocale = supportedLocales.includes(storedLocale as Locale) ? storedLocale as Locale : browserLocale ?? 'pt-BR'
 i18n.use(initReactI18next).init({ resources, lng: initialLocale, ns: Object.keys(namespaces), defaultNS: 'common', fallbackLng: 'en-US', supportedLngs: supportedLocales, keySeparator: false, interpolation: { escapeValue: false }, returnNull: false })
-i18n.on('languageChanged', (locale) => { localStorage.setItem('greener:locale', locale); document.documentElement.lang = locale })
+i18n.on('languageChanged', (locale) => {
+  try { localStorage.setItem('greener:locale', locale) }
+  catch { /* Language changes remain available for this session. */ }
+  document.documentElement.lang = locale
+})
 document.documentElement.lang = initialLocale
 export default i18n

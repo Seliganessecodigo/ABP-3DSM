@@ -1,0 +1,12 @@
+.theme-selector { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 4px; }
+.theme-selector button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; flex: 1; border: 1px solid transparent; border-radius: 7px; padding: 6px; color: var(--navigation-text); background: transparent; font: inherit; font-size: 12px; overflow-wrap: anywhere; cursor: pointer; }
+.theme-selector button:hover { background: var(--navigation-active); }
+.theme-selector button[aria-pressed='true'] { border-color: var(--navigation-focus); background: var(--navigation-active); }
+.theme-selector button:focus-visible { outline-color: var(--navigation-focus); }
+.theme-system { font-size: 11px !important; }
+@media (min-width: 641px) {
+  .sidebar-collapsed .theme-option-label { display: none; }
+  .sidebar-collapsed .theme-options { flex-direction: column; }
+  .sidebar-collapsed .sidebar-preferences { max-height: none; }
+}

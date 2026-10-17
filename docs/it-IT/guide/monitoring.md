@@ -35,3 +35,9 @@ La UI indica orari di tentativo e risposta valida. Un errore dopo successo conse
 Otto lingue, preferenza nel browser. Cambiare lingua non cambia identità o istanti.
 
 Segnalare ambiente, ID, filtri, data/ora con fuso, azione, atteso/osservato. Screenshot senza credenziali/dati privati; vedere [Operazione](../operations).
+
+## Preferenza del tema
+
+Nelle preferenze di navigazione, scegli **Chiaro** o **Scuro**. **Usa il tema di sistema** ripristina l’adeguamento automatico all’aspetto del sistema, anche quando cambia durante l’utilizzo. Alla prima visita, GreenER segue il sistema.
+
+La scelta si applica a catalogo, dettagli e layout globale senza modificare filtri o dati. Viene salvata in questo browser con la chiave `greener-theme` per la visita successiva. Se l’archiviazione è bloccata, la scelta funziona durante la sessione ma può perdersi al ricaricamento.
