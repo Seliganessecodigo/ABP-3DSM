@@ -1,4 +1,12 @@
 {
+  "evidenceRefresh": "データを更新",
+  "evidenceHeading": "運用エビデンス", "evidenceCalculability": "環境計算可能性",
+  "evidenceLoading": "エビデンスを読み込み中...", "evidenceError": "エビデンスを取得できません。表示中の観測データは保持されています。",
+  "evidenceEmpty": "このアプリケーションのエビデンスはありません。", "evidenceSelectionUnavailable": "選択したエビデンスは利用できません。",
+  "evidenceStale": "古い観測データ", "evidenceCurrent": "最新の有効な観測データ", "evidenceShowingPrevious": "以前のエビデンスを表示しています",
+  "evidenceInterval": "対象期間", "evidenceReceived": "GreenER受信日時", "evidenceMetric": "メトリクス", "evidenceValue": "値", "evidenceStatus": "状態",
+  "evidenceAvailable": "有効", "evidenceZero": "明示的なゼロ", "evidenceMissing": "欠損", "evidenceInvalid": "無効", "evidenceNoValue": "値なし",
+  "evidenceZeroNote": "明示的なゼロは有効です。欠損はゼロを意味しません。", "metricCpu": "CPU", "metricMemory": "メモリ", "metricDisk": "ディスク", "metricNetwork": "送信ネットワーク",
   "back": "一覧に戻る",
   "loading": "アプリケーションを読み込み中...",
   "notFound": "アプリケーションが見つかりません",
