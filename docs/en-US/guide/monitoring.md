@@ -42,6 +42,6 @@ Report environment, application ID, filters, time with timezone, action and expe
 
 ## Theme preference
 
-In the navigation preferences, choose **Light** or **Dark**. **Use system theme** restores automatic tracking of the system appearance, including changes while the app is open. On the first visit, GreenER follows the system.
+In the navigation preferences, use the **Dark mode** switch: off applies light; on applies dark. On the first visit, GreenER follows the system appearance, including changes while the app is open, until you use the switch. Your explicit choice then takes precedence; this interface has no action to restore system tracking.
 
 The choice applies to the catalog, details and global layout without changing filters or data. It is saved in this browser under `greener-theme` for the next visit. If storage is blocked, the choice still works during the session but may not survive a reload.

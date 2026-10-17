@@ -55,7 +55,10 @@ frontend; o gate SonarQube Cloud continua obrigatório na PR para `develop`.
 
 ## Temas (US-17 / #214)
 
-As preferências da sidebar oferecem Claro/Escuro e a ação Usar tema do sistema.
+As preferências da sidebar oferecem um único interruptor “Modo escuro”, conforme
+a revisão visual do solicitante: desligado aplica claro; ligado aplica escuro.
+O primeiro acesso segue o sistema até a primeira interação. Esta revisão remove
+a ação visível de retorno ao sistema, ajustando esse critério original da US-17.
 A preferência local (`greener-theme`: `light`, `dark`, `system`) é distinta da
 aparência efetiva. Ausência ou valor inválido segue o sistema; escolhas antigas
 claro/escuro continuam válidas. Armazenamento indisponível não impede alternar
@@ -64,7 +67,7 @@ na sessão, mas não garante persistência após recarga.
 O script clássico bloqueante em `public/theme-init.js`, referenciado no início
 do documento, aplica a escolha antes da primeira pintura. `app/useTheme.ts`
 coordena a preferência e mudanças do sistema; `components/ThemeSelector` apresenta
-os controles. Os tokens ficam em `styles/theme.css`, no elemento raiz, e os
+o interruptor. Os tokens ficam em `styles/theme.css`, no elemento raiz, e os
 estilos das páginas consomem esses tokens. Não há chamada de API para temas.
 
 A referência é a tabela semântica inferior do PNG “Design System · Cores e

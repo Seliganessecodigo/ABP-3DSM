@@ -4,18 +4,11 @@ import './ThemeSelector.css'
 
 export function ThemeSelector() {
   const { t } = useTranslation('common')
-  const { preference, chooseTheme } = useTheme()
-  return <div className="theme-selector" role="group" aria-label={t('theme.label')}>
-    <div className="theme-options">
-      <button type="button" aria-label={t('theme.light')} aria-pressed={preference === 'light'} onClick={() => chooseTheme('light')}>
-        <span aria-hidden="true">☀</span><span className="theme-option-label">{t('theme.light')}</span>
-      </button>
-      <button type="button" aria-label={t('theme.dark')} aria-pressed={preference === 'dark'} onClick={() => chooseTheme('dark')}>
-        <span aria-hidden="true">☾</span><span className="theme-option-label">{t('theme.dark')}</span>
-      </button>
-    </div>
-    <button className="theme-system" type="button" aria-label={t('theme.system')} aria-pressed={preference === 'system'} onClick={() => chooseTheme('system')}>
-      <span aria-hidden="true">▣</span><span className="theme-option-label">{t('theme.system')}</span>
-    </button>
-  </div>
+  const { theme, chooseTheme } = useTheme()
+  const dark = theme === 'dark'
+  return <button className="theme-toggle" type="button" role="switch" aria-label={t('theme.darkMode')} aria-checked={dark} onClick={() => chooseTheme(dark ? 'light' : 'dark')}>
+    <svg className="theme-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M15.8 12.4A7 7 0 0 1 7.6 4.2 7.2 7.2 0 1 0 15.8 12.4Z" /></svg>
+    <span className="theme-label">{t('theme.darkMode')}</span>
+    <span className="theme-switch" aria-hidden="true"><span /></span>
+  </button>
 }

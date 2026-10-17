@@ -569,21 +569,21 @@ test('preferências da sidebar alternam tema e mantêm os ícones ao recolher', 
   await page.goto('/')
 
   const sidebar = page.getByRole('complementary')
-  const themeToggle = page.getByRole('button', { name: 'Escuro', exact: true })
-  await expect(themeToggle).toHaveAttribute('aria-pressed', 'false')
+  const themeToggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
+  await expect(themeToggle).toHaveAttribute('aria-checked', 'false')
   await expect(sidebar).toHaveCSS('background-color', 'rgb(0, 61, 49)')
   await themeToggle.click()
-  await expect(themeToggle).toHaveAttribute('aria-pressed', 'true')
+  await expect(themeToggle).toHaveAttribute('aria-checked', 'true')
   await expect(sidebar).toHaveCSS('background-color', 'rgb(8, 46, 37)')
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Escuro', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true })).toHaveAttribute('aria-checked', 'true')
   await expect(sidebar).toHaveCSS('background-color', 'rgb(8, 46, 37)')
 
   await page.getByRole('button', { name: 'Recolher navegação' }).click()
-  const collapsedThemeToggle = page.getByRole('button', { name: 'Escuro', exact: true })
+  const collapsedThemeToggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
   await expect(collapsedThemeToggle).toBeVisible()
   await expect(page.getByRole('combobox', { name: 'Idioma' })).toBeVisible()
-  await page.getByRole('button', { name: 'Claro', exact: true }).click()
+  await collapsedThemeToggle.click()
   await expect(sidebar).toHaveCSS('background-color', 'rgb(0, 61, 49)')
 })
 
@@ -594,7 +594,7 @@ test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({
 
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   const closeButton = page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' })
-  const themeToggle = page.getByRole('dialog').getByRole('button', { name: 'Usar tema do sistema', exact: true })
+  const themeToggle = page.getByRole('dialog').getByRole('switch', { name: 'Modo escuro', exact: true })
   await expect(closeButton).toBeFocused()
 
   await page.keyboard.press('Shift+Tab')

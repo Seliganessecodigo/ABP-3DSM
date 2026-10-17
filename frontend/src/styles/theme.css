@@ -27,6 +27,8 @@
   --neutral-background: #eef1f6;
   --navigation-text: #e8f2ed;
   --navigation-focus: #64d8ac;
+  --switch-track-off: #4f6e60;
+  --switch-thumb-off: #e8f2ed;
 }
 :root[data-theme='dark'] {
   --background-page: #101b18;
@@ -56,4 +58,6 @@
   --neutral-background: #2b3540;
   --navigation-text: #e8f2ed;
   --navigation-focus: #64d8ac;
+  --switch-track-off: #4f6e60;
+  --switch-thumb-off: #e8f2ed;
 }

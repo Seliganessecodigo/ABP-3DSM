@@ -38,6 +38,6 @@ Fehlerbericht: Umgebung, ID, Filter, Uhrzeit mit Zeitzone, Aktion, Soll-/Ist-Erg
 
 ## Designpräferenz
 
-Wählen Sie in den Navigationseinstellungen **Hell** oder **Dunkel**. **Systemdesign verwenden** stellt die automatische Anpassung an das System wieder her, auch bei Änderungen während der Nutzung. Beim ersten Besuch folgt GreenER dem System.
+Verwenden Sie in den Navigationseinstellungen den Schalter **Dunkelmodus**: ausgeschaltet für hell, eingeschaltet für dunkel. Beim ersten Besuch folgt GreenER dem Systemdesign und dessen Änderungen, bis Sie den Schalter betätigen. Danach hat Ihre ausdrückliche Auswahl Vorrang; diese Oberfläche bietet keine Aktion zur Rückkehr zum Systemdesign.
 
 Die Auswahl gilt für Katalog, Details und das globale Layout, ohne Filter oder Daten zu ändern. Sie wird in diesem Browser unter `greener-theme` für den nächsten Besuch gespeichert. Bei blockiertem Speicher gilt sie während der Sitzung, kann aber beim Neuladen verloren gehen.

@@ -1,9 +1,6 @@
 {
   "language.label": "Sprache",
-  "theme.label": "Design",
-  "theme.light": "Hell",
-  "theme.dark": "Dunkel",
-  "theme.system": "Systemdesign verwenden",
+  "theme.darkMode": "Dunkelmodus",
   "account": "Konto",
   "app.tagline": "Bewusster mit Energie umgehen",
   "topbar": "GreenER · Überwachung",

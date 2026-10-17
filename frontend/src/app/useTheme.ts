@@ -9,19 +9,22 @@ function preferenceOf(value: string | null | undefined): ThemePreference {
 export function useTheme() {
   const [preference, setPreference] = useState<ThemePreference>(() =>
     preferenceOf(document.documentElement.dataset.themePreference))
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const systemTheme = systemDark ? 'dark' : 'light'
+  const theme = preference === 'system' ? systemTheme : preference
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const apply = () => {
-      const theme = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference
-      document.documentElement.dataset.themePreference = preference
-      document.documentElement.dataset.theme = theme
-      document.documentElement.style.colorScheme = theme
-    }
-    apply()
-    media.addEventListener('change', apply)
-    return () => media.removeEventListener('change', apply)
-  }, [preference])
+    const followSystem = (event: MediaQueryListEvent) => setSystemDark(event.matches)
+    media.addEventListener('change', followSystem)
+    return () => media.removeEventListener('change', followSystem)
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.dataset.themePreference = preference
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+  }, [preference, theme])
 
   function chooseTheme(next: ThemePreference) {
     setPreference(next)
@@ -29,5 +32,5 @@ export function useTheme() {
     catch { /* Keep the choice in memory when persistence is blocked. */ }
   }
 
-  return { preference, chooseTheme }
+  return { theme, chooseTheme }
 }

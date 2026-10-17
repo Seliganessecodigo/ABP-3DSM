@@ -1,9 +1,6 @@
 {
   "language.label": "Language",
-  "theme.label": "Theme",
-  "theme.light": "Light",
-  "theme.dark": "Dark",
-  "theme.system": "Use system theme",
+  "theme.darkMode": "Dark mode",
   "account": "Account",
   "app.tagline": "More conscious energy",
   "topbar": "GreenER · Monitoring",
