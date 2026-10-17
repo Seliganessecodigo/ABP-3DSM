@@ -35,3 +35,9 @@ La interfaz informa horas del intento y de la respuesta válida. Un fallo poster
 El selector ofrece ocho idiomas y guarda la preferencia en este navegador. Cambiar idioma no cambia identidades ni instantes.
 
 Al comunicar un problema, incluya entorno, ID, filtros, fecha/hora con zona, acción y resultado esperado/observado. Evite credenciales/datos privados en capturas y siga [Operación](../operations).
+
+## Preferencia de tema
+
+En las preferencias de navegación, elija **Claro** u **Oscuro**. **Usar tema del sistema** restaura el seguimiento automático de la apariencia del sistema, incluidos los cambios durante el uso. En la primera visita, GreenER sigue el sistema.
+
+La elección se aplica al catálogo, detalle y diseño global sin cambiar filtros ni datos. Se guarda en este navegador con la clave `greener-theme` para la próxima visita. Si el almacenamiento está bloqueado, la elección funciona durante la sesión, pero puede perderse al recargar.

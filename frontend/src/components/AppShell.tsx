@@ -5,12 +5,12 @@ import leafMark from '../assets/leaf-mark.svg'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
+import { ThemeSelector } from './ThemeSelector.tsx'
 
 export function AppShell({ children, navigate }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void }>) {
   const { t } = useTranslation('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
-  const [darkMode, setDarkMode] = useState(() => window.localStorage.getItem('greener-theme') === 'dark')
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -32,9 +32,6 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
     return () => { document.body.style.overflow = previousOverflow }
   }, [mobileMenuOpen])
 
-  useEffect(() => {
-    window.localStorage.setItem('greener-theme', darkMode ? 'dark' : 'light')
-  }, [darkMode])
 
   useEffect(() => {
     const desktopViewport = window.matchMedia('(min-width: 641px)')
@@ -74,7 +71,7 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
     }
   }, [closeMobileMenu, mobileMenuOpen])
 
-  return <div className={`app-layout${desktopExpanded ? '' : ' sidebar-collapsed'}`} data-theme={darkMode ? 'dark' : 'light'}>
+  return <div className={`app-layout${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
@@ -103,11 +100,7 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading">
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
         <LanguageSelector />
-        <button className="theme-toggle" type="button" aria-label={t('theme.darkMode')} aria-pressed={darkMode} onClick={() => setDarkMode((enabled) => !enabled)}>
-          <svg className="theme-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M15.8 12.4A7 7 0 0 1 7.6 4.2 7.2 7.2 0 1 0 15.8 12.4Z" /></svg>
-          <span className="theme-label">{t('theme.darkMode')}</span>
-          <span className="theme-switch" aria-hidden="true"><span /></span>
-        </button>
+        <ThemeSelector />
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
