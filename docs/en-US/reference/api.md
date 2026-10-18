@@ -11,6 +11,7 @@ Routes below were checked against `develop` source on 2026-10-15. Local Swagger 
 | GET /applications/{id} | Known application with state, timestamps and location. |
 | GET /applications/{id}/collections/latest | Most recent valid observation and operational context. |
 | GET /applications/{id}/collections/{collectionId} | Observation scoped to its application; collectionId is a UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Applied methodology with version, formula, units, parameters and snapshot. |
 | GET /openapi.json | Machine-readable contract. |
 
 These reads use persisted data and trigger neither collection nor environmental calculation. Catalog search and pagination currently run in the frontend; no server pagination parameters are documented on these routes.

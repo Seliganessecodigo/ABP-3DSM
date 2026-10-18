@@ -11,6 +11,7 @@ As rotas abaixo foram conferidas no código de `develop` em 15/10/2026. O ambien
 | GET /applications/{id} | Aplicação conhecida, incluindo estado, horários e localização. |
 | GET /applications/{id}/collections/latest | Observação válida mais recente e seu contexto operacional. |
 | GET /applications/{id}/collections/{collectionId} | Observação identificada dentro do escopo da aplicação; collectionId é UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Metadados da metodologia aplicada ao resultado, incluindo versão, fórmula, unidades, parâmetros e snapshot. |
 | GET /openapi.json | Contrato legível por ferramentas. |
 
 Essas leituras usam dados persistidos; não disparam coleta nem cálculo ambiental. A busca e a paginação atuais do catálogo são feitas pelo frontend; não há parâmetros de paginação do servidor documentados nessas rotas.
@@ -37,6 +38,14 @@ O DTO de aplicação inclui `id`, `name`, `state`, `firstSeenAt`, `lastCheckedAt
 | 503 / APPLICATION_EVIDENCE_UNAVAILABLE | Falha de leitura de evidências. |
 
 Trate códigos estruturados e status HTTP; mensagens não são contrato de tradução. Falha não deve ser substituída por lista vazia ou indicador zero.
+
+## Metodologia aplicada
+
+`GET /applications/{id}/collections/{collectionId}/methodology` é uma leitura pública. Quando o snapshot estiver completo, a resposta informa a chave e a versão da metodologia, fórmula, entradas, saída, parâmetros, pressupostos, limites, limitações, configuração vinculada e a consulta do GreenER à fonte.
+
+O snapshot pertence ao resultado histórico. Alteração posterior da configuração não reinterpreta esse resultado. Fonte bibliográfica e vigência oficial permanecem ausentes quando a fonte auxiliar não as publica; o horário da consulta do GreenER não representa vigência oficial.
+
+Quando o resultado existir sem metodologia, a resposta mantém status e razão estruturados, como `METHODOLOGY_NOT_AVAILABLE`, `UNAPPROVED_CONFIGURATION` ou `INCOMPLETE_METADATA`. Resultado inexistente retorna `404 / RESULT_NOT_FOUND`; falha de leitura retorna `503 / METHODOLOGY_UNAVAILABLE`. Textos traduzidos pertencem à issue #57 e não fazem parte do contrato backend.
 
 ## Fronteiras da integração
 

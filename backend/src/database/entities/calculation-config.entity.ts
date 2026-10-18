@@ -16,6 +16,9 @@ export class CalculationConfigEntity {
   @Column({ type: 'jsonb' })
   parameters!: Record<string, unknown>
 
+  @Column({ type: 'jsonb', nullable: true })
+  methodology!: Record<string, unknown> | null
+
   @Column({ type: 'timestamptz' })
   effectiveFrom!: Date
 

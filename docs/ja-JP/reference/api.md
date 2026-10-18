@@ -11,6 +11,7 @@
 | GET /applications/{id} | アプリ、状態、時刻、所在地。 |
 | GET /applications/{id}/collections/latest | 最終有効観測と運用コンテキスト。 |
 | GET /applications/{id}/collections/{collectionId} | 当該アプリの観測。collectionIdはUUID。 |
+| GET /applications/{id}/collections/{collectionId}/methodology | 適用した方法論、版、式、単位、パラメーター、スナップショット。 |
 | GET /openapi.json | 機械可読の契約。 |
 
 読み取りは収集や環境計算を起動しません。検索・ページ分割は現在フロントエンド側です。サーバーページ分割パラメーターは定義されていません。

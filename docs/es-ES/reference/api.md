@@ -11,6 +11,7 @@ Rutas comprobadas en `develop` el 15/10/2026. Swagger local: `http://localhost:3
 | GET /applications/{id} | Aplicación, estado, horarios y ubicación. |
 | GET /applications/{id}/collections/latest | Última observación válida y contexto operativo. |
 | GET /applications/{id}/collections/{collectionId} | Observación de esa aplicación; collectionId UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Metodología aplicada con versión, fórmula, unidades, parámetros y snapshot. |
 | GET /openapi.json | Contrato para herramientas. |
 
 Leen persistencia sin recopilar ni calcular impacto. Búsqueda/paginación actuales son del frontend; no hay parámetros de paginación de servidor documentados.

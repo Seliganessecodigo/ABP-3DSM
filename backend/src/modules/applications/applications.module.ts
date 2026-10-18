@@ -24,6 +24,7 @@ import { MonitoringIncidentsRepository } from "../../database/repositories/monit
 import { MonitoringIncidentsController } from "./monitoring-incidents.controller";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
 import { MonitoringCycleLock } from "./monitoring-cycle.lock";
+import { MethodologyMetadataService } from "./methodology-metadata.service";
 
 export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
   return new MonitoringScheduler(
@@ -43,6 +44,7 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     ApplicationsRepository,
     ApplicationsService,
     CollectionEvidenceService,
+    MethodologyMetadataService,
     DiscoveryService,
     RemovalService,
     MetadataSyncService,

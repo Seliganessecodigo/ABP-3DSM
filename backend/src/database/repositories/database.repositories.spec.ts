@@ -54,6 +54,20 @@ describe('database repositories', () => {
     })
   })
 
+  it('finds methodology metadata without hiding unavailable historical results', async () => {
+    const { repository, mock } = createRepository<CollectionEntity>()
+    const collections = new CollectionsRepository(repository)
+    const collection = { applicationId: 'app-1', id: 'collection-1' } as CollectionEntity
+    mock.findOne.mockResolvedValue(collection)
+
+    await expect(
+      collections.findByApplicationAndIdForMethodology('app-1', 'collection-1'),
+    ).resolves.toBe(collection)
+    expect(mock.findOne).toHaveBeenCalledWith({
+      where: { applicationId: 'app-1', id: 'collection-1' },
+    })
+  })
+
   it('appends application lifecycle events', async () => {
     const { repository, mock } = createRepository<ApplicationEventEntity>()
     const events = new ApplicationEventsRepository(repository)

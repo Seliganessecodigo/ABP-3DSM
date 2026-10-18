@@ -18,6 +18,8 @@ import { ApplicationDto } from './application.dto'
 import { ApplicationsService } from './applications.service'
 import { CollectionEvidenceService } from './collection-evidence.service'
 import { CollectionEvidenceDto } from './collection.dto'
+import { MethodologyMetadataService } from './methodology-metadata.service'
+import { MethodologyMetadataResponseDto } from './methodology-metadata.dto'
 
 @ApiTags('applications')
 @Controller('applications')
@@ -25,6 +27,7 @@ export class ApplicationsController {
   constructor(
     private readonly applications: ApplicationsService,
     private readonly evidence: CollectionEvidenceService,
+    private readonly methodology: MethodologyMetadataService,
   ) {}
 
   @Get()
@@ -131,5 +134,38 @@ export class ApplicationsController {
       })
     }
     return this.evidence.getById(id, collectionId)
+  }
+
+  @Get(':id/collections/:collectionId/methodology')
+  @ApiOperation({ summary: 'Consultar a metodologia aplicada ao resultado' })
+  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
+  @ApiParam({ name: 'collectionId', schema: { type: 'string', format: 'uuid' } })
+  @ApiOkResponse({ type: MethodologyMetadataResponseDto })
+  @ApiNotFoundResponse({
+    description: 'Aplicação ou resultado não encontrado',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 404 },
+        code: {
+          type: 'string',
+          enum: ['APPLICATION_NOT_FOUND', 'RESULT_NOT_FOUND'],
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({ description: 'ID inválido' })
+  @ApiServiceUnavailableResponse({ description: 'Metadados indisponíveis' })
+  getMethodology(
+    @Param('id') id: string,
+    @Param('collectionId', new ParseUUIDPipe()) collectionId: string,
+  ) {
+    if (!id.trim()) {
+      throw new BadRequestException({
+        code: 'INVALID_APPLICATION_ID',
+        message: 'ID de aplicação inválido',
+      })
+    }
+    return this.methodology.getById(id, collectionId)
   }
 }

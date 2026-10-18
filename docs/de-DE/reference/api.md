@@ -11,6 +11,7 @@ Routen im `develop`-Code am 15.10.2026 geprüft. Lokal Swagger: `http://localhos
 | GET /applications/{id} | Anwendung, Zustand, Zeitpunkte, Standort. |
 | GET /applications/{id}/collections/latest | Letzte gültige Beobachtung und Kontext. |
 | GET /applications/{id}/collections/{collectionId} | Beobachtung dieser Anwendung; collectionId UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Angewandte Methodik mit Version, Formel, Einheiten, Parametern und Snapshot. |
 | GET /openapi.json | Maschinenlesbarer Vertrag. |
 
 Lesezugriffe lösen keine Sammlung/Berechnung aus. Suche/Seitennavigation derzeit im Frontend; keine dokumentierten Server-Paginierungsparameter.

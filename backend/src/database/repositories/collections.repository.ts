@@ -57,4 +57,11 @@ export class CollectionsRepository {
       where: { applicationId, id, state: ApplicationState.AVAILABLE },
     })
   }
+
+  findByApplicationAndIdForMethodology(
+    applicationId: string,
+    id: string,
+  ): Promise<CollectionEntity | null> {
+    return this.repository.findOne({ where: { applicationId, id } })
+  }
 }

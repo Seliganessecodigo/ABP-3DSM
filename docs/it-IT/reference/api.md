@@ -11,6 +11,7 @@ Rotte verificate nel codice `develop` il 15/10/2026. Swagger locale `http://loca
 | GET /applications/{id} | Applicazione, stato, orari, posizione. |
 | GET /applications/{id}/collections/latest | Ultima osservazione valida e contesto. |
 | GET /applications/{id}/collections/{collectionId} | Osservazione di quella applicazione; collectionId UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Metodologia applicata con versione, formula, unità, parametri e snapshot. |
 | GET /openapi.json | Contratto per strumenti. |
 
 Letture senza raccolta o calcolo. Ricerca/paginazione nel frontend; nessun parametro documentato di paginazione server.

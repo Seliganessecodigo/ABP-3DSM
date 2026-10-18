@@ -85,6 +85,9 @@ export class CollectionEntity {
   @Column({ type: 'uuid', nullable: true })
   calculationConfigId!: string | null
 
+  @Column({ type: 'jsonb', nullable: true })
+  methodologySnapshot!: Record<string, unknown> | null
+
   @ManyToOne(() => CalculationConfigEntity, {
     nullable: true,
     onDelete: 'RESTRICT',

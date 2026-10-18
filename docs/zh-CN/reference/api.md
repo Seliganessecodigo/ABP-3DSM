@@ -11,6 +11,7 @@
 | GET /applications/{id} | 应用、状态、时间及位置。 |
 | GET /applications/{id}/collections/latest | 最近有效观测及运行上下文。 |
 | GET /applications/{id}/collections/{collectionId} | 指定应用的观测，collectionId为UUID。 |
+| GET /applications/{id}/collections/{collectionId}/methodology | 已应用的方法、版本、公式、单位、参数和快照。 |
 | GET /openapi.json | 机器可读契约。 |
 
 读取不触发采集或环境计算。当前搜索与分页由前端执行；路由未定义服务端分页参数。

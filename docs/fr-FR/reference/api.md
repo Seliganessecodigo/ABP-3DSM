@@ -11,6 +11,7 @@ Routes vérifiées dans `develop` le 15/10/2026. Swagger local : `http://localho
 | GET /applications/{id} | Application, état, horaires, localisation. |
 | GET /applications/{id}/collections/latest | Dernière observation valide et contexte. |
 | GET /applications/{id}/collections/{collectionId} | Observation de cette application ; collectionId UUID. |
+| GET /applications/{id}/collections/{collectionId}/methodology | Méthodologie appliquée avec version, formule, unités, paramètres et snapshot. |
 | GET /openapi.json | Contrat exploitable par outils. |
 
 Ces lectures ne déclenchent ni collecte ni calcul. Recherche/pagination actuelles dans le frontend ; aucun paramètre de pagination serveur documenté.

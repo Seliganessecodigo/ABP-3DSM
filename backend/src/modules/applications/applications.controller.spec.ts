@@ -6,6 +6,7 @@ import { ApplicationsRepository } from './applications.repository'
 import { ApplicationsService } from './applications.service'
 import { CollectionEvidenceService } from './collection-evidence.service'
 import { configureOpenApi } from '../../openapi'
+import { MethodologyMetadataService } from './methodology-metadata.service'
 
 describe('catálogo de aplicações', () => {
   const firstSeenAt = new Date('2026-10-06T10:00:00.000Z')
@@ -18,6 +19,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -78,6 +80,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -104,6 +107,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -171,6 +175,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -218,6 +223,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -248,6 +254,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -305,6 +312,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -332,6 +340,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -359,6 +368,7 @@ describe('catálogo de aplicações', () => {
       providers: [
         ApplicationsService,
         { provide: CollectionEvidenceService, useValue: {} },
+        { provide: MethodologyMetadataService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
