@@ -1,42 +1,56 @@
-# Viabilidade frontend — US-11 / task #65
+# Viabilidade do incremento operacional — US-11 / #65
 
-## Conclusão
+## Escopo desta triagem
 
-Não identifiquei um incremento frontend de #65 que possa ser implementado agora sem presumir critérios ausentes, inventar um contrato ambiental ou duplicar comportamento já existente. O orquestrador consultou #65 no GitHub fora do sandbox e confirmou o aceite: composição ambiental real de #235, evolução de #174, evidências de #45, handoff #249, atualização e preservação de contexto. A avaliação considera esses critérios, as fontes versionadas e a fronteira confirmada: navegação catálogo → detalhe, com API controlada.
+Verificar o que pode ser entregue na task frontend #65 com os contratos operacionais atuais, focando a associação entre a seleção `latest`/`collectionId`, respostas assíncronas atrasadas e tratamento de erro sem esconder dados anteriores. Esta nota não altera o escopo ambiental aprovado nem as decisões de produto pendentes.
 
-O detalhe operacional já implementa e testa essa jornada até evidência de coleta: identidade/estado/localização, retorno e preservação de contexto, carregamento, ausência, erro, atualização, métricas disponíveis/ausentes/inválidas, zero observado e dados stale. Um novo teste de UI para esses mesmos comportamentos seria duplicação, e um teste que exigisse energia, CO₂e ou série histórica dependeria de contratos que ainda não existem.
+## Evidência disponível no contrato
 
-## Evidências na revisão atual
+- O backend fornece `GET /applications/{id}`, `GET /applications/{id}/collections/latest` e consulta de coleta armazenada por ID.
+- `CollectionEvidence` contém identidade de aplicação e coleta, limites do intervalo, horário de recebimento, métricas com unidades e status, além do estado/motivo operacional e indicador stale.
+- Ausência de coleção e aplicação inexistente são `404` categorizados; falha ao consultar evidências é `503`. Dados ausentes/inválidos não são zeros.
+- A rota de detalhe já lê `collectionId` da query string e consulta a coleta histórica selecionada; sem ele, consulta `latest`.
 
-- `docs/backlog/ep04.md` descreve US-11 como investigação de estado, localização, evidências e indicadores, com retorno ao resumo preservando contexto compatível. O próprio backlog atribui as séries a #174 e filtros/período compartilhados a #262.
-- `docs/product/decisions.md` registra energia e tempo/cobertura como decisões pendentes. `docs/product/methodology.md` confirma que CPU, memória, disco e rede não determinam energia diretamente; fórmula e coeficientes ainda dependem de aprovação. Ausência, erro e dado stale não equivalem a zero.
-- `docs/reference/api.md` documenta `GET /applications`, `GET /applications/{id}`, `GET /applications/{id}/collections/latest` e `GET /applications/{id}/collections/{collectionId}`. Não publica endpoint nem DTO para resultados de energia/CO₂e ou séries.
-- `backend/src/modules/applications/applications.controller.ts`, `application.dto.ts` e `collection.dto.ts` confirmam o contrato disponível: estado/localização da aplicação e evidência operacional de coleta com intervalo, timestamps, estado/frescor e métricas de CPU, memória, disco e rede.
-- `frontend/src/pages/detail/ApplicationDetailPage.tsx` apresenta esses dados; `useApplicationDetail.ts` coordena consultas da aplicação/evidência, tentativa de atualização, polling e cancelamento. A UI não calcula resultados ambientais.
-- `frontend/e2e/application-detail.spec.ts` já exercita catálogo → detalhe com mocks na fronteira HTTP controlada. Cobre navegação por ID, URL direta/recarga, estados e localização, timestamps, remoção, loading, 404/503 e retry, contexto de retorno, evidência atual/histórica, valores parciais, zero válido, stale, ausência e resposta atrasada.
-- `frontend/src/README.md` e `docs/guide/monitoring.md` descrevem catálogo e detalhe operacional existentes, distinguindo evidências de coleta dos indicadores ambientais planejados.
+## Comportamento existente observado
 
-## Fronteira de teste
+- O hook associa seu estado a `applicationId`, usa `AbortController` no cleanup ao mudar ID/seleção/tentativa e realiza o ciclo de polling sequencialmente. O retry também reinicia o efeito, abortando o anterior.
+- Para uma seleção histórica, a coleta é carregada uma vez por ciclo de efeito; as atualizações seguintes consultam o estado operacional e mantêm a evidência histórica. Isso evita substituí-la automaticamente por `latest` durante a permanência naquele contexto.
+- A resposta atrasada de outra aplicação já tem cobertura e é rejeitada por cleanup/aborto; há teste de falha ao atualizar com preservação da evidência, teste de evidência indisponível e teste de consulta histórica.
+- Embora o caminho de erro do catálogo não redefina `collectionLoading`, no carregamento inicial a seção operacional nem é montada sem uma aplicação. Sem um teste que reproduza a seção visível presa nesse estado após mudança de contexto, isso é apenas hipótese de código e não defeito confirmado; não entra como critério deste incremento.
+- Há um gap na transição da mesma aplicação entre contextos: o estado mantém uma única `collection` sem chave que registre se veio de `latest` ou de determinado `collectionId`. Ao trocar de histórico para `latest`, a marcação de carregamento pode permanecer falsa e a página considera qualquer coleção existente visível quando não há `collectionId`; a evidência histórica pode, portanto, aparecer transitoriamente como se fosse a corrente até a resposta de `latest` chegar. Na transição entre dois contextos históricos, a tela oculta coleção incompatível, mas o estado também não declara diretamente o contexto do dado preservado.
+- O polling de `latest` é sequencial no efeito ativo; não há corrida entre ciclos sobrepostos nesse fluxo. Contudo, não existe teste que atrase e inverta respostas entre contextos distintos da mesma aplicação.
 
-Manter a fronteira de navegador Playwright já aprovada para #65: pessoa usuária parte do catálogo, abre o detalhe da aplicação selecionada e observa a apresentação da resposta de API controlada. O mock deve representar apenas DTOs publicados pelo backend. Não testar funções internas de parsing/hook por mock nem criar fixtures de energia, CO₂e ou série sem contrato.
+## Incremento implementável
 
-Essa fronteira observa a navegação e a apresentação ponta a ponta no frontend. Ela não prova cálculo ambiental, contrato de API futuro ou integração real com fontes auxiliares.
+Vincular cada resultado de evidência ao contexto que o produziu (modo `latest` ou ID da coleta), mostrar somente resultado compatível com a seleção atual e tornar visível o carregamento ao trocar esse contexto. Manter as proteções de cancelamento ao mudar de contexto e ignorar respostas cujo efeito já foi substituído. Preservar uma evidência em falha somente quando ela pertence ao contexto solicitado, com aviso de erro e marcação de que se está mostrando dado anterior/stale. Para erro sem dado compatível, exibir estado de erro com retry; distinguir `404` de coleta indisponível de falha técnica.
 
-## Ciclos RED → GREEN após desbloqueio
+No contexto histórico, polling de catálogo/estado não deve buscar nem substituir a coleta selecionada por `latest`. Ao voltar para `latest`, a consulta corrente de `latest` deve rodar e atualizar o contexto. O comportamento completo dessa fatia cabe no contrato e componentes operacionais existentes; não depende da API ambiental.
 
-Não há ciclo RED → GREEN legítimo para iniciar com os contratos atuais: os comportamentos operacionais cobertos acima já estão implementados, e os resultados ambientais não têm resposta esperada aprovada. Quando os critérios e contratos forem publicados, usar ciclos verticais pequenos, na mesma fronteira Playwright:
+## Critérios verificáveis
 
-1. Para cada estado ambiental definido por #235, adicionar um cenário com a resposta literal do contrato: resultado calculável, não calculável/ausente, stale ou falha conforme aplicável. Começar por um único cenário de sucesso; implementar só a apresentação necessária; seguir com um cenário por distinção de estado, preservando a diferença entre zero válido e ausência.
-2. Quando #174 publicar uma resposta de série, cuja apresentação já faz parte do aceite de #65, adicionar primeiro um cenário com pontos e intervalo explícitos e conferir a identidade/período exibidos. Em ciclos seguintes, cobrir lacunas e cobertura somente segundo as regras aprovadas; não preencher lacunas com zero nem inventar agregações.
-3. Reexecutar os cenários de navegação catálogo → detalhe e retorno com contexto somente se o novo contrato incluir contexto temporal compartilhado. O significado e a persistência do período dependem da decisão de #262; a presença visual de filtros no protótipo não define esse contrato.
+1. Ao alternar histórico → `latest`, a coleta histórica não é apresentada como coleta corrente enquanto `latest` carrega.
+2. Ao alternar `latest` → histórico ou coleção A → coleção B, somente a evidência associada à seleção atual é apresentada.
+3. Uma resposta atrasada do contexto anterior, mesmo para a mesma aplicação, não altera a evidência, o estado de loading nem o erro do contexto atual.
+4. Uma falha de atualização mantém a evidência anterior somente se ela corresponder ao mesmo contexto e sinaliza erro/dado anterior. Sem dado compatível, apresenta erro e retry sem fabricar métricas.
+5. `404` da coleta selecionada mostra indisponibilidade da seleção e não cai para outra coleta; `404` de `latest` mantém o estado vazio correspondente.
+6. Polling enquanto uma coleta histórica está selecionada mantém essa evidência; retorno ao modo `latest` faz nova consulta a `latest`.
 
-Cada ciclo deve começar por um teste observável que falha pela ausência do comportamento aprovado, seguido da menor mudança de página/feature necessária para torná-lo verde. Nenhum desses testes deve ser escrito antes de existir DTO, critério de aceite e regra de estado correspondentes.
+## Verificação
 
-## Dependências para prosseguir
+Usar Playwright com API controlada e gates para alternar contextos da mesma aplicação, produzir respostas atrasadas e completar requests fora de ordem. Validar estados e evidência visíveis ao usuário, incluindo retry, ausência e erro. A suíte existente de Playwright do detalhe, com cobertura de coleta histórica, falha preservando dado, 404 e resposta atrasada entre aplicações, é o prior art.
 
-- Os critérios de #65 foram consultados pelo orquestrador e estão sintetizados na especificação US11-65 desta entrega. As pendências são de contrato e implementação das dependências, não de acesso ao texto da issue.
-- Contrato publicado e critérios de apresentação ambiental de #235. Não tratar uma rota presumida ou dados de coluna do banco como contrato.
-- Para séries, resposta e regras da #174; para contexto de período/filtros compartilhado, decisão/entrega #262.
-- Fórmula de energia, unidades/conversões, período, cobertura, bordas temporais, arredondamento e estados de não calculabilidade, conforme decisões documentadas em `docs/product/decisions.md` e `docs/product/methodology.md`.
+## Limites e dependências
 
-Até essas dependências serem resolvidas, não há mudança de produção ou novo teste frontend que preserve TDD sem codificar uma suposição. Os comportamentos operacionais atuais podem continuar sendo usados como evidência existente, sem reivindicar que energia, CO₂e ou histórico ambiental estejam entregues.
+O incremento usa somente o contrato operacional atual de catálogo e evidências. Não determina nem aprova fórmula energética, unidades de energia/CO₂e, cobertura ambiental, períodos ambientais, fatores, metodologia ou motivos ambientais. Os blocos ambientais de #65 continuam dependentes de #235, #174, #58/#57 e das regras/resultados de #49/#53/#164, com timezone, bordas, granularidade, arredondamento e cobertura ainda pendentes. A execução conjunta da #235 segue dentro do escopo confirmado, mas é propriedade do backend e não é requisito para concluir esta fatia operacional em isolamento.
+
+## Histórico de decisão
+
+O usuário confirmou trabalhar apenas em #65 e #235, manter dependências fora do escopo e deixar as tasks abertas até o aceite completo. A triagem identifica uma fatia operacional segura e implementável sob #65 sem transformar ausência de contrato ambiental em bloqueio de todo o frontend. Nenhuma decisão ambiental aprovada ou pendente foi alterada.
+
+## Implementação e evidência TDD
+
+- Primeiro ciclo: o teste histórico → consulta mais recente falhou porque não havia status de carregamento e a coleta histórica com CPU de 38% permanecia visível. O hook passou a associar o estado à seleção (`collectionId` ou consulta mais recente), retirando evidência incompatível antes do novo efeito e preservando a identidade da aplicação. O teste passou após a correção.
+- Segundo ciclo: após a troca de seleção, uma falha 503 na consulta da aplicação deixava a evidência em carregamento e sem alerta. O teste falhou por ausência do alerta. O tratamento de erro agora encerra o carregamento e permite nova tentativa quando não há evidência compatível. Os dois testes passaram; o segundo também valida recuperação após clicar em tentar novamente.
+- Suíte completa do detalhe: 20 testes Playwright aprovados, incluindo os dois cenários novos, em 41,2 segundos. Execução fora do sandbox, com API controlada e navegador Chromium. A revisão final do diff não encontrou novos defeitos.
+- `npm.cmd ci`, `npm.cmd run lint` e `npm.cmd run build` executados com sucesso no frontend. A verificação de formatação preserva os finais de linha existentes do arquivo de testes.
+- Sem mudança de contrato, dependência ou regra ambiental. #65 e #235 permanecem abertas. A PR #286 foi fechada a pedido do usuário; nenhuma nova PR deve ser aberta antes da conclusão da implementação.
