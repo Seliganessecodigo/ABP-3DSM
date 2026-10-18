@@ -249,6 +249,100 @@ test('evidência inexistente e intervalo selecionado indisponível não usam fal
   await expect(evidence.getByRole('table')).toHaveCount(0)
 })
 
+test('trocar da coleta histórica para latest não exibe a coleta selecionada anteriormente enquanto carrega', async ({ page }) => {
+  const latestPending = gate()
+  const latestStarted = gate()
+  const historical = {
+    id: 'collection-history', applicationId: 'svc-0142', intervalStart: '2026-10-09T16:00:00.000Z',
+    intervalEnd: '2026-10-09T16:30:00.000Z', collectedAt: '2026-10-09T16:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T16:32:00.000Z',
+    metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: 1.2, unit: 'Mbps', status: 'available' } },
+  }
+  const latest = { ...historical, id: 'collection-latest', collectedAt: '2026-10-09T17:32:00.000Z',
+    metrics: { ...historical.metrics, cpu: { value: 44, unit: '%', status: 'available' } } }
+
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?(?:\?.*)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/latest')) {
+      latestStarted.release()
+      await latestPending.wait
+      return route.fulfill({ json: latest })
+    }
+    if (pathname.endsWith('/collections/collection-history')) return route.fulfill({ json: historical })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+
+  await page.goto('/services/svc-0142?collectionId=collection-history')
+  const evidence = page.getByRole('region', { name: /evidências operacionais/i })
+  await expect(evidence).toContainText('38 %')
+
+  await page.evaluate(() => {
+    window.history.pushState({}, '', '/services/svc-0142')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+  try {
+    await latestStarted.wait
+    await expect(page).toHaveURL(/\/services\/svc-0142$/)
+    await expect(evidence.getByRole('status')).toContainText(/carregando/i)
+    await expect(evidence).not.toContainText('38 %')
+  } finally {
+    latestPending.release()
+  }
+  await expect(evidence).toContainText('44 %')
+})
+
+test('falha ao carregar latest após sair do histórico libera carregamento e permite nova tentativa', async ({ page }) => {
+  let failNextApplicationRequest = false
+  const failedApplicationRequest = gate()
+  const historical = {
+    id: 'collection-history', applicationId: 'svc-0142', intervalStart: '2026-10-09T16:00:00.000Z',
+    intervalEnd: '2026-10-09T16:30:00.000Z', collectedAt: '2026-10-09T16:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T16:32:00.000Z',
+    metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: 1.2, unit: 'Mbps', status: 'available' } },
+  }
+
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?(?:\?.*)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/collection-history')) return route.fulfill({ json: historical })
+    if (pathname.endsWith('/collections/latest')) return route.fulfill({ json: {
+      ...historical, id: 'collection-latest',
+      metrics: { ...historical.metrics, cpu: { value: 44, unit: '%', status: 'available' } },
+    } })
+    if (pathname.endsWith('/svc-0142')) {
+      if (failNextApplicationRequest) {
+        failNextApplicationRequest = false
+        failedApplicationRequest.release()
+        return route.fulfill({ status: 503, json: { code: 'CATALOG_UNAVAILABLE', message: 'Catálogo temporariamente indisponível' } })
+      }
+      return route.fulfill({ json: application() })
+    }
+    await route.continue()
+  })
+
+  await page.goto('/services/svc-0142?collectionId=collection-history')
+  const evidence = page.getByRole('region', { name: /evidências operacionais/i })
+  await expect(evidence).toContainText('38 %')
+
+  failNextApplicationRequest = true
+  await page.evaluate(() => {
+    window.history.pushState({}, '', '/services/svc-0142')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+  await failedApplicationRequest.wait
+  await expect(evidence.getByRole('alert')).toBeVisible()
+  await expect(evidence.getByRole('status')).toHaveCount(0)
+  await expect(evidence).not.toContainText('38 %')
+  await expect(evidence.getByRole('button', { name: /tentar novamente/i })).toBeVisible()
+  await evidence.getByRole('button', { name: /tentar novamente/i }).click()
+  await expect(evidence).toContainText('44 %')
+  await expect(evidence.getByRole('alert')).toHaveCount(0)
+})
+
 test('resposta atrasada de uma seleção anterior não substitui a aplicação atual', async ({ page }) => {
   const pending = gate()
   const settled = gate()

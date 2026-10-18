@@ -4,6 +4,7 @@ import { APPLICATION_POLL_INTERVAL_MS } from '../../features/applications/pollin
 
 type DetailState = {
   id: string
+  selectedCollectionId: string | null
   application: Application | null
   loading: boolean
   refreshing: boolean
@@ -17,14 +18,21 @@ type DetailState = {
   collectionError: boolean
 }
 
-function emptyState(id: string): DetailState {
-  return { id, application: null, loading: true, refreshing: false, notFound: false, error: false,
+function emptyState(id: string, selectedCollectionId: string | null): DetailState {
+  return { id, selectedCollectionId, application: null, loading: true, refreshing: false, notFound: false, error: false,
     lastAttemptAt: null, lastResponseAt: null, collection: null, collectionLoading: true, collectionNotFound: false, collectionError: false }
 }
 
+function stateForSelection(state: DetailState, id: string, selectedCollectionId: string | null): DetailState {
+  if (state.id !== id) return emptyState(id, selectedCollectionId)
+  if (state.selectedCollectionId === selectedCollectionId) return state
+  return { ...state, selectedCollectionId, collection: null, collectionLoading: true,
+    collectionNotFound: false, collectionError: false }
+}
+
 export function useApplicationDetail(id: string, selectedCollectionId: string | null) {
-  const [state, setState] = useState(() => emptyState(id))
-  const current = state.id === id ? state : emptyState(id)
+  const [state, setState] = useState(() => emptyState(id, selectedCollectionId))
+  const current = stateForSelection(state, id, selectedCollectionId)
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let active = true
@@ -32,7 +40,7 @@ export function useApplicationDetail(id: string, selectedCollectionId: string | 
     let controller: AbortController | undefined
     let loadedHistorical = false
     const update = (change: (previous: DetailState) => DetailState) => {
-      setState((previous) => change(previous.id === id ? previous : emptyState(id)))
+      setState((previous) => change(stateForSelection(previous, id, selectedCollectionId)))
     }
 
     const load = async () => {
@@ -69,9 +77,11 @@ export function useApplicationDetail(id: string, selectedCollectionId: string | 
         const code = error_ instanceof ApplicationRequestError ? error_.code : ''
         if (status === 404 || code === 'APPLICATION_NOT_FOUND') {
           update((previous) => ({ ...previous, loading: false, notFound: previous.application === null,
-            error: previous.application !== null }))
+            error: previous.application !== null, collectionLoading: false,
+            collectionError: previous.collection === null || previous.collectionError }))
         } else {
-          update((previous) => ({ ...previous, loading: false, error: true }))
+          update((previous) => ({ ...previous, loading: false, error: true, collectionLoading: false,
+            collectionError: previous.collection === null || previous.collectionError }))
         }
       } finally {
         if (active && !controller.signal.aborted) {
