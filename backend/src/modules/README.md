@@ -2,6 +2,18 @@
 
 Módulos NestJS organizados por domínio GreenER. Cada módulo reúne as rotas/controllers, serviços de aplicação, DTOs, regras de domínio e integrações próprias do domínio, mantendo dependências explícitas.
 
+## Energia estimada — regra de domínio
+
+`calculations/energy-calculation.ts` expõe `calculateObservationEnergy` como função pura, sem HTTP, ORM ou consulta a fontes. Recebe identidade da aplicação/coleta, intervalo, recebimento e métricas normalizadas (`cpuPercent`, `memoryGb`, `diskGb`, `networkGb`). O modelo inicial `simplified-energy`, versão interna `1`, usa os valores do exemplo do [desafio GreenER](https://docs.unilaunch.org/share/x29w8jgwdb/p/greener-abp-2-semestre-b7FiqU6UC1): CPU máxima de 100 W, memória de 0,375 W/GB, disco de 0,01 W/GB e rede de 0,02 W/GB. Esses parâmetros foram adotados para a configuração inicial; não são medição elétrica real nem versão oficial da origem.
+
+A potência é a soma dos quatro componentes. A energia em kWh é a potência em watts multiplicada pela duração em segundos dividida por 3.600.000, sem arredondamento intermediário. Por exemplo, CPU de 50%, memória de 2 GB, disco de 10 GB e rede de 1 GB representam 50,87 W e aproximadamente 0,0008478333333333333 kWh em 60 segundos. O resultado preserva chave/versão e uma cópia imutável dos parâmetros utilizados. Métrica obrigatória ausente, inválida ou fora do domínio, configuração inválida e intervalo inválido retornam energia indisponível com razões estruturadas; zero válido continua calculável. Resultados numéricos não finitos não são apresentados como energia válida.
+
+`calculations/energy-period.ts` expõe `aggregateApplicationEnergyPeriod` para uma aplicação e um período com início incluído e fim excluído. Os instantes precisam de fuso explícito e são normalizados para UTC. A regra recorta as coletas nas bordas, usa a potência média de cada coleta e conta cada trecho uma vez. Em sobreposições, prevalece o maior horário de recebimento; empate usa ID em ordem lexical crescente independente do locale. A observação vencedora inválida deixa lacuna, sem fallback silencioso para a anterior. IDs repetidos com os mesmos dados não duplicam energia; dados conflitantes para o mesmo ID invalidam a entrada. Observações de outra aplicação são excluídas explicitamente.
+
+Cobertura é a duração calculável dividida pela duração do período solicitado. As contribuições e exclusões descrevem os trechos que sustentam o resultado; lacunas não viram zero. Sem duração calculável, energia é `null` e cobertura é zero. Um total fora da representação numérica retorna `null` com `NON_FINITE_RESULT`, preservando a descrição das contribuições e a cobertura da evidência. Período inválido e identidade alvo vazia geram `EnergyPeriodInputError` tipado.
+
+Estas funções não gravam resultados, calculam CO₂e nem expõem novas rotas. A integração no ciclo de coleta e as consultas ambientais são entregas independentes. Para verificar a regra, execute em `backend/`: `npm test -- --runInBand --runTestsByPath src/modules/calculations/energy-calculation.spec.ts src/modules/calculations/energy-period.spec.ts`. A cobertura é gerada com `npm run test:cov -- --runInBand`.
+
 ## Catálogo de aplicações
 
 As rotas públicas `GET /applications` e `GET /applications/{id}` leem somente o catálogo persistido. A primeira retorna uma coleção (vazia quando não há aplicações); a segunda retorna 404 para ID inexistente e 400 para ID vazio. Falha de consulta retorna 503 com `CATALOG_UNAVAILABLE`.
