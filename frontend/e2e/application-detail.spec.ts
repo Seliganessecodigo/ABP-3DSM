@@ -9,17 +9,21 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.setViewportSize({ width: 996, height: 619 })
   await mockCatalog(page, [application()])
   await page.route(/(?:\/api)?\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
-    const path = new URL(route.request().url()).pathname
+    const url = new URL(route.request().url())
+    const path = url.pathname
     if (path.endsWith('/series')) {
+      const seriesFrom = url.searchParams.get('from') ?? from
+      const isPreviousPeriod = seriesFrom !== from
       const points = Array.from({ length: 7 }, (_, index) => {
-        const start = Date.parse(from) + index * 24 * 60 * 60 * 1000
+        const start = Date.parse(seriesFrom) + index * 24 * 60 * 60 * 1000
         const end = start + 24 * 60 * 60 * 1000
         return { id: `point-${index}`, bucketStart: new Date(start).toISOString(), bucketEnd: new Date(end).toISOString(),
           period: { from: new Date(start).toISOString(), to: new Date(end).toISOString() },
-          energy: { value: 5 + index * 0.4, unit: 'kWh', reasons: [] },
-          emissions: { value: 1700 + index * 136, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0.96, emissions: 0.96 } }
+          energy: { value: (isPreviousPeriod ? 4 : 5) + index * (isPreviousPeriod ? 0.3 : 0.4), unit: 'kWh', reasons: [] },
+          emissions: { value: (isPreviousPeriod ? 1400 : 1700) + index * (isPreviousPeriod ? 100 : 136), unit: 'gCO2e', reasons: [] },
+          coverage: { energy: 0.96, emissions: 0.96 } }
       })
-      await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to }, granularity: 'day',
+      await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') }, granularity: 'day',
         totals: { energy: { value: 42.1, unit: 'kWh' }, emissions: { value: 4.2, unit: 'kgCO2e' } },
         coverage: { energy: 0.96, emissions: 0.96 }, points, events: [] } })
       return

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AnalysisContributionsPage, AnalysisSource, AnalysisSourceResult, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisContributionsPage, AnalysisSeriesPoint, AnalysisSource, AnalysisSourceResult, AnalysisViewModel } from '../../features/analysis/source.ts'
 
 type State = Readonly<{
   key: string
@@ -18,6 +18,7 @@ type SuccessfulResult = Readonly<{
 }>
 
 type ContributionState = Readonly<{ context: string; bucketStart: string; loading: boolean; error: boolean; data: AnalysisContributionsPage | null }>
+type ComparisonState = Readonly<{ key: string; points: readonly AnalysisSeriesPoint[] }>
 
 function emptyState(key: string): State {
   return { key, status: 'loading', data: null, lastAttemptAt: null, lastSuccessAt: null, lastSuccessStatus: null }
@@ -34,6 +35,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
   const [attempt, setAttempt] = useState(0)
   const lastSuccessful = useRef<SuccessfulResult | null>(null)
   const [contributionState, setContributionState] = useState<ContributionState | null>(null)
+  const [comparisonState, setComparisonState] = useState<ComparisonState | null>(null)
   const contributionController = useRef<AbortController | null>(null)
   const contributionContext = JSON.stringify([key, anchor])
   const current = state.key === key ? state : emptyState(key)
@@ -51,6 +53,13 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
 
     void source.load(applicationId, { period, anchor, ...(granularity === null ? {} : { granularity }) }, controller.signal).then((result: AnalysisSourceResult) => {
       if (!active || controller.signal.aborted) return
+      const data = result.status === 'unavailable' ? null : result.data ?? null
+      if (result.status === 'available' && data?.series.status === 'available' && source.loadComparisonSeries) {
+        void source.loadComparisonSeries(applicationId, { period, anchor, ...(granularity === null ? {} : { granularity }) }, controller.signal)
+          .then((points) => {
+            if (active && !controller.signal.aborted) setComparisonState({ key, points })
+          }).catch(() => undefined)
+      }
       if (result.status === 'available') {
         const lastSuccessAt = new Date().toISOString()
         lastSuccessful.current = { key, status: 'available', data: result.data, at: lastSuccessAt }
@@ -91,6 +100,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
     })
   }
 
-  return { ...current, contributions: contributionState?.context === contributionContext ? contributionState : null,
+  return { ...current, comparisonPoints: comparisonState?.key === key ? comparisonState.points : [],
+    contributions: contributionState?.context === contributionContext ? contributionState : null,
     ...(source.loadContributions ? { loadContributions } : {}), retry: () => setAttempt((value) => value + 1) }
 }

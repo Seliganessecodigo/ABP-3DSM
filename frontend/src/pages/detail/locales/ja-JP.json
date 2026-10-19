@@ -138,6 +138,8 @@
   "analysisTable": "表",
   "analysisSeriesEnergyChart": "エネルギーの推移",
   "analysisSeriesEmissionsChart": "CO₂eの推移",
+  "analysisCurrentPeriod": "現在の期間",
+  "analysisPreviousPeriod": "前の期間",
   "analysisSeriesNoPoints": "この期間に利用できるデータポイントはありません",
   "analysisSeriesGapsNote": "欠損はゼロを意味しません。値のないポイントは表で確認できます。",
   "evidenceSearchLabel": "証拠を検索",

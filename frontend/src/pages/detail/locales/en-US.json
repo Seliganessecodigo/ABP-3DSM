@@ -138,6 +138,8 @@
   "analysisTable": "Table",
   "analysisSeriesEnergyChart": "Energy trend",
   "analysisSeriesEmissionsChart": "CO₂e trend",
+  "analysisCurrentPeriod": "Current period",
+  "analysisPreviousPeriod": "Previous period",
   "analysisSeriesNoPoints": "No points available for this period",
   "analysisSeriesGapsNote": "Gaps are not zero; use the table to inspect points without values.",
   "evidenceSearchLabel": "Search evidence",

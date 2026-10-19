@@ -119,10 +119,12 @@ test('mostra tentativa ambiental recente e conserva a última consulta bem-suced
 test('preserva fatores originais separados com proveniência da fonte', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=provenance')
-  await page.locator('#analysis-details summary').click()
-
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  await expect(analysis.getByRole('group', { name: 'Fator regional', exact: true })).toContainText('Múltiplos fatores')
+  const factorCard = analysis.getByRole('group', { name: 'Fator regional', exact: true })
+  await expect(factorCard).toContainText('Múltiplos fatores')
+  await expect(factorCard).not.toContainText('v-alpha-original')
+  await expect(factorCard).not.toContainText('v-beta-original')
+  await page.locator('#analysis-details summary').click()
   const factors = page.getByRole('region', { name: 'Fatores aplicados' })
   const alpha = factors.getByRole('group', { name: 'BR-SP', exact: true })
   const beta = factors.getByRole('group', { name: 'BR-RJ', exact: true })

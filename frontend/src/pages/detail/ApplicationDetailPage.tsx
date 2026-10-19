@@ -152,6 +152,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       <EnvironmentalAnalysis data={analysisData}
         status={analysisState}
         contributions={environmentalAnalysis.contributions}
+        comparisonPoints={environmentalAnalysis.comparisonPoints}
         onInspectContributions={analysisSource.loadContributions ? environmentalAnalysis.loadContributions : undefined}
         lastAttemptAt={environmentalAnalysis.lastAttemptAt} lastSuccessAt={environmentalAnalysis.lastSuccessAt}
         lastSuccessStatus={environmentalAnalysis.lastSuccessStatus}
@@ -207,6 +208,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           },
           seriesHeading: tDetail('analysisSeriesHeading'),
           metricToggle: tDetail('analysisMetricToggle'),
+          currentPeriod: tDetail('analysisCurrentPeriod'), previousPeriod: tDetail('analysisPreviousPeriod'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
           seriesEventTypes: {
             status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),

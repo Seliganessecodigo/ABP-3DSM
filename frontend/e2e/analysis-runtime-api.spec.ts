@@ -10,12 +10,19 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
     const url = new URL(route.request().url())
     requests.push(url)
     if (url.pathname.endsWith('/series')) {
+      const previous = url.searchParams.get('from') === '2026-10-03T20:00:00.000Z'
+      const from = previous ? '2026-10-03T20:00:00.000Z' : '2026-10-10T20:00:00.000Z'
+      const points = [4, 6].map((value, index) => {
+        const bucketStart = new Date(Date.parse(from) + index * 60 * 60 * 1000).toISOString()
+        return { bucketStart, bucketEnd: new Date(Date.parse(bucketStart) + 60 * 60 * 1000).toISOString(),
+          energy: { value, unit: 'kWh', reasons: [] }, emissions: { value: value * 340, unit: 'gCO2e', reasons: [] } }
+      })
       await route.fulfill({ json: {
         status: 'available', applicationId: 'svc-0142',
-        period: { from: '2026-10-10T20:00:00.000Z', to: '2026-10-17T20:00:00.000Z' },
+        period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') },
         granularity: 'hour',
         totals: { energy: { value: 12.5, unit: 'kWh' }, emissions: { value: 4250, unit: 'gCO2e' } },
-        coverage: { energy: 0.75, emissions: 0.5 }, points: [], events: [],
+        coverage: { energy: 0.75, emissions: 0.5 }, points, events: [],
       } })
       return
     }
@@ -38,18 +45,23 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
   await mockCatalog(page, [application()])
   await page.goto('/services/svc-0142?period=7d')
 
-  await expect.poll(() => requests.length).toBe(2)
+  await expect.poll(() => requests.length).toBe(3)
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/12,5\s*kWh/)
   await expect(analysis.getByRole('group', { name: 'CO₂e', exact: true })).toContainText(/4[.,]250\s*gCO2e/)
   await expect(analysis.getByRole('group', { name: 'Cobertura de energia', exact: true })).toContainText(/75\s*%/)
   await expect(analysis.getByRole('group', { name: 'Cobertura de emissões', exact: true })).toContainText(/50\s*%/)
-  await expect(analysis).toContainText('2026.1')
-  await expect(analysis).toContainText('2.1')
-  expect(requests.map((url) => [url.searchParams.get('from'), url.searchParams.get('to')])).toEqual([
+  await page.locator('#analysis-details summary').click()
+  await expect(page.getByText('2026.1', { exact: true })).toBeVisible()
+  await expect(page.getByText('2.1', { exact: true })).toBeVisible()
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
+  await expect(series.getByText('Período anterior', { exact: true })).toBeVisible()
+  await expect(series.locator('svg polyline[class*="previousSeries"]')).toHaveCount(1)
+  expect(requests.map((url) => [url.searchParams.get('from'), url.searchParams.get('to')]).sort()).toEqual([
+    ['2026-10-03T20:00:00.000Z', '2026-10-10T20:00:00.000Z'],
     ['2026-10-10T20:00:00.000Z', '2026-10-17T20:00:00.000Z'],
     ['2026-10-10T20:00:00.000Z', '2026-10-17T20:00:00.000Z'],
-  ])
+  ].sort())
 })
 
 test('mantém o resumo ambiental quando a consulta da série falha', async ({ page }) => {
@@ -112,12 +124,14 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
   await mockCatalog(page, [application()])
   await page.goto('/services/svc-0142?period=7d')
 
-  await expect.poll(() => ranges.length).toBe(2)
+  await expect.poll(() => ranges.length).toBe(3)
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis).toContainText('Status alterado')
   await expect(analysis).toContainText('Disponível')
   await expect(analysis).toContainText('Indisponível')
-  expect(ranges).toEqual([[from, to], [from, to]])
+  expect(ranges.sort()).toEqual([
+    ['2026-10-03T20:00:37.456Z', from], [from, to], [from, to],
+  ].sort())
 })
 
 test('mantém eventos persistidos quando resumo e série não têm observações', async ({ page }) => {

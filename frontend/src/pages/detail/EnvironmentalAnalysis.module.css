@@ -1,5 +1,8 @@
 .analysisLayout { display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 12px; min-height: 0; }
 .section { min-width: 0; margin: 0; }
+.analysisNotice { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; color: var(--warning-foreground); font-size: 12px; }
+.analysisNotice p, .analysisNotice output { margin: 0; font-size: inherit; }
+.analysisNotice :global(.action-button) { min-height: 28px; padding: 4px 12px; }
 .summaryGrid { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(0, 1fr); align-items: stretch; gap: 12px; min-height: 0; }
 .lowerGrid { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(0, 1fr); align-items: stretch; gap: 12px; min-height: 0; }
 .seriesColumn, .evidenceColumn, .contextColumn { min-width: 0; }

@@ -133,6 +133,7 @@ export type AnalysisSourceResult =
 
 export interface AnalysisSource {
   load(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisSourceResult>
+  loadComparisonSeries?(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]>
   loadContributions?(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
     pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage>
 }
@@ -160,6 +161,31 @@ function readMeasure(value: unknown, empty = false): AnalysisReading {
 function readCoverage(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new Error('Invalid analysis coverage')
   return value
+}
+
+function readSeries(value: unknown, applicationId: string) {
+  assertRecord(value, 'analysis series')
+  if (!['available', 'empty'].includes(String(value.status)) || value.applicationId !== applicationId ||
+    !isRecord(value.totals) || !Array.isArray(value.points) || !Array.isArray(value.events)) throw new Error('Invalid analysis series response')
+  const points = value.points.map((entry): AnalysisSeriesPoint => {
+    assertRecord(entry, 'analysis point')
+    if (typeof entry.bucketStart !== 'string' || !Number.isFinite(Date.parse(entry.bucketStart)) ||
+      typeof entry.bucketEnd !== 'string' || !Number.isFinite(Date.parse(entry.bucketEnd))) throw new Error('Invalid analysis point')
+    return { id: entry.bucketStart, timestamp: entry.bucketStart, bucketEnd: entry.bucketEnd,
+      energy: readMeasure(entry.energy, value.status === 'empty'), emissions: readMeasure(entry.emissions, value.status === 'empty') }
+  })
+  const eventTypes = ['status_changed', 'removed', 'returned', 'region_changed', 'methodology_changed', 'factor_version_changed']
+  const events = value.events.map((entry): AnalysisSeriesEvent => {
+    assertRecord(entry, 'analysis series event')
+    if (typeof entry.id !== 'string' || typeof entry.at !== 'string' || !Number.isFinite(Date.parse(entry.at)) ||
+      !eventTypes.includes(String(entry.type)) || !isRecord(entry.details) ||
+      !(entry.details.before === null || isRecord(entry.details.before)) || !(entry.details.after === null || isRecord(entry.details.after))) {
+      throw new Error('Invalid analysis series event')
+    }
+    return { id: entry.id, at: entry.at, type: entry.type as AnalysisSeriesEvent['type'],
+      details: { before: entry.details.before as Record<string, unknown> | null, after: entry.details.after as Record<string, unknown> | null } }
+  })
+  return { points, events }
 }
 
 function rangeFor(period: string, now: Date) {
@@ -300,26 +326,9 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
   let seriesEvents: AnalysisSeriesEvent[] = []
   if (series !== null) {
     try {
-      assertRecord(series, 'analysis series')
-      if (!['available', 'empty'].includes(String(series.status)) || series.applicationId !== applicationId ||
-        !isRecord(series.totals) || !Array.isArray(series.points) || !Array.isArray(series.events)) throw new Error('Invalid analysis series response')
-      seriesPoints = series.points.map((value): AnalysisSeriesPoint => {
-        assertRecord(value, 'analysis point')
-        if (typeof value.bucketStart !== 'string' || !Number.isFinite(Date.parse(value.bucketStart))) throw new Error('Invalid analysis point')
-        if (typeof value.bucketEnd !== 'string' || !Number.isFinite(Date.parse(value.bucketEnd))) throw new Error('Invalid analysis point')
-        return { id: value.bucketStart, timestamp: value.bucketStart, bucketEnd: value.bucketEnd, energy: readMeasure(value.energy, series.status === 'empty'), emissions: readMeasure(value.emissions, series.status === 'empty') }
-      })
-      seriesEvents = series.events.map((value): AnalysisSeriesEvent => {
-        assertRecord(value, 'analysis event')
-        const types = ['status_changed', 'removed', 'returned', 'region_changed', 'methodology_changed', 'factor_version_changed']
-        if (typeof value.id !== 'string' || typeof value.at !== 'string' || !Number.isFinite(Date.parse(value.at)) ||
-          !types.includes(String(value.type)) || !isRecord(value.details) ||
-          !(value.details.before === null || isRecord(value.details.before)) || !(value.details.after === null || isRecord(value.details.after))) {
-          throw new Error('Invalid analysis event')
-        }
-        return { id: value.id, at: value.at, type: value.type as AnalysisSeriesEvent['type'],
-          details: { before: value.details.before as Record<string, unknown> | null, after: value.details.after as Record<string, unknown> | null } }
-      })
+      const parsed = readSeries(series, applicationId)
+      seriesPoints = parsed.points
+      seriesEvents = parsed.events
     } catch {
       seriesPoints = null
     }
@@ -362,8 +371,16 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
   return summary.status === 'empty' ? { status: 'empty', data } : { status: 'available', data }
 }
 
+async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]> {
+  const currentRange = rangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
+  const previousRange = rangeFor(context.period, new Date(currentRange.from))
+  const response = await getJson(endpoint(applicationId, '/series', previousRange, context.granularity ?? 'hour'), signal)
+  return readSeries(response, applicationId).points
+}
+
 export const environmentalAnalysisSource: AnalysisSource = {
   load: (applicationId, context, signal) => loadEnvironmentalAnalysis(applicationId, context.period, context.granularity ?? null, context.anchor, signal),
+  loadComparisonSeries,
   loadContributions,
 }
 

@@ -9,6 +9,8 @@ type Labels = Readonly<{
   graph: string
   table: string
   metricToggle: string
+  currentPeriod: string
+  previousPeriod: string
   moment: string
   energy: string
   emissions: string
@@ -62,11 +64,38 @@ function formatAnalysisNumber(value: number, locale: string) {
   return formatSeriesNumber(value, locale)
 }
 
-function Chart({ points, metric, label, locale, formatDate, labels }: Readonly<{
+type PlotPoint = Readonly<{ id: string; x: number; y: number }>
+
+function chartSegments(points: readonly (PlotPoint | null)[], fill: boolean) {
+  const segments: { key: string; points: string; area?: string }[] = []
+  let segment: { firstId: string; lastId: string; coordinates: string[] } | null = null
+  const pushSegment = () => {
+    if (!segment || segment.coordinates.length < 2) return
+    const path = segment.coordinates.join(' ')
+    const [firstX] = segment.coordinates[0].split(',')
+    const [lastX] = segment.coordinates.at(-1)!.split(',')
+    segments.push({ key: `${segment.firstId}:${segment.lastId}`, points: path,
+      ...(fill ? { area: `${path} ${lastX},128 ${firstX},128` } : {}) })
+  }
+  for (const point of points) {
+    if (!point) { pushSegment(); segment = null }
+    else {
+      segment ??= { firstId: point.id, lastId: point.id, coordinates: [] }
+      segment.lastId = point.id
+      segment.coordinates.push(`${point.x},${point.y}`)
+    }
+  }
+  pushSegment()
+  return segments
+}
+
+function Chart({ points, comparisonPoints, metric, label, locale, timeZone, formatDate, labels }: Readonly<{
   points: readonly AnalysisSeriesPoint[]
+  comparisonPoints: readonly AnalysisSeriesPoint[]
   metric: 'energy' | 'emissions'
   label: string
   locale: string
+  timeZone: string
   formatDate: (value: string) => string
   labels: Labels
 }>) {
@@ -91,54 +120,58 @@ function Chart({ points, metric, label, locale, formatDate, labels }: Readonly<{
             ? { id: point.id, value: reading.value, time, timestamp: point.timestamp }
             : null
         })
-        const validValues = values.flatMap(point => point ? [point.value] : [])
-        const min = Math.min(...validValues)
+        const comparisonChronological = [...comparisonPoints].sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp))
+        const comparisonValues = comparisonChronological.map(point => {
+          const reading = point[metric]
+          const time = Date.parse(point.timestamp)
+          return reading.status === 'available' && reading.unit === unit && Number.isFinite(reading.value) && Number.isFinite(time)
+            ? { id: point.id, value: reading.value, time }
+            : null
+        })
+        const validValues = [...values, ...comparisonValues].flatMap(point => point ? [point.value] : [])
         const max = Math.max(...validValues)
-        const coordinates = values.map(point => point && ({
+        const chartMax = Math.max(4, Math.ceil(max / 4) * 4)
+        const coordinates: (PlotPoint | null)[] = values.map(point => point && ({
           id: point.id,
           x: maxTime === minTime ? 300 : 8 + ((point.time - minTime) / (maxTime - minTime)) * 584,
-          y: max === min ? 74 : 128 - ((point.value - min) / (max - min)) * 104,
+          y: 128 - (point.value / chartMax) * 108,
         }))
-        const segments: { key: string; points: string; area: string }[] = []
-        let segment: { firstId: string; lastId: string; coordinates: string[] } | null = null
-        const pushSegment = () => {
-          if (!segment || segment.coordinates.length < 2) return
-          const points = segment.coordinates.join(' ')
-          const [firstX] = segment.coordinates[0].split(',')
-          const [lastX] = segment.coordinates.at(-1)!.split(',')
-          segments.push({ key: `${segment.firstId}:${segment.lastId}`, points, area: `${points} ${lastX},128 ${firstX},128` })
-        }
-        for (const point of coordinates) {
-          if (!point) {
-            pushSegment()
-            segment = null
-          } else {
-            segment ??= { firstId: point.id, lastId: point.id, coordinates: [] }
-            segment.lastId = point.id
-            segment.coordinates.push(`${point.x},${point.y}`)
-          }
-        }
-        pushSegment()
+        const segments = chartSegments(coordinates, true)
+        const comparisonTimes = comparisonValues.flatMap(point => point ? [point.time] : [])
+        const comparisonMinTime = comparisonTimes.length ? Math.min(...comparisonTimes) : 0
+        const comparisonMaxTime = comparisonTimes.length ? Math.max(...comparisonTimes) : 0
+        const comparisonCoordinates: (PlotPoint | null)[] = comparisonValues.map(point => point && ({
+          id: point.id,
+          x: comparisonMaxTime === comparisonMinTime ? 300 : 8 + ((point.time - comparisonMinTime) / (comparisonMaxTime - comparisonMinTime)) * 584,
+          y: 128 - (point.value / chartMax) * 108,
+        }))
+        const comparisonSegments = chartSegments(comparisonCoordinates, false)
         const accessiblePoints = chronological.map(point => `${formatDate(point.timestamp)}: ${readingText(point[metric], locale, labels)}`).join('; ')
-        const firstTime = chronological.find(point => Number.isFinite(Date.parse(point.timestamp)))?.timestamp
-        const lastTime = [...chronological].reverse().find(point => Number.isFinite(Date.parse(point.timestamp)))?.timestamp
+        const axisPointCount = Math.min(7, chronological.length)
+        const axisPoints = Array.from({ length: axisPointCount }, (_, index) => chronological[
+          axisPointCount <= 1 ? 0 : Math.round(index * (chronological.length - 1) / (axisPointCount - 1))
+        ])
         const hasGaps = chronological.some(point => point[metric].status !== 'available' || (point[metric].status === 'available' && point[metric].unit !== unit))
         return <div key={unit} className={styles.unitChart}>
-          <p className={styles.axisSummary}>{formatAnalysisNumber(min, locale)} - {formatAnalysisNumber(max, locale)} {unit}</p>
+          <p className={styles.axisSummary}>0 - {formatAnalysisNumber(chartMax, locale)} {unit}</p>
+          <div className={styles.legend}><span className={styles.currentLegend}>{labels.currentPeriod}</span>
+            {comparisonSegments.length > 0 && <span className={styles.previousLegend}>{labels.previousPeriod}</span>}</div>
           <div className={styles.plot}>
-            <div className={styles.yAxis} aria-hidden="true"><span>{formatAnalysisNumber(max, locale)}</span><span>{formatAnalysisNumber(min, locale)}</span></div>
+            <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
+              <span key={index}>{formatAnalysisNumber(chartMax * (4 - index) / 4, locale)}</span>)}</div>
             <svg className={styles.chart} viewBox="0 0 600 144" role="img" aria-label={`${label} (${unit}): ${accessiblePoints}`}>
-              <line className={styles.grid} x1="8" y1="20" x2="592" y2="20" />
-              <line className={styles.grid} x1="8" y1="56" x2="592" y2="56" />
-              <line className={styles.grid} x1="8" y1="92" x2="592" y2="92" />
+              {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}
               <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
               <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
-              {segments.map(segment => <polygon key={`${segment.key}:area`} className={styles.area} points={segment.area} />)}
+              {segments.map(segment => segment.area && <polygon key={`${segment.key}:area`} className={styles.area} points={segment.area} />)}
+              {comparisonSegments.map(segment => <polyline key={`previous:${segment.key}`} className={styles.previousSeries} points={segment.points} />)}
               {segments.map(segmentPath => <polyline key={segmentPath.key} points={segmentPath.points} />)}
               {coordinates.map(point => point && <circle key={point.id} cx={point.x} cy={point.y} r="4" />)}
             </svg>
           </div>
-          {firstTime && lastTime && <div className={styles.timeAxis}><span>{formatDate(firstTime)}</span><span>{formatDate(lastTime)}</span></div>}
+          <div className={styles.timeAxis}>{axisPoints.map(point => <time key={point.id} dateTime={point.timestamp}>
+            {new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit' }).format(new Date(point.timestamp))}
+          </time>)}</div>
           {hasGaps && <p className={styles.gapNote}>{labels.gapsNote}</p>}
         </div>
       })}
@@ -285,6 +318,8 @@ type SeriesContentProps = Readonly<{
   view: 'graph' | 'table'
   metric: 'energy' | 'emissions'
   locale: string
+  timeZone: string
+  comparisonPoints: readonly AnalysisSeriesPoint[]
   labels: Labels
   formatDate: (value: string) => string
   invalidDateRange: boolean
@@ -292,21 +327,21 @@ type SeriesContentProps = Readonly<{
   tableProps: SeriesTableProps
 }>
 
-function SeriesContent({ series, state, view, metric, locale, labels, formatDate, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
+function SeriesContent({ series, state, view, metric, locale, timeZone, comparisonPoints, labels, formatDate, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
   if (series.status === 'unavailable') {
     const message = state === 'loading' ? labels.loading : `${labels.unavailable}: ${labels.reasons[series.reason]}`
     return <p><output aria-live="polite">{message}</output></p>
   }
   if (view === 'graph') {
     return <div className={styles.charts}>
-      <Chart points={series.points} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
-        locale={locale} formatDate={formatDate} labels={labels} />
+      <Chart points={series.points} comparisonPoints={comparisonPoints} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
+        locale={locale} timeZone={timeZone} formatDate={formatDate} labels={labels} />
     </div>
   }
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, onPaginationChange, onQueryChange, onInspectContributions, controlContent }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -315,6 +350,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   page: number
   pageSize: AnalysisSeriesPageSize
   query: AnalysisSeriesQuery
+  comparisonPoints: readonly AnalysisSeriesPoint[]
   onPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
   onQueryChange: (query: AnalysisSeriesQuery) => void
   onInspectContributions?: (bucketStart: string) => void
@@ -400,7 +436,6 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>
-      {controlContent}
       <div className={styles.metricToggle} role="group" aria-label={labels.metricToggle}>
         <button type="button" aria-pressed={metric === 'energy'} onClick={() => setMetric('energy')}>{labels.energy}</button>
         <button type="button" aria-pressed={metric === 'emissions'} onClick={() => setMetric('emissions')}>{labels.emissions}</button>
@@ -409,10 +444,11 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
         <button type="button" aria-pressed={view === 'graph'} onClick={() => setView('graph')}>{labels.graph}</button>
         <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>{labels.table}</button>
       </div>
+      {controlContent}
       </div>
     </div>
     <p className={styles.timeZone}>{labels.timeZone(query.timeZone)}</p>
-    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} labels={labels} formatDate={formatSeriesDate}
+    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={labels} formatDate={formatSeriesDate}
       invalidDateRange={invalidDateRange} filterProps={filterProps} tableProps={tableProps} />
   </section>
 }
