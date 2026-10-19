@@ -98,5 +98,5 @@ export interface AnalysisSource {
 }
 
 export const unavailableAnalysisSource: AnalysisSource = {
-  load: async () => ({ status: 'unavailable' }),
+  load: () => Promise.resolve<AnalysisSourceResult>({ status: 'unavailable' }),
 }

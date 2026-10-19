@@ -10,7 +10,20 @@
   font-size: 15px;
 }
 
+.unavailable {
+  color: var(--text-secondary);
+}
+
 .options {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.choices {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

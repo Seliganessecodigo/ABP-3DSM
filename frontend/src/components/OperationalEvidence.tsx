@@ -21,6 +21,19 @@ type Labels = {
   metrics: { cpu: string; memory: string; disk: string; network: string }
 }
 
+function formatMetricValue(value: number | null, unit: string | null, formatNumber: (value: number) => string) {
+  if (value === null) return ''
+  const suffix = unit ? ` ${unit}` : ''
+  return `${formatNumber(value)}${suffix}`
+}
+
+function sortPresentation(query: OperationalEvidenceQuery['sort'], column: OperationalEvidenceQuery['sort']['column']):
+  Readonly<{ ariaSort: 'ascending' | 'descending' | 'none'; indicator: string }> {
+  if (query.column !== column) return { ariaSort: 'none', indicator: '' }
+  if (query.direction === 'asc') return { ariaSort: 'ascending', indicator: ' \u2191' }
+  return { ariaSort: 'descending', indicator: ' \u2193' }
+}
+
 export function OperationalEvidence({ evidence, loading, notFound, selected, error, refreshing, calculability,
   labels, formatDate, formatNumber, onRefresh, locale, query, onQueryChange }: Readonly<{
   evidence: CollectionEvidence | null; loading: boolean; notFound: boolean; selected: boolean; error: boolean
@@ -33,12 +46,13 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
     const metric = evidence?.metrics[key]
     if (!metric) return ''
     if (metric.status === 'available') return metric.value === 0 ? labels.zero : labels.available
-    return metric.status === 'missing' ? labels.missing : labels.invalid
+    if (metric.status === 'missing') return labels.missing
+    return labels.invalid
   }
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase(locale)
   const visibleMetrics = evidence ? metricKeys.filter((key) => {
     const metric = evidence.metrics[key]
-    const displayedValue = metric.value === null ? '' : `${formatNumber(metric.value)}${metric.unit ? ` ${metric.unit}` : ''}`
+    const displayedValue = formatMetricValue(metric.value, metric.unit, formatNumber)
     const content = normalize([labels.metrics[key], displayedValue, statusLabel(key)].join(' '))
     return (!query.metric || query.metric === key) && (!query.status || query.status === metric.status) &&
       (!query.search || content.includes(normalize(query.search)))
@@ -48,12 +62,15 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
     const leftText = query.sort.column === 'metric' ? labels.metrics[left] : statusLabel(left)
     const rightText = query.sort.column === 'metric' ? labels.metrics[right] : statusLabel(right)
     const order = collator.compare(leftText, rightText)
-    return order === 0 ? left.localeCompare(right) : query.sort.direction === 'asc' ? order : -order
+    if (order === 0) return left.localeCompare(right)
+    return query.sort.direction === 'asc' ? order : -order
   })
   const toggleSort = (column: OperationalEvidenceQuery['sort']['column']) => onQueryChange({
     ...query,
     sort: { column, direction: query.sort.column === column && query.sort.direction === 'asc' ? 'desc' : 'asc' },
   })
+  const metricSort = sortPresentation(query.sort, 'metric')
+  const statusSort = sortPresentation(query.sort, 'status')
   return <section className={styles.card} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
     <p>{labels.calculability}: {calculability}</p>
@@ -75,16 +92,16 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
         <label className={styles.filter}>{labels.statusFilter}<select value={query.status} onChange={(event) => onQueryChange({ ...query, status: (['available', 'missing', 'invalid'] as const).find((status) => status === event.target.value) ?? '' })}><option value="">{labels.allStatuses}</option><option value="available">{labels.available}</option><option value="missing">{labels.missing}</option><option value="invalid">{labels.invalid}</option></select></label>
         <button type="button" className={styles.clearFilters} disabled={!query.search && !query.metric && !query.status} onClick={() => onQueryChange({ ...query, search: '', metric: '', status: '' })}>{labels.clearFilters}</button>
       </div>
-      <p className={styles.filteredCount} aria-live="polite">{labels.filteredCount(rows.length, metricKeys.length)}</p>
-      <table className={styles.table}><thead><tr><th scope="col" aria-sort={query.sort.column === 'metric' ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" className={styles.sortButton} onClick={() => toggleSort('metric')}>{labels.metric}<span aria-hidden="true">{query.sort.column === 'metric' ? query.sort.direction === 'asc' ? ' \u2191' : ' \u2193' : ''}</span></button></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={query.sort.column === 'status' ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" className={styles.sortButton} onClick={() => toggleSort('status')}>{labels.status}<span aria-hidden="true">{query.sort.column === 'status' ? query.sort.direction === 'asc' ? ' \u2191' : ' \u2193' : ''}</span></button></th></tr></thead>
+      <div className={styles.filteredCount}><output aria-live="polite">{labels.filteredCount(rows.length, metricKeys.length)}</output></div>
+      <table className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('metric')}>{labels.metric}<span aria-hidden="true">{metricSort.indicator}</span></button></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('status')}>{labels.status}<span aria-hidden="true">{statusSort.indicator}</span></button></th></tr></thead>
         <tbody>{rows.map((key) => {
           const metric = evidence.metrics[key]
           const status = statusLabel(key)
           return <tr key={key}><th scope="row">{labels.metrics[key]}</th>
-            <td>{metric.value === null ? labels.noValue : `${formatNumber(metric.value)}${metric.unit ? ` ${metric.unit}` : ''}`}</td><td>{status}</td></tr>
+            <td>{metric.value === null ? labels.noValue : formatMetricValue(metric.value, metric.unit, formatNumber)}</td><td>{status}</td></tr>
         })}</tbody>
       </table>
-      {rows.length === 0 && <p className={styles.noMatches} role="status">{labels.noMatches}</p>}
+      {rows.length === 0 && <div className={styles.noMatches}><output aria-live="polite">{labels.noMatches}</output></div>}
       <p className={styles.note}>{labels.zeroNote}</p>
       {error && <ActionButton onClick={onRefresh}>{labels.retry}</ActionButton>}
     </>}

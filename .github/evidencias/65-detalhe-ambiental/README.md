@@ -22,12 +22,15 @@ Catálogo, recapturado após os alvos acessíveis de mobile:
 
 - No desktop, a área principal começa em `(250, 12)` e mede `1104 px` de largura. O cabeçalho ocupa `105 px`; os quatro KPIs ficam em uma linha, com cartões de `252 px`, espaçamento de `16 px`, começando em `y=149`. O seletor de período fica ao lado do título e seus botões têm `44 px` de altura.
 - No mobile, a área principal mede `358 px` sem overflow horizontal. Cabeçalho e seletor empilham; período e KPIs ficam em grades `2 × 2`. Cada botão de período tem `44 px`. O restante do detalhe vira uma coluna e os gráficos continuam legíveis.
-- Os gráficos de energia e CO₂e ficam empilhados em cartões largos. Eixos e unidades permanecem visíveis. A série preserva zero, lacuna e leitura posterior sem desenhar uma conexão que atravesse o dado ausente; a tabela apresenta as três leituras.
+- Os quatro KPIs mantêm headings semânticos associados aos `fieldset` por `aria-labelledby`, com títulos dentro do padding (inset de `17 px` desktop e `13 px` mobile, incluindo a borda de `1 px`). Não há `legend` atravessando a borda. As distâncias entre cartões e linhas são `16 px`.
+- Os gráficos de energia e CO₂e ficam empilhados em cartões largos. Eixos e unidades permanecem visíveis. A série preserva zero, lacuna e leitura posterior sem desenhar uma conexão que atravesse o dado ausente; a tabela apresenta as três leituras. Na tabela mobile, o wrapper próprio mantém largura `326 px` e contém a tabela de `334 px` com rolagem horizontal; o documento segue em `358 px` sem overflow.
 - A alternância gráfico/tabela funciona por teclado (`Space`); período e granularidade respondem a `Enter`. O foco visível foi observado no controle de tabela e de período. Controles visíveis do detalhe medidos na matriz têm pelo menos `44 px` de altura.
 - Os temas usam os tokens existentes. Claro: página `#f4faf7`, cartão `#ffffff`, texto `#17332d`. Escuro: página `#101b18`, cartão `#182923`, texto `#e8f2ed`. A imagem e a revisão visual mostram texto legível em ambos.
 - O detalhe contém bastante conteúdo e ocupa aproximadamente `3380 px` de altura desktop na fixture completa, contra `1406 px` de altura no metadata do frame escuro. Fatores, snapshots, metodologia, composição, frescor, evidências operacionais e localização explicam parte da diferença. Não foi ocultado resultado ou proveniência para encurtar a página; esta rodada não introduziu disclosures adicionais.
 
 O CSS fluido foi removido dos paddings responsivos para manter a escala solicitada em passos de `4 px`. Em `1024 px`, Playwright mediu `24 px` no detalhe; os breakpoints agora usam passos fixos. Os extremos da matriz visual permanecem iguais: detalhe `24 px` desktop e `16 px` mobile; conteúdo compartilhado `48 px` desktop e `16 px` mobile. Bordas, raios, tipografia, dimensões de glifos/SVG, offsets de foco e valores definidos por conteúdo ou por breakpoints são exceções técnicas/ópticas, não espaçamentos autorais contínuos.
+
+Após a regressão mobile da tabela, a seção da série passou a permitir encolhimento dentro da grade (`min-width: 0`). Em claro e escuro, a área da série e o grid ficam em `326 px`; a tabela rola no wrapper interno (`scrollWidth 334 px`, `clientWidth 324 px`) sem aumentar a largura da página. O foco de teclado e o botão `Tabela` continuam operacionais.
 
 ## Referências Figma e limite da comparação
 

@@ -1,12 +1,12 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
-import type { AnalysisFactor, AnalysisFactorResult, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
 import type { AnalysisCompositionLabels } from './AnalysisComposition.tsx'
 import { EnvironmentalFreshness } from './EnvironmentalFreshness.tsx'
 import type { EnvironmentalFreshnessLabels } from './EnvironmentalFreshness.tsx'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import styles from './EnvironmentalAnalysis.module.css'
 
 type Labels = Readonly<{
@@ -114,13 +114,18 @@ function MetricCard({ id, title, reading, locale, labels, empty = false }: Reado
   labels: Labels
   empty?: boolean
 }>) {
-  return <div className={styles.metric} role="group" aria-labelledby={id}>
-    <h3 id={id}>{title}</h3>
-    {empty ? null : reading
+  let content: ReactNode = null
+  if (!empty) {
+    content = reading
       ? <Reading reading={reading} locale={locale} notCalculable={labels.notCalculable}
         metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
-      : <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>}
-  </div>
+      : <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
+  }
+
+  return <fieldset className={styles.metric} aria-labelledby={id}>
+    <h3 id={id}>{title}</h3>
+    {content}
+  </fieldset>
 }
 
 function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels }>) {
@@ -130,14 +135,19 @@ function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult 
     else if (factor.factors.length === 1) value = `${factor.factors[0].intensity} ${factor.factors[0].unit}`
   }
 
-  return <div className={styles.metric} role="group" aria-labelledby="analysis-factor-heading">
+  let content: ReactNode
+  if (factor?.status === 'unavailable') {
+    content = <div className={styles.unavailable}><p className={styles.value}>{labels.metricUnavailable}</p><p>{labels.reasons[factor.reason]}</p></div>
+  } else if (value === null) {
+    content = <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
+  } else {
+    content = <p className={styles.value}>{value}</p>
+  }
+
+  return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
     <h3 id="analysis-factor-heading">{labels.factor}</h3>
-    {factor?.status === 'unavailable'
-      ? <div className={styles.unavailable}><p className={styles.value}>{labels.metricUnavailable}</p><p>{labels.reasons[factor.reason]}</p></div>
-      : value === null
-        ? <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
-        : <p className={styles.value}>{value}</p>}
-  </div>
+    {content}
+  </fieldset>
 }
 
 function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
@@ -146,25 +156,29 @@ function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
   labels: Labels
   empty?: boolean
 }>) {
-  return <div className={`${styles.metric} ${styles.coverage}`} role="group" aria-labelledby="analysis-coverage-heading">
+  const energyContent = getCoverageContent(empty, data?.energyCoverage ?? null, locale, labels)
+  const emissionsContent = getCoverageContent(empty, data?.emissionsCoverage ?? null, locale, labels)
+
+  return <fieldset className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
     <h3 id="analysis-coverage-heading">{labels.coverage}</h3>
     <div className={styles.coverageMetrics}>
-      <div role="group" aria-labelledby="analysis-energy-coverage-heading">
+      <fieldset aria-labelledby="analysis-energy-coverage-heading">
         <h4 id="analysis-energy-coverage-heading">{labels.energyCoverage}</h4>
-        {empty ? null : data
-          ? <Reading reading={data.energyCoverage} locale={locale} notCalculable={labels.notCalculable}
-            metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
-          : <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>}
-      </div>
-      <div role="group" aria-labelledby="analysis-emissions-coverage-heading">
+        {energyContent}
+      </fieldset>
+      <fieldset aria-labelledby="analysis-emissions-coverage-heading">
         <h4 id="analysis-emissions-coverage-heading">{labels.emissionsCoverage}</h4>
-        {empty ? null : data
-          ? <Reading reading={data.emissionsCoverage} locale={locale} notCalculable={labels.notCalculable}
-            metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
-          : <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>}
-      </div>
+        {emissionsContent}
+      </fieldset>
     </div>
-  </div>
+  </fieldset>
+}
+
+function getCoverageContent(empty: boolean, reading: AnalysisReading | null, locale: string, labels: Labels) {
+  if (empty) return null
+  if (!reading) return <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
+  return <Reading reading={reading} locale={locale} notCalculable={labels.notCalculable}
+    metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
 }
 
 function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
@@ -194,20 +208,30 @@ function FactorProvenance({ factors, formatDate, labels }: Readonly<{
   return <section className={styles.provenance} aria-labelledby="analysis-factors-heading">
     <h2 id="analysis-factors-heading">{labels.factorsHeading}</h2>
     <div className={styles.factorList}>
-      {factors.map((factor, index) => <article className={styles.factor} key={`${factor.model}-${factor.version}-${index}`} role="group" aria-labelledby={`analysis-factor-${index}`}>
-        <h3 id={`analysis-factor-${index}`}>{factor.model}</h3>
-        <dl>
-          <div><dt>{labels.region}</dt><dd>{factor.region}</dd></div>
-          <div><dt>{labels.intensity}</dt><dd>{factor.intensity} {factor.unit}</dd></div>
-          <div><dt>{labels.model}</dt><dd>{factor.model}</dd></div>
-          <div><dt>{labels.version}</dt><dd>{factor.version}</dd></div>
-          <div><dt>{labels.queriedAt}</dt><dd>{formatDate(factor.queriedAt)}</dd></div>
-          <div><dt>{labels.modelDescription}</dt><dd>{factor.modelDescription}</dd></div>
-          <div><dt>{labels.snapshot}</dt><dd><code>{factor.snapshot}</code></dd></div>
-        </dl>
-      </article>)}
+      {factors.map((factor) => <FactorEntry key={`${factor.model}-${factor.version}-${factor.region}-${factor.queriedAt}`}
+        factor={factor} formatDate={formatDate} labels={labels} />)}
     </div>
   </section>
+}
+
+function FactorEntry({ factor, formatDate, labels }: Readonly<{
+  factor: AnalysisFactor
+  formatDate: (value: string) => string
+  labels: Labels
+}>) {
+  const headingId = useId()
+  return <fieldset className={styles.factor} aria-labelledby={headingId}>
+    <h3 id={headingId}>{factor.model}</h3>
+    <dl>
+      <div><dt>{labels.region}</dt><dd>{factor.region}</dd></div>
+      <div><dt>{labels.intensity}</dt><dd>{factor.intensity} {factor.unit}</dd></div>
+      <div><dt>{labels.model}</dt><dd>{factor.model}</dd></div>
+      <div><dt>{labels.version}</dt><dd>{factor.version}</dd></div>
+      <div><dt>{labels.queriedAt}</dt><dd>{formatDate(factor.queriedAt)}</dd></div>
+      <div><dt>{labels.modelDescription}</dt><dd>{factor.modelDescription}</dd></div>
+      <div><dt>{labels.snapshot}</dt><dd><code>{factor.snapshot}</code></dd></div>
+    </dl>
+  </fieldset>
 }
 
 function MethodologySection({ result, state, labels }: Readonly<{
@@ -217,26 +241,40 @@ function MethodologySection({ result, state, labels }: Readonly<{
 }>) {
   return <section className={styles.provenance} aria-labelledby="analysis-methodology-heading">
     <h2 id="analysis-methodology-heading">{labels.methodologyHeading}</h2>
-    {state === 'loading' && <p role="status">{labels.loading}</p>}
-    {state === 'error' && <p role="status">{labels.methodologyUnavailable}</p>}
-    {state === 'unavailable' && !result && <p role="status">{labels.methodologyUnavailable}</p>}
+    {state === 'loading' && <output>{labels.loading}</output>}
+    {state === 'error' && <output>{labels.methodologyUnavailable}</output>}
+    {state === 'unavailable' && !result && <output>{labels.methodologyUnavailable}</output>}
     {result?.status === 'unavailable' && <div className={styles.unavailable}>
       <p>{labels.metricUnavailable}</p><p>{labels.reasons[result.reason]}</p>
     </div>}
-    {result?.status === 'available' && result.entries.length === 0 && <p role="status">{labels.methodologyUnavailable}</p>}
+    {result?.status === 'available' && result.entries.length === 0 && <output>{labels.methodologyUnavailable}</output>}
     {result?.status === 'available' && result.entries.length > 0 && <div className={styles.factorList}>
-      {result.entries.map((entry, index) => <article className={styles.factor} key={`${entry.model}-${entry.version}-${index}`}
-        role="group" aria-labelledby={`analysis-methodology-${index}`}>
-        <h3 id={`analysis-methodology-${index}`}>{entry.model}</h3>
-        <dl>
-          <div><dt>{labels.model}</dt><dd>{entry.model}</dd></div>
-          <div><dt>{labels.version}</dt><dd>{entry.version}</dd></div>
-          <div><dt>{labels.modelDescription}</dt><dd>{entry.description}</dd></div>
-          <div><dt>{labels.snapshot}</dt><dd><code>{entry.snapshot}</code></dd></div>
-        </dl>
-      </article>)}
+      {result.entries.map((entry) => <MethodologyEntry key={`${entry.model}-${entry.version}-${entry.snapshot}`}
+        entry={entry} labels={labels} />)}
     </div>}
   </section>
+}
+
+function MethodologyEntry({ entry, labels }: Readonly<{
+  entry: AnalysisMethodology
+  labels: Labels
+}>) {
+  const headingId = useId()
+  return <fieldset className={styles.factor} aria-labelledby={headingId}>
+    <h3 id={headingId}>{entry.model}</h3>
+    <dl>
+      <div><dt>{labels.model}</dt><dd>{entry.model}</dd></div>
+      <div><dt>{labels.version}</dt><dd>{entry.version}</dd></div>
+      <div><dt>{labels.modelDescription}</dt><dd>{entry.description}</dd></div>
+      <div><dt>{labels.snapshot}</dt><dd><code>{entry.snapshot}</code></dd></div>
+    </dl>
+  </fieldset>
+}
+
+function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity') {
+  if (data) return 'available' as const
+  if (status === 'error' || status === 'unavailable') return status
+  return 'loading' as const
 }
 
 export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, contextContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
@@ -264,14 +302,14 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   return <>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
-      {status === 'loading' && <p role="status">{labels.loading}</p>}
-      {status === 'refreshing' && <p role="status">{labels.refreshing}</p>}
-      {status === 'empty' && <p role="status">{labels.empty}</p>}
-      {preserveEmpty && <p role="status">{labels.previousEmpty}</p>}
-      {status === 'unavailable' && <p role="status">{labels.unavailable}</p>}
-      {status === 'unavailable' && data && <p role="status">{labels.previousPreserved}</p>}
+      {status === 'loading' && <output>{labels.loading}</output>}
+      {status === 'refreshing' && <output>{labels.refreshing}</output>}
+      {status === 'empty' && <output>{labels.empty}</output>}
+      {preserveEmpty && <output>{labels.previousEmpty}</output>}
+      {status === 'unavailable' && <output>{labels.unavailable}</output>}
+      {status === 'unavailable' && data && <output>{labels.previousPreserved}</output>}
       {status === 'error' && <div role="alert"><p>{labels.error}</p><ActionButton onClick={onRetry}>{labels.retry}</ActionButton></div>}
-      {status === 'error' && data && <p role="status">{labels.previousPreserved}</p>}
+      {status === 'error' && data && <output>{labels.previousPreserved}</output>}
       {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
@@ -286,7 +324,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         {showData && data?.factor.status === 'available' && <FactorProvenance factors={data.factor.factors}
           formatDate={formatDate} labels={labels} />}
         {!invalidContext && !emptyResult && <MethodologySection result={data?.methodology ?? null}
-          state={data ? 'available' : status === 'error' || status === 'unavailable' ? status : 'loading'} labels={labels} />}
+          state={getMethodologyState(data, status)} labels={labels} />}
         {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
           totals={data ? { energy: data.energy, emissions: data.emissions } : null}
           locale={locale} formatDate={formatDate} labels={labels.composition} />}
