@@ -24,6 +24,12 @@ import {
 } from "../../integrations/carbon-factor.service";
 import { MonitoringCycleLock } from "./monitoring-cycle.lock";
 import { type StatusEvidence } from "./application-status-classifier";
+import { CarbonRegionEntity } from "../../database/entities/carbon-region.entity";
+import {
+  calculateObservationEnergy,
+  type EnergyObservationInput,
+} from "../calculations/energy-calculation";
+import { calculateCarbonEmission } from "../calculations/carbon-emission";
 
 interface CycleCounts {
   discoveredCount: number;
@@ -240,14 +246,10 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       metricsError = error;
     }
 
-    const carbonFactorAvailable = await this.captureCarbonFactor(
-      application,
-      cycleId,
-      signal,
-      processing,
-    );
     if (signal.aborted || this.isCancellation(metricsError)) return;
     if (metricsError) {
+      await this.captureCarbonFactor(application, cycleId, signal, processing);
+      if (signal.aborted) return;
       await this.recordMetricsFailure(
         application,
         metricsError,
@@ -257,10 +259,40 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       return;
     }
     if (!observation) return;
+    const intervalStart = new Date(
+      observation.receivedAt.getTime() -
+        observation.collectionIntervalSeconds * 1000,
+    );
+    let existing: Awaited<
+      ReturnType<CollectionsRepository["findByApplicationAndIntervalStart"]>
+    >;
+    try {
+      existing = await this.collections.findByApplicationAndIntervalStart(
+        application.id,
+        intervalStart,
+      );
+    } catch {
+      this.addPersistenceFailure(application.id, "metrics-persistence", processing);
+      this.logPersistenceFailure(application.id, cycleId, "find-metric-observation");
+      return;
+    }
+    let carbonFactor: CarbonRegionEntity | null = null;
+    if (existing?.calculationEvidence) {
+      processing.hasUsefulResult = true;
+    } else {
+      carbonFactor = await this.captureCarbonFactor(
+        application,
+        cycleId,
+        signal,
+        processing,
+      );
+    }
+    if (signal.aborted) return;
     await this.persistObservation(
       application,
       observation,
-      carbonFactorAvailable,
+      carbonFactor,
+      existing ?? null,
       cycleId,
       counts,
       processing,
@@ -272,12 +304,16 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     cycleId: string,
     signal: AbortSignal,
     processing: ApplicationProcessingState,
-  ): Promise<boolean> {
-    if (!application.regionCode) return false;
+  ): Promise<CarbonRegionEntity | null> {
+    if (!application.regionCode) return null;
+    let captured: CarbonRegionEntity;
     try {
-      await this.carbonFactors.capture(application.regionCode, signal);
+      captured = await this.carbonFactors.capture(
+        application.regionCode,
+        signal,
+      );
     } catch (error) {
-      if (signal.aborted || this.isCancellation(error)) return false;
+      if (signal.aborted || this.isCancellation(error)) return null;
       const persistenceFailure = error instanceof CarbonFactorPersistenceError;
       processing.failures.push({
         applicationId: application.id,
@@ -311,7 +347,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
           processing,
         );
       }
-      return false;
+      return null;
     }
 
     processing.hasUsefulResult = true;
@@ -331,7 +367,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         "incident-persistence",
         processing,
       );
-    return true;
+    return captured;
   }
 
   private async recordMetricsFailure(
@@ -387,7 +423,10 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
   private async persistObservation(
     application: ApplicationEntity,
     observation: Awaited<ReturnType<MetricsAggregatorAdapter["fetchMetrics"]>>,
-    carbonFactorAvailable: boolean,
+    carbonFactor: CarbonRegionEntity | null,
+    existing: Awaited<
+      ReturnType<CollectionsRepository["findByApplicationAndIntervalStart"]>
+    >,
     cycleId: string,
     counts: CycleCounts,
     processing: ApplicationProcessingState,
@@ -397,12 +436,9 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       const intervalStart = new Date(
         intervalEnd.getTime() - observation.collectionIntervalSeconds * 1000,
       );
-      const existing = await this.collections.findByApplicationAndIntervalStart(
-        application.id,
-        intervalStart,
-      );
-      if (!existing) {
-        await this.collections.append({
+      const collection =
+        existing ??
+        (await this.collections.append({
           applicationId: application.id,
           intervalStart,
           intervalEnd,
@@ -422,8 +458,59 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
           },
           state: ApplicationState.AVAILABLE,
           reason: null,
-        });
-        counts.persistedCount++;
+        }));
+      if (!existing) counts.persistedCount++;
+
+      if (!collection.calculationEvidence) {
+        const energyInput: EnergyObservationInput = {
+          id: collection.id,
+          applicationId: collection.applicationId,
+          intervalStart: collection.intervalStart.toISOString(),
+          intervalEnd: collection.intervalEnd.toISOString(),
+          collectedAt: collection.collectedAt.toISOString(),
+          metrics: collection.metrics,
+        };
+        const energy = calculateObservationEnergy(energyInput);
+        const factorSnapshot = carbonFactor
+          ? {
+              id: carbonFactor.id,
+              version: carbonFactor.version,
+              contractVersion: carbonFactor.contractVersion,
+              regionCode: carbonFactor.code,
+              country: carbonFactor.country,
+              region: carbonFactor.region,
+              city: carbonFactor.city,
+              intensity: Number(carbonFactor.intensity),
+              unit: carbonFactor.unit,
+              queriedAt: carbonFactor.queriedAt?.toISOString() ?? null,
+              source: carbonFactor.source,
+              validFrom: carbonFactor.validFrom?.toISOString() ?? null,
+              validUntil: carbonFactor.validUntil?.toISOString() ?? null,
+            }
+          : null;
+        const carbon = calculateCarbonEmission(
+          { energyKwh: energy.energyKwh },
+          factorSnapshot,
+        );
+        const durationIsValid =
+          energy.durationSeconds !== null && energy.durationSeconds > 0;
+        const bundle = {
+          energyKwh: energy.energyKwh?.toFixed(8) ?? null,
+          carbonGrams: carbon.emissionsGramsCo2e?.toFixed(8) ?? null,
+          carbonFactor: factorSnapshot?.intensity.toFixed(8) ?? null,
+          calculationVersion: energy.modelVersion,
+          carbonRegionVersion: factorSnapshot?.version ?? null,
+          carbonRegionId: factorSnapshot?.id ?? null,
+          calculationConfigVersion: null,
+          calculationConfigId: null,
+          coverage: durationIsValid
+            ? energy.energyKwh === null
+              ? "0.0000"
+              : "1.0000"
+            : null,
+          calculationEvidence: { version: 1 as const, energy, carbon },
+        };
+        await this.collections.persistEnvironmentalBundle(collection.id, bundle);
       }
       processing.hasUsefulResult = true;
       await this.statuses.record(
@@ -431,8 +518,12 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         {
           kind: "metrics",
           result: "valid",
-          observedAt: observation.receivedAt,
-          carbonFactorAvailable,
+          observedAt: collection.collectedAt,
+          carbonFactorAvailable:
+            collection.calculationEvidence?.carbon.factorSnapshot !== null &&
+            collection.calculationEvidence?.carbon.factorSnapshot !== undefined
+              ? true
+              : carbonFactor !== null,
         },
         cycleId,
       );

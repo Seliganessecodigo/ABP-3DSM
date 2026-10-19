@@ -10,6 +10,7 @@ import { CompleteMonitoringPersistence1791250000000 } from '../../database/migra
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
+import { CollectionCalculationEvidence1791380000000 } from '../../database/migrations/1791380000000-CollectionCalculationEvidence'
 import { DiscoveryService } from './discovery.service'
 import { MetadataSyncService } from './metadata-sync.service'
 
@@ -61,6 +62,7 @@ describeDatabase('descoberta de aplicações com HTTP e PostgreSQL', () => {
         AddApplicationLocation1791260000000,
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
+        CollectionCalculationEvidence1791380000000,
       ],
     })
     await database.initialize()

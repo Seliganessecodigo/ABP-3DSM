@@ -26,6 +26,7 @@ describe("MonitoringCycleRunner", () => {
     collections: {
       findByApplicationAndIntervalStart: jest.Mock;
       append: jest.Mock;
+      persistEnvironmentalBundle: jest.Mock;
     };
     statuses: { record: jest.Mock };
     incidents: { recordFailure: jest.Mock; recordSuccess: jest.Mock };
@@ -55,7 +56,12 @@ describe("MonitoringCycleRunner", () => {
       },
       collections: {
         findByApplicationAndIntervalStart: jest.fn().mockResolvedValue(null),
-        append: jest.fn().mockResolvedValue({}),
+        append: jest.fn().mockImplementation(async (collection) => ({
+          id: "collection-1",
+          ...collection,
+          calculationEvidence: null,
+        })),
+        persistEnvironmentalBundle: jest.fn().mockResolvedValue({}),
       },
       statuses: { record: jest.fn().mockResolvedValue({}) },
       incidents: {
@@ -145,7 +151,27 @@ describe("MonitoringCycleRunner", () => {
 
   it("does not duplicate a collection with an existing application interval", async () => {
     dependencies.collections.findByApplicationAndIntervalStart.mockResolvedValue(
-      { id: "existing" },
+      {
+        id: "existing",
+        applicationId: "app-1",
+        intervalStart: new Date("2026-10-14T12:00:00.000Z"),
+        intervalEnd: receivedAt,
+        collectedAt: receivedAt,
+        metrics: {
+          cpuPercent: 0,
+          memoryGb: 2,
+          diskGb: 3,
+          networkGb: 4,
+          collectionIntervalSeconds: 60,
+        },
+        metricUnits: {
+          cpuPercent: "%",
+          memoryGb: "GB",
+          diskGb: "GB",
+          networkGb: "GB",
+        },
+        calculationEvidence: null,
+      },
     );
     await runner.run();
     expect(dependencies.collections.append).not.toHaveBeenCalled();

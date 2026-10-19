@@ -14,6 +14,18 @@ Cobertura é a duração calculável dividida pela duração do período solicit
 
 Estas funções não gravam resultados, calculam CO₂e nem expõem novas rotas. A integração no ciclo de coleta e as consultas ambientais são entregas independentes. Para verificar a regra, execute em `backend/`: `npm test -- --runInBand --runTestsByPath src/modules/calculations/energy-calculation.spec.ts src/modules/calculations/energy-period.spec.ts`. A cobertura é gerada com `npm run test:cov -- --runInBand`.
 
+## Resultados ambientais por coleta
+
+O ciclo de monitoramento calcula energia e CO₂e a partir da observação persistida e do snapshot de fator efetivamente capturado, reutilizando as funções puras de cálculo. A migration `CollectionCalculationEvidence1791380000000` acrescenta `collections.calculationEvidence` como JSONB nullable: registros anteriores continuam sem evidência, sem recálculo ou preenchimento automático com valores atuais.
+
+O envelope de evidência tem `version: 1`, `energy` e `carbon`. Ele preserva o modelo e sua versão, parâmetros, contribuições de potência, razões de indisponibilidade e o snapshot do fator com suas versões e horário de consulta. As referências de configuração cadastrada permanecem nulas quando o modelo utilizado possui apenas parâmetros versionados embutidos; nenhum cadastro fictício é criado. O campo operacional `reason` não é reutilizado para razões ambientais.
+
+`CollectionsRepository.persistEnvironmentalBundle(collectionId, bundle)` bloqueia a coleta por ID e grava os campos ambientais e a evidência numa única transação. Uma proposta equivalente é no-op; uma proposta divergente gera `EnvironmentalBundleConflictError` e preserva o resultado original. A evidência versionada é obrigatória nessa operação. Se a gravação falhar, a observação operacional permanece e pode ser finalizada em nova tentativa. Uma coleta já finalizada não recaptura o fator nem recalcula o histórico ao repetir o ciclo. Cancelar o ciclo durante a consulta do fator não grava um resultado de fator indisponível; o ciclo mantém o motivo operacional `CYCLE_CANCELLED`.
+
+Energia, emissão em gramas e fator são persistidos com oito casas decimais; cobertura é uma fração entre zero e um, com quatro casas. Os cálculos não arredondam valores intermediários. A quantização na persistência pode representar valores muito pequenos como zero. Para uma observação inteira calculável, cobertura é um, inclusive quando o consumo medido é zero; dados inválidos não viram consumo zero. Fator ausente mantém energia calculável e deixa CO₂e indisponível com razão tipada.
+
+Essa gravação não acrescenta endpoints nem altera a representação HTTP das evidências de métricas. As consultas ambientais e de metodologia são contratos próprios dos consumidores.
+
 ## Catálogo de aplicações
 
 As rotas públicas `GET /applications` e `GET /applications/{id}` leem somente o catálogo persistido. A primeira retorna uma coleção (vazia quando não há aplicações); a segunda retorna 404 para ID inexistente e 400 para ID vazio. Falha de consulta retorna 503 com `CATALOG_UNAVAILABLE`.

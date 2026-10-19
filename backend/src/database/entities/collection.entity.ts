@@ -12,6 +12,14 @@ import { ApplicationEntity } from './application.entity'
 import { ApplicationState } from './application-state'
 import { CarbonRegionEntity } from './carbon-region.entity'
 import { CalculationConfigEntity } from './calculation-config.entity'
+import type { EnergyCalculationResult } from '../../modules/calculations/energy-calculation'
+import type { CarbonEmissionResult } from '../../modules/calculations/carbon-emission'
+
+export interface CollectionCalculationEvidenceV1 {
+  readonly version: 1
+  readonly energy: EnergyCalculationResult
+  readonly carbon: CarbonEmissionResult
+}
 
 @Entity({ name: 'collections' })
 @Unique('uq_collections_application_interval_start', [
@@ -94,6 +102,9 @@ export class CollectionEntity {
 
   @Column({ type: 'numeric', precision: 7, scale: 4, nullable: true })
   coverage!: string | null
+
+  @Column({ type: 'jsonb', nullable: true })
+  calculationEvidence!: CollectionCalculationEvidenceV1 | null
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date
