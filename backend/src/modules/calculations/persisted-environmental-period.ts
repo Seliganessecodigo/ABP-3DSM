@@ -120,6 +120,9 @@ export interface PersistedEnvironmentalSegmentProjection {
   readonly emissions: EnvironmentalMeasure
   readonly methodology: EnvironmentalContribution['methodology']
   readonly factorSnapshot: Readonly<CarbonFactorSnapshotInput> | null
+  readonly energyOriginalValue: number | null
+  readonly emissionsOriginalValue: number | null
+  readonly durationRatio: number
 }
 
 interface ResolvedSegment extends PersistedEnvironmentalSegment {
@@ -304,6 +307,12 @@ function numericValue(value: string | null, durationRatio: number): number | nul
   return Number.isFinite(countedValue) ? countedValue : null
 }
 
+function persistedValue(value: string | null): number | null {
+  if (value === null) return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 function uniqueReasons(reasons: readonly EnvironmentalReason[]): EnvironmentalReason[] {
   const unique = new Map<string, EnvironmentalReason>()
   for (const reason of reasons) unique.set(`${reason.code}:${reason.metric ?? ''}`, reason)
@@ -341,6 +350,9 @@ function projectObservation(
       parameters: observation.calculationEvidence.energy.modelParameters,
     } : null,
     factorSnapshot: observation.calculationEvidence?.carbon.factorSnapshot ?? null,
+    energyOriginalValue: persistedValue(observation.energyKwh),
+    emissionsOriginalValue: persistedValue(observation.carbonGrams),
+    durationRatio: ratio,
   }
 }
 

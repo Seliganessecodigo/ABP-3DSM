@@ -94,6 +94,38 @@ export class CollectionsRepository {
     return rows
   }
 
+  findEnvironmentalHistoryByCollectedAt(
+    applicationId: string,
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<PersistedEnvironmentalInterval[]> {
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<EnvironmentalCollectionRow[]>(
+      `WITH predecessor AS (
+        SELECT id, "intervalStart", "intervalEnd", "collectedAt", "energyKwh", "carbonGrams", "calculationEvidence"
+        FROM collections
+        WHERE "applicationId" = $1 AND "collectedAt" < $2::timestamptz
+        ORDER BY "collectedAt" DESC, id DESC
+        LIMIT 1
+      ), period AS (
+        SELECT id, "intervalStart", "intervalEnd", "collectedAt", "energyKwh", "carbonGrams", "calculationEvidence"
+        FROM collections
+        WHERE "applicationId" = $1
+          AND "collectedAt" >= $2::timestamptz
+          AND "collectedAt" < $3::timestamptz
+      )
+      SELECT id,
+        to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
+        to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
+        to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+        "energyKwh", "carbonGrams", "calculationEvidence"
+      FROM (SELECT * FROM predecessor UNION ALL SELECT * FROM period) history
+      ORDER BY "collectedAt" ASC, id ASC`,
+      [applicationId, formatUtcTimestamp(startBound), formatUtcTimestamp(endBound)],
+    )
+  }
+
   findLatestByApplication(
     applicationId: string,
   ): Promise<CollectionEntity | null> {
