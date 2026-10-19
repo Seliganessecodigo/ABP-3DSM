@@ -102,7 +102,7 @@ test('mostra tentativa ambiental recente e conserva a última consulta bem-suced
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=refresh-error')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const freshness = page.getByRole('region', { name: 'Atualização ambiental', exact: true })
+  const freshness = page.getByRole('region', { name: 'Qualidade da coleta', exact: true })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/42\s*kWh/)
   const timestamps = () => freshness.getByRole('definition').allTextContents()
   const [firstAttempt, lastSuccess] = await timestamps()

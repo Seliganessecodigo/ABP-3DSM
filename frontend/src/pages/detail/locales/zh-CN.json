@@ -120,7 +120,7 @@
   "analysisCompositionUnavailable": "环境构成不可用",
   "analysisEmpty": "此周期内没有环境数据。",
   "analysisPreviousEmpty": "上次确认的结果在此周期内没有环境数据。",
-  "analysisFreshnessHeading": "环境数据更新",
+  "analysisFreshnessHeading": "采集质量",
   "analysisGranularityHeading": "粒度",
   "analysisGranularityUnavailable": "此应用程序不提供粒度选项。",
   "analysisGranularityUnsupported": "所选粒度不受此数据集支持。",

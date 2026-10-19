@@ -35,11 +35,12 @@ function sortPresentation(query: OperationalEvidenceQuery['sort'], column: Opera
 }
 
 export function OperationalEvidence({ evidence, loading, notFound, selected, error, refreshing, calculability,
-  labels, formatDate, formatNumber, onRefresh, locale, query, onQueryChange }: Readonly<{
+  labels, formatDate, formatNumber, onRefresh, locale, query, onQueryChange, compact = false }: Readonly<{
   evidence: CollectionEvidence | null; loading: boolean; notFound: boolean; selected: boolean; error: boolean
   refreshing: boolean; calculability: string; labels: Labels; formatDate: (value: string) => string
   formatNumber: (value: number) => string; onRefresh: () => void; locale: string
   query: OperationalEvidenceQuery; onQueryChange: (query: OperationalEvidenceQuery) => void
+  compact?: boolean
 }>) {
   const metricKeys: MetricKey[] = ['cpu', 'memory', 'disk', 'network']
   const statusLabel = (key: MetricKey) => {
@@ -71,7 +72,7 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
   })
   const metricSort = sortPresentation(query.sort, 'metric')
   const statusSort = sortPresentation(query.sort, 'status')
-  return <section className={styles.card} aria-label={labels.heading}>
+  return <section className={`${styles.card}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
     <p>{labels.calculability}: {calculability}</p>
     <ActionButton onClick={onRefresh} disabled={refreshing}>{labels.refresh}</ActionButton>

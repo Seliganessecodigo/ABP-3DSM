@@ -37,16 +37,22 @@ function readingUnavailableLabel(status: AnalysisReading['status'], labels: Anal
   return status === 'not-calculable' ? labels.notCalculable : labels.metricUnavailable
 }
 
-export function AnalysisComposition({ result, totals, locale, formatDate, labels }: Readonly<{
+export function AnalysisComposition({ result, totals, locale, formatDate, labels, compact = false }: Readonly<{
   result: AnalysisCompositionResult
   totals: Readonly<{ energy: AnalysisReading; emissions: AnalysisReading }> | null
   locale: string
   formatDate: (value: string) => string
   labels: AnalysisCompositionLabels
+  compact?: boolean
 }>) {
   const interval = (from: string, to: string) => `${formatDate(from)} – ${formatDate(to)}`
 
-  return <section className={styles.section} aria-label={labels.heading}>
+  const reasonLabel = (reason: string) => Object.hasOwn(labels.reasons, reason)
+    ? labels.reasons[reason as AnalysisPresentationReason]
+    : reason
+  const compactLayout = compact && result.status !== 'available'
+
+  return <section className={`${styles.section}${compactLayout ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
 {totals !== null && <section className={styles.totals} aria-label={labels.totalsHeading}>
       <h3>{labels.totalsHeading}</h3>
@@ -63,8 +69,7 @@ export function AnalysisComposition({ result, totals, locale, formatDate, labels
     </section>}
     {result.status === 'empty' && <output className={styles.state}>{labels.empty}</output>}
     {result.status === 'unavailable' && <output className={styles.state}>
-      <span>{labels.unavailable}</span>
-      <span>{result.reason}</span>
+      <span>{reasonLabel(result.reason) === labels.unavailable ? labels.unavailable : `${labels.unavailable}: ${reasonLabel(result.reason)}`}</span>
     </output>}
     {result.status === 'available' && <>
       {result.contributions.length === 0 && result.exclusions.length === 0

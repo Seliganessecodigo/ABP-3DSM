@@ -120,7 +120,7 @@
   "analysisCompositionUnavailable": "環境内訳を利用できません",
   "analysisEmpty": "この期間の環境データはありません。",
   "analysisPreviousEmpty": "最後に確認された結果では、この期間の環境データはありませんでした。",
-  "analysisFreshnessHeading": "環境データの更新",
+  "analysisFreshnessHeading": "収集品質",
   "analysisGranularityHeading": "粒度",
   "analysisGranularityUnavailable": "このアプリケーションでは粒度を利用できません。",
   "analysisGranularityUnsupported": "選択した粒度はこのデータセットでサポートされていません。",
