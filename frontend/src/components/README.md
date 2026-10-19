@@ -1,8 +1,1 @@
-# components
-
-Componentes de interface reutilizáveis entre páginas e funcionalidades, sem concentrar regras de domínio.
-
-`AppShell` compõe a navegação compartilhada. A sidebar permanece expandida ou recolhida no desktop enquanto a aplicação está montada; em telas de até 640 px, a navegação abre como drawer e mantém idioma e destinos disponíveis no próprio painel. Novos destinos só devem ser habilitados quando suas rotas estiverem implementadas.
-
-`ThemeSelector` oferece um único interruptor “Modo escuro”, consumindo
-`app/useTheme.ts`. Preserva nomes acessíveis e acesso na navegação recolhida/móvel.
+# components\r\n\r\nComponentes de interface reutilizáveis entre páginas e funcionalidades, sem concentrar regras de domínio.\r\n\r\n`AppShell` compõe a navegação compartilhada. A sidebar permanece expandida ou recolhida no desktop enquanto a aplicação está montada; em telas de até 640 px, a navegação abre como drawer e mantém idioma e destinos disponíveis no próprio painel. Novos destinos só devem ser habilitados quando suas rotas estiverem implementadas.\r\n\r\n`ThemeSelector` oferece um único interruptor “Modo escuro”, consumindo\r\n`app/useTheme.ts`. Preserva nomes acessíveis e acesso na navegação recolhida/móvel.\r\n\n`ActionButton` padroniza ações primárias e secundárias, mantendo botões para ações e âncoras para navegação. `RequestFeedback` fornece os invólucros de carregamento, vazio e erro; a página conserva o texto, o nível do título e as ações.\n\n```tsx\n<RequestFeedback state="error">\n  <h2>{t('errorTitle')}</h2>\n  <p>{t('errorHint')}</p>\n  <ActionButton onClick={retry} disabled={refreshing}>{t('retry')}</ActionButton>\n</RequestFeedback>\n```\n

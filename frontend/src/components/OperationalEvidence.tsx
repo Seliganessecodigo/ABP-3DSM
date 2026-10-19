@@ -1,5 +1,6 @@
 import type { CollectionEvidence } from '../features/applications/api.ts'
 import styles from './OperationalEvidence.module.css'
+import { ActionButton } from './ActionButton.tsx'
 
 type Labels = {
   heading: string; calculability: string; refresh: string; retry: string; loading: string; error: string; empty: string
@@ -18,9 +19,9 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
   return <section className={styles.card} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
     <p>{labels.calculability}: {calculability}</p>
-    <button className="button" onClick={onRefresh} disabled={refreshing}>{labels.refresh}</button>
+    <ActionButton onClick={onRefresh} disabled={refreshing}>{labels.refresh}</ActionButton>
     {loading && !evidence && <p role="status">{labels.loading}</p>}
-    {error && !evidence && <div role="alert"><p>{labels.error}</p><button className="button" onClick={onRefresh}>{labels.retry}</button></div>}
+    {error && !evidence && <div role="alert"><p>{labels.error}</p><ActionButton onClick={onRefresh}>{labels.retry}</ActionButton></div>}
     {notFound && !evidence && <p role="status">{selected ? labels.selectionUnavailable : labels.empty}</p>}
     {evidence && <>
       {error && <p role="alert">{labels.error}</p>}
@@ -39,7 +40,7 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
         })}</tbody>
       </table>
       <p className={styles.note}>{labels.zeroNote}</p>
-      {error && <button className="button" onClick={onRefresh}>{labels.retry}</button>}
+      {error && <ActionButton onClick={onRefresh}>{labels.retry}</ActionButton>}
     </>}
   </section>
 }
