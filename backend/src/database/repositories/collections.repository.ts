@@ -4,6 +4,8 @@ import { QueryDeepPartialEntity, Repository } from 'typeorm'
 import { CollectionEntity } from '../entities/collection.entity'
 import type { CollectionCalculationEvidenceV1 } from '../entities/collection.entity'
 import { ApplicationState } from '../entities/application-state'
+import type { PersistedEnvironmentalInterval } from '../../modules/calculations/persisted-environmental-period'
+import { formatUtcTimestamp } from '../../modules/calculations/persisted-environmental-period'
 
 @Injectable()
 export class CollectionsRepository {
@@ -66,6 +68,32 @@ export class CollectionsRepository {
     })
   }
 
+  async findEnvironmentalByApplicationAndPeriod(
+    applicationId: string,
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<PersistedEnvironmentalInterval[]> {
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    const rows = await this.repository.manager.query<EnvironmentalCollectionRow[]>(
+      `SELECT
+        id,
+        to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
+        to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
+        to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+        "energyKwh",
+        "carbonGrams",
+        "calculationEvidence"
+      FROM collections
+      WHERE "applicationId" = $1
+        AND "intervalStart" < $3::timestamptz
+        AND "intervalEnd" > $2::timestamptz
+      ORDER BY "intervalStart" ASC, id ASC`,
+      [applicationId, formatUtcTimestamp(startBound), formatUtcTimestamp(endBound)],
+    )
+    return rows
+  }
+
   findLatestByApplication(
     applicationId: string,
   ): Promise<CollectionEntity | null> {
@@ -83,6 +111,30 @@ export class CollectionsRepository {
       where: { applicationId, id, state: ApplicationState.AVAILABLE },
     })
   }
+}
+
+function floorToMicrosecond(nanoseconds: bigint): bigint {
+  const remainder = nanoseconds % 1_000n
+  return remainder < 0n
+    ? nanoseconds - remainder - 1_000n
+    : nanoseconds - remainder
+}
+
+function ceilToMicrosecond(nanoseconds: bigint): bigint {
+  const remainder = nanoseconds % 1_000n
+  return remainder > 0n
+    ? nanoseconds - remainder + 1_000n
+    : nanoseconds - remainder
+}
+
+interface EnvironmentalCollectionRow {
+  id: string
+  intervalStart: string
+  intervalEnd: string
+  collectedAt: string
+  energyKwh: string | null
+  carbonGrams: string | null
+  calculationEvidence: PersistedEnvironmentalInterval['calculationEvidence']
 }
 
 export type EnvironmentalBundle = Omit<

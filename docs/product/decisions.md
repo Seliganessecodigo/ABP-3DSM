@@ -12,6 +12,8 @@ Este registro mantém escolhas de produto visíveis sem transformar lacunas em f
 | D04 | RNFs são transversais; EP00 agrupa fundações e qualidade. | Tasks técnicas concluídas não dispensam qualidade nas próximas entregas. |
 | D05 | Simulação regional mantém energia. | Alterar fator no cenário não altera medições nem resultados oficiais. US-15. |
 | D06 | Falhas de monitoramento têm incidente por identidade e recuperação após três observações válidas consecutivas. | Timeout total de 30 s por chamada externa, até três tentativas HTTP no total com retry limitado a falhas temporárias; ciclos não se sobrepõem e preservam observações válidas. #243. |
+| D07 | Consultas com fuso explícito normalizado para UTC, [from,to), buckets UTC por hora/dia/mês/ano, âncora única de janela móvel e rejeição acima de 10.000 pontos. | #174/#235. |
+| D08 | Séries usam resultados salvos rateados por sobreposição, sem recálculo histórico; conflito por coleta mais recente/ID lexical crescente; preservar lacunas e snapshots. | #164/#174/#235. |
 
 D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regras estão registradas no backlog e nos contratos versionados.
 
@@ -19,8 +21,6 @@ D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regra
 
 | Tema | O que falta resolver | Entregas afetadas |
 | --- | --- | --- |
-| Energia | Fórmula, coeficientes, unidades de conversão e pressupostos. | #49/#53/#58 |
-| Tempo e cobertura | Bordas do período, timezone, granularidade, arredondamento e resultados parciais. | #49/#156/#174/#175/#178 |
 | Prévia de recálculo | Permissão, limite de volume/período e política de escolha do fator. | #91/#263/#264 |
 | Acesso e contas | Matriz de papéis, bootstrap, sessão e políticas de senha/recuperação. | #90/#91/#158/#160/#245 |
 | Fontes e operação | Cotas e limites de concorrência ainda precisam ser confirmados com os responsáveis pelas APIs. A política de timeout/retry/atraso do #243 está aprovada. | #155/#243 |
