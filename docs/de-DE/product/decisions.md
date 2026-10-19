@@ -12,6 +12,8 @@ Offene Punkte werden nicht stillschweigend zu freigegebenen Funktionen. PDF v1.1
 | D04 | RNFs übergreifend, Grundlagen/Qualität in EP00. | Abgeschlossene Tasks beenden keine Qualitätspflicht. |
 | D05 | Regionale Simulation bei gleicher Energie. | Szenario verändert keine Messungen/offiziellen Ergebnisse. US-15. |
 | D06 | Monitoringfehler haben je Identität einen Vorfall und gelten nach drei aufeinanderfolgenden gültigen Beobachtungen als behoben. | Insgesamt 30 s Frist pro externem Aufruf, höchstens drei HTTP-Versuche einschließlich des ersten; Wiederholungen nur bei vorübergehenden Fehlern. Zyklen überlappen nicht, gültige Beobachtungen bleiben erhalten. #243. |
+| D07 | Abfragen mit Zeitzone nach UTC normalisiert, [from,to), UTC-Buckets je Stunde/Tag/Monat/Jahr, ein Fensteranker und Ablehnung über 10.000 Punkte. | #174/#235. |
+| D08 | Serien verwenden gespeicherte, nach Überlappung aufgeteilte Ergebnisse ohne Neuberechnung; Konflikte nach neuester Sammlung/ID aufsteigend; Lücken und Snapshots bewahren. | #164/#174/#235. |
 
 D01 und EP00 am 15.10.2026 bestätigt; andere Regeln in Backlog/versionierten Verträgen.
 
@@ -19,8 +21,6 @@ D01 und EP00 am 15.10.2026 bestätigt; andere Regeln in Backlog/versionierten Ve
 
 | Thema | Klärung | Lieferungen |
 | --- | --- | --- |
-| Energie | Formel, Koeffizienten, Umrechnung, Annahmen. | #49/#53/#58 |
-| Zeit/Abdeckung | Grenzen, Zeitzone, Granularität, Rundung, Teilergebnisse. | #49/#156/#174/#175/#178 |
 | Vorschau | Rechte, Volumen-/Zeitraumgrenzen, Faktorwahl. | #91/#263/#264 |
 | Zugriff/Konten | Rollen, Bootstrap, Sitzungen, Passwort/Wiederherstellung. | #90/#91/#158/#160/#245 |
 | Quellen/Betrieb | Quoten und Parallelitätsgrenzen mit den API-Verantwortlichen bestätigen. Die Timeout-/Retry-/Verzögerungsrichtlinie aus #243 ist freigegeben. | #155/#243 |

@@ -12,6 +12,8 @@ Ce registre rend les choix visibles sans approuver une fonctionnalité par omiss
 | D04 | RNFs transversaux, fondations/qualité dans EP00. | Tâches achevées ne dispensent pas de qualité future. |
 | D05 | Simulation régionale à énergie constante. | Scénario sans modification des mesures/résultats officiels. US-15. |
 | D06 | Les échecs de surveillance ont un incident par identité et récupèrent après trois observations valides consécutives. | Délai total de 30 s par appel externe, trois tentatives HTTP maximum, appel initial inclus, retries limités aux erreurs temporaires ; les cycles ne se chevauchent pas et les observations valides sont conservées. #243. |
+| D07 | Requêtes à fuseau explicite normalisées en UTC, [from,to), buckets UTC horaires/journaliers/mensuels/annuels, ancre unique et rejet au-delà de 10 000 points. | #174/#235. |
+| D08 | Séries sur résultats enregistrés répartis par chevauchement, sans recalcul historique ; conflits par collecte récente/ID lexical croissant ; lacunes et snapshots préservés. | #164/#174/#235. |
 
 D01 et EP00 confirmés le 15/10/2026 ; autres règles dans backlog et contrats versionnés.
 
@@ -19,8 +21,6 @@ D01 et EP00 confirmés le 15/10/2026 ; autres règles dans backlog et contrats v
 
 | Sujet | À résoudre | Livraisons |
 | --- | --- | --- |
-| Énergie | Formule, coefficients, conversions, hypothèses. | #49/#53/#58 |
-| Temps/couverture | Bornes, fuseau, granularité, arrondi, résultats partiels. | #49/#156/#174/#175/#178 |
 | Recalcul | Permissions, limites volume/période, choix du facteur. | #91/#263/#264 |
 | Accès/comptes | Rôles, bootstrap, sessions, mots de passe/récupération. | #90/#91/#158/#160/#245 |
 | Sources/exploitation | Confirmer quotas et limites de concurrence avec les responsables des API. La politique timeout/retry/retards de #243 est approuvée. | #155/#243 |
