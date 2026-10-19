@@ -65,6 +65,37 @@ export interface PersistedEnvironmentalPeriodResult {
   readonly exclusions: readonly EnvironmentalExclusion[]
 }
 
+export interface EnvironmentalMethodologyProvenance {
+  readonly key: string
+  readonly version: string
+  readonly parameters: Readonly<Record<string, number>>
+}
+
+export interface EnvironmentalFactorProvenance {
+  readonly contractVersion: string | null
+  readonly regionCode: string | null
+  readonly country: string | null
+  readonly region: string | null
+  readonly city: string | null
+  readonly intensity: number | null
+  readonly unit: string | null
+  readonly version: string | null
+  readonly source: string | null
+  readonly validFrom: string | null
+  readonly validUntil: string | null
+  readonly queriedAt: { readonly from: string | null; readonly to: string | null }
+}
+
+export interface EnvironmentalProvenance {
+  readonly methodologies: readonly EnvironmentalMethodologyProvenance[]
+  readonly factors: readonly EnvironmentalFactorProvenance[]
+  readonly reasons: readonly EnvironmentalReason[]
+}
+
+export type PersistedEnvironmentalSummary = Omit<PersistedEnvironmentalPeriodResult, 'contributions' | 'exclusions'> & {
+  readonly provenance: EnvironmentalProvenance
+}
+
 interface ClippedInterval {
   readonly observation: PersistedEnvironmentalInterval
   readonly originalStart: bigint
@@ -100,6 +131,16 @@ interface ResolvedSegment extends PersistedEnvironmentalSegment {
   readonly winner: ClippedInterval | null
 }
 
+interface EnvironmentalProjectionWindow {
+  readonly from: string
+  readonly to: string
+  readonly start: bigint
+  readonly end: bigint
+  readonly originalStart: bigint
+  readonly originalEnd: bigint
+  readonly collectedAt: string
+}
+
 interface AggregateTotals {
   energyTotal: number
   emissionsTotal: number
@@ -109,6 +150,33 @@ interface AggregateTotals {
   readonly exclusions: EnvironmentalExclusion[]
   readonly energyReasons: EnvironmentalReason[]
   readonly emissionsReasons: EnvironmentalReason[]
+}
+
+interface FactorSummary {
+  readonly factor: Readonly<CarbonFactorSnapshotInput>
+  queriedFrom: bigint | null
+  queriedTo: bigint | null
+}
+
+interface SummaryTotals {
+  energyTotal: number
+  emissionsTotal: number
+  energyCovered: bigint
+  emissionsCovered: bigint
+  readonly energyReasons: EnvironmentalReason[]
+  readonly emissionsReasons: EnvironmentalReason[]
+  readonly provenanceReasons: EnvironmentalReason[]
+  readonly methodologies: Map<string, EnvironmentalMethodologyProvenance>
+  readonly factors: Map<string, FactorSummary>
+}
+
+interface EnvironmentalPeriodMeasures {
+  readonly energyTotal: number
+  readonly emissionsTotal: number
+  readonly energyCovered: bigint
+  readonly emissionsCovered: bigint
+  readonly energyReasons: readonly EnvironmentalReason[]
+  readonly emissionsReasons: readonly EnvironmentalReason[]
 }
 
 export function formatUtcTimestamp(nanoseconds: bigint): string {
@@ -258,15 +326,9 @@ function missingReasons(reasons: readonly EnvironmentalReason[], metric: 'energy
 
 function projectObservation(
   observation: PersistedEnvironmentalInterval,
-  from: string,
-  to: string,
-  start: bigint,
-  end: bigint,
-  originalStart: bigint,
-  originalEnd: bigint,
-  collectedAt: string,
+  window: EnvironmentalProjectionWindow,
 ): PersistedEnvironmentalSegmentProjection {
-  const ratio = Number(end - start) / Number(originalEnd - originalStart)
+  const ratio = Number(window.end - window.start) / Number(window.originalEnd - window.originalStart)
   const energyValue = numericValue(observation.energyKwh, ratio)
   const emissionsValue = numericValue(observation.carbonGrams, ratio)
   const energyReasons = energyValue === null
@@ -276,10 +338,10 @@ function projectObservation(
     ? missingReasons(observation.calculationEvidence?.carbon.reasons ?? [], 'emissions')
     : []
   return {
-    interval: { from, to },
+    interval: { from: window.from, to: window.to },
     collectionId: observation.id,
-    originalInterval: { from: formatUtcTimestamp(originalStart), to: formatUtcTimestamp(originalEnd) },
-    collectedAt,
+    originalInterval: { from: formatUtcTimestamp(window.originalStart), to: formatUtcTimestamp(window.originalEnd) },
+    collectedAt: window.collectedAt,
     energy: { value: energyValue, unit: 'kWh', reasons: energyReasons },
     emissions: { value: emissionsValue, unit: 'gCO2e', reasons: emissionsReasons },
     methodology: observation.calculationEvidence ? {
@@ -311,13 +373,15 @@ export function projectPersistedEnvironmentalInterval(
   if (start < originalStart || end > originalEnd) throw new Error('INVALID_ANALYSIS_SEGMENT')
   return projectObservation(
     observation,
-    formatUtcTimestamp(start),
-    formatUtcTimestamp(end),
-    start,
-    end,
-    originalStart,
-    originalEnd,
-    formatUtcTimestamp(collectedAt),
+    {
+      from: formatUtcTimestamp(start),
+      to: formatUtcTimestamp(end),
+      start,
+      end,
+      originalStart,
+      originalEnd,
+      collectedAt: formatUtcTimestamp(collectedAt),
+    },
   )
 }
 
@@ -343,6 +407,147 @@ function createTotals(): AggregateTotals {
     exclusions: [],
     energyReasons: [],
     emissionsReasons: [],
+  }
+}
+
+function createSummaryTotals(): SummaryTotals {
+  return {
+    energyTotal: 0,
+    emissionsTotal: 0,
+    energyCovered: 0n,
+    emissionsCovered: 0n,
+    energyReasons: [],
+    emissionsReasons: [],
+    provenanceReasons: [],
+    methodologies: new Map(),
+    factors: new Map(),
+  }
+}
+
+function methodologyIdentity(methodology: EnvironmentalMethodologyProvenance): string {
+  const parameters = Object.entries(methodology.parameters).sort(([left], [right]) => left.localeCompare(right))
+  return JSON.stringify([methodology.key, methodology.version, parameters])
+}
+
+function factorIdentity(factor: Readonly<CarbonFactorSnapshotInput>): string {
+  return JSON.stringify([
+    factor.regionCode,
+    factor.country,
+    factor.region,
+    factor.city,
+    factor.intensity,
+    factor.unit,
+    factor.version,
+    factor.contractVersion,
+    factor.source,
+    factor.validFrom,
+    factor.validUntil,
+  ])
+}
+
+function addSummaryMethodology(projection: PersistedEnvironmentalSegmentProjection, totals: SummaryTotals): void {
+  if (projection.energy.value === null) return
+  const methodology = projection.methodology
+  if (methodology === null) {
+    totals.provenanceReasons.push({ code: 'METHODOLOGY_METADATA_UNAVAILABLE', metric: 'energy' })
+    return
+  }
+  totals.methodologies.set(methodologyIdentity(methodology), methodology)
+}
+
+function addSummaryFactor(projection: PersistedEnvironmentalSegmentProjection, totals: SummaryTotals): void {
+  if (projection.emissions.value === null) return
+  const factor = projection.factorSnapshot
+  if (factor === null) {
+    totals.provenanceReasons.push({ code: 'FACTOR_METADATA_UNAVAILABLE', metric: 'emissions' })
+    return
+  }
+  const identity = factorIdentity(factor)
+  const queryTime = factor.queriedAt === null ? null : parseZonedTimestampNanoseconds(factor.queriedAt)
+  const summary = totals.factors.get(identity)
+  if (summary) {
+    if (queryTime !== null) {
+      if (summary.queriedFrom === null || queryTime < summary.queriedFrom) summary.queriedFrom = queryTime
+      if (summary.queriedTo === null || queryTime > summary.queriedTo) summary.queriedTo = queryTime
+    }
+    return
+  }
+  totals.factors.set(identity, { factor, queriedFrom: queryTime, queriedTo: queryTime })
+}
+
+function addSummarySegment(segment: ResolvedSegment, totals: SummaryTotals): void {
+  if (!segment.winner) {
+    const missing = [{ code: 'NO_OBSERVATION' }]
+    totals.energyReasons.push(...missing)
+    totals.emissionsReasons.push(...missing)
+    return
+  }
+  const projection = projectObservationSegment(segment)
+  const duration = segment.end - segment.start
+  if (projection.energy.value === null) totals.energyReasons.push(...projection.energy.reasons)
+  else {
+    totals.energyTotal += projection.energy.value
+    totals.energyCovered += duration
+    addSummaryMethodology(projection, totals)
+  }
+  if (projection.emissions.value === null) totals.emissionsReasons.push(...projection.emissions.reasons)
+  else {
+    totals.emissionsTotal += projection.emissions.value
+    totals.emissionsCovered += duration
+    addSummaryFactor(projection, totals)
+  }
+}
+
+function toFactorProvenance(factor: FactorSummary): EnvironmentalFactorProvenance {
+  return {
+    contractVersion: factor.factor.contractVersion,
+    regionCode: factor.factor.regionCode,
+    country: factor.factor.country,
+    region: factor.factor.region,
+    city: factor.factor.city,
+    intensity: factor.factor.intensity,
+    unit: factor.factor.unit,
+    version: factor.factor.version,
+    source: factor.factor.source,
+    validFrom: factor.factor.validFrom,
+    validUntil: factor.factor.validUntil,
+    queriedAt: {
+      from: factor.queriedFrom === null ? null : formatUtcTimestamp(factor.queriedFrom),
+      to: factor.queriedTo === null ? null : formatUtcTimestamp(factor.queriedTo),
+    },
+  }
+}
+
+function periodMeasures(start: bigint, end: bigint, totals: EnvironmentalPeriodMeasures) {
+  const periodDuration = end - start
+  return {
+    period: { from: formatUtcTimestamp(start), to: formatUtcTimestamp(end) },
+    energy: {
+      value: totals.energyCovered > 0n ? totals.energyTotal : null,
+      unit: 'kWh',
+      reasons: uniqueReasons(totals.energyReasons),
+    },
+    emissions: {
+      value: totals.emissionsCovered > 0n ? totals.emissionsTotal : null,
+      unit: 'gCO2e',
+      reasons: uniqueReasons(totals.emissionsReasons),
+    },
+    coverage: {
+      energy: Number(totals.energyCovered) / Number(periodDuration),
+      emissions: Number(totals.emissionsCovered) / Number(periodDuration),
+    },
+  }
+}
+
+function finishSummary(start: bigint, end: bigint, totals: SummaryTotals): PersistedEnvironmentalSummary {
+  return {
+    status: 'available',
+    ...periodMeasures(start, end, totals),
+    provenance: {
+      methodologies: [...totals.methodologies.values()],
+      factors: [...totals.factors.values()].map(toFactorProvenance),
+      reasons: uniqueReasons(totals.provenanceReasons),
+    },
   }
 }
 
@@ -378,13 +583,15 @@ function projectObservationSegment(segment: ResolvedSegment): PersistedEnvironme
   const winner = segment.winner!
   return projectObservation(
     winner.observation,
-    segment.from,
-    segment.to,
-    segment.start,
-    segment.end,
-    winner.originalStart,
-    winner.originalEnd,
-    formatUtcTimestamp(winner.receivedAt),
+    {
+      from: segment.from,
+      to: segment.to,
+      start: segment.start,
+      end: segment.end,
+      originalStart: winner.originalStart,
+      originalEnd: winner.originalEnd,
+      collectedAt: formatUtcTimestamp(winner.receivedAt),
+    },
   )
 }
 
@@ -423,24 +630,9 @@ function addExclusionIfNeeded(
 }
 
 function finishAggregation(start: bigint, end: bigint, totals: AggregateTotals): PersistedEnvironmentalPeriodResult {
-  const periodDuration = end - start
   return {
     status: 'available',
-    period: { from: formatUtcTimestamp(start), to: formatUtcTimestamp(end) },
-    energy: {
-      value: totals.energyCovered > 0n ? totals.energyTotal : null,
-      unit: 'kWh',
-      reasons: uniqueReasons(totals.energyReasons),
-    },
-    emissions: {
-      value: totals.emissionsCovered > 0n ? totals.emissionsTotal : null,
-      unit: 'gCO2e',
-      reasons: uniqueReasons(totals.emissionsReasons),
-    },
-    coverage: {
-      energy: Number(totals.energyCovered) / Number(periodDuration),
-      emissions: Number(totals.emissionsCovered) / Number(periodDuration),
-    },
+    ...periodMeasures(start, end, totals),
     contributions: totals.contributions,
     exclusions: totals.exclusions,
   }
@@ -464,6 +656,29 @@ export function aggregatePersistedEnvironmentalPeriod(
   const totals = createTotals()
   for (const segment of resolvePreparedSegments(start, end, intervals)) addContribution(segment, totals)
   return finishAggregation(start, end, totals)
+}
+
+export function summarizePersistedEnvironmentalPeriod(
+  periodStart: string,
+  periodEnd: string,
+  observations: readonly PersistedEnvironmentalInterval[],
+): PersistedEnvironmentalSummary {
+  const { start, end } = parsePeriod(periodStart, periodEnd)
+  const intervals = prepareIntervals(start, end, observations)
+  if (intervals.length === 0) {
+    const empty = emptyResult(start, end)
+    return {
+      status: empty.status,
+      period: empty.period,
+      energy: empty.energy,
+      emissions: empty.emissions,
+      coverage: empty.coverage,
+      provenance: { methodologies: [], factors: [], reasons: [] },
+    }
+  }
+  const totals = createSummaryTotals()
+  for (const segment of resolvePreparedSegments(start, end, intervals)) addSummarySegment(segment, totals)
+  return finishSummary(start, end, totals)
 }
 
 export function resolvePersistedEnvironmentalSegments(

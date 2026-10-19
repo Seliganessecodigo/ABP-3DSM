@@ -1,7 +1,7 @@
-import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger'
+import { ApiExtraModels, ApiProperty, getSchemaPath, OmitType } from '@nestjs/swagger'
 import {
   EnvironmentalAnalysisCoverageDto as EnvironmentalAnalysisSeriesCoverageDto,
-  EnvironmentalAnalysisFactorSnapshotDto,
+  EnvironmentalAnalysisFactorProvenanceDto,
   EnvironmentalAnalysisMeasureDto,
   EnvironmentalAnalysisMethodologyDto,
   EnvironmentalAnalysisPeriodDto as EnvironmentalAnalysisSeriesPeriodDto,
@@ -167,6 +167,17 @@ export class EnvironmentalAnalysisSeriesContributionMeasureDto extends Environme
   originalValue!: number | null
 }
 
+export class EnvironmentalAnalysisSeriesFactorSnapshotDto extends OmitType(
+  EnvironmentalAnalysisFactorProvenanceDto,
+  ['queriedAt'] as const,
+) {
+  @ApiProperty({ type: String, nullable: true })
+  id!: string | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  queriedAt!: string | null
+}
+
 export class EnvironmentalAnalysisSeriesContributionDto {
   @ApiProperty()
   collectionId!: string
@@ -192,8 +203,8 @@ export class EnvironmentalAnalysisSeriesContributionDto {
   @ApiProperty({ type: EnvironmentalAnalysisMethodologyDto, nullable: true })
   methodology!: EnvironmentalAnalysisMethodologyDto | null
 
-  @ApiProperty({ type: EnvironmentalAnalysisFactorSnapshotDto, nullable: true })
-  factorSnapshot!: EnvironmentalAnalysisFactorSnapshotDto | null
+  @ApiProperty({ type: EnvironmentalAnalysisSeriesFactorSnapshotDto, nullable: true })
+  factorSnapshot!: EnvironmentalAnalysisSeriesFactorSnapshotDto | null
 }
 
 export class EnvironmentalAnalysisSeriesExclusionDto {
