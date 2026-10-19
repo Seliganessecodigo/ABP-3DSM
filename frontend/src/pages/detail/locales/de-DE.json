@@ -1,4 +1,10 @@
 {
+  "periodTitle": "Analysezeitraum",
+  "periodInvalid": "Wählen Sie einen gültigen Zeitraum",
+  "periods.24h": "24 Stunden",
+  "periods.7d": "7 Tage",
+  "periods.30d": "30 Tage",
+  "periods.90d": "90 Tage",
   "evidenceRefresh": "Daten aktualisieren",
   "evidenceHeading": "Betriebsnachweise", "evidenceCalculability": "Umweltbezogene Berechenbarkeit",
   "evidenceLoading": "Nachweise werden geladen...", "evidenceError": "Nachweise konnten nicht geladen werden. Die angezeigte Beobachtung bleibt erhalten.",

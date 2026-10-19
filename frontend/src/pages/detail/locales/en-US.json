@@ -1,4 +1,10 @@
 {
+  "periodTitle": "Analysis period",
+  "periodInvalid": "Select a valid period",
+  "periods.24h": "24 hours",
+  "periods.7d": "7 days",
+  "periods.30d": "30 days",
+  "periods.90d": "90 days",
   "evidenceRefresh": "Refresh data",
   "evidenceHeading": "Operational evidence",
   "evidenceCalculability": "Environmental calculability",

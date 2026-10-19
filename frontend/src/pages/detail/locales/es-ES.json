@@ -1,4 +1,10 @@
 {
+  "periodTitle": "Período de análisis",
+  "periodInvalid": "Seleccione un período válido",
+  "periods.24h": "24 horas",
+  "periods.7d": "7 días",
+  "periods.30d": "30 días",
+  "periods.90d": "90 días",
   "evidenceRefresh": "Actualizar datos",
   "evidenceHeading": "Evidencias operativas", "evidenceCalculability": "Calculabilidad ambiental",
   "evidenceLoading": "Cargando evidencias...", "evidenceError": "No se pudieron consultar las evidencias. Se conservó la observación mostrada.",
