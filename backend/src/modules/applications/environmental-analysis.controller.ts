@@ -12,10 +12,14 @@ import {
 import { EnvironmentalAnalysisDto } from './environmental-analysis.dto'
 import { EnvironmentalAnalysisPeriodQueryDto } from './environmental-analysis-period-query.dto'
 import { EnvironmentalAnalysisService } from './environmental-analysis.service'
-import { EnvironmentalAnalysisSeriesDto } from './environmental-analysis-series.dto'
-import { EnvironmentalAnalysisSeriesQueryDto } from './environmental-analysis-series-query.dto'
-import { EnvironmentalAnalysisSeriesContributionsQueryDto } from './environmental-analysis-series-query.dto'
-import { EnvironmentalAnalysisSeriesContributionsDto } from './environmental-analysis-series.dto'
+import {
+  EnvironmentalAnalysisSeriesContributionsDto,
+  EnvironmentalAnalysisSeriesDto,
+} from './environmental-analysis-series.dto'
+import {
+  EnvironmentalAnalysisSeriesContributionsQueryDto,
+  EnvironmentalAnalysisSeriesQueryDto,
+} from './environmental-analysis-series-query.dto'
 
 @ApiTags('applications')
 @Controller('applications/:id/analysis')

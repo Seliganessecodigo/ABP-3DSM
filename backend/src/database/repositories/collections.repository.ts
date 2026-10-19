@@ -94,7 +94,7 @@ export class CollectionsRepository {
     return rows
   }
 
-  async findEnvironmentalHistoryByCollectedAt(
+  findEnvironmentalHistoryByCollectedAt(
     applicationId: string,
     periodStartNanoseconds: bigint,
     periodEndNanoseconds: bigint,

@@ -82,7 +82,10 @@ function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
   if (typeof value === 'object' && value !== null) {
     const entries = Object.entries(value as Record<string, unknown>).sort(([left], [right]) => compareText(left, right))
-    return `{${entries.map(([key, nested]) => `${JSON.stringify(key)}:${canonicalJson(nested)}`).join(',')}}`
+    const serializedEntries = entries
+      .map(([key, nested]) => `${JSON.stringify(key)}:${canonicalJson(nested)}`)
+      .join(',')
+    return `{${serializedEntries}}`
   }
   return JSON.stringify(value) ?? 'null'
 }
@@ -111,8 +114,8 @@ function methodology(observation: PersistedEnvironmentalInterval) {
 }
 
 function factor(observation: PersistedEnvironmentalInterval) {
-  const snapshot = observation.calculationEvidence?.carbon.factorSnapshot
-  if (!snapshot || snapshot.version === null) return null
+  const snapshot = observation.calculationEvidence?.carbon?.factorSnapshot
+  if (snapshot?.version == null) return null
   return { id: snapshot.id, version: snapshot.version }
 }
 

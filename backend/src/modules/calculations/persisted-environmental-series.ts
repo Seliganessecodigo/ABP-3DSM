@@ -79,6 +79,17 @@ interface BucketValues {
   readonly nextSegmentIndex: number
 }
 
+interface BucketAccumulator {
+  energy: number
+  emissions: number
+  energyCovered: bigint
+  emissionsCovered: bigint
+  readonly energyReasons: { code: string; metric?: string }[]
+  readonly emissionsReasons: { code: string; metric?: string }[]
+  readonly contributions: EnvironmentalSeriesContribution[]
+  readonly exclusions: EnvironmentalSeriesExclusion[]
+}
+
 function floorBucket(timestamp: Date, granularity: EnvironmentalSeriesGranularity): Date {
   const bucket = new Date(timestamp)
   if (granularity === 'year') {
@@ -156,6 +167,53 @@ export function getEnvironmentalSeriesBucket(
   }
 }
 
+function addGapSegment(
+  segmentStart: bigint,
+  segmentEnd: bigint,
+  from: bigint,
+  to: bigint,
+  includeDetails: boolean,
+  values: BucketAccumulator,
+): void {
+  const noObservation = { code: 'NO_OBSERVATION' }
+  values.energyReasons.push(noObservation)
+  values.emissionsReasons.push(noObservation)
+  if (!includeDetails) return
+  const countedStart = segmentStart > from ? segmentStart : from
+  const countedEnd = segmentEnd < to ? segmentEnd : to
+  values.exclusions.push({
+    collectionId: null,
+    interval: { from: formatUtcTimestamp(countedStart), to: formatUtcTimestamp(countedEnd) },
+    energyReasons: [noObservation],
+    emissionsReasons: [noObservation],
+  })
+}
+
+function addObservationSegment(
+  observation: PersistedEnvironmentalInterval,
+  overlapStart: bigint,
+  overlapEnd: bigint,
+  includeDetails: boolean,
+  values: BucketAccumulator,
+): void {
+  const projection = projectPersistedEnvironmentalInterval(
+    observation,
+    formatUtcTimestamp(overlapStart),
+    formatUtcTimestamp(overlapEnd),
+  )
+  if (includeDetails) addProjectionDetails(projection, observation, values.contributions, values.exclusions)
+  if (projection.energy.value === null) values.energyReasons.push(...projection.energy.reasons)
+  else {
+    values.energy += projection.energy.value
+    values.energyCovered += overlapEnd - overlapStart
+  }
+  if (projection.emissions.value === null) values.emissionsReasons.push(...projection.emissions.reasons)
+  else {
+    values.emissions += projection.emissions.value
+    values.emissionsCovered += overlapEnd - overlapStart
+  }
+}
+
 function readBucket(
   from: bigint,
   to: bigint,
@@ -163,14 +221,16 @@ function readBucket(
   segmentIndex: number,
   includeDetails = false,
 ): BucketValues {
-  let energy = 0
-  let emissions = 0
-  let energyCovered = 0n
-  let emissionsCovered = 0n
-  const energyReasons: { code: string; metric?: string }[] = []
-  const emissionsReasons: { code: string; metric?: string }[] = []
-  const contributions: EnvironmentalSeriesContribution[] = []
-  const exclusions: EnvironmentalSeriesExclusion[] = []
+  const values: BucketAccumulator = {
+    energy: 0,
+    emissions: 0,
+    energyCovered: 0n,
+    emissionsCovered: 0n,
+    energyReasons: [],
+    emissionsReasons: [],
+    contributions: [],
+    exclusions: [],
+  }
 
   while (segmentIndex < segments.length) {
     const segment = segments[segmentIndex]
@@ -181,50 +241,21 @@ function readBucket(
       segmentIndex += 1
       continue
     }
-    if (!segment.observation) {
-      energyReasons.push({ code: 'NO_OBSERVATION' })
-      emissionsReasons.push({ code: 'NO_OBSERVATION' })
-      if (includeDetails) {
-        exclusions.push({
-          collectionId: null,
-          interval: { from: formatUtcTimestamp(segmentStart > from ? segmentStart : from), to: formatUtcTimestamp(segmentEnd < to ? segmentEnd : to) },
-          energyReasons: [{ code: 'NO_OBSERVATION' }],
-          emissionsReasons: [{ code: 'NO_OBSERVATION' }],
-        })
-      }
+    const overlapStart = segmentStart > from ? segmentStart : from
+    const overlapEnd = segmentEnd < to ? segmentEnd : to
+    if (segment.observation) {
+      addObservationSegment(segment.observation, overlapStart, overlapEnd, includeDetails, values)
     } else {
-      const overlapStart = segmentStart > from ? segmentStart : from
-      const overlapEnd = segmentEnd < to ? segmentEnd : to
-      const projection = projectPersistedEnvironmentalInterval(
-        segment.observation,
-        formatUtcTimestamp(overlapStart),
-        formatUtcTimestamp(overlapEnd),
-      )
-      if (includeDetails) addProjectionDetails(projection, segment.observation, contributions, exclusions)
-      if (projection.energy.value === null) energyReasons.push(...projection.energy.reasons)
-      else {
-        energy += projection.energy.value
-        energyCovered += overlapEnd - overlapStart
-      }
-      if (projection.emissions.value === null) emissionsReasons.push(...projection.emissions.reasons)
-      else {
-        emissions += projection.emissions.value
-        emissionsCovered += overlapEnd - overlapStart
-      }
+      addGapSegment(segmentStart, segmentEnd, from, to, includeDetails, values)
     }
-    if (segmentEnd <= to) segmentIndex += 1
-    else break
+    if (segmentEnd > to) break
+    segmentIndex += 1
   }
 
   return {
-    energy,
-    emissions,
-    energyCovered,
-    emissionsCovered,
-    energyReasons: uniqueReasons(energyReasons),
-    emissionsReasons: uniqueReasons(emissionsReasons),
-    contributions,
-    exclusions,
+    ...values,
+    energyReasons: uniqueReasons(values.energyReasons),
+    emissionsReasons: uniqueReasons(values.emissionsReasons),
     nextSegmentIndex: segmentIndex,
   }
 }

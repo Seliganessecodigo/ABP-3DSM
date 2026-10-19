@@ -41,7 +41,7 @@ export class ApplicationEventsRepository {
     )
   }
 
-  async findAnalysisEventsByApplicationAndPeriod(
+  findAnalysisEventsByApplicationAndPeriod(
     applicationId: string,
     periodStartNanoseconds: bigint,
     periodEndNanoseconds: bigint,
