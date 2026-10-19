@@ -1,0 +1,386 @@
+[
+  {
+    "file": "detail-desktop-light-pos-ajuste.png",
+    "viewport": {
+      "width": 1366,
+      "height": 900,
+      "documentWidth": 1366,
+      "documentHeight": 2537,
+      "theme": "light"
+    },
+    "main": {
+      "x": 252,
+      "y": 12,
+      "width": 1102,
+      "height": 2525,
+      "scrollWidth": 1102,
+      "clientWidth": 1102,
+      "scrollHeight": 2525,
+      "clientHeight": 2525
+    },
+    "detailTop": {
+      "x": 276,
+      "y": 20,
+      "width": 1054,
+      "height": 97,
+      "scrollWidth": 1054,
+      "clientWidth": 1054,
+      "scrollHeight": 97,
+      "clientHeight": 97
+    },
+    "kpiGrid": {
+      "x": 276,
+      "y": 117,
+      "width": 1054,
+      "height": 160,
+      "scrollWidth": 1054,
+      "clientWidth": 1054,
+      "scrollHeight": 160,
+      "clientHeight": 160
+    },
+    "gap": "16px",
+    "cards": [
+      {
+        "title": "Energia",
+        "x": 276,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 89,
+        "clientHeight": 158
+      },
+      {
+        "title": "CO₂e",
+        "x": 543.5,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 89,
+        "clientHeight": 158
+      },
+      {
+        "title": "Fator regional",
+        "x": 811,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 131,
+        "clientHeight": 158
+      },
+      {
+        "title": "Cobertura",
+        "x": 1078.5,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 118,
+        "clientHeight": 158
+      }
+    ],
+    "overflowNodes": [
+      {
+        "tag": "H2",
+        "className": "_sectionHeading_gzwqv_9",
+        "text": "Impacto ambiental",
+        "scrollWidth": 159,
+        "clientWidth": 1
+      }
+    ]
+  },
+  {
+    "file": "detail-desktop-dark-pos-ajuste.png",
+    "viewport": {
+      "width": 1366,
+      "height": 900,
+      "documentWidth": 1366,
+      "documentHeight": 2537,
+      "theme": "dark"
+    },
+    "main": {
+      "x": 252,
+      "y": 12,
+      "width": 1102,
+      "height": 2525,
+      "scrollWidth": 1102,
+      "clientWidth": 1102,
+      "scrollHeight": 2525,
+      "clientHeight": 2525
+    },
+    "detailTop": {
+      "x": 276,
+      "y": 20,
+      "width": 1054,
+      "height": 97,
+      "scrollWidth": 1054,
+      "clientWidth": 1054,
+      "scrollHeight": 97,
+      "clientHeight": 97
+    },
+    "kpiGrid": {
+      "x": 276,
+      "y": 117,
+      "width": 1054,
+      "height": 160,
+      "scrollWidth": 1054,
+      "clientWidth": 1054,
+      "scrollHeight": 160,
+      "clientHeight": 160
+    },
+    "gap": "16px",
+    "cards": [
+      {
+        "title": "Energia",
+        "x": 276,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 89,
+        "clientHeight": 158
+      },
+      {
+        "title": "CO₂e",
+        "x": 543.5,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 89,
+        "clientHeight": 158
+      },
+      {
+        "title": "Fator regional",
+        "x": 811,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 131,
+        "clientHeight": 158
+      },
+      {
+        "title": "Cobertura",
+        "x": 1078.5,
+        "y": 117,
+        "width": 251.5,
+        "height": 160,
+        "scrollWidth": 250,
+        "clientWidth": 250,
+        "scrollHeight": 118,
+        "clientHeight": 158
+      }
+    ],
+    "overflowNodes": [
+      {
+        "tag": "H2",
+        "className": "_sectionHeading_gzwqv_9",
+        "text": "Impacto ambiental",
+        "scrollWidth": 159,
+        "clientWidth": 1
+      }
+    ]
+  },
+  {
+    "file": "detail-mobile-light-pos-ajuste.png",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "documentHeight": 3935,
+      "theme": "light"
+    },
+    "main": {
+      "x": 0,
+      "y": 44,
+      "width": 390,
+      "height": 3891,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 3891,
+      "clientHeight": 3891
+    },
+    "detailTop": {
+      "x": 16,
+      "y": 60,
+      "width": 358,
+      "height": 286,
+      "scrollWidth": 358,
+      "clientWidth": 358,
+      "scrollHeight": 286,
+      "clientHeight": 286
+    },
+    "kpiGrid": {
+      "x": 16,
+      "y": 362,
+      "width": 358,
+      "height": 360,
+      "scrollWidth": 358,
+      "clientWidth": 358,
+      "scrollHeight": 360,
+      "clientHeight": 360
+    },
+    "gap": "16px",
+    "cards": [
+      {
+        "title": "Energia",
+        "x": 16,
+        "y": 362,
+        "width": 171,
+        "height": 144,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 76,
+        "clientHeight": 142
+      },
+      {
+        "title": "CO₂e",
+        "x": 203,
+        "y": 362,
+        "width": 171,
+        "height": 144,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 76,
+        "clientHeight": 142
+      },
+      {
+        "title": "Fator regional",
+        "x": 16,
+        "y": 522,
+        "width": 171,
+        "height": 200,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 198,
+        "clientHeight": 198
+      },
+      {
+        "title": "Cobertura",
+        "x": 203,
+        "y": 522,
+        "width": 171,
+        "height": 200,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 198,
+        "clientHeight": 198
+      }
+    ],
+    "overflowNodes": [
+      {
+        "tag": "H2",
+        "className": "_sectionHeading_gzwqv_9",
+        "text": "Impacto ambiental",
+        "scrollWidth": 159,
+        "clientWidth": 1
+      }
+    ]
+  },
+  {
+    "file": "detail-mobile-dark-pos-ajuste.png",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "documentHeight": 3935,
+      "theme": "dark"
+    },
+    "main": {
+      "x": 0,
+      "y": 44,
+      "width": 390,
+      "height": 3891,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "scrollHeight": 3891,
+      "clientHeight": 3891
+    },
+    "detailTop": {
+      "x": 16,
+      "y": 60,
+      "width": 358,
+      "height": 286,
+      "scrollWidth": 358,
+      "clientWidth": 358,
+      "scrollHeight": 286,
+      "clientHeight": 286
+    },
+    "kpiGrid": {
+      "x": 16,
+      "y": 362,
+      "width": 358,
+      "height": 360,
+      "scrollWidth": 358,
+      "clientWidth": 358,
+      "scrollHeight": 360,
+      "clientHeight": 360
+    },
+    "gap": "16px",
+    "cards": [
+      {
+        "title": "Energia",
+        "x": 16,
+        "y": 362,
+        "width": 171,
+        "height": 144,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 76,
+        "clientHeight": 142
+      },
+      {
+        "title": "CO₂e",
+        "x": 203,
+        "y": 362,
+        "width": 171,
+        "height": 144,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 76,
+        "clientHeight": 142
+      },
+      {
+        "title": "Fator regional",
+        "x": 16,
+        "y": 522,
+        "width": 171,
+        "height": 200,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 198,
+        "clientHeight": 198
+      },
+      {
+        "title": "Cobertura",
+        "x": 203,
+        "y": 522,
+        "width": 171,
+        "height": 200,
+        "scrollWidth": 169,
+        "clientWidth": 169,
+        "scrollHeight": 198,
+        "clientHeight": 198
+      }
+    ],
+    "overflowNodes": [
+      {
+        "tag": "H2",
+        "className": "_sectionHeading_gzwqv_9",
+        "text": "Impacto ambiental",
+        "scrollWidth": 159,
+        "clientWidth": 1
+      }
+    ]
+  }
+]

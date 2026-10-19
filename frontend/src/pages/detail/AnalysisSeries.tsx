@@ -45,6 +45,7 @@ type Labels = Readonly<{
   invalidNumericRange: string
   invalidUnit: string
   clearFilters: string
+  inspectContributions: string
   mixedUnits: string
   previous: string
   next: string
@@ -215,11 +216,12 @@ type SeriesTableProps = Readonly<{
   sortState: (column: AnalysisSeriesQuery['sort']) => 'none' | 'ascending' | 'descending'
   onSort: (column: AnalysisSeriesQuery['sort']) => void
   onPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
+  onInspectContributions?: (bucketStart: string) => void
 }>
 
 function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, pageSize, firstRow, lastRow,
   energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit, energyUnits, emissionsUnits,
-  locale, labels, formatDate, sortState, onSort, onPaginationChange }: SeriesTableProps) {
+  locale, labels, formatDate, sortState, onSort, onPaginationChange, onInspectContributions }: SeriesTableProps) {
   const emptyMessage = points.length === 0 ? labels.noPoints : labels.noMatches
   return <>
     <table className={styles.table}>
@@ -231,7 +233,7 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
       <tbody>{filteredPoints.length === 0
         ? <tr><td colSpan={3}>{emptyMessage}</td></tr>
         : visiblePoints.map(point => <tr key={point.id}>
-          <td>{formatDate(point.timestamp)}</td>
+          <td>{formatDate(point.timestamp)}{onInspectContributions && <button type="button" onClick={() => onInspectContributions(point.timestamp)}>{labels.inspectContributions}</button>}</td>
           <td>{readingText(point.energy, locale, labels)}</td>
           <td>{readingText(point.emissions, locale, labels)}</td>
         </tr>)}</tbody>
@@ -295,7 +297,7 @@ function SeriesContent({ series, state, view, locale, labels, formatDate, invali
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, onPaginationChange, onQueryChange }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, onPaginationChange, onQueryChange, onInspectContributions }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -306,6 +308,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   query: AnalysisSeriesQuery
   onPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
   onQueryChange: (query: AnalysisSeriesQuery) => void
+  onInspectContributions?: (bucketStart: string) => void
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
   const fromKey = JSON.stringify([query.from, query.timeZone])
@@ -380,7 +383,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     points, filteredPoints, visiblePoints, page: currentPage, pageCount, pageSize, firstRow: rowRange.first,
     lastRow: rowRange.last, energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit,
     energyUnits, emissionsUnits, locale, labels, formatDate: formatSeriesDate, sortState, onSort: toggleSort,
-    onPaginationChange,
+    onPaginationChange, onInspectContributions,
   }
   return <section className={styles.section} aria-labelledby="analysis-series-heading">
     <div className={styles.header}>

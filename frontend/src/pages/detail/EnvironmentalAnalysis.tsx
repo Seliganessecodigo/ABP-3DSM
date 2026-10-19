@@ -1,6 +1,7 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
-import type { AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
+import { AnalysisContributions } from './AnalysisContributions.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
 import type { AnalysisCompositionLabels } from './AnalysisComposition.tsx'
 import { EnvironmentalFreshness } from './EnvironmentalFreshness.tsx'
@@ -22,6 +23,33 @@ type Labels = Readonly<{
   composition: AnalysisCompositionLabels
   freshness: EnvironmentalFreshnessLabels
   seriesHeading: string
+  seriesEventsHeading: string
+  seriesEventTypes: Readonly<Record<'status_changed' | 'removed' | 'returned' | 'region_changed' | 'methodology_changed' | 'factor_version_changed', string>>
+  seriesEventBefore: string
+  seriesEventAfter: string
+  seriesEventStates: Readonly<{ available: string; unavailable: string }>
+  inspectContributions: string
+  contributionHeading: string
+  contributionCollection: string
+  contributionOriginalInterval: string
+  contributionCountedInterval: string
+  contributionCollectedAt: string
+  contributionTotals: string
+  contributionCoverage: string
+  contributionOriginalValue: string
+  contributionCountedValue: string
+  contributionDurationRatio: string
+  contributionReason: string
+  contributionParameters: string
+  contributionContractVersion: string
+  contributionFactorId: string
+  contributionCountry: string
+  contributionCity: string
+  contributionRegionCode: string
+  contributionSource: string
+  contributionValidFrom: string
+  contributionValidUntil: string
+  contributionExclusions: string
   moment: string
   tableEnergy: string
   tableEmissions: string
@@ -128,11 +156,13 @@ function MetricCard({ id, title, reading, locale, labels, empty = false }: Reado
   </fieldset>
 }
 
-function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels }>) {
+function FactorCard({ factor, methodology, labels }: Readonly<{ factor: AnalysisFactorResult | null; methodology: AnalysisMethodologyResult | null; labels: Labels }>) {
   let value: string | null = null
   if (factor?.status === 'available') {
     if (factor.factors.length > 1) value = labels.multipleFactors
-    else if (factor.factors.length === 1) value = `${factor.factors[0].intensity} ${factor.factors[0].unit}`
+    else if (factor.factors.length === 1 && factor.factors[0].intensity !== null && factor.factors[0].unit !== null) {
+      value = `${factor.factors[0].intensity} ${factor.factors[0].unit}`
+    }
   }
 
   let content: ReactNode
@@ -147,6 +177,8 @@ function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult 
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
     <h3 id="analysis-factor-heading">{labels.factor}</h3>
     {content}
+    {factor?.status === 'available' && factor.factors.map((entry) => entry.version && <p key={`factor-${entry.version}`}>{labels.version}: {entry.version}</p>)}
+    {methodology?.status === 'available' && methodology.entries.map((entry) => <p key={`method-${entry.model}-${entry.version}`}>{labels.methodologyHeading}: {entry.version}</p>)}
   </fieldset>
 }
 
@@ -177,6 +209,9 @@ function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
 function getCoverageContent(empty: boolean, reading: AnalysisReading | null, locale: string, labels: Labels) {
   if (empty) return null
   if (!reading) return <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
+  if (reading.status === 'available' && reading.unit === 'fraction') {
+    return <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(reading.value)}</p>
+  }
   return <Reading reading={reading} locale={locale} notCalculable={labels.notCalculable}
     metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
 }
@@ -185,7 +220,7 @@ function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} />
-    <FactorCard factor={null} labels={labels} />
+    <FactorCard factor={null} methodology={null} labels={labels} />
     <CoverageCard data={null} locale="pt-BR" labels={labels} />
   </div>
 }
@@ -208,7 +243,7 @@ function FactorProvenance({ factors, formatDate, labels }: Readonly<{
   return <section className={styles.provenance} aria-labelledby="analysis-factors-heading">
     <h2 id="analysis-factors-heading">{labels.factorsHeading}</h2>
     <div className={styles.factorList}>
-      {factors.map((factor) => <FactorEntry key={`${factor.model}-${factor.version}-${factor.region}-${factor.queriedAt}`}
+      {factors.map((factor) => <FactorEntry key={`${factor.version}-${factor.region}-${typeof factor.queriedAt === 'string' ? factor.queriedAt : `${factor.queriedAt.from}-${factor.queriedAt.to}`}`}
         factor={factor} formatDate={formatDate} labels={labels} />)}
     </div>
   </section>
@@ -221,15 +256,16 @@ function FactorEntry({ factor, formatDate, labels }: Readonly<{
 }>) {
   const headingId = useId()
   return <fieldset className={styles.factor} aria-labelledby={headingId}>
-    <h3 id={headingId}>{factor.model}</h3>
+    <h3 id={headingId}>{factor.region || factor.version || labels.factor}</h3>
     <dl>
-      <div><dt>{labels.region}</dt><dd>{factor.region}</dd></div>
-      <div><dt>{labels.intensity}</dt><dd>{factor.intensity} {factor.unit}</dd></div>
-      <div><dt>{labels.model}</dt><dd>{factor.model}</dd></div>
-      <div><dt>{labels.version}</dt><dd>{factor.version}</dd></div>
-      <div><dt>{labels.queriedAt}</dt><dd>{formatDate(factor.queriedAt)}</dd></div>
-      <div><dt>{labels.modelDescription}</dt><dd>{factor.modelDescription}</dd></div>
-      <div><dt>{labels.snapshot}</dt><dd><code>{factor.snapshot}</code></dd></div>
+      {factor.region && <div><dt>{labels.region}</dt><dd>{factor.region}</dd></div>}
+      {factor.intensity !== null && factor.unit !== null && <div><dt>{labels.intensity}</dt><dd>{factor.intensity} {factor.unit}</dd></div>}
+      {factor.model && <div><dt>{labels.model}</dt><dd>{factor.model}</dd></div>}
+      {factor.version && <div><dt>{labels.version}</dt><dd>{factor.version}</dd></div>}
+      {(typeof factor.queriedAt === 'string' || factor.queriedAt.from !== null || factor.queriedAt.to !== null) && <div><dt>{labels.queriedAt}</dt><dd>{typeof factor.queriedAt === 'string' ? formatDate(factor.queriedAt) :
+        [factor.queriedAt.from, factor.queriedAt.to].filter((value): value is string => value !== null).map(formatDate).join(' – ')}</dd></div>}
+      {factor.modelDescription && <div><dt>{labels.modelDescription}</dt><dd>{factor.modelDescription}</dd></div>}
+      {factor.snapshot && <div><dt>{labels.snapshot}</dt><dd><code>{factor.snapshot}</code></dd></div>}
     </dl>
   </fieldset>
 }
@@ -249,7 +285,7 @@ function MethodologySection({ result, state, labels }: Readonly<{
     </div>}
     {result?.status === 'available' && result.entries.length === 0 && <output>{labels.methodologyUnavailable}</output>}
     {result?.status === 'available' && result.entries.length > 0 && <div className={styles.factorList}>
-      {result.entries.map((entry) => <MethodologyEntry key={`${entry.model}-${entry.version}-${entry.snapshot}`}
+      {result.entries.map((entry) => <MethodologyEntry key={`${entry.model}-${entry.version}-${entry.snapshot ?? ''}`}
         entry={entry} labels={labels} />)}
     </div>}
   </section>
@@ -265,8 +301,8 @@ function MethodologyEntry({ entry, labels }: Readonly<{
     <dl>
       <div><dt>{labels.model}</dt><dd>{entry.model}</dd></div>
       <div><dt>{labels.version}</dt><dd>{entry.version}</dd></div>
-      <div><dt>{labels.modelDescription}</dt><dd>{entry.description}</dd></div>
-      <div><dt>{labels.snapshot}</dt><dd><code>{entry.snapshot}</code></dd></div>
+      {entry.description && <div><dt>{labels.modelDescription}</dt><dd>{entry.description}</dd></div>}
+      {entry.snapshot && <div><dt>{labels.snapshot}</dt><dd><code>{entry.snapshot}</code></dd></div>}
     </dl>
   </fieldset>
 }
@@ -277,7 +313,7 @@ function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' |
   return 'loading' as const
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, contextContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
   data: AnalysisViewModel | null
   status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
   locale: string
@@ -289,6 +325,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   seriesQuery: AnalysisSeriesQuery
   onSeriesQueryChange: (query: AnalysisSeriesQuery) => void
   onSeriesPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
+  onInspectContributions?: (bucketStart: string, page?: number, pageSize?: number | 'all') => void
+  contributions: Readonly<{ data: AnalysisContributionsPage | null; loading: boolean; error: boolean }> | null
   contextContent: ReactNode
   lastAttemptAt: string | null
   lastSuccessAt: string | null
@@ -298,7 +336,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     (status === 'refreshing' || status === 'error' || status === 'unavailable')
   const emptyResult = status === 'empty' || preserveEmpty
   const invalidContext = status === 'invalid-period' || status === 'invalid-granularity'
-  const showData = (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null
+  const showData = (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult
   return <>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
@@ -315,9 +353,22 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels} />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels} />
-        <FactorCard factor={data.factor} labels={labels} />
+        <FactorCard factor={data.factor} methodology={data.methodology} labels={labels} />
         <CoverageCard data={data} locale={locale} labels={labels} />
       </div>}
+      {data?.series.status === 'available' && (data.series.events?.length ?? 0) > 0 && <ol className={styles.events} aria-label={labels.seriesEventsHeading}>
+        {data.series.events?.map((event: AnalysisSeriesEvent) => {
+          const beforeState = event.details.before?.state
+          const afterState = event.details.after?.state
+          const stateText = (value: string) => value === 'AVAILABLE' ? labels.seriesEventStates.available : value === 'UNAVAILABLE' ? labels.seriesEventStates.unavailable : value
+          return <li key={event.id}>
+            <time dateTime={event.at}>{formatDate(event.at)}</time>
+            <strong>{labels.seriesEventTypes[event.type]}</strong>
+            {typeof beforeState === 'string' && <span>{labels.seriesEventBefore}: {stateText(beforeState)}</span>}
+            {typeof afterState === 'string' && <span>{labels.seriesEventAfter}: {stateText(afterState)}</span>}
+          </li>
+        })}
+      </ol>}
     </section>
     <div className={styles.lowerGrid}>
       <div className={styles.contextColumn}>
@@ -330,6 +381,21 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
           locale={locale} formatDate={formatDate} labels={labels.composition} />}
         {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
           formatDate={formatDate} labels={labels.freshness} />}
+        {!invalidContext && contributions && <AnalysisContributions data={contributions.data} loading={contributions.loading} error={contributions.error}
+          locale={locale} formatDate={formatDate} labels={{ heading: labels.contributionHeading, loading: labels.loading, error: labels.error,
+            collection: labels.contributionCollection, originalInterval: labels.contributionOriginalInterval,
+            countedInterval: labels.contributionCountedInterval, collectedAt: labels.contributionCollectedAt,
+            energy: labels.energy, emissions: labels.emissions, methodology: labels.model, factor: labels.factor,
+            totals: labels.contributionTotals, coverage: labels.contributionCoverage,
+            originalValue: labels.contributionOriginalValue, countedValue: labels.contributionCountedValue,
+            durationRatio: labels.contributionDurationRatio, reason: labels.contributionReason,
+            parameters: labels.contributionParameters, contractVersion: labels.contributionContractVersion,
+            factorId: labels.contributionFactorId, country: labels.contributionCountry, city: labels.contributionCity,
+            region: labels.region, regionCode: labels.contributionRegionCode, intensity: labels.intensity,
+            source: labels.contributionSource, queriedAt: labels.queriedAt, validFrom: labels.contributionValidFrom,
+            validUntil: labels.contributionValidUntil, exclusions: labels.contributionExclusions,
+            reasons: { NO_OBSERVATION: labels.reasons.noObservation, CARBON_FACTOR_UNAVAILABLE: labels.reasons.factorUnavailable },
+            pageStatus: labels.pageStatus }} />}
         {contextContent}
       </div>
       {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
@@ -350,10 +416,11 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       emissionsMin: labels.emissionsMin, emissionsMax: labels.emissionsMax,
       invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
       clearFilters: labels.clearFilters,
+      inspectContributions: labels.inspectContributions,
       emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
     }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange}
-      onPaginationChange={onSeriesPaginationChange} />}
+      onPaginationChange={onSeriesPaginationChange} onInspectContributions={onInspectContributions ? (bucketStart) => onInspectContributions(bucketStart) : undefined} />}
     </div>
   </>
 }
