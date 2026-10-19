@@ -5,7 +5,7 @@
 
 - `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os oito idiomas.
 - `components/`: interface compartilhada por telas ou infraestrutura visual, como `AppShell`, `LanguageSelector`, ações e feedback de requisição. Elementos específicos continuam junto da página que os usa.
-- `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página.
+- `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página. `features/analysis/` contém a fronteira tipada de apresentação ambiental já entregue; sua integração HTTP aguarda contratos aprovados. Consulte o README do módulo para esse limite e o estado do aceite.
 - `utils/`: funções independentes de React, como formatação de datas.
 - `styles/shared.css`: estilos visuais usados por várias páginas, como botões, cabeçalhos e mensagens. `index.css` contém reset, base e tokens globais; cada componente compartilhado importa seu próprio CSS.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
