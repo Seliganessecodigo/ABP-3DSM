@@ -1,4 +1,10 @@
 {
+  "periodTitle": "分析周期",
+  "periodInvalid": "请选择有效的周期",
+  "periods.24h": "24 小时",
+  "periods.7d": "7 天",
+  "periods.30d": "30 天",
+  "periods.90d": "90 天",
   "evidenceRefresh": "刷新数据",
   "evidenceHeading": "运行证据", "evidenceCalculability": "环境可计算性",
   "evidenceLoading": "正在加载证据...", "evidenceError": "无法查询证据。已保留当前显示的观测记录。",
