@@ -1,0 +1,5 @@
+.selector { margin-bottom: 16px; }
+.selector h2 { margin-bottom: 8px; color: var(--text-primary); font-size: 15px; }
+.options { display: flex; flex-wrap: wrap; gap: 8px; }
+.option { min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 8px 16px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; }
+.option[aria-pressed='true'] { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); }

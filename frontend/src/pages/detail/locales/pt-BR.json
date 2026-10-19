@@ -1,4 +1,10 @@
 {
+  "periodTitle": "Período de análise",
+  "periodInvalid": "Selecione um período válido",
+  "periods.24h": "24 horas",
+  "periods.7d": "7 dias",
+  "periods.30d": "30 dias",
+  "periods.90d": "90 dias",
   "evidenceRefresh": "Atualizar dados",
   "evidenceRefresh": "Atualizar dados",
   "evidenceHeading": "Evidências operacionais",

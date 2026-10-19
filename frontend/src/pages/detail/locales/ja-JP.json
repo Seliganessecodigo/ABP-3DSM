@@ -1,4 +1,10 @@
 {
+  "periodTitle": "分析期間",
+  "periodInvalid": "有効な期間を選択してください",
+  "periods.24h": "24時間",
+  "periods.7d": "7日間",
+  "periods.30d": "30日間",
+  "periods.90d": "90日間",
   "evidenceRefresh": "データを更新",
   "evidenceHeading": "運用エビデンス", "evidenceCalculability": "環境計算可能性",
   "evidenceLoading": "エビデンスを読み込み中...", "evidenceError": "エビデンスを取得できません。表示中の観測データは保持されています。",
