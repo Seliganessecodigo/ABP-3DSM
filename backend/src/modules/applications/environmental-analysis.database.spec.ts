@@ -179,4 +179,153 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       exclusions: [],
     })
   })
+
+  it('returns an explicit empty result when the application has no observations in the interval', async () => {
+    const emptyApplicationId = `analysis-empty-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [emptyApplicationId, 'Environmental analysis empty test', 'AVAILABLE'],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${emptyApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'empty',
+        applicationId: emptyApplicationId,
+        period: { from: fromUtc, to: toUtc },
+        energy: { value: null, unit: 'kWh', reasons: [] },
+        emissions: { value: null, unit: 'gCO2e', reasons: [] },
+        coverage: { energy: 0, emissions: 0 },
+        contributions: [],
+        exclusions: [],
+      })
+    } finally {
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [emptyApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [emptyApplicationId])
+    }
+  })
+
+  it('keeps a one-nanosecond overlap at the half-open period end', async () => {
+    const preciseApplicationId = `analysis-precision-${randomUUID()}`
+    const intervalStart = '2026-10-01T03:05:00.000000000Z'
+    const intervalEnd = '2026-10-01T03:05:00.000001000Z'
+    const queryEnd = '2026-10-01T03:05:00.000000001Z'
+    const preciseEnergy = 0.001
+    const preciseEmissions = 0.085
+    const preciseFactorSnapshot = {
+      id: 'snapshot-precision',
+      version: 'precision-factor-v1',
+      contractVersion: 'contract-v1',
+      regionCode: 'br-sudeste',
+      country: 'Brazil',
+      region: 'Sudeste',
+      city: null,
+      intensity: 85,
+      unit: 'gCO2e/kWh',
+      queriedAt: intervalEnd,
+      source: 'persisted-factor-source',
+      validFrom: null,
+      validUntil: null,
+    }
+    const preciseModelParameters = {
+      cpuWattsAt100Percent: 100,
+      memoryWattsPerGb: 0.375,
+      diskWattsPerGb: 0.01,
+      networkWattsPerGb: 0.02,
+    }
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [preciseApplicationId, 'Environmental analysis precision test', 'AVAILABLE'],
+    )
+    const [preciseCollection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING id`,
+      [
+        preciseApplicationId,
+        intervalStart,
+        intervalEnd,
+        intervalEnd,
+        {},
+        {},
+        'AVAILABLE',
+        preciseEnergy,
+        preciseEmissions,
+        85,
+        'precision-model-v1',
+        'precision-factor-v1',
+        1,
+        {
+          version: 1,
+          energy: {
+            observationId: 'precision-observation',
+            applicationId: preciseApplicationId,
+            averagePowerW: 60,
+            energyKwh: preciseEnergy,
+            durationSeconds: 0.000001,
+            modelKey: 'precision-model',
+            modelVersion: 'precision-model-v1',
+            modelParameters: preciseModelParameters,
+            powerContributionsW: {
+              cpuPercent: 60,
+              memoryGb: 0,
+              diskGb: 0,
+              networkGb: 0,
+            },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: preciseEnergy,
+            factorSnapshot: preciseFactorSnapshot,
+            emissionsGramsCo2e: preciseEmissions,
+            emissionsKilogramsCo2e: preciseEmissions / 1000,
+            reasons: [],
+          },
+        },
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from: intervalStart, to: queryEnd })
+      const response = await fetch(
+        new URL(`/applications/${preciseApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        period: { from: '2026-10-01T03:05:00.000Z', to: queryEnd },
+        coverage: { energy: 1, emissions: 1 },
+        contributions: [
+          expect.objectContaining({
+            collectionId: preciseCollection.id,
+            originalInterval: {
+              from: '2026-10-01T03:05:00.000Z',
+              to: '2026-10-01T03:05:00.000001Z',
+            },
+            countedInterval: {
+              from: '2026-10-01T03:05:00.000Z',
+              to: queryEnd,
+            },
+          }),
+        ],
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [preciseApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [preciseApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [preciseApplicationId])
+    }
+  })
 })

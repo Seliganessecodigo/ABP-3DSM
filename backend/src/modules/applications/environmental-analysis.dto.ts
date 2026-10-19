@@ -12,8 +12,8 @@ export class EnvironmentalAnalysisReasonDto {
   @ApiProperty({ type: String })
   code!: string
 
-  @ApiProperty({ type: String, nullable: true })
-  metric!: string | null
+  @ApiProperty({ type: String, required: false })
+  metric?: string
 }
 
 export class EnvironmentalAnalysisMeasureDto {
@@ -24,7 +24,7 @@ export class EnvironmentalAnalysisMeasureDto {
   unit!: string
 
   @ApiProperty({ type: EnvironmentalAnalysisReasonDto, isArray: true })
-  reasons!: EnvironmentalAnalysisReasonDto[]
+  reasons!: readonly EnvironmentalAnalysisReasonDto[]
 }
 
 export class EnvironmentalAnalysisCoverageDto {
@@ -129,10 +129,10 @@ export class EnvironmentalAnalysisExclusionDto {
   interval!: EnvironmentalAnalysisIntervalDto
 
   @ApiProperty({ type: EnvironmentalAnalysisReasonDto, isArray: true })
-  energyReasons!: EnvironmentalAnalysisReasonDto[]
+  energyReasons!: readonly EnvironmentalAnalysisReasonDto[]
 
   @ApiProperty({ type: EnvironmentalAnalysisReasonDto, isArray: true })
-  emissionsReasons!: EnvironmentalAnalysisReasonDto[]
+  emissionsReasons!: readonly EnvironmentalAnalysisReasonDto[]
 }
 
 export class EnvironmentalAnalysisDto {
@@ -155,8 +155,8 @@ export class EnvironmentalAnalysisDto {
   coverage!: EnvironmentalAnalysisCoverageDto
 
   @ApiProperty({ type: EnvironmentalAnalysisContributionDto, isArray: true })
-  contributions!: EnvironmentalAnalysisContributionDto[]
+  contributions!: readonly EnvironmentalAnalysisContributionDto[]
 
   @ApiProperty({ type: EnvironmentalAnalysisExclusionDto, isArray: true })
-  exclusions!: EnvironmentalAnalysisExclusionDto[]
+  exclusions!: readonly EnvironmentalAnalysisExclusionDto[]
 }
