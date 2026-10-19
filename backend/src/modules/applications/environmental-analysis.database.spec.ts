@@ -328,4 +328,440 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       await database.query('DELETE FROM applications WHERE id = $1', [preciseApplicationId])
     }
   })
+
+  it('gives an explicit reason for legacy collections without saved calculation evidence', async () => {
+    const legacyApplicationId = `analysis-legacy-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [legacyApplicationId, 'Environmental analysis legacy test', 'AVAILABLE'],
+    )
+    await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, NULL, NULL, NULL, NULL, NULL, NULL)`,
+      [
+        legacyApplicationId,
+        fromUtc,
+        toUtc,
+        toUtc,
+        { cpuPercent: 1 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${legacyApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        applicationId: legacyApplicationId,
+        energy: {
+          value: null,
+          unit: 'kWh',
+          reasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
+        },
+        emissions: {
+          value: null,
+          unit: 'gCO2e',
+          reasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
+        },
+        coverage: { energy: 0, emissions: 0 },
+        contributions: [],
+        exclusions: [
+          {
+            collectionId: expect.any(String),
+            energyReasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
+            emissionsReasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
+          },
+        ],
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [legacyApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [legacyApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [legacyApplicationId])
+    }
+  })
+
+  it('keeps uncovered time as a gap and reports coverage over the requested period', async () => {
+    const gapApplicationId = `analysis-gap-${randomUUID()}`
+    const gapFrom = '2026-10-01T03:00:00.000Z'
+    const coveredTo = '2026-10-01T03:01:00.000Z'
+    const gapTo = '2026-10-01T03:03:00.000Z'
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [gapApplicationId, 'Environmental analysis gap test', 'AVAILABLE'],
+    )
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING id`,
+      [
+        gapApplicationId,
+        gapFrom,
+        coveredTo,
+        coveredTo,
+        { cpuPercent: 1 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+        6,
+        60,
+        10,
+        methodology.version,
+        factorSnapshot.version,
+        1,
+        {
+          version: 1,
+          energy: {
+            observationId: 'gap-observation',
+            applicationId: gapApplicationId,
+            averagePowerW: 6000,
+            energyKwh: 6,
+            durationSeconds: 60,
+            modelKey: methodology.key,
+            modelVersion: methodology.version,
+            modelParameters: methodology.parameters,
+            powerContributionsW: { cpuPercent: 6000 },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: 6,
+            factorSnapshot: { ...factorSnapshot, intensity: 10, queriedAt: coveredTo },
+            emissionsGramsCo2e: 60,
+            emissionsKilogramsCo2e: 0.06,
+            reasons: [],
+          },
+        },
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from: gapFrom, to: gapTo })
+      const response = await fetch(
+        new URL(`/applications/${gapApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        energy: { value: 6, unit: 'kWh', reasons: [{ code: 'NO_OBSERVATION' }] },
+        emissions: { value: 60, unit: 'gCO2e', reasons: [{ code: 'NO_OBSERVATION' }] },
+        coverage: { energy: 1 / 3, emissions: 1 / 3 },
+        contributions: [expect.objectContaining({ collectionId: collection.id })],
+        exclusions: [
+          expect.objectContaining({
+            collectionId: null,
+            interval: { from: coveredTo, to: gapTo },
+            energyReasons: [{ code: 'NO_OBSERVATION' }],
+            emissionsReasons: [{ code: 'NO_OBSERVATION' }],
+          }),
+        ],
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [gapApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [gapApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [gapApplicationId])
+    }
+  })
+
+  it('preserves valid energy when carbon emissions have no persisted result', async () => {
+    const energyOnlyApplicationId = `analysis-energy-only-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [energyOnlyApplicationId, 'Environmental analysis energy-only test', 'AVAILABLE'],
+    )
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL, NULL, $9, NULL, $10, $11)
+      RETURNING id`,
+      [
+        energyOnlyApplicationId,
+        fromUtc,
+        toUtc,
+        toUtc,
+        { cpuPercent: 1 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+        5,
+        methodology.version,
+        1,
+        {
+          version: 1,
+          energy: {
+            observationId: 'energy-only-observation',
+            applicationId: energyOnlyApplicationId,
+            averagePowerW: 300,
+            energyKwh: 5,
+            durationSeconds: 60,
+            modelKey: methodology.key,
+            modelVersion: methodology.version,
+            modelParameters: methodology.parameters,
+            powerContributionsW: { cpuPercent: 300 },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: 5,
+            factorSnapshot: null,
+            emissionsGramsCo2e: null,
+            emissionsKilogramsCo2e: null,
+            reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+          },
+        },
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${energyOnlyApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        energy: { value: 5, unit: 'kWh', reasons: [] },
+        emissions: {
+          value: null,
+          unit: 'gCO2e',
+          reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+        },
+        coverage: { energy: 1, emissions: 0 },
+        contributions: [
+          expect.objectContaining({
+            collectionId: collection.id,
+            energy: { value: 5, unit: 'kWh', reasons: [] },
+            emissions: {
+              value: null,
+              unit: 'gCO2e',
+              reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+            },
+            factorSnapshot: null,
+          }),
+        ],
+        exclusions: [
+          expect.objectContaining({
+            collectionId: collection.id,
+            energyReasons: [],
+            emissionsReasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+          }),
+        ],
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [energyOnlyApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [energyOnlyApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [energyOnlyApplicationId])
+    }
+  })
+
+  it('preserves zero saved energy and emissions as available measurements', async () => {
+    const zeroApplicationId = `analysis-zero-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state)
+       VALUES ($1, $2, $3)`,
+      [zeroApplicationId, 'Environmental analysis zero test', 'AVAILABLE'],
+    )
+    await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $9, $10, $11, $12)`,
+      [
+        zeroApplicationId,
+        fromUtc,
+        toUtc,
+        toUtc,
+        { cpuPercent: 0 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+        factorSnapshot.intensity,
+        methodology.version,
+        factorSnapshot.version,
+        1,
+        {
+          version: 1,
+          energy: {
+            observationId: 'zero-observation',
+            applicationId: zeroApplicationId,
+            averagePowerW: 0,
+            energyKwh: 0,
+            durationSeconds: 60,
+            modelKey: methodology.key,
+            modelVersion: methodology.version,
+            modelParameters: methodology.parameters,
+            powerContributionsW: { cpuPercent: 0, memoryGb: 0, diskGb: 0, networkGb: 0 },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: 0,
+            factorSnapshot,
+            emissionsGramsCo2e: 0,
+            emissionsKilogramsCo2e: 0,
+            reasons: [],
+          },
+        },
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${zeroApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        energy: { value: 0, unit: 'kWh', reasons: [] },
+        emissions: { value: 0, unit: 'gCO2e', reasons: [] },
+        coverage: { energy: 1, emissions: 1 },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [zeroApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [zeroApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [zeroApplicationId])
+    }
+  })
+  it('returns a structured bad request for an invalid half-open period', async () => {
+    const query = new URLSearchParams({
+      from: '2026-10-01T02:00:00.000Z',
+      to: '2026-10-01T01:00:00.000Z',
+    })
+    const response = await fetch(
+      new URL(`/applications/${applicationId}/analysis?${query}`, await app.getUrl()),
+    )
+    const body: unknown = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body).toMatchObject({ code: 'INVALID_ANALYSIS_PERIOD' })
+  })
+  it('returns not found for an application with no saved history', async () => {
+    const query = new URLSearchParams({ from: fromUtc, to: toUtc })
+    const missingId = `missing-${randomUUID()}`
+    const response = await fetch(
+      new URL(`/applications/${missingId}/analysis?${query}`, await app.getUrl()),
+    )
+    const body: unknown = await response.json()
+
+    expect(response.status).toBe(404)
+    expect(body).toMatchObject({ code: 'APPLICATION_NOT_FOUND' })
+  })
+  it('publishes the analysis response contract and error statuses in OpenAPI', async () => {
+    const response = await fetch(new URL('/openapi.json', await app.getUrl()))
+    const document = (await response.json()) as {
+      paths: Record<string, {
+        get: {
+          parameters: Array<{ name: string; in: string; required?: boolean; schema?: { type?: string; format?: string } }>
+          responses: Record<string, unknown>
+        }
+      }>
+      components: {
+        schemas: Record<string, {
+          properties: Record<string, { type?: string; nullable?: boolean }>
+          required?: string[]
+        }>
+      }
+    }
+    const operation = document.paths['/applications/{id}/analysis'].get
+    const measureSchema = document.components.schemas.EnvironmentalAnalysisMeasureDto
+
+    expect(response.status).toBe(200)
+    expect(operation.parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: 'id', in: 'path', required: true }),
+      expect.objectContaining({
+        name: 'from',
+        in: 'query',
+        required: true,
+        schema: { type: 'string', format: 'date-time' },
+      }),
+      expect.objectContaining({
+        name: 'to',
+        in: 'query',
+        required: true,
+        schema: { type: 'string', format: 'date-time' },
+      }),
+    ]))
+    expect(operation.responses).toMatchObject({
+      '200': {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/EnvironmentalAnalysisDto' },
+          },
+        },
+      },
+      '400': {},
+      '404': {},
+      '503': {},
+    })
+    expect(measureSchema.properties).toMatchObject({
+      value: { type: 'number', nullable: true },
+      unit: { type: 'string' },
+      reasons: { type: 'array' },
+    })
+    expect(measureSchema.required).toEqual(expect.arrayContaining(['value', 'unit', 'reasons']))
+  })
+  it('returns a generic service-unavailable response when persisted analysis cannot be read', async () => {
+    const unavailableTable = `collections_qa_${randomUUID().replaceAll('-', '')}`
+    await database.query(`ALTER TABLE collections RENAME TO "${unavailableTable}"`)
+
+    try {
+      const query = new URLSearchParams({ from: fromUtc, to: toUtc })
+      const response = await fetch(
+        new URL(`/applications/${applicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(503)
+      expect(body).toMatchObject({ code: 'APPLICATION_ANALYSIS_UNAVAILABLE' })
+      expect(JSON.stringify(body)).not.toContain(unavailableTable)
+    } finally {
+      await database.query(`ALTER TABLE "${unavailableTable}" RENAME TO collections`)
+    }
+  })
+  it('retains accessible saved analysis for an application marked removed', async () => {
+    await database.query(
+      `UPDATE applications SET state = 'REMOVED', "removedAt" = NOW() WHERE id = $1`,
+      [applicationId],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${applicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        applicationId,
+        energy: { value: energyKwh, unit: 'kWh' },
+        emissions: { value: emissionsGrams, unit: 'gCO2e' },
+      })
+    } finally {
+      await database.query(
+        `UPDATE applications SET state = 'AVAILABLE', "removedAt" = NULL WHERE id = $1`,
+        [applicationId],
+      )
+    }
+  })
 })
