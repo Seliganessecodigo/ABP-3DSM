@@ -237,6 +237,29 @@ test('catálogo mostra motivo e frescor de uma observação válida', async ({ p
   await expect(applicationRow).toContainText(/14:30/)
 })
 
+test('cabeçalhos do catálogo têm nomes localizados e ações', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 })
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+
+  const table = page.getByRole('table')
+  for (const name of ['Aplicação', 'País', 'Código regional', 'Cidade', 'Estado', 'Última verificação', 'Ações']) {
+    await expect(table.getByRole('columnheader', { name, exact: true })).toBeVisible()
+  }
+})
+
+test('ação de detalhe permanece visível no desktop com motivo e frescor extensos', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 })
+  await mockCatalog(page, [application({ reason: 'REQUIRED_FIELD_MISSING', isStale: true })])
+  await page.goto('/')
+
+  const applicationRow = row(page, 'svc-0142')
+  await expect(applicationRow).toContainText(/campo obrigat[oó]rio/i)
+  await expect(applicationRow).toContainText(/observa[cç][aã]o desatualizada/i)
+  const details = applicationRow.getByRole('link', { name: /ver detalhes/i })
+  await expect(details).toBeInViewport()
+})
+
 test('última verificação usa o horário fornecido no fuso da pessoa', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')

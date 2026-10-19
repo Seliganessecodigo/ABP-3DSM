@@ -8,12 +8,25 @@
 .filter { min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 12px; color: var(--text-secondary); background: var(--surface-card); font-size: 11px; font-weight: 600; cursor: pointer; }
 .filter.active { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); }
 .table-wrap { overflow: auto; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card);  }
-.table-wrap table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+.table-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 12px; }
 .table-wrap th { height: 44px; padding: 0 12px; color: var(--text-secondary); background: var(--surface-raised); font-size: 10px; font-weight: 700; white-space: nowrap; }
 .table-wrap td { height: 64px; border-top: 1px solid var(--border-default); padding: 8px 12px; color: var(--text-primary); white-space: nowrap; }
+.table-wrap th:nth-child(1), .table-wrap td:nth-child(1) { width: 20%; }
+.table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 11%; }
+.table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 13%; }
+.table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 13%; }
+.table-wrap th:nth-child(5), .table-wrap td:nth-child(5) { width: 18%; }
+.table-wrap th:nth-child(6), .table-wrap td:nth-child(6) { width: 15%; }
+.table-wrap th:nth-child(7), .table-wrap td:nth-child(7) { width: 10%; }
+.table-wrap td:nth-child(1), .table-wrap td:nth-child(2), .table-wrap td:nth-child(3), .table-wrap td:nth-child(4), .table-wrap td:nth-child(6) { white-space: normal; overflow-wrap: anywhere; }
 .table-wrap td:first-child { min-width: 124px; }
 .table-wrap td strong { display: block; color: var(--text-primary); font-size: 12px; }
 .detail-link { color: var(--accent-default); font-size: 11px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.state-details summary { width: fit-content; cursor: pointer; }
+.state-metadata { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; white-space: normal; overflow-wrap: anywhere; }
+.stale-label { display: block; margin-top: 4px; white-space: normal; }
+.mobile-field { margin: 8px 0; color: var(--text-secondary); font-size: 12px; overflow-wrap: anywhere; }
+.mobile-field > strong { color: var(--text-primary); }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 12px 0 0; color: var(--text-secondary); font-size: 11px; }
 .pagination > div { display: flex; gap: 8px; }
 .pagination label { display: flex; align-items: center; gap: 8px; }
