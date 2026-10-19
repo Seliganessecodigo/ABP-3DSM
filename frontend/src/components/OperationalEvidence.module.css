@@ -6,15 +6,30 @@
 .dates > div { min-width: 0; }
 .dates dt { margin-bottom: 4px; color: var(--text-secondary); font-size: 11px; }
 .dates dd { margin: 0; color: var(--text-primary); font-size: 12px; overflow-wrap: anywhere; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.search { display: flex; flex: 1 1 240px; flex-direction: column; gap: 8px; color: var(--text-secondary); font-size: 12px; }
+.search input { width: 100%; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 12px; color: var(--text-primary); background: var(--control-background); font: inherit; }
+.filter { display: flex; flex: 0 1 180px; flex-direction: column; gap: 8px; color: var(--text-secondary); font-size: 12px; }
+.filter select { width: 100%; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 8px; color: var(--text-primary); background: var(--control-background); font: inherit; }
+.search input:focus-visible, .filter select:focus-visible, .clearFilters:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.clearFilters { align-self: flex-end; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; }
+.clearFilters:disabled { cursor: not-allowed; opacity: .55; }
+.filteredCount { margin: 0 0 8px; color: var(--text-secondary); font-size: 12px; }
 .table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 12px; }
 .table thead { background: var(--surface-raised); color: var(--text-secondary); }
 .table th, .table td { padding: 12px 8px; border-bottom: 1px solid var(--border-default); }
 .table tbody th { color: var(--text-primary); font-weight: 500; }
 .table tbody th, .table td { overflow-wrap: anywhere; }
 .table tbody td:last-child { color: var(--text-primary); font-weight: 600; }
+.sortButton { min-height: 44px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; text-align: left; cursor: pointer; }
+.sortButton:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.noMatches { margin: 0; border: 1px solid var(--border-default); border-radius: 8px; padding: 12px; color: var(--text-secondary); background: var(--surface-raised); }
 .note { margin: 12px 0 0 !important; }
 @media (max-width: 640px) {
   .card { padding: 16px; }
   .dates { grid-template-columns: 1fr; gap: 12px; }
+  .filters { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .filter { min-width: 0; }
+  .clearFilters { justify-self: start; }
   .table th, .table td { padding: 12px 8px; }
 }

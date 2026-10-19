@@ -26,6 +26,7 @@ export function useApplicationDetail(id: string, selectedCollectionId: string | 
   const [state, setState] = useState(() => emptyState(id))
   const current = state.id === id ? state : emptyState(id)
   const [attempt, setAttempt] = useState(0)
+  const [refreshCycle, setRefreshCycle] = useState(0)
   useEffect(() => {
     let active = true
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -36,6 +37,7 @@ export function useApplicationDetail(id: string, selectedCollectionId: string | 
     }
 
     const load = async () => {
+      setRefreshCycle((value) => value + 1)
       controller = new AbortController()
       update((previous) => ({ ...previous, loading: previous.application === null, refreshing: true,
         collectionLoading: previous.collection === null || (selectedCollectionId !== null && previous.collection.id !== selectedCollectionId),
@@ -92,5 +94,5 @@ export function useApplicationDetail(id: string, selectedCollectionId: string | 
     if (current.refreshing) return
     setAttempt((current) => current + 1)
   }
-  return { ...current, pollingIntervalMs: APPLICATION_POLL_INTERVAL_MS, retry }
+  return { ...current, pollingIntervalMs: APPLICATION_POLL_INTERVAL_MS, refreshCycle, retry }
 }

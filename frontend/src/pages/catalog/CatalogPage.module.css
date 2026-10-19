@@ -21,7 +21,7 @@
 .table-wrap td:nth-child(1), .table-wrap td:nth-child(2), .table-wrap td:nth-child(3), .table-wrap td:nth-child(4), .table-wrap td:nth-child(6) { white-space: normal; overflow-wrap: anywhere; }
 .table-wrap td:first-child { min-width: 124px; }
 .table-wrap td strong { display: block; color: var(--text-primary); font-size: 12px; }
-.detail-link { color: var(--accent-default); font-size: 11px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.detail-link { min-height: 44px; display: inline-flex; align-items: center; color: var(--accent-default); font-size: 11px; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .state-details summary { width: fit-content; cursor: pointer; }
 .state-metadata { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; white-space: normal; overflow-wrap: anywhere; }
 .stale-label { display: block; margin-top: 4px; white-space: normal; }
@@ -74,6 +74,7 @@
   .mobile-cards { display: grid; gap: 12px; }
   .mobile-card { border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; background: var(--surface-card); }
   .mobile-card h2 { margin: 0; color: var(--text-primary); font-size: 15px; }
+  .state-details summary { min-height: 44px; display: flex; align-items: center; }
   .mobile-card p { margin: 8px 0; color: var(--text-secondary); font-size: 12px; }
   .pagination { align-items: flex-start; flex-direction: column; }
 }
