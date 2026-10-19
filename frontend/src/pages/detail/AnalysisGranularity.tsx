@@ -15,9 +15,9 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
   labels: AnalysisGranularityLabels
 }>) {
   if (capabilities.status === 'unavailable') {
-    return <section className={styles.section} aria-label={labels.heading}>
-      <h2>{labels.heading}</h2>
-      <p role="status">{labels.unavailable}</p>
+    return <section className={styles.section} aria-labelledby="analysis-granularity-heading">
+      <h2 id="analysis-granularity-heading">{labels.heading}</h2>
+      <output className={styles.unavailable}>{labels.unavailable}</output>
     </section>
   }
 
@@ -26,17 +26,19 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
     ? capabilities.selectedValue
     : null
 
-  return <section className={styles.section} aria-label={labels.heading}>
-    <h2>{labels.heading}</h2>
-    {requestedValue !== null && !requestedIsSupported && <div className={styles.alert} role="alert">
-      <p>{labels.unsupported}</p>
-      <button type="button" className={styles.repair} disabled={selectedValue === null}
-        onClick={() => selectedValue !== null && onChange(selectedValue)}>{labels.repair}</button>
-    </div>}
-    <div className={styles.options} role="group" aria-label={labels.heading}>
-      {capabilities.options.map(({ value, label }) => <button key={value} type="button"
-        className={styles.option} aria-pressed={selectedValue === value}
-        onClick={() => onChange(value)}>{label}</button>)}
-    </div>
+  return <section className={styles.section} aria-labelledby="analysis-granularity-heading">
+    <fieldset className={styles.options} aria-labelledby="analysis-granularity-heading">
+      <h2 id="analysis-granularity-heading">{labels.heading}</h2>
+      {requestedValue !== null && !requestedIsSupported && <div className={styles.alert} role="alert">
+        <p>{labels.unsupported}</p>
+        <button type="button" className={styles.repair} disabled={selectedValue === null}
+          onClick={() => selectedValue !== null && onChange(selectedValue)}>{labels.repair}</button>
+      </div>}
+      <div className={styles.choices}>
+        {capabilities.options.map(({ value, label }) => <button key={value} type="button"
+          className={styles.option} aria-pressed={selectedValue === value}
+          onClick={() => onChange(value)}>{label}</button>)}
+      </div>
+    </fieldset>
   </section>
 }

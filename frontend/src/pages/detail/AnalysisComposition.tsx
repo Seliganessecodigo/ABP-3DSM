@@ -25,12 +25,16 @@ function Reading({ reading, locale, labels }: Readonly<{
 }>) {
   if (reading.status !== 'available') {
     return <div className={styles.unavailable}>
-      <p>{reading.status === 'not-calculable' ? labels.notCalculable : labels.metricUnavailable}</p>
+      <p>{readingUnavailableLabel(reading.status, labels)}</p>
       <p>{labels.reasons[reading.reason]}</p>
     </div>
   }
 
   return <p className={styles.value}>{new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(reading.value)} {reading.unit}</p>
+}
+
+function readingUnavailableLabel(status: AnalysisReading['status'], labels: AnalysisCompositionLabels) {
+  return status === 'not-calculable' ? labels.notCalculable : labels.metricUnavailable
 }
 
 export function AnalysisComposition({ result, totals, locale, formatDate, labels }: Readonly<{
@@ -47,31 +51,31 @@ export function AnalysisComposition({ result, totals, locale, formatDate, labels
 {totals !== null && <section className={styles.totals} aria-label={labels.totalsHeading}>
       <h3>{labels.totalsHeading}</h3>
       <div className={styles.totalGrid}>
-        <div className={styles.total} role="group" aria-label={labels.energy}>
-          <h4>{labels.energy}</h4>
+        <fieldset className={styles.total} aria-labelledby="composition-energy-heading">
+          <h4 id="composition-energy-heading">{labels.energy}</h4>
           <Reading reading={totals.energy} locale={locale} labels={labels} />
-        </div>
-        <div className={styles.total} role="group" aria-label={labels.emissions}>
-          <h4>{labels.emissions}</h4>
+        </fieldset>
+        <fieldset className={styles.total} aria-labelledby="composition-emissions-heading">
+          <h4 id="composition-emissions-heading">{labels.emissions}</h4>
           <Reading reading={totals.emissions} locale={locale} labels={labels} />
-        </div>
+        </fieldset>
       </div>
     </section>}
-    {result.status === 'empty' && <p className={styles.state} role="status">{labels.empty}</p>}
-    {result.status === 'unavailable' && <div className={styles.state} role="status">
-      <p>{labels.unavailable}</p>
-      <p>{result.reason}</p>
-    </div>}
+    {result.status === 'empty' && <output className={styles.state}>{labels.empty}</output>}
+    {result.status === 'unavailable' && <output className={styles.state}>
+      <span>{labels.unavailable}</span>
+      <span>{result.reason}</span>
+    </output>}
     {result.status === 'available' && <>
       {result.contributions.length === 0 && result.exclusions.length === 0
-        ? <p className={styles.state} role="status">{labels.empty}</p>
+        ? <output className={styles.state}>{labels.empty}</output>
         : <>
           {result.contributions.length > 0 && <section className={styles.listSection} aria-label={labels.contributionsHeading}>
             <h3>{labels.contributionsHeading}</h3>
             <ul className={styles.list}>
               {result.contributions.map((contribution) => <li key={contribution.id}>
-                <article className={styles.entry} role="group" aria-label={contribution.label}>
-                  <h4>{contribution.label}</h4>
+                <fieldset className={styles.entry} aria-labelledby={`composition-contribution-${contribution.id}`}>
+                  <h4 id={`composition-contribution-${contribution.id}`}>{contribution.label}</h4>
                   <dl className={styles.details}>
                     <div><dt>{labels.interval}</dt><dd>{interval(contribution.from, contribution.to)}</dd></div>
                     <div><dt>{labels.source}</dt><dd>{contribution.source}</dd></div>
@@ -80,7 +84,7 @@ export function AnalysisComposition({ result, totals, locale, formatDate, labels
                     <div><h5>{labels.energy}</h5><Reading reading={contribution.energy} locale={locale} labels={labels} /></div>
                     <div><h5>{labels.emissions}</h5><Reading reading={contribution.emissions} locale={locale} labels={labels} /></div>
                   </div>
-                </article>
+                </fieldset>
               </li>)}
             </ul>
           </section>}
@@ -88,13 +92,13 @@ export function AnalysisComposition({ result, totals, locale, formatDate, labels
             <h3>{labels.exclusionsHeading}</h3>
             <ul className={styles.list}>
               {result.exclusions.map((exclusion) => <li key={exclusion.id}>
-                <article className={styles.exclusion} role="group" aria-label={exclusion.label}>
-                  <h4>{exclusion.label}</h4>
+                <fieldset className={styles.exclusion} aria-labelledby={`composition-exclusion-${exclusion.id}`}>
+                  <h4 id={`composition-exclusion-${exclusion.id}`}>{exclusion.label}</h4>
                   <dl className={styles.details}>
                     <div><dt>{labels.interval}</dt><dd>{interval(exclusion.from, exclusion.to)}</dd></div>
                     <div><dt>{labels.reason}</dt><dd>{exclusion.reason}</dd></div>
                   </dl>
-                </article>
+                </fieldset>
               </li>)}
             </ul>
           </section>}

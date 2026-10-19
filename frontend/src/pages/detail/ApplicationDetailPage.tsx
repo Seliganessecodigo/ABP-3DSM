@@ -2,7 +2,7 @@ import styles from './ApplicationDetailPage.module.css'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { OperationalEvidence, type OperationalEvidenceQuery, type MetricKey } from '../../components/OperationalEvidence.tsx'
-import type { MetricStatus } from '../../features/applications/api.ts'
+import type { Application, CollectionEvidence, MetricStatus } from '../../features/applications/api.ts'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../utils/formatDate.ts'
@@ -10,11 +10,39 @@ import { reasonLabel, stateLabel } from '../../features/applications/presentatio
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
-import { unavailableAnalysisSource, type AnalysisSource } from '../../features/analysis/source.ts'
+import { unavailableAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
+
+type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
+
+function isUnsupportedGranularity(requestedValue: string | null, capabilities: AnalysisGranularityCapabilities) {
+  if (requestedValue === null || capabilities.status === 'unavailable') return false
+  return !capabilities.options.some(({ value }) => value === requestedValue)
+}
+
+function visibleCollection(collection: CollectionEvidence | null, selectedCollectionId: string | null) {
+  if (collection === null) return null
+  if (selectedCollectionId && collection.id !== selectedCollectionId) return null
+  return collection
+}
+
+function environmentalStatus(period: string | null, unsupportedGranularity: boolean,
+  sourceStatus: ReturnType<typeof useEnvironmentalAnalysis>['status']): EnvironmentalStatus {
+  if (period === null) return 'invalid-period'
+  if (unsupportedGranularity) return 'invalid-granularity'
+  return sourceStatus
+}
+
+function freshnessLabel(application: Pick<Application, 'state' | 'lastObservationAt' | 'isStale'>,
+  labels: Readonly<{ removed: string; noObservation: string; stale: string; current: string }>) {
+  if (application.state === 'REMOVED') return labels.removed
+  if (application.lastObservationAt === null) return labels.noObservation
+  if (application.isStale) return labels.stale
+  return labels.current
+}
 
 export function ApplicationDetailPage({ id, navigate, analysisSource = unavailableAnalysisSource }: Readonly<{
   id: string
@@ -48,14 +76,15 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
   const environmentalAnalysis = useEnvironmentalAnalysis(id, analysisPeriod, analysisGranularity, analysisSource,
     application !== null && selectedPeriod !== null, refreshCycle)
   const granularityCapabilities = environmentalAnalysis.data?.granularity ?? { status: 'unavailable' as const }
-  const unsupportedGranularity = analysisGranularity !== null && granularityCapabilities.status === 'available' &&
-    !granularityCapabilities.options.some(({ value }) => value === analysisGranularity)
-  const visibleCollection = collection && (!selectedCollectionId || collection.id === selectedCollectionId) ? collection : null
+  const unsupportedGranularity = isUnsupportedGranularity(analysisGranularity, granularityCapabilities)
+  const currentCollection = visibleCollection(collection, selectedCollectionId)
+  const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
+  const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const backUrl = `/${window.location.search}`
   const contextContent = application && <>
       <section className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
-      <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{application.state === 'REMOVED' ? tDetail('freshnessRemoved') : !application.lastObservationAt ? tCommon('date.noObservation') : application.isStale ? tCommon('freshness.stale') : tCommon('freshness.current')}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl></section>
-    <OperationalEvidence evidence={visibleCollection} loading={collectionLoading} notFound={collectionNotFound}
+      <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{freshnessLabel(application, { removed: tDetail('freshnessRemoved'), noObservation: tCommon('date.noObservation'), stale: tCommon('freshness.stale'), current: tCommon('freshness.current') })}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl></section>
+    <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound}
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
       formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
@@ -106,8 +135,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
           navigate(`${next.pathname}?${next.searchParams.toString()}`)
         }} />
       </div>
-      <EnvironmentalAnalysis data={selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data}
-        status={selectedPeriod === null ? 'invalid-period' : unsupportedGranularity ? 'invalid-granularity' : environmentalAnalysis.status}
+      <EnvironmentalAnalysis data={analysisData}
+        status={analysisState}
         lastAttemptAt={environmentalAnalysis.lastAttemptAt} lastSuccessAt={environmentalAnalysis.lastSuccessAt}
         lastSuccessStatus={environmentalAnalysis.lastSuccessStatus}
         seriesPage={seriesPage} seriesPageSize={seriesPageSize}

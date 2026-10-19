@@ -16,6 +16,13 @@ const columns: Array<{ key: CatalogSortColumn; label: string; commonLabel?: bool
 ]
 const pageSizes = [5, 10, 15, 20, 'all'] as const
 
+function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn):
+  Readonly<{ ariaSort: 'ascending' | 'descending' | 'none'; indicator: string }> {
+  if (sort?.column !== column) return { ariaSort: 'none', indicator: '' }
+  if (sort.direction === 'asc') return { ariaSort: 'ascending', indicator: ' \u2191' }
+  return { ariaSort: 'descending', indicator: ' \u2193' }
+}
+
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t: tCatalog, i18n } = useTranslation('catalog')
   const { t: tCommon } = useTranslation('common')
@@ -122,6 +129,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     return `${fields.year}-${fields.month}-${fields.day}T${fields.hour}:${fields.minute}`
   }
   const columnLabel = (column: (typeof columns)[number]) => column.commonLabel ? tCommon(column.label) : tCatalog(column.label)
+  const columnSort = (column: CatalogSortColumn) => sortPresentation(query.sort, column)
   const region = (item: (typeof applications)[number]) => item.location?.regionCode ?? tCommon('location.unknown')
   const displayCell = (item: (typeof applications)[number], column: CatalogSortColumn) => {
     if (column === 'name') return <><strong>{item.name}</strong><small className="identifier">{item.id}</small></>
@@ -166,7 +174,10 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     {!loading && hasSnapshot && applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
     {!loading && hasSnapshot && applications.length > 0 && result.total === 0 && <RequestFeedback state="empty"><h2>{tCatalog('noResults')}</h2><p>{tCatalog('adjustFilters')}</p></RequestFeedback>}
     {!loading && hasSnapshot && result.total > 0 && <>
-      <div className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => <th scope="col" key={column.key} aria-sort={query.sort?.column === column.key ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{query.sort?.column === column.key ? query.sort.direction === 'asc' ? ' \u2191' : ' \u2193' : ''}</span></button></th>)}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
+      <div className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => {
+        const sort = columnSort(column.key)
+        return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
+      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
       <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><p className="identifier">{item.id}</p>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
       <div className={styles.pagination}><span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span><label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label><div><button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}>{tCatalog('previous')}</button><span>{tCatalog('page', { page: result.page, count: result.pageCount })}</span><button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => update({ page: result.page + 1 })}>{tCatalog('next')}</button></div></div>
     </>}
