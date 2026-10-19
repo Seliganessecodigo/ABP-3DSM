@@ -50,6 +50,18 @@ O contrato OpenAPI 1.0.0 está em `GET /openapi.json` e a interface de documenta
 
 `CollectionsRepository.findHistoryByApplication(id)` lê as coletas persistidas da mesma identidade em ordem temporal. Remoção e retorno não alteram essas linhas; o intervalo removido não ganha pontos nem valores zero. A representação explícita da lacuna na resposta temporal será definida pela task #114, que ainda não fornece esse contrato.
 
+## Metodologia do resultado por coleta — #58
+
+As consultas públicas `GET /applications/{id}/collections/{collectionId}` e `GET /applications/{id}/collections/latest` incluem o bloco `environmental`, associado à coleta retornada. A consulta lê somente o resultado persistido, sem recalcular, consultar fatores atuais ou substituir parâmetros históricos. O OpenAPI descreve campos, unidades, motivos estruturados e nulabilidade.
+
+Com evidência versão `1`, `status: present` informa energia e carbono, parâmetros efetivos, chave/versão do modelo, contribuições de potência e snapshot original do fator. `energy.valueKwh`, `carbon.valueGramsCo2e` e `carbon.factor` vêm das colunas quantizadas; os campos `calculatedValue*` preservam os valores originais do JSONB. `energy.coverage` é a fração persistida entre zero e um. As referências `configId`/`configVersion` continuam nulas quando não há cadastro associado; os parâmetros capturados continuam disponíveis.
+
+Para `simplified-energy` versão `1`, a resposta apresenta a fórmula fixa daquela versão e as unidades de entrada e saída. Uma chave ou versão desconhecida mantém seus valores e parâmetros, mas retorna `formula.status: unavailable`, campos da fórmula nulos e `FORMULA_UNAVAILABLE`; não recebe a fórmula atual como substituta. A fórmula de carbono descreve kWh × gCO2e/kWh = gCO2e e a conversão para kgCO2e. A versão do contrato do fator não representa a versão da fórmula. No snapshot, `queriedAt` indica consulta pelo GreenER; fonte e vigência desconhecidas permanecem nulas.
+
+Sem evidência suportada, a coleta continua retornando sucesso com `status: absent`, `absenceReason: ENVIRONMENTAL_EVIDENCE_UNAVAILABLE`, energia e carbono nulos, sem inferir a causa histórica. Um bundle presente pode conter resultado parcial, valores nulos e razões específicas; zero válido permanece zero. Os erros existentes de recurso inexistente (404) e falha de leitura (503) permanecem distintos desses estados.
+
+Os testes HTTP/PostgreSQL estão em `src/modules/applications/applications.database.spec.ts`. Para executá-los, defina `TEST_DATABASE_URL` para um PostgreSQL isolado e rode `npm test -- --runInBand --runTestsByPath src/modules/applications/applications.database.spec.ts`. A suíte aplica migrations e manipula seus registros de teste; não use o banco de desenvolvimento ou produção.
+
 ## Consulta ambiental por período — #235
 
 `GET /applications/{id}/analysis?from={RFC3339}&to={RFC3339}` expõe o resumo ambiental das coletas persistidas. `from` e `to` exigem fuso explícito, são normalizados para UTC e delimitam o intervalo semiaberto `[from,to)`. A resposta `EnvironmentalAnalysisDto` contém `status` (`available` ou `empty`), aplicação e período, totais de energia e emissões, coberturas independentes e `provenance` agrupada: metodologias, fatores efetivamente usados e razões. O resumo não inclui linhas de contribuições/exclusões por coleta; a inspeção individual, com snapshots completos, pertence à série paginada de #174. O endpoint não chama o agregador de métricas nem consulta fatores atuais.
