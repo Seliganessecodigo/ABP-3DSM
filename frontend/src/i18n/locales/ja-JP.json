@@ -36,5 +36,5 @@
   "state.UNAVAILABLE": "利用不可",
   "state.NO_METRICS": "メトリクスなし",
   "state.REMOVED": "削除済み",
-  "date.lastObservation": "最後の有効な観測", "freshness.stale": "古い観測", "freshness.current": "現在の観測", "calculability.available": "エネルギーとCO₂eの推定値を利用できます", "calculability.unavailable": "エネルギーとCO₂eの推定値を利用できません", "reason.NO_OBSERVATION": "有効な観測はまだありません", "reason.METRICS_VALID": "有効なメトリクス", "reason.METRICS_MISSING": "メトリクスがありません", "reason.SOURCE_TIMEOUT": "ソースの応答が遅すぎます", "reason.SOURCE_ERROR": "ソースでエラーが発生しました", "reason.REQUIRED_FIELD_MISSING": "ソースに必須フィールドがありません", "reason.INVALID_FIELD": "ソースに無効なフィールドがあります", "reason.MONITORING_CYCLE_DELAYED": "監視サイクルが遅延しています", "reason.CARBON_FACTOR_UNAVAILABLE": "炭素係数を利用できません", "reason.REMOVAL_CONFIRMED": "削除を確認しました"
+  "date.lastObservation": "最後の有効な観測", "freshness.stale": "古い観測", "freshness.current": "現在の観測", "calculability.available": "運用指標は十分です", "calculability.unavailable": "運用指標は不十分です", "reason.NO_OBSERVATION": "有効な観測はまだありません", "reason.METRICS_VALID": "有効なメトリクス", "reason.METRICS_MISSING": "メトリクスがありません", "reason.SOURCE_TIMEOUT": "ソースの応答が遅すぎます", "reason.SOURCE_ERROR": "ソースでエラーが発生しました", "reason.REQUIRED_FIELD_MISSING": "ソースに必須フィールドがありません", "reason.INVALID_FIELD": "ソースに無効なフィールドがあります", "reason.MONITORING_CYCLE_DELAYED": "監視サイクルが遅延しています", "reason.CARBON_FACTOR_UNAVAILABLE": "炭素係数を利用できません", "reason.REMOVAL_CONFIRMED": "削除を確認しました"
 }
