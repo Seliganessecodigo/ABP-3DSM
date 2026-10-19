@@ -10,6 +10,7 @@ import { InitialSchema1791240000000 } from '../../database/migrations/1791240000
 import { CompleteMonitoringPersistence1791250000000 } from '../../database/migrations/1791250000000-CompleteMonitoringPersistence'
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
+import { CollectionCalculationEvidence1791380000000 } from '../../database/migrations/1791380000000-CollectionCalculationEvidence'
 import { CarbonModule } from './carbon.module'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
@@ -37,6 +38,7 @@ describeDatabase('API pública de intensidade de carbono', () => {
         CompleteMonitoringPersistence1791250000000,
         AddApplicationLocation1791260000000,
         CarbonFactorSnapshots1791340000000,
+        CollectionCalculationEvidence1791380000000,
       ],
       synchronize: false,
     })
