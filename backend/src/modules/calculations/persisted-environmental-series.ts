@@ -95,6 +95,15 @@ function floorBucket(timestamp: Date, granularity: EnvironmentalSeriesGranularit
   return bucket
 }
 
+function dateFromNanoseconds(nanoseconds: bigint): Date {
+  const milliseconds = nanoseconds / 1_000_000n
+  const remainder = nanoseconds % 1_000_000n
+  const flooredMilliseconds = nanoseconds < 0n && remainder !== 0n
+    ? milliseconds - 1n
+    : milliseconds
+  return new Date(Number(flooredMilliseconds))
+}
+
 function nextBucket(timestamp: Date, granularity: EnvironmentalSeriesGranularity): Date {
   const next = new Date(timestamp)
   if (granularity === 'year') next.setUTCFullYear(next.getUTCFullYear() + 1)
@@ -112,7 +121,7 @@ export function countEnvironmentalSeriesBuckets(
   const start = parseZonedTimestampNanoseconds(from)
   const end = parseZonedTimestampNanoseconds(to)
   if (start === null || end === null || end <= start) throw new Error('INVALID_ANALYSIS_PERIOD')
-  let bucket = floorBucket(new Date(Number(start / 1_000_000n)), granularity)
+  let bucket = floorBucket(dateFromNanoseconds(start), granularity)
   let count = 0
   while (BigInt(bucket.getTime()) * 1_000_000n < end) {
     count += 1
@@ -132,7 +141,7 @@ export function getEnvironmentalSeriesBucket(
   const periodEnd = parseZonedTimestampNanoseconds(to)
   const requestedStart = parseZonedTimestampNanoseconds(bucketStart)
   if (periodStart === null || periodEnd === null || periodEnd <= periodStart || requestedStart === null) return null
-  const calendarStart = floorBucket(new Date(Number(requestedStart / 1_000_000n)), granularity)
+  const calendarStart = floorBucket(dateFromNanoseconds(requestedStart), granularity)
   const bucketStartNs = BigInt(calendarStart.getTime()) * 1_000_000n
   if (bucketStartNs !== requestedStart) return null
   const calendarEnd = nextBucket(calendarStart, granularity)
@@ -228,19 +237,17 @@ function addProjectionDetails(
 ): void {
   const hasEnergy = projection.energy.value !== null
   const hasEmissions = projection.emissions.value !== null
-  if (hasEnergy || hasEmissions) {
-    contributions.push({
-      collectionId: observation.id,
-      originalInterval: projection.originalInterval!,
-      countedInterval: projection.interval,
-      collectedAt: projection.collectedAt!,
-      energy: { ...projection.energy, originalValue: projection.energyOriginalValue },
-      emissions: { ...projection.emissions, originalValue: projection.emissionsOriginalValue },
-      durationRatio: projection.durationRatio,
-      methodology: projection.methodology,
-      factorSnapshot: projection.factorSnapshot,
-    })
-  }
+  contributions.push({
+    collectionId: observation.id,
+    originalInterval: projection.originalInterval!,
+    countedInterval: projection.interval,
+    collectedAt: projection.collectedAt!,
+    energy: { ...projection.energy, originalValue: projection.energyOriginalValue },
+    emissions: { ...projection.emissions, originalValue: projection.emissionsOriginalValue },
+    durationRatio: projection.durationRatio,
+    methodology: projection.methodology,
+    factorSnapshot: projection.factorSnapshot,
+  })
   if (!hasEnergy || !hasEmissions) {
     exclusions.push({
       collectionId: observation.id,
@@ -302,8 +309,8 @@ export function aggregatePersistedEnvironmentalSeriesBucket(
       emissionsReasons: [{ code: 'NO_OBSERVATION' }],
     }]
     : values.exclusions
-  const calendarStart = new Date(Number(parseZonedTimestampNanoseconds(bounds.start)! / 1_000_000n))
-  const calendarEnd = new Date(Number(parseZonedTimestampNanoseconds(bounds.end)! / 1_000_000n))
+  const calendarStart = dateFromNanoseconds(parseZonedTimestampNanoseconds(bounds.start)!)
+  const calendarEnd = dateFromNanoseconds(parseZonedTimestampNanoseconds(bounds.end)!)
   const point = createPoint(calendarStart, calendarEnd, start, end, values)
   return {
     totals: { energy: point.energy, emissions: point.emissions },
@@ -325,7 +332,7 @@ export function aggregatePersistedEnvironmentalSeries(
 
   const segments = resolvePersistedEnvironmentalSegments(from, to, observations)
   const points: EnvironmentalSeriesPoint[] = []
-  let bucketStart = floorBucket(new Date(Number(start / 1_000_000n)), granularity)
+  let bucketStart = floorBucket(dateFromNanoseconds(start), granularity)
   let segmentIndex = 0
   let energyTotal = 0
   let emissionsTotal = 0

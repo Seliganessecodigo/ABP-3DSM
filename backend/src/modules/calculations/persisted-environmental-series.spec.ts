@@ -1,4 +1,4 @@
-import { aggregatePersistedEnvironmentalSeries } from './persisted-environmental-series'
+import { aggregatePersistedEnvironmentalSeries, countEnvironmentalSeriesBuckets } from './persisted-environmental-series'
 import type { PersistedEnvironmentalInterval } from './persisted-environmental-period'
 
 describe('série ambiental persistida por calendário UTC', () => {
@@ -166,5 +166,37 @@ describe('série ambiental persistida por calendário UTC', () => {
       emissions: { value: 190 },
     })
     expect(series.coverage).toEqual({ energy: 0, emissions: 1 })
+  })
+
+  it('keeps the one-nanosecond interval before the epoch in the 1969 UTC bucket', () => {
+    const from = '1969-12-31T23:59:59.999999999Z'
+    const to = '1970-01-01T00:00:00.000000000Z'
+    const observation: PersistedEnvironmentalInterval = {
+      id: 'pre-epoch-one-nanosecond',
+      intervalStart: from,
+      intervalEnd: to,
+      collectedAt: to,
+      energyKwh: '2',
+      carbonGrams: '20',
+      calculationEvidence: {
+        energy: { modelKey: 'saved-model', modelVersion: 'v1', modelParameters: {}, reasons: [] },
+        carbon: { factorSnapshot: null, reasons: [] },
+      },
+    }
+
+    expect(countEnvironmentalSeriesBuckets(from, to, 'day')).toBe(1)
+    const series = aggregatePersistedEnvironmentalSeries(from, to, 'day', [observation])
+    expect(series.points).toMatchObject([
+      {
+        bucketStart: '1969-12-31T00:00:00.000Z',
+        bucketEnd: '1970-01-01T00:00:00.000Z',
+        period: { from, to: '1970-01-01T00:00:00.000Z' },
+        energy: { value: 2 },
+        emissions: { value: 20 },
+        coverage: { energy: 1, emissions: 1 },
+      },
+    ])
+    expect(series.totals).toMatchObject({ energy: { value: 2 }, emissions: { value: 20 } })
+    expect(series.coverage).toEqual({ energy: 1, emissions: 1 })
   })
 })

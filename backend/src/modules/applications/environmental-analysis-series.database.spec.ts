@@ -935,4 +935,69 @@ describeWithDatabase('GET /applications/:id/analysis/series com PostgreSQL', () 
       await database.query('DELETE FROM applications WHERE id = $1', [emptyApplicationId])
     }
   })
+
+  it('preserves snapshots for a collection with no calculated results in paginated contributions', async () => {
+    const uncalculatedApplicationId = `analysis-series-uncalculated-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)`,
+      [uncalculatedApplicationId, 'Environmental series uncalculated contribution test', 'AVAILABLE'],
+    )
+    const collectionId = await insertCollection(database, {
+      applicationId: uncalculatedApplicationId,
+      from: '2026-10-01T00:00:00.000Z',
+      to: '2026-10-01T01:00:00.000Z',
+      energy: null,
+      emissions: null,
+      methodologyVersion: 'historic-model-v7',
+      factorVersion: 'historic-factor-v4',
+    })
+
+    try {
+      const query = new URLSearchParams({
+        from: '2026-10-01T00:00:00.000Z',
+        to: '2026-10-01T01:00:00.000Z',
+        granularity: 'hour',
+        bucketStart: '2026-10-01T00:00:00.000Z',
+        pageSize: '5',
+      })
+      const response = await fetch(
+        new URL(`/applications/${uncalculatedApplicationId}/analysis/series/contributions?${query}`, await app.getUrl()),
+      )
+      const body = (await response.json()) as {
+        pagination: { totalItems: number }
+        contributions: Array<{
+          collectionId: string
+          energy: { originalValue: number | null; value: number | null; reasons: Array<{ code: string; metric?: string }> }
+          emissions: { originalValue: number | null; value: number | null; reasons: Array<{ code: string; metric?: string }> }
+          methodology: { version: string } | null
+          factorSnapshot: { id: string; version: string } | null
+        }>
+        exclusions: Array<{ collectionId: string | null }>
+      }
+
+      expect(response.status).toBe(200)
+      expect(body.pagination.totalItems).toBe(1)
+      expect(body.contributions).toHaveLength(1)
+      expect(body.contributions[0]).toMatchObject({
+        collectionId,
+        energy: {
+          originalValue: null,
+          value: null,
+          reasons: [{ code: 'ENVIRONMENTAL_RESULT_NOT_PERSISTED', metric: 'energy' }],
+        },
+        emissions: {
+          originalValue: null,
+          value: null,
+          reasons: [{ code: 'ENVIRONMENTAL_RESULT_NOT_PERSISTED', metric: 'emissions' }],
+        },
+        methodology: { version: 'historic-model-v7' },
+        factorSnapshot: { id: expect.any(String), version: 'historic-factor-v4' },
+      })
+      expect(body.exclusions.map(({ collectionId: excludedId }) => excludedId)).toEqual([collectionId])
+    } finally {
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [uncalculatedApplicationId])
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [uncalculatedApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [uncalculatedApplicationId])
+    }
+  })
 })
