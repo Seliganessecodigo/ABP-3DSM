@@ -35,14 +35,6 @@ export class EnvironmentalAnalysisCoverageDto {
   emissions!: number
 }
 
-export class EnvironmentalAnalysisIntervalDto {
-  @ApiProperty({ type: String, format: 'date-time' })
-  from!: string
-
-  @ApiProperty({ type: String, format: 'date-time' })
-  to!: string
-}
-
 export class EnvironmentalAnalysisMethodologyDto {
   @ApiProperty({ type: String })
   key!: string
@@ -54,13 +46,15 @@ export class EnvironmentalAnalysisMethodologyDto {
   parameters!: Record<string, number>
 }
 
-export class EnvironmentalAnalysisFactorSnapshotDto {
-  @ApiProperty({ type: String, nullable: true })
-  id!: string | null
+export class EnvironmentalAnalysisQueryRangeDto {
+  @ApiProperty({ type: String, format: 'date-time', nullable: true, description: 'Início do intervalo de consultas feitas pelo GreenER; não representa vigência do fator.' })
+  from!: string | null
 
-  @ApiProperty({ type: String, nullable: true })
-  version!: string | null
+  @ApiProperty({ type: String, format: 'date-time', nullable: true, description: 'Fim do intervalo de consultas feitas pelo GreenER; não representa vigência do fator.' })
+  to!: string | null
+}
 
+export class EnvironmentalAnalysisFactorProvenanceDto {
   @ApiProperty({ type: String, nullable: true })
   contractVersion!: string | null
 
@@ -82,57 +76,31 @@ export class EnvironmentalAnalysisFactorSnapshotDto {
   @ApiProperty({ type: String, nullable: true })
   unit!: string | null
 
-  @ApiProperty({ type: String, format: 'date-time', nullable: true })
-  queriedAt!: string | null
+  @ApiProperty({ type: String, nullable: true })
+  version!: string | null
 
   @ApiProperty({ type: String, nullable: true })
   source!: string | null
 
-  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  @ApiProperty({ type: String, format: 'date-time', nullable: true, description: 'Instante original de início da vigência, quando informado no snapshot.' })
   validFrom!: string | null
 
-  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  @ApiProperty({ type: String, format: 'date-time', nullable: true, description: 'Instante original de fim da vigência, quando informado no snapshot.' })
   validUntil!: string | null
+
+  @ApiProperty({ type: EnvironmentalAnalysisQueryRangeDto })
+  queriedAt!: EnvironmentalAnalysisQueryRangeDto
 }
 
-export class EnvironmentalAnalysisContributionDto {
-  @ApiProperty({ format: 'uuid' })
-  collectionId!: string
+export class EnvironmentalAnalysisProvenanceDto {
+  @ApiProperty({ type: EnvironmentalAnalysisMethodologyDto, isArray: true })
+  methodologies!: readonly EnvironmentalAnalysisMethodologyDto[]
 
-  @ApiProperty({ type: EnvironmentalAnalysisIntervalDto })
-  originalInterval!: EnvironmentalAnalysisIntervalDto
-
-  @ApiProperty({ type: EnvironmentalAnalysisIntervalDto })
-  countedInterval!: EnvironmentalAnalysisIntervalDto
-
-  @ApiProperty({ type: String, format: 'date-time' })
-  collectedAt!: string
-
-  @ApiProperty({ type: EnvironmentalAnalysisMeasureDto })
-  energy!: EnvironmentalAnalysisMeasureDto
-
-  @ApiProperty({ type: EnvironmentalAnalysisMeasureDto })
-  emissions!: EnvironmentalAnalysisMeasureDto
-
-  @ApiProperty({ type: EnvironmentalAnalysisMethodologyDto, nullable: true })
-  methodology!: EnvironmentalAnalysisMethodologyDto | null
-
-  @ApiProperty({ type: EnvironmentalAnalysisFactorSnapshotDto, nullable: true })
-  factorSnapshot!: EnvironmentalAnalysisFactorSnapshotDto | null
-}
-
-export class EnvironmentalAnalysisExclusionDto {
-  @ApiProperty({ type: String, format: 'uuid', nullable: true, description: 'Null quando não há coleta que cubra o trecho.' })
-  collectionId!: string | null
-
-  @ApiProperty({ type: EnvironmentalAnalysisIntervalDto })
-  interval!: EnvironmentalAnalysisIntervalDto
+  @ApiProperty({ type: EnvironmentalAnalysisFactorProvenanceDto, isArray: true })
+  factors!: readonly EnvironmentalAnalysisFactorProvenanceDto[]
 
   @ApiProperty({ type: EnvironmentalAnalysisReasonDto, isArray: true })
-  energyReasons!: readonly EnvironmentalAnalysisReasonDto[]
-
-  @ApiProperty({ type: EnvironmentalAnalysisReasonDto, isArray: true })
-  emissionsReasons!: readonly EnvironmentalAnalysisReasonDto[]
+  reasons!: readonly EnvironmentalAnalysisReasonDto[]
 }
 
 export class EnvironmentalAnalysisDto {
@@ -154,9 +122,6 @@ export class EnvironmentalAnalysisDto {
   @ApiProperty({ type: EnvironmentalAnalysisCoverageDto })
   coverage!: EnvironmentalAnalysisCoverageDto
 
-  @ApiProperty({ type: EnvironmentalAnalysisContributionDto, isArray: true })
-  contributions!: readonly EnvironmentalAnalysisContributionDto[]
-
-  @ApiProperty({ type: EnvironmentalAnalysisExclusionDto, isArray: true })
-  exclusions!: readonly EnvironmentalAnalysisExclusionDto[]
+  @ApiProperty({ type: EnvironmentalAnalysisProvenanceDto })
+  provenance!: EnvironmentalAnalysisProvenanceDto
 }

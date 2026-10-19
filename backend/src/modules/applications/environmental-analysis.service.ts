@@ -7,7 +7,7 @@ import {
 import { ApplicationsRepository } from './applications.repository'
 import { CollectionsRepository } from '../../database/repositories/collections.repository'
 import { parseZonedTimestampNanoseconds } from '../calculations/energy-calculation'
-import { aggregatePersistedEnvironmentalPeriod } from '../calculations/persisted-environmental-period'
+import { summarizePersistedEnvironmentalPeriod } from '../calculations/persisted-environmental-period'
 import { EnvironmentalAnalysisDto } from './environmental-analysis.dto'
 
 @Injectable()
@@ -43,7 +43,7 @@ export class EnvironmentalAnalysisService {
       )
       return {
         applicationId,
-        ...aggregatePersistedEnvironmentalPeriod(from, to, observations),
+        ...summarizePersistedEnvironmentalPeriod(from, to, observations),
       }
     } catch (error) {
       if (error instanceof NotFoundException) throw error

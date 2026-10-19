@@ -47,10 +47,85 @@ const methodology = {
   },
 }
 
+interface SummaryObservationFixture {
+  readonly id?: string
+  readonly applicationId: string
+  readonly intervalStart: string
+  readonly intervalEnd: string
+  readonly collectedAt: string
+  readonly energy: number
+  readonly emissions: number | null
+  readonly methodology: { readonly key: string; readonly version: string; readonly parameters: Readonly<Record<string, number>> }
+  readonly factorSnapshot: {
+    readonly id: string
+    readonly version: string
+    readonly contractVersion: string
+    readonly regionCode: string
+    readonly country: string
+    readonly region: string
+    readonly city: string | null
+    readonly intensity: number
+    readonly unit: string
+    readonly queriedAt: string
+    readonly source: string
+    readonly validFrom: string | null
+    readonly validUntil: string | null
+  } | null
+  readonly emissionsReasons?: readonly { readonly code: string }[]
+}
+
+async function insertSummaryObservation(database: DataSource, input: SummaryObservationFixture): Promise<void> {
+  const id = input.id ?? randomUUID()
+  await database.query(
+    `INSERT INTO collections (
+      id, "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+      metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+      "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+    [
+      id,
+      input.applicationId,
+      input.intervalStart,
+      input.intervalEnd,
+      input.collectedAt,
+      { cpuPercent: 1 },
+      { cpuPercent: '%' },
+      'AVAILABLE',
+      input.energy,
+      input.emissions,
+      input.factorSnapshot?.intensity ?? null,
+      input.methodology.version,
+      input.factorSnapshot?.version ?? null,
+      1,
+      {
+        version: 1,
+        energy: {
+          observationId: id,
+          applicationId: input.applicationId,
+          averagePowerW: input.energy * 1000,
+          energyKwh: input.energy,
+          durationSeconds: 60,
+          modelKey: input.methodology.key,
+          modelVersion: input.methodology.version,
+          modelParameters: input.methodology.parameters,
+          powerContributionsW: { cpuPercent: input.energy * 1000 },
+          reasons: [],
+        },
+        carbon: {
+          energyKwh: input.energy,
+          factorSnapshot: input.factorSnapshot,
+          emissionsGramsCo2e: input.emissions,
+          emissionsKilogramsCo2e: input.emissions === null ? null : input.emissions / 1000,
+          reasons: input.emissionsReasons ?? [],
+        },
+      },
+    ],
+  )
+}
+
 describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
   let database: DataSource
   let app: INestApplication
-  let collectionId: string
   const previousDatabaseUrl = process.env.DATABASE_URL
 
   beforeAll(async () => {
@@ -80,7 +155,7 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
        VALUES ($1, $2, $3)`,
       [applicationId, 'Environmental analysis test', 'AVAILABLE'],
     )
-    const [collection] = await database.query(
+    await database.query(
       `INSERT INTO collections (
         "applicationId", "intervalStart", "intervalEnd", "collectedAt",
         metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
@@ -130,7 +205,6 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
         },
       ],
     )
-    collectionId = collection.id
 
     app = await NestFactory.create(AppModule, { logger: false })
     configureOpenApi(app)
@@ -164,20 +238,27 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       energy: { value: energyKwh, unit: 'kWh', reasons: [] },
       emissions: { value: emissionsGrams, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 1, emissions: 1 },
-      contributions: [
-        {
-          collectionId,
-          originalInterval: { from: fromUtc, to: toUtc },
-          countedInterval: { from: fromUtc, to: toUtc },
-          collectedAt: toUtc,
-          energy: { value: energyKwh, unit: 'kWh', reasons: [] },
-          emissions: { value: emissionsGrams, unit: 'gCO2e', reasons: [] },
-          methodology,
-          factorSnapshot,
-        },
-      ],
-      exclusions: [],
+      provenance: {
+        methodologies: [methodology],
+        factors: [{
+          contractVersion: factorSnapshot.contractVersion,
+          regionCode: factorSnapshot.regionCode,
+          country: factorSnapshot.country,
+          region: factorSnapshot.region,
+          city: factorSnapshot.city,
+          intensity: factorSnapshot.intensity,
+          unit: factorSnapshot.unit,
+          version: factorSnapshot.version,
+          source: factorSnapshot.source,
+          validFrom: factorSnapshot.validFrom,
+          validUntil: factorSnapshot.validUntil,
+          queriedAt: { from: toUtc, to: toUtc },
+        }],
+        reasons: [],
+      },
     })
+    expect(body).not.toHaveProperty('contributions')
+    expect(body).not.toHaveProperty('exclusions')
   })
 
   it('returns an explicit empty result when the application has no observations in the interval', async () => {
@@ -203,12 +284,273 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
         energy: { value: null, unit: 'kWh', reasons: [] },
         emissions: { value: null, unit: 'gCO2e', reasons: [] },
         coverage: { energy: 0, emissions: 0 },
-        contributions: [],
-        exclusions: [],
+        provenance: { methodologies: [], factors: [], reasons: [] },
       })
     } finally {
       await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [emptyApplicationId])
       await database.query('DELETE FROM applications WHERE id = $1', [emptyApplicationId])
+    }
+  })
+
+  it('deduplicates identical effective methodology and factor provenance while merging GreenER query times', async () => {
+    const summaryApplicationId = `analysis-summary-dedupe-${randomUUID()}`
+    const summaryFrom = '2026-10-01T03:00:00.000Z'
+    const middle = '2026-10-01T03:01:00.000Z'
+    const summaryTo = '2026-10-01T03:02:00.000Z'
+    const firstQueriedAt = '2026-10-01T03:00:30.000Z'
+    const secondQueriedAt = '2026-10-01T03:01:30.000Z'
+    const methodParameters = {
+      cpuWattsAt100Percent: 100,
+      memoryWattsPerGb: 0.375,
+      diskWattsPerGb: 0.01,
+      networkWattsPerGb: 0.02,
+    }
+    const reversedMethodParameters = {
+      networkWattsPerGb: 0.02,
+      diskWattsPerGb: 0.01,
+      memoryWattsPerGb: 0.375,
+      cpuWattsAt100Percent: 100,
+    }
+    const firstMethodology = { key: 'same-energy-model', version: 'v7', parameters: methodParameters }
+    const secondMethodology = { key: 'same-energy-model', version: 'v7', parameters: reversedMethodParameters }
+    const firstSnapshot = { ...factorSnapshot, id: 'factor-snapshot-first', queriedAt: firstQueriedAt }
+    const secondSnapshot = { ...factorSnapshot, id: 'factor-snapshot-second', queriedAt: secondQueriedAt }
+
+    await database.query(
+      `INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)`,
+      [summaryApplicationId, 'Environmental analysis summary dedupe test', 'AVAILABLE'],
+    )
+
+    await insertSummaryObservation(database, {
+      applicationId: summaryApplicationId,
+      intervalStart: summaryFrom,
+      intervalEnd: middle,
+      collectedAt: middle,
+      energy: 2,
+      emissions: 10,
+      methodology: firstMethodology,
+      factorSnapshot: firstSnapshot,
+    })
+    await insertSummaryObservation(database, {
+      applicationId: summaryApplicationId,
+      intervalStart: middle,
+      intervalEnd: summaryTo,
+      collectedAt: summaryTo,
+      energy: 3,
+      emissions: 15,
+      methodology: secondMethodology,
+      factorSnapshot: secondSnapshot,
+    })
+    try {
+      const query = new URLSearchParams({ from: summaryFrom, to: summaryTo })
+      const response = await fetch(
+        new URL(`/applications/${summaryApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        energy: { value: 5, unit: 'kWh' },
+        emissions: { value: 25, unit: 'gCO2e' },
+        coverage: { energy: 1, emissions: 1 },
+        provenance: {
+          methodologies: [firstMethodology],
+          factors: [{
+            contractVersion: factorSnapshot.contractVersion,
+            regionCode: factorSnapshot.regionCode,
+            country: factorSnapshot.country,
+            region: factorSnapshot.region,
+            city: factorSnapshot.city,
+            intensity: factorSnapshot.intensity,
+            unit: factorSnapshot.unit,
+            version: factorSnapshot.version,
+            source: factorSnapshot.source,
+            validFrom: factorSnapshot.validFrom,
+            validUntil: factorSnapshot.validUntil,
+            queriedAt: { from: firstQueriedAt, to: secondQueriedAt },
+          }],
+          reasons: [],
+        },
+      })
+      expect(body).not.toHaveProperty('contributions')
+      expect(body).not.toHaveProperty('exclusions')
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [summaryApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [summaryApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [summaryApplicationId])
+    }
+  })
+
+  it('keeps distinct factor attributes and energy models even when their versions match', async () => {
+    const distinctApplicationId = `analysis-summary-distinct-${randomUUID()}`
+    const summaryFrom = '2026-10-01T03:00:00.000Z'
+    const middle = '2026-10-01T03:01:00.000Z'
+    const summaryTo = '2026-10-01T03:02:00.000Z'
+    const firstMethodology = {
+      key: 'energy-model-original',
+      version: 'shared-v1',
+      parameters: { cpuWattsAt100Percent: 100 },
+    }
+    const secondMethodology = {
+      key: 'energy-model-revised',
+      version: 'shared-v1',
+      parameters: { cpuWattsAt100Percent: 200 },
+    }
+    const firstSnapshot = { ...factorSnapshot, id: 'same-version-snapshot-a', queriedAt: middle }
+    const secondSnapshot = {
+      ...factorSnapshot,
+      id: 'same-version-snapshot-b',
+      regionCode: 'br-sul',
+      region: 'Sul',
+      city: 'Porto Alegre',
+      intensity: 95,
+      source: 'different-carbon-service',
+      validFrom: summaryFrom,
+      validUntil: '2026-12-01T00:00:00.000Z',
+      queriedAt: summaryTo,
+    }
+
+    await database.query(
+      `INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)`,
+      [distinctApplicationId, 'Environmental analysis distinct provenance test', 'AVAILABLE'],
+    )
+    await insertSummaryObservation(database, {
+      applicationId: distinctApplicationId,
+      intervalStart: summaryFrom,
+      intervalEnd: middle,
+      collectedAt: middle,
+      energy: 2,
+      emissions: 10,
+      methodology: firstMethodology,
+      factorSnapshot: firstSnapshot,
+    })
+    await insertSummaryObservation(database, {
+      applicationId: distinctApplicationId,
+      intervalStart: middle,
+      intervalEnd: summaryTo,
+      collectedAt: summaryTo,
+      energy: 3,
+      emissions: 15,
+      methodology: secondMethodology,
+      factorSnapshot: secondSnapshot,
+    })
+    try {
+      const query = new URLSearchParams({ from: summaryFrom, to: summaryTo })
+      const response = await fetch(
+        new URL(`/applications/${distinctApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        provenance: {
+          methodologies: [firstMethodology, secondMethodology],
+          factors: [
+            {
+              contractVersion: firstSnapshot.contractVersion,
+              regionCode: firstSnapshot.regionCode,
+              country: firstSnapshot.country,
+              region: firstSnapshot.region,
+              city: firstSnapshot.city,
+              intensity: firstSnapshot.intensity,
+              unit: firstSnapshot.unit,
+              version: firstSnapshot.version,
+              source: firstSnapshot.source,
+              validFrom: firstSnapshot.validFrom,
+              validUntil: firstSnapshot.validUntil,
+              queriedAt: { from: middle, to: middle },
+            },
+            {
+              contractVersion: secondSnapshot.contractVersion,
+              regionCode: secondSnapshot.regionCode,
+              country: secondSnapshot.country,
+              region: secondSnapshot.region,
+              city: secondSnapshot.city,
+              intensity: secondSnapshot.intensity,
+              unit: secondSnapshot.unit,
+              version: secondSnapshot.version,
+              source: secondSnapshot.source,
+              validFrom: secondSnapshot.validFrom,
+              validUntil: secondSnapshot.validUntil,
+              queriedAt: { from: summaryTo, to: summaryTo },
+            },
+          ],
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [distinctApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [distinctApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [distinctApplicationId])
+    }
+  })
+
+  it('includes provenance only from the winning segments with a valid measurement', async () => {
+    const winnerApplicationId = `analysis-summary-winner-${randomUUID()}`
+    const olderId = randomUUID()
+    const winnerId = randomUUID()
+    const olderStart = '2026-10-01T02:59:00.000Z'
+    const losingSnapshot = { ...factorSnapshot, id: 'losing-snapshot', source: 'superseded-carbon-source' }
+    const winningMethodology = {
+      key: 'winning-energy-model',
+      version: 'winning-v1',
+      parameters: { cpuWattsAt100Percent: 4 },
+    }
+    const losingMethodology = {
+      key: 'superseded-energy-model',
+      version: 'old-v1',
+      parameters: { cpuWattsAt100Percent: 99 },
+    }
+
+    await database.query(
+      `INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)`,
+      [winnerApplicationId, 'Environmental analysis winner provenance test', 'AVAILABLE'],
+    )
+    await insertSummaryObservation(database, {
+      id: olderId,
+      applicationId: winnerApplicationId,
+      intervalStart: olderStart,
+      intervalEnd: toUtc,
+      collectedAt: fromUtc,
+      energy: 99,
+      emissions: 999,
+      methodology: losingMethodology,
+      factorSnapshot: losingSnapshot,
+    })
+    await insertSummaryObservation(database, {
+      id: winnerId,
+      applicationId: winnerApplicationId,
+      intervalStart: fromUtc,
+      intervalEnd: toUtc,
+      collectedAt: toUtc,
+      energy: 4,
+      emissions: null,
+      methodology: winningMethodology,
+      factorSnapshot: null,
+      emissionsReasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+    })
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${winnerApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        energy: { value: 4, unit: 'kWh' },
+        emissions: { value: null, unit: 'gCO2e', reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }] },
+        provenance: {
+          methodologies: [winningMethodology],
+          factors: [],
+          reasons: [],
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [winnerApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [winnerApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [winnerApplicationId])
     }
   })
 
@@ -245,7 +587,7 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
        VALUES ($1, $2, $3)`,
       [preciseApplicationId, 'Environmental analysis precision test', 'AVAILABLE'],
     )
-    const [preciseCollection] = await database.query(
+    await database.query(
       `INSERT INTO collections (
         "applicationId", "intervalStart", "intervalEnd", "collectedAt",
         metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
@@ -308,19 +650,31 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
         status: 'available',
         period: { from: '2026-10-01T03:05:00.000Z', to: queryEnd },
         coverage: { energy: 1, emissions: 1 },
-        contributions: [
-          expect.objectContaining({
-            collectionId: preciseCollection.id,
-            originalInterval: {
-              from: '2026-10-01T03:05:00.000Z',
+        provenance: {
+          methodologies: [{
+            key: 'precision-model',
+            version: 'precision-model-v1',
+            parameters: preciseModelParameters,
+          }],
+          factors: [{
+            contractVersion: preciseFactorSnapshot.contractVersion,
+            regionCode: preciseFactorSnapshot.regionCode,
+            country: preciseFactorSnapshot.country,
+            region: preciseFactorSnapshot.region,
+            city: preciseFactorSnapshot.city,
+            intensity: preciseFactorSnapshot.intensity,
+            unit: preciseFactorSnapshot.unit,
+            version: preciseFactorSnapshot.version,
+            source: preciseFactorSnapshot.source,
+            validFrom: preciseFactorSnapshot.validFrom,
+            validUntil: preciseFactorSnapshot.validUntil,
+            queriedAt: {
+              from: '2026-10-01T03:05:00.000001Z',
               to: '2026-10-01T03:05:00.000001Z',
             },
-            countedInterval: {
-              from: '2026-10-01T03:05:00.000Z',
-              to: queryEnd,
-            },
-          }),
-        ],
+          }],
+          reasons: [],
+        },
       })
     } finally {
       await database.query('DELETE FROM collections WHERE "applicationId" = $1', [preciseApplicationId])
@@ -375,19 +729,70 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
           reasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
         },
         coverage: { energy: 0, emissions: 0 },
-        contributions: [],
-        exclusions: [
-          {
-            collectionId: expect.any(String),
-            energyReasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
-            emissionsReasons: [expect.objectContaining({ code: expect.stringMatching(/\S+/) })],
-          },
-        ],
+        provenance: { methodologies: [], factors: [], reasons: [] },
       })
     } finally {
       await database.query('DELETE FROM collections WHERE "applicationId" = $1', [legacyApplicationId])
       await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [legacyApplicationId])
       await database.query('DELETE FROM applications WHERE id = $1', [legacyApplicationId])
+    }
+  })
+
+  it('preserves legacy scalar values while reporting their missing provenance', async () => {
+    const legacyValueApplicationId = `analysis-legacy-values-${randomUUID()}`
+    await database.query(
+      `INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)`,
+      [legacyValueApplicationId, 'Environmental analysis legacy values test', 'AVAILABLE'],
+    )
+    await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
+        "calculationVersion", "carbonRegionVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NULL)`,
+      [
+        legacyValueApplicationId,
+        fromUtc,
+        toUtc,
+        toUtc,
+        { cpuPercent: 1 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+        3,
+        30,
+        10,
+        'legacy-model-v1',
+        'legacy-factor-v1',
+        1,
+      ],
+    )
+
+    try {
+      const query = new URLSearchParams({ from, to })
+      const response = await fetch(
+        new URL(`/applications/${legacyValueApplicationId}/analysis?${query}`, await app.getUrl()),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        energy: { value: 3, unit: 'kWh' },
+        emissions: { value: 30, unit: 'gCO2e' },
+        coverage: { energy: 1, emissions: 1 },
+        provenance: {
+          methodologies: [],
+          factors: [],
+          reasons: [
+            { code: 'METHODOLOGY_METADATA_UNAVAILABLE', metric: 'energy' },
+            { code: 'FACTOR_METADATA_UNAVAILABLE', metric: 'emissions' },
+          ],
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [legacyValueApplicationId])
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [legacyValueApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [legacyValueApplicationId])
     }
   })
 
@@ -401,7 +806,7 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
        VALUES ($1, $2, $3)`,
       [gapApplicationId, 'Environmental analysis gap test', 'AVAILABLE'],
     )
-    const [collection] = await database.query(
+    await database.query(
       `INSERT INTO collections (
         "applicationId", "intervalStart", "intervalEnd", "collectedAt",
         metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
@@ -460,15 +865,24 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
         energy: { value: 6, unit: 'kWh', reasons: [{ code: 'NO_OBSERVATION' }] },
         emissions: { value: 60, unit: 'gCO2e', reasons: [{ code: 'NO_OBSERVATION' }] },
         coverage: { energy: 1 / 3, emissions: 1 / 3 },
-        contributions: [expect.objectContaining({ collectionId: collection.id })],
-        exclusions: [
-          expect.objectContaining({
-            collectionId: null,
-            interval: { from: coveredTo, to: gapTo },
-            energyReasons: [{ code: 'NO_OBSERVATION' }],
-            emissionsReasons: [{ code: 'NO_OBSERVATION' }],
-          }),
-        ],
+        provenance: {
+          methodologies: [methodology],
+          factors: [{
+            contractVersion: factorSnapshot.contractVersion,
+            regionCode: factorSnapshot.regionCode,
+            country: factorSnapshot.country,
+            region: factorSnapshot.region,
+            city: factorSnapshot.city,
+            intensity: 10,
+            unit: factorSnapshot.unit,
+            version: factorSnapshot.version,
+            source: factorSnapshot.source,
+            validFrom: factorSnapshot.validFrom,
+            validUntil: factorSnapshot.validUntil,
+            queriedAt: { from: coveredTo, to: coveredTo },
+          }],
+          reasons: [],
+        },
       })
     } finally {
       await database.query('DELETE FROM collections WHERE "applicationId" = $1', [gapApplicationId])
@@ -484,7 +898,7 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
        VALUES ($1, $2, $3)`,
       [energyOnlyApplicationId, 'Environmental analysis energy-only test', 'AVAILABLE'],
     )
-    const [collection] = await database.query(
+    await database.query(
       `INSERT INTO collections (
         "applicationId", "intervalStart", "intervalEnd", "collectedAt",
         metrics, "metricUnits", state, "energyKwh", "carbonGrams", "carbonFactor",
@@ -544,25 +958,7 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
           reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
         },
         coverage: { energy: 1, emissions: 0 },
-        contributions: [
-          expect.objectContaining({
-            collectionId: collection.id,
-            energy: { value: 5, unit: 'kWh', reasons: [] },
-            emissions: {
-              value: null,
-              unit: 'gCO2e',
-              reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
-            },
-            factorSnapshot: null,
-          }),
-        ],
-        exclusions: [
-          expect.objectContaining({
-            collectionId: collection.id,
-            energyReasons: [],
-            emissionsReasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
-          }),
-        ],
+        provenance: { methodologies: [methodology], factors: [], reasons: [] },
       })
     } finally {
       await database.query('DELETE FROM collections WHERE "applicationId" = $1', [energyOnlyApplicationId])
@@ -634,6 +1030,24 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
         energy: { value: 0, unit: 'kWh', reasons: [] },
         emissions: { value: 0, unit: 'gCO2e', reasons: [] },
         coverage: { energy: 1, emissions: 1 },
+        provenance: {
+          methodologies: [methodology],
+          factors: [{
+            contractVersion: factorSnapshot.contractVersion,
+            regionCode: factorSnapshot.regionCode,
+            country: factorSnapshot.country,
+            region: factorSnapshot.region,
+            city: factorSnapshot.city,
+            intensity: factorSnapshot.intensity,
+            unit: factorSnapshot.unit,
+            version: factorSnapshot.version,
+            source: factorSnapshot.source,
+            validFrom: factorSnapshot.validFrom,
+            validUntil: factorSnapshot.validUntil,
+            queriedAt: { from: toUtc, to: toUtc },
+          }],
+          reasons: [],
+        },
       })
     } finally {
       await database.query('DELETE FROM collections WHERE "applicationId" = $1', [zeroApplicationId])
@@ -682,6 +1096,9 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       }
     }
     const operation = document.paths['/applications/{id}/analysis'].get
+    const responseSchema = document.components.schemas.EnvironmentalAnalysisDto
+    const provenanceSchema = document.components.schemas.EnvironmentalAnalysisProvenanceDto
+    const factorSchema = document.components.schemas.EnvironmentalAnalysisFactorProvenanceDto
     const measureSchema = document.components.schemas.EnvironmentalAnalysisMeasureDto
 
     expect(response.status).toBe(200)
@@ -718,6 +1135,15 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       reasons: { type: 'array' },
     })
     expect(measureSchema.required).toEqual(expect.arrayContaining(['value', 'unit', 'reasons']))
+    expect(responseSchema.properties.provenance).toMatchObject({ $ref: '#/components/schemas/EnvironmentalAnalysisProvenanceDto' })
+    expect(responseSchema.properties).not.toHaveProperty('contributions')
+    expect(responseSchema.properties).not.toHaveProperty('exclusions')
+    expect(provenanceSchema.properties).toMatchObject({
+      methodologies: { type: 'array' },
+      factors: { type: 'array' },
+      reasons: { type: 'array' },
+    })
+    expect(factorSchema.properties.queriedAt).toMatchObject({ $ref: '#/components/schemas/EnvironmentalAnalysisQueryRangeDto' })
   })
   it('returns a generic service-unavailable response when persisted analysis cannot be read', async () => {
     const unavailableTable = `collections_qa_${randomUUID().replaceAll('-', '')}`
