@@ -1,6 +1,89 @@
 import { expect, test } from '@playwright/test'
 import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, unavailable } from './support/catalog.ts'
 
+test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
+  const to = '2026-10-17T20:00:00.000Z'
+  const from = '2026-10-10T20:00:00.000Z'
+  await page.clock.install({ time: new Date(to) })
+  await page.clock.pauseAt(new Date(to))
+  await page.setViewportSize({ width: 996, height: 619 })
+  await mockCatalog(page, [application()])
+  await page.route(/(?:\/api)?\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
+    const path = new URL(route.request().url()).pathname
+    if (path.endsWith('/series')) {
+      const points = Array.from({ length: 7 }, (_, index) => {
+        const start = Date.parse(from) + index * 24 * 60 * 60 * 1000
+        const end = start + 24 * 60 * 60 * 1000
+        return { id: `point-${index}`, bucketStart: new Date(start).toISOString(), bucketEnd: new Date(end).toISOString(),
+          period: { from: new Date(start).toISOString(), to: new Date(end).toISOString() },
+          energy: { value: 5 + index * 0.4, unit: 'kWh', reasons: [] },
+          emissions: { value: 1700 + index * 136, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0.96, emissions: 0.96 } }
+      })
+      await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to }, granularity: 'day',
+        totals: { energy: { value: 42.1, unit: 'kWh' }, emissions: { value: 4.2, unit: 'kgCO2e' } },
+        coverage: { energy: 0.96, emissions: 0.96 }, points, events: [] } })
+      return
+    }
+    await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to },
+      energy: { value: 42.1, unit: 'kWh', reasons: [] }, emissions: { value: 4.2, unit: 'kgCO2e', reasons: [] },
+      coverage: { energy: 0.96, emissions: 0.96 },
+      provenance: { methodologies: [{ key: 'estimate', version: '2.1', parameters: {} }], factors: [{
+        contractVersion: '1', regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo',
+        intensity: 100, unit: 'gCO2e/kWh', version: '2026.1', source: 'fixture', validFrom: from,
+        validUntil: null, queriedAt: { from, to },
+      }], reasons: [] } } })
+  })
+  await page.route('**/collections/latest*', async (route) => {
+    await route.fulfill({ json: { id: 'collection-layout', applicationId: 'svc-0142', intervalStart: '2026-10-19T14:25:00.000Z',
+      intervalEnd: '2026-10-19T14:30:00.000Z', collectedAt: '2026-10-19T14:30:00.000Z', collectionIntervalSeconds: 300,
+      isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID', lastCheckedAt: '2026-10-19T14:30:00.000Z', isCalculable: true,
+      metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: null, status: 'missing' },
+        disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: null, unit: 'Mbps', status: 'invalid' } } } })
+  })
+  await page.goto('/services/svc-0142')
+  await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
+  await expect(page.getByRole('img', { name: /Evolução de energia/ })).toBeVisible()
+  await expect(page.getByRole('table')).toContainText('38 %')
+
+  const before = await page.evaluate(() => {
+    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
+    return {
+      documentHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      sidebarHeight: sidebar.clientHeight,
+      sidebarContentHeight: sidebar.scrollHeight,
+      sidebarWidth: sidebar.clientWidth,
+      sidebarContentWidth: sidebar.scrollWidth,
+      sidebarTop: sidebar.getBoundingClientRect().top,
+    }
+  })
+
+  expect(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
+  expect(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
+  expect(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
+
+  const afterScroll = await page.evaluate(() => {
+    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
+    const layout = document.querySelector<HTMLElement>('.detail-layout')!
+    window.scrollTo(0, 1000)
+    return { sidebarTop: sidebar.getBoundingClientRect().top, windowScrollY: window.scrollY,
+      layoutPosition: getComputedStyle(layout).position }
+  })
+  expect(afterScroll.windowScrollY).toBe(0)
+  expect(afterScroll.layoutPosition).toBe('fixed')
+  expect(afterScroll.sidebarTop).toBe(before.sidebarTop)
+  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-light-figma-alinhado.png' })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.sidebar')).not.toHaveClass(/sidebar-open/)
+  await expect.poll(() => page.locator('.sidebar').evaluate((sidebar) => sidebar.getBoundingClientRect().right)).toBeLessThanOrEqual(0)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-mobile-light-figma-alinhado.png' })
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  const mobileSidebar = page.locator('.sidebar')
+  await expect.poll(() => mobileSidebar.evaluate((sidebar) => sidebar.scrollHeight <= sidebar.clientHeight)).toBe(true)
+})
+
 test('navegação mantém Aplicações ativa no detalhe', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/services/svc-0142')
@@ -83,6 +166,7 @@ test('aplicação removida continua consultável com horário de remoção', asy
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   await expect(page.getByRole('main')).toContainText('Removida')
   await expect(page.getByRole('main')).toContainText('15:00')
+  await page.locator('#analysis-details summary').click()
   await expect(page.getByText(/não se aplica.*observação|observação.*não se aplica/i)).toBeVisible()
   await expect(page.getByRole('main')).not.toContainText(/observação atual/i)
 })
@@ -216,6 +300,7 @@ test('busca operacional encontra métricas e valores sem depender de acento ou c
   const region = page.getByRole('region', { name: /evidências operacionais/i })
   const table = region.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(5)
+  await region.locator('details summary').click()
   const searchField = region.getByRole('searchbox', { name: 'Buscar evidências', exact: true })
 
   await searchField.fill('MEMORIA')
@@ -254,6 +339,7 @@ test('combina busca, métrica e situação e limpa os filtros sem indexar o plac
 
   const region = page.getByRole('region', { name: /evidências operacionais/i })
   const table = region.getByRole('table')
+  await region.locator('details summary').click()
   const searchField = region.getByRole('searchbox', { name: 'Buscar evidências', exact: true })
   await expect(table.getByRole('row')).toHaveCount(5)
   await expect(region.getByText('4 de 4 métricas', { exact: true })).toBeVisible()

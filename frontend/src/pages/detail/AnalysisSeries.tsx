@@ -8,6 +8,7 @@ type Labels = Readonly<{
   heading: string
   graph: string
   table: string
+  metricToggle: string
   moment: string
   energy: string
   emissions: string
@@ -98,13 +99,18 @@ function Chart({ points, metric, label, locale, formatDate, labels }: Readonly<{
           x: maxTime === minTime ? 300 : 8 + ((point.time - minTime) / (maxTime - minTime)) * 584,
           y: max === min ? 74 : 128 - ((point.value - min) / (max - min)) * 104,
         }))
-        const segments: { key: string; points: string }[] = []
+        const segments: { key: string; points: string; area: string }[] = []
         let segment: { firstId: string; lastId: string; coordinates: string[] } | null = null
+        const pushSegment = () => {
+          if (!segment || segment.coordinates.length < 2) return
+          const points = segment.coordinates.join(' ')
+          const [firstX] = segment.coordinates[0].split(',')
+          const [lastX] = segment.coordinates.at(-1)!.split(',')
+          segments.push({ key: `${segment.firstId}:${segment.lastId}`, points, area: `${points} ${lastX},128 ${firstX},128` })
+        }
         for (const point of coordinates) {
           if (!point) {
-            if (segment && segment.coordinates.length > 1) {
-              segments.push({ key: `${segment.firstId}:${segment.lastId}`, points: segment.coordinates.join(' ') })
-            }
+            pushSegment()
             segment = null
           } else {
             segment ??= { firstId: point.id, lastId: point.id, coordinates: [] }
@@ -112,9 +118,7 @@ function Chart({ points, metric, label, locale, formatDate, labels }: Readonly<{
             segment.coordinates.push(`${point.x},${point.y}`)
           }
         }
-        if (segment && segment.coordinates.length > 1) {
-          segments.push({ key: `${segment.firstId}:${segment.lastId}`, points: segment.coordinates.join(' ') })
-        }
+        pushSegment()
         const accessiblePoints = chronological.map(point => `${formatDate(point.timestamp)}: ${readingText(point[metric], locale, labels)}`).join('; ')
         const firstTime = chronological.find(point => Number.isFinite(Date.parse(point.timestamp)))?.timestamp
         const lastTime = [...chronological].reverse().find(point => Number.isFinite(Date.parse(point.timestamp)))?.timestamp
@@ -124,8 +128,12 @@ function Chart({ points, metric, label, locale, formatDate, labels }: Readonly<{
           <div className={styles.plot}>
             <div className={styles.yAxis} aria-hidden="true"><span>{formatAnalysisNumber(max, locale)}</span><span>{formatAnalysisNumber(min, locale)}</span></div>
             <svg className={styles.chart} viewBox="0 0 600 144" role="img" aria-label={`${label} (${unit}): ${accessiblePoints}`}>
+              <line className={styles.grid} x1="8" y1="20" x2="592" y2="20" />
+              <line className={styles.grid} x1="8" y1="56" x2="592" y2="56" />
+              <line className={styles.grid} x1="8" y1="92" x2="592" y2="92" />
               <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
               <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
+              {segments.map(segment => <polygon key={`${segment.key}:area`} className={styles.area} points={segment.area} />)}
               {segments.map(segmentPath => <polyline key={segmentPath.key} points={segmentPath.points} />)}
               {coordinates.map(point => point && <circle key={point.id} cx={point.x} cy={point.y} r="4" />)}
             </svg>
@@ -275,6 +283,7 @@ type SeriesContentProps = Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   view: 'graph' | 'table'
+  metric: 'energy' | 'emissions'
   locale: string
   labels: Labels
   formatDate: (value: string) => string
@@ -283,15 +292,15 @@ type SeriesContentProps = Readonly<{
   tableProps: SeriesTableProps
 }>
 
-function SeriesContent({ series, state, view, locale, labels, formatDate, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
+function SeriesContent({ series, state, view, metric, locale, labels, formatDate, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
   if (series.status === 'unavailable') {
     const message = state === 'loading' ? labels.loading : `${labels.unavailable}: ${labels.reasons[series.reason]}`
     return <p><output aria-live="polite">{message}</output></p>
   }
   if (view === 'graph') {
     return <div className={styles.charts}>
-      <Chart points={series.points} metric="energy" label={labels.energyChart} locale={locale} formatDate={formatDate} labels={labels} />
-      <Chart points={series.points} metric="emissions" label={labels.emissionsChart} locale={locale} formatDate={formatDate} labels={labels} />
+      <Chart points={series.points} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
+        locale={locale} formatDate={formatDate} labels={labels} />
     </div>
   }
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
@@ -311,6 +320,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   onInspectContributions?: (bucketStart: string) => void
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
+  const [metric, setMetric] = useState<'energy' | 'emissions'>('energy')
   const fromKey = JSON.stringify([query.from, query.timeZone])
   const toKey = JSON.stringify([query.to, query.timeZone])
   const [fromDraftState, setFromDraftState] = useState(() => ({ key: fromKey, value: formatInstantForDateTimeInput(query.from, query.timeZone) }))
@@ -388,13 +398,19 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   return <section className={styles.section} aria-labelledby="analysis-series-heading">
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
+      <div className={styles.controls}>
+      <div className={styles.metricToggle} role="group" aria-label={labels.metricToggle}>
+        <button type="button" aria-pressed={metric === 'energy'} onClick={() => setMetric('energy')}>{labels.energy}</button>
+        <button type="button" aria-pressed={metric === 'emissions'} onClick={() => setMetric('emissions')}>{labels.emissions}</button>
+      </div>
       <div className={styles.toggle} aria-label={labels.heading}>
         <button type="button" aria-pressed={view === 'graph'} onClick={() => setView('graph')}>{labels.graph}</button>
         <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>{labels.table}</button>
       </div>
+      </div>
     </div>
     <p className={styles.timeZone}>{labels.timeZone(query.timeZone)}</p>
-    <SeriesContent series={series} state={state} view={view} locale={locale} labels={labels} formatDate={formatSeriesDate}
+    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} labels={labels} formatDate={formatSeriesDate}
       invalidDateRange={invalidDateRange} filterProps={filterProps} tableProps={tableProps} />
   </section>
 }

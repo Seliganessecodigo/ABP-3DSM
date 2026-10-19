@@ -7,7 +7,7 @@ test('filtra e ordena CO₂e por valor sem misturar unidades e mantém ausência
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const energy = analysis.getByRole('group', { name: 'Energia', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await expect(energy).toContainText(/120\s*kWh/)
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
 

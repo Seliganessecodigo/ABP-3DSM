@@ -3,6 +3,28 @@
 .card > p { margin: 0 0 12px; color: var(--text-secondary); font-size: 12px; }
 .compact { margin-bottom: 0; border-radius: 12px; padding: 12px; }
 .compact h2 { margin-bottom: 8px; font-size: 13px; }
+.heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.heading h2 { margin: 0; }
+.filtersDisclosure { min-width: 0; margin: 4px 0 8px; }
+.filtersDisclosure > summary { color: var(--text-secondary); font-size: 10px; cursor: pointer; }
+.compact .filtersDisclosure:not([open]) + .table { margin-top: 4px; }
+.compact .heading > :global(.action-button) { width: 24px; min-width: 24px; min-height: 24px; padding: 0; overflow: hidden; font-size: 0; }
+.compact .heading > :global(.action-button)::after { content: '↻'; font-size: 14px; }
+.compact .dates { gap: 8px; margin: 8px 0; }
+.compact .filters { gap: 8px; margin: 8px 0; }
+.compact .search, .compact .filter { flex-basis: 140px; min-width: min(100%, 140px); gap: 4px; font-size: 10px; }
+.compact .search input, .compact .filter select { min-height: 32px; padding-inline: 8px; }
+.compact .clearFilters { min-height: 32px; padding-inline: 8px; }
+.compact .filteredCount { margin-bottom: 4px; font-size: 10px; }
+.compact .table { font-size: 11px; }
+.compact .table th, .compact .table td { padding: 6px 4px; }
+.compact .sortButton { min-height: 24px; }
+.compact .note { margin-top: 4px !important; font-size: 9px; }
+.compact .freshness { margin: 0 0 4px; font-size: 10px; }
+.status { display: inline-block; border-radius: 4px; padding: 2px 4px; font-size: 9px; line-height: 1.2; white-space: nowrap; }
+.statusAvailable { color: var(--success-foreground); background: var(--success-background); }
+.statusMissing { color: var(--warning-foreground); background: var(--warning-background); }
+.statusInvalid { color: var(--error-foreground); background: var(--error-background); }
 .freshness { font-weight: 600; }
 .dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
 .dates > div { min-width: 0; }

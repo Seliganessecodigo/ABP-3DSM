@@ -87,6 +87,13 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const backUrl = `/${window.location.search}`
+  const verificationTime = application?.lastCheckedAt && Number.isFinite(Date.parse(application.lastCheckedAt))
+    ? new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: displayTimeZone }).format(new Date(application.lastCheckedAt))
+    : null
+  const locationSummary = application?.location
+    ? [application.location.country, application.location.regionCode, application.location.region,
+      verificationTime ? tDetail('verifiedAt', { time: verificationTime }) : null].filter(Boolean).join(' \u00b7 ')
+    : tCommon('location.unknown')
   const evidenceContent = application && <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound} compact
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
@@ -108,14 +115,14 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`)
         setEvidenceQuery(query)
       }}
-      labels={{ heading: tDetail('evidenceHeading'), calculability: tDetail('evidenceCalculability'), refresh: tDetail('evidenceRefresh'), retry: tCommon('actions.retry'),
+      labels={{ heading: tDetail('evidenceHeading'), title: tDetail('evidenceTitle'), calculability: tDetail('evidenceCalculability'), refresh: tDetail('evidenceRefresh'), retry: tCommon('actions.retry'),
         loading: tDetail('evidenceLoading'), error: tDetail('evidenceError'), empty: tDetail('evidenceEmpty'),
         selectionUnavailable: tDetail('evidenceSelectionUnavailable'), stale: tDetail('evidenceStale'), current: tDetail('evidenceCurrent'),
         showingPrevious: tDetail('evidenceShowingPrevious'), interval: tDetail('evidenceInterval'), received: tDetail('evidenceReceived'),
         metric: tDetail('evidenceMetric'), value: tDetail('evidenceValue'), status: tDetail('evidenceStatus'),
         available: tDetail('evidenceAvailable'), zero: tDetail('evidenceZero'), missing: tDetail('evidenceMissing'),
         invalid: tDetail('evidenceInvalid'), noValue: tDetail('evidenceNoValue'), zeroNote: tDetail('evidenceZeroNote'),
-        searchLabel: tDetail('evidenceSearchLabel'), searchPlaceholder: tDetail('evidenceSearchPlaceholder'),
+        searchLabel: tDetail('evidenceSearchLabel'), searchPlaceholder: tDetail('evidenceSearchPlaceholder'), filtersHeading: tDetail('evidenceFiltersHeading'),
         metricFilter: tDetail('evidenceMetricFilter'), allMetrics: tDetail('evidenceAllMetrics'),
         statusFilter: tDetail('evidenceStatusFilter'), allStatuses: tDetail('evidenceAllStatuses'),
         clearFilters: tDetail('evidenceClearFilters'), noMatches: tDetail('evidenceNoMatches'),
@@ -131,9 +138,9 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {loading && <RequestFeedback state="loading">{tDetail('loading')}</RequestFeedback>}
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
-    {application && <><div className={styles.breadcrumb}><a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tDetail('back')}</a></div><div className={styles.detailTop}>
-      <div className={`page-heading ${styles['detail-heading']}`}><div><h1>{application.name}</h1><p className={styles.locationSummary}>{application.location ? `${application.location.city ?? tCommon('location.cityUnknown')} \u00b7 ${application.location.region}, ${application.location.country}` : tCommon('location.unknown')}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>
-        <PeriodSelector className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
+    {application && <><div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div><div className={styles.detailTop}>
+      <div className={`page-heading ${styles['detail-heading']}`}><div><h1>{application.name}</h1><p className={styles.locationSummary}>{locationSummary}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>
+        <PeriodSelector compact className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
           setAnalysisAnchor(analysisNow())
@@ -190,6 +197,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
               noObservation: tDetail('analysisReason.noObservation'),
             },
           },
+          calculationHeading: tDetail('analysisCalculationHeading'), calculationEstimate: tDetail('analysisCalculationEstimate'),
           freshness: {
             heading: tDetail('analysisFreshnessHeading'),
             lastAttempt: tDetail('analysisLastAttempt'),
@@ -198,6 +206,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             noSuccess: tDetail('analysisNoSuccess'),
           },
           seriesHeading: tDetail('analysisSeriesHeading'),
+          metricToggle: tDetail('analysisMetricToggle'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
           seriesEventTypes: {
             status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),
@@ -279,14 +288,14 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             }} labels={{ heading: tDetail('analysisGranularityHeading'), unavailable: tDetail('analysisGranularityUnavailable'),
               unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair') }} />
           {contextContent}
+        <section className={styles['detail-card']}><h2>{tDetail('refreshHeading')}</h2><p>{tDetail('refreshStatus', {
+          seconds: pollingIntervalMs / 1000,
+          lastAttempt: formatDate(lastAttemptAt, locale, tCommon('date.noObservation'), displayTimeZone),
+          lastResponse: formatDate(lastResponseAt, locale, tCommon('date.noObservation'), displayTimeZone),
+        })}</p></section>
         </>} />
 
     </>}
-    <section className={styles['detail-card']}><h2>{tDetail('refreshHeading')}</h2><p>{tDetail('refreshStatus', {
-      seconds: pollingIntervalMs / 1000,
-      lastAttempt: formatDate(lastAttemptAt, locale, tCommon('date.noObservation'), displayTimeZone),
-      lastResponse: formatDate(lastResponseAt, locale, tCommon('date.noObservation'), displayTimeZone),
-    })}</p></section>
   </main>
 }
 

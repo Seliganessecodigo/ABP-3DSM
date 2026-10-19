@@ -7,7 +7,7 @@ import type { AnalysisCompositionLabels } from './AnalysisComposition.tsx'
 import { EnvironmentalFreshness } from './EnvironmentalFreshness.tsx'
 import type { EnvironmentalFreshnessLabels } from './EnvironmentalFreshness.tsx'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
-import { useId, type ReactNode } from 'react'
+import { useId, useState, type ReactNode, type SyntheticEvent } from 'react'
 import styles from './EnvironmentalAnalysis.module.css'
 
 type Labels = Readonly<{
@@ -21,8 +21,11 @@ type Labels = Readonly<{
   factorsHeading: string
   methodologyHeading: string
   composition: AnalysisCompositionLabels
+  calculationHeading: string
+  calculationEstimate: string
   freshness: EnvironmentalFreshnessLabels
   seriesHeading: string
+  metricToggle: string
   seriesEventsHeading: string
   seriesEventTypes: Readonly<Record<'status_changed' | 'removed' | 'returned' | 'region_changed' | 'methodology_changed' | 'factor_version_changed', string>>
   seriesEventBefore: string
@@ -216,6 +219,41 @@ function getCoverageContent(empty: boolean, reading: AnalysisReading | null, loc
     metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
 }
 
+function calculationValue(reading: AnalysisReading | null, locale: string, labels: Labels) {
+  if (reading?.status === 'available') return `${formatAnalysisNumber(reading.value, locale)} ${reading.unit}`
+  if (reading) return `${labels.metricUnavailable}: ${labels.reasons[reading.reason]}`
+  return labels.metricUnavailable
+}
+
+function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle }: Readonly<{
+  data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
+  onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
+}>) {
+  const factor = data?.factor.status === 'available' && data.factor.factors.length === 1 ? data.factor.factors[0] : null
+  const factorValue = factor?.intensity !== null && factor?.unit !== null && factor
+    ? `${factor.intensity} ${factor.unit}`
+    : data?.factor.status === 'available' && data.factor.factors.length > 1
+      ? labels.multipleFactors
+      : data?.factor.status === 'unavailable'
+        ? `${labels.metricUnavailable}: ${labels.reasons[data.factor.reason]}`
+        : labels.metricUnavailable
+
+  return <section className={styles.calculation} aria-label={labels.calculationHeading}>
+    <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
+      className={styles.calculationDetails} id="analysis-details">
+      <summary>{labels.calculationEstimate} · {labels.methodologyHeading} ↗</summary>
+      <div className={styles.contextColumn}>{children}</div>
+    </details></header>
+    <div className={styles.formula}>
+      <div><span>{labels.energy}</span><strong>{calculationValue(data?.energy ?? null, locale, labels)}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>×</span>
+      <div><span>{labels.factor}</span><strong>{factorValue}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>=</span>
+      <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
+    </div>
+  </section>
+}
+
 function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
@@ -333,12 +371,19 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   lastSuccessAt: string | null
   lastSuccessStatus: 'available' | 'empty' | null
 }>) {
+  const [contextOpen, setContextOpen] = useState(false)
+  const inspectContributions = onInspectContributions
+    ? (bucketStart: string) => {
+        setContextOpen(true)
+        onInspectContributions(bucketStart)
+      }
+    : undefined
   const preserveEmpty = data === null && lastSuccessStatus === 'empty' &&
     (status === 'refreshing' || status === 'error' || status === 'unavailable')
   const emptyResult = status === 'empty' || preserveEmpty
   const invalidContext = status === 'invalid-period' || status === 'invalid-granularity'
   const showData = (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult
-  return <>
+  return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
       {status === 'loading' && <output>{labels.loading}</output>}
@@ -372,41 +417,11 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       </ol>}
     </section>
     <div className={styles.summaryGrid}>
-      {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
-        totals={data ? { energy: data.energy, emissions: data.emissions } : null}
-        locale={locale} formatDate={formatDate} labels={labels.composition} compact />}
-      {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
-        formatDate={formatDate} labels={labels.freshness} compact />}
-    </div>
-    <div className={styles.lowerGrid}>
-      <div className={styles.seriesColumn}>
-        {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
-          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
-      heading: labels.seriesHeading, graph: labels.graph, table: labels.table, moment: labels.moment,
-      energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,
-      emissionsChart: labels.emissionsChart, unavailable: labels.metricUnavailable,
-      loading: labels.loading,
-      notCalculable: labels.notCalculable, noPoints: labels.noPoints, reasons: labels.reasons,
-      gapsNote: labels.gapsNote,
-      pageSize: labels.pageSize, allRows: labels.allRows, previous: labels.previous, next: labels.next,
-      pageChoice: labels.pageChoice, pageStatus: labels.pageStatus, rangeStatus: labels.rangeStatus,
-      search: labels.search, searchPlaceholder: labels.searchPlaceholder, energyStatus: labels.energyStatus,
-      from: labels.from, to: labels.to, timeZone: labels.timeZone, invalidDateRange: labels.invalidDateRange,
-      energyUnit: labels.energyUnit, selectUnit: labels.selectUnit, energyMin: labels.energyMin,
-      emissionsUnit: labels.emissionsUnit,
-      energyMax: labels.energyMax, mixedUnits: labels.mixedUnits,
-      emissionsMin: labels.emissionsMin, emissionsMax: labels.emissionsMax,
-      invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
-      clearFilters: labels.clearFilters,
-      inspectContributions: labels.inspectContributions,
-      emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
-      unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
-    }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange}
-      onPaginationChange={onSeriesPaginationChange} onInspectContributions={onInspectContributions ? (bucketStart) => onInspectContributions(bucketStart) : undefined} />}
-      </div>
-      <div className={styles.evidenceColumn}>{evidenceContent}</div>
-    </div>
-    <div className={styles.contextColumn}>
+      <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
+        onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)}>
+        {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
+          totals={data ? { energy: data.energy, emissions: data.emissions } : null}
+          locale={locale} formatDate={formatDate} labels={labels.composition} />}
         {showData && data?.factor.status === 'available' && <FactorProvenance factors={data.factor.factors}
           formatDate={formatDate} labels={labels} />}
         {!invalidContext && !emptyResult && <MethodologySection result={data?.methodology ?? null}
@@ -427,6 +442,37 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
             reasons: { NO_OBSERVATION: labels.reasons.noObservation, CARBON_FACTOR_UNAVAILABLE: labels.reasons.factorUnavailable },
             pageStatus: labels.pageStatus }} />}
         {contextContent}
+      </CalculationSummary>
+      {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
+        formatDate={formatDate} labels={labels.freshness} compact />}
     </div>
-  </>
+    <div className={styles.lowerGrid}>
+      <div className={styles.seriesColumn}>
+        {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
+          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
+      heading: labels.seriesHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
+      energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,
+      emissionsChart: labels.emissionsChart, unavailable: labels.metricUnavailable,
+      loading: labels.loading,
+      notCalculable: labels.notCalculable, noPoints: labels.noPoints, reasons: labels.reasons,
+      gapsNote: labels.gapsNote,
+      pageSize: labels.pageSize, allRows: labels.allRows, previous: labels.previous, next: labels.next,
+      pageChoice: labels.pageChoice, pageStatus: labels.pageStatus, rangeStatus: labels.rangeStatus,
+      search: labels.search, searchPlaceholder: labels.searchPlaceholder, energyStatus: labels.energyStatus,
+      from: labels.from, to: labels.to, timeZone: labels.timeZone, invalidDateRange: labels.invalidDateRange,
+      energyUnit: labels.energyUnit, selectUnit: labels.selectUnit, energyMin: labels.energyMin,
+      emissionsUnit: labels.emissionsUnit,
+      energyMax: labels.energyMax, mixedUnits: labels.mixedUnits,
+      emissionsMin: labels.emissionsMin, emissionsMax: labels.emissionsMax,
+      invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
+      clearFilters: labels.clearFilters,
+      inspectContributions: labels.inspectContributions,
+      emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
+      unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
+    }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange}
+      onPaginationChange={onSeriesPaginationChange} onInspectContributions={inspectContributions} />}
+      </div>
+      <div className={styles.evidenceColumn}>{evidenceContent}</div>
+    </div>
+  </div>
 }

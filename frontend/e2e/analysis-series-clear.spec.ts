@@ -7,7 +7,7 @@ test('limpar filtros da série preserva ordenação e preferência de página', 
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const energy = analysis.getByRole('group', { name: 'Energia', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await expect(energy).toContainText(/120\s*kWh/)
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
