@@ -119,6 +119,7 @@ test('mostra tentativa ambiental recente e conserva a última consulta bem-suced
 test('preserva fatores originais separados com proveniência da fonte', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=provenance')
+  await page.locator('#analysis-details summary').click()
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Fator regional', exact: true })).toContainText('Múltiplos fatores')
@@ -159,6 +160,7 @@ test('trocar idioma preserva o fuso salvo nas datas operacional, ambiental e da 
     } })
   })
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')
+  await page.locator('#analysis-details summary').click()
 
   const factors = page.getByRole('region', { name: 'Fatores aplicados' })
   const alpha = factors.getByRole('group', { name: 'BR-SP', exact: true })
@@ -168,8 +170,9 @@ test('trocar idioma preserva o fuso salvo nas datas operacional, ambiental e da 
 
   await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('2:32 PM')
   await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('2:32 PM')
+  await page.locator('#analysis-details summary').click()
   await page.getByRole('button', { name: 'Table', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Environmental trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
+  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
   const params = new URL(page.url()).searchParams
   expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
   expect(params.get('period')).toBe('7d')
@@ -185,6 +188,7 @@ test('preserva metodologia de energia mesmo sem fator de carbono calculável', a
   await expect(analysis.getByRole('group', { name: 'CO₂e', exact: true })).toContainText('Não calculável')
   await expect(analysis.getByRole('group', { name: 'Fator regional', exact: true })).toContainText('Fator de carbono indisponível')
 
+  await page.locator('#analysis-details summary').click()
   const methodology = page.getByRole('region', { name: 'Metodologia aplicada' })
   const model = methodology.getByRole('group', { name: 'Modelo de estimativa energética', exact: true })
   await expect(model).toContainText('v-energy-original-7')
@@ -215,7 +219,7 @@ test('tabela apresenta os pontos fornecidos sem recomputar os KPIs', async ({ pa
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/84\s*kWh/)
   await expect(analysis.getByRole('group', { name: 'CO₂e', exact: true })).toContainText('Não calculável')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const seriesTable = series.getByRole('table')
   await expect(seriesTable.getByRole('columnheader', { name: 'Energia', exact: true })).toBeVisible()
@@ -238,10 +242,11 @@ test('alternar gráfico e tabela mantém os pontos acessíveis e os KPIs', async
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=series-table')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   const graphButton = series.getByRole('button', { name: 'Gráfico', exact: true })
   const tableButton = series.getByRole('button', { name: 'Tabela', exact: true })
-  await expect(series.locator('button[aria-pressed="true"]')).toHaveCount(1)
+  const metricToggle = series.getByRole('group', { name: 'Métrica do gráfico', exact: true })
+  await expect(metricToggle.locator('button[aria-pressed="true"]')).toHaveCount(1)
 
   await graphButton.click()
   const energyChart = series.getByRole('img', { name: 'Evolução de energia' })
@@ -249,6 +254,8 @@ test('alternar gráfico e tabela mantém os pontos acessíveis e os KPIs', async
   await expect(energyChart).toBeVisible()
   await expect(energyChart).toHaveAccessibleName(/12\s*kWh/)
   await expect(energyChart).toHaveAccessibleName(/30\s*kWh/)
+  await expect(emissionsChart).toBeHidden()
+  await metricToggle.getByRole('button').nth(1).click()
   await expect(emissionsChart).toBeVisible()
   await expect(emissionsChart).toHaveAccessibleName(/2\s*kg CO₂e/)
   await expect(emissionsChart).toHaveAccessibleName(/5\s*kg CO₂e/)
@@ -267,7 +274,7 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/120\s*kWh/)
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
 
@@ -301,7 +308,7 @@ test('mostra a faixa e permite ir diretamente para uma página da série', async
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   await expect(series.getByText('Exibindo 1–10 de 12', { exact: true })).toBeVisible()
@@ -322,7 +329,7 @@ test('busca a série nos valores exibidos e combina estados dos dois indicadores
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesPage=2&seriesSize=5&fixture=series-filters')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const search = series.getByRole('searchbox', { name: 'Buscar série', exact: true })
   const energyStatus = series.getByRole('combobox', { name: 'Status da energia', exact: true })
@@ -362,7 +369,7 @@ test('mantém valores ambientais positivos pequenos em vez de exibi-los como zer
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=series-precision')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/0,000001\s*kWh/)
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
@@ -375,7 +382,7 @@ test('filtra pontos por instante local em AND com status e reinicia a paginaçã
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesPage=2&seriesSize=5&fixture=series-dates')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(2)
@@ -410,7 +417,7 @@ test('filtra e ordena valores numéricos por unidade e mantém ausências no fim
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-numeric')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const unit = series.getByRole('combobox', { name: 'Unidade da energia', exact: true })
   const minimum = series.getByRole('spinbutton', { name: 'Energia mínima', exact: true })
@@ -459,7 +466,7 @@ test('mantém pontos com unidades mistas e libera a faixa numérica após escolh
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-mixed-units')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   const unit = series.getByRole('combobox', { name: 'Unidade da energia', exact: true })
@@ -502,7 +509,7 @@ test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o p
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesFrom=2026-10-17T13%3A00%3A00.000Z&seriesTo=2026-10-17T15%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental' })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   await expect(series.getByText('Fuso horário: America/Sao_Paulo', { exact: true })).toBeVisible()
   await expect(series.getByLabel('Data inicial da série', { exact: true })).toHaveValue('2026-10-17T10:00')
@@ -532,6 +539,7 @@ test('apresenta contribuições e exclusões da fonte sem recalcular o total amb
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=composition-data')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
+  await page.locator('#analysis-details summary').click()
   const composition = page.getByRole('region', { name: /Composição/ })
   const totals = composition.getByRole('region', { name: 'Totais do período', exact: true })
   await expect(totals.getByRole('group', { name: 'Energia', exact: true })).toContainText(/0\s*kWh/)
@@ -559,12 +567,14 @@ test('distingue composição vazia de indisponibilidade da fonte', async ({ page
   const base = '/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture='
   await page.goto(`${base}composition-empty`)
 
+  await page.locator('#analysis-details summary').click()
   let composition = page.getByRole('region', { name: /Composição/ })
   await expect(composition.getByRole('status')).toContainText('Nenhuma contribuição válida ou exclusão no período selecionado.')
   await expect(composition.getByRole('status')).not.toContainText('indisponível')
   await expect(composition.getByRole('region', { name: 'Totais do período' }).getByRole('group', { name: 'Energia', exact: true })).toContainText(/0\s*kWh/)
 
   await page.goto(`${base}composition-unavailable`)
+  await page.locator('#analysis-details summary').click()
   composition = page.getByRole('region', { name: /Composição/ })
   await expect(composition.getByRole('status')).toContainText('Composição ambiental indisponível')
   await expect(composition.getByRole('status')).toContainText('A fonte de composição não respondeu para este período')
@@ -575,6 +585,7 @@ test('distingue composição vazia de indisponibilidade da fonte', async ({ page
 test('fixture de revisão apresenta estados originais, zero, lacuna e granularidade da fonte', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=design-review')
+  await page.locator('#analysis-details summary').click()
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/3,5\s*kWh/)
@@ -588,7 +599,8 @@ test('fixture de revisão apresenta estados originais, zero, lacuna e granularid
 
   const granularity = page.getByRole('region', { name: 'Granularidade', exact: true })
   await expect(granularity.getByRole('button', { name: 'Janela A da fonte', exact: true })).toBeVisible()
-  const series = page.getByRole('region', { name: 'Evolu\u00e7\u00e3o ambiental', exact: true })
+  await page.locator('#analysis-details summary').click()
+  const series = page.getByRole('region', { name: 'Evolu\u00e7\u00e3o do consumo e emiss\u00f5es', exact: true })
   await expect(series.getByRole('img', { name: /Evolu\u00e7\u00e3o de energia.*0\s*kWh/ })).toBeVisible()
   await expect(series).toContainText('Lacunas n\u00e3o representam zero; consulte a tabela para ver os pontos sem valor.')
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()

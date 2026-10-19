@@ -6,7 +6,7 @@ test('aplica filtro antes da paginação e Todos mostra todos os pontos filtrado
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   const pageSize = series.getByRole('combobox', { name: 'Itens por página', exact: true })
@@ -41,7 +41,7 @@ test('refresh que reduz a série remove a página que deixou de existir', async 
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&seriesSize=5&fixture=series-refresh-shrink')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(6)
@@ -59,7 +59,7 @@ test('preserva deep link da página 2 até chegar uma série válida e só a cla
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&seriesPage=2&seriesSize=5&fixture=series-page-loading-refresh')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('status')).toContainText('Carregando dados ambientais')
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
@@ -81,13 +81,13 @@ test('distingue série vazia de uma busca sem correspondências', async ({ page 
   await mockCatalog(page, [application()])
   const base = '/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture='
   await page.goto(`${base}series-empty`)
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   let table = series.getByRole('table')
   await expect(table.getByRole('row').nth(1)).toContainText('Nenhum ponto disponível neste período')
 
   await page.goto(`${base}series-pagination&seriesSearch=not-found`)
-  const filteredSeries = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const filteredSeries = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await filteredSeries.getByRole('button', { name: 'Tabela', exact: true }).click()
   table = filteredSeries.getByRole('table')
   await expect(table.getByRole('row').nth(1)).toContainText('Nenhum ponto corresponde aos filtros.')

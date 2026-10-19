@@ -8,14 +8,16 @@ export type AnalysisGranularityLabels = Readonly<{
   repair: string
 }>
 
-export function AnalysisGranularity({ capabilities, requestedValue, onChange, labels }: Readonly<{
+export function AnalysisGranularity({ capabilities, requestedValue, onChange, labels, compact = false }: Readonly<{
   capabilities: AnalysisGranularityCapabilities
   requestedValue: string | null
   onChange: (value: string) => void
   labels: AnalysisGranularityLabels
+  compact?: boolean
 }>) {
+  const sectionClass = compact ? `${styles.section} ${styles.compact}` : styles.section
   if (capabilities.status === 'unavailable') {
-    return <section className={styles.section} aria-labelledby="analysis-granularity-heading">
+    return <section className={sectionClass} aria-labelledby="analysis-granularity-heading">
       <h2 id="analysis-granularity-heading">{labels.heading}</h2>
       <output className={styles.unavailable}>{labels.unavailable}</output>
     </section>
@@ -26,7 +28,7 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
     ? capabilities.selectedValue
     : null
 
-  return <section className={styles.section} aria-labelledby="analysis-granularity-heading">
+  return <section className={sectionClass} aria-labelledby="analysis-granularity-heading">
     <fieldset className={styles.options} aria-labelledby="analysis-granularity-heading">
       <h2 id="analysis-granularity-heading">{labels.heading}</h2>
       {requestedValue !== null && !requestedIsSupported && <div className={styles.alert} role="alert">

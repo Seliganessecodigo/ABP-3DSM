@@ -20,7 +20,7 @@ No detalhe mobile, claro e escuro, o documento permanece com `390 px` de largura
 
 O catálogo não foi recapturado porque sua composição não mudou nesta rodada; consulte as capturas preliminares para aquela vista. Um heading usa recorte visual acessível (largura visual de `1 px`), sem conteúdo aparente cortado.
 
-A captura alinhada usa a mesma fixture ambiental controlada, mas no tamanho da referência anexada. A composição agora acompanha a ordem visual do frame; os pontos e as evidências exibem apenas os valores fornecidos pela fixture, inclusive a ausência de pontos nesse período.
+A captura alinhada usa fixtures ambientais e operacionais controladas no tamanho exato da referência anexada (996×619). A série contém os pontos explicitamente definidos pela fixture; a tabela de evidências também usa valores controlados, sem inferir dados do backend.
 
 ## Limites
 

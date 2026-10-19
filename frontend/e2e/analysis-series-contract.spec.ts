@@ -5,7 +5,7 @@ test('rejeita instante de filtro sem offset explícito em vez de reinterpretar n
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&seriesFrom=2026-10-17T13%3A00%3A00&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   await expect(series.getByRole('alert')).toContainText('A faixa de datas é inválida ou está invertida.')
   const table = series.getByRole('table')
@@ -20,7 +20,7 @@ test('mensagem de faixa numérica inválida não descreve erro de data', async (
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=series-numeric')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   await series.getByLabel('Energia mínima', { exact: true }).fill('10')
   await series.getByLabel('Energia máxima', { exact: true }).fill('2')
@@ -35,7 +35,7 @@ test('mantém pontos com CO₂e em unidades mistas até selecionar unidade compa
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=series-mixed-emissions')
 
-  const series = page.getByRole('region', { name: 'Evolução ambiental', exact: true })
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   const unit = series.getByRole('combobox', { name: /Unidade.*CO₂e/ })

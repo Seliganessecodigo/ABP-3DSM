@@ -11,11 +11,12 @@ export type OperationalEvidenceQuery = {
 }
 
 type Labels = {
-  heading: string; calculability: string; refresh: string; retry: string; loading: string; error: string; empty: string
+  heading: string; title: string; calculability: string; refresh: string; retry: string; loading: string; error: string; empty: string
   selectionUnavailable: string; stale: string; current: string; showingPrevious: string; interval: string
   received: string; metric: string; value: string; status: string; available: string; zero: string
   missing: string; invalid: string; noValue: string; zeroNote: string
   searchLabel: string; searchPlaceholder: string; metricFilter: string; allMetrics: string
+  filtersHeading: string
   statusFilter: string; allStatuses: string; clearFilters: string; noMatches: string
   filteredCount: (count: number, total: number) => string
   metrics: { cpu: string; memory: string; disk: string; network: string }
@@ -73,9 +74,10 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
   const metricSort = sortPresentation(query.sort, 'metric')
   const statusSort = sortPresentation(query.sort, 'status')
   return <section className={`${styles.card}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
-    <h2>{labels.heading}</h2>
-    <p>{labels.calculability}: {calculability}</p>
-    <ActionButton onClick={onRefresh} disabled={refreshing}>{labels.refresh}</ActionButton>
+    <header className={styles.heading}><h2>{labels.title}</h2>
+      <ActionButton aria-label={labels.refresh} onClick={onRefresh} disabled={refreshing}>{labels.refresh}</ActionButton>
+    </header>
+    {!compact && <p>{labels.calculability}: {calculability}</p>}
     {loading && !evidence && <p role="status">{labels.loading}</p>}
     {error && !evidence && <div role="alert"><p>{labels.error}</p><ActionButton onClick={onRefresh}>{labels.retry}</ActionButton></div>}
     {notFound && !evidence && <p role="status">{selected ? labels.selectionUnavailable : labels.empty}</p>}
@@ -83,6 +85,7 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
       {error && <p role="alert">{labels.error}</p>}
       <p className={styles.freshness}>{evidence.isStale ? labels.stale : labels.current}{error && <> · {labels.showingPrevious}</>}</p>
       {notFound && selected && <p role="status">{labels.selectionUnavailable}</p>}
+      <details className={styles.filtersDisclosure} open={!compact}><summary>{labels.filtersHeading}</summary>
       <dl className={styles.dates}>
         <div><dt>{labels.interval}</dt><dd>{formatDate(evidence.intervalStart)} – {formatDate(evidence.intervalEnd)}</dd></div>
         <div><dt>{labels.received}</dt><dd>{formatDate(evidence.collectedAt)}</dd></div>
@@ -94,12 +97,13 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
         <button type="button" className={styles.clearFilters} disabled={!query.search && !query.metric && !query.status} onClick={() => onQueryChange({ ...query, search: '', metric: '', status: '' })}>{labels.clearFilters}</button>
       </div>
       <div className={styles.filteredCount}><output aria-live="polite">{labels.filteredCount(rows.length, metricKeys.length)}</output></div>
+      </details>
       <table className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('metric')}>{labels.metric}<span aria-hidden="true">{metricSort.indicator}</span></button></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('status')}>{labels.status}<span aria-hidden="true">{statusSort.indicator}</span></button></th></tr></thead>
         <tbody>{rows.map((key) => {
           const metric = evidence.metrics[key]
           const status = statusLabel(key)
           return <tr key={key}><th scope="row">{labels.metrics[key]}</th>
-            <td>{metric.value === null ? labels.noValue : formatMetricValue(metric.value, metric.unit, formatNumber)}</td><td>{status}</td></tr>
+            <td>{metric.value === null ? labels.noValue : formatMetricValue(metric.value, metric.unit, formatNumber)}</td><td><span className={`${styles.status}${metric.status === 'available' ? ` ${styles.statusAvailable}` : metric.status === 'missing' ? ` ${styles.statusMissing}` : ` ${styles.statusInvalid}`}`}>{status}</span></td></tr>
         })}</tbody>
       </table>
       {rows.length === 0 && <div className={styles.noMatches}><output aria-live="polite">{labels.noMatches}</output></div>}

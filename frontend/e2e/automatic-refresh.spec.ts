@@ -39,6 +39,7 @@ test('the application detail refreshes automatically without changing the select
 
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
+  await page.locator('#analysis-details summary').click()
   const initialRequests = requests
   await expect(page.getByText(/Frequência da interface: 60 s/i)).toBeVisible()
   await expect(page.getByText(/Última tentativa:/i)).toBeVisible()
