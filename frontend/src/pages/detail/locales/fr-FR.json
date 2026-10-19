@@ -120,7 +120,7 @@
   "analysisCompositionUnavailable": "Composition environnementale indisponible",
   "analysisEmpty": "Aucune donnée environnementale trouvée pour cette période.",
   "analysisPreviousEmpty": "Le dernier résultat confirmé ne contenait aucune donnée environnementale pour cette période.",
-  "analysisFreshnessHeading": "Mise à jour environnementale",
+  "analysisFreshnessHeading": "Qualité de la collecte",
   "analysisGranularityHeading": "Granularité",
   "analysisGranularityUnavailable": "La granularité est indisponible pour cette application.",
   "analysisGranularityUnsupported": "La granularité sélectionnée n’est pas compatible avec ces données.",

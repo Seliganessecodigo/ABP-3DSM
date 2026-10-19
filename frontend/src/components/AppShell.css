@@ -46,6 +46,10 @@
 .mobile-menu-toggle, .mobile-menu-close, .sidebar-backdrop { display: none; }
 @media (min-width: 641px) {
   .app-layout { height: calc(100vh - 24px); min-height: 0; margin: 12px; column-gap: 16px; }
+  .app-layout.detail-layout { height: calc(100vh - 16px); margin: 8px; grid-template-columns: 164px minmax(0, 1fr); column-gap: 12px; }
+  .app-layout.detail-layout .sidebar { top: 8px; height: calc(100vh - 16px); padding: 16px 12px; }
+  .app-layout.detail-layout .sidebar nav button, .app-layout.detail-layout .sidebar nav a { gap: 8px; padding-inline: 8px; font-size: 11px; }
+  .app-layout.detail-layout.sidebar-collapsed { grid-template-columns: 72px minmax(0, 1fr); }
   .app-layout.sidebar-collapsed { grid-template-columns: 72px minmax(0, 1fr); }
   .sidebar-collapsed .sidebar { align-items: center; padding-inline: 8px; }
   .sidebar-collapsed .sidebar-brand-row { align-items: center; flex-direction: column; gap: 4px; }

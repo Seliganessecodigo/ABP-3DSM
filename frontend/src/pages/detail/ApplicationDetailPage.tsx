@@ -87,10 +87,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const backUrl = `/${window.location.search}`
-  const contextContent = application && <>
-      <section className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
-      <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{freshnessLabel(application, { removed: tDetail('freshnessRemoved'), noObservation: tCommon('date.noObservation'), stale: tCommon('freshness.stale'), current: tCommon('freshness.current') })}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl></section>
-    <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound}
+  const evidenceContent = application && <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound} compact
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
       formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
@@ -104,10 +101,10 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           evidenceStatus: query.status,
           evidenceSort: query.sort.column === 'metric' && query.sort.direction === 'asc' ? '' : `${query.sort.column}:${query.sort.direction}`,
         }
-          for (const [key, value] of Object.entries(values)) {
-            if (value) params.set(key, value)
-            else params.delete(key)
-          }
+        for (const [key, value] of Object.entries(values)) {
+          if (value) params.set(key, value)
+          else params.delete(key)
+        }
         window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`)
         setEvidenceQuery(query)
       }}
@@ -124,15 +121,18 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         clearFilters: tDetail('evidenceClearFilters'), noMatches: tDetail('evidenceNoMatches'),
         filteredCount: (count, total) => tDetail('evidenceFilteredCount', { count, total }),
         metrics: { cpu: tDetail('metricCpu'), memory: tDetail('metricMemory'), disk: tDetail('metricDisk'), network: tDetail('metricNetwork') } }} />
+  const contextContent = application && <>
+      <section className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
+      <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{freshnessLabel(application, { removed: tDetail('freshnessRemoved'), noObservation: tCommon('date.noObservation'), stale: tCommon('freshness.stale'), current: tCommon('freshness.current') })}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl></section>
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
   </>
   return <main className={`content ${styles['detail-content']}`} tabIndex={-1}>
-    {!application && (<a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>← {tDetail('back')}</a>)}
+    {!application && (<a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{'\u2190'} {tDetail('back')}</a>)}
     {loading && <RequestFeedback state="loading">{tDetail('loading')}</RequestFeedback>}
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
-    {application && <><div className={styles.detailTop}>
-      <a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>← {tDetail('back')}</a><div className={`page-heading ${styles['detail-heading']}`}><div><p className="eyebrow">{tDetail('eyebrow')}</p><h1>{application.name}</h1><p className="identifier">{application.id}</p><p className={styles.locationSummary}>{application.location ? `${application.location.city ?? tCommon('location.cityUnknown')} · ${application.location.region}, ${application.location.country}` : tCommon('location.unknown')}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>
+    {application && <><div className={styles.breadcrumb}><a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tDetail('back')}</a></div><div className={styles.detailTop}>
+      <div className={`page-heading ${styles['detail-heading']}`}><div><h1>{application.name}</h1><p className={styles.locationSummary}>{application.location ? `${application.location.city ?? tCommon('location.cityUnknown')} \u00b7 ${application.location.region}, ${application.location.country}` : tCommon('location.unknown')}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>
         <PeriodSelector className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
@@ -265,11 +265,11 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           previousEmpty: tDetail('analysisPreviousEmpty'),
           loading: tDetail('analysisLoading'), refreshing: tDetail('analysisRefreshing'),
           error: tDetail('analysisError'), previousPreserved: tDetail('analysisPreviousPreserved'), retry: tCommon('actions.retry'),
-            reasons: { factorUnavailable: tDetail('analysisReason.factorUnavailable'), coverageUnavailable: tDetail('analysisReason.coverageUnavailable'),
+          reasons: { factorUnavailable: tDetail('analysisReason.factorUnavailable'), coverageUnavailable: tDetail('analysisReason.coverageUnavailable'),
               methodologyUnavailable: tDetail('analysisReason.methodologyUnavailable'),
               seriesUnavailable: tDetail('analysisReason.seriesUnavailable'),
               compositionUnavailable: tDetail('analysisReason.compositionUnavailable'),
-              noObservation: tDetail('analysisReason.noObservation') } }} contextContent={<>
+              noObservation: tDetail('analysisReason.noObservation') } }} evidenceContent={evidenceContent} contextContent={<>
           <AnalysisGranularity capabilities={granularityCapabilities} requestedValue={analysisGranularity}
             onChange={(value) => {
               const next = new URL(window.location.href)

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
 
-export function AppShell({ children, navigate }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void }>) {
+export function AppShell({ children, navigate, variant = 'default' }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' }>) {
   const { t } = useTranslation('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
@@ -71,7 +71,7 @@ export function AppShell({ children, navigate }: Readonly<{ children: React.Reac
     }
   }, [closeMobileMenu, mobileMenuOpen])
 
-  return <div className={`app-layout${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
+  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}

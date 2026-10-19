@@ -8,13 +8,14 @@ export type EnvironmentalFreshnessLabels = Readonly<{
   noSuccess: string
 }>
 
-export function EnvironmentalFreshness({ lastAttemptAt, lastSuccessAt, formatDate, labels }: Readonly<{
+export function EnvironmentalFreshness({ lastAttemptAt, lastSuccessAt, formatDate, labels, compact = false }: Readonly<{
   lastAttemptAt: string | null
   lastSuccessAt: string | null
   formatDate: (value: string) => string
   labels: EnvironmentalFreshnessLabels
+  compact?: boolean
 }>) {
-  return <section className={styles.section} aria-label={labels.heading}>
+  return <section className={`${styles.section}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
     <dl className={styles.timestamps}>
       <div><dt>{labels.lastAttempt}</dt><dd>{lastAttemptAt ? formatDate(lastAttemptAt) : labels.noAttempt}</dd></div>

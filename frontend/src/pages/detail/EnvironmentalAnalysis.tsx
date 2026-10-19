@@ -177,8 +177,8 @@ function FactorCard({ factor, methodology, labels }: Readonly<{ factor: Analysis
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
     <h3 id="analysis-factor-heading">{labels.factor}</h3>
     {content}
-    {factor?.status === 'available' && factor.factors.map((entry) => entry.version && <p key={`factor-${entry.version}`}>{labels.version}: {entry.version}</p>)}
-    {methodology?.status === 'available' && methodology.entries.map((entry) => <p key={`method-${entry.model}-${entry.version}`}>{labels.methodologyHeading}: {entry.version}</p>)}
+    {factor?.status === 'available' && factor.factors.map((entry) => entry.version && <p className={styles.metricMetadata} key={`factor-${entry.version}`}>{labels.version}: {entry.version}</p>)}
+    {methodology?.status === 'available' && methodology.entries.map((entry) => <p className={styles.metricMetadata} key={`method-${entry.model}-${entry.version}`}>{labels.methodologyHeading}: {entry.version}</p>)}
   </fieldset>
 }
 
@@ -313,7 +313,7 @@ function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' |
   return 'loading' as const
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
   data: AnalysisViewModel | null
   status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
   locale: string
@@ -328,6 +328,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   onInspectContributions?: (bucketStart: string, page?: number, pageSize?: number | 'all') => void
   contributions: Readonly<{ data: AnalysisContributionsPage | null; loading: boolean; error: boolean }> | null
   contextContent: ReactNode
+  evidenceContent: ReactNode
   lastAttemptAt: string | null
   lastSuccessAt: string | null
   lastSuccessStatus: 'available' | 'empty' | null
@@ -370,36 +371,17 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         })}
       </ol>}
     </section>
+    <div className={styles.summaryGrid}>
+      {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
+        totals={data ? { energy: data.energy, emissions: data.emissions } : null}
+        locale={locale} formatDate={formatDate} labels={labels.composition} compact />}
+      {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
+        formatDate={formatDate} labels={labels.freshness} compact />}
+    </div>
     <div className={styles.lowerGrid}>
-      <div className={styles.contextColumn}>
-        {showData && data?.factor.status === 'available' && <FactorProvenance factors={data.factor.factors}
-          formatDate={formatDate} labels={labels} />}
-        {!invalidContext && !emptyResult && <MethodologySection result={data?.methodology ?? null}
-          state={getMethodologyState(data, status)} labels={labels} />}
-        {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
-          totals={data ? { energy: data.energy, emissions: data.emissions } : null}
-          locale={locale} formatDate={formatDate} labels={labels.composition} />}
-        {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
-          formatDate={formatDate} labels={labels.freshness} />}
-        {!invalidContext && contributions && <AnalysisContributions data={contributions.data} loading={contributions.loading} error={contributions.error}
-          locale={locale} formatDate={formatDate} labels={{ heading: labels.contributionHeading, loading: labels.loading, error: labels.error,
-            collection: labels.contributionCollection, originalInterval: labels.contributionOriginalInterval,
-            countedInterval: labels.contributionCountedInterval, collectedAt: labels.contributionCollectedAt,
-            energy: labels.energy, emissions: labels.emissions, methodology: labels.model, factor: labels.factor,
-            totals: labels.contributionTotals, coverage: labels.contributionCoverage,
-            originalValue: labels.contributionOriginalValue, countedValue: labels.contributionCountedValue,
-            durationRatio: labels.contributionDurationRatio, reason: labels.contributionReason,
-            parameters: labels.contributionParameters, contractVersion: labels.contributionContractVersion,
-            factorId: labels.contributionFactorId, country: labels.contributionCountry, city: labels.contributionCity,
-            region: labels.region, regionCode: labels.contributionRegionCode, intensity: labels.intensity,
-            source: labels.contributionSource, queriedAt: labels.queriedAt, validFrom: labels.contributionValidFrom,
-            validUntil: labels.contributionValidUntil, exclusions: labels.contributionExclusions,
-            reasons: { NO_OBSERVATION: labels.reasons.noObservation, CARBON_FACTOR_UNAVAILABLE: labels.reasons.factorUnavailable },
-            pageStatus: labels.pageStatus }} />}
-        {contextContent}
-      </div>
-      {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
-        state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
+      <div className={styles.seriesColumn}>
+        {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
+          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
       heading: labels.seriesHeading, graph: labels.graph, table: labels.table, moment: labels.moment,
       energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,
       emissionsChart: labels.emissionsChart, unavailable: labels.metricUnavailable,
@@ -421,6 +403,30 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
     }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange}
       onPaginationChange={onSeriesPaginationChange} onInspectContributions={onInspectContributions ? (bucketStart) => onInspectContributions(bucketStart) : undefined} />}
+      </div>
+      <div className={styles.evidenceColumn}>{evidenceContent}</div>
+    </div>
+    <div className={styles.contextColumn}>
+        {showData && data?.factor.status === 'available' && <FactorProvenance factors={data.factor.factors}
+          formatDate={formatDate} labels={labels} />}
+        {!invalidContext && !emptyResult && <MethodologySection result={data?.methodology ?? null}
+          state={getMethodologyState(data, status)} labels={labels} />}
+        {!invalidContext && contributions && <AnalysisContributions data={contributions.data} loading={contributions.loading} error={contributions.error}
+          locale={locale} formatDate={formatDate} labels={{ heading: labels.contributionHeading, loading: labels.loading, error: labels.error,
+            collection: labels.contributionCollection, originalInterval: labels.contributionOriginalInterval,
+            countedInterval: labels.contributionCountedInterval, collectedAt: labels.contributionCollectedAt,
+            energy: labels.energy, emissions: labels.emissions, methodology: labels.model, factor: labels.factor,
+            totals: labels.contributionTotals, coverage: labels.contributionCoverage,
+            originalValue: labels.contributionOriginalValue, countedValue: labels.contributionCountedValue,
+            durationRatio: labels.contributionDurationRatio, reason: labels.contributionReason,
+            parameters: labels.contributionParameters, contractVersion: labels.contributionContractVersion,
+            factorId: labels.contributionFactorId, country: labels.contributionCountry, city: labels.contributionCity,
+            region: labels.region, regionCode: labels.contributionRegionCode, intensity: labels.intensity,
+            source: labels.contributionSource, queriedAt: labels.queriedAt, validFrom: labels.contributionValidFrom,
+            validUntil: labels.contributionValidUntil, exclusions: labels.contributionExclusions,
+            reasons: { NO_OBSERVATION: labels.reasons.noObservation, CARBON_FACTOR_UNAVAILABLE: labels.reasons.factorUnavailable },
+            pageStatus: labels.pageStatus }} />}
+        {contextContent}
     </div>
   </>
 }
