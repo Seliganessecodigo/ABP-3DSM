@@ -1,4 +1,4 @@
-.content { width: min(100%, 1440px); margin: 0 auto; padding: 32px clamp(20px, 4vw, 48px) 40px; }
+.content { width: min(100%, 1440px); margin: 0 auto; padding: 32px 48px 40px; }
 .page-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
 .eyebrow { margin: 0 0 4px; color: var(--accent-default); font-size: 10px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
 .page-heading h1 { margin-bottom: 4px; color: var(--text-primary); font-size: clamp(24px, 3vw, 31px); letter-spacing: -.04em; }
@@ -23,8 +23,11 @@
 output.notice { display: block; }
 .empty-state h2, .empty-state h1 { margin-bottom: 8px; color: var(--text-primary); font-size: 17px; }
 .empty-state p { margin: 0; }
+@media (max-width: 1200px) {
+  .content { padding-inline: 40px; }
+}
 @media (max-width: 900px) {
-  .content { padding-inline: 20px; }
+  .content { padding-inline: 32px; }
 }
 @media (max-width: 640px) {
   .content { padding: 24px 16px 28px; }

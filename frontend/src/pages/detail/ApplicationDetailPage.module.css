@@ -1,5 +1,5 @@
 .detail-content { max-width: 1120px; margin-inline: auto; }
-:global(.content).detail-content { padding: 16px clamp(16px, 2vw, 24px) 32px; }
+:global(.content).detail-content { padding: 16px 24px 32px; }
 :global(.content).detail-content > .back-link { margin-bottom: 8px; }
 .back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-default); font-size: 12px; font-weight: 650; text-decoration: none; }
 .detailTop { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; margin-bottom: 16px; }
@@ -15,6 +15,7 @@
 .detail-card dt { margin-bottom: 4px; color: var(--text-secondary); font-size: 11px; }
 .detail-card dd { margin: 0; overflow-wrap: anywhere; color: var(--text-primary); font-size: 13px; font-weight: 600; }
 @media (max-width: 900px) {
+  :global(.content).detail-content { padding-inline: 20px; }
   .detailTop { grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; }
   .detailTop .periodSelector { grid-column: 1 / -1; justify-self: stretch; }
 }
