@@ -84,6 +84,22 @@ test('a failed detail refresh keeps the last valid application until a later res
   await page.clock.install({ time: new Date('2026-10-14T12:00:00.000Z') })
   let failing = false
   let recovered = false
+  await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/series')) {
+      await route.fulfill({ json: {
+        status: 'empty', applicationId: 'svc-0142',
+        totals: { energy: { value: null, unit: 'kWh' }, emissions: { value: null, unit: 'kg CO₂e' } },
+        points: [], events: [],
+      } })
+      return
+    }
+    await route.fulfill({ json: {
+      status: 'empty', applicationId: 'svc-0142',
+      energy: { value: null, unit: 'kWh' }, emissions: { value: null, unit: 'kg CO₂e' },
+      coverage: { energy: 0, emissions: 0 }, provenance: { factors: [], methodologies: [] },
+    } })
+  })
   await mockApi(page, async (route) => {
     if (failing) {
       await route.fulfill({ status: 503, json: { code: 'APPLICATION_UNAVAILABLE' } })
