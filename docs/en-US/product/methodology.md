@@ -1,6 +1,6 @@
 # Methodology and data meaning
 
-Evidence must retain its meaning: missing, failed and stale data are not zero. Environmental rules below describe product requirements; the complete energy model and its coefficients still require approval.
+Evidence must retain its meaning: missing, failed and stale data are not zero. Energy is estimated by the simplified model with versioned parameters; it is not a real electrical measurement, and its parameters are not an official regional factor. The CO₂e conversion relationship is implemented under #49/#53.
 
 ## Vocabulary and units
 
@@ -12,7 +12,7 @@ Evidence must retain its meaning: missing, failed and stale data are not zero. E
 | Energy | Quantity accumulated over a period, in kWh. Power and energy are different quantities. |
 | Carbon intensity | Regional factor in gCO₂e/kWh supplied by the source. |
 | CO₂e | Equivalent emissions with an identified unit and factor. |
-| Coverage | Portion of a context supported by valid evidence; calculation policy remains pending. |
+| Coverage | Portion of the requested period supported by valid evidence, calculated separately for energy and CO₂e. |
 | Stale | A preserved earlier valid observation, not success of the current attempt. |
 
 The documented aggregator provides CPU in %, and memory, disk and network in GB. These metrics are not kWh; conversion needs a documented model, coefficients and assumptions.
@@ -23,9 +23,13 @@ The metrics source publishes no measurement timestamp. GreenER records receipt t
 
 Latest attempt, last valid observation and registration update are different timestamps. A carbon-factor lookup time does not establish official validity. Snapshots preserve the received value, internal identity, contract and lookup time; unpublished bibliography and validity remain unknown.
 
+## Environmental time rules
+
+Queries use ISO timestamps with explicit offsets normalized to UTC and interval [from,to). UTC hourly/daily/monthly/yearly buckets count only overlap, including partial edge buckets. Presets 24h/7d/30d/90d are exact moving windows with one anchor for KPIs and series. Limit: 10,000 points; excess requests are rejected without truncation or granularity changes. Series prorate saved results by overlap without recalculating observations; overlaps choose latest collectedAt then ascending lexical ID, with no fallback when the winner lacks a usable measure. No extra rounding; coverage and original snapshots remain separate and preserved.
+
 ## Energy and emissions
 
-The planned dimensional relationship is:
+The implemented dimensional relationship is:
 
     CO₂e [g] = energy [kWh] × intensity [gCO₂e/kWh]
 
@@ -41,4 +45,4 @@ When a factor is missing, valid energy remains valid, while CO₂e can be non-ca
 | Recalculation preview | Use identified current configuration without saving or replacing the original. Permissions, limits and factor policy remain pending. |
 | Regional simulation | Keep energy constant and evaluate another regional factor separately from official results. |
 
-Totals, rankings and comparisons need compatible periods and coverage. Gaps do not receive artificial zeros; percentages require a valid denominator. Rounding, temporal boundaries and granularity are [pending decisions](./decisions), not implicit choices for each screen.
+Totals, rankings and comparisons need compatible periods and coverage. Gaps do not receive zeros; percentages require a valid denominator. Approved temporal semantics are described above. In persistence, energy, emissions in grams and factor use eight decimal places; coverage, as a fraction from zero to one, uses four. Calculations do not round intermediate values, and JSON snapshots preserve their original representation.

@@ -12,6 +12,8 @@ El registro hace visibles las decisiones sin aprobar funcionalidades por omisió
 | D04 | RNFs transversales y fundamentos/calidad en EP00. | Tasks terminadas no eximen calidad futura. |
 | D05 | Simulación regional conserva energía. | El escenario no altera mediciones ni resultados oficiales. US-15. |
 | D06 | Los fallos de monitorización tienen un incidente por identidad y se recuperan tras tres observaciones válidas consecutivas. | Límite total de 30 s por llamada externa, hasta tres intentos HTTP contando el inicial y reintentos solo ante fallos transitorios; los ciclos no se solapan y se conservan las observaciones válidas. #243. |
+| D07 | Consultas con zona explícita normalizada a UTC, [from,to), buckets UTC por hora/día/mes/año, referencia única de ventana y rechazo sobre 10.000 puntos. | #174/#235. |
+| D08 | Las series usan resultados guardados prorrateados, sin recalcular historia; conflictos por recopilación reciente/ID ascendente; conservar huecos y snapshots. | #164/#174/#235. |
 
 D01 y EP00 se confirmaron el 15/10/2026; las demás reglas constan en backlog y contratos versionados.
 
@@ -19,8 +21,6 @@ D01 y EP00 se confirmaron el 15/10/2026; las demás reglas constan en backlog y 
 
 | Tema | Decisión necesaria | Entregas |
 | --- | --- | --- |
-| Energía | Fórmula, coeficientes, conversiones y supuestos. | #49/#53/#58 |
-| Tiempo/cobertura | Bordes, zona horaria, granularidad, redondeo, parciales. | #49/#156/#174/#175/#178 |
 | Recálculo | Permisos, límites de volumen/período y factor. | #91/#263/#264 |
 | Acceso/cuentas | Papeles, bootstrap, sesión, contraseña y recuperación. | #90/#91/#158/#160/#245 |
 | Fuentes/operación | Confirmar cuotas y límites de concurrencia con los responsables de las API. La política de timeout/retry/retrasos de #243 está aprobada. | #155/#243 |
