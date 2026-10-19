@@ -34,12 +34,15 @@ test('não apresenta resultados para período inválido até a seleção de um p
   await expect(analysis).toContainText(/0\s*kWh/)
 })
 
-test('mantém a indisponibilidade ambiental no runtime sem fonte configurada', async ({ page }) => {
+test('mantém a indisponibilidade ambiental no runtime quando a consulta do resumo falha', async ({ page }) => {
   await mockCatalog(page, [application()])
+  await page.route('**/applications/svc-0142/analysis?*', async (route) => {
+    await route.fulfill({ status: 503, json: { code: 'ANALYSIS_UNAVAILABLE' } })
+  })
   await page.goto('/services/svc-0142')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
-  await expect(analysis.getByText('Dados ambientais indisponíveis para este período.', { exact: true })).toBeVisible()
+  await expect(analysis.getByRole('alert')).toContainText('Não foi possível consultar os dados ambientais para este período')
   for (const name of ['Energia', 'CO₂e', 'Cobertura de energia', 'Cobertura de emissões']) {
     await expect(analysis.getByRole('group', { name, exact: true })).toContainText('Indisponível')
   }
@@ -120,8 +123,8 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Fator regional', exact: true })).toContainText('Múltiplos fatores')
   const factors = page.getByRole('region', { name: 'Fatores aplicados' })
-  const alpha = factors.getByRole('group', { name: 'Modelo Alpha', exact: true })
-  const beta = factors.getByRole('group', { name: 'Modelo Beta', exact: true })
+  const alpha = factors.getByRole('group', { name: 'BR-SP', exact: true })
+  const beta = factors.getByRole('group', { name: 'BR-RJ', exact: true })
 
   await expect(alpha).toContainText('BR-SP')
   await expect(alpha).toContainText('0.42 kg CO₂e/kWh')
@@ -158,12 +161,12 @@ test('trocar idioma preserva o fuso salvo nas datas operacional, ambiental e da 
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')
 
   const factors = page.getByRole('region', { name: 'Fatores aplicados' })
-  const alpha = factors.getByRole('group', { name: 'Modelo Alpha', exact: true })
+  const alpha = factors.getByRole('group', { name: 'BR-SP', exact: true })
   await expect(alpha).toContainText('14:32')
   await expect(page.getByRole('region', { name: /evidências operacionais/i })).toContainText('14:32')
   await page.getByLabel('Idioma').selectOption('en-US')
 
-  await expect(page.getByRole('group', { name: 'Modelo Alpha', exact: true })).toContainText('2:32 PM')
+  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('2:32 PM')
   await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('2:32 PM')
   await page.getByRole('button', { name: 'Table', exact: true }).click()
   await expect(page.getByRole('region', { name: 'Environmental trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
@@ -576,7 +579,7 @@ test('fixture de revisão apresenta estados originais, zero, lacuna e granularid
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/3,5\s*kWh/)
   await expect(analysis.getByRole('group', { name: 'CO\u2082e', exact: true })).toContainText('N\u00e3o calcul\u00e1vel')
-  await expect(page.getByRole('region', { name: 'Fatores aplicados' }).getByRole('group', { name: 'Modelo Alpha', exact: true })).toContainText('snapshot-alpha-raw-91')
+  await expect(page.getByRole('region', { name: 'Fatores aplicados' }).getByRole('group', { name: 'BR-SP', exact: true })).toContainText('snapshot-alpha-raw-91')
   await expect(page.getByRole('region', { name: 'Metodologia aplicada' }).getByRole('group', { name: 'Modelo de estimativa energ\u00e9tica', exact: true })).toContainText('energy-source-snapshot-raw-12')
 
   const composition = page.getByRole('region', { name: /Composi\u00e7\u00e3o do impacto ambiental/ })

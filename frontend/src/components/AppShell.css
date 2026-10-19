@@ -9,7 +9,7 @@
   --topbar-text: var(--text-secondary);
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 222px minmax(0, 1fr);
+  grid-template-columns: 224px minmax(0, 1fr);
   background: var(--workspace-background);
   transition: grid-template-columns .24s ease;
 }
@@ -22,7 +22,7 @@
 .sidebar-foliage { position: absolute; z-index: 0; bottom: 0; left: -20px; opacity: .3; pointer-events: none; }
 .sidebar > :not(.sidebar-foliage) { z-index: 1; }
 .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
-.nav-heading { max-height: 30px; overflow: hidden; margin: 16px 8px 4px; color: var(--sidebar-accent); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: 1; transition: max-height .2s ease, margin .2s ease, opacity .16s ease; }
+.nav-heading { max-height: 32px; overflow: hidden; margin: 16px 8px 4px; color: var(--sidebar-accent); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: 1; transition: max-height .2s ease, margin .2s ease, opacity .16s ease; }
 .sidebar nav button, .sidebar nav a { display: flex; align-items: center; gap: 12px; min-height: 44px; border: 0; border-radius: 8px; padding: 0 12px; color: var(--navigation-text); background: transparent; text-align: left; text-decoration: none; font-size: 13px; }
 .nav-icon { width: 14px; height: 14px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
 .nav-label { overflow: hidden; max-width: 180px; white-space: nowrap; opacity: 1; transition: max-width .2s ease, opacity .16s ease, transform .16s ease; }

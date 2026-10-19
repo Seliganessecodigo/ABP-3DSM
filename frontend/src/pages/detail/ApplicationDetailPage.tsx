@@ -10,13 +10,17 @@ import { reasonLabel, stateLabel } from '../../features/applications/presentatio
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
-import { unavailableAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSource } from '../../features/analysis/source.ts'
+import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
+
+function analysisNow() {
+  return new Date().toISOString()
+}
 
 function isUnsupportedGranularity(requestedValue: string | null, capabilities: AnalysisGranularityCapabilities) {
   if (requestedValue === null || capabilities.status === 'unavailable') return false
@@ -44,7 +48,7 @@ function freshnessLabel(application: Pick<Application, 'state' | 'lastObservatio
   return labels.current
 }
 
-export function ApplicationDetailPage({ id, navigate, analysisSource = unavailableAnalysisSource }: Readonly<{
+export function ApplicationDetailPage({ id, navigate, analysisSource = environmentalAnalysisSource }: Readonly<{
   id: string
   navigate: (url: string) => void
   analysisSource?: AnalysisSource
@@ -55,6 +59,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
   const selectedCollectionId = new URLSearchParams(window.location.search).get('collectionId')
   const searchParams = new URLSearchParams(window.location.search)
   const [evidenceQuery, setEvidenceQuery] = useState(() => readEvidenceQuery(searchParams))
+  const [analysisAnchor, setAnalysisAnchor] = useState(analysisNow)
   const seriesPage = readPage(searchParams.get('seriesPage'))
   const seriesPageSize = readSeriesPageSize(searchParams.get('seriesSize'))
   const [seriesQuery, setSeriesQuery] = useState<AnalysisSeriesQuery>(() => readAnalysisSeriesQuery(searchParams))
@@ -64,6 +69,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
       const params = new URLSearchParams(window.location.search)
       setEvidenceQuery(readEvidenceQuery(params))
       setSeriesQuery(readAnalysisSeriesQuery(params))
+      setAnalysisAnchor(analysisNow())
     }
     window.addEventListener('popstate', syncQueries)
     return () => window.removeEventListener('popstate', syncQueries)
@@ -74,7 +80,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
   const { application, loading, refreshing, notFound, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refreshCycle, retry,
     collection, collectionLoading, collectionNotFound, collectionError } = useApplicationDetail(id, selectedCollectionId)
   const environmentalAnalysis = useEnvironmentalAnalysis(id, analysisPeriod, analysisGranularity, analysisSource,
-    application !== null && selectedPeriod !== null, refreshCycle)
+    application !== null && selectedPeriod !== null, refreshCycle, analysisAnchor)
   const granularityCapabilities = environmentalAnalysis.data?.granularity ?? { status: 'unavailable' as const }
   const unsupportedGranularity = isUnsupportedGranularity(analysisGranularity, granularityCapabilities)
   const currentCollection = visibleCollection(collection, selectedCollectionId)
@@ -130,6 +136,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
         <PeriodSelector className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
+          setAnalysisAnchor(analysisNow())
           const next = new URL(urlWithPeriod(window.location.pathname, window.location.search, period), window.location.origin)
           next.searchParams.delete('seriesPage')
           navigate(`${next.pathname}?${next.searchParams.toString()}`)
@@ -137,6 +144,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
       </div>
       <EnvironmentalAnalysis data={analysisData}
         status={analysisState}
+        contributions={environmentalAnalysis.contributions}
+        onInspectContributions={analysisSource.loadContributions ? environmentalAnalysis.loadContributions : undefined}
         lastAttemptAt={environmentalAnalysis.lastAttemptAt} lastSuccessAt={environmentalAnalysis.lastSuccessAt}
         lastSuccessStatus={environmentalAnalysis.lastSuccessStatus}
         seriesPage={seriesPage} seriesPageSize={seriesPageSize}
@@ -178,6 +187,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
               methodologyUnavailable: tDetail('analysisReason.methodologyUnavailable'),
               seriesUnavailable: tDetail('analysisReason.seriesUnavailable'),
               compositionUnavailable: tDetail('analysisReason.compositionUnavailable'),
+              noObservation: tDetail('analysisReason.noObservation'),
             },
           },
           freshness: {
@@ -187,7 +197,39 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
             noAttempt: tDetail('analysisNoAttempt'),
             noSuccess: tDetail('analysisNoSuccess'),
           },
-          seriesHeading: tDetail('analysisSeriesHeading'), moment: tDetail('analysisMoment'),
+          seriesHeading: tDetail('analysisSeriesHeading'),
+          seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
+          seriesEventTypes: {
+            status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),
+            returned: tDetail('analysisSeriesEvent.returned'), region_changed: tDetail('analysisSeriesEvent.region_changed'),
+            methodology_changed: tDetail('analysisSeriesEvent.methodology_changed'),
+            factor_version_changed: tDetail('analysisSeriesEvent.factor_version_changed'),
+          },
+          seriesEventBefore: tDetail('analysisSeriesEventBefore'), seriesEventAfter: tDetail('analysisSeriesEventAfter'),
+          seriesEventStates: { available: tCommon('state.AVAILABLE'), unavailable: tCommon('state.UNAVAILABLE') },
+          inspectContributions: tDetail('analysisSeriesInspectContributions'),
+          contributionHeading: tDetail('analysisContributionInspectionHeading'),
+          contributionCollection: tDetail('analysisContributionCollection'),
+          contributionOriginalInterval: tDetail('analysisContributionOriginalInterval'),
+          contributionCountedInterval: tDetail('analysisContributionCountedInterval'),
+          contributionCollectedAt: tDetail('analysisContributionCollectedAt'),
+          contributionTotals: tDetail('analysisContributionTotals'),
+          contributionCoverage: tDetail('analysisContributionCoverage'),
+          contributionOriginalValue: tDetail('analysisContributionOriginalValue'),
+          contributionCountedValue: tDetail('analysisContributionCountedValue'),
+          contributionDurationRatio: tDetail('analysisContributionDurationRatio'),
+          contributionReason: tDetail('analysisCompositionReason'),
+          contributionParameters: tDetail('analysisContributionParameters'),
+          contributionContractVersion: tDetail('analysisContributionContractVersion'),
+          contributionFactorId: tDetail('analysisSnapshot'),
+          contributionCountry: tCommon('location.country'),
+          contributionCity: tCommon('location.city'),
+          contributionRegionCode: tDetail('regionCode'),
+          contributionSource: tDetail('analysisCompositionSource'),
+          contributionValidFrom: tDetail('analysisContributionValidFrom'),
+          contributionValidUntil: tDetail('analysisContributionValidUntil'),
+          contributionExclusions: tDetail('analysisCompositionExclusionsHeading'),
+          moment: tDetail('analysisMoment'),
           tableEnergy: tDetail('analysisEnergy'), tableEmissions: tDetail('analysisEmissions'),
           graph: tDetail('analysisGraph'), table: tDetail('analysisTable'),
           energyChart: tDetail('analysisSeriesEnergyChart'), emissionsChart: tDetail('analysisSeriesEmissionsChart'),
@@ -226,7 +268,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = unavailab
             reasons: { factorUnavailable: tDetail('analysisReason.factorUnavailable'), coverageUnavailable: tDetail('analysisReason.coverageUnavailable'),
               methodologyUnavailable: tDetail('analysisReason.methodologyUnavailable'),
               seriesUnavailable: tDetail('analysisReason.seriesUnavailable'),
-              compositionUnavailable: tDetail('analysisReason.compositionUnavailable') } }} contextContent={<>
+              compositionUnavailable: tDetail('analysisReason.compositionUnavailable'),
+              noObservation: tDetail('analysisReason.noObservation') } }} contextContent={<>
           <AnalysisGranularity capabilities={granularityCapabilities} requestedValue={analysisGranularity}
             onChange={(value) => {
               const next = new URL(window.location.href)
