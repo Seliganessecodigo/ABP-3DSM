@@ -37,5 +37,5 @@
 .pagination select, .pagination button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
 .pagination button { cursor: pointer; }
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
-@media (max-width: 640px) { .controls { max-width: 100%; flex-wrap: wrap; } }
+@media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }
 @media (max-width: 480px) { .header { align-items: flex-start; flex-direction: column; gap: 8px; } .table th, .table td { padding: 12px; } }
