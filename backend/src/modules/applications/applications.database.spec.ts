@@ -8,6 +8,7 @@ import { AddApplicationLocation1791260000000 } from '../../database/migrations/1
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
+import { CollectionCalculationEvidence1791380000000 } from '../../database/migrations/1791380000000-CollectionCalculationEvidence'
 import { configureOpenApi } from '../../openapi'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { StatusClassificationService } from './status-classification.service'
@@ -33,6 +34,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
         ApplicationOperationalStatus1791360000000,
+        CollectionCalculationEvidence1791380000000,
       ],
     })
     await database.initialize()
