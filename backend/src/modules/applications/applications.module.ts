@@ -5,6 +5,8 @@ import { ApplicationsController } from "./applications.controller";
 import { ApplicationsRepository } from "./applications.repository";
 import { ApplicationsService } from "./applications.service";
 import { CollectionEvidenceService } from "./collection-evidence.service";
+import { EnvironmentalAnalysisController } from "./environmental-analysis.controller";
+import { EnvironmentalAnalysisService } from "./environmental-analysis.service";
 import { IntegrationsModule } from "../../integrations/integrations.module";
 import { DiscoveryService } from "./discovery.service";
 import { RemovalService } from "./removal.service";
@@ -38,11 +40,12 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     TypeOrmModule.forFeature([ApplicationEntity, MonitoringIncidentEntity]),
     IntegrationsModule,
   ],
-  controllers: [ApplicationsController, MonitoringIncidentsController],
+  controllers: [ApplicationsController, EnvironmentalAnalysisController, MonitoringIncidentsController],
   providers: [
     ApplicationsRepository,
     ApplicationsService,
     CollectionEvidenceService,
+    EnvironmentalAnalysisService,
     DiscoveryService,
     RemovalService,
     MetadataSyncService,

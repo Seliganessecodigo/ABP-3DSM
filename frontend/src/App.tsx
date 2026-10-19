@@ -5,7 +5,7 @@ import { ApplicationDetailPage } from './pages/detail/ApplicationDetailPage.tsx'
 
 function App() {
   const { route, navigate } = useRoute()
-  return <AppShell navigate={navigate}>
+  return <AppShell navigate={navigate} variant={route.kind === 'detail' ? 'detail' : 'default'}>
     {route.kind === 'detail'
       ? <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
       : <CatalogPage key="catalog" navigate={navigate} />}

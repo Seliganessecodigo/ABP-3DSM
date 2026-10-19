@@ -1,6 +1,6 @@
 # Metodologia e significato dei dati
 
-Assenza, errore e dati obsoleti non equivalgono a zero. Le regole ambientali sono requisiti; modello energetico completo e coefficienti richiedono approvazione.
+Le evidenze conservano il loro significato: assenza, errore e dati obsoleti non equivalgono a zero. L’energia è stimata dal modello semplificato con parametri versionati; non è una misurazione elettrica reale e i parametri non sono un fattore regionale ufficiale. La conversione CO₂e è implementata in #49/#53.
 
 ## Lessico e unità
 
@@ -12,7 +12,7 @@ Assenza, errore e dati obsoleti non equivalgono a zero. Le regole ambientali son
 | Energia | Quantità accumulata in kWh, distinta dalla potenza. |
 | Intensità carbonio | Fattore regionale della fonte in gCO₂e/kWh. |
 | CO₂e | Emissioni equivalenti con unità/fattore identificati. |
-| Copertura | Parte del periodo sostenuta da evidenze valide; politica pendente. |
+| Copertura | Parte del periodo richiesta supportata da evidenze valide, calcolata separatamente per energia e CO₂e. |
 | Stale | Osservazione valida precedente conservata, non successo attuale. |
 
 Aggregatore: CPU in %, memoria, disco e rete in GB. Non sono kWh; conversione richiede modello, coefficienti e ipotesi documentati.
@@ -23,9 +23,13 @@ La fonte non pubblica timestamp di misurazione. GreenER registra ricezione e der
 
 Ultimo tentativo, osservazione valida e aggiornamento anagrafico sono diversi. Ora di consultazione del fattore non prova validità ufficiale. Snapshot conserva valore, identità interna, contratto e consultazione; bibliografia/validità non pubblicate restano sconosciute.
 
+## Regole temporali ambientali
+
+Le query usano timestamp ISO con fuso esplicito normalizzati in UTC e intervallo [from,to). I bucket UTC per ora/giorno/mese/anno contano solo la sovrapposizione, anche ai bordi parziali. I preset 24h/7d/30d/90d sono finestre mobili esatte con riferimento comune KPI/serie. Limite: 10.000 punti; l’eccesso viene rifiutato senza troncamento né cambio di granularità. La serie ripartisce risultati salvati senza ricalcolare osservazioni; conflitti risolti con collectedAt più recente, poi ID lessicografico crescente, senza fallback se manca la metrica. Nessun arrotondamento aggiuntivo; coperture e snapshot originali restano distinti e conservati.
+
 ## Energia ed emissioni
 
-Relazione dimensionale pianificata:
+La relazione dimensionale implementata è:
 
     CO₂e [g] = energia [kWh] × intensità [gCO₂e/kWh]
 
@@ -41,4 +45,4 @@ Senza fattore, energia valida rimane valida ma CO₂e può essere non calcolabil
 | Anteprima ricalcolo | Configurazione corrente identificata, senza salvare/sostituire; permessi, limiti e fattore pendenti. |
 | Simulazione regionale | Energia costante, altro fattore, separata dai risultati ufficiali. |
 
-Totali, classifiche e confronto richiedono periodi/coperture compatibili. Niente zeri artificiali nelle lacune o percentuali senza denominatore valido. Arrotondamento, bordi e granularità sono [decisioni pendenti](./decisions).
+Totali, classifiche e confronti richiedono periodi e coperture compatibili. Le lacune non diventano zero e le percentuali richiedono un denominatore valido. La semantica approvata è descritta sopra. In persistenza, energia, emissioni in grammi e fattore usano otto decimali; la copertura, frazione tra zero e uno, ne usa quattro. Nessun arrotondamento intermedio; gli snapshot JSON mantengono la rappresentazione originale.

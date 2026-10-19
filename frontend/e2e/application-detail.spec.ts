@@ -192,6 +192,140 @@ test('detalhe exibe evidência atual, valores parciais e intervalo selecionado',
   await expect(evidence).toContainText('14:32')
 })
 
+test('busca operacional encontra métricas e valores sem depender de acento ou caixa', async ({ page }) => {
+  const evidence = {
+    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T17:32:00.000Z',
+    metrics: {
+      cpu: { value: 38, unit: '%', status: 'available' },
+      memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' },
+      network: { value: 1.2, unit: 'Mbps', status: 'available' },
+    },
+  }
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+
+  const region = page.getByRole('region', { name: /evidências operacionais/i })
+  const table = region.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(5)
+  const searchField = region.getByRole('searchbox', { name: 'Buscar evidências', exact: true })
+
+  await searchField.fill('MEMORIA')
+  await expect(table.getByRole('row')).toHaveCount(2)
+  await expect(table.getByRole('row').nth(1)).toContainText(/Memória/i)
+  await expect(table.getByRole('row').nth(1)).toContainText(/ausente|não disponível/i)
+
+  await searchField.fill('0 GB/S')
+  await expect(table.getByRole('row')).toHaveCount(2)
+  await expect(table.getByRole('row').nth(1)).toContainText('Disco')
+  await expect(table.getByRole('row').nth(1)).toContainText(/0 GB\/s/i)
+  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/period=7d/)
+})
+
+test('combina busca, métrica e situação e limpa os filtros sem indexar o placeholder', async ({ page }) => {
+  const evidence = {
+    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T17:32:00.000Z',
+    metrics: {
+      cpu: { value: 38, unit: '%', status: 'available' },
+      memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' },
+      network: { value: 1.2, unit: 'Mbps', status: 'available' },
+    },
+  }
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+
+  const region = page.getByRole('region', { name: /evidências operacionais/i })
+  const table = region.getByRole('table')
+  const searchField = region.getByRole('searchbox', { name: 'Buscar evidências', exact: true })
+  await expect(table.getByRole('row')).toHaveCount(5)
+  await expect(region.getByText('4 de 4 métricas', { exact: true })).toBeVisible()
+
+  await searchField.fill('Sem valor')
+  await expect(table.getByRole('row')).toHaveCount(1)
+  await expect(region.getByText('Nenhuma evidência corresponde aos filtros.', { exact: true })).toBeVisible()
+
+  await searchField.fill('MEMORIA')
+  await region.getByRole('combobox', { name: 'Métrica', exact: true }).selectOption({ label: 'Memória' })
+  await region.getByRole('combobox', { name: 'Situação', exact: true }).selectOption({ label: 'Ausente' })
+  await expect(table.getByRole('row')).toHaveCount(2)
+  await expect(table.getByRole('row').nth(1)).toContainText('Memória')
+  await expect(table.getByRole('row').nth(1)).toContainText('Ausente')
+  await expect(region.getByText('1 de 4 métricas', { exact: true })).toBeVisible()
+
+  await searchField.fill('CPU')
+  await expect(table.getByRole('row')).toHaveCount(1)
+  await expect(region.getByText('Nenhuma evidência corresponde aos filtros.', { exact: true })).toBeVisible()
+  await expect(region.getByText('0 de 4 métricas', { exact: true })).toBeVisible()
+
+  await region.getByRole('button', { name: 'Limpar filtros', exact: true }).click()
+  await expect(table.getByRole('row')).toHaveCount(5)
+  await expect(region.getByText('4 de 4 métricas', { exact: true })).toBeVisible()
+  await expect(searchField).toHaveValue('')
+  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/period=7d/)
+})
+
+test('ordena os rótulos de métrica e situação sem comparar unidades numéricas', async ({ page }) => {
+  const evidence = {
+    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
+    collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
+    lastCheckedAt: '2026-10-09T17:32:00.000Z',
+    metrics: {
+      cpu: { value: 38, unit: '%', status: 'available' },
+      memory: { value: null, unit: null, status: 'missing' },
+      disk: { value: 0, unit: 'GB/s', status: 'available' },
+      network: { value: 1.2, unit: 'Mbps', status: 'available' },
+    },
+  }
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname
+    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
+    await route.continue()
+  })
+  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+
+  const region = page.getByRole('region', { name: /evidências operacionais/i })
+  const table = region.getByRole('table')
+  const metricHeader = table.getByRole('columnheader', { name: 'Métrica', exact: true })
+  const situationHeader = table.getByRole('columnheader', { name: 'Situação', exact: true })
+  await expect(metricHeader).toHaveAttribute('aria-sort', 'ascending')
+  await expect(table.getByRole('rowheader')).toHaveText(['CPU', 'Disco', 'Memória', 'Rede de saída'])
+
+  await metricHeader.getByRole('button', { name: 'Métrica', exact: true }).click()
+  await expect(metricHeader).toHaveAttribute('aria-sort', 'descending')
+  await expect(table.getByRole('rowheader')).toHaveText(['Rede de saída', 'Memória', 'Disco', 'CPU'])
+
+  await metricHeader.getByRole('button', { name: 'Métrica', exact: true }).click()
+  await expect(metricHeader).toHaveAttribute('aria-sort', 'ascending')
+  await expect(table.getByRole('rowheader')).toHaveText(['CPU', 'Disco', 'Memória', 'Rede de saída'])
+
+  await situationHeader.getByRole('button', { name: 'Situação', exact: true }).click()
+  await expect(situationHeader).toHaveAttribute('aria-sort', 'ascending')
+  await expect(table.getByRole('rowheader')).toHaveText(['Memória', 'CPU', 'Rede de saída', 'Disco'])
+  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/period=7d/)
+})
+
 test('volta do navegador conserva o contexto da lista', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')

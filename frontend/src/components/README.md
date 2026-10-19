@@ -6,3 +6,13 @@ Componentes de interface reutilizáveis entre páginas e funcionalidades, sem co
 
 `ThemeSelector` oferece um único interruptor “Modo escuro”, consumindo
 `app/useTheme.ts`. Preserva nomes acessíveis e acesso na navegação recolhida/móvel.
+
+`ActionButton` padroniza ações primárias e secundárias, mantendo botões para ações e âncoras para navegação. `RequestFeedback` fornece os invólucros de carregamento, vazio e erro; a página conserva o texto, o nível do título e as ações.
+
+```tsx
+<RequestFeedback state="error">
+  <h2>{t('errorTitle')}</h2>
+  <p>{t('errorHint')}</p>
+  <ActionButton onClick={retry} disabled={refreshing}>{t('retry')}</ActionButton>
+</RequestFeedback>
+```

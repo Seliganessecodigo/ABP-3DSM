@@ -36,5 +36,5 @@
   "state.UNAVAILABLE": "不可用",
   "state.NO_METRICS": "无指标",
   "state.REMOVED": "已移除",
-  "date.lastObservation": "最近一次有效观测", "freshness.stale": "观测已过期", "freshness.current": "当前观测", "calculability.available": "可获得能源和 CO₂e 估算", "calculability.unavailable": "无法获得能源和 CO₂e 估算", "reason.NO_OBSERVATION": "尚无有效观测", "reason.METRICS_VALID": "指标有效", "reason.METRICS_MISSING": "缺少指标", "reason.SOURCE_TIMEOUT": "数据源响应超时", "reason.SOURCE_ERROR": "数据源返回错误", "reason.REQUIRED_FIELD_MISSING": "数据源未提供必填字段", "reason.INVALID_FIELD": "数据源提供了无效字段", "reason.MONITORING_CYCLE_DELAYED": "监控周期延迟", "reason.CARBON_FACTOR_UNAVAILABLE": "碳强度因子不可用", "reason.REMOVAL_CONFIRMED": "已确认移除"
+  "date.lastObservation": "最近一次有效观测", "freshness.stale": "观测已过期", "freshness.current": "当前观测", "calculability.available": "运行指标足够", "calculability.unavailable": "运行指标不足", "reason.NO_OBSERVATION": "尚无有效观测", "reason.METRICS_VALID": "指标有效", "reason.METRICS_MISSING": "缺少指标", "reason.SOURCE_TIMEOUT": "数据源响应超时", "reason.SOURCE_ERROR": "数据源返回错误", "reason.REQUIRED_FIELD_MISSING": "数据源未提供必填字段", "reason.INVALID_FIELD": "数据源提供了无效字段", "reason.MONITORING_CYCLE_DELAYED": "监控周期延迟", "reason.CARBON_FACTOR_UNAVAILABLE": "碳强度因子不可用", "reason.REMOVAL_CONFIRMED": "已确认移除"
 }

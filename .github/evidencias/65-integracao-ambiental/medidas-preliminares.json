@@ -1,0 +1,82 @@
+﻿[
+    {
+        "viewport":  {
+                         "documentWidth":  1366,
+                         "width":  1366,
+                         "height":  900
+                     },
+        "fixture":  "svc-0142 disponível",
+        "file":  "catalog-desktop-claro-preliminar.png",
+        "theme":  "light"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  1366,
+                         "width":  1366,
+                         "height":  900
+                     },
+        "fixture":  "svc-0142 disponível",
+        "file":  "catalog-desktop-escuro-preliminar.png",
+        "theme":  "dark"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  390,
+                         "width":  390,
+                         "height":  1202
+                     },
+        "fixture":  "svc-0142 disponível",
+        "file":  "catalog-mobile-claro-preliminar.png",
+        "theme":  "light"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  390,
+                         "width":  390,
+                         "height":  844
+                     },
+        "fixture":  "svc-0142 disponível",
+        "file":  "catalog-mobile-dark-preliminar.png",
+        "theme":  "dark"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  1366,
+                         "width":  1366,
+                         "height":  900
+                     },
+        "fixture":  "svc-0142 + API 235/174 DTOs",
+        "file":  "detail-desktop-light-preliminar.png",
+        "theme":  "light"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  1366,
+                         "width":  1366,
+                         "height":  900
+                     },
+        "fixture":  "svc-0142 + API 235/174 DTOs",
+        "file":  "detail-desktop-dark-preliminar.png",
+        "theme":  "dark"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  390,
+                         "width":  390,
+                         "height":  844
+                     },
+        "fixture":  "svc-0142 + API 235/174 DTOs",
+        "file":  "detail-mobile-light-preliminar.png",
+        "theme":  "light"
+    },
+    {
+        "viewport":  {
+                         "documentWidth":  390,
+                         "width":  390,
+                         "height":  844
+                     },
+        "fixture":  "svc-0142 + API 235/174 DTOs",
+        "file":  "detail-mobile-dark-preliminar.png",
+        "theme":  "dark"
+    }
+]

@@ -1,4 +1,6 @@
 import styles from './CatalogPage.module.css'
+import { ActionButton } from '../../components/ActionButton.tsx'
+import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { selectCatalog, type ApplicationState as State, type CatalogQuery, type CatalogSortColumn } from '../../features/applications/catalog.ts'
@@ -8,11 +10,18 @@ import { readQuery, makeUrl, states } from './query.ts'
 import { useCatalog } from './useCatalog.ts'
 
 const catalogReturnKey = 'greener:catalog-return'
-const columns: Array<{ key: CatalogSortColumn; label: string }> = [
-  { key: 'name', label: 'app' }, { key: 'country', label: 'country' }, { key: 'regionCode', label: 'region' },
-  { key: 'city', label: 'city' }, { key: 'state', label: 'state' }, { key: 'lastCheckedAt', label: 'lastCheck' },
+const columns: Array<{ key: CatalogSortColumn; label: string; commonLabel?: boolean }> = [
+  { key: 'name', label: 'app' }, { key: 'country', label: 'location.country', commonLabel: true }, { key: 'regionCode', label: 'regionCode' },
+  { key: 'city', label: 'location.city', commonLabel: true }, { key: 'state', label: 'state.label', commonLabel: true }, { key: 'lastCheckedAt', label: 'date.lastCheck', commonLabel: true },
 ]
 const pageSizes = [5, 10, 15, 20, 'all'] as const
+
+function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn):
+  Readonly<{ ariaSort: 'ascending' | 'descending' | 'none'; indicator: string }> {
+  if (sort?.column !== column) return { ariaSort: 'none', indicator: '' }
+  if (sort.direction === 'asc') return { ariaSort: 'ascending', indicator: ' \u2191' }
+  return { ariaSort: 'descending', indicator: ' \u2193' }
+}
 
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t: tCatalog, i18n } = useTranslation('catalog')
@@ -119,6 +128,8 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     const fields = Object.fromEntries(parts.map(({ type, value: part }) => [type, part]))
     return `${fields.year}-${fields.month}-${fields.day}T${fields.hour}:${fields.minute}`
   }
+  const columnLabel = (column: (typeof columns)[number]) => column.commonLabel ? tCommon(column.label) : tCatalog(column.label)
+  const columnSort = (column: CatalogSortColumn) => sortPresentation(query.sort, column)
   const region = (item: (typeof applications)[number]) => item.location?.regionCode ?? tCommon('location.unknown')
   const displayCell = (item: (typeof applications)[number], column: CatalogSortColumn) => {
     if (column === 'name') return <><strong>{item.name}</strong><small className="identifier">{item.id}</small></>
@@ -126,12 +137,12 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     if (column === 'regionCode') return region(item)
     if (column === 'city') return item.location ? item.location.city ?? tCommon('location.cityUnknown') : tCommon('location.unknown')
     if (column === 'lastCheckedAt') return formatDate(item.lastCheckedAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'), query.timeZone)
-    return <><span className={`state-badge state-${item.state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[item.state]}</span>{stateLabel(item.state, tCommon)}</span><small>{reasonLabel(item.reason, tCommon)}</small><small>{tCommon('date.lastObservation')}: {formatDate(item.lastObservationAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'))}</small>{item.isStale && <small>{tCommon('freshness.stale')}</small>}{!item.isCalculable && <small>{tCommon('calculability.unavailable')}</small>}</>
+    return <><details className={styles['state-details']}><summary><span className={`state-badge state-${item.state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[item.state]}</span>{stateLabel(item.state, tCommon)}</span></summary><div className={styles['state-metadata']}><small>{reasonLabel(item.reason, tCommon)}</small><small>{tCommon('date.lastObservation')}: {formatDate(item.lastObservationAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'))}</small>{!item.isCalculable && <small>{tCommon('calculability.unavailable')}</small>}</div></details>{item.isStale && <small className={styles['stale-label']}>{tCommon('freshness.stale')}</small>}</>
   }
   const detailLink = (item: (typeof applications)[number]) => <a data-application-id={item.id} className={styles['detail-link']} href={`/services/${encodeURIComponent(item.id)}${window.location.search}`} onClick={(event) => { event.preventDefault(); window.sessionStorage.setItem(catalogReturnKey, JSON.stringify({ applicationId: item.id, scrollY: window.scrollY })); navigate(`/services/${encodeURIComponent(item.id)}${window.location.search}`) }}>{tCatalog('details')}</a>
 
   return <main className="content" tabIndex={-1}>
-    <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div><div className={styles['heading-actions']}><button className="button secondary" onClick={refresh} disabled={refreshing || loading}>{tCatalog('refresh')}</button><button ref={filterTriggerRef} className={styles['filter-trigger']} aria-expanded={filtersOpen} aria-controls="catalog-column-filters" onClick={() => { setDraftFilters(query.filters ?? {}); setFiltersOpen(true) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3 4h14l-5.5 6.2v4.4l-3 1.5v-5.9L3 4Z" /></svg>{tCatalog('columnFilters')}</button></div></div>
+    <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div><div className={styles['heading-actions']}><ActionButton appearance="secondary" onClick={refresh} disabled={refreshing || loading}>{tCatalog('refresh')}</ActionButton><button ref={filterTriggerRef} className={styles['filter-trigger']} aria-expanded={filtersOpen} aria-controls="catalog-column-filters" onClick={() => { setDraftFilters(query.filters ?? {}); setFiltersOpen(true) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3 4h14l-5.5 6.2v4.4l-3 1.5v-5.9L3 4Z" /></svg>{tCatalog('columnFilters')}</button></div></div>
     <label className={styles['search-wrap']}><span aria-hidden="true">⌕</span><input type="search" aria-label={tCatalog('searchLabel')} placeholder={tCatalog('searchPlaceholder')} value={query.search} onChange={(event) => update({ search: event.target.value })} /></label>
     <div className={styles.filters} aria-label={tCatalog('filterLabel')}>{states.map(({ value }) => <button key={value} className={query.state === value ? `${styles.filter} ${styles.active}` : styles.filter} aria-pressed={query.state === value} onClick={() => update({ state: value })}>{stateLabel(value, tCommon)} ({counts[value]})</button>)}</div>
     {filtersOpen && <div className={styles['filter-backdrop']} onMouseDown={(event) => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
@@ -158,13 +169,16 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
       const labels: Record<string, string> = { name: 'nameFilter', country: 'countryFilter', regionCode: 'regionCodeFilter', city: 'cityFilter', cityIsMissing: 'cityMissing', state: 'stateFilter', lastCheckedFrom: 'from', lastCheckedTo: 'to' }
       return <button key={key} onClick={() => clearFilter(key as keyof NonNullable<CatalogQuery['filters']>)}>{tCatalog(labels[key] ?? key)} ×</button>
     })}<button onClick={() => { setQuery((current) => ({ ...current, search: '', state: 'ALL', filters: {}, dateRangeInvalid: false, page: 1 })); setDraftFilters({}); setDateError(false) }}>{tCatalog('clearFilters')}</button></div>}
-    {loading && <output className="notice">{tCatalog('loading')}</output>}
-    {error && <div className="error-box" role="alert"><span className="error-icon" aria-hidden="true">!</span><div><h2>{tCatalog('errorTitle')}</h2><p>{hasSnapshot ? tCatalog('stale') : tCatalog('errorNotRemoved')}</p><button className="button" onClick={retry} disabled={refreshing || loading}>{tCommon('actions.retry')}</button></div></div>}
-    {!loading && hasSnapshot && applications.length === 0 && <section className="empty-state"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></section>}
-    {!loading && hasSnapshot && applications.length > 0 && result.total === 0 && <section className="empty-state"><h2>{tCatalog('noResults')}</h2><p>{tCatalog('adjustFilters')}</p></section>}
+    {loading && <RequestFeedback state="loading">{tCatalog('loading')}</RequestFeedback>}
+    {error && <RequestFeedback state="error"><h2>{tCatalog('errorTitle')}</h2><p>{hasSnapshot ? tCatalog('stale') : tCatalog('errorNotRemoved')}</p><ActionButton onClick={retry} disabled={refreshing || loading}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
+    {!loading && hasSnapshot && applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
+    {!loading && hasSnapshot && applications.length > 0 && result.total === 0 && <RequestFeedback state="empty"><h2>{tCatalog('noResults')}</h2><p>{tCatalog('adjustFilters')}</p></RequestFeedback>}
     {!loading && hasSnapshot && result.total > 0 && <>
-      <div className={styles['table-wrap']}><table><thead><tr>{columns.map(({ key, label }) => <th scope="col" key={key} aria-sort={query.sort?.column === key ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button className={styles['sort-button']} onClick={() => toggleSort(key)}>{tCatalog(label)}<span aria-hidden="true">{query.sort?.column === key ? query.sort.direction === 'asc' ? ' ↑' : ' ↓' : ''}</span></button></th>)}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
-      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><p className="identifier">{item.id}</p>{columns.slice(1).map(({ key, label }) => <p key={key}><strong>{tCatalog(label)}:</strong> {displayCell(item, key)}</p>)}{detailLink(item)}</article>)}</div>
+      <div className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => {
+        const sort = columnSort(column.key)
+        return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
+      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
+      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><p className="identifier">{item.id}</p>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
       <div className={styles.pagination}><span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span><label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label><div><button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}>{tCatalog('previous')}</button><span>{tCatalog('page', { page: result.page, count: result.pageCount })}</span><button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => update({ page: result.page + 1 })}>{tCatalog('next')}</button></div></div>
     </>}
     <div className={styles['below-panels']}><section className={styles['selection-panel']}><span className={styles['panel-icon']} aria-hidden="true">◉</span><div><h2>{tCatalog('noneSelected')}</h2><p>{tCatalog('selectHint')}</p></div></section><section className={styles['info-panel']}><span className={styles['info-icon']} aria-hidden="true">i</span><div><h2>{tCatalog('refreshHeading')}</h2><p>{tCatalog('refreshStatus', { seconds: pollingIntervalMs / 1000, lastAttempt: formatDate(lastAttemptAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')), lastResponse: formatDate(lastResponseAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')) })}</p><p>{tCatalog('stateHint')}</p></div></section></div>
