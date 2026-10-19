@@ -1,7 +1,7 @@
 .section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
-.header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.header { display: grid; gap: 8px; margin-bottom: 4px; }
 .header h2 { margin: 0; color: var(--text-primary); font-size: 12px; }
-.controls { display: flex; align-items: center; gap: 8px; }
+.controls { display: flex; min-width: 0; align-items: center; gap: 8px; flex-wrap: wrap; }
 .toggle, .metricToggle { display: flex; gap: 4px; }
 .toggle button, .metricToggle button { min-height: 28px; border: 1px solid var(--border-default); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); background: var(--surface-card); cursor: pointer; font-size: 10px; }
 .toggle button[aria-pressed="true"], .metricToggle button[aria-pressed="true"] { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); }
@@ -10,15 +10,19 @@
 .chartGroup h3 { margin: 0; color: var(--text-primary); font-size: 0; }
 .unitChart { min-width: 0; }
 .axisSummary { margin: 0 0 4px; color: var(--text-secondary); font-size: 12px; }
+.legend { display: flex; gap: 16px; margin-bottom: 4px; color: var(--text-secondary); font-size: 10px; }
+.legend span::before { display: inline-block; width: 12px; margin: 0 4px 2px 0; border-top: 2px solid var(--accent-default); content: ''; }
+.previousLegend::before { border-top-style: dashed !important; border-top-color: var(--text-secondary) !important; }
 .plot { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: stretch; gap: 8px; }
 .yAxis { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 8px 0 16px; color: var(--text-secondary); font-size: 11px; }
 .chart { display: block; width: 100%; height: 132px; }
 .chart polyline { fill: none; stroke: var(--accent-default); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.chart .previousSeries { stroke: var(--text-secondary); stroke-width: 2; stroke-dasharray: 5 4; }
 .chart .area { fill: var(--accent-default); opacity: .12; }
 .chart circle { fill: var(--accent-default); stroke: var(--surface-card); stroke-width: 2; }
 .axis { stroke: var(--border-default); stroke-width: 1; }
 .grid { stroke: var(--border-default); stroke-width: 1; opacity: .5; stroke-dasharray: 2 3; }
-.timeAxis { display: flex; justify-content: space-between; gap: 12px; margin-left: 44px; color: var(--text-secondary); font-size: 11px; }
+.timeAxis { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 4px; margin-left: 44px; color: var(--text-secondary); font-size: 9px; text-align: center; }
 .gapNote { margin: 8px 0 0; color: var(--text-secondary); font-size: 12px; }
 .tableScroll { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); }
 .filters { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; padding: 12px; border-bottom: 1px solid var(--border-default); }

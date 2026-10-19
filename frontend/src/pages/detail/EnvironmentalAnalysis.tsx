@@ -1,5 +1,5 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
-import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
@@ -26,6 +26,8 @@ type Labels = Readonly<{
   freshness: EnvironmentalFreshnessLabels
   seriesHeading: string
   metricToggle: string
+  currentPeriod: string
+  previousPeriod: string
   seriesEventsHeading: string
   seriesEventTypes: Readonly<Record<'status_changed' | 'removed' | 'returned' | 'region_changed' | 'methodology_changed' | 'factor_version_changed', string>>
   seriesEventBefore: string
@@ -159,7 +161,7 @@ function MetricCard({ id, title, reading, locale, labels, empty = false }: Reado
   </fieldset>
 }
 
-function FactorCard({ factor, methodology, labels }: Readonly<{ factor: AnalysisFactorResult | null; methodology: AnalysisMethodologyResult | null; labels: Labels }>) {
+function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels }>) {
   let value: string | null = null
   if (factor?.status === 'available') {
     if (factor.factors.length > 1) value = labels.multipleFactors
@@ -180,8 +182,9 @@ function FactorCard({ factor, methodology, labels }: Readonly<{ factor: Analysis
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
     <h3 id="analysis-factor-heading">{labels.factor}</h3>
     {content}
-    {factor?.status === 'available' && factor.factors.map((entry) => entry.version && <p className={styles.metricMetadata} key={`factor-${entry.version}`}>{labels.version}: {entry.version}</p>)}
-    {methodology?.status === 'available' && methodology.entries.map((entry) => <p className={styles.metricMetadata} key={`method-${entry.model}-${entry.version}`}>{labels.methodologyHeading}: {entry.version}</p>)}
+    {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
+      {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
+    </p>}
   </fieldset>
 }
 
@@ -258,7 +261,7 @@ function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} />
-    <FactorCard factor={null} methodology={null} labels={labels} />
+    <FactorCard factor={null} labels={labels} />
     <CoverageCard data={null} locale="pt-BR" labels={labels} />
   </div>
 }
@@ -351,7 +354,7 @@ function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' |
   return 'loading' as const
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
   data: AnalysisViewModel | null
   status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
   locale: string
@@ -365,6 +368,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   onSeriesPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
   onInspectContributions?: (bucketStart: string, page?: number, pageSize?: number | 'all') => void
   contributions: Readonly<{ data: AnalysisContributionsPage | null; loading: boolean; error: boolean }> | null
+  comparisonPoints: readonly AnalysisSeriesPoint[]
   contextContent: ReactNode
   granularityContent: ReactNode
   evidenceContent: ReactNode
@@ -393,14 +397,17 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
       {status === 'unavailable' && <output>{labels.unavailable}</output>}
       {status === 'unavailable' && data && <output>{labels.previousPreserved}</output>}
-      {status === 'error' && <div role="alert"><p>{labels.error}</p><ActionButton onClick={onRetry}>{labels.retry}</ActionButton></div>}
-      {status === 'error' && data && <output>{labels.previousPreserved}</output>}
+      {status === 'error' && <div className={styles.analysisNotice} role="alert">
+        <p>{labels.error}</p>
+        {data && <output>{labels.previousPreserved}</output>}
+        <ActionButton onClick={onRetry}>{labels.retry}</ActionButton>
+      </div>}
       {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels} />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels} />
-        <FactorCard factor={data.factor} methodology={data.methodology} labels={labels} />
+        <FactorCard factor={data.factor} labels={labels} />
         <CoverageCard data={data} locale={locale} labels={labels} />
       </div>}
       {data?.series.status === 'available' && (data.series.events?.length ?? 0) > 0 && <ol className={styles.events} aria-label={labels.seriesEventsHeading}>
@@ -451,8 +458,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
-          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
+          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
       heading: labels.seriesHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
+      currentPeriod: labels.currentPeriod, previousPeriod: labels.previousPeriod,
       energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,
       emissionsChart: labels.emissionsChart, unavailable: labels.metricUnavailable,
       loading: labels.loading,

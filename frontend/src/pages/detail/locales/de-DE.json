@@ -138,6 +138,8 @@
   "analysisTable": "Tabelle",
   "analysisSeriesEnergyChart": "Energieentwicklung",
   "analysisSeriesEmissionsChart": "CO₂e-Entwicklung",
+  "analysisCurrentPeriod": "Aktueller Zeitraum",
+  "analysisPreviousPeriod": "Vorheriger Zeitraum",
   "analysisSeriesNoPoints": "Keine Datenpunkte für diesen Zeitraum verfügbar",
   "analysisSeriesGapsNote": "Lücken bedeuten nicht null; in der Tabelle stehen die Punkte ohne Wert.",
   "evidenceSearchLabel": "Nachweise durchsuchen",

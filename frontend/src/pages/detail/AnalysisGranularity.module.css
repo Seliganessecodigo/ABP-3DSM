@@ -13,6 +13,7 @@
 .compact {
   position: relative;
   display: block;
+  flex: 0 0 auto;
 }
 
 .compact h2 {

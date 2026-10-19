@@ -138,6 +138,8 @@
   "analysisTable": "表格",
   "analysisSeriesEnergyChart": "能源趋势",
   "analysisSeriesEmissionsChart": "CO₂e趋势",
+  "analysisCurrentPeriod": "当前期间",
+  "analysisPreviousPeriod": "上一期间",
   "analysisSeriesNoPoints": "此时段没有可用数据点",
   "analysisSeriesGapsNote": "缺失不代表零；请在表格中查看没有数值的数据点。",
   "evidenceSearchLabel": "搜索证据",
