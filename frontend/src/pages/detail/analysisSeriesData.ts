@@ -158,7 +158,9 @@ function compareNullableValues(left: number | null, right: number | null, direct
     return 0
   }
   const difference = left - right
-  return difference === 0 ? 0 : difference * (direction === 'asc' ? 1 : -1)
+  if (difference === 0) return 0
+  const directionFactor = direction === 'asc' ? 1 : -1
+  return difference * directionFactor
 }
 
 function compareSeriesPoints(left: AnalysisSeriesPoint, right: AnalysisSeriesPoint, options: FilterOptions) {
