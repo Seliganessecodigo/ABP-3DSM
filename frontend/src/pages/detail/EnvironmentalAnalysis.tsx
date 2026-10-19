@@ -351,7 +351,7 @@ function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' |
   return 'loading' as const
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
   data: AnalysisViewModel | null
   status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
   locale: string
@@ -366,6 +366,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   onInspectContributions?: (bucketStart: string, page?: number, pageSize?: number | 'all') => void
   contributions: Readonly<{ data: AnalysisContributionsPage | null; loading: boolean; error: boolean }> | null
   contextContent: ReactNode
+  granularityContent: ReactNode
   evidenceContent: ReactNode
   lastAttemptAt: string | null
   lastSuccessAt: string | null
@@ -448,6 +449,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     </div>
     <div className={styles.lowerGrid}>
       <div className={styles.seriesColumn}>
+        {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} labels={{
       heading: labels.seriesHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
@@ -469,7 +471,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       inspectContributions: labels.inspectContributions,
       emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
-    }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange}
+      }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange} controlContent={granularityContent}
       onPaginationChange={onSeriesPaginationChange} onInspectContributions={inspectContributions} />}
       </div>
       <div className={styles.evidenceColumn}>{evidenceContent}</div>

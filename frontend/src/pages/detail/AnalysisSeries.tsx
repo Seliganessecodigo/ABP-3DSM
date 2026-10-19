@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesPoint, AnalysisSeriesResult } from '../../features/analysis/source.ts'
 import { formatInstantForDateTimeInput, getBrowserTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
@@ -306,7 +306,7 @@ function SeriesContent({ series, state, view, metric, locale, labels, formatDate
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, onPaginationChange, onQueryChange, onInspectContributions }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, onPaginationChange, onQueryChange, onInspectContributions, controlContent }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -318,6 +318,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   onPaginationChange: (page: number | null, pageSize: AnalysisSeriesPageSize) => void
   onQueryChange: (query: AnalysisSeriesQuery) => void
   onInspectContributions?: (bucketStart: string) => void
+  controlContent?: ReactNode
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
   const [metric, setMetric] = useState<'energy' | 'emissions'>('energy')
@@ -399,6 +400,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>
+      {controlContent}
       <div className={styles.metricToggle} role="group" aria-label={labels.metricToggle}>
         <button type="button" aria-pressed={metric === 'energy'} onClick={() => setMetric('energy')}>{labels.energy}</button>
         <button type="button" aria-pressed={metric === 'emissions'} onClick={() => setMetric('emissions')}>{labels.emissions}</button>

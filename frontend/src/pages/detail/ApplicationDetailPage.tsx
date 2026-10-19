@@ -278,15 +278,15 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
               methodologyUnavailable: tDetail('analysisReason.methodologyUnavailable'),
               seriesUnavailable: tDetail('analysisReason.seriesUnavailable'),
               compositionUnavailable: tDetail('analysisReason.compositionUnavailable'),
-              noObservation: tDetail('analysisReason.noObservation') } }} evidenceContent={evidenceContent} contextContent={<>
-          <AnalysisGranularity capabilities={granularityCapabilities} requestedValue={analysisGranularity}
+              noObservation: tDetail('analysisReason.noObservation') } }} evidenceContent={evidenceContent} granularityContent={<AnalysisGranularity compact
+          capabilities={granularityCapabilities} requestedValue={analysisGranularity}
             onChange={(value) => {
               const next = new URL(window.location.href)
               next.searchParams.set('granularity', value)
               next.searchParams.delete('seriesPage')
               navigate(`${next.pathname}?${next.searchParams.toString()}`)
             }} labels={{ heading: tDetail('analysisGranularityHeading'), unavailable: tDetail('analysisGranularityUnavailable'),
-              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair') }} />
+              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair') }} />} contextContent={<>
           {contextContent}
         <section className={styles['detail-card']}><h2>{tDetail('refreshHeading')}</h2><p>{tDetail('refreshStatus', {
           seconds: pollingIntervalMs / 1000,
