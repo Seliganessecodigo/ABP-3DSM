@@ -143,6 +143,723 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
     })
   })
 
+  it('explica pelo ID o resultado ambiental persistido sem recalculá-lo', async () => {
+    const intervalStart = new Date('2026-10-07T09:59:00.000Z')
+    const intervalEnd = new Date('2026-10-07T10:00:00.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams",
+        "carbonFactor", "calculationVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING id`,
+      [
+        'catalog-test-app',
+        intervalStart,
+        intervalEnd,
+        intervalEnd,
+        {
+          cpuPercent: 1,
+          memoryGb: 0.1,
+          diskGb: 0.2,
+          networkGb: 0.3,
+          collectionIntervalSeconds: 60,
+        },
+        { cpuPercent: '%', memoryGb: 'GB', diskGb: 'GB', networkGb: 'GB' },
+        'AVAILABLE',
+        '0.00084783',
+        '0.07206583',
+        '85.00000000',
+        '1',
+        '1.0000',
+        {
+          version: 1,
+          energy: {
+            observationId: 'stored-observation',
+            applicationId: 'catalog-test-app',
+            averagePowerW: 50.87,
+            energyKwh: 0.0008478333333333333,
+            durationSeconds: 60,
+            modelKey: 'simplified-energy',
+            modelVersion: '1',
+            modelParameters: {
+              cpuWattsAt100Percent: 100,
+              memoryWattsPerGb: 0.375,
+              diskWattsPerGb: 0.01,
+              networkWattsPerGb: 0.02,
+            },
+            powerContributionsW: {
+              cpuPercent: 50,
+              memoryGb: 0.75,
+              diskGb: 0.1,
+              networkGb: 0.02,
+            },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: 0.0008478333333333333,
+            factorSnapshot: {
+              id: 'stored-factor-id',
+              version: 'stored-factor-version',
+              contractVersion: 'v1',
+              regionCode: 'br-sudeste',
+              country: 'Brazil',
+              region: 'Sudeste',
+              city: null,
+              intensity: 85,
+              unit: 'gCO2e/kWh',
+              queriedAt: '2026-10-07T10:00:00.000Z',
+              source: null,
+              validFrom: null,
+              validUntil: null,
+            },
+            emissionsGramsCo2e: Number('0.07206583333333333'),
+            emissionsKilogramsCo2e: Number('0.00007206583333333333'),
+            reasons: [],
+          },
+        },
+      ],
+    )
+
+    try {
+      const response = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        id: collection.id,
+        environmental: {
+          status: 'present',
+          absenceReason: null,
+          energy: {
+            valueKwh: 0.00084783,
+            calculatedValueKwh: 0.0008478333333333333,
+            coverage: 1,
+            durationSeconds: 60,
+            averagePowerW: 50.87,
+            model: {
+              key: 'simplified-energy',
+              version: '1',
+              configId: null,
+              configVersion: null,
+              parameters: {
+                cpuWattsAt100Percent: 100,
+                memoryWattsPerGb: 0.375,
+                diskWattsPerGb: 0.01,
+                networkWattsPerGb: 0.02,
+              },
+              formula: {
+                status: 'available',
+                expression: expect.any(String),
+                inputUnits: expect.any(Object),
+                outputUnit: 'kWh',
+              },
+              powerContributionsW: {
+                cpuPercent: 50,
+                memoryGb: 0.75,
+                diskGb: 0.1,
+                networkGb: 0.02,
+              },
+              reasons: [],
+            },
+          },
+          carbon: {
+            valueGramsCo2e: 0.07206583,
+            calculatedValueGramsCo2e: Number('0.07206583333333333'),
+            factor: 85,
+            formula: {
+              expression: expect.any(String),
+              energyUnit: 'kWh',
+              factorUnit: 'gCO2e/kWh',
+              gramsUnit: 'gCO2e',
+              kilogramsUnit: 'kgCO2e',
+            },
+            factorSnapshot: {
+              id: 'stored-factor-id',
+              version: 'stored-factor-version',
+              contractVersion: 'v1',
+              regionCode: 'br-sudeste',
+              intensity: 85,
+              unit: 'gCO2e/kWh',
+              queriedAt: '2026-10-07T10:00:00.000Z',
+              source: null,
+              validFrom: null,
+              validUntil: null,
+            },
+            reasons: [],
+          },
+        },
+      })
+      expect(
+        (
+          body as {
+            environmental: {
+              carbon: { calculatedValueKilogramsCo2e: number }
+            }
+          }
+        ).environmental.carbon.calculatedValueKilogramsCo2e,
+      ).toBeCloseTo(Number('0.00007206583333333333'), 16)
+
+      const latestResponse = await fetch(
+        new URL(
+          '/applications/catalog-test-app/collections/latest',
+          await app.getUrl(),
+        ),
+      )
+      expect(latestResponse.status).toBe(200)
+      expect(await latestResponse.json()).toMatchObject({
+        id: collection.id,
+        environmental: {
+          energy: { valueKwh: 0.00084783 },
+          carbon: { valueGramsCo2e: 0.07206583 },
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+    }
+  })
+
+  it('preserva valores e parâmetros quando a versão do modelo é desconhecida', async () => {
+    const intervalStart = new Date('2026-10-07T09:58:00.000Z')
+    const intervalEnd = new Date('2026-10-07T09:59:00.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams",
+        "carbonFactor", "calculationVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING id`,
+      [
+        'catalog-test-app',
+        intervalStart,
+        intervalEnd,
+        intervalEnd,
+        { cpuPercent: 10 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+        '0.00090000',
+        null,
+        null,
+        'future-energy/9',
+        '0.5000',
+        {
+          version: 1,
+          energy: {
+            observationId: 'unknown-model-observation',
+            applicationId: 'catalog-test-app',
+            averagePowerW: 54,
+            energyKwh: 0.0009,
+            durationSeconds: 60,
+            modelKey: 'future-energy',
+            modelVersion: '9',
+            modelParameters: { newCoefficient: 17 },
+            powerContributionsW: { cpuPercent: 54 },
+            reasons: [{ code: 'METRIC_MISSING', metric: 'cpuPercent' }],
+          },
+          carbon: {
+            energyKwh: 0.0009,
+            factorSnapshot: null,
+            emissionsGramsCo2e: null,
+            emissionsKilogramsCo2e: null,
+            reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+          },
+        },
+      ],
+    )
+
+    try {
+      const response = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+      const body: unknown = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        id: collection.id,
+        environmental: {
+          status: 'present',
+          energy: {
+            valueKwh: 0.0009,
+            calculatedValueKwh: 0.0009,
+            coverage: 0.5,
+            model: {
+              key: 'future-energy',
+              version: '9',
+              parameters: { newCoefficient: 17 },
+              formula: {
+                status: 'unavailable',
+                expression: null,
+                inputUnits: null,
+                outputUnit: null,
+                reason: 'FORMULA_UNAVAILABLE',
+              },
+              reasons: [{ code: 'METRIC_MISSING', metric: 'cpuPercent' }],
+            },
+          },
+          carbon: {
+            valueGramsCo2e: null,
+            calculatedValueGramsCo2e: null,
+            calculatedValueKilogramsCo2e: null,
+            factor: null,
+            factorSnapshot: null,
+            reasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }],
+          },
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+    }
+  })
+
+  it('mantém método e snapshot próprios por coleta em leituras por ID e latest', async () => {
+    const rows: Array<{ id: string }> = []
+    const captures = [
+      {
+        offset: 1,
+        energyKwh: '0.00080000',
+        grams: '0.06800000',
+        factor: '85.00000000',
+        parameter: 100,
+        factorVersion: 'factor-v1',
+        factorIntensity: 85,
+        emissions: 0.068,
+      },
+      {
+        offset: 2,
+        energyKwh: '0.00160000',
+        grams: '0.06400000',
+        factor: '40.00000000',
+        parameter: 200,
+        factorVersion: 'factor-v2',
+        factorIntensity: 40,
+        emissions: 0.064,
+      },
+    ] as const
+
+    try {
+      for (const capture of captures) {
+        const intervalEnd = new Date(
+          Date.parse('2026-10-07T10:00:00.000Z') + capture.offset * 60_000,
+        )
+        const intervalStart = new Date(intervalEnd.getTime() - 60_000)
+        const [row] = await database.query(
+          `INSERT INTO collections (
+            "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+            metrics, "metricUnits", state, "energyKwh", "carbonGrams",
+            "carbonFactor", "calculationVersion", coverage, "calculationEvidence"
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          RETURNING id`,
+          [
+            'catalog-test-app',
+            intervalStart,
+            intervalEnd,
+            intervalEnd,
+            {},
+            {},
+            'AVAILABLE',
+            capture.energyKwh,
+            capture.grams,
+            capture.factor,
+            '1',
+            '1.0000',
+            {
+              version: 1,
+              energy: {
+                observationId: `capture-${capture.offset}`,
+                applicationId: 'catalog-test-app',
+                averagePowerW: capture.offset * 48,
+                energyKwh: capture.offset * 0.0008,
+                durationSeconds: 60,
+                modelKey: 'simplified-energy',
+                modelVersion: '1',
+                modelParameters: {
+                  cpuWattsAt100Percent: capture.parameter,
+                  memoryWattsPerGb: 0.375,
+                  diskWattsPerGb: 0.01,
+                  networkWattsPerGb: 0.02,
+                },
+                powerContributionsW: {
+                  cpuPercent: capture.offset * 48,
+                  memoryGb: 0,
+                  diskGb: 0,
+                  networkGb: 0,
+                },
+                reasons: [],
+              },
+              carbon: {
+                energyKwh: capture.offset * 0.0008,
+                factorSnapshot: {
+                  id: `factor-${capture.offset}`,
+                  version: capture.factorVersion,
+                  contractVersion: 'v1',
+                  regionCode: 'br-sudeste',
+                  country: 'Brazil',
+                  region: 'Sudeste',
+                  city: null,
+                  intensity: capture.factorIntensity,
+                  unit: 'gCO2e/kWh',
+                  queriedAt: intervalEnd.toISOString(),
+                  source: null,
+                  validFrom: null,
+                  validUntil: null,
+                },
+                emissionsGramsCo2e: capture.emissions,
+                emissionsKilogramsCo2e: capture.emissions / 1000,
+                reasons: [],
+              },
+            },
+          ],
+        )
+        rows.push(row)
+      }
+
+      const historicalResponse = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${rows[0].id}`,
+          await app.getUrl(),
+        ),
+      )
+      expect(historicalResponse.status).toBe(200)
+      expect(await historicalResponse.json()).toMatchObject({
+        id: rows[0].id,
+        environmental: {
+          energy: {
+            valueKwh: 0.0008,
+            model: {
+              key: 'simplified-energy',
+              version: '1',
+              parameters: { cpuWattsAt100Percent: 100 },
+            },
+          },
+          carbon: {
+            valueGramsCo2e: 0.068,
+            factor: 85,
+            factorSnapshot: { version: 'factor-v1', intensity: 85 },
+          },
+        },
+      })
+
+      const latestResponse = await fetch(
+        new URL(
+          '/applications/catalog-test-app/collections/latest',
+          await app.getUrl(),
+        ),
+      )
+      expect(latestResponse.status).toBe(200)
+      expect(await latestResponse.json()).toMatchObject({
+        id: rows[1].id,
+        environmental: {
+          energy: {
+            valueKwh: 0.0016,
+            model: {
+              key: 'simplified-energy',
+              version: '1',
+              parameters: { cpuWattsAt100Percent: 200 },
+            },
+          },
+          carbon: {
+            valueGramsCo2e: 0.064,
+            factor: 40,
+            factorSnapshot: { version: 'factor-v2', intensity: 40 },
+          },
+        },
+      })
+    } finally {
+      for (const row of rows) {
+        await database.query('DELETE FROM collections WHERE id = $1', [row.id])
+      }
+    }
+  })
+
+  it('preserva razão métrica e snapshot quando bundle presente tem energia indisponível', async () => {
+    const intervalEnd = new Date('2026-10-07T11:30:00.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams",
+        "carbonFactor", "calculationVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING id`,
+      [
+        'catalog-test-app',
+        new Date(intervalEnd.getTime() - 60_000),
+        intervalEnd,
+        intervalEnd,
+        { memoryGb: 0.2 },
+        { memoryGb: 'GB' },
+        'AVAILABLE',
+        null,
+        null,
+        '75.00000000',
+        '1',
+        '0.7500',
+        {
+          version: 1,
+          energy: {
+            observationId: 'partial-energy-observation',
+            applicationId: 'catalog-test-app',
+            averagePowerW: null,
+            energyKwh: null,
+            durationSeconds: 60,
+            modelKey: 'simplified-energy',
+            modelVersion: '1',
+            modelParameters: {
+              cpuWattsAt100Percent: 100,
+              memoryWattsPerGb: 0.375,
+              diskWattsPerGb: 0.01,
+              networkWattsPerGb: 0.02,
+            },
+            powerContributionsW: {
+              cpuPercent: null,
+              memoryGb: 0.075,
+              diskGb: 0,
+              networkGb: 0,
+            },
+            reasons: [{ code: 'METRIC_MISSING', metric: 'cpuPercent' }],
+          },
+          carbon: {
+            energyKwh: null,
+            factorSnapshot: {
+              id: 'partial-factor-id',
+              version: 'partial-factor-v1',
+              contractVersion: 'v1',
+              regionCode: 'br-sudeste',
+              country: 'Brazil',
+              region: 'Sudeste',
+              city: null,
+              intensity: 75,
+              unit: 'gCO2e/kWh',
+              queriedAt: intervalEnd.toISOString(),
+              source: null,
+              validFrom: null,
+              validUntil: null,
+            },
+            emissionsGramsCo2e: null,
+            emissionsKilogramsCo2e: null,
+            reasons: [{ code: 'ENERGY_UNAVAILABLE' }],
+          },
+        },
+      ],
+    )
+
+    try {
+      const response = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        id: collection.id,
+        environmental: {
+          status: 'present',
+          energy: {
+            valueKwh: null,
+            calculatedValueKwh: null,
+            coverage: 0.75,
+            averagePowerW: null,
+            model: {
+              powerContributionsW: { cpuPercent: null, memoryGb: 0.075 },
+              reasons: [{ code: 'METRIC_MISSING', metric: 'cpuPercent' }],
+            },
+          },
+          carbon: {
+            valueGramsCo2e: null,
+            calculatedValueGramsCo2e: null,
+            calculatedValueKilogramsCo2e: null,
+            factor: 75,
+            factorSnapshot: {
+              id: 'partial-factor-id',
+              version: 'partial-factor-v1',
+              queriedAt: intervalEnd.toISOString(),
+              source: null,
+              validFrom: null,
+              validUntil: null,
+            },
+            reasons: [{ code: 'ENERGY_UNAVAILABLE' }],
+          },
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+    }
+  })
+
+  it('retorna coleta sem bundle com motivo genérico de ausência ambiental', async () => {
+    const intervalEnd = new Date('2026-10-07T12:00:00.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+      [
+        'catalog-test-app',
+        new Date(intervalEnd.getTime() - 60_000),
+        intervalEnd,
+        intervalEnd,
+        { cpuPercent: 0 },
+        { cpuPercent: '%' },
+        'AVAILABLE',
+      ],
+    )
+
+    try {
+      const response = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        id: collection.id,
+        environmental: {
+          status: 'absent',
+          absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE',
+          energy: null,
+          carbon: null,
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+    }
+  })
+
+  it('preserva energia, intensidade e emissão iguais a zero como valores válidos', async () => {
+    const intervalEnd = new Date('2026-10-07T13:00:00.000Z')
+    const [collection] = await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", "collectedAt",
+        metrics, "metricUnits", state, "energyKwh", "carbonGrams",
+        "carbonFactor", "calculationVersion", coverage, "calculationEvidence"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING id`,
+      [
+        'catalog-test-app',
+        new Date(intervalEnd.getTime() - 60_000),
+        intervalEnd,
+        intervalEnd,
+        {},
+        {},
+        'AVAILABLE',
+        '0.00000000',
+        '0.00000000',
+        '0.00000000',
+        '1',
+        '1.0000',
+        {
+          version: 1,
+          energy: {
+            observationId: 'zero-energy-observation',
+            applicationId: 'catalog-test-app',
+            averagePowerW: 0,
+            energyKwh: 0,
+            durationSeconds: 60,
+            modelKey: 'simplified-energy',
+            modelVersion: '1',
+            modelParameters: {
+              cpuWattsAt100Percent: 0,
+              memoryWattsPerGb: 0,
+              diskWattsPerGb: 0,
+              networkWattsPerGb: 0,
+            },
+            powerContributionsW: {
+              cpuPercent: 0,
+              memoryGb: 0,
+              diskGb: 0,
+              networkGb: 0,
+            },
+            reasons: [],
+          },
+          carbon: {
+            energyKwh: 0,
+            factorSnapshot: {
+              id: 'zero-factor',
+              version: 'zero-factor-version',
+              contractVersion: 'v1',
+              regionCode: 'br-sudeste',
+              country: 'Brazil',
+              region: 'Sudeste',
+              city: null,
+              intensity: 0,
+              unit: 'gCO2e/kWh',
+              queriedAt: intervalEnd.toISOString(),
+              source: null,
+              validFrom: null,
+              validUntil: null,
+            },
+            emissionsGramsCo2e: 0,
+            emissionsKilogramsCo2e: 0,
+            reasons: [],
+          },
+        },
+      ],
+    )
+
+    try {
+      const response = await fetch(
+        new URL(
+          `/applications/catalog-test-app/collections/${collection.id}`,
+          await app.getUrl(),
+        ),
+      )
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        id: collection.id,
+        environmental: {
+          status: 'present',
+          energy: {
+            valueKwh: 0,
+            calculatedValueKwh: 0,
+            coverage: 1,
+            averagePowerW: 0,
+            model: {
+              powerContributionsW: {
+                cpuPercent: 0,
+                memoryGb: 0,
+                diskGb: 0,
+                networkGb: 0,
+              },
+              reasons: [],
+            },
+          },
+          carbon: {
+            valueGramsCo2e: 0,
+            calculatedValueGramsCo2e: 0,
+            calculatedValueKilogramsCo2e: 0,
+            factor: 0,
+            factorSnapshot: { intensity: 0 },
+            reasons: [],
+          },
+        },
+      })
+    } finally {
+      await database.query('DELETE FROM collections WHERE id = $1', [
+        collection.id,
+      ])
+    }
+  })
+
   it('consulta a última observação válida pela API da aplicação', async () => {
     const collectedAt = new Date('2026-10-07T10:00:00.000Z')
     const intervalStart = new Date('2026-10-07T09:59:30.000Z')
@@ -444,6 +1161,99 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
           },
         },
       },
+    })
+  })
+
+  it('documenta a metodologia ambiental com campos explícitos no OpenAPI', async () => {
+    const response = await fetch(new URL('/openapi.json', await app.getUrl()))
+    type Schema = {
+      type?: string
+      nullable?: boolean
+      properties?: Record<string, Schema>
+      items?: Schema
+      $ref?: string
+      allOf?: Schema[]
+    }
+    const document = (await response.json()) as {
+      components: {
+        schemas: Record<string, { properties: Record<string, Schema> }>
+      }
+    }
+
+    expect(response.status).toBe(200)
+    const schemas = document.components.schemas
+    expect(schemas.EnvironmentalFormulaDto.properties.inputUnits).toMatchObject({
+      type: 'object',
+      nullable: true,
+      properties: {
+        cpuPercent: { type: 'string' },
+        durationSeconds: { type: 'string' },
+      },
+    })
+    expect(schemas.EnvironmentalModelDto.properties.reasons).toMatchObject({
+      type: 'array',
+      items: { $ref: '#/components/schemas/EnergyCalculationReasonDto' },
+    })
+    expect(schemas.EnvironmentalModelDto.properties.parameters).toMatchObject({
+      type: 'object',
+      additionalProperties: { type: 'number' },
+      properties: {
+        cpuWattsAt100Percent: { type: 'number' },
+        memoryWattsPerGb: { type: 'number' },
+        diskWattsPerGb: { type: 'number' },
+        networkWattsPerGb: { type: 'number' },
+      },
+    })
+    expect(schemas.EnergyCalculationReasonDto.properties).toMatchObject({
+      code: {
+        type: 'string',
+        enum: [
+          'INVALID_OBSERVATION_ID',
+          'INVALID_APPLICATION_ID',
+          'INVALID_TIMESTAMP',
+          'INVALID_INTERVAL',
+          'INVALID_MODEL',
+          'METRIC_MISSING',
+          'METRIC_INVALID',
+          'METRIC_OUT_OF_RANGE',
+          'NON_FINITE_RESULT',
+        ],
+      },
+      metric: { type: 'string', enum: ['cpuPercent', 'memoryGb', 'diskGb', 'networkGb'] },
+    })
+    expect(schemas.CarbonEmissionReasonDto.properties.code).toMatchObject({
+      type: 'string',
+      enum: [
+        'ENERGY_UNAVAILABLE',
+        'INVALID_ENERGY',
+        'CARBON_FACTOR_UNAVAILABLE',
+        'INVALID_FACTOR',
+        'INVALID_SNAPSHOT',
+        'UNSUPPORTED_UNIT',
+        'NON_FINITE_RESULT',
+      ],
+    })
+    expect(
+      schemas.EnvironmentalPowerContributionsDto.properties,
+    ).toMatchObject({
+      cpuPercent: { type: 'number', nullable: true },
+      memoryGb: { type: 'number', nullable: true },
+      diskGb: { type: 'number', nullable: true },
+      networkGb: { type: 'number', nullable: true },
+    })
+    expect(
+      schemas.EnvironmentalCarbonDto.properties.factorSnapshot,
+    ).toMatchObject({
+      nullable: true,
+      allOf: [{ $ref: '#/components/schemas/CarbonFactorSnapshotDto' }],
+    })
+    expect(
+      schemas.CarbonFactorSnapshotDto.properties,
+    ).toMatchObject({
+      id: { type: 'string', nullable: true },
+      queriedAt: { type: 'string', nullable: true },
+      source: { type: 'string', nullable: true },
+      validUntil: { type: 'string', nullable: true },
     })
   })
 })
