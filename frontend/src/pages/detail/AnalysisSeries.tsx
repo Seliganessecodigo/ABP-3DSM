@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisSeriesResult } from '../../features/analysis/source.ts'
 import { formatInstantForDateTimeInput, getBrowserTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
-import { collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
+import { chartDomain, collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
 import styles from './AnalysisSeries.module.css'
 
 type Labels = Readonly<{
@@ -144,12 +144,12 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
             : null
         })
         const validValues = [...values, ...comparisonValues].flatMap(point => point ? [point.value] : [])
-        const max = Math.max(...validValues)
-        const chartMax = Math.max(4, Math.ceil(max / 4) * 4)
+        const domain = chartDomain(validValues)
+        const chartRange = domain.maximum - domain.minimum
         const coordinates: (PlotPoint | null)[] = values.map(point => point && ({
           id: point.id,
           x: maxTime === minTime ? 300 : 8 + ((point.time - minTime) / (maxTime - minTime)) * 584,
-          y: 128 - (point.value / chartMax) * 108,
+          y: 128 - ((point.value - domain.minimum) / chartRange) * 108,
         }))
         const segments = chartSegments(coordinates, true)
         const interactivePoints = new Map<number, { point: PlotPoint; reading: NonNullable<typeof values[number]> }>()
@@ -178,7 +178,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
         const comparisonCoordinates: (PlotPoint | null)[] = comparisonValues.map(point => point && ({
           id: point.id,
           x: comparisonMaxTime === comparisonMinTime ? 300 : 8 + ((point.time - comparisonMinTime) / (comparisonMaxTime - comparisonMinTime)) * 584,
-          y: 128 - (point.value / chartMax) * 108,
+          y: 128 - ((point.value - domain.minimum) / chartRange) * 108,
         }))
         const comparisonSegments = chartSegments(comparisonCoordinates, false)
         const activePointIndex = chronological.findIndex(point => point.id === activePointId)
@@ -192,13 +192,13 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
         ])
         const hasGaps = chronological.some(point => point[metric].status !== 'available' || (point[metric].status === 'available' && point[metric].unit !== unit))
         return <div key={unit} className={styles.unitChart}>
-          <p className={styles.axisSummary}>0 - {formatAnalysisNumber(chartMax, locale)} {displayUnit}</p>
+          <p className={styles.axisSummary}>{formatAnalysisNumber(domain.minimum, locale)} - {formatAnalysisNumber(domain.maximum, locale)} {displayUnit}</p>
           <div className={styles.legend}><span className={styles.currentLegend}>{labels.currentPeriod}</span>
             {comparisonSegments.length > 0 && <span className={styles.previousLegend}>{labels.previousPeriod}</span>}
             {visibleEventCount > 0 && <span className={styles.eventLegend}>{visibleEventCount} · {labels.eventsHeading}</span>}</div>
           <div className={styles.plot}>
             <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
-              <span key={index}>{formatAnalysisNumber(chartMax * (4 - index) / 4, locale)}</span>)}</div>
+              <span key={index}>{formatAnalysisNumber(domain.maximum - domain.step * index, locale)}</span>)}</div>
             <figure className={styles.chartFigure} aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
             <svg className={styles.chart} viewBox="0 0 600 144" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
               {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}

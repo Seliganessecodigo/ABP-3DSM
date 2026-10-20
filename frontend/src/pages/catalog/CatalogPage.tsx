@@ -19,8 +19,8 @@ const pageSizes = [5, 10, 15, 20, 'all'] as const
 function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn):
   Readonly<{ ariaSort: 'ascending' | 'descending' | 'none'; indicator: string }> {
   if (sort?.column !== column) return { ariaSort: 'none', indicator: '' }
-  if (sort.direction === 'asc') return { ariaSort: 'ascending', indicator: ' \u2191' }
-  return { ariaSort: 'descending', indicator: ' \u2193' }
+  if (sort.direction === 'asc') return { ariaSort: 'ascending', indicator: '\u2191' }
+  return { ariaSort: 'descending', indicator: '\u2193' }
 }
 
 function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
@@ -140,7 +140,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const columnSort = (column: CatalogSortColumn) => sortPresentation(query.sort, column)
   const region = (item: (typeof applications)[number]) => item.location?.regionCode ?? tCommon('location.unknown')
   const displayCell = (item: (typeof applications)[number], column: CatalogSortColumn) => {
-    if (column === 'name') return <><strong>{item.name}</strong><small className="identifier">{item.id}</small></>
+    if (column === 'name') return <strong>{item.name}</strong>
     if (column === 'country') return item.location?.country ?? tCommon('location.unknown')
     if (column === 'regionCode') return region(item)
     if (column === 'city') return item.location ? item.location.city ?? tCommon('location.cityUnknown') : tCommon('location.unknown')
@@ -185,8 +185,8 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
       <div className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => {
         const sort = columnSort(column.key)
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
-      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
-      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><p className="identifier">{item.id}</p>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
+      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
+      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
       <div className={styles.pagination}>
         <span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span>
         <label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>

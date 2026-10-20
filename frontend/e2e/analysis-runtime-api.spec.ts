@@ -97,8 +97,7 @@ test('mantém o resumo ambiental quando a consulta da série falha', async ({ pa
 test('mostra eventos retornados pela série sem arredondar os limites do período', async ({ page }) => {
   const from = '2026-10-10T20:00:37.456Z'
   const to = '2026-10-17T20:00:37.456Z'
-  await page.clock.install({ time: new Date(to) })
-  await page.clock.pauseAt(new Date(to))
+  await page.clock.setFixedTime(new Date(to))
   const ranges: Array<[string | null, string | null]> = []
   await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
     const url = new URL(route.request().url())
@@ -137,8 +136,7 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
 test('mantém eventos persistidos quando resumo e série não têm observações', async ({ page }) => {
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-16T20:00:00.000Z'
-  await page.clock.install({ time: new Date(to) })
-  await page.clock.pauseAt(new Date(to))
+  await page.clock.setFixedTime(new Date(to))
   const ranges: Array<[string | null, string | null]> = []
   await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
     const url = new URL(route.request().url())

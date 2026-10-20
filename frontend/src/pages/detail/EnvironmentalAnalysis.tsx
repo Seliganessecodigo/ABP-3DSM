@@ -449,6 +449,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
+      <div className={styles.analysisNotice} aria-live="polite">
       {status === 'loading' && <output>{labels.loading}</output>}
       {status === 'refreshing' && <output>{labels.refreshing}</output>}
       {status === 'empty' && <output>{labels.empty}</output>}
@@ -458,11 +459,12 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>
         {data.series.events.map(event => <li key={event.id}>{labels.seriesEventSummary(event)}</li>)}
       </ul>}
-      {status === 'error' && <div className={styles.analysisNotice} role="alert">
+      {status === 'error' && <div className={styles.analysisError} role="alert">
         <p>{labels.error}</p>
         {data && <output>{labels.previousPreserved}</output>}
         <ActionButton onClick={onRetry}>{labels.retry}</ActionButton>
       </div>}
+      </div>
       {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>

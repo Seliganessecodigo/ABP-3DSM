@@ -1,14 +1,17 @@
-.analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 116px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
+.analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 120px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
 .screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .section { min-width: 0; margin: 0; }
-.analysisNotice { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; color: var(--warning-foreground); font-size: 12px; }
+.analysisNotice { box-sizing: border-box; display: flex; height: 16px; min-height: 16px; align-items: center; flex-wrap: wrap; gap: 4px 12px; overflow: hidden; color: var(--warning-foreground); font-size: 12px; }
+.analysisNotice > output { line-height: 16px; white-space: nowrap; }
 .analysisNotice p, .analysisNotice output { margin: 0; font-size: inherit; }
 .analysisNotice :global(.action-button) { min-height: 28px; padding: 4px 12px; }
+.analysisError { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
 .seriesColumn, .evidenceColumn, .coverageColumn, .freshnessColumn, .contextColumn { min-width: 0; min-height: 0; }
 .section { grid-column: 1; grid-row: 1; }
-.coverageColumn { grid-column: 2; grid-row: 1; }
-.calculation { grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
-.freshnessColumn { grid-column: 2; grid-row: 2; }
+.coverageColumn { grid-column: 2; grid-row: 1; padding-top: 16px; }
+.calculation { grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; height: 100%; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
+.freshnessColumn { grid-column: 2; grid-row: 2; display: flex; }
+.freshnessColumn > * { width: 100%; height: 100%; box-sizing: border-box; }
 .seriesColumn { grid-column: 1; grid-row: 3; }
 .evidenceColumn { grid-column: 2; grid-row: 3; }
 .contextColumn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
@@ -54,6 +57,7 @@
 .unavailable .value { margin-bottom: 4px; color: var(--warning-foreground); font-size: 16px; }
 .unavailableValue { margin: 0; color: var(--text-secondary); }
 .coverageMetrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.coverage { height: 116px; min-height: 116px; align-self: start; }
 .coverageGauge { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 8px; }
 .coverageGauge p { margin: 0; color: var(--text-secondary); font-size: 10px; line-height: 1.3; }
 .coverageRing { width: 56px; height: 56px; overflow: visible; }
@@ -90,6 +94,7 @@
 @media (max-width: 900px) {
   .analysisLayout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
   .section, .coverageColumn, .calculation, .freshnessColumn, .seriesColumn, .evidenceColumn { grid-column: 1; grid-row: auto; }
+  .coverageColumn { padding-top: 0; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .contextColumn { grid-template-columns: 1fr; }
 }
@@ -101,4 +106,8 @@
   .factor { padding: 12px; }
   .factor dl { grid-template-columns: 1fr; }
   .coverageMetrics { grid-template-columns: 1fr; }
+}
+@media (min-width: 901px) and (max-height: 700px) {
+  .analysisLayout { grid-template-rows: 116px 88px minmax(0, 1fr); }
+  .metric, .coverage { height: 112px; min-height: 112px; }
 }

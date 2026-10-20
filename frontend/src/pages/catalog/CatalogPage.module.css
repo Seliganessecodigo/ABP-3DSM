@@ -61,7 +61,8 @@
 .apply-button { min-width: 160px; border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 650; }
 .active-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .active-filters button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 16px; padding: 4px 8px; color: var(--text-primary); background: var(--control-hover); cursor: pointer; }
-.sort-button { border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; cursor: pointer; }
+.sort-button { display: inline-flex; align-items: center; gap: 4px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; cursor: pointer; }
+.sort-button span:not(:empty) { display: inline-grid; width: 18px; height: 18px; place-items: center; color: var(--accent-default); font-size: 17px; font-weight: 800; line-height: 1; }
 .mobile-cards { display: none; }
 .page-number, .current-page, :global(.button).page-button { width: 36px; height: 36px; min-height: 36px; display: inline-grid; place-items: center; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; color: var(--text-primary); background: var(--surface-card); font: inherit; font-size: 12px; cursor: pointer; }
 .current-page { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 700; }
