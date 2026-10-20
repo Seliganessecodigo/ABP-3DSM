@@ -90,3 +90,46 @@ React 19, TypeScript, Vite, i18next, NestJS, TypeORM, PostgreSQL, Docker Compose
 ## Contribuição
 
 As issues do GitHub organizam épicos, histórias e tarefas. O trabalho parte de `develop` e é enviado por pull request para `develop`, seguindo Conventional Commits. Consulte [`AGENTS.md`](AGENTS.md) e as [diretrizes de frontend](skills/frontend/SKILL.md) e [backend](skills/backend/SKILL.md).
+
+## 👥 Equipe
+
+<div align="center">
+  <table>
+    <tr>
+      <th>Membro</th>
+      <th>Função</th>
+      <th>GitHub</th>
+      <th>LinkedIn</th>
+    </tr>
+    <tr>
+      <td>Gianluca Lourenço Alves</td>
+      <td>Product Owner</td>
+      <td><a href="https://github.com/GianlucaAlves"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Gianluca Lourenço Alves"></a></td>
+      <td><a href="https://www.linkedin.com/in/gianluca-alves"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn de Gianluca Lourenço Alves"></a></td>
+    </tr>
+    <tr>
+      <td>Guilherme Oliveira</td>
+      <td>Scrum Master</td>
+      <td><a href="https://github.com/guioliv3"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Guilherme Oliveira"></a></td>
+      <td><a href="https://www.linkedin.com/in/guilherme-henrique-de-oliveira-97076535b"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn de Guilherme Oliveira"></a></td>
+    </tr>
+    <tr>
+      <td>Victor Coutinho</td>
+      <td>Desenvolvedor</td>
+      <td><a href="https://github.com/Vitaixs"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Victor Coutinho"></a></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Lucas Cecon</td>
+      <td>Desenvolvedor</td>
+      <td><a href="https://github.com/lucas-cecon"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Lucas Cecon"></a></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Breno</td>
+      <td>Desenvolvedor</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+  </table>
+</div>
