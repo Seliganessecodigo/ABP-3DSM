@@ -193,7 +193,8 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
           <div className={styles.plot}>
             <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
               <span key={index}>{formatAnalysisNumber(chartMax * (4 - index) / 4, locale)}</span>)}</div>
-            <svg className={styles.chart} viewBox="0 0 600 144" role="figure" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
+            <figure className={styles.chartFigure} aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
+            <svg className={styles.chart} viewBox="0 0 600 144" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
               {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}
               <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
               <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
@@ -219,6 +220,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
                 {activeComparison && <text x="8" y="39">{labels.tooltipPrevious}: {formatChartValue(activeComparison.value, locale)} {displayUnit}</text>}
               </g>}
             </svg>
+            </figure>
           </div>
           <div className={styles.timeAxis}>{axisPoints.map(point => <time key={point.id} dateTime={point.timestamp}>
             {new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit' }).format(new Date(point.timestamp))}
