@@ -9,6 +9,7 @@ import type { EnvironmentalFreshnessLabels } from './EnvironmentalFreshness.tsx'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useId, useState, type ReactNode, type SyntheticEvent } from 'react'
 import styles from './EnvironmentalAnalysis.module.css'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 type Labels = Readonly<{
   heading: string
@@ -138,7 +139,7 @@ function Reading({ reading, locale, notCalculable, metricUnavailable, reasons }:
 }
 
 function formatAnalysisNumber(value: number, locale: string) {
-  return new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)
+  return formatNumber(value, locale)
 }
 
 function MetricCard({ id, title, reading, locale, labels, empty = false, coverage, seriesPoints = [], metric }: Readonly<{
@@ -183,12 +184,14 @@ function Sparkline({ points, metric }: Readonly<{ points: readonly AnalysisSerie
   return <svg data-metric-sparkline="true" className={styles.sparkline} viewBox="0 0 64 20" aria-hidden="true"><polyline points={coordinates} /></svg>
 }
 
-function FactorCard({ factor, labels, onViewDetails }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels; onViewDetails?: () => void }>) {
+function FactorCard({ factor, locale, labels, onViewDetails }: Readonly<{ factor: AnalysisFactorResult | null; locale: string; labels: Labels; onViewDetails?: () => void }>) {
   let value: string | null = null
   if (factor?.status === 'available') {
     if (factor.factors.length > 1) value = labels.multipleFactors
     else if (factor.factors.length === 1 && factor.factors[0].intensity !== null && factor.factors[0].unit !== null) {
-      value = `${factor.factors[0].intensity} ${factor.factors[0].unit}`
+      value = `${typeof factor.factors[0].intensity === 'number'
+        ? formatNumber(factor.factors[0].intensity, locale)
+        : formatFactorIntensity(factor.factors[0].intensity, locale)} ${factor.factors[0].unit}`
     }
   }
 
@@ -209,6 +212,11 @@ function FactorCard({ factor, labels, onViewDetails }: Readonly<{ factor: Analys
     </p>}
     {factor?.status === 'available' && onViewDetails && <button type="button" className={styles.factorDetailsLink} onClick={onViewDetails}>{labels.viewFactorDetails} →</button>}
   </fieldset>
+}
+
+function formatFactorIntensity(value: string, locale: string) {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) ? formatNumber(numericValue, locale) : value
 }
 
 function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
@@ -295,7 +303,7 @@ function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} />
-    <FactorCard factor={null} labels={labels} />
+    <FactorCard factor={null} locale="pt-BR" labels={labels} />
     <CoverageCard data={null} locale="pt-BR" labels={labels} />
   </div>
 }
@@ -461,7 +469,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
           coverage={data.energyCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="energy" />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
           coverage={data.emissionsCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="emissions" />
-        <FactorCard factor={data.factor} labels={labels} onViewDetails={() => setContextOpen(true)} />
+        <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />
         <CoverageCard data={data} locale={locale} labels={labels} />
       </div>}
     </section>

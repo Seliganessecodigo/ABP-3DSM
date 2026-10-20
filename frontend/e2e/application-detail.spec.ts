@@ -14,25 +14,25 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     if (path.endsWith('/series')) {
       const seriesFrom = url.searchParams.get('from') ?? from
       const isPreviousPeriod = seriesFrom !== from
-      const points = Array.from({ length: 7 }, (_, index) => {
-        const start = Date.parse(seriesFrom) + index * 24 * 60 * 60 * 1000
-        const end = start + 24 * 60 * 60 * 1000
+      const points = Array.from({ length: 168 }, (_, index) => {
+        const start = Date.parse(seriesFrom) + index * 60 * 60 * 1000
+        const end = start + 60 * 60 * 1000
         return { id: `point-${index}`, bucketStart: new Date(start).toISOString(), bucketEnd: new Date(end).toISOString(),
           period: { from: new Date(start).toISOString(), to: new Date(end).toISOString() },
-          energy: { value: (isPreviousPeriod ? 4 : 5) + index * (isPreviousPeriod ? 0.3 : 0.4), unit: 'kWh', reasons: [] },
-          emissions: { value: (isPreviousPeriod ? 1400 : 1700) + index * (isPreviousPeriod ? 100 : 136), unit: 'gCO2e', reasons: [] },
+          energy: { value: (isPreviousPeriod ? 4 : 5) + index * (isPreviousPeriod ? 0.03 : 0.04), unit: 'kWh', reasons: [] },
+          emissions: { value: (isPreviousPeriod ? 1400 : 1700) + index * (isPreviousPeriod ? 10 : 13.6), unit: 'gCO2e', reasons: [] },
           coverage: { energy: 0.96, emissions: 0.96 } }
       })
       await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') }, granularity: 'day',
-        totals: { energy: { value: 42.1, unit: 'kWh' }, emissions: { value: 4.2, unit: 'kgCO2e' } },
-        coverage: { energy: 0.96, emissions: 0.96 }, points, events: Array.from({ length: 14 }, (_, index) => ({
-          id: `event-${index}`, at: new Date(Date.parse(from) + (index + 1) * 12 * 60 * 60 * 1000).toISOString(),
+        totals: { energy: { value: 0.59873637, unit: 'kWh' }, emissions: { value: 278.41230959, unit: 'gCO2e' } },
+        coverage: { energy: 0.96, emissions: 0.96 }, points, events: Array.from({ length: 2323 }, (_, index) => ({
+          id: `event-${index}`, at: new Date(Date.parse(from) + 60 * 60 * 1000 + index * (166 * 60 * 60 * 1000 / 2322)).toISOString(),
           type: 'status_changed', details: { before: { state: 'AVAILABLE' }, after: { state: 'UNAVAILABLE' } },
         })) } })
       return
     }
     await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to },
-      energy: { value: 42.1, unit: 'kWh', reasons: [] }, emissions: { value: 4.2, unit: 'kgCO2e', reasons: [] },
+      energy: { value: 0.59873637, unit: 'kWh', reasons: [] }, emissions: { value: 278.41230959, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 0.96, emissions: 0.96 },
       provenance: { methodologies: [{ key: 'estimate', version: '2.1', parameters: {} }], factors: [{
         contractVersion: '1', regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo',
@@ -44,13 +44,17 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     await route.fulfill({ json: { id: 'collection-layout', applicationId: 'svc-0142', intervalStart: '2026-10-19T14:25:00.000Z',
       intervalEnd: '2026-10-19T14:30:00.000Z', collectedAt: '2026-10-19T14:30:00.000Z', collectionIntervalSeconds: 300,
       isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID', lastCheckedAt: '2026-10-19T14:30:00.000Z', isCalculable: true,
-      metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: null, status: 'missing' },
+      metrics: { cpu: { value: 40.96318, unit: '%', status: 'available' }, memory: { value: 3.626751999999998, unit: 'GB', status: 'available' },
         disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: null, unit: 'Mbps', status: 'invalid' } } } })
   })
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   await expect(page.getByRole('figure', { name: /Evolução de CO₂e/ })).toBeVisible()
-  await expect(page.getByRole('table')).toContainText('38 %')
+  await expect(page.getByRole('table')).toContainText('40,96 %')
+  await expect(page.getByRole('table')).toContainText('3,63 GB')
+  await expect(page.getByRole('main')).toContainText('0,6 kWh')
+  await expect(page.getByRole('main')).toContainText('278,41 gCO2e')
+  await expect(page.getByRole('main')).not.toContainText('0,59873637')
 
   const before = await page.evaluate(() => {
     const sidebar = document.querySelector<HTMLElement>('.sidebar')!
@@ -104,18 +108,18 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect(headingAlignment.gap).toBeLessThanOrEqual(8)
   expect(Math.abs(headingAlignment.verticalOffset)).toBeLessThanOrEqual(4)
   await expect(page.locator('.events')).toHaveCount(0)
-  await expect(page.locator('[data-series-event-marker]')).toHaveCount(7)
-  expect(await page.locator('[data-series-event-marker]').evaluateAll(markers => markers.reduce((total, marker) => total + Number(marker.getAttribute('data-event-count')), 0))).toBe(12)
+  await expect.poll(() => page.locator('[data-series-event-marker]').count()).toBeLessThanOrEqual(25)
+  expect(await page.locator('[data-series-event-marker]').evaluateAll(markers => markers.reduce((total, marker) => total + Number(marker.getAttribute('data-event-count')), 0))).toBe(2323)
   await expect(page.getByRole('group', { name: 'Métrica' }).getByRole('button', { name: 'CO₂e' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.eventSummary')).toHaveCount(0)
-  await expect(page.getByText(/12 · Eventos do período/)).toBeVisible()
+  await expect(page.getByText(/2323 · Eventos do período/)).toBeVisible()
   await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
   await expect(page.locator('[data-metric-sparkline]')).toHaveCount(2)
   await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
   await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Hora', exact: true })).toBeVisible()
   await expect(page.getByRole('figure', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
-  const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ })
+  const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ }).first()
   await chartPoint.hover()
   await expect(page.getByRole('status')).toContainText('Atual:')
   await expect(page.getByRole('status')).toContainText('Anterior:')

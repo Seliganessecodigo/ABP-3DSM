@@ -15,6 +15,7 @@ import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
 
@@ -98,7 +99,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
       formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
-      formatNumber={(value) => new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)}
+      formatNumber={(value) => formatNumber(value, locale)}
       locale={locale} query={evidenceQuery}
       onQueryChange={(query) => {
         const params = new URLSearchParams(window.location.search)

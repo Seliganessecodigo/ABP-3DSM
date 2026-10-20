@@ -1,6 +1,7 @@
 import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesPoint } from '../../features/analysis/source.ts'
 import { formatInstantForDateTimeInput, parseDateTimeInputInZone } from './seriesQuery.ts'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 export type SeriesMetric = 'energy' | 'emissions'
 
@@ -18,7 +19,7 @@ export type NumericRange = Readonly<{
 }>
 
 export function formatSeriesNumber(value: number, locale: string) {
-  return new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)
+  return formatNumber(value, locale)
 }
 
 export function formatSeriesReading(reading: AnalysisReading, locale: string, labels: SeriesLabels) {
