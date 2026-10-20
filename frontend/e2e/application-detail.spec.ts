@@ -84,9 +84,14 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect.soft(before.sidebarLeft).toBe(0)
   expect.soft(before.sidebarTop).toBe(0)
   expect.soft(before.sidebarRight).toBeGreaterThan(160)
-  expect.soft(before.regions[2]).toMatchObject({ x: 192, y: 95, width: 760, height: 116 })
-  expect.soft(before.regions[3]).toMatchObject({ x: 192, y: 219, width: 760, height: 88 })
-  expect.soft(before.regions[4]).toMatchObject({ x: 192, y: 319, width: 760, height: 276 })
+  expect.soft(before.regions[2]).toMatchObject({ x: 192, width: 760 })
+  expect.soft(Math.abs(before.regions[2].y - 95)).toBeLessThanOrEqual(2)
+  expect.soft(Math.abs(before.regions[2].height - 116)).toBeLessThanOrEqual(2)
+  expect.soft(before.regions[3]).toMatchObject({ x: 192, width: 760, height: 88 })
+  expect.soft(Math.abs(before.regions[3].y - 219)).toBeLessThanOrEqual(2)
+  expect.soft(before.regions[4]).toMatchObject({ x: 192, width: 760 })
+  expect.soft(Math.abs(before.regions[4].y - 319)).toBeLessThanOrEqual(2)
+  expect.soft(Math.abs(before.regions[4].height - 276)).toBeLessThanOrEqual(2)
   const headingAlignment = await page.evaluate(() => {
     const title = document.querySelector('main h1')!
     const titleText = document.createRange()

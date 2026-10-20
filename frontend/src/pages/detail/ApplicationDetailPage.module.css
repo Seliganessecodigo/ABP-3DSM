@@ -21,7 +21,7 @@
 .detail-card dt { margin-bottom: 4px; color: var(--text-secondary); font-size: 11px; }
 .detail-card dd { margin: 0; overflow-wrap: anywhere; color: var(--text-primary); font-size: 13px; font-weight: 600; }
 @media (min-width: 901px) {
-  :global(.content).detail-content { display: grid; grid-template-rows: 20px auto minmax(0, 1fr); gap: 4px; padding: 8px 44px 24px 16px; }
+  :global(.content).detail-content { display: grid; grid-template-rows: 20px 60px minmax(0, 1fr); gap: 4px; padding: 8px 44px 24px 16px; }
   .detailTop { margin-bottom: 4px; }
   .locationSummary { margin-top: 4px; }
 }
