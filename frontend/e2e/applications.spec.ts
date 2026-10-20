@@ -13,6 +13,8 @@ test('nomes iguais permanecem em linhas distintas por identidade', async ({ page
   await page.goto('/')
   await expect(row(page, 'svc-0142')).toContainText('app-pagamentos')
   await expect(row(page, 'svc-outro')).toContainText('app-pagamentos')
+  await expect(row(page, 'svc-0142')).not.toContainText('svc-0142')
+  await expect(row(page, 'svc-outro')).not.toContainText('svc-outro')
 })
 
 test('aguarda resposta com carregamento sem mostrar vazio prematuramente', async ({ page }) => {
@@ -414,8 +416,9 @@ test('tela mobile mantém busca e acesso ao detalhe sem overflow da página', as
   await mockCatalog(page, [application()])
   await page.goto('/')
   await expect(search(page)).toBeInViewport()
-  const card = page.locator('article[class*="mobile-card"]').filter({ hasText: 'svc-0142' })
+  const card = page.locator('article[class*="mobile-card"]').filter({ hasText: 'app-pagamentos' })
   await expect(card).toBeVisible()
+  await expect(card).not.toContainText('svc-0142')
   const details = card.getByRole('link', { name: /ver detalhes/i })
   await details.scrollIntoViewIfNeeded()
   await expect(details).toBeInViewport()
@@ -432,6 +435,7 @@ test('filtros de coluna, ordenação e tamanho de página são refletidos na URL
   const nameHeader = page.getByRole('columnheader', { name: /aplicação/i })
   await nameHeader.getByRole('button').click()
   await expect(nameHeader).toHaveAttribute('aria-sort', 'descending')
+  await expect(nameHeader.locator('button span')).toHaveCSS('font-size', '17px')
   await expect(page).toHaveURL(/sort=name.*direction=desc|direction=desc.*sort=name/)
   await page.getByRole('combobox', { name: /itens por página/i }).selectOption('5')
   await expect(page).toHaveURL(/size=5/)

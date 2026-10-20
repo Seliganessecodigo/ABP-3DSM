@@ -1,7 +1,7 @@
 import './AppShell.css'
 import '../styles/shared.css'
 import foliageBackground from '../assets/foliage-background.svg'
-import leafMark from '../assets/leaf-mark.svg'
+import greenErMark from '../assets/green-er-mark.png'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
@@ -77,13 +77,13 @@ export function AppShell({ children, navigate, variant = 'default' }: Readonly<{
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
       <div className="sidebar-brand-row">
         <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}>
-          <span className="brand-name">GreenER</span><span className="brand-initial" aria-hidden="true">G</span>
+          <img className="brand-mark" src={greenErMark} width={32} height={32} alt="" />
+          <span className="brand-name"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>
         </a>
         <button className="sidebar-collapse-toggle" type="button" aria-label={t(desktopExpanded ? 'nav.collapse' : 'nav.expand')} aria-expanded={desktopExpanded} onClick={() => setDesktopExpanded((expanded) => !expanded)}>
           <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m9.5 3.5-4.5 4.5 4.5 4.5" /></svg>
         </button>
       </div>
-      <img className="sidebar-leaf-mark" src={leafMark} width={32} height={22} alt="" />
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
         <button aria-label={t('nav.dashboard')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></button>
@@ -104,6 +104,6 @@ export function AppShell({ children, navigate, variant = 'default' }: Readonly<{
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><span>GreenER</span></header>{children}</div>
+    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span></header>{children}</div>
   </div>
 }

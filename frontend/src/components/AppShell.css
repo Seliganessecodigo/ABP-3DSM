@@ -15,10 +15,11 @@
 }
 .sidebar { position: sticky; top: 0; height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 24px 12px 8px; color: var(--sidebar-text); background: var(--sidebar-background); transition: padding .24s ease; }
 .sidebar-brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; min-width: 0; }
-.brand { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 16px 24px; color: var(--navigation-text); text-decoration: none; font-size: 20px; font-weight: 750; letter-spacing: -.04em; }
-.brand-name, .brand-initial { transition: opacity .16s ease, transform .16s ease; }
-.brand-initial { display: none; }
-.sidebar-leaf-mark { position: absolute; z-index: 1; top: 68px; left: 84px; transition: opacity .16s ease, transform .16s ease; }
+.brand { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 0 24px; color: var(--navigation-text); text-decoration: none; font-size: 18px; font-weight: 800; letter-spacing: -.055em; }
+.brand-mark { display: block; width: 28px; height: 28px; flex: 0 0 auto; object-fit: contain; }
+.brand-name, .brand-wordmark { display: inline-flex; min-width: 0; white-space: nowrap; transition: opacity .16s ease, transform .16s ease; }
+.brand-green { color: #45d59a; }
+.brand-er { color: var(--navigation-text); }
 .sidebar-foliage { position: absolute; z-index: 0; bottom: 0; left: 0; width: 100%; height: auto; opacity: .3; pointer-events: none; }
 .sidebar > :not(.sidebar-foliage) { z-index: 1; }
 .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
@@ -56,8 +57,7 @@
   .sidebar-collapsed .sidebar-brand-row { align-items: center; flex-direction: column; gap: 4px; }
   .sidebar-collapsed .brand { align-items: center; padding: 0 0 4px; }
   .sidebar-collapsed .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
-  .sidebar-collapsed .brand-initial { display: inline; font-size: 21px; }
-  .sidebar-collapsed .sidebar-leaf-mark { opacity: 0; transform: translateY(-4px); }
+  .sidebar-collapsed .brand-mark { width: 40px; height: 40px; }
   .sidebar-collapsed .nav-heading { max-height: 0; margin-block: 0; opacity: 0; }
   .sidebar-collapsed .sidebar-preferences { width: 100%; gap: 4px; max-height: none; margin-top: 24px; padding: 0; opacity: 1; }
   .sidebar-collapsed .sidebar-preferences > .nav-heading, .sidebar-collapsed .language-label, .sidebar-collapsed .language-code, .sidebar-collapsed .language-chevron { display: none; }
@@ -76,12 +76,12 @@
   .sidebar.sidebar-open { visibility: visible; pointer-events: auto; transform: translateX(0); }
   .sidebar-brand-row { display: contents; }
   .brand { align-self: flex-start; width: fit-content; padding: 0 8px 28px; font-size: 21px; }
-  .sidebar-collapsed .brand-name { display: inline; }
-  .sidebar-collapsed .brand-initial { display: none; }
   .sidebar nav { display: flex; }
   .sidebar nav button, .sidebar nav a { width: 100%; min-height: 44px; }
   .topbar { height: 44px; display: flex; justify-content: flex-start; gap: 8px; padding-inline: 16px; }
-  .topbar > span { color: var(--text-primary); font-size: 14px; font-weight: 700; }
+  .topbar > img { margin-left: 4px; }
+  .topbar .brand-wordmark { font-size: 16px; font-weight: 800; letter-spacing: -.055em; }
+  .topbar .brand-er { color: var(--text-primary); }
   .mobile-menu-toggle { display: inline-grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 8px; color: var(--accent-default); background: transparent; font-size: 20px; }
   .mobile-menu-close { position: absolute; z-index: 2; top: 20px; right: 16px; display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 8px; color: var(--navigation-text); background: transparent; font-size: 23px; }
   .sidebar-collapse-toggle { display: none; }
@@ -92,7 +92,7 @@
 }
 .sidebar nav button:focus-visible, .sidebar nav a:focus-visible, .sidebar-collapse-toggle:focus-visible, .brand:focus-visible { outline: 2px solid var(--sidebar-accent); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .app-layout, .sidebar, .brand-name, .brand-initial, .sidebar-leaf-mark, .nav-heading, .nav-label, .sidebar-preferences, .sidebar-collapse-toggle svg { transition-duration: .01ms; }
+  .app-layout, .sidebar, .brand-name, .brand-wordmark, .nav-heading, .nav-label, .sidebar-preferences, .sidebar-collapse-toggle svg { transition-duration: .01ms; }
 }
 .topbar-actions { display: flex; align-items: center; gap: 16px; }
 @media (max-width: 640px) {
