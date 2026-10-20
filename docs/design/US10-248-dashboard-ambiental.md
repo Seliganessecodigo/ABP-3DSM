@@ -26,7 +26,7 @@ O frame usa viewport de 390 × 844 e rolagem vertical. O conteúdo permanece em 
 ## Ajustes desktop conferidos contra o PNG
 
 - Frame desktop mantido em 1440 × 1134; padding externo reduzido a 8 px. O cartão adicional de qualidade dos dados foi retirado para liberar a área da tabela, que é a última seção mostrada na referência.
-- Alerta atualizado para a mensagem de dado válido desatualizado às 14:20 e sua participação de 20% no CO₂e. O cartão de cobertura agora exibe `85%` e `36 de 42 aplicações com dados válidos`.
+- Alerta atualizado para a mensagem de dado válido desatualizado às 14:20 e sua participação de 20% no CO₂e. O cartão de cobertura agora exibe um anel de progresso verde de 85%, com o percentual centralizado e `36 de 42 aplicações com dados válidos` em uma coluna lateral.
 - Cartão de aplicações por estado apresenta as quatro contagens da referência: 31 disponíveis, 4 indisponíveis, 5 sem métricas e 2 removidas.
 - Donut mantém a soma de 41,2 kgCO₂e, com os cinco valores e percentuais completos. A linha `Outras` duplicada no topo foi removida; o painel ficou em 392 × 308 px para manter todos os valores visíveis.
 - Navegação desktop recebeu o bloco verde “Tecnologia para um amanhã mais verde.” no espaço da referência. Seletor de idioma, modo escuro e título “Preferências” foram ocultados neste frame.
@@ -46,7 +46,7 @@ O frame desktop foi ajustado e conferido visualmente, mas a nova revisão indepe
 
 | Área | Trabalho necessário antes do aceite |
 | --- | --- |
-| Desktop | Fechar badges de estados, banner promocional, controles do donut e hachuras da série temporal; comparar espaçamentos contra o PNG e registrar evidência final. |
+| Desktop | Converter os quatro estados em badges coloridos, aproximar o banner promocional (ícone de folha e degradê), acrescentar abas/unidade do donut e hachuras da série temporal; comparar espaçamentos contra o PNG e registrar evidência final. |
 | Design system | Auditar vínculos de todos os elementos pertinentes à biblioteca 28:336, consolidação #260 e temas #213. Os gráficos importados não ganharam bindings de variáveis automaticamente. |
 | Navegação mobile | Consumir a solução global de #271, com controle de menu acessível e retorno às demais áreas; a navegação global permanece responsabilidade dessa task. |
 | Estados | Criar e ligar carregamento, vazio, nenhum resultado, erro/retry, sucesso e estados parciais; documentar transições. |
