@@ -23,19 +23,30 @@ O frame usa viewport de 390 × 844 e rolagem vertical. O conteúdo permanece em 
 - Colunas e Exportar CSV foram retirados dos controles mobile: a issue declara que essas ações não entram no MVP por inferência do print.
 - Textos auxiliares de qualidade dos dados ampliados para 12 px. O fluxo de apresentação mobile tem início próprio e rolagem vertical configurada.
 
-As capturas do protótipo foram inspecionadas durante a edição. Não foi obtida captura local final para versionamento antes da indisponibilidade do navegador. As artes SVG importadas são vetoriais; isso não equivale a componentes interativos ou a validação de acessibilidade.
+## Ajustes desktop conferidos contra o PNG
+
+- Frame desktop mantido em 1440 × 1134; padding externo reduzido a 8 px. O cartão adicional de qualidade dos dados foi retirado para liberar a área da tabela, que é a última seção mostrada na referência.
+- Alerta atualizado para a mensagem de dado válido desatualizado às 14:20 e sua participação de 20% no CO₂e. O cartão de cobertura agora exibe `85%` e `36 de 42 aplicações com dados válidos`.
+- Cartão de aplicações por estado apresenta as quatro contagens da referência: 31 disponíveis, 4 indisponíveis, 5 sem métricas e 2 removidas.
+- Donut mantém a soma de 41,2 kgCO₂e, com os cinco valores e percentuais completos. A linha `Outras` duplicada no topo foi removida; o painel ficou em 392 × 308 px para manter todos os valores visíveis.
+- Navegação desktop recebeu o bloco verde “Tecnologia para um amanhã mais verde.” no espaço da referência. Seletor de idioma, modo escuro e título “Preferências” foram ocultados neste frame.
+- A revisão visual confirmou a estrutura principal, a mensagem do alerta, os quatro estados e os valores completos da composição na tela desktop.
+
+Ainda há diferenças visuais frente ao PNG: o cartão de estados usa rótulos textuais em vez de quatro badges coloridos; o bloco promocional não tem o ícone de folha nem o degradê; o painel do donut não mostra as abas “Por aplicação/Por região” nem o seletor `kgCO₂e`; a série temporal ainda precisa do padrão hachurado para o intervalo sem observações. O balanço entre os painéis temporais e do donut foi aproximado, mas não reproduz a proporção do PNG ao pixel.
+
+As telas foram inspecionadas visualmente pela interface do Figma. Uma captura local final versionada continua pendente. As artes SVG importadas são vetoriais; isso não equivale a componentes interativos ou a validação de acessibilidade.
 
 ## Revisão UX/UI
 
 Uma revisão independente por agente identificou cortes na composição/tabela, eixos e tooltip pequenos, vazio excessivo nos KPIs, unidade incorreta na cobertura, omissão de removidas e ordem dos períodos. As correções acima foram aplicadas e conferidas diretamente no protótipo. A nova revisão independente e a revisão desktop ficaram pendentes: o agente atingiu seu limite de uso e, depois, o navegador deixou de responder em duas tentativas de recuperação.
 
-O desktop não foi alterado nesta etapa. Sua fidelidade ao PNG, paddings, espaçamentos, tabela, gráficos e estado do componente de navegação precisam ser conferidos antes de apresentar a entrega como concluída ao PO.
+O frame desktop foi ajustado e conferido visualmente, mas a nova revisão independente UX/UI ainda está pendente. Não apresentar a entrega como concluída ao PO até fechar as diferenças visuais acima e validar o design system.
 
 ## Critérios ainda pendentes
 
 | Área | Trabalho necessário antes do aceite |
 | --- | --- |
-| Desktop | Revisar contra o PNG; ajustar hierarquia, paddings, espaçamentos, alertas, gráficos e tabela; registrar evidência final. |
+| Desktop | Fechar badges de estados, banner promocional, controles do donut e hachuras da série temporal; comparar espaçamentos contra o PNG e registrar evidência final. |
 | Design system | Auditar vínculos de todos os elementos pertinentes à biblioteca 28:336, consolidação #260 e temas #213. Os gráficos importados não ganharam bindings de variáveis automaticamente. |
 | Navegação mobile | Consumir a solução global de #271, com controle de menu acessível e retorno às demais áreas; a navegação global permanece responsabilidade dessa task. |
 | Estados | Criar e ligar carregamento, vazio, nenhum resultado, erro/retry, sucesso e estados parciais; documentar transições. |
@@ -68,7 +79,7 @@ Paginação: padrão 10; opções 5, 10, 15, 20 e Todos. Mudanças de busca/filt
 
 ## Verificações
 
-- Inspeção visual e estrutural pela interface do Figma e teste de rolagem no protótipo mobile, conforme descrito acima.
+- Inspeção visual do dashboard desktop após os ajustes descritos e teste de rolagem no protótipo mobile, conforme descrito acima.
 - Conferência aritmética dos exemplos da composição e dos estados (31 + 4 + 5 + 2 = 42).
 - `git diff --check` para o handoff e configuração local.
 - Sem alterações executáveis de frontend/backend; testes de aplicação não executados. Build/lint, SonarQube, acessibilidade e aceite do PO não são declarados aprovados por este registro.
