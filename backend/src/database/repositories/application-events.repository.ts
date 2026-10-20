@@ -11,6 +11,12 @@ export interface PersistedApplicationAnalysisEvent {
   readonly details: Record<string, unknown> | null
 }
 
+export interface PersistedApplicationMetadataEvent {
+  readonly applicationId: string
+  readonly occurredAt: string
+  readonly details: Record<string, unknown> | null
+}
+
 @Injectable()
 export class ApplicationEventsRepository {
   constructor(
@@ -58,7 +64,26 @@ export class ApplicationEventsRepository {
         AND "occurredAt" < $3::timestamptz
         AND kind IN ('status_changed', 'removed', 'returned', 'registration_changed', 'region_changed')
       ORDER BY "occurredAt" ASC, id ASC`,
-      [applicationId, formatUtcTimestamp(startBound), formatUtcTimestamp(endBound)],
+      [
+        applicationId,
+        formatUtcTimestamp(startBound),
+        formatUtcTimestamp(endBound),
+      ],
+    )
+  }
+
+  findMetadataHistory(
+    applicationIds: readonly string[],
+  ): Promise<PersistedApplicationMetadataEvent[]> {
+    if (applicationIds.length === 0) return Promise.resolve([])
+    return this.repository.manager.query<PersistedApplicationMetadataEvent[]>(
+      `SELECT "applicationId",
+        to_char("occurredAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",
+        details
+      FROM application_events
+      WHERE "applicationId" = ANY($1::text[]) AND kind = 'registration_changed'
+      ORDER BY "applicationId" ASC, "occurredAt" ASC, id ASC`,
+      [applicationIds],
     )
   }
 }
