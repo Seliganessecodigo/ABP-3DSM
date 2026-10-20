@@ -1,0 +1,54 @@
+# Fronteira de análise ambiental
+
+Esta feature contém a integração ambiental HTTP e o mapeamento para o `AnalysisViewModel`, um modelo interno de apresentação, não um DTO de transporte. `environmentalAnalysisSource` é a fonte usada por padrão no detalhe da aplicação. A tela não calcula nem converte resultados ambientais: valores, unidades, cobertura, metodologia e proveniência vêm do backend.
+
+## Fonte, adapter e ciclo de vida
+
+`AnalysisSource.load(applicationId, context, signal)` carrega resumo e série para uma aplicação. O adapter faz `GET /applications/{id}/analysis?from=&to=` e `GET /applications/{id}/analysis/series?from=&to=&granularity=` no backend GreenER, usando a mesma faixa UTC nos dois pedidos. Os presets `24h`, `7d`, `30d` e `90d` são janelas móveis exatas, calculadas a partir de uma âncora UTC compartilhada. A granularidade é enviada como valor selecionado (`hour`, `day`, `month` ou `year`); o backend define os buckets UTC e seus limites. Não há chamada direta a serviços ambientais externos.
+
+O resumo fornece totais e coberturas independentes de energia e CO₂e, unidades (`kWh` e `gCO2e`), metodologias e fatores efetivamente usados. A proveniência de fatores no resumo é agrupada por identidade efetiva e `queriedAt` representa a faixa de consultas GreenER, não a vigência do fator. Ela não contém snapshots individuais por coleta. O endpoint de série fornece pontos, lacunas, motivos, totais/coberturas e eventos de estado, remoção/retorno, região, metodologia e versão de fator. O adapter mapeia pontos e eventos; a tela apresenta eventos junto à série. `unavailableAnalysisSource` continua disponível para uso explícito em harnesses/fallbacks, mas não é a fonte padrão de runtime.
+
+O endpoint `GET /applications/{id}/analysis/series/contributions` fornece inspeção paginada das contribuições e exclusões de um bucket, incluindo intervalos, leituras originais e contabilizadas e snapshots originais por coleta, inclusive entradas não calculáveis. O adapter faz essa chamada ao inspecionar um ponto e valida a resposta; a interface apresenta a primeira página (10 itens por padrão), com parâmetros e motivos recebidos. Os controles para navegar outras páginas ou solicitar todos os itens ainda não estão implementados. Essa inspeção é separada de `composition`, que permanece indisponível no runtime; não substituir snapshots pela proveniência agrupada do resumo nem derivar contribuições no cliente. Fixtures são restritas ao harness de Playwright (`frontend/e2e/analysis-harness.html` e `analysis-harness.tsx`), habilitado explicitamente nos testes; a entrada de produção (`index.html`/`App`) não importa o harness.
+
+`pages/detail/useEnvironmentalAnalysis.ts` controla estados transitórios, retry, cancelamento com `AbortSignal`, descarte de resposta obsoleta para aplicação/contexto antigo e preservação do último sucesso somente no mesmo contexto. `lastAttemptAt` e `lastSuccessAt` são instantes do relógio do cliente registrados pelo hook; não significam instante de coleta, observação ou atualização do backend. `lastSuccessStatus` distingue resultado disponível de resultado global vazio. Indisponibilidade e falha de transporte são distintas de sucesso vazio e não viram zero; uma resposta vazia após valor anterior substitui esse valor, sem ressuscitá-lo em falha posterior.
+
+## Modelo de apresentação entregue
+
+O modelo representa:
+
+- Totais raiz de energia e emissões e coberturas independentes, cada leitura com estado, valor numérico e unidade, ou indisponibilidade/não calculabilidade com motivo.
+- `composition`: sucesso com contribuições e exclusões, sucesso vazio, ou indisponibilidade com motivo. Contribuição inclui identificador, rótulo, intervalo, leituras de energia e emissões e fonte; exclusão inclui identificador, rótulo, intervalo e motivo. Totais raiz são fornecidos separadamente, não derivados pela UI da soma das contribuições.
+- Fatores e metodologias agrupados conforme proveniência do resumo backend. `queriedAt` é a faixa de recebimento/consulta GreenER, não a vigência; a inspeção do bucket apresenta os snapshots originais individuais retornados pelo endpoint de contribuições.
+- Série ambiental com pontos temporais e leituras separadas de energia/emissões, incluindo lacunas e motivos por métrica.
+- Capacidades de granularidade como indisponíveis ou como opções fornecidas pela fonte, com `value`, rótulo e seleção atual. A UI trata valores como opacos e informa uma opção solicitada que não consta das capacidades; não inventa granularidades.
+
+A camada visual formata valores e datas, mas não converte unidades, calcula energia ou emissões, multiplica fator por energia, agrega contribuições, estima coberturas nem calcula médias. Unidades, fator, método, snapshots, totais, contribuições, exclusões e estados devem ser mapeados da fonte oficial sem perda de significado. Zero disponível é um valor legítimo; ausência, falha, estado não calculável e lacuna nunca são substituídos por zero.
+
+## Período, granularidade e instante
+
+`period` guarda uma das chaves visuais `24h`, `7d`, `30d` ou `90d`; o adapter as converte em janelas móveis exatas com a mesma âncora UTC para resumo e série. Requisições usam instantes ISO UTC e intervalo `[from,to)`. `granularity` é enviada à série como `hour`, `day`, `month` ou `year`; os buckets e períodos parciais são definidos pelo backend em calendário UTC. A tabela ainda permite filtrar momentos no timezone IANA selecionado na URL: esse fuso controla a apresentação/filtro local, não altera os limites UTC enviados à API.
+
+Na tabela da série, valores `datetime-local` são interpretados no timezone IANA declarado em `seriesTimeZone` e serializados como instantes ISO com offset/Z; a apresentação volta a usar esse timezone. Limites de data são exatos, sem expansão artificial do minuto final. Entradas ambíguas/inválidas são sinalizadas, e não enviadas como limite. Isso define apenas a interação local da UI; não define a política temporal ou agregação do backend.
+
+## Tabelas: tipos, filtros, ordenação e exceções
+
+Busca e filtros da UI são aplicados ao conjunto completo antes de paginação. Cabeçalhos ordenáveis comunicam `aria-sort`. O sort estável mantém identificador como desempate; valores ausentes ficam ao final em ambas as direções.
+
+| Tabela/coluna | Tipo apresentado | Busca e filtros | Ordenação | Exceções e limites |
+| --- | --- | --- | --- | --- |
+| Evidência operacional — Métrica | Enum `cpu`, `memory`, `disk`, `network`, localizado como texto. | Busca textual sem distinção de caixa/acentos; filtro por enum. | Texto localizado; desempate pela chave estável. | Quatro linhas fixas; sem paginação. |
+| Evidência operacional — Valor | Número opcional mais unidade recebida; ausência tem texto próprio. | Busca textual sobre valor formatado e unidade; sem filtro numérico. | Não ordenável numericamente. | CPU, memória, disco e rede têm unidades/sentidos diferentes; não comparar nem converter em escala comum. Zero disponível é distinto de ausente/inválido. |
+| Evidência operacional — Estado | Categoria disponível/ausente/inválido; disponível zero pode receber rótulo explícito. | Busca textual e filtro por estado. | Texto localizado; desempate estável. | Intervalo observado e instante de recebimento são metadados acima da tabela, não colunas dessas linhas. |
+| Série — Momento | Instante ISO apresentado no timezone selecionado. | Busca textual e limites inclusivos de/até, interpretados no timezone IANA guardado na URL. | Cronológica; desempate pelo identificador do ponto. | Datas inválidas, timezone inválido ou intervalo invertido não produzem resultados; limite é o instante escolhido, sem arredondamento. |
+| Série — Energia | Leitura: número e unidade, indisponível ou não calculável. | Busca textual; filtro de estado; seleção de unidade quando há unidades distintas; limites numéricos mínimo/máximo apenas para a unidade selecionada. | Numericamente, somente numa unidade selecionada ou única; valores ausentes ficam ao final nas duas direções. | Unidades nunca são convertidas. Se houver unidades mistas, os filtros/sort numéricos exigem seleção; sem unidade escolhida, a UI não compara magnitudes incompatíveis. |
+| Série — CO₂e | Leitura: número e unidade, indisponível ou não calculável. | Busca textual; filtro de estado; seleção de unidade quando há unidades distintas; limites numéricos mínimo/máximo apenas para a unidade selecionada. | Numericamente, somente numa unidade selecionada ou única; valores ausentes ficam ao final nas duas direções. | Não comparar com energia nem converter unidades. Uma métrica não compartilha filtro ou ordenação numérica com a outra. |
+
+A tabela da série oferece páginas de 10 por padrão e opções 5, 10, 15, 20 e todos. Filtros, sort, período, granularidade e tamanho/página usam chaves próprias e preservam os demais parâmetros: `period`, `granularity`, `seriesSearch`, `seriesEnergyStatus`, `seriesEmissionsStatus`, `seriesFrom`, `seriesTo`, `seriesTimeZone`, `seriesEnergyUnit`, `seriesEmissionsUnit`, `seriesEnergyMin`, `seriesEnergyMax`, `seriesEmissionsMin`, `seriesEmissionsMax`, `seriesSort`, `seriesDirection`, `seriesPage`, `seriesSize`. Evidência operacional usa `evidenceSearch`, `evidenceMetric`, `evidenceStatus`, `evidenceSort`. O catálogo já usa `q`, `state`, `region`, `regionCode`, `page`, `size`, `sort`, `direction`, `name`, `country`, `city`, `cityMissing`, `columnState`, `from`, `to` e `tz`; manter os namespaces ambientais separados evita colisões. Mudanças de filtro/sort removem `seriesPage` e voltam à primeira página.
+
+Resultado ambiental global `empty`, série disponível sem pontos e tabela sem correspondências de filtros são estados distintos. Busca e filtros precedem ordenação e paginação; mudanças de filtro/sort reiniciam a página, enquanto deep links e atualização preservam o tamanho e limitam a página ao intervalo válido.
+
+## Navegação e limite de entrega
+
+O detalhe atual mostra metodologia em seção inline. O botão de histórico de `AppShell` permanece desabilitado e não há rota de histórico encontrada. Não oferecer links ativos para destinos ausentes; a metodologia inline não é uma página navegável.
+
+A integração de resumo/série e sua apresentação estão conectadas ao backend. A inspeção por bucket busca e apresenta a primeira página de contribuições e exclusões com snapshots originais; paginação interativa e solicitação de todos os itens continuam pendentes. Essa inspeção não substitui a proveniência agrupada do resumo nem torna `composition` disponível no runtime. Resultados de testes/gates e evidências visuais estão nas PRs #294/#295 e em `.github/evidencias/65-detalhe-ambiental/README.md`. A revisão visual local usou as referências acessíveis, com comparação limitada a metadados e capturas, sem validação pixel-perfect. A edição do arquivo Figma segue bloqueada pela quota e é uma entrega separada.

@@ -1,0 +1,65 @@
+.section {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  background: var(--surface-card);
+}
+
+.section h2,
+.section h3,
+.section p,
+.section dl {
+  margin: 0;
+}
+
+.totals,
+.list li {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list dl {
+  display: grid;
+  gap: 8px;
+}
+
+.list dl div {
+  display: grid;
+  gap: 4px;
+}
+
+.list button {
+  justify-self: start;
+  min-height: 44px;
+  border: 1px solid var(--border-control);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  font: inherit;
+  cursor: pointer;
+}
+
+.list dt {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.list dd {
+  margin: 0;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,63 @@
+/* Semantic themes from the US-17 PNG. Contrast adjustments are documented in README. */
+:root {
+  --background-page: #f4faf7;
+  --surface-card: #ffffff;
+  --surface-raised: #ffffff;
+  --navigation-background: #003d31;
+  --navigation-active: #106c55;
+  --border-default: #dce8e3;
+  --border-control: #788c82;
+  --text-primary: #17332d;
+  --text-secondary: #64716d;
+  --text-disabled: #607087;
+  --accent-default: #106c55;
+  --accent-on-accent: #ffffff;
+  --control-background: #ffffff;
+  --control-hover: #e9f0ec;
+  --control-selected: #ddf5e9;
+  --control-disabled: #eef1f6;
+  --focus-ring: #00875d;
+  --success-foreground: #006b49;
+  --success-background: #ddf5e9;
+  --warning-foreground: #895700;
+  --warning-background: #fff2db;
+  --error-foreground: #b83233;
+  --error-background: #fce8e8;
+  --neutral-foreground: #56657b;
+  --neutral-background: #eef1f6;
+  --navigation-text: #e8f2ed;
+  --navigation-focus: #64d8ac;
+  --switch-track-off: #4f6e60;
+  --switch-thumb-off: #e8f2ed;
+}
+:root[data-theme='dark'] {
+  --background-page: #101b18;
+  --surface-card: #182923;
+  --surface-raised: #20382e;
+  --navigation-background: #082e25;
+  --navigation-active: #164e3b;
+  --border-default: #607f70;
+  --border-control: #607f70;
+  --text-primary: #e8f2ed;
+  --text-secondary: #a7bdb2;
+  --text-disabled: #879d91;
+  --accent-default: #64d8ac;
+  --accent-on-accent: #082e25;
+  --control-background: #182923;
+  --control-hover: #254235;
+  --control-selected: #164e3b;
+  --control-disabled: #25362d;
+  --focus-ring: #64d8ac;
+  --success-foreground: #75dcaa;
+  --success-background: #123d2c;
+  --warning-foreground: #f3ca7a;
+  --warning-background: #41331a;
+  --error-foreground: #ffaba6;
+  --error-background: #492724;
+  --neutral-foreground: #bccbd9;
+  --neutral-background: #2b3540;
+  --navigation-text: #e8f2ed;
+  --navigation-focus: #64d8ac;
+  --switch-track-off: #4f6e60;
+  --switch-thumb-off: #e8f2ed;
+}
