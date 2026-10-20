@@ -24,6 +24,7 @@ type Labels = Readonly<{
   composition: AnalysisCompositionLabels
   calculationHeading: string
   calculationEstimate: string
+  closeDetails: string
   freshness: EnvironmentalFreshnessLabels
   seriesHeading: string
   regionHeading: string
@@ -270,9 +271,10 @@ function calculationValue(reading: AnalysisReading | null, locale: string, label
   return labels.metricUnavailable
 }
 
-function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle }: Readonly<{
+function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle, onClose }: Readonly<{
   data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
   onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
+  onClose: () => void
 }>) {
   const factor = data?.factor.status === 'available' && data.factor.factors.length === 1 ? data.factor.factors[0] : null
   const factorValue = factor?.intensity !== null && factor?.unit !== null && factor
@@ -287,6 +289,7 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
     <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
       className={styles.calculationDetails} id="analysis-details">
       <summary>{labels.calculationEstimate} · {labels.methodologyHeading} ↗</summary>
+      <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
       <div className={styles.contextColumn}>{children}</div>
     </details></header>
     <div className={styles.formula}>
@@ -304,7 +307,6 @@ function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} />
     <FactorCard factor={null} locale="pt-BR" labels={labels} />
-    <CoverageCard data={null} locale="pt-BR" labels={labels} />
   </div>
 }
 
@@ -313,7 +315,6 @@ function EmptySlots({ labels }: Readonly<{ labels: Labels }>) {
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} empty />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} empty />
     <MetricCard id="analysis-factor-heading" title={labels.factor} reading={null} locale="pt-BR" labels={labels} empty />
-    <CoverageCard data={null} locale="pt-BR" labels={labels} empty />
   </div>
 }
 
@@ -470,12 +471,13 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
           coverage={data.emissionsCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="emissions" />
         <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />
-        <CoverageCard data={data} locale={locale} labels={labels} />
       </div>}
     </section>
-    <div className={styles.summaryGrid}>
+    <aside className={styles.coverageColumn} aria-label={labels.coverage}>
+      <CoverageCard data={showData ? data : null} locale={locale} labels={labels} empty={emptyResult || invalidContext} />
+    </aside>
       <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
-        onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)}>
+        onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)} onClose={() => setContextOpen(false)}>
         {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
           totals={data ? { energy: data.energy, emissions: data.emissions } : null}
           locale={locale} formatDate={formatDate} labels={labels.composition} />}
@@ -500,10 +502,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
             pageStatus: labels.pageStatus }} />}
         {contextContent}
       </CalculationSummary>
-      {!invalidContext && <EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
-        formatDate={formatDate} labels={labels.freshness} compact />}
-    </div>
-    <div className={styles.lowerGrid}>
+      {!invalidContext && <aside className={styles.freshnessColumn}><EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
+        formatDate={formatDate} labels={labels.freshness} compact /></aside>}
       <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
@@ -534,6 +534,5 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       onPaginationChange={onSeriesPaginationChange} onInspectContributions={inspectContributions} />}
       </div>
       <div className={styles.evidenceColumn}>{evidenceContent}</div>
-    </div>
   </div>
 }
