@@ -1,5 +1,5 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
-import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
@@ -25,13 +25,14 @@ type Labels = Readonly<{
   calculationEstimate: string
   freshness: EnvironmentalFreshnessLabels
   seriesHeading: string
+  regionHeading: string
   metricToggle: string
   currentPeriod: string
   previousPeriod: string
   tooltipCurrent: string
   tooltipPrevious: string
   seriesEventsHeading: string
-  seriesEventTypes: Readonly<Record<'status_changed' | 'removed' | 'returned' | 'region_changed' | 'methodology_changed' | 'factor_version_changed', string>>
+  seriesEventSummary: (event: AnalysisSeriesEvent) => string
   inspectContributions: string
   contributionHeading: string
   contributionCollection: string
@@ -381,15 +382,34 @@ function MethodologyEntry({ entry, labels }: Readonly<{
   </fieldset>
 }
 
-function getMethodologyState(data: AnalysisViewModel | null, status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity') {
+type AnalysisStatus = 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
+
+function getMethodologyState(data: AnalysisViewModel | null, status: AnalysisStatus) {
   if (data) return 'available' as const
   if (status === 'error' || status === 'unavailable') return status
   return 'loading' as const
 }
 
+function getDisplayState(data: AnalysisViewModel | null, status: AnalysisStatus, lastSuccessStatus: 'available' | 'empty' | null) {
+  const preserveEmpty = data === null && lastSuccessStatus === 'empty' &&
+    (status === 'refreshing' || status === 'error' || status === 'unavailable')
+  const emptyResult = status === 'empty' || preserveEmpty
+  return {
+    preserveEmpty,
+    emptyResult,
+    invalidContext: status === 'invalid-period' || status === 'invalid-granularity',
+    showData: (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult,
+  }
+}
+
+function getSeriesStatus(status: AnalysisStatus, emptyResult: boolean): 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period' {
+  if (emptyResult || status === 'empty' || status === 'invalid-granularity') return 'available'
+  return status
+}
+
 export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus }: Readonly<{
   data: AnalysisViewModel | null
-  status: 'loading' | 'refreshing' | 'available' | 'empty' | 'unavailable' | 'error' | 'invalid-period' | 'invalid-granularity'
+  status: AnalysisStatus
   locale: string
   labels: Labels
   onRetry: () => void
@@ -416,11 +436,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         onInspectContributions(bucketStart)
       }
     : undefined
-  const preserveEmpty = data === null && lastSuccessStatus === 'empty' &&
-    (status === 'refreshing' || status === 'error' || status === 'unavailable')
-  const emptyResult = status === 'empty' || preserveEmpty
-  const invalidContext = status === 'invalid-period' || status === 'invalid-granularity'
-  const showData = (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult
+  const { preserveEmpty, emptyResult, invalidContext, showData } = getDisplayState(data, status, lastSuccessStatus)
   return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
@@ -430,6 +446,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
       {status === 'unavailable' && <output>{labels.unavailable}</output>}
       {status === 'unavailable' && data && <output>{labels.previousPreserved}</output>}
+      {data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>
+        {data.series.events.map(event => <li key={event.id}>{labels.seriesEventSummary(event)}</li>)}
+      </ul>}
       {status === 'error' && <div className={styles.analysisNotice} role="alert">
         <p>{labels.error}</p>
         {data && <output>{labels.previousPreserved}</output>}
@@ -480,9 +499,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
-          eventTypes={labels.seriesEventTypes} eventsHeading={labels.seriesEventsHeading}
-          state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
-      heading: labels.seriesHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
+          eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}
+          state={getSeriesStatus(status, emptyResult)} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
+      heading: labels.seriesHeading, regionHeading: labels.regionHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
       currentPeriod: labels.currentPeriod, previousPeriod: labels.previousPeriod,
       tooltipCurrent: labels.tooltipCurrent, tooltipPrevious: labels.tooltipPrevious,
       energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,

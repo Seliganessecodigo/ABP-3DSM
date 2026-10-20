@@ -49,7 +49,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
-  await expect(page.getByRole('group', { name: /Evolução de CO₂e/ })).toBeVisible()
+  await expect(page.getByRole('figure', { name: /Evolução de CO₂e/ })).toBeVisible()
   await expect(page.getByRole('table')).toContainText('38 %')
 
   const before = await page.evaluate(() => {
@@ -104,12 +104,12 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await expect(page.getByRole('group', { name: 'Métrica' }).getByRole('button', { name: 'CO₂e' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.eventSummary')).toHaveCount(0)
   await expect(page.getByText(/12 · Eventos do período/)).toBeVisible()
-  await expect.poll(() => page.getByRole('group', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
   await expect(page.locator('[data-metric-sparkline]')).toHaveCount(2)
   await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
   await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Hora', exact: true })).toBeVisible()
-  await expect(page.getByRole('group', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
+  await expect(page.getByRole('figure', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
   const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ })
   await chartPoint.hover()
   await expect(page.getByRole('status')).toContainText('Atual:')

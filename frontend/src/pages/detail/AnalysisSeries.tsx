@@ -6,6 +6,7 @@ import styles from './AnalysisSeries.module.css'
 
 type Labels = Readonly<{
   heading: string
+  regionHeading: string
   graph: string
   table: string
   metricToggle: string
@@ -59,7 +60,7 @@ type Labels = Readonly<{
 }>
 type ChartLabels = Labels & Readonly<{
   eventsHeading: string
-  eventTypes: Readonly<Record<AnalysisSeriesEvent['type'], string>>
+  eventSummary: (event: AnalysisSeriesEvent) => string
 }>
 
 function readingText(reading: AnalysisReading, locale: string, labels: Labels) {
@@ -156,11 +157,11 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
           const time = Date.parse(event.at)
           if (!Number.isFinite(time) || time < minTime || time > maxTime || chronological.length === 0) continue
           const nearest = chronological.reduce((best, point) =>
-            Math.abs(Date.parse(point.timestamp) - time) < Math.abs(Date.parse(best.timestamp) - time) ? point : best)
+            Math.abs(Date.parse(point.timestamp) - time) < Math.abs(Date.parse(best.timestamp) - time) ? point : best, chronological[0]!)
           const marker = markerGroups.get(nearest.id) ?? { id: nearest.id, x: maxTime === minTime ? 300 : 8 + ((Date.parse(nearest.timestamp) - minTime) / (maxTime - minTime)) * 584,
             titles: [], count: 0 }
           marker.count += 1
-          marker.titles.push(`${labels.eventTypes[event.type]}: ${formatDate(event.at)}`)
+          marker.titles.push(labels.eventSummary(event))
           markerGroups.set(nearest.id, marker)
         }
         const eventMarkers = [...markerGroups.values()].map(marker => ({ ...marker, title: marker.titles.join('; ') }))
@@ -192,7 +193,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
           <div className={styles.plot}>
             <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
               <span key={index}>{formatAnalysisNumber(chartMax * (4 - index) / 4, locale)}</span>)}</div>
-            <svg className={styles.chart} viewBox="0 0 600 144" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
+            <svg className={styles.chart} viewBox="0 0 600 144" role="figure" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
               {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}
               <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
               <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
@@ -391,7 +392,7 @@ function SeriesContent({ series, state, view, metric, locale, timeZone, comparis
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventTypes, eventsHeading }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventsHeading, eventSummary }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -405,8 +406,8 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   onQueryChange: (query: AnalysisSeriesQuery) => void
   onInspectContributions?: (bucketStart: string) => void
   controlContent?: ReactNode
-  eventTypes: Readonly<Record<AnalysisSeriesEvent['type'], string>>
   eventsHeading: string
+  eventSummary: (event: AnalysisSeriesEvent) => string
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
   const [metric, setMetric] = useState<'energy' | 'emissions'>('emissions')
@@ -484,8 +485,8 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     energyUnits, emissionsUnits, locale, labels, formatDate: formatSeriesDate, sortState, onSort: toggleSort,
     onPaginationChange, onInspectContributions,
   }
-  const chartLabels: ChartLabels = { ...labels, eventTypes, eventsHeading }
-  return <section className={styles.section} aria-labelledby="analysis-series-heading">
+  const chartLabels: ChartLabels = { ...labels, eventsHeading, eventSummary }
+  return <section className={styles.section} aria-label={labels.regionHeading}>
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>

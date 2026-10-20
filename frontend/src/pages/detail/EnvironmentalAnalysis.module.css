@@ -1,4 +1,5 @@
 .analysisLayout { display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 8px; min-height: 0; }
+.screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .section { min-width: 0; margin: 0; }
 .analysisNotice { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; color: var(--warning-foreground); font-size: 12px; }
 .analysisNotice p, .analysisNotice output { margin: 0; font-size: inherit; }
@@ -71,6 +72,7 @@
 .seriesTable th { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
 .seriesTable tbody tr:last-child td { border-bottom: 0; }
 @media (min-width: 901px) {
+  .analysisLayout { grid-template-rows: 116px 88px minmax(0, 1fr); }
   .metric { min-height: 116px; }
   .metric > p { margin-block: 0; }
   .summaryGrid > :global(section) { min-height: 88px; padding: 4px 12px; }

@@ -10,7 +10,7 @@ import { reasonLabel, stateLabel } from '../../features/applications/presentatio
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
-import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSource } from '../../features/analysis/source.ts'
+import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSeriesEvent, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
@@ -207,16 +207,23 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             noAttempt: tDetail('analysisNoAttempt'),
             noSuccess: tDetail('analysisNoSuccess'),
           },
-          seriesHeading: selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail(`periods.${selectedPeriod}`)}` : tDetail('analysisSeriesHeading'),
+          seriesHeading: selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail('periods.' + selectedPeriod)}` : tDetail('analysisSeriesHeading'),
+          regionHeading: tDetail('analysisSeriesHeading'),
           metricToggle: tDetail('analysisMetricToggle'),
           currentPeriod: tDetail('analysisCurrentPeriod'), previousPeriod: tDetail('analysisPreviousPeriod'),
           tooltipCurrent: tDetail('analysisTooltipCurrent'), tooltipPrevious: tDetail('analysisTooltipPrevious'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
-          seriesEventTypes: {
-            status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),
-            returned: tDetail('analysisSeriesEvent.returned'), region_changed: tDetail('analysisSeriesEvent.region_changed'),
-            methodology_changed: tDetail('analysisSeriesEvent.methodology_changed'),
-            factor_version_changed: tDetail('analysisSeriesEvent.factor_version_changed'),
+          seriesEventSummary: (event: AnalysisSeriesEvent) => {
+            const eventState = (state: unknown) => {
+              switch (state) {
+                case 'AVAILABLE': case 'UNAVAILABLE': case 'NO_METRICS': case 'REMOVED': return stateLabel(state, tCommon)
+                default: return ''
+              }
+            }
+            const before = eventState(event.details.before?.state)
+            const after = eventState(event.details.after?.state)
+            return [tDetail(`analysisSeriesEvent.${event.type}`), formatDate(event.at, locale, tCommon('date.noObservation'), displayTimeZone),
+              before && `${tDetail('analysisSeriesEventBefore')}: ${before}`, after && `${tDetail('analysisSeriesEventAfter')}: ${after}`].filter(Boolean).join(' · ')
           },
           inspectContributions: tDetail('analysisSeriesInspectContributions'),
           contributionHeading: tDetail('analysisContributionInspectionHeading'),

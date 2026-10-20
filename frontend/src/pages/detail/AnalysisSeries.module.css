@@ -1,4 +1,5 @@
 .section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
+.screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .header { display: grid; gap: 8px; margin-bottom: 4px; }
 .header h2 { margin: 0; color: var(--text-primary); font-size: 12px; }
 .controls { display: flex; min-width: 0; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -12,8 +13,8 @@
 .axisSummary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .legend { display: flex; gap: 16px; margin-bottom: 4px; color: var(--text-secondary); font-size: 10px; }
 .legend span::before { display: inline-block; width: 12px; margin: 0 4px 2px 0; border-top: 2px solid var(--accent-default); content: ''; }
-.previousLegend::before { border-top-style: dashed !important; border-top-color: var(--text-secondary) !important; }
-.eventLegend::before { width: 0 !important; height: 8px; margin: 0 6px 0 0 !important; border-top: 0 !important; border-left: 1px dashed var(--text-secondary); vertical-align: -1px; }
+.legend .previousLegend::before { border-top-style: dashed; border-top-color: var(--text-secondary); }
+.legend .eventLegend::before { width: 0; height: 8px; margin: 0 6px 0 0; border-top: 0; border-left: 1px dashed var(--text-secondary); vertical-align: -1px; }
 .plot { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: stretch; gap: 8px; }
 .yAxis { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 8px 0 16px; color: var(--text-secondary); font-size: 11px; }
 .chart { display: block; width: 100%; height: 132px; }
