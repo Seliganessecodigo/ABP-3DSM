@@ -22,7 +22,7 @@
 .legend .previousLegend::before { border-top-style: dashed; border-top-color: var(--text-secondary); }
 .legend .eventLegend::before { width: 0; height: 8px; margin: 0 6px 0 0; border-top: 0; border-left: 1px dashed var(--text-secondary); vertical-align: -1px; }
 .plot { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: stretch; gap: 8px; }
-.yAxis { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 8px 0 16px; color: var(--text-secondary); font-size: 11px; }
+.yAxis { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 0; color: var(--text-secondary); font-size: 11px; }
 .chart { display: block; width: 100%; height: 132px; }
 .chart polyline { fill: none; stroke: var(--accent-default); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .chart .previousSeries { stroke: var(--text-secondary); stroke-width: 2; stroke-dasharray: 5 4; }
@@ -58,6 +58,6 @@
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
 @media (min-width: 901px) { .chart { height: 176px; } }
 @media (min-width: 901px) and (max-height: 700px) { .chart { height: 148px; } }
-@media (min-width: 901px) and (min-height: 800px) { .charts { min-height: 0; flex: 1; } .chartGroup { display: flex; min-height: 0; flex: 1; flex-direction: column; } .unitChart { display: flex; min-height: 0; flex: 1; flex-direction: column; } .plot { min-height: 0; flex: 1; } .chartFigure { display: flex; min-height: 0; flex: 1; } .chart { height: clamp(240px, 36vh, 360px); } }
+@media (min-width: 901px) and (min-height: 800px) { .section { height: auto; align-self: start; } .charts { min-height: 0; flex: none; } .chartGroup, .unitChart { display: block; min-height: 0; } .plot { min-height: 0; } .chartFigure { display: block; min-height: 0; } .chart { height: 176px; } }
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }
 @media (max-width: 480px) { .header { align-items: flex-start; flex-direction: column; gap: 8px; } .table th, .table td { padding: 12px; } }

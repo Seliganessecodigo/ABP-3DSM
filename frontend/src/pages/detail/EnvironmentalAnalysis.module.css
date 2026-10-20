@@ -1,4 +1,4 @@
-.analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 120px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
+.analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 132px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
 .screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .section { min-width: 0; margin: 0; }
 .analysisNotice { box-sizing: border-box; display: flex; height: 16px; min-height: 16px; align-items: center; flex-wrap: wrap; gap: 4px 12px; overflow: hidden; color: var(--warning-foreground); font-size: 12px; }
@@ -108,6 +108,6 @@
   .coverageMetrics { grid-template-columns: 1fr; }
 }
 @media (min-width: 901px) and (max-height: 700px) {
-  .analysisLayout { grid-template-rows: 116px 88px minmax(0, 1fr); }
+  .analysisLayout { grid-template-rows: 128px 88px minmax(0, 1fr); row-gap: 12px; }
   .metric, .coverage { height: 112px; min-height: 112px; }
 }

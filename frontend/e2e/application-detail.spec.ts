@@ -95,6 +95,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect.soft(Math.abs(metrics.y - coverage.y)).toBeLessThanOrEqual(2)
   expect.soft(Math.abs(metrics.height - coverage.height)).toBeLessThanOrEqual(2)
   expect.soft(calculation.x).toBe(metrics.x)
+  expect.soft(calculation.y - (metrics.y + metrics.height)).toBeGreaterThanOrEqual(10)
   expect.soft(freshness.x).toBe(coverage.x)
   expect.soft(Math.abs(calculation.y - freshness.y)).toBeLessThanOrEqual(2)
   expect.soft(Math.abs(calculation.height - freshness.height)).toBeLessThanOrEqual(2)
@@ -155,6 +156,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
   await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
   await expect(page.locator('#analysis-details')).toContainText('2026.1')
+  await page.getByRole('button', { name: 'Fechar detalhes' }).click()
 
   await page.setViewportSize({ width: 1888, height: 1000 })
   const wideViewport = await page.evaluate(() => {
@@ -165,7 +167,8 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
   expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBeGreaterThan(176)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeLessThan(400)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
 
   await page.setViewportSize({ width: 390, height: 844 })
@@ -628,6 +631,8 @@ test('detail sidebar matches the catalog and collapses without clipping English'
   await language.selectOption('en-US')
   const languageCode = page.locator('.language-code')
   await expect(languageCode).toContainText('EN')
+  await expect(page.locator('.language-label')).toHaveText('Language')
+  await expect.poll(() => page.locator('.language-label').evaluate(label => label.scrollWidth <= label.clientWidth)).toBe(true)
   const flagBounds = await languageCode.boundingBox()
   const chevronBounds = await page.locator('.language-chevron').boundingBox()
   const sidebarBounds = await sidebar.boundingBox()
