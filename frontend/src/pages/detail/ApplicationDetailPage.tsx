@@ -139,7 +139,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <><div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div><div className={styles.detailTop}>
-      <div className={styles['detail-heading']}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span><p className={styles.locationSummary}>{locationSummary}</p></div>
+      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <PeriodSelector compact className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
