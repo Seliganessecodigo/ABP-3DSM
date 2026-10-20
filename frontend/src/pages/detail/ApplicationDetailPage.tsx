@@ -177,6 +177,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
         labels={{ heading: tDetail('analysisHeading'), energy: tDetail('analysisEnergy'), emissions: tDetail('analysisEmissions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
+          viewFactorDetails: tDetail('analysisViewFactorDetails'), validDataInPeriod: tDetail('analysisValidDataInPeriod'),
           energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {
@@ -206,9 +207,10 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             noAttempt: tDetail('analysisNoAttempt'),
             noSuccess: tDetail('analysisNoSuccess'),
           },
-          seriesHeading: tDetail('analysisSeriesHeading'),
+          seriesHeading: selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail(`periods.${selectedPeriod}`)}` : tDetail('analysisSeriesHeading'),
           metricToggle: tDetail('analysisMetricToggle'),
           currentPeriod: tDetail('analysisCurrentPeriod'), previousPeriod: tDetail('analysisPreviousPeriod'),
+          tooltipCurrent: tDetail('analysisTooltipCurrent'), tooltipPrevious: tDetail('analysisTooltipPrevious'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
           seriesEventTypes: {
             status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),
@@ -216,8 +218,6 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             methodology_changed: tDetail('analysisSeriesEvent.methodology_changed'),
             factor_version_changed: tDetail('analysisSeriesEvent.factor_version_changed'),
           },
-          seriesEventBefore: tDetail('analysisSeriesEventBefore'), seriesEventAfter: tDetail('analysisSeriesEventAfter'),
-          seriesEventStates: { available: tCommon('state.AVAILABLE'), unavailable: tCommon('state.UNAVAILABLE') },
           inspectContributions: tDetail('analysisSeriesInspectContributions'),
           contributionHeading: tDetail('analysisContributionInspectionHeading'),
           contributionCollection: tDetail('analysisContributionCollection'),
@@ -288,7 +288,10 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
               next.searchParams.delete('seriesPage')
               navigate(`${next.pathname}?${next.searchParams.toString()}`)
             }} labels={{ heading: tDetail('analysisGranularityHeading'), unavailable: tDetail('analysisGranularityUnavailable'),
-              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair') }} />} contextContent={<>
+              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair'), options: {
+                hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
+                month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
+              } }} />} contextContent={<>
           {contextContent}
         <section className={styles['detail-card']}><h2>{tDetail('refreshHeading')}</h2><p>{tDetail('refreshStatus', {
           seconds: pollingIntervalMs / 1000,

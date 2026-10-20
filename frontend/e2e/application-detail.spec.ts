@@ -25,7 +25,10 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
       })
       await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') }, granularity: 'day',
         totals: { energy: { value: 42.1, unit: 'kWh' }, emissions: { value: 4.2, unit: 'kgCO2e' } },
-        coverage: { energy: 0.96, emissions: 0.96 }, points, events: [] } })
+        coverage: { energy: 0.96, emissions: 0.96 }, points, events: Array.from({ length: 14 }, (_, index) => ({
+          id: `event-${index}`, at: new Date(Date.parse(from) + (index + 1) * 12 * 60 * 60 * 1000).toISOString(),
+          type: 'status_changed', details: { before: { state: 'AVAILABLE' }, after: { state: 'UNAVAILABLE' } },
+        })) } })
       return
     }
     await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to },
@@ -46,7 +49,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
-  await expect(page.getByRole('img', { name: /Evolução de energia/ })).toBeVisible()
+  await expect(page.getByRole('group', { name: /Evolução de CO₂e/ })).toBeVisible()
   await expect(page.getByRole('table')).toContainText('38 %')
 
   const before = await page.evaluate(() => {
@@ -54,17 +57,65 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     return {
       documentHeight: document.documentElement.scrollHeight,
       viewportHeight: window.innerHeight,
+      workspaceHeight: document.querySelector<HTMLElement>('.workspace')!.clientHeight,
+      workspaceContentHeight: document.querySelector<HTMLElement>('.workspace')!.scrollHeight,
       sidebarHeight: sidebar.clientHeight,
       sidebarContentHeight: sidebar.scrollHeight,
       sidebarWidth: sidebar.clientWidth,
       sidebarContentWidth: sidebar.scrollWidth,
       sidebarTop: sidebar.getBoundingClientRect().top,
+      sidebarLeft: sidebar.getBoundingClientRect().left,
+      sidebarRight: sidebar.getBoundingClientRect().right,
+      regions: (() => {
+        const main = document.querySelector<HTMLElement>('main')!
+        const analysis = main.children[2] as HTMLElement
+        const metricCards = analysis.children[0].querySelector<HTMLElement>('div')!
+        return [main.children[0], main.children[1], metricCards, analysis.children[1], analysis.children[2]].map(element => {
+          const rect = element.getBoundingClientRect()
+          return { className: (element as HTMLElement).className, x: rect.x, y: rect.y, width: rect.width, height: rect.height }
+        })
+      })(),
     }
   })
-
-  expect(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
-  expect(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
-  expect(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
+  expect.soft(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
+  expect.soft(before.workspaceContentHeight).toBeLessThanOrEqual(before.workspaceHeight + 1)
+  expect.soft(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
+  expect.soft(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
+  expect.soft(before.sidebarLeft).toBe(0)
+  expect.soft(before.sidebarTop).toBe(0)
+  expect.soft(before.sidebarRight).toBeGreaterThan(160)
+  expect.soft(before.regions[2]).toMatchObject({ x: 192, y: 95, width: 760, height: 116 })
+  expect.soft(before.regions[3]).toMatchObject({ x: 192, y: 219, width: 760, height: 88 })
+  expect.soft(before.regions[4]).toMatchObject({ x: 192, y: 319, width: 760, height: 276 })
+  const headingAlignment = await page.evaluate(() => {
+    const title = document.querySelector('main h1')!
+    const titleText = document.createRange()
+    titleText.selectNodeContents(title)
+    const titleTextRect = titleText.getBoundingClientRect()
+    const badge = document.querySelector('main .state-badge')!.getBoundingClientRect()
+    return { gap: badge.left - titleTextRect.right, verticalOffset: badge.top - title.getBoundingClientRect().top }
+  })
+  expect(headingAlignment.gap).toBeGreaterThanOrEqual(0)
+  expect(headingAlignment.gap).toBeLessThanOrEqual(8)
+  expect(Math.abs(headingAlignment.verticalOffset)).toBeLessThanOrEqual(4)
+  await expect(page.locator('.events')).toHaveCount(0)
+  await expect(page.locator('[data-series-event-marker]')).toHaveCount(7)
+  expect(await page.locator('[data-series-event-marker]').evaluateAll(markers => markers.reduce((total, marker) => total + Number(marker.getAttribute('data-event-count')), 0))).toBe(12)
+  await expect(page.getByRole('group', { name: 'Métrica' }).getByRole('button', { name: 'CO₂e' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.eventSummary')).toHaveCount(0)
+  await expect(page.getByText(/12 · Eventos do período/)).toBeVisible()
+  await expect.poll(() => page.getByRole('group', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
+  await expect(page.locator('[data-metric-sparkline]')).toHaveCount(2)
+  await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
+  await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hora', exact: true })).toBeVisible()
+  await expect(page.getByRole('group', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
+  const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ })
+  await chartPoint.hover()
+  await expect(page.getByRole('status')).toContainText('Atual:')
+  await expect(page.getByRole('status')).toContainText('Anterior:')
+  await chartPoint.focus()
+  await expect(page.getByRole('status')).toBeVisible()
 
   const afterScroll = await page.evaluate(() => {
     const sidebar = document.querySelector<HTMLElement>('.sidebar')!
@@ -77,6 +128,20 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect(afterScroll.layoutPosition).toBe('fixed')
   expect(afterScroll.sidebarTop).toBe(before.sidebarTop)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-light-figma-alinhado.png' })
+  await page.getByRole('button', { name: 'Ver detalhes' }).click()
+  await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
+  await expect(page.locator('#analysis-details')).toContainText('2026.1')
+
+  await page.setViewportSize({ width: 1888, height: 1000 })
+  const wideViewport = await page.evaluate(() => {
+    const workspace = document.querySelector<HTMLElement>('.workspace')!
+    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
+    return { workspaceHeight: workspace.clientHeight, workspaceContentHeight: workspace.scrollHeight,
+      sidebarHeight: sidebar.clientHeight, sidebarContentHeight: sidebar.scrollHeight }
+  })
+  expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
+  expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
+  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.locator('.sidebar')).not.toHaveClass(/sidebar-open/)

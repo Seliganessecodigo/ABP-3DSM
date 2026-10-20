@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesPoint, AnalysisSeriesResult } from '../../features/analysis/source.ts'
+import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisSeriesResult } from '../../features/analysis/source.ts'
 import { formatInstantForDateTimeInput, getBrowserTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
 import styles from './AnalysisSeries.module.css'
@@ -11,6 +11,8 @@ type Labels = Readonly<{
   metricToggle: string
   currentPeriod: string
   previousPeriod: string
+  tooltipCurrent: string
+  tooltipPrevious: string
   moment: string
   energy: string
   emissions: string
@@ -55,6 +57,10 @@ type Labels = Readonly<{
   rangeStatus: (start: number, end: number, count: number) => string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
 }>
+type ChartLabels = Labels & Readonly<{
+  eventsHeading: string
+  eventTypes: Readonly<Record<AnalysisSeriesEvent['type'], string>>
+}>
 
 function readingText(reading: AnalysisReading, locale: string, labels: Labels) {
   return formatSeriesReading(reading, locale, labels)
@@ -62,6 +68,10 @@ function readingText(reading: AnalysisReading, locale: string, labels: Labels) {
 
 function formatAnalysisNumber(value: number, locale: string) {
   return formatSeriesNumber(value, locale)
+}
+
+function formatChartValue(value: number, locale: string) {
+  return new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(value)
 }
 
 type PlotPoint = Readonly<{ id: string; x: number; y: number }>
@@ -89,16 +99,18 @@ function chartSegments(points: readonly (PlotPoint | null)[], fill: boolean) {
   return segments
 }
 
-function Chart({ points, comparisonPoints, metric, label, locale, timeZone, formatDate, labels }: Readonly<{
+function Chart({ points, comparisonPoints, events, metric, label, locale, timeZone, formatDate, labels }: Readonly<{
   points: readonly AnalysisSeriesPoint[]
   comparisonPoints: readonly AnalysisSeriesPoint[]
+  events: readonly AnalysisSeriesEvent[]
   metric: 'energy' | 'emissions'
   label: string
   locale: string
   timeZone: string
   formatDate: (value: string) => string
-  labels: Labels
+  labels: ChartLabels
 }>) {
+  const [activePointId, setActivePointId] = useState<string | null>(null)
   const units = [...new Set(points.flatMap(point => point[metric].status === 'available' && Number.isFinite(point[metric].value) ? [point[metric].unit] : []))]
   const timestamps = points.map(point => Date.parse(point.timestamp)).filter(Number.isFinite)
   const minTime = timestamps.length ? Math.min(...timestamps) : 0
@@ -113,11 +125,13 @@ function Chart({ points, comparisonPoints, metric, label, locale, timeZone, form
     {units.length === 0
       ? <p><output aria-live="polite">{labels.noPoints}</output></p>
       : units.map(unit => {
+        const displayUnit = metric === 'emissions' && unit === 'gCO2e' ? 'kgCO2e' : unit
+        const displayScale = displayUnit === 'kgCO2e' && unit === 'gCO2e' ? 0.001 : 1
         const values = chronological.map(point => {
           const reading = point[metric]
           const time = Date.parse(point.timestamp)
           return reading.status === 'available' && reading.unit === unit && Number.isFinite(reading.value) && Number.isFinite(time)
-            ? { id: point.id, value: reading.value, time, timestamp: point.timestamp }
+            ? { id: point.id, value: reading.value * displayScale, time, timestamp: point.timestamp }
             : null
         })
         const comparisonChronological = [...comparisonPoints].sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp))
@@ -125,7 +139,7 @@ function Chart({ points, comparisonPoints, metric, label, locale, timeZone, form
           const reading = point[metric]
           const time = Date.parse(point.timestamp)
           return reading.status === 'available' && reading.unit === unit && Number.isFinite(reading.value) && Number.isFinite(time)
-            ? { id: point.id, value: reading.value, time }
+            ? { id: point.id, value: reading.value * displayScale, time }
             : null
         })
         const validValues = [...values, ...comparisonValues].flatMap(point => point ? [point.value] : [])
@@ -137,6 +151,20 @@ function Chart({ points, comparisonPoints, metric, label, locale, timeZone, form
           y: 128 - (point.value / chartMax) * 108,
         }))
         const segments = chartSegments(coordinates, true)
+        const markerGroups = new Map<string, { id: string; x: number; titles: string[]; count: number }>()
+        for (const event of events) {
+          const time = Date.parse(event.at)
+          if (!Number.isFinite(time) || time < minTime || time > maxTime || chronological.length === 0) continue
+          const nearest = chronological.reduce((best, point) =>
+            Math.abs(Date.parse(point.timestamp) - time) < Math.abs(Date.parse(best.timestamp) - time) ? point : best)
+          const marker = markerGroups.get(nearest.id) ?? { id: nearest.id, x: maxTime === minTime ? 300 : 8 + ((Date.parse(nearest.timestamp) - minTime) / (maxTime - minTime)) * 584,
+            titles: [], count: 0 }
+          marker.count += 1
+          marker.titles.push(`${labels.eventTypes[event.type]}: ${formatDate(event.at)}`)
+          markerGroups.set(nearest.id, marker)
+        }
+        const eventMarkers = [...markerGroups.values()].map(marker => ({ ...marker, title: marker.titles.join('; ') }))
+        const visibleEventCount = eventMarkers.reduce((total, marker) => total + marker.count, 0)
         const comparisonTimes = comparisonValues.flatMap(point => point ? [point.time] : [])
         const comparisonMinTime = comparisonTimes.length ? Math.min(...comparisonTimes) : 0
         const comparisonMaxTime = comparisonTimes.length ? Math.max(...comparisonTimes) : 0
@@ -146,6 +174,10 @@ function Chart({ points, comparisonPoints, metric, label, locale, timeZone, form
           y: 128 - (point.value / chartMax) * 108,
         }))
         const comparisonSegments = chartSegments(comparisonCoordinates, false)
+        const activePointIndex = chronological.findIndex(point => point.id === activePointId)
+        const activePoint = activePointIndex >= 0 ? values[activePointIndex] : null
+        const activeComparison = activePointIndex >= 0 ? comparisonValues[activePointIndex] : null
+        const activeCoordinate = activePointIndex >= 0 ? coordinates[activePointIndex] : null
         const accessiblePoints = chronological.map(point => `${formatDate(point.timestamp)}: ${readingText(point[metric], locale, labels)}`).join('; ')
         const axisPointCount = Math.min(7, chronological.length)
         const axisPoints = Array.from({ length: axisPointCount }, (_, index) => chronological[
@@ -153,20 +185,38 @@ function Chart({ points, comparisonPoints, metric, label, locale, timeZone, form
         ])
         const hasGaps = chronological.some(point => point[metric].status !== 'available' || (point[metric].status === 'available' && point[metric].unit !== unit))
         return <div key={unit} className={styles.unitChart}>
-          <p className={styles.axisSummary}>0 - {formatAnalysisNumber(chartMax, locale)} {unit}</p>
+          <p className={styles.axisSummary}>0 - {formatAnalysisNumber(chartMax, locale)} {displayUnit}</p>
           <div className={styles.legend}><span className={styles.currentLegend}>{labels.currentPeriod}</span>
-            {comparisonSegments.length > 0 && <span className={styles.previousLegend}>{labels.previousPeriod}</span>}</div>
+            {comparisonSegments.length > 0 && <span className={styles.previousLegend}>{labels.previousPeriod}</span>}
+            {visibleEventCount > 0 && <span className={styles.eventLegend}>{visibleEventCount} · {labels.eventsHeading}</span>}</div>
           <div className={styles.plot}>
             <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
               <span key={index}>{formatAnalysisNumber(chartMax * (4 - index) / 4, locale)}</span>)}</div>
-            <svg className={styles.chart} viewBox="0 0 600 144" role="img" aria-label={`${label} (${unit}): ${accessiblePoints}`}>
+            <svg className={styles.chart} viewBox="0 0 600 144" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
               {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}
               <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
               <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
               {segments.map(segment => segment.area && <polygon key={`${segment.key}:area`} className={styles.area} points={segment.area} />)}
               {comparisonSegments.map(segment => <polyline key={`previous:${segment.key}`} className={styles.previousSeries} points={segment.points} />)}
               {segments.map(segmentPath => <polyline key={segmentPath.key} points={segmentPath.points} />)}
-              {coordinates.map(point => point && <circle key={point.id} cx={point.x} cy={point.y} r="4" />)}
+              {eventMarkers.map(event => <g key={event.id} data-series-event-marker="true" data-event-count={event.count} className={styles.eventMarker}>
+                <title>{event.title}</title><line x1={event.x} y1="20" x2={event.x} y2="128" />
+              </g>)}
+              {coordinates.map((point, index) => {
+                const reading = values[index]
+                return point && reading ? <circle key={point.id} cx={point.x} cy={point.y} r="4" role="button" tabIndex={0}
+                  aria-label={`${formatDate(reading.timestamp)}: ${formatChartValue(reading.value, locale)} ${displayUnit}`}
+                  onMouseEnter={() => setActivePointId(point.id)} onMouseLeave={() => setActivePointId(null)}
+                  onFocus={() => setActivePointId(point.id)} onBlur={() => setActivePointId(null)}
+                  onKeyDown={event => { if (event.key === 'Escape') setActivePointId(null) }} /> : null
+              })}
+              {activePoint && activeCoordinate && <g className={styles.chartTooltip} data-chart-tooltip="true" role="status" aria-live="polite"
+                transform={`translate(${Math.max(8, Math.min(476, activeCoordinate.x + 8))},${Math.max(4, activeCoordinate.y - 52)})`}>
+                <rect width="120" height={activeComparison ? 48 : 34} rx="5" />
+                <text x="8" y="12">{new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(activePoint.timestamp))}</text>
+                <text x="8" y="25">{labels.tooltipCurrent}: {formatChartValue(activePoint.value, locale)} {displayUnit}</text>
+                {activeComparison && <text x="8" y="39">{labels.tooltipPrevious}: {formatChartValue(activeComparison.value, locale)} {displayUnit}</text>}
+              </g>}
             </svg>
           </div>
           <div className={styles.timeAxis}>{axisPoints.map(point => <time key={point.id} dateTime={point.timestamp}>
@@ -320,7 +370,7 @@ type SeriesContentProps = Readonly<{
   locale: string
   timeZone: string
   comparisonPoints: readonly AnalysisSeriesPoint[]
-  labels: Labels
+  labels: ChartLabels
   formatDate: (value: string) => string
   invalidDateRange: boolean
   filterProps: SeriesFilterProps
@@ -334,14 +384,14 @@ function SeriesContent({ series, state, view, metric, locale, timeZone, comparis
   }
   if (view === 'graph') {
     return <div className={styles.charts}>
-      <Chart points={series.points} comparisonPoints={comparisonPoints} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
+      <Chart points={series.points} comparisonPoints={comparisonPoints} events={series.events ?? []} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
         locale={locale} timeZone={timeZone} formatDate={formatDate} labels={labels} />
     </div>
   }
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventTypes, eventsHeading }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -355,9 +405,11 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   onQueryChange: (query: AnalysisSeriesQuery) => void
   onInspectContributions?: (bucketStart: string) => void
   controlContent?: ReactNode
+  eventTypes: Readonly<Record<AnalysisSeriesEvent['type'], string>>
+  eventsHeading: string
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
-  const [metric, setMetric] = useState<'energy' | 'emissions'>('energy')
+  const [metric, setMetric] = useState<'energy' | 'emissions'>('emissions')
   const fromKey = JSON.stringify([query.from, query.timeZone])
   const toKey = JSON.stringify([query.to, query.timeZone])
   const [fromDraftState, setFromDraftState] = useState(() => ({ key: fromKey, value: formatInstantForDateTimeInput(query.from, query.timeZone) }))
@@ -432,6 +484,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     energyUnits, emissionsUnits, locale, labels, formatDate: formatSeriesDate, sortState, onSort: toggleSort,
     onPaginationChange, onInspectContributions,
   }
+  const chartLabels: ChartLabels = { ...labels, eventTypes, eventsHeading }
   return <section className={styles.section} aria-labelledby="analysis-series-heading">
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
@@ -448,7 +501,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
       </div>
     </div>
     <p className={styles.timeZone}>{labels.timeZone(query.timeZone)}</p>
-    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={labels} formatDate={formatSeriesDate}
+    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate}
       invalidDateRange={invalidDateRange} filterProps={filterProps} tableProps={tableProps} />
   </section>
 }

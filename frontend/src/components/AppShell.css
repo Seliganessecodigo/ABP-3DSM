@@ -46,15 +46,15 @@
 .mobile-menu-toggle, .mobile-menu-close, .sidebar-backdrop { display: none; }
 @media (min-width: 641px) {
   .app-layout { height: calc(100vh - 24px); min-height: 0; margin: 12px; column-gap: 16px; }
-  .app-layout.detail-layout { position: fixed; inset: 0; box-sizing: border-box; width: 100%; height: 100vh; height: 100dvh; min-height: 0; margin: 0; padding: 8px; grid-template-columns: 164px minmax(0, 1fr); column-gap: 12px; overflow: hidden; }
-  .app-layout.detail-layout .sidebar { position: relative; top: auto; height: auto; overflow: hidden; padding: 12px 12px 8px; }
+  .app-layout.detail-layout { position: fixed; inset: 0; box-sizing: border-box; width: 100%; height: 100vh; height: 100dvh; min-height: 0; margin: 0; padding: 0; grid-template-columns: 164px minmax(0, 1fr); column-gap: 12px; overflow: hidden; }
+  .app-layout.detail-layout .sidebar { position: relative; top: auto; height: auto; overflow: hidden; padding: 24px 12px 8px; }
   .app-layout.detail-layout .workspace { min-height: 0; overflow: auto; overscroll-behavior: contain; }
   .app-layout.detail-layout .sidebar-collapse-toggle { display: none; }
   .app-layout.detail-layout .sidebar-foliage { left: 0; width: 100%; height: auto; }
   .app-layout.detail-layout.sidebar-collapsed { grid-template-columns: 164px minmax(0, 1fr); }
-  .app-layout.detail-layout .brand { padding-bottom: 12px; font-size: 18px; }
+  .app-layout.detail-layout .brand { padding: 0 16px 24px; font-size: 20px; }
   .app-layout.detail-layout .sidebar nav { gap: 4px; }
-  .app-layout.detail-layout .nav-heading { margin: 8px 8px 4px; }
+  .app-layout.detail-layout .nav-heading { margin: 12px 8px 4px; }
   .app-layout.detail-layout .sidebar nav button, .app-layout.detail-layout .sidebar nav a { gap: 8px; min-height: 32px; padding-inline: 8px; font-size: 11px; }
   .app-layout.detail-layout .sidebar-preferences { gap: 4px; padding: 8px 4px 0; }
   .app-layout.detail-layout .sidebar .sidebar-preferences .language-control { min-height: 32px; }

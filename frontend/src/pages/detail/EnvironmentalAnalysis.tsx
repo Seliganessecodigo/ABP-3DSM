@@ -1,5 +1,5 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
-import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
@@ -28,11 +28,10 @@ type Labels = Readonly<{
   metricToggle: string
   currentPeriod: string
   previousPeriod: string
+  tooltipCurrent: string
+  tooltipPrevious: string
   seriesEventsHeading: string
   seriesEventTypes: Readonly<Record<'status_changed' | 'removed' | 'returned' | 'region_changed' | 'methodology_changed' | 'factor_version_changed', string>>
-  seriesEventBefore: string
-  seriesEventAfter: string
-  seriesEventStates: Readonly<{ available: string; unavailable: string }>
   inspectContributions: string
   contributionHeading: string
   contributionCollection: string
@@ -115,6 +114,8 @@ type Labels = Readonly<{
   previousPreserved: string
   retry: string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
+  viewFactorDetails: string
+  validDataInPeriod: string
 }>
 
 function Reading({ reading, locale, notCalculable, metricUnavailable, reasons }: Readonly<{
@@ -139,13 +140,16 @@ function formatAnalysisNumber(value: number, locale: string) {
   return new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)
 }
 
-function MetricCard({ id, title, reading, locale, labels, empty = false }: Readonly<{
+function MetricCard({ id, title, reading, locale, labels, empty = false, coverage, seriesPoints = [], metric }: Readonly<{
   id: string
   title: string
   reading: AnalysisReading | null
   locale: string
   labels: Labels
   empty?: boolean
+  coverage?: AnalysisReading | null
+  seriesPoints?: readonly AnalysisSeriesPoint[]
+  metric?: 'energy' | 'emissions'
 }>) {
   let content: ReactNode = null
   if (!empty) {
@@ -157,11 +161,28 @@ function MetricCard({ id, title, reading, locale, labels, empty = false }: Reado
 
   return <fieldset className={styles.metric} aria-labelledby={id}>
     <h3 id={id}>{title}</h3>
-    {content}
+    <div className={styles.metricValueRow}>{content}{metric && <Sparkline points={seriesPoints} metric={metric} />}</div>
+    {coverage?.status === 'available' && coverage.unit === 'fraction' && <p className={styles.metricCoverage}>
+      {labels.coverage} {new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(coverage.value)}
+    </p>}
   </fieldset>
 }
 
-function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels }>) {
+function Sparkline({ points, metric }: Readonly<{ points: readonly AnalysisSeriesPoint[]; metric: 'energy' | 'emissions' }>) {
+  const readings = points.map(point => point[metric])
+  if (readings.length < 2 || readings.some(reading => reading.status !== 'available')) return null
+  const available = readings.filter(reading => reading.status === 'available')
+  const units = new Set(available.map(reading => reading.unit))
+  if (units.size !== 1 || available.some(reading => !Number.isFinite(reading.value))) return null
+  const values = available.map(reading => reading.value)
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min || 1
+  const coordinates = values.map((value, index) => `${2 + index * 60 / (values.length - 1)},${18 - (value - min) / span * 14}`).join(' ')
+  return <svg data-metric-sparkline="true" className={styles.sparkline} viewBox="0 0 64 20" aria-hidden="true"><polyline points={coordinates} /></svg>
+}
+
+function FactorCard({ factor, labels, onViewDetails }: Readonly<{ factor: AnalysisFactorResult | null; labels: Labels; onViewDetails?: () => void }>) {
   let value: string | null = null
   if (factor?.status === 'available') {
     if (factor.factors.length > 1) value = labels.multipleFactors
@@ -185,6 +206,7 @@ function FactorCard({ factor, labels }: Readonly<{ factor: AnalysisFactorResult 
     {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
       {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
     </p>}
+    {factor?.status === 'available' && onViewDetails && <button type="button" className={styles.factorDetailsLink} onClick={onViewDetails}>{labels.viewFactorDetails} →</button>}
   </fieldset>
 }
 
@@ -196,10 +218,21 @@ function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
 }>) {
   const energyContent = getCoverageContent(empty, data?.energyCoverage ?? null, locale, labels)
   const emissionsContent = getCoverageContent(empty, data?.emissionsCoverage ?? null, locale, labels)
+  const energyValue = data?.energyCoverage.status === 'available' && data.energyCoverage.unit === 'fraction' ? data.energyCoverage.value : null
+  const emissionsValue = data?.emissionsCoverage.status === 'available' && data.emissionsCoverage.unit === 'fraction' ? data.emissionsCoverage.value : null
+  const sharedCoverage = energyValue !== null && emissionsValue !== null && energyValue === emissionsValue ? energyValue : null
 
   return <fieldset className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
     <h3 id="analysis-coverage-heading">{labels.coverage}</h3>
-    <div className={styles.coverageMetrics}>
+    {sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
+      <svg data-coverage-ring="true" className={styles.coverageRing} viewBox="0 0 60 60" role="img"
+        aria-label={`${labels.coverage}: ${new Intl.NumberFormat(locale, { style: 'percent' }).format(sharedCoverage)}. ${labels.validDataInPeriod}`}>
+        <circle className={styles.coverageTrack} cx="30" cy="30" r="25" />
+        <circle className={styles.coverageValue} cx="30" cy="30" r="25" strokeDasharray={`${sharedCoverage * 157.08} 157.08`} />
+        <text x="30" y="31" textAnchor="middle" dominantBaseline="central">{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</text>
+      </svg>
+      <p>{labels.validDataInPeriod}</p>
+    </div> : <div className={styles.coverageMetrics}>
       <fieldset aria-labelledby="analysis-energy-coverage-heading">
         <h4 id="analysis-energy-coverage-heading">{labels.energyCoverage}</h4>
         {energyContent}
@@ -208,7 +241,7 @@ function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
         <h4 id="analysis-emissions-coverage-heading">{labels.emissionsCoverage}</h4>
         {emissionsContent}
       </fieldset>
-    </div>
+    </div>}
   </fieldset>
 }
 
@@ -405,24 +438,13 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
-        <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels} />
-        <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels} />
-        <FactorCard factor={data.factor} labels={labels} />
+        <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}
+          coverage={data.energyCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="energy" />
+        <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
+          coverage={data.emissionsCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="emissions" />
+        <FactorCard factor={data.factor} labels={labels} onViewDetails={() => setContextOpen(true)} />
         <CoverageCard data={data} locale={locale} labels={labels} />
       </div>}
-      {data?.series.status === 'available' && (data.series.events?.length ?? 0) > 0 && <ol className={styles.events} aria-label={labels.seriesEventsHeading}>
-        {data.series.events?.map((event: AnalysisSeriesEvent) => {
-          const beforeState = event.details.before?.state
-          const afterState = event.details.after?.state
-          const stateText = (value: string) => value === 'AVAILABLE' ? labels.seriesEventStates.available : value === 'UNAVAILABLE' ? labels.seriesEventStates.unavailable : value
-          return <li key={event.id}>
-            <time dateTime={event.at}>{formatDate(event.at)}</time>
-            <strong>{labels.seriesEventTypes[event.type]}</strong>
-            {typeof beforeState === 'string' && <span>{labels.seriesEventBefore}: {stateText(beforeState)}</span>}
-            {typeof afterState === 'string' && <span>{labels.seriesEventAfter}: {stateText(afterState)}</span>}
-          </li>
-        })}
-      </ol>}
     </section>
     <div className={styles.summaryGrid}>
       <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
@@ -458,9 +480,11 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
+          eventTypes={labels.seriesEventTypes} eventsHeading={labels.seriesEventsHeading}
           state={emptyResult ? 'available' : status} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
       heading: labels.seriesHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
       currentPeriod: labels.currentPeriod, previousPeriod: labels.previousPeriod,
+      tooltipCurrent: labels.tooltipCurrent, tooltipPrevious: labels.tooltipPrevious,
       energy: labels.tableEnergy, emissions: labels.tableEmissions, energyChart: labels.energyChart,
       emissionsChart: labels.emissionsChart, unavailable: labels.metricUnavailable,
       loading: labels.loading,
