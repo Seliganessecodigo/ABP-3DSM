@@ -86,7 +86,7 @@ function chartSegments(points: readonly (PlotPoint | null)[], fill: boolean) {
     const [firstX] = segment.coordinates[0].split(',')
     const [lastX] = segment.coordinates.at(-1)!.split(',')
     segments.push({ key: `${segment.firstId}:${segment.lastId}`, points: path,
-      ...(fill ? { area: `${path} ${lastX},128 ${firstX},128` } : {}) })
+      ...(fill ? { area: `${path} ${lastX},108 ${firstX},108` } : {}) })
   }
   for (const point of points) {
     if (!point) { pushSegment(); segment = null }
@@ -149,7 +149,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
         const coordinates: (PlotPoint | null)[] = values.map(point => point && ({
           id: point.id,
           x: maxTime === minTime ? 300 : 8 + ((point.time - minTime) / (maxTime - minTime)) * 584,
-          y: 128 - ((point.value - domain.minimum) / chartRange) * 108,
+          y: 108 - ((point.value - domain.minimum) / chartRange) * 108,
         }))
         const segments = chartSegments(coordinates, true)
         const interactivePoints = new Map<number, { point: PlotPoint; reading: NonNullable<typeof values[number]> }>()
@@ -178,7 +178,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
         const comparisonCoordinates: (PlotPoint | null)[] = comparisonValues.map(point => point && ({
           id: point.id,
           x: comparisonMaxTime === comparisonMinTime ? 300 : 8 + ((point.time - comparisonMinTime) / (comparisonMaxTime - comparisonMinTime)) * 584,
-          y: 128 - ((point.value - domain.minimum) / chartRange) * 108,
+          y: 108 - ((point.value - domain.minimum) / chartRange) * 108,
         }))
         const comparisonSegments = chartSegments(comparisonCoordinates, false)
         const activePointIndex = chronological.findIndex(point => point.id === activePointId)
@@ -200,15 +200,15 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
             <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
               <span key={index}>{formatAnalysisNumber(domain.maximum - domain.step * index, locale)}</span>)}</div>
             <figure className={styles.chartFigure} aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
-            <svg className={styles.chart} viewBox="0 0 600 144" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
-              {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={20 + index * 27} x2="592" y2={20 + index * 27} />)}
-              <line className={styles.axis} x1="8" y1="128" x2="592" y2="128" />
-              <line className={styles.axis} x1="8" y1="20" x2="8" y2="128" />
+            <svg className={styles.chart} viewBox="0 0 600 108" preserveAspectRatio="none" role="group" aria-label={`${label} (${displayUnit}): ${accessiblePoints}`}>
+              {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={index * 27} x2="592" y2={index * 27} />)}
+              <line className={styles.axis} x1="8" y1="108" x2="592" y2="108" />
+              <line className={styles.axis} x1="8" y1="0" x2="8" y2="108" />
               {segments.map(segment => segment.area && <polygon key={`${segment.key}:area`} className={styles.area} points={segment.area} />)}
               {comparisonSegments.map(segment => <polyline key={`previous:${segment.key}`} className={styles.previousSeries} points={segment.points} />)}
               {segments.map(segmentPath => <polyline key={segmentPath.key} points={segmentPath.points} />)}
               {eventMarkers.map(event => <g key={event.id} data-series-event-marker="true" data-event-count={event.count} className={styles.eventMarker}>
-                <title>{event.title}</title><line x1={event.x} y1="120" x2={event.x} y2="128" />
+                <title>{event.title}</title><line x1={event.x} y1="100" x2={event.x} y2="108" />
               </g>)}
               {[...interactivePoints.values()].map(({ point, reading }) => <circle key={point.id} cx={point.x} cy={point.y} r="4" role="button" tabIndex={0}
                   aria-label={`${formatDate(reading.timestamp)}: ${formatChartValue(reading.value, locale)} ${displayUnit}`}
