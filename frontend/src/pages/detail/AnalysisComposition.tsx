@@ -1,5 +1,6 @@
 import type { AnalysisCompositionResult, AnalysisPresentationReason, AnalysisReading } from '../../features/analysis/source.ts'
 import styles from './AnalysisComposition.module.css'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 export type AnalysisCompositionLabels = Readonly<{
   heading: string
@@ -30,7 +31,7 @@ function Reading({ reading, locale, labels }: Readonly<{
     </div>
   }
 
-  return <p className={styles.value}>{new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(reading.value)} {reading.unit}</p>
+  return <p className={styles.value}>{formatNumber(reading.value, locale)} {reading.unit}</p>
 }
 
 function readingUnavailableLabel(status: AnalysisReading['status'], labels: AnalysisCompositionLabels) {

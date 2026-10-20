@@ -10,11 +10,12 @@ import { reasonLabel, stateLabel } from '../../features/applications/presentatio
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
-import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSource } from '../../features/analysis/source.ts'
+import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSeriesEvent, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
 
@@ -98,7 +99,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
       formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
-      formatNumber={(value) => new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)}
+      formatNumber={(value) => formatNumber(value, locale)}
       locale={locale} query={evidenceQuery}
       onQueryChange={(query) => {
         const params = new URLSearchParams(window.location.search)
@@ -139,7 +140,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <><div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div><div className={styles.detailTop}>
-      <div className={`page-heading ${styles['detail-heading']}`}><div><h1>{application.name}</h1><p className={styles.locationSummary}>{locationSummary}</p></div><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div>
+      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <PeriodSelector compact className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
@@ -177,6 +178,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
         labels={{ heading: tDetail('analysisHeading'), energy: tDetail('analysisEnergy'), emissions: tDetail('analysisEmissions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
+          viewFactorDetails: tDetail('analysisViewFactorDetails'), validDataInPeriod: tDetail('analysisValidDataInPeriod'),
           energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {
@@ -206,18 +208,24 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             noAttempt: tDetail('analysisNoAttempt'),
             noSuccess: tDetail('analysisNoSuccess'),
           },
-          seriesHeading: tDetail('analysisSeriesHeading'),
+          seriesHeading: selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail('periods.' + selectedPeriod)}` : tDetail('analysisSeriesHeading'),
+          regionHeading: tDetail('analysisSeriesHeading'),
           metricToggle: tDetail('analysisMetricToggle'),
           currentPeriod: tDetail('analysisCurrentPeriod'), previousPeriod: tDetail('analysisPreviousPeriod'),
+          tooltipCurrent: tDetail('analysisTooltipCurrent'), tooltipPrevious: tDetail('analysisTooltipPrevious'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
-          seriesEventTypes: {
-            status_changed: tDetail('analysisSeriesEvent.status_changed'), removed: tDetail('analysisSeriesEvent.removed'),
-            returned: tDetail('analysisSeriesEvent.returned'), region_changed: tDetail('analysisSeriesEvent.region_changed'),
-            methodology_changed: tDetail('analysisSeriesEvent.methodology_changed'),
-            factor_version_changed: tDetail('analysisSeriesEvent.factor_version_changed'),
+          seriesEventSummary: (event: AnalysisSeriesEvent) => {
+            const eventState = (state: unknown) => {
+              switch (state) {
+                case 'AVAILABLE': case 'UNAVAILABLE': case 'NO_METRICS': case 'REMOVED': return stateLabel(state, tCommon)
+                default: return ''
+              }
+            }
+            const before = eventState(event.details.before?.state)
+            const after = eventState(event.details.after?.state)
+            return [tDetail(`analysisSeriesEvent.${event.type}`), formatDate(event.at, locale, tCommon('date.noObservation'), displayTimeZone),
+              before && `${tDetail('analysisSeriesEventBefore')}: ${before}`, after && `${tDetail('analysisSeriesEventAfter')}: ${after}`].filter(Boolean).join(' · ')
           },
-          seriesEventBefore: tDetail('analysisSeriesEventBefore'), seriesEventAfter: tDetail('analysisSeriesEventAfter'),
-          seriesEventStates: { available: tCommon('state.AVAILABLE'), unavailable: tCommon('state.UNAVAILABLE') },
           inspectContributions: tDetail('analysisSeriesInspectContributions'),
           contributionHeading: tDetail('analysisContributionInspectionHeading'),
           contributionCollection: tDetail('analysisContributionCollection'),
@@ -288,7 +296,10 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
               next.searchParams.delete('seriesPage')
               navigate(`${next.pathname}?${next.searchParams.toString()}`)
             }} labels={{ heading: tDetail('analysisGranularityHeading'), unavailable: tDetail('analysisGranularityUnavailable'),
-              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair') }} />} contextContent={<>
+              unsupported: tDetail('analysisGranularityUnsupported'), repair: tDetail('analysisGranularityRepair'), options: {
+                hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
+                month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
+              } }} />} contextContent={<>
           {contextContent}
         <section className={styles['detail-card']}><h2>{tDetail('refreshHeading')}</h2><p>{tDetail('refreshStatus', {
           seconds: pollingIntervalMs / 1000,
