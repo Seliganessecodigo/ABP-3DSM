@@ -1,19 +1,26 @@
-.analysisLayout { display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 8px; min-height: 0; }
+.analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 116px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
 .screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .section { min-width: 0; margin: 0; }
 .analysisNotice { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; color: var(--warning-foreground); font-size: 12px; }
 .analysisNotice p, .analysisNotice output { margin: 0; font-size: inherit; }
 .analysisNotice :global(.action-button) { min-height: 28px; padding: 4px 12px; }
-.summaryGrid { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(0, 1fr); align-items: stretch; gap: 12px; min-height: 0; }
-.lowerGrid { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(0, 1fr); align-items: stretch; gap: 12px; min-height: 0; margin-top: 4px; }
-.seriesColumn, .evidenceColumn, .contextColumn { min-width: 0; }
+.seriesColumn, .evidenceColumn, .coverageColumn, .freshnessColumn, .contextColumn { min-width: 0; min-height: 0; }
+.section { grid-column: 1; grid-row: 1; }
+.coverageColumn { grid-column: 2; grid-row: 1; }
+.calculation { grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
+.freshnessColumn { grid-column: 2; grid-row: 2; }
+.seriesColumn { grid-column: 1; grid-row: 3; }
+.evidenceColumn { grid-column: 2; grid-row: 3; }
 .contextColumn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .calculationDetails { position: relative; min-width: 0; }
 .calculationDetails > summary { color: var(--accent-default); font-size: 10px; font-weight: 650; cursor: pointer; list-style: none; white-space: nowrap; }
 .calculationDetails > summary::-webkit-details-marker { display: none; }
 .calculationDetails[open] { position: absolute; z-index: 3; top: 100%; right: 0; max-width: min(560px, 72vw); max-height: min(72vh, 520px); overflow: auto; border: 1px solid var(--border-default); border-radius: 8px; padding: 8px 12px; background: var(--surface-card); box-shadow: 0 8px 28px rgb(0 0 0 / 16%); }
 .calculationDetails[open] > summary { position: sticky; top: -8px; margin: -8px -12px 8px; border-bottom: 1px solid var(--border-default); padding: 8px 12px; background: var(--surface-card); }
-.summaryGrid > :global(section) { min-height: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 12px; background: var(--surface-card); }
+.closeDetails { display: none; }
+.calculationDetails[open] > .closeDetails { position: sticky; z-index: 1; top: 0; float: right; display: grid; width: 28px; height: 28px; margin: -38px -8px 8px 8px; place-items: center; border: 1px solid var(--border-default); border-radius: 6px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; }
+.calculationDetails[open] > .closeDetails:hover { background: var(--control-hover); }
+.calculationDetails[open] > .closeDetails:active { filter: brightness(.92); }
 .calculation > header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .calculation h2 { margin: 0; color: var(--text-primary); font-size: 13px; }
 .calculation > header a { color: var(--accent-default); font-size: 10px; font-weight: 650; text-decoration: none; white-space: nowrap; }
@@ -24,7 +31,7 @@
 .operator { color: var(--text-secondary); font-size: 15px; }
 .section > h2 { margin: 0 0 16px; color: var(--text-primary); font-size: 18px; }
 .section > .sectionHeading { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .events { display: grid; gap: 12px; margin: 16px 0 0; padding-left: 24px; }
 .events li { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--text-secondary); }
 .events strong { color: var(--text-primary); }
@@ -72,19 +79,18 @@
 .seriesTable th { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
 .seriesTable tbody tr:last-child td { border-bottom: 0; }
 @media (min-width: 901px) {
-  .analysisLayout { grid-template-rows: 116px 88px minmax(0, 1fr); }
   .metric { min-height: 116px; }
   .metric > p { margin-block: 0; }
-  .summaryGrid > :global(section) { min-height: 88px; padding: 4px 12px; }
+  .calculation { min-height: 88px; padding-block: 4px; }
   .formula { gap: 12px; }
 }
 @media (max-width: 480px) {
   .seriesTable th, .seriesTable td { padding: 12px; }
 }
 @media (max-width: 900px) {
-  .analysisLayout { grid-template-rows: auto auto auto; }
+  .analysisLayout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .section, .coverageColumn, .calculation, .freshnessColumn, .seriesColumn, .evidenceColumn { grid-column: 1; grid-row: auto; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .summaryGrid, .lowerGrid { grid-template-columns: 1fr; }
   .contextColumn { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {

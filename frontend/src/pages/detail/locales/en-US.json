@@ -188,6 +188,7 @@
   "evidenceStatusFilter": "Status",
   "evidenceAllStatuses": "All statuses",
   "evidenceClearFilters": "Clear filters",
-  "evidenceNoMatches": "No evidence matches these filters."
-  ,"evidenceFilteredCount": "{{count}} of {{total}} metrics"
+  "evidenceNoMatches": "No evidence matches these filters.",
+  "evidenceFilteredCount": "{{count}} of {{total}} metrics",
+  "analysisCloseDetails": "Close details"
 }

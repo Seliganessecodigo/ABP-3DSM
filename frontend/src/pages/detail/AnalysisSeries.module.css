@@ -4,8 +4,13 @@
 .header h2 { margin: 0; color: var(--text-primary); font-size: 12px; }
 .controls { display: flex; min-width: 0; align-items: center; gap: 8px; flex-wrap: wrap; }
 .toggle, .metricToggle { display: flex; gap: 4px; }
-.toggle button, .metricToggle button { min-height: 28px; border: 1px solid var(--border-default); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); background: var(--surface-card); cursor: pointer; font-size: 10px; }
+.toggle button, .metricToggle button { min-height: 28px; border: 1px solid var(--border-default); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); background: var(--surface-card); cursor: pointer; font-size: 10px; transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 80ms ease; }
+.toggle button:hover, .metricToggle button:hover, .pagination button:hover:not(:disabled) { border-color: var(--accent-default); background: var(--control-hover); }
+.toggle button:active, .metricToggle button:active, .pagination button:active:not(:disabled) { transform: translateY(1px); }
+.toggle button:focus-visible, .metricToggle button:focus-visible, .pagination button:focus-visible, .table th button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .toggle button[aria-pressed="true"], .metricToggle button[aria-pressed="true"] { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); }
+.toggle button[aria-pressed="true"]:hover, .metricToggle button[aria-pressed="true"]:hover { filter: brightness(.92); }
+.toggle button[aria-pressed="true"]:active, .metricToggle button[aria-pressed="true"]:active { filter: brightness(.84); }
 .charts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .chartGroup { min-width: 0; border: 0; border-radius: 0; padding: 0; background: transparent; }
 .chartGroup h3 { margin: 0; color: var(--text-primary); font-size: 0; }
@@ -43,12 +48,13 @@
 .table th, .table td { padding: 12px 16px; border-bottom: 1px solid var(--border-default); text-align: left; }
 .table th { color: var(--text-secondary); font-size: 13px; font-weight: 600; }
 .table th button { border: 0; padding: 0; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.table th button:hover:not(:disabled) { color: var(--accent-default); }
 .table th button:disabled { cursor: not-allowed; opacity: .6; }
 .table tbody tr:last-child td { border-bottom: 0; }
 .pagination { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px; color: var(--text-secondary); }
 .pagination label { display: inline-flex; align-items: center; gap: 8px; }
 .pagination select, .pagination button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
-.pagination button { cursor: pointer; }
+.pagination button { cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease; }
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
 @media (min-width: 901px) { .chart { height: 176px; } }
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }

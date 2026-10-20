@@ -8,8 +8,8 @@
 .filtersDisclosure { min-width: 0; margin: 4px 0 8px; }
 .filtersDisclosure > summary { color: var(--text-secondary); font-size: 10px; cursor: pointer; }
 .compact .filtersDisclosure:not([open]) + .table { margin-top: 4px; }
-.compact .heading > :global(.action-button) { width: 24px; min-width: 24px; min-height: 24px; padding: 0; overflow: hidden; font-size: 0; }
-.compact .heading > :global(.action-button)::after { content: '↻'; font-size: 14px; }
+.compact .heading > :global(.action-button) { width: 32px; min-width: 32px; min-height: 32px; padding: 0; border-radius: 50%; line-height: 0; }
+.compact .heading > :global(.action-button) svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .compact .dates { gap: 8px; margin: 8px 0; }
 .compact .filters { gap: 8px; margin: 8px 0; }
 .compact .search, .compact .filter { flex-basis: 140px; min-width: min(100%, 140px); gap: 4px; font-size: 10px; }
@@ -36,7 +36,9 @@
 .filter { display: flex; flex: 0 1 180px; flex-direction: column; gap: 8px; color: var(--text-secondary); font-size: 12px; }
 .filter select { width: 100%; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 8px; color: var(--text-primary); background: var(--control-background); font: inherit; }
 .search input:focus-visible, .filter select:focus-visible, .clearFilters:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-.clearFilters { align-self: flex-end; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; }
+.clearFilters { align-self: flex-end; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 0 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease; }
+.clearFilters:hover:not(:disabled) { border-color: var(--accent-default); background: var(--control-hover); }
+.clearFilters:active:not(:disabled) { transform: translateY(1px); }
 .clearFilters:disabled { cursor: not-allowed; opacity: .55; }
 .filteredCount { margin: 0 0 8px; color: var(--text-secondary); font-size: 12px; }
 .table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 12px; }
@@ -47,6 +49,7 @@
 .table tbody td:last-child { color: var(--text-primary); font-weight: 600; }
 .sortButton { min-height: 44px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; text-align: left; cursor: pointer; }
 .sortButton:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.sortButton:hover { color: var(--accent-default); }
 .noMatches { margin: 0; border: 1px solid var(--border-default); border-radius: 8px; padding: 12px; color: var(--text-secondary); background: var(--surface-raised); }
 .note { margin: 12px 0 0 !important; }
 @media (max-width: 640px) {

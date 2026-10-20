@@ -12,7 +12,8 @@ import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
 import { environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSeriesEvent, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
-import { getBrowserTimeZone, parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
+import { parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
+import { getTimeZoneForLocale } from '../../utils/timeZone.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -63,18 +64,37 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const [analysisAnchor, setAnalysisAnchor] = useState(analysisNow)
   const seriesPage = readPage(searchParams.get('seriesPage'))
   const seriesPageSize = readSeriesPageSize(searchParams.get('seriesSize'))
-  const [seriesQuery, setSeriesQuery] = useState<AnalysisSeriesQuery>(() => readAnalysisSeriesQuery(searchParams))
-  const displayTimeZone = seriesQuery.timeZone || getBrowserTimeZone()
+  const localeTimeZone = getTimeZoneForLocale(locale)
+  const [storedSeriesQuery, setSeriesQuery] = useState<AnalysisSeriesQuery>(() => readAnalysisSeriesQuery(searchParams))
+  const seriesQuery = { ...storedSeriesQuery, timeZone: localeTimeZone }
+  const displayTimeZone = localeTimeZone
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const current = readAnalysisSeriesQuery(params)
+    if (current.timeZone !== localeTimeZone) {
+      const next = new URL(window.location.href)
+      writeAnalysisSeriesQuery(next.searchParams, { ...current, timeZone: localeTimeZone })
+      next.searchParams.set('seriesTimeZone', localeTimeZone)
+      window.history.replaceState({}, '', `${next.pathname}?${next.searchParams.toString()}`)
+    }
+  }, [localeTimeZone])
   useEffect(() => {
     const syncQueries = () => {
       const params = new URLSearchParams(window.location.search)
       setEvidenceQuery(readEvidenceQuery(params))
-      setSeriesQuery(readAnalysisSeriesQuery(params))
+      const query = readAnalysisSeriesQuery(params)
+      setSeriesQuery(query)
+      if (query.timeZone !== localeTimeZone) {
+        const next = new URL(window.location.href)
+        writeAnalysisSeriesQuery(next.searchParams, { ...query, timeZone: localeTimeZone })
+        next.searchParams.set('seriesTimeZone', localeTimeZone)
+        window.history.replaceState({}, '', `${next.pathname}?${next.searchParams.toString()}`)
+      }
       setAnalysisAnchor(analysisNow())
     }
     window.addEventListener('popstate', syncQueries)
     return () => window.removeEventListener('popstate', syncQueries)
-  }, [])
+  }, [localeTimeZone])
   const selectedPeriod = readPeriodSelection(window.location.search)
   const analysisPeriod = searchParams.get('period') ?? '7d'
   const analysisGranularity = searchParams.get('granularity')
@@ -200,7 +220,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
               noObservation: tDetail('analysisReason.noObservation'),
             },
           },
-          calculationHeading: tDetail('analysisCalculationHeading'), calculationEstimate: tDetail('analysisCalculationEstimate'),
+          calculationHeading: tDetail('analysisCalculationHeading'), calculationEstimate: tDetail('analysisCalculationEstimate'), closeDetails: tDetail('analysisCloseDetails'),
           freshness: {
             heading: tDetail('analysisFreshnessHeading'),
             lastAttempt: tDetail('analysisLastAttempt'),

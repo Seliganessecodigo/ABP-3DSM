@@ -188,6 +188,7 @@
   "evidenceStatusFilter": "Situação",
   "evidenceAllStatuses": "Todas as situações",
   "evidenceClearFilters": "Limpar filtros",
-  "evidenceNoMatches": "Nenhuma evidência corresponde aos filtros."
-  ,"evidenceFilteredCount": "{{count}} de {{total}} métricas"
+  "evidenceNoMatches": "Nenhuma evidência corresponde aos filtros.",
+  "evidenceFilteredCount": "{{count}} de {{total}} métricas",
+  "analysisCloseDetails": "Fechar detalhes"
 }
