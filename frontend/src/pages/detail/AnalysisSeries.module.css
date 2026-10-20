@@ -1,4 +1,5 @@
 .section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
+.screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .header { display: grid; gap: 8px; margin-bottom: 4px; }
 .header h2 { margin: 0; color: var(--text-primary); font-size: 12px; }
 .controls { display: flex; min-width: 0; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -9,17 +10,24 @@
 .chartGroup { min-width: 0; border: 0; border-radius: 0; padding: 0; background: transparent; }
 .chartGroup h3 { margin: 0; color: var(--text-primary); font-size: 0; }
 .unitChart { min-width: 0; }
-.axisSummary { margin: 0 0 4px; color: var(--text-secondary); font-size: 12px; }
+.axisSummary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .legend { display: flex; gap: 16px; margin-bottom: 4px; color: var(--text-secondary); font-size: 10px; }
 .legend span::before { display: inline-block; width: 12px; margin: 0 4px 2px 0; border-top: 2px solid var(--accent-default); content: ''; }
-.previousLegend::before { border-top-style: dashed !important; border-top-color: var(--text-secondary) !important; }
+.legend .previousLegend::before { border-top-style: dashed; border-top-color: var(--text-secondary); }
+.legend .eventLegend::before { width: 0; height: 8px; margin: 0 6px 0 0; border-top: 0; border-left: 1px dashed var(--text-secondary); vertical-align: -1px; }
 .plot { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: stretch; gap: 8px; }
 .yAxis { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 8px 0 16px; color: var(--text-secondary); font-size: 11px; }
 .chart { display: block; width: 100%; height: 132px; }
-.chart polyline { fill: none; stroke: var(--accent-default); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.chart polyline { fill: none; stroke: var(--accent-default); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .chart .previousSeries { stroke: var(--text-secondary); stroke-width: 2; stroke-dasharray: 5 4; }
 .chart .area { fill: var(--accent-default); opacity: .12; }
 .chart circle { fill: var(--accent-default); stroke: var(--surface-card); stroke-width: 2; }
+.chart circle:focus-visible { outline: none; stroke: var(--text-primary); stroke-width: 3; }
+.chartTooltip { pointer-events: none; }
+.chartTooltip rect { fill: var(--text-primary); }
+.chartTooltip text { fill: var(--surface-card); font-size: 9px; }
+.eventMarker { color: var(--text-secondary); }
+.eventMarker line { stroke: currentColor; stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .75; }
 .axis { stroke: var(--border-default); stroke-width: 1; }
 .grid { stroke: var(--border-default); stroke-width: 1; opacity: .5; stroke-dasharray: 2 3; }
 .timeAxis { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 4px; margin-left: 44px; color: var(--text-secondary); font-size: 9px; text-align: center; }
@@ -41,5 +49,6 @@
 .pagination select, .pagination button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
 .pagination button { cursor: pointer; }
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
+@media (min-width: 901px) { .chart { height: 176px; } }
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }
 @media (max-width: 480px) { .header { align-items: flex-start; flex-direction: column; gap: 8px; } .table th, .table td { padding: 12px; } }

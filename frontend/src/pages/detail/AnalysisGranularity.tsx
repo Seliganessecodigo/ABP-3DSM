@@ -6,6 +6,7 @@ export type AnalysisGranularityLabels = Readonly<{
   unavailable: string
   unsupported: string
   repair: string
+  options: Readonly<Record<string, string>>
 }>
 
 export function AnalysisGranularity({ capabilities, requestedValue, onChange, labels, compact = false }: Readonly<{
@@ -39,7 +40,7 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
       <div className={styles.choices}>
         {capabilities.options.map(({ value, label }) => <button key={value} type="button"
           className={styles.option} aria-pressed={selectedValue === value}
-          onClick={() => onChange(value)}>{label}</button>)}
+        onClick={() => onChange(value)}>{labels.options[value] ?? label}</button>)}
       </div>
     </fieldset>
   </section>
