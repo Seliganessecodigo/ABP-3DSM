@@ -91,3 +91,64 @@ Aplicação inexistente retorna `404` (`APPLICATION_NOT_FOUND`); período, granu
 Os adapters de métricas e intensidade de carbono aplicam prazo total de 30 segundos e até três tentativas por chamada lógica. Repetem apenas erros de rede temporários, timeout, 408, 429 e 5xx; respeitam `Retry-After` para 429 dentro do prazo total. A trava compartilhada ignora novos ticks enquanto um ciclo estiver ativo. O shutdown aborta requisições em andamento e termina o ciclo como `FAILED` com detalhe `CYCLE_CANCELLED`, sem abrir incidente da origem.
 
 Falhas das operações `/services`, `/metrics/{id}` e fator de carbono são mantidas em `monitoring_incidents`, com identidades independentes por fonte/integração e escopo global ou por aplicação. Uma falha abre ou atualiza o incidente; somente três respostas válidas, processadas e persistidas em ciclos distintos resolvem o incidente correspondente. O histórico público é consultado em `GET /monitoring/incidents`, com filtros `applicationId`, `source`, `integration` e `status`, paginação por `page`/`limit` (padrões 1/20, máximo 100) e ordenação mais recente primeiro. Os campos de resposta contêm somente razões categorizadas e metadados operacionais seguros.
+
+## Resumo ambiental agregado por período — #156
+
+`GET /analysis/summary?from={RFC3339}&to={RFC3339}` agrega resultados ambientais já persistidos, sem chamar serviços externos ou recalcular medidas. `from` e `to` exigem timezone explícito e definem o intervalo semiaberto `[from,to)`, normalizado para UTC. Filtros opcionais aceitam valores repetidos: `states=AVAILABLE&states=NO_METRICS`, `regionCodes=br-sudeste&regionCodes=br-norte` e `applicationIds=id-1&applicationIds=id-2`. Valores dentro do filtro usam OU; dimensões diferentes usam E. Sem filtros, todas as aplicações entram no escopo.
+
+O estado é atual e totais, composição, coberturas e contagens usam o escopo filtrado. A resposta sempre informa `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` e `REMOVED`. Energia (`kWh`) e emissões (`gCO2e`) são medidas independentes. `value: 0` é zero válido; `value: null` é ausência de resultado utilizável. A cobertura soma a duração válida de cada aplicação e divide pela duração solicitada multiplicada pelo número de aplicações incluídas; ausência de dados reduz a cobertura. A composição lista apenas aplicações com ao menos uma medida utilizável.
+
+O filtro de região resolve `regionCode` no `collectedAt` de cada coleta usando eventos `registration_changed`; mudanças posteriores não reclassificam observações anteriores. Com filtro geográfico, aplicações sem coleta correspondente não entram no escopo. Uma resposta `empty` tem totais nulos e coberturas zero. Filtros ou períodos inválidos retornam `400`; falhas de leitura retornam `503` (`ANALYSIS_SUMMARY_UNAVAILABLE`). O schema da resposta e os parâmetros estão publicados em `/openapi.json` e `/docs`.
+
+O teste HTTP/PostgreSQL fica em `src/modules/applications/environmental-analysis.database.spec.ts`. Execute com `TEST_DATABASE_URL` apontando para um banco isolado; nunca use o banco de desenvolvimento ou produção.
+
+Para o resumo agregado da #156, os testes HTTP e PostgreSQL estão em `src/modules/applications/environmental-analysis-summary.database.spec.ts` e usam as mesmas migrations e a mesma exigência de banco isolado.
+
+Exemplo reduzido de resposta com resultados utilizáveis:
+
+```json
+{
+  "status": "available",
+  "period": { "from": "2026-10-01T03:00:00Z", "to": "2026-10-01T03:01:00Z" },
+  "dataAsOf": "2026-10-01T03:00:30Z",
+  "totals": {
+    "energy": { "value": 3, "unit": "kWh", "reasons": [] },
+    "emissions": { "value": 85, "unit": "gCO2e", "reasons": [] }
+  },
+  "coverage": { "energy": 1, "emissions": 0.6666666666666666 },
+  "states": { "AVAILABLE": 1, "UNAVAILABLE": 1, "NO_METRICS": 0, "REMOVED": 1 },
+  "applications": [
+    {
+      "applicationId": "app-1",
+      "name": "Serviço A",
+      "state": "AVAILABLE",
+      "energy": { "value": 2, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": null, "unit": "gCO2e", "reasons": [{ "code": "CARBON_FACTOR_UNAVAILABLE" }] },
+      "coverage": { "energy": 1, "emissions": 0 }
+    },
+    {
+      "applicationId": "app-2",
+      "name": "Serviço B",
+      "state": "UNAVAILABLE",
+      "energy": { "value": 1, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": 85, "unit": "gCO2e", "reasons": [] },
+      "coverage": { "energy": 1, "emissions": 1 }
+    },
+    {
+      "applicationId": "app-3",
+      "name": "Serviço C",
+      "state": "REMOVED",
+      "energy": { "value": 0, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": 0, "unit": "gCO2e", "reasons": [] },
+      "coverage": { "energy": 1, "emissions": 1 }
+    }
+  ],
+  "provenance": {
+    "methodologies": [{ "key": "persisted-energy-model", "version": "model-v3", "parameters": { "cpuWattsAt100Percent": 100, "memoryWattsPerGb": 0.375, "diskWattsPerGb": 0.01, "networkWattsPerGb": 0.02 } }],
+    "factors": [{ "contractVersion": "contract-v1", "regionCode": "br-sudeste", "country": "Brazil", "region": "Sudeste", "city": null, "intensity": 85, "unit": "gCO2e/kWh", "version": "factor-v1", "source": "persisted-factor-source", "validFrom": "2026-10-01T00:00:00Z", "validUntil": "2026-11-01T00:00:00Z", "queriedAt": { "from": "2026-10-01T03:00:20Z", "to": "2026-10-01T03:00:30Z" } }],
+    "reasons": []
+  }
+}
+```
+
+Quando nenhuma medida puder ser calculada, `status` é `empty`, ambos os valores de total são `null` e as coberturas são zero; as contagens de estado ainda descrevem as aplicações que correspondem aos filtros.
