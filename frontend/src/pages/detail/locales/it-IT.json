@@ -188,6 +188,7 @@
   "evidenceStatusFilter": "Stato",
   "evidenceAllStatuses": "Tutti gli stati",
   "evidenceClearFilters": "Cancella filtri",
-  "evidenceNoMatches": "Nessuna evidenza corrisponde a questi filtri."
-  ,"evidenceFilteredCount": "{{count}} di {{total}} metriche"
+  "evidenceNoMatches": "Nessuna evidenza corrisponde a questi filtri.",
+  "evidenceFilteredCount": "{{count}} di {{total}} metriche",
+  "analysisCloseDetails": "Chiudi dettagli"
 }

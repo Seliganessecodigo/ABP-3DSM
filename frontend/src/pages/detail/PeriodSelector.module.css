@@ -2,7 +2,12 @@
 .compact { margin-bottom: 0; }
 .selector h2 { margin-bottom: 8px; color: var(--text-primary); font-size: 15px; }
 .options { display: flex; flex-wrap: wrap; gap: 8px; }
-.option { min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 8px 16px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; }
+.option { min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 8px 16px; color: var(--text-primary); background: var(--surface-card); font: inherit; cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 80ms ease; }
+.option:hover { border-color: var(--accent-default); background: var(--control-hover); }
+.option:active { transform: translateY(1px); }
+.option:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .option[aria-pressed='true'] { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); }
+.option[aria-pressed='true']:hover { filter: brightness(.92); }
+.option[aria-pressed='true']:active { filter: brightness(.84); }
 .compact .options { gap: 4px; }
 .compact .option { min-height: 32px; border-radius: 6px; padding: 4px 8px; font-size: 10px; }

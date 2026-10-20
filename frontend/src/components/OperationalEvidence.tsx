@@ -75,7 +75,7 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
   const statusSort = sortPresentation(query.sort, 'status')
   return <section className={`${styles.card}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
     <header className={styles.heading}><h2>{labels.title}</h2>
-      <ActionButton aria-label={labels.refresh} onClick={onRefresh} disabled={refreshing}>{labels.refresh}</ActionButton>
+      <ActionButton aria-label={labels.refresh} onClick={onRefresh} disabled={refreshing}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.5 9a7 7 0 0 1 11.6-2L20 12M4 12l2.9 5a7 7 0 0 0 11.6-2" /></svg></ActionButton>
     </header>
     {!compact && <p>{labels.calculability}: {calculability}</p>}
     {loading && !evidence && <p role="status">{labels.loading}</p>}

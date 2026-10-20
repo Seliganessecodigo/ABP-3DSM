@@ -188,6 +188,7 @@
   "evidenceStatusFilter": "Status",
   "evidenceAllStatuses": "Alle Statuswerte",
   "evidenceClearFilters": "Filter löschen",
-  "evidenceNoMatches": "Keine Nachweise entsprechen diesen Filtern."
-  ,"evidenceFilteredCount": "{{count}} von {{total}} Metriken"
+  "evidenceNoMatches": "Keine Nachweise entsprechen diesen Filtern.",
+  "evidenceFilteredCount": "{{count}} von {{total}} Metriken",
+  "analysisCloseDetails": "Details schlie\u00dfen"
 }

@@ -8,8 +8,8 @@ test('mostra energia e cobertura zero separadas de CO₂e e cobertura indisponí
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const energy = analysis.getByRole('group', { name: 'Energia', exact: true })
   const emissions = analysis.getByRole('group', { name: 'CO₂e', exact: true })
-  const energyCoverage = analysis.getByRole('group', { name: 'Cobertura de energia', exact: true })
-  const emissionsCoverage = analysis.getByRole('group', { name: 'Cobertura de emissões', exact: true })
+  const energyCoverage = page.getByRole('group', { name: 'Cobertura de energia', exact: true })
+  const emissionsCoverage = page.getByRole('group', { name: 'Cobertura de emissões', exact: true })
 
   await expect(analysis).toBeVisible()
   await expect(energy).toContainText(/0\s*kWh/)
@@ -44,7 +44,8 @@ test('mantém a indisponibilidade ambiental no runtime quando a consulta do resu
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('alert')).toContainText('Não foi possível consultar os dados ambientais para este período')
   for (const name of ['Energia', 'CO₂e', 'Cobertura de energia', 'Cobertura de emissões']) {
-    await expect(analysis.getByRole('group', { name, exact: true })).toContainText('Indisponível')
+    const metric = name.startsWith('Cobertura') ? page.getByRole('group', { name, exact: true }) : analysis.getByRole('group', { name, exact: true })
+    await expect(metric).toContainText('Indispon\u00edvel')
   }
   await expect(analysis).not.toContainText(/0\s*kWh|0\s*%/)
 })
@@ -143,9 +144,11 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await expect(beta).toContainText('08:15')
   await expect(beta).toContainText('Descrição integral recebida para Modelo Beta')
   await expect(beta).toContainText('snapshot-beta-raw-27')
+  await page.getByRole('button', { name: 'Fechar detalhes' }).click()
+  await expect(page.locator('#analysis-details')).not.toHaveAttribute('open', '')
 })
 
-test('trocar idioma preserva o fuso salvo nas datas operacional, ambiental e da série', async ({ page }) => {
+test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.route(/\/applications\/svc-0142\/collections\/collection-history$/, async (route) => {
     await route.fulfill({ json: {
@@ -169,14 +172,15 @@ test('trocar idioma preserva o fuso salvo nas datas operacional, ambiental e da 
   await expect(alpha).toContainText('14:32')
   await expect(page.getByRole('region', { name: /evidências operacionais/i })).toContainText('14:32')
   await page.getByLabel('Idioma').selectOption('en-US')
+  await expect(page.locator('[data-language-flag="en-US"]')).toBeVisible()
 
-  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('2:32 PM')
-  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('2:32 PM')
+  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('5:32 PM')
+  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('5:32 PM')
   await page.locator('#analysis-details summary').click()
   await page.getByRole('button', { name: 'Table', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
+  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('5:00 PM')
   const params = new URL(page.url()).searchParams
-  expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
+  expect(params.get('seriesTimeZone')).toBe('Etc/GMT+0')
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
 })

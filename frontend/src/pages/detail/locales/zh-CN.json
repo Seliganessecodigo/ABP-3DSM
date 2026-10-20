@@ -188,6 +188,7 @@
   "evidenceStatusFilter": "状态",
   "evidenceAllStatuses": "所有状态",
   "evidenceClearFilters": "清除筛选",
-  "evidenceNoMatches": "没有证据符合这些筛选条件。"
-  ,"evidenceFilteredCount": "{{total}}项指标中有{{count}}项"
+  "evidenceNoMatches": "没有证据符合这些筛选条件。",
+  "evidenceFilteredCount": "{{total}}项指标中有{{count}}项",
+  "analysisCloseDetails": "\u5173\u95ed\u8be6\u60c5"
 }

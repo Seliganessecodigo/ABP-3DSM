@@ -74,7 +74,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
         const main = document.querySelector<HTMLElement>('main')!
         const analysis = main.children[2] as HTMLElement
         const metricCards = analysis.children[0].querySelector<HTMLElement>('div')!
-        return [main.children[0], main.children[1], metricCards, analysis.children[1], analysis.children[2]].map(element => {
+        return [metricCards, analysis.children[1], analysis.children[2], analysis.children[3], analysis.children[4], analysis.children[5]].map(element => {
           const rect = element.getBoundingClientRect()
           return { className: (element as HTMLElement).className, x: rect.x, y: rect.y, width: rect.width, height: rect.height }
         })
@@ -88,14 +88,17 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect.soft(before.sidebarLeft).toBe(0)
   expect.soft(before.sidebarTop).toBe(0)
   expect.soft(before.sidebarRight).toBeGreaterThan(160)
-  expect.soft(before.regions[2]).toMatchObject({ x: 192, width: 760 })
-  expect.soft(Math.abs(before.regions[2].y - 95)).toBeLessThanOrEqual(2)
-  expect.soft(Math.abs(before.regions[2].height - 116)).toBeLessThanOrEqual(2)
-  expect.soft(before.regions[3]).toMatchObject({ x: 192, width: 760, height: 88 })
-  expect.soft(Math.abs(before.regions[3].y - 219)).toBeLessThanOrEqual(2)
-  expect.soft(before.regions[4]).toMatchObject({ x: 192, width: 760 })
-  expect.soft(Math.abs(before.regions[4].y - 319)).toBeLessThanOrEqual(2)
-  expect.soft(Math.abs(before.regions[4].height - 276)).toBeLessThanOrEqual(2)
+  const [metrics, coverage, calculation, freshness, series, evidence] = before.regions
+  expect.soft(metrics.x).toBeLessThan(coverage.x)
+  expect.soft(Math.abs(metrics.y - coverage.y)).toBeLessThanOrEqual(2)
+  expect.soft(Math.abs(metrics.height - coverage.height)).toBeLessThanOrEqual(2)
+  expect.soft(calculation.x).toBe(metrics.x)
+  expect.soft(freshness.x).toBe(coverage.x)
+  expect.soft(Math.abs(calculation.y - freshness.y)).toBeLessThanOrEqual(2)
+  expect.soft(series.x).toBe(metrics.x)
+  expect.soft(evidence.x).toBe(coverage.x)
+  expect.soft(Math.abs(series.y - evidence.y)).toBeLessThanOrEqual(2)
+  expect.soft(series.width).toBeGreaterThan(evidence.width)
   const headingAlignment = await page.evaluate(() => {
     const title = document.querySelector('main h1')!
     const titleText = document.createRange()
@@ -118,6 +121,15 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
   await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Hora', exact: true })).toBeVisible()
+  const refreshButton = page.getByRole('region', { name: /evidências operacionais/i }).getByRole('button', { name: 'Atualizar dados' })
+  const refreshAlignment = await refreshButton.evaluate((button) => {
+    const buttonRect = button.getBoundingClientRect()
+    const headingRect = button.parentElement!.querySelector('h2')!.getBoundingClientRect()
+    return { width: buttonRect.width, height: buttonRect.height, centerOffset: Math.abs(buttonRect.top + buttonRect.height / 2 - (headingRect.top + headingRect.height / 2)) }
+  })
+  expect(refreshAlignment.width).toBe(32)
+  expect(refreshAlignment.height).toBe(32)
+  expect(refreshAlignment.centerOffset).toBeLessThanOrEqual(2)
   await expect(page.getByRole('figure', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
   const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ }).first()
   await chartPoint.hover()
@@ -160,6 +172,16 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   const mobileSidebar = page.locator('.sidebar')
   await expect.poll(() => mobileSidebar.evaluate((sidebar) => sidebar.scrollHeight <= sidebar.clientHeight)).toBe(true)
+
+  await page.setViewportSize({ width: 996, height: 619 })
+  const periodButton = page.getByRole('button', { name: '30 dias', exact: true })
+  await periodButton.hover()
+  const hoverBackground = await periodButton.evaluate((button) => getComputedStyle(button).backgroundColor)
+  expect(hoverBackground).not.toBe('rgb(255, 255, 255)')
+  await page.mouse.down()
+  const pressedTransform = await periodButton.evaluate((button) => getComputedStyle(button).transform)
+  await page.mouse.up()
+  expect(pressedTransform).not.toBe('none')
 })
 
 test('navegação mantém Aplicações ativa no detalhe', async ({ page }) => {
