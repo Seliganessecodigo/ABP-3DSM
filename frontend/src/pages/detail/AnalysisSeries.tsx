@@ -152,19 +152,25 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
           y: 128 - (point.value / chartMax) * 108,
         }))
         const segments = chartSegments(coordinates, true)
-        const markerGroups = new Map<string, { id: string; x: number; titles: string[]; count: number }>()
+        const interactivePoints = new Map<number, { point: PlotPoint; reading: NonNullable<typeof values[number]> }>()
+        coordinates.forEach((point, index) => {
+          const reading = values[index]
+          if (point && reading) interactivePoints.set(Math.floor(point.x / 24), { point, reading })
+        })
+        const markerGroups = new Map<number, { id: string; x: number; title: string; count: number }>()
         for (const event of events) {
           const time = Date.parse(event.at)
           if (!Number.isFinite(time) || time < minTime || time > maxTime || chronological.length === 0) continue
           const nearest = chronological.reduce((best, point) =>
             Math.abs(Date.parse(point.timestamp) - time) < Math.abs(Date.parse(best.timestamp) - time) ? point : best, chronological[0]!)
-          const marker = markerGroups.get(nearest.id) ?? { id: nearest.id, x: maxTime === minTime ? 300 : 8 + ((Date.parse(nearest.timestamp) - minTime) / (maxTime - minTime)) * 584,
-            titles: [], count: 0 }
+          const x = maxTime === minTime ? 300 : 8 + ((Date.parse(nearest.timestamp) - minTime) / (maxTime - minTime)) * 584
+          const bucket = Math.floor(x / 24)
+          const marker = markerGroups.get(bucket) ?? { id: `event-bin-${bucket}`, x: bucket * 24 + 12, title: labels.eventSummary(event), count: 0 }
           marker.count += 1
-          marker.titles.push(labels.eventSummary(event))
-          markerGroups.set(nearest.id, marker)
+          markerGroups.set(bucket, marker)
         }
-        const eventMarkers = [...markerGroups.values()].map(marker => ({ ...marker, title: marker.titles.join('; ') }))
+        const eventMarkers = [...markerGroups.values()].map(marker => ({ ...marker,
+          title: marker.count > 1 ? `${marker.title} · ${marker.count}` : marker.title }))
         const visibleEventCount = eventMarkers.reduce((total, marker) => total + marker.count, 0)
         const comparisonTimes = comparisonValues.flatMap(point => point ? [point.time] : [])
         const comparisonMinTime = comparisonTimes.length ? Math.min(...comparisonTimes) : 0
@@ -202,16 +208,13 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
               {comparisonSegments.map(segment => <polyline key={`previous:${segment.key}`} className={styles.previousSeries} points={segment.points} />)}
               {segments.map(segmentPath => <polyline key={segmentPath.key} points={segmentPath.points} />)}
               {eventMarkers.map(event => <g key={event.id} data-series-event-marker="true" data-event-count={event.count} className={styles.eventMarker}>
-                <title>{event.title}</title><line x1={event.x} y1="20" x2={event.x} y2="128" />
+                <title>{event.title}</title><line x1={event.x} y1="120" x2={event.x} y2="128" />
               </g>)}
-              {coordinates.map((point, index) => {
-                const reading = values[index]
-                return point && reading ? <circle key={point.id} cx={point.x} cy={point.y} r="4" role="button" tabIndex={0}
+              {[...interactivePoints.values()].map(({ point, reading }) => <circle key={point.id} cx={point.x} cy={point.y} r="4" role="button" tabIndex={0}
                   aria-label={`${formatDate(reading.timestamp)}: ${formatChartValue(reading.value, locale)} ${displayUnit}`}
                   onMouseEnter={() => setActivePointId(point.id)} onMouseLeave={() => setActivePointId(null)}
                   onFocus={() => setActivePointId(point.id)} onBlur={() => setActivePointId(null)}
-                  onKeyDown={event => { if (event.key === 'Escape') setActivePointId(null) }} /> : null
-              })}
+                  onKeyDown={event => { if (event.key === 'Escape') setActivePointId(null) }} />)}
               {activePoint && activeCoordinate && <g className={styles.chartTooltip} data-chart-tooltip="true" role="status" aria-live="polite"
                 transform={`translate(${Math.max(8, Math.min(476, activeCoordinate.x + 8))},${Math.max(4, activeCoordinate.y - 52)})`}>
                 <rect width="120" height={activeComparison ? 48 : 34} rx="5" />
