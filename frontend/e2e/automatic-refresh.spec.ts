@@ -17,9 +17,6 @@ test('the catalog refreshes one minute after the previous response', async ({ pa
   await expect(row(page, 'svc-0142')).toBeVisible()
   await expect.poll(() => requests).toBeGreaterThan(0)
   const initialRequests = requests
-  await expect(page.getByText(/Frequência da interface: 60 s/i)).toBeVisible()
-  await expect(page.getByText(/Última tentativa:/i)).toBeVisible()
-  await expect(page.getByText(/Última resposta válida:/i)).toBeVisible()
   refreshed = true
 
   await page.clock.fastForward(60_000)
@@ -152,7 +149,7 @@ test('automatic catalog updates preserve the current search, filter, and page', 
   await expect(search(page)).toBeFocused()
   await expect(row(page, 'svc-011')).toBeInViewport()
   await expect(page.getByRole('button', { name: /^Disponível\b/i })).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.getByText(/Página 2 de 3/i)).toBeVisible()
+  await expect(page.locator('button[aria-current=page]')).toHaveText('2')
   expect(new URL(page.url()).searchParams.get('page')).toBe('2')
   await expect.poll(() => requests).toBeGreaterThan(requestsBeforeRefresh)
 })
