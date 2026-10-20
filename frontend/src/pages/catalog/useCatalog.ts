@@ -11,8 +11,6 @@ export function useCatalog() {
   const [error, setError] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
-  const [lastAttemptAt, setLastAttemptAt] = useState<string | null>(null)
-  const [lastResponseAt, setLastResponseAt] = useState<string | null>(null)
   useEffect(() => {
     let active = true
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -21,7 +19,6 @@ export function useCatalog() {
     const load = async () => {
       controller = new AbortController()
       setRefreshing(true)
-      setLastAttemptAt(new Date().toISOString())
       try {
         const parsed = await getApplications(controller.signal)
         if (!active || controller.signal.aborted) return
@@ -29,7 +26,6 @@ export function useCatalog() {
         setApplications(parsed)
         setHasSnapshot(true)
         setError(false)
-        setLastResponseAt(new Date().toISOString())
       } catch {
         if (active && !controller.signal.aborted) setError(true)
       } finally {
@@ -58,6 +54,6 @@ export function useCatalog() {
     setLoading(false)
     setAttempt((current) => current + 1)
   }
-  return { applications, hasSnapshot, loading, refreshing, error, lastAttemptAt, lastResponseAt,
-    pollingIntervalMs: APPLICATION_POLL_INTERVAL_MS, refresh, retry }
+  return { applications, hasSnapshot, loading, refreshing, error,
+    refresh, retry }
 }

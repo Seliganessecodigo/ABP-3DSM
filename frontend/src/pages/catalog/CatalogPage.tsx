@@ -23,6 +23,13 @@ function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn)
   return { ariaSort: 'descending', indicator: ' \u2193' }
 }
 
+function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
+  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
+  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
+  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
+  return [1, ...(first > 2 ? ['ellipsis-start' as const] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []), pageCount]
+}
+
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t: tCatalog, i18n } = useTranslation('catalog')
   const { t: tCommon } = useTranslation('common')
@@ -33,12 +40,13 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const [draftFilters, setDraftFilters] = useState(initial.filters ?? {})
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const filterDialogRef = useRef<HTMLElement>(null)
-  const { applications, hasSnapshot, loading, refreshing, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refresh, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useCatalog()
   const presentation = useMemo(() => ({
     locale: i18n.resolvedLanguage ?? 'pt-BR', timeZone: query.timeZone,
     stateLabels: Object.fromEntries(states.filter(({ value }) => value !== 'ALL').map(({ value }) => [value, stateLabel(value, tCommon)])) as Record<State, string>,
   }), [i18n.resolvedLanguage, query.timeZone, tCommon])
   const result = useMemo(() => selectCatalog(applications, query, presentation), [applications, query, presentation])
+  const pages = paginationPages(result.page, result.pageCount)
   useEffect(() => {
     const url = makeUrl({ ...query, page: result.page })
     if (`${window.location.pathname}${window.location.search}` !== url) {
@@ -139,7 +147,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     if (column === 'lastCheckedAt') return formatDate(item.lastCheckedAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'), query.timeZone)
     return <><details className={styles['state-details']}><summary><span className={`state-badge state-${item.state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[item.state]}</span>{stateLabel(item.state, tCommon)}</span></summary><div className={styles['state-metadata']}><small>{reasonLabel(item.reason, tCommon)}</small><small>{tCommon('date.lastObservation')}: {formatDate(item.lastObservationAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'))}</small>{!item.isCalculable && <small>{tCommon('calculability.unavailable')}</small>}</div></details>{item.isStale && <small className={styles['stale-label']}>{tCommon('freshness.stale')}</small>}</>
   }
-  const detailLink = (item: (typeof applications)[number]) => <a data-application-id={item.id} className={styles['detail-link']} href={`/services/${encodeURIComponent(item.id)}${window.location.search}`} onClick={(event) => { event.preventDefault(); window.sessionStorage.setItem(catalogReturnKey, JSON.stringify({ applicationId: item.id, scrollY: window.scrollY })); navigate(`/services/${encodeURIComponent(item.id)}${window.location.search}`) }}>{tCatalog('details')}</a>
+  const detailLink = (item: (typeof applications)[number]) => <a data-application-id={item.id} className={styles['detail-link']} href={`/services/${encodeURIComponent(item.id)}${window.location.search}`} aria-label={tCatalog('details')} title={tCatalog('details')} onClick={(event) => { event.preventDefault(); window.sessionStorage.setItem(catalogReturnKey, JSON.stringify({ applicationId: item.id, scrollY: window.scrollY })); navigate(`/services/${encodeURIComponent(item.id)}${window.location.search}`) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M1.8 10s3-5.2 8.2-5.2 8.2 5.2 8.2 5.2-3 5.2-8.2 5.2S1.8 10 1.8 10Z"/><circle cx="10" cy="10" r="2.4"/></svg><span className={styles['detail-link-text']}>{tCatalog('details')}</span></a>
 
   return <main className="content" tabIndex={-1}>
     <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div><div className={styles['heading-actions']}><ActionButton appearance="secondary" onClick={refresh} disabled={refreshing || loading}>{tCatalog('refresh')}</ActionButton><button ref={filterTriggerRef} className={styles['filter-trigger']} aria-expanded={filtersOpen} aria-controls="catalog-column-filters" onClick={() => { setDraftFilters(query.filters ?? {}); setFiltersOpen(true) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3 4h14l-5.5 6.2v4.4l-3 1.5v-5.9L3 4Z" /></svg>{tCatalog('columnFilters')}</button></div></div>
@@ -179,8 +187,17 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
       })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
       <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><p className="identifier">{item.id}</p>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
-      <div className={styles.pagination}><span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span><label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label><div><button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}>{tCatalog('previous')}</button><span>{tCatalog('page', { page: result.page, count: result.pageCount })}</span><button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => update({ page: result.page + 1 })}>{tCatalog('next')}</button></div></div>
+      <div className={styles.pagination}>
+        <span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span>
+        <label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>
+        <div className={styles['page-controls']}>
+          <button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
+          {pages.map((page) => typeof page === 'number'
+            ? <button key={page} aria-current={page === result.page ? 'page' : undefined} aria-label={tCatalog('page', { page, count: result.pageCount })} className={page === result.page ? styles['current-page'] : styles['page-number']} onClick={() => update({ page })}>{page}</button>
+            : <span key={page} aria-hidden="true">…</span>)}
+          <button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => update({ page: result.page + 1 })}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
+        </div>
+      </div>
     </>}
-    <div className={styles['below-panels']}><section className={styles['selection-panel']}><span className={styles['panel-icon']} aria-hidden="true">◉</span><div><h2>{tCatalog('noneSelected')}</h2><p>{tCatalog('selectHint')}</p></div></section><section className={styles['info-panel']}><span className={styles['info-icon']} aria-hidden="true">i</span><div><h2>{tCatalog('refreshHeading')}</h2><p>{tCatalog('refreshStatus', { seconds: pollingIntervalMs / 1000, lastAttempt: formatDate(lastAttemptAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')), lastResponse: formatDate(lastResponseAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation')) })}</p><p>{tCatalog('stateHint')}</p></div></section></div>
   </main>
 }

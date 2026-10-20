@@ -35,9 +35,44 @@ test('resposta vazia representa catálogo vazio e não erro', async ({ page }) =
   await mockCatalog(page, [])
   await page.goto('/')
   await expect(page.getByText(/nenhuma aplicação reconhecida/i)).toBeVisible()
+  await expect(page.getByText(/atualização automática|nenhuma aplicação selecionada/i)).toHaveCount(0)
   await expect(page.getByRole('alert')).toHaveCount(0)
 })
 
+test('detail action uses an eye icon, tooltip, and hover state', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await page.goto('/')
+  const details = row(page, 'svc-0142').getByRole('link', { name: 'Ver detalhes' })
+  await expect(details.locator('svg')).toBeVisible()
+  await expect(details).toHaveAttribute('title', 'Ver detalhes')
+  const before = await details.evaluate((element) => getComputedStyle(element).backgroundColor)
+  await details.hover()
+  await expect.poll(() => details.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(before)
+})
+
+test('pagination shows its current page as a square number', async ({ page }) => {
+  await mockCatalog(page, largeCatalog())
+  await page.goto('/')
+  const currentPage = page.locator('button[aria-current=page]')
+  await expect(currentPage).toHaveAttribute('aria-current', 'page')
+  await expect(currentPage).toHaveText('1')
+  await page.getByRole('button', { name: /próxima página/i }).click()
+  await expect(currentPage).toHaveText('2')
+})
+
+test('pagination condenses distant page numbers and opens the selected page', async ({ page }) => {
+  const catalog = Array.from({ length: 81 }, (_, index) => {
+    const suffix = String(index + 1).padStart(3, '0')
+    return application({ id: `svc-${suffix}`, name: `api-${suffix}` })
+  })
+  await mockCatalog(page, catalog)
+  await page.goto('/?size=10')
+  await expect(page.getByRole('button', { name: 'Página 1 de 9' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Página 5 de 9' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Página 9 de 9' }).click()
+  await expect(page.getByRole('button', { name: 'Página 6 de 9' })).toBeVisible()
+  await expect(page.locator('button[aria-current=page]')).toHaveText('9')
+})
 test('falha HTTP mostra erro sem afirmar vazio ou remoção', async ({ page }) => {
   await mockApi(page, unavailable)
   await page.goto('/')
@@ -548,7 +583,7 @@ test('sidebar desktop recolhe, expande e reinicia expandida após recarga', asyn
   const collapse = page.getByRole('button', { name: 'Recolher navegação' })
   await expect(collapse).toHaveAttribute('aria-expanded', 'true')
   const sidebar = page.getByRole('complementary')
-  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(224)
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
   await collapse.click()
   const expand = page.getByRole('button', { name: 'Expandir navegação' })
   await expect(expand).toHaveAttribute('aria-expanded', 'false')

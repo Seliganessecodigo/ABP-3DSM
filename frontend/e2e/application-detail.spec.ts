@@ -612,3 +612,26 @@ test('resposta atrasada de uma seleção anterior não substitui a aplicação a
   await expect(page.getByRole('main')).toContainText('svc-atual')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toHaveCount(0)
 })
+
+test('detail sidebar matches the catalog and collapses without clipping English', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await mockCatalog(page, [application()])
+  await page.goto('/services/svc-0142')
+
+  const sidebar = page.locator('.sidebar')
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
+  const language = page.getByRole('combobox', { name: 'Idioma' })
+  await language.selectOption('en-US')
+  const languageCode = page.locator('.language-code')
+  await expect(languageCode).toContainText('EN')
+  const flagBounds = await languageCode.boundingBox()
+  const sidebarBounds = await sidebar.boundingBox()
+  expect(flagBounds).not.toBeNull()
+  expect(sidebarBounds).not.toBeNull()
+  expect(flagBounds!.x + flagBounds!.width).toBeLessThanOrEqual(sidebarBounds!.x + sidebarBounds!.width)
+
+  await page.getByRole('button', { name: 'Collapse navigation' }).click()
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)
+  await page.getByRole('button', { name: 'Expand navigation' }).click()
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
+})
