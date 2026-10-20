@@ -5,6 +5,36 @@ import { formatNumber } from '../../utils/formatNumber.ts'
 
 export type SeriesMetric = 'energy' | 'emissions'
 
+export type ChartDomain = Readonly<{ minimum: number; maximum: number; step: number }>
+
+function nextNiceStep(step: number) {
+  const magnitude = 10 ** Math.floor(Math.log10(step))
+  const normalized = step / magnitude
+  const nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10
+  return nice * magnitude
+}
+
+export function chartDomain(values: readonly number[]): ChartDomain {
+  const finiteValues = values.filter(Number.isFinite)
+  if (finiteValues.length === 0) return { minimum: 0, maximum: 1, step: 0.25 }
+
+  const dataMinimum = Math.min(...finiteValues)
+  const dataMaximum = Math.max(...finiteValues)
+  const range = dataMaximum - dataMinimum
+  const padding = range > 0 ? range * 0.15 : Math.max(Math.abs(dataMaximum) * 0.05, 0.05)
+  const paddedMinimum = dataMinimum - padding
+  const paddedMaximum = dataMaximum + padding
+  let step = nextNiceStep((paddedMaximum - paddedMinimum) / 4)
+  let minimum = dataMinimum >= 0 ? Math.max(0, Math.floor(paddedMinimum / step) * step) : Math.floor(paddedMinimum / step) * step
+
+  while (minimum + step * 4 < paddedMaximum) {
+    step = nextNiceStep(step * 1.01)
+    minimum = dataMinimum >= 0 ? Math.max(0, Math.floor(paddedMinimum / step) * step) : Math.floor(paddedMinimum / step) * step
+  }
+
+  return { minimum, maximum: minimum + step * 4, step }
+}
+
 export type SeriesLabels = Readonly<{
   unavailable: string
   notCalculable: string

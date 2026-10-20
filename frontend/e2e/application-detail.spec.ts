@@ -73,10 +73,11 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
       regions: (() => {
         const main = document.querySelector<HTMLElement>('main')!
         const analysis = main.children[2] as HTMLElement
-        const metricCards = analysis.children[0].querySelector<HTMLElement>('div')!
-        return [metricCards, analysis.children[1], analysis.children[2], analysis.children[3], analysis.children[4], analysis.children[5]].map(element => {
+        const noticeHeight = (analysis.children[0].children[1] as HTMLElement).getBoundingClientRect().height
+        const metricCards = analysis.children[0].querySelectorAll<HTMLElement>(':scope > div')[1]
+        return [metricCards.firstElementChild as HTMLElement, analysis.children[1].firstElementChild as HTMLElement, analysis.children[2], analysis.children[3].firstElementChild as HTMLElement, analysis.children[4], analysis.children[5]].map(element => {
           const rect = element.getBoundingClientRect()
-          return { className: (element as HTMLElement).className, x: rect.x, y: rect.y, width: rect.width, height: rect.height }
+          return { className: (element as HTMLElement).className, x: rect.x, y: rect.y, width: rect.width, height: rect.height, noticeHeight }
         })
       })(),
     }
@@ -89,12 +90,14 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect.soft(before.sidebarTop).toBe(0)
   expect.soft(before.sidebarRight).toBeGreaterThan(160)
   const [metrics, coverage, calculation, freshness, series, evidence] = before.regions
+  expect.soft(metrics.noticeHeight).toBe(16)
   expect.soft(metrics.x).toBeLessThan(coverage.x)
   expect.soft(Math.abs(metrics.y - coverage.y)).toBeLessThanOrEqual(2)
   expect.soft(Math.abs(metrics.height - coverage.height)).toBeLessThanOrEqual(2)
   expect.soft(calculation.x).toBe(metrics.x)
   expect.soft(freshness.x).toBe(coverage.x)
   expect.soft(Math.abs(calculation.y - freshness.y)).toBeLessThanOrEqual(2)
+  expect.soft(Math.abs(calculation.height - freshness.height)).toBeLessThanOrEqual(2)
   expect.soft(series.x).toBe(metrics.x)
   expect.soft(evidence.x).toBe(coverage.x)
   expect.soft(Math.abs(series.y - evidence.y)).toBeLessThanOrEqual(2)
@@ -116,7 +119,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await expect(page.getByRole('group', { name: 'Métrica' }).getByRole('button', { name: 'CO₂e' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.eventSummary')).toHaveCount(0)
   await expect(page.getByText(/2323 · Eventos do período/)).toBeVisible()
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(148)
   await expect(page.locator('[data-metric-sparkline]')).toHaveCount(2)
   await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
   await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
@@ -149,7 +152,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   expect(afterScroll.layoutPosition).toBe('fixed')
   expect(afterScroll.sidebarTop).toBe(before.sidebarTop)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-light-figma-alinhado.png' })
-  await page.getByRole('button', { name: 'Ver detalhes' }).click()
+  await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
   await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
   await expect(page.locator('#analysis-details')).toContainText('2026.1')
 
@@ -162,6 +165,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
   expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBeGreaterThan(176)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
 
   await page.setViewportSize({ width: 390, height: 844 })
@@ -625,10 +629,13 @@ test('detail sidebar matches the catalog and collapses without clipping English'
   const languageCode = page.locator('.language-code')
   await expect(languageCode).toContainText('EN')
   const flagBounds = await languageCode.boundingBox()
+  const chevronBounds = await page.locator('.language-chevron').boundingBox()
   const sidebarBounds = await sidebar.boundingBox()
   expect(flagBounds).not.toBeNull()
+  expect(chevronBounds).not.toBeNull()
   expect(sidebarBounds).not.toBeNull()
   expect(flagBounds!.x + flagBounds!.width).toBeLessThanOrEqual(sidebarBounds!.x + sidebarBounds!.width)
+  expect(chevronBounds!.x - (flagBounds!.x + flagBounds!.width)).toBeGreaterThanOrEqual(12)
 
   await page.getByRole('button', { name: 'Collapse navigation' }).click()
   await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)

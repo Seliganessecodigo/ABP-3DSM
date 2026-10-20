@@ -1,4 +1,4 @@
-.section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px; background: var(--surface-card); }
+.section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px 0; background: var(--surface-card); }
 .screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .header { display: grid; gap: 8px; margin-bottom: 4px; }
 .header h2 { margin: 0; color: var(--text-primary); font-size: 12px; }
@@ -57,5 +57,7 @@
 .pagination button { cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease; }
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
 @media (min-width: 901px) { .chart { height: 176px; } }
+@media (min-width: 901px) and (max-height: 700px) { .chart { height: 148px; } }
+@media (min-width: 901px) and (min-height: 800px) { .charts { min-height: 0; flex: 1; } .chartGroup { display: flex; min-height: 0; flex: 1; flex-direction: column; } .unitChart { display: flex; min-height: 0; flex: 1; flex-direction: column; } .plot { min-height: 0; flex: 1; } .chartFigure { display: flex; min-height: 0; flex: 1; } .chart { height: clamp(240px, 36vh, 360px); } }
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }
 @media (max-width: 480px) { .header { align-items: flex-start; flex-direction: column; gap: 8px; } .table th, .table td { padding: 12px; } }

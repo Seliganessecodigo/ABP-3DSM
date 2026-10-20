@@ -94,7 +94,7 @@ export async function unavailable(route: Route) {
 }
 
 export function row(page: Page, id: string) {
-  return page.getByRole('row').filter({ has: page.getByText(id, { exact: true }) })
+  return page.locator(`tr[data-catalog-row-id="${id.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"]`)
 }
 
 export function search(page: Page) {

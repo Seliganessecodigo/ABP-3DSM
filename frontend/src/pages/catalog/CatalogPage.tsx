@@ -185,7 +185,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
       <div className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => {
         const sort = columnSort(column.key)
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
-      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
+      })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
       <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
       <div className={styles.pagination}>
         <span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span>
