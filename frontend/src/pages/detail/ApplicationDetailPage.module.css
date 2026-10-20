@@ -6,7 +6,7 @@
 .back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-default); font-size: 12px; font-weight: 650; text-decoration: none; }
 .breadcrumb .back-link { min-height: 24px; }
 .detailTop { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; margin-bottom: 4px; }
-:global(.page-heading).detail-heading { display: grid; grid-template-columns: minmax(0, max-content) max-content; grid-template-rows: auto auto; justify-content: start; align-items: center; column-gap: 8px; row-gap: 0; margin-bottom: 0; }
+.detail-heading { display: grid; grid-template-columns: minmax(0, max-content) max-content; grid-template-rows: auto auto; justify-content: start; align-items: center; column-gap: 8px; row-gap: 0; margin: 0; }
 .detail-heading > div { display: contents; }
 .detail-heading h1 { grid-column: 1; grid-row: 1; min-width: 0; margin: 0; font-size: clamp(24px, 2.6vw, 28px); overflow-wrap: anywhere; }
 .detail-heading .locationSummary { grid-column: 1 / -1; grid-row: 2; }
