@@ -587,7 +587,7 @@ test('sidebar desktop recolhe, expande e reinicia expandida após recarga', asyn
   const collapse = page.getByRole('button', { name: 'Recolher navegação' })
   await expect(collapse).toHaveAttribute('aria-expanded', 'true')
   const sidebar = page.getByRole('complementary')
-  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(180)
   await collapse.click()
   const expand = page.getByRole('button', { name: 'Expandir navegação' })
   await expect(expand).toHaveAttribute('aria-expanded', 'false')

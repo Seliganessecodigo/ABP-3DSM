@@ -626,7 +626,7 @@ test('detail sidebar matches the catalog and collapses without clipping English'
   await page.goto('/services/svc-0142')
 
   const sidebar = page.locator('.sidebar')
-  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(180)
   const language = page.getByRole('combobox', { name: 'Idioma' })
   await language.selectOption('en-US')
   const languageCode = page.locator('.language-code')
@@ -645,5 +645,5 @@ test('detail sidebar matches the catalog and collapses without clipping English'
   await page.getByRole('button', { name: 'Collapse navigation' }).click()
   await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(72)
   await page.getByRole('button', { name: 'Expand navigation' }).click()
-  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(164)
+  await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(180)
 })

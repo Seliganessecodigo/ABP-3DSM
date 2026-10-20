@@ -9,7 +9,7 @@
   --topbar-text: var(--text-secondary);
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 164px minmax(0, 1fr);
+  grid-template-columns: 180px minmax(0, 1fr);
   background: var(--workspace-background);
   transition: grid-template-columns .24s ease;
 }
@@ -33,9 +33,9 @@
 .sidebar-preferences .nav-heading { margin: 0 0 4px; }
 .sidebar .sidebar-preferences .language-control { position: relative; display: flex; align-items: center; gap: 4px; min-width: 0; min-height: 32px; color: var(--sidebar-text); }
 .sidebar .sidebar-preferences .language-control > svg { width: 16px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
-.language-label { min-width: 0; overflow: hidden; white-space: nowrap; font-size: 10.5px; }
-.language-code { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; margin-left: auto; margin-right: 30px; color: var(--sidebar-text); font-size: 10px; }
-.language-flag { display: inline-flex; width: 16px; height: 12px; overflow: hidden; border-radius: 2px; }
+.language-label { min-width: 0; overflow: hidden; white-space: nowrap; font-size: 12px; }
+.language-code { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; margin-left: auto; margin-right: 28px; color: var(--sidebar-text); font-size: 11px; }
+.language-flag { display: inline-flex; width: 18px; height: 12px; overflow: hidden; border-radius: 2px; }
 .language-flag svg { display: block; width: 100%; height: 100%; }
 .language-chevron { position: absolute; right: 0; width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.4; pointer-events: none; }
 .sidebar .sidebar-preferences .language-control select { position: absolute; right: 0; width: 44px; height: 44px; border: 0; padding: 0; opacity: 0; cursor: pointer; }
