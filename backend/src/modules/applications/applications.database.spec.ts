@@ -9,6 +9,7 @@ import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/17
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
 import { AuthenticationAndOrganizations1791370000000 } from '../../database/migrations/1791370000000-AuthenticationAndOrganizations'
+import { AdminTotpAuthentication1791380000000 } from '../../database/migrations/1791380000000-AdminTotpAuthentication'
 import { configureOpenApi } from '../../openapi'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { StatusClassificationService } from './status-classification.service'
@@ -34,6 +35,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
         DiscoverApplications1791350000000,
         ApplicationOperationalStatus1791360000000,
         AuthenticationAndOrganizations1791370000000,
+        AdminTotpAuthentication1791380000000,
       ],
     })
     await database.initialize()

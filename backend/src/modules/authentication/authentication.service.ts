@@ -27,6 +27,10 @@ import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationPersistence } from './authentication.persistence'
 import { PasswordHasher } from './password-hasher.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
+import {
+  AuthenticationLoginResponse,
+  TotpAuthenticationService,
+} from './totp-authentication.service'
 
 const ACCESS_SECONDS = 15 * 60
 const IDLE_SESSION_MS = 12 * 60 * 60 * 1000
@@ -63,13 +67,14 @@ export class AuthenticationService {
     private readonly auditLogs: Repository<AuditLogEntity>,
     @Inject(EMAIL_DELIVERY)
     private readonly emailDelivery: EmailDelivery,
+    private readonly totpAuthentication: TotpAuthenticationService,
   ) {}
 
   async login(input: {
     organization: string
     email: string
     password: string
-  }): Promise<TokenResponse> {
+  }): Promise<AuthenticationLoginResponse> {
     this.accessTokens.assertConfigured()
     const organization = await this.persistence.findOrganizationBySlug(
       input.organization.trim().toLowerCase(),
@@ -83,8 +88,7 @@ export class AuthenticationService {
       !user ||
       !user.isActive ||
       !user.emailVerifiedAt ||
-      !user.passwordHash ||
-      !(await this.passwordHasher.verify(user.passwordHash, input.password))
+      !user.passwordHash
     ) {
       await this.recordAudit(
         'anonymous',
@@ -96,6 +100,36 @@ export class AuthenticationService {
       throw invalidCredentials()
     }
 
+    const passwordVerification = await this.passwordHasher.verifyWithUpgrade(
+      user.passwordHash,
+      input.password,
+    )
+    if (!passwordVerification.valid) {
+      await this.recordAudit(
+        'anonymous',
+        'auth.login.failed',
+        'user',
+        'unknown',
+        'denied',
+      )
+      throw invalidCredentials()
+    }
+
+    if (passwordVerification.upgradedHash) {
+      user.passwordHash = passwordVerification.upgradedHash
+      await this.persistence.updateUser(user)
+    }
+    if (user.role === UserRole.ADMIN) {
+      await this.recordAudit(
+        user.id,
+        'auth.login.password.succeeded',
+        'user',
+        user.id,
+        'succeeded',
+      )
+      return this.totpAuthentication.beginAdminLogin(user)
+    }
+
     const now = this.clock.now()
     const refreshToken = this.accessTokens.newRefreshToken()
     const session = await this.persistence.createSession({
@@ -105,6 +139,7 @@ export class AuthenticationService {
       lastActivityAt: now,
       absoluteExpiresAt: new Date(now.getTime() + ABSOLUTE_SESSION_MS),
       revokedAt: null,
+      secondFactorVerifiedAt: null,
     })
     user.lastAccessAt = now
     await this.persistence.updateUser(user)
@@ -126,12 +161,22 @@ export class AuthenticationService {
     const oldHash = this.accessTokens.hashOpaqueToken(refreshToken)
     const session = await this.persistence.findSessionForRefresh(oldHash)
     const now = this.clock.now()
-    if (!session || !this.sessionUsable(session, now)) {
+    if (
+      !session ||
+      !this.sessionUsable(session, now) ||
+      (session.user?.role === UserRole.ADMIN && !session.secondFactorVerifiedAt)
+    ) {
       if (
         session &&
         (!session.user?.isActive || !session.user?.emailVerifiedAt)
       ) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
+      } else if (
+        session &&
+        session.user?.role === UserRole.ADMIN &&
+        !session.secondFactorVerifiedAt
+      ) {
+        await this.persistence.revokeSession(session.id, now)
       }
       throw invalidCredentials()
     }
@@ -157,6 +202,42 @@ export class AuthenticationService {
     return this.tokenResponse(session.user, session.id, nextRefreshToken)
   }
 
+  beginInitialTotpSetup(setupToken: string) {
+    return this.totpAuthentication.beginInitialSetup(setupToken)
+  }
+
+  confirmInitialTotpSetup(setupToken: string, code: string) {
+    return this.totpAuthentication.confirmInitialSetup(setupToken, code)
+  }
+
+  verifyTotpLogin(challengeToken: string, code: string) {
+    return this.totpAuthentication.verifyLogin(challengeToken, code)
+  }
+
+  beginTotpReplacement(
+    principal: AuthPrincipal,
+    password: string,
+    currentCode: string,
+  ) {
+    return this.totpAuthentication.beginReplacement(
+      principal,
+      password,
+      currentCode,
+    )
+  }
+
+  confirmTotpReplacement(
+    principal: AuthPrincipal,
+    confirmationToken: string,
+    code: string,
+  ) {
+    return this.totpAuthentication.confirmReplacement(
+      principal,
+      confirmationToken,
+      code,
+    )
+  }
+
   async authenticate(accessToken: string): Promise<AuthPrincipal> {
     const claims = this.accessTokens.verify(accessToken)
     const session = await this.persistence.findSessionForAccess(
@@ -165,7 +246,11 @@ export class AuthenticationService {
       claims.org,
     )
     const now = this.clock.now()
-    if (!session || !this.sessionUsable(session, now)) {
+    if (
+      !session ||
+      !this.sessionUsable(session, now) ||
+      (session.user?.role === UserRole.ADMIN && !session.secondFactorVerifiedAt)
+    ) {
       if (session && !session.user?.isActive) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (session && !session.user?.emailVerifiedAt) {
@@ -388,7 +473,11 @@ export class AuthenticationService {
         throw new ConflictException('A organização já existe')
       }
       const created = await organizations.save(
-        organizations.create({ name: input.name.trim(), slug }),
+        organizations.create({
+          name: input.name.trim(),
+          slug,
+          recoveryRepresentativeEmail: email,
+        }),
       )
       const tokens = manager.getRepository(AuthTokenEntity)
       await tokens.save(
@@ -440,6 +529,9 @@ export class AuthenticationService {
       throw new BadRequestException('E-mail do representante inválido')
     const rawToken = randomBytes(48).toString('base64url')
     await this.dataSource.transaction(async (manager) => {
+      const organizations = manager.getRepository(OrganizationEntity)
+      organization.recoveryRepresentativeEmail = email
+      await organizations.save(organization)
       const tokens = manager.getRepository(AuthTokenEntity)
       await tokens
         .createQueryBuilder()
@@ -611,7 +703,8 @@ export class AuthenticationService {
       actorUserId:
         actor === 'anonymous' ||
         actor === 'system' ||
-        actor === 'representative'
+        actor === 'representative' ||
+        actor.startsWith('support:')
           ? null
           : actor,
       action,

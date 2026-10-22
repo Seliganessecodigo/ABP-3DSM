@@ -13,6 +13,10 @@ import { UserEntity } from './user.entity'
 export enum AuthTokenKind {
   ADMIN_INVITATION = 'ADMIN_INVITATION',
   EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION',
+  TOTP_LOGIN_CHALLENGE = 'TOTP_LOGIN_CHALLENGE',
+  TOTP_SETUP_CREDENTIAL = 'TOTP_SETUP_CREDENTIAL',
+  TOTP_SETUP_CONFIRMATION = 'TOTP_SETUP_CONFIRMATION',
+  TOTP_REPLACEMENT_CONFIRMATION = 'TOTP_REPLACEMENT_CONFIRMATION',
 }
 
 @Entity({ name: 'auth_tokens' })
@@ -59,4 +63,7 @@ export class AuthTokenEntity {
 
   @Column({ type: 'timestamptz', nullable: true })
   revokedAt!: Date | null
+
+  @Column({ type: 'integer', default: 0 })
+  attempts!: number
 }

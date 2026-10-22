@@ -74,3 +74,84 @@ export class AuthenticatedUserDto {
   @ApiProperty({ enum: UserRole })
   role!: UserRole
 }
+
+export class TotpSetupRequestDto {
+  @ApiProperty({ description: 'Credencial limitada obtida após senha válida de Admin' })
+  setupToken!: string
+}
+
+export class TotpConfirmDto {
+  @ApiProperty({ description: 'Credencial de configuração pendente' })
+  setupToken!: string
+
+  @ApiProperty({ minLength: 6, maxLength: 6, example: '123456' })
+  code!: string
+}
+
+export class TotpChallengeDto {
+  @ApiProperty()
+  challengeToken!: string
+
+  @ApiProperty({ minLength: 6, maxLength: 6, example: '123456' })
+  code!: string
+}
+
+export class TotpReplacementDto {
+  @ApiProperty({ minLength: 8 })
+  password!: string
+
+  @ApiProperty({ minLength: 6, maxLength: 6, example: '123456' })
+  currentCode!: string
+}
+
+export class TotpReplacementConfirmDto {
+  @ApiProperty()
+  confirmationToken!: string
+
+  @ApiProperty({ minLength: 6, maxLength: 6, example: '123456' })
+  code!: string
+}
+
+export class TotpProvisioningResponseDto {
+  @ApiProperty()
+  setupToken!: string
+
+  @ApiProperty({ description: 'URI otpauth autorizada para configurar o autenticador' })
+  provisioningUri!: string
+
+  @ApiProperty({ example: 600 })
+  expiresIn!: number
+}
+
+export class TotpReplacementResponseDto {
+  @ApiProperty()
+  confirmationToken!: string
+
+  @ApiProperty({ description: 'URI otpauth autorizada para configurar o autenticador' })
+  provisioningUri!: string
+
+  @ApiProperty({ example: 600 })
+  expiresIn!: number
+}
+
+export class TotpChallengeResponseDto {
+  @ApiProperty({ enum: ['TOTP_REQUIRED'] })
+  status!: 'TOTP_REQUIRED'
+
+  @ApiProperty()
+  challengeToken!: string
+
+  @ApiProperty({ example: 300 })
+  expiresIn!: number
+}
+
+export class TotpSetupRequiredResponseDto {
+  @ApiProperty({ enum: ['TOTP_SETUP_REQUIRED'] })
+  status!: 'TOTP_SETUP_REQUIRED'
+
+  @ApiProperty()
+  setupToken!: string
+
+  @ApiProperty({ example: 300 })
+  expiresIn!: number
+}

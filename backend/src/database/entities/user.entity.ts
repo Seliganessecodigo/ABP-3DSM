@@ -50,6 +50,24 @@ export class UserEntity {
   @Column({ type: 'timestamptz', nullable: true })
   lastAccessAt!: Date | null
 
+  @Column({ type: 'text', nullable: true })
+  totpSecretCiphertext!: string | null
+
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  totpKeyVersion!: string | null
+
+  @Column({ type: 'bigint', nullable: true })
+  totpLastUsedStep!: string | null
+
+  @Column({ type: 'text', nullable: true })
+  totpPendingCiphertext!: string | null
+
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  totpPendingKeyVersion!: string | null
+
+  @Column({ type: 'timestamptz', nullable: true })
+  totpPendingExpiresAt!: Date | null
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date
 

@@ -15,6 +15,8 @@ import { RolesGuard } from './roles.guard'
 import { SmtpEmailDelivery } from './smtp-email-delivery.service'
 import { AuthenticationGuard } from './authentication.guard'
 import { AUTH_CLOCK, SystemAuthClock } from './clock'
+import { TotpService } from './totp.service'
+import { TotpAuthenticationService } from './totp-authentication.service'
 
 @Module({
   imports: [
@@ -30,7 +32,9 @@ import { AUTH_CLOCK, SystemAuthClock } from './clock'
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
+    TotpAuthenticationService,
     AccessTokenService,
+    TotpService,
     PasswordHasher,
     AuthenticationGuard,
     RolesGuard,
@@ -38,6 +42,11 @@ import { AUTH_CLOCK, SystemAuthClock } from './clock'
     SmtpEmailDelivery,
     { provide: EMAIL_DELIVERY, useExisting: SmtpEmailDelivery },
   ],
-  exports: [AuthenticationService, AuthenticationGuard, RolesGuard],
+  exports: [
+    AuthenticationService,
+    AuthenticationGuard,
+    RolesGuard,
+    TotpAuthenticationService,
+  ],
 })
 export class AuthenticationModule {}

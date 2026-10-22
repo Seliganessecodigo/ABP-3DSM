@@ -13,6 +13,7 @@
     "applications:discover": "ts-node -e \"require('./src/scripts/discover-applications').runCli()\"",
     "applications:discover:prod": "node -e \"require('./dist/scripts/discover-applications').runCli()\"",
     "organizations:create-invitation": "ts-node src/scripts/create-organization-invitation.ts",
+    "authentication:recover-admin-totp": "ts-node src/scripts/recover-admin-totp.ts",
     "test": "jest --config ./jest.config.js",
     "test:watch": "jest --config ./jest.config.js --watch",
     "test:cov": "jest --config ./jest.config.js --coverage",
