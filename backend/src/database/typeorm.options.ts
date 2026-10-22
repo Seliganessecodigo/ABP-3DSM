@@ -8,6 +8,9 @@ import { CarbonRegionEntity } from './entities/carbon-region.entity'
 import { CalculationConfigEntity } from './entities/calculation-config.entity'
 import { RecalculationEntity } from './entities/recalculation.entity'
 import { AuditLogEntity } from './entities/audit-log.entity'
+import { OrganizationEntity } from './entities/organization.entity'
+import { AuthSessionEntity } from './entities/auth-session.entity'
+import { AuthTokenEntity } from './entities/auth-token.entity'
 
 export function typeOrmOptions(): TypeOrmModuleOptions {
   const url = process.env.DATABASE_URL
@@ -29,6 +32,9 @@ export function typeOrmOptions(): TypeOrmModuleOptions {
       CalculationConfigEntity,
       RecalculationEntity,
       AuditLogEntity,
+      OrganizationEntity,
+      AuthSessionEntity,
+      AuthTokenEntity,
     ],
     synchronize: false,
     migrationsRun: false,

@@ -10,6 +10,9 @@ import { CarbonRegionEntity } from './entities/carbon-region.entity'
 import { CalculationConfigEntity } from './entities/calculation-config.entity'
 import { RecalculationEntity } from './entities/recalculation.entity'
 import { AuditLogEntity } from './entities/audit-log.entity'
+import { OrganizationEntity } from './entities/organization.entity'
+import { AuthSessionEntity } from './entities/auth-session.entity'
+import { AuthTokenEntity } from './entities/auth-token.entity'
 
 loadEnv({ path: resolve(__dirname, '../../../.env') })
 
@@ -32,6 +35,9 @@ export default new DataSource({
     CalculationConfigEntity,
     RecalculationEntity,
     AuditLogEntity,
+    OrganizationEntity,
+    AuthSessionEntity,
+    AuthTokenEntity,
   ],
   migrations: [resolve(__dirname, 'migrations/**/*{.ts,.js}')],
   migrationsTableName: 'migrations',

@@ -80,6 +80,12 @@ Os containers executam as migrations e tentam descobrir aplicações na iniciali
 
 Comandos adicionais: `npm run dev:detached`, `npm run dev:logs` e `npm run dev:down`.
 
+### Autenticação do backend
+
+O backend oferece login por e-mail e senha, access JWT com validade de 15 minutos, refresh token rotativo e sessões revogáveis. Antes de iniciar o fluxo de convites, configure `AUTH_JWT_SECRET` e `AUTH_PASSWORD_PEPPER` com valores aleatórios independentes de pelo menos 32 bytes. Configure também os dados SMTP (`SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` e, se necessário, `SMTP_USER`/`SMTP_PASSWORD`) e `APP_BASE_URL`; sem SMTP o envio do convite e da confirmação falha de forma explícita.
+
+Com as migrations aplicadas, crie uma organização e envie o convite ao representante definindo `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL` no ambiente antes de executar `npm run organizations:create-invitation` em `backend/`. Para reenviar um convite de uma organização existente, omita `ORGANIZATION_NAME` e informe o slug e o e-mail do representante. O representante cadastra o primeiro Admin; o Admin confirma o próprio e-mail e define a senha nesse fluxo. Os endpoints e seus contratos estão publicados em `/docs`.
+
 ## Tecnologias
 
 React 19, TypeScript, Vite, i18next, NestJS, TypeORM, PostgreSQL, Docker Compose, Playwright, Jest e SonarQube Cloud.

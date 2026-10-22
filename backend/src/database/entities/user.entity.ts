@@ -2,10 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
+import { OrganizationEntity } from './organization.entity'
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -25,8 +28,18 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 320 })
   email!: string
 
-  @Column({ type: 'varchar', length: 255 })
-  passwordHash!: string
+  @Column({ type: 'uuid' })
+  organizationId!: string
+
+  @ManyToOne(() => OrganizationEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'organizationId' })
+  organization!: OrganizationEntity
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  passwordHash!: string | null
+
+  @Column({ type: 'timestamptz', nullable: true })
+  emailVerifiedAt!: Date | null
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.VISITOR })
   role!: UserRole
