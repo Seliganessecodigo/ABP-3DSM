@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, unavailable } from './support/catalog.ts'
 
+const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
+
 test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
@@ -45,7 +47,8 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
       intervalEnd: '2026-10-19T14:30:00.000Z', collectedAt: '2026-10-19T14:30:00.000Z', collectionIntervalSeconds: 300,
       isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID', lastCheckedAt: '2026-10-19T14:30:00.000Z', isCalculable: true,
       metrics: { cpu: { value: 40.96318, unit: '%', status: 'available' }, memory: { value: 3.626751999999998, unit: 'GB', status: 'available' },
-        disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: null, unit: 'Mbps', status: 'invalid' } } } })
+        disk: { value: 0, unit: 'GB/s', status: 'available' }, network: { value: null, unit: 'Mbps', status: 'invalid' } },
+      environmental: environmentalAbsent } })
   })
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
@@ -362,6 +365,7 @@ test('detalhe exibe evidência atual, valores parciais e intervalo selecionado',
       disk: { value: 0, unit: 'GB/s', status: 'available' },
       network: { value: 1.2, unit: 'Mbps', status: 'available' },
     },
+    environmental: environmentalAbsent,
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
@@ -395,6 +399,7 @@ test('busca operacional encontra métricas e valores sem depender de acento ou c
       disk: { value: 0, unit: 'GB/s', status: 'available' },
       network: { value: 1.2, unit: 'Mbps', status: 'available' },
     },
+    environmental: environmentalAbsent,
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
@@ -435,6 +440,7 @@ test('combina busca, métrica e situação e limpa os filtros sem indexar o plac
       disk: { value: 0, unit: 'GB/s', status: 'available' },
       network: { value: 1.2, unit: 'Mbps', status: 'available' },
     },
+    environmental: environmentalAbsent,
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
@@ -488,6 +494,7 @@ test('ordena os rótulos de métrica e situação sem comparar unidades numéric
       disk: { value: 0, unit: 'GB/s', status: 'available' },
       network: { value: 1.2, unit: 'Mbps', status: 'available' },
     },
+    environmental: environmentalAbsent,
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
@@ -538,6 +545,7 @@ test('falha ao atualizar preserva evidência e permite nova tentativa', async ({
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
     metrics: { cpu: { value: 38, unit: '%', status: 'available' }, memory: { value: null, unit: 'GB', status: 'missing' },
       disk: { value: 0, unit: 'GB', status: 'available' }, network: { value: 1.2, unit: 'Mbps', status: 'available' } },
+    environmental: environmentalAbsent,
   }
   let failedOnce = false
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {

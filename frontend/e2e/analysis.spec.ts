@@ -162,6 +162,7 @@ test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série
         disk: { value: 0, unit: 'GB/s', status: 'available' },
         network: { value: 1.2, unit: 'Mbps', status: 'available' },
       },
+      environmental: { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null },
     } })
   })
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')

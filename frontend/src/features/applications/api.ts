@@ -38,7 +38,7 @@ function trimTrailingSlashes(value: string) {
   return value.slice(0, end)
 }
 
-const apiBase = trimTrailingSlashes((import.meta.env.VITE_API_URL as string | undefined) ?? '/api')
+const apiBase = trimTrailingSlashes((import.meta.env?.VITE_API_URL as string | undefined) ?? '/api')
 const endpoint = (id?: string) => {
   const suffix = id === undefined ? '' : '/' + encodeURIComponent(id)
   return apiBase + '/applications' + suffix
