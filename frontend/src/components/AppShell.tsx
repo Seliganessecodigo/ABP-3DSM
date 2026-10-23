@@ -2,10 +2,12 @@ import './AppShell.css'
 import '../styles/shared.css'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
+import { useAuthentication } from '../app/useAuthentication.ts'
 
-export function AppShell({ children, navigate, detail = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; detail?: boolean }>) {
+export function AppShell({ children, navigate, detail = false, login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; detail?: boolean; login?: boolean }>) {
   const { t } = useTranslation('common')
-  return <div className="app-layout">
+  const { user, signOut } = useAuthentication()
+  return <div className={`app-layout${login ? ' login-layout' : ''}`}>
     <aside className="sidebar">
       <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}><span>GreenER</span><small>{t('app.tagline')}</small></a>
       <nav aria-label={t('nav.main')}>
@@ -23,6 +25,6 @@ export function AppShell({ children, navigate, detail = false }: Readonly<{ chil
       </nav>
       <div className="sidebar-foot">{t('nav.environment')}</div>
     </aside>
-    <div className="workspace"><header className="topbar"><span>{t('topbar')}</span><div className="topbar-actions"><LanguageSelector /><span className="avatar" aria-label={t('account')}>ER</span></div></header>{children}</div>
+    <div className="workspace"><header className="topbar"><span>{t('topbar')}</span><div className="topbar-actions"><LanguageSelector />{user ? <><span className="account-summary"><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button className="sign-out" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></> : login ? <a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a> : <span className="avatar" aria-label={t('account')}>ER</span>}</div></header>{children}</div>
   </div>
 }

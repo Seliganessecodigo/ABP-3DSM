@@ -26,7 +26,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const updateSearch = (value: string) => { setSearch(value); setPage(1) }
   return <main className="content">
       <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div>
-        <button className="button secondary" onClick={refresh} disabled={refreshing}>↻ {tCatalog('refresh')}</button></div>
+        <div className={styles['heading-actions']}><a className="button secondary" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>{tCatalog('login')}</a><button className="button secondary" onClick={refresh} disabled={refreshing}>↻ {tCatalog('refresh')}</button></div></div>
       <label className={styles['search-wrap']}><span aria-hidden="true">⌕</span><input type="search" aria-label={tCatalog('searchLabel')} placeholder={tCatalog('searchPlaceholder')} value={search} onChange={(event) => updateSearch(event.target.value)} /></label>
       <div className={styles['filters']} aria-label={tCatalog('filterLabel')}>{states.map(({ value }) => <button key={value} className={selectedState === value ? `${styles.filter} ${styles.active}` : styles.filter} aria-pressed={selectedState === value} onClick={() => { setSelectedState(value); setPage(1) }}>{stateLabel(value, tCommon)} ({counts[value]})</button>)}</div>
       {loading && <output className="notice">{tCatalog('loading')}</output>}

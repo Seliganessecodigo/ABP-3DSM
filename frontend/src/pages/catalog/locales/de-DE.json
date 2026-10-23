@@ -2,6 +2,7 @@
   "eyebrow": "Überwachung",
   "title": "Anwendungen",
   "description": "Verzeichnis der überwachten Anwendungen und ihres aktuellen Status.",
+  "login": "Anmelden",
   "refresh": "Verzeichnis aktualisieren",
   "searchLabel": "Anwendungen nach Name, Kennung oder Region suchen",
   "searchPlaceholder": "Nach Name, Kennung oder Region suchen...",

@@ -1,6 +1,10 @@
 {
   "language.label": "Sprache",
   "account": "Konto",
+  "auth.signOut": "Abmelden",
+  "auth.role.ADMIN": "Administrator",
+  "auth.role.ANALYST": "Analyst",
+  "auth.role.VISITOR": "Besucher",
   "app.tagline": "Bewusster mit Energie umgehen",
   "topbar": "GreenER · Überwachung",
   "nav.main": "Hauptnavigation",

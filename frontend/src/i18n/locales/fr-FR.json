@@ -1,6 +1,10 @@
 {
   "language.label": "Langue",
   "account": "Compte",
+  "auth.signOut": "Se déconnecter",
+  "auth.role.ADMIN": "Administrateur",
+  "auth.role.ANALYST": "Analyste",
+  "auth.role.VISITOR": "Visiteur",
   "app.tagline": "Une énergie plus responsable",
   "topbar": "GreenER · Suivi",
   "nav.main": "Navigation principale",

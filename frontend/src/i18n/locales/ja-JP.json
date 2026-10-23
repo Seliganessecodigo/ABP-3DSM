@@ -1,6 +1,10 @@
 {
   "language.label": "言語",
   "account": "アカウント",
+  "auth.signOut": "ログアウト",
+  "auth.role.ADMIN": "管理者",
+  "auth.role.ANALYST": "アナリスト",
+  "auth.role.VISITOR": "閲覧者",
   "app.tagline": "より意識的なエネルギー利用",
   "topbar": "GreenER · モニタリング",
   "nav.main": "メインナビゲーション",

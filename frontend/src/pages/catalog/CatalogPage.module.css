@@ -30,3 +30,4 @@
   .table-wrap table { min-width: 720px; }
   .pagination { align-items: flex-start; flex-direction: column; }
 }
+.heading-actions { display: flex; align-items: center; gap: 10px; }

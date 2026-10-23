@@ -2,6 +2,7 @@
   "eyebrow": "モニタリング",
   "title": "アプリケーション",
   "description": "監視対象アプリケーションの一覧と現在の状態です。",
+  "login": "ログイン",
   "refresh": "一覧を更新",
   "searchLabel": "名前、識別子、地域でアプリケーションを検索",
   "searchPlaceholder": "名前、識別子、地域で検索...",
