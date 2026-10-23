@@ -2,20 +2,32 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
+  Param,
+  ParseUUIDPipe,
   Post,
+  Query,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiExtraModels,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiResponse,
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
+import { Request, Response } from 'express'
 import { AuthenticationService, AuthPrincipal } from './authentication.service'
 import {
   AcceptAdminInvitationDto,
@@ -37,12 +49,128 @@ import {
 } from './authentication.dto'
 import { AuthenticationGuard } from './authentication.guard'
 import { CurrentPrincipal } from './current-principal.decorator'
+import { RequireRoles } from './roles.decorator'
+import { RolesGuard } from './roles.guard'
+import { UserRole } from '../../database/entities/user.entity'
+import { SsoAuthenticationService } from './sso-authentication.service'
+import {
+  CreateSsoInvitationDto,
+  ExchangeSsoHandoffDto,
+} from './sso-authentication.dto'
 
 @ApiTags('authentication')
 @ApiExtraModels(SessionResponseDto, TotpChallengeResponseDto, TotpSetupRequiredResponseDto)
 @Controller('auth')
 export class AuthenticationController {
-  constructor(private readonly authentication: AuthenticationService) {}
+  constructor(
+    private readonly authentication: AuthenticationService,
+    private readonly sso: SsoAuthenticationService,
+  ) {}
+
+  @Post('sso/invitations')
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @RequireRoles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: 'Convite SSO enviado por e-mail' })
+  @ApiBadRequestResponse({ description: 'Dados do convite inválidos' })
+  @ApiForbiddenResponse({ description: 'Somente Admin ativo pode convidar' })
+  @ApiUnauthorizedResponse({ description: 'Sessão inválida' })
+  async createSsoInvitation(
+    @CurrentPrincipal() principal: AuthPrincipal,
+    @Body() body: CreateSsoInvitationDto,
+  ) {
+    requireStrings(body, ['email', 'name', 'role'])
+    validateEmail(body.email)
+    if (body.name.trim().length === 0 || body.name.length > 160) {
+      throw new BadRequestException('Nome do convite inválido')
+    }
+    return this.sso.issueInvitation(principal, body)
+  }
+
+  @Delete('sso/identities/:userId')
+  @HttpCode(204)
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @RequireRoles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Revogar o vínculo Google de uma conta da organização' })
+  @ApiNoContentResponse({ description: 'Vínculo Google revogado' })
+  @ApiForbiddenResponse({ description: 'Não pode revogar o próprio vínculo' })
+  async revokeSsoIdentity(
+    @CurrentPrincipal() principal: AuthPrincipal,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<void> {
+    await this.sso.revokeIdentity(principal, userId)
+  }
+
+  @Get('sso/google')
+  @ApiOperation({ summary: 'Iniciar autenticação OIDC com Google' })
+  @ApiResponse({ status: 302, description: 'Redireciona para a autenticação Google' })
+  startGoogleSso(
+    @Query('code_challenge') codeChallenge: string,
+    @Query('invite') inviteToken: string | undefined,
+    @Res() response: Response,
+  ): Promise<void> {
+    return this.sso
+      .startLogin({
+        handoffCodeChallenge: codeChallenge,
+        invitationToken: inviteToken,
+      })
+      .then(({ state, authorizationUrl }) => {
+        response.setHeader('Cache-Control', 'no-store')
+        response.setHeader('Referrer-Policy', 'no-referrer')
+        response.setHeader('Set-Cookie', stateCookie(state))
+        response.redirect(302, authorizationUrl.toString())
+      })
+  }
+
+  @Get('sso/google/callback')
+  @ApiOperation({ summary: 'Processar o callback OIDC do Google' })
+  @ApiResponse({ status: 302, description: 'Redireciona à UI com handoff ou erro genérico' })
+  async completeGoogleSso(
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Query('error') providerError: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    response.setHeader('Cache-Control', 'no-store')
+    response.setHeader('Referrer-Policy', 'no-referrer')
+    response.setHeader('Set-Cookie', clearStateCookie())
+    try {
+      if (providerError || !code || !state) throw new Error('invalid callback')
+      const handoffCode = await this.sso.completeCallback({
+        code,
+        state,
+        browserState: readCookie(request.headers.cookie, 'greener_sso_state'),
+      })
+      const returnUrl = configuredReturnUrl()
+      returnUrl.searchParams.set('code', handoffCode)
+      response.redirect(302, returnUrl.toString())
+    } catch {
+      const returnUrl = configuredReturnUrl()
+      returnUrl.searchParams.set('error', 'SSO_AUTHENTICATION_FAILED')
+      response.redirect(302, returnUrl.toString())
+    }
+  }
+
+  @Post('sso/handoff/exchange')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Trocar código de handoff por sessão GreenER ou desafio TOTP' })
+  @ApiOkResponse({
+    schema: {
+      oneOf: [
+        { $ref: '#/components/schemas/SessionResponseDto' },
+        { $ref: '#/components/schemas/TotpChallengeResponseDto' },
+        { $ref: '#/components/schemas/TotpSetupRequiredResponseDto' },
+      ],
+    },
+  })
+  @ApiBadRequestResponse({ description: 'Código ou verificador PKCE inválido' })
+  @ApiUnauthorizedResponse({ description: 'Handoff inválido, expirado ou já utilizado' })
+  exchangeSsoHandoff(@Body() body: ExchangeSsoHandoffDto) {
+    requireStrings(body, ['code', 'codeVerifier'])
+    return this.sso.exchangeHandoff(body)
+  }
 
   @Post('login')
   @HttpCode(200)
@@ -209,6 +337,46 @@ export class AuthenticationController {
     requireStrings(body, ['organization', 'email'])
     validateEmail(body.email)
     return this.authentication.resendEmailConfirmation(body)
+  }
+}
+
+function stateCookie(state: string): string {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+  return `greener_sso_state=${encodeURIComponent(state)}; HttpOnly; SameSite=Lax; Path=/auth/sso/google/callback; Max-Age=600${secure}`
+}
+
+function clearStateCookie(): string {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+  return `greener_sso_state=; HttpOnly; SameSite=Lax; Path=/auth/sso/google/callback; Max-Age=0${secure}`
+}
+
+function readCookie(cookieHeader: string | undefined, name: string): string | null {
+  const cookie = cookieHeader
+    ?.split(';')
+    .map((value) => value.trim())
+    .find((value) => value.startsWith(`${name}=`))
+  if (!cookie) return null
+  try {
+    return decodeURIComponent(cookie.slice(name.length + 1))
+  } catch {
+    return null
+  }
+}
+
+function configuredReturnUrl(): URL {
+  const value = process.env.SSO_RETURN_URL
+  try {
+    const url = new URL(value ?? '')
+    const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+    if (url.username || url.password || (url.protocol !== 'https:' && !(local && url.protocol === 'http:'))) {
+      throw new Error('invalid')
+    }
+    return url
+  } catch {
+    throw new BadRequestException({
+      code: 'SSO_NOT_CONFIGURED',
+      message: 'A URL de retorno SSO não está configurada',
+    })
   }
 }
 

@@ -11,6 +11,10 @@ import { AuditLogEntity } from './entities/audit-log.entity'
 import { OrganizationEntity } from './entities/organization.entity'
 import { AuthSessionEntity } from './entities/auth-session.entity'
 import { AuthTokenEntity } from './entities/auth-token.entity'
+import { ExternalIdentityEntity } from './entities/external-identity.entity'
+import { SsoHandoffEntity } from './entities/sso-handoff.entity'
+import { SsoInvitationEntity } from './entities/sso-invitation.entity'
+import { SsoTransactionEntity } from './entities/sso-transaction.entity'
 
 export function typeOrmOptions(): TypeOrmModuleOptions {
   const url = process.env.DATABASE_URL
@@ -35,6 +39,10 @@ export function typeOrmOptions(): TypeOrmModuleOptions {
       OrganizationEntity,
       AuthSessionEntity,
       AuthTokenEntity,
+      ExternalIdentityEntity,
+      SsoHandoffEntity,
+      SsoInvitationEntity,
+      SsoTransactionEntity,
     ],
     synchronize: false,
     migrationsRun: false,

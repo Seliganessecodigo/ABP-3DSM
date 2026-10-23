@@ -13,6 +13,10 @@ import { AuditLogEntity } from './entities/audit-log.entity'
 import { OrganizationEntity } from './entities/organization.entity'
 import { AuthSessionEntity } from './entities/auth-session.entity'
 import { AuthTokenEntity } from './entities/auth-token.entity'
+import { ExternalIdentityEntity } from './entities/external-identity.entity'
+import { SsoHandoffEntity } from './entities/sso-handoff.entity'
+import { SsoInvitationEntity } from './entities/sso-invitation.entity'
+import { SsoTransactionEntity } from './entities/sso-transaction.entity'
 
 loadEnv({ path: resolve(__dirname, '../../../.env') })
 
@@ -38,6 +42,10 @@ export default new DataSource({
     OrganizationEntity,
     AuthSessionEntity,
     AuthTokenEntity,
+    ExternalIdentityEntity,
+    SsoHandoffEntity,
+    SsoInvitationEntity,
+    SsoTransactionEntity,
   ],
   migrations: [resolve(__dirname, 'migrations/**/*{.ts,.js}')],
   migrationsTableName: 'migrations',

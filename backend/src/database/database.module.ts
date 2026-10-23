@@ -10,6 +10,10 @@ import { AuditLogEntity } from './entities/audit-log.entity'
 import { OrganizationEntity } from './entities/organization.entity'
 import { AuthSessionEntity } from './entities/auth-session.entity'
 import { AuthTokenEntity } from './entities/auth-token.entity'
+import { ExternalIdentityEntity } from './entities/external-identity.entity'
+import { SsoHandoffEntity } from './entities/sso-handoff.entity'
+import { SsoInvitationEntity } from './entities/sso-invitation.entity'
+import { SsoTransactionEntity } from './entities/sso-transaction.entity'
 import { ApplicationEventsRepository } from './repositories/application-events.repository'
 import { CollectionsRepository } from './repositories/collections.repository'
 import { MonitoringCyclesRepository } from './repositories/monitoring-cycles.repository'
@@ -34,6 +38,10 @@ import { typeOrmOptions } from './typeorm.options'
       OrganizationEntity,
       AuthSessionEntity,
       AuthTokenEntity,
+      ExternalIdentityEntity,
+      SsoHandoffEntity,
+      SsoInvitationEntity,
+      SsoTransactionEntity,
     ]),
   ],
   providers: [

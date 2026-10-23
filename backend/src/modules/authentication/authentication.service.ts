@@ -282,6 +282,43 @@ export class AuthenticationService {
     )
   }
 
+  async completeSsoLogin(user: UserEntity): Promise<AuthenticationLoginResponse> {
+    this.accessTokens.assertConfigured()
+    if (!user.isActive || !user.emailVerifiedAt) throw invalidCredentials()
+    if (user.role === UserRole.ADMIN) {
+      await this.recordAudit(
+        user.id,
+        'auth.sso.admin.totp.required',
+        'user',
+        user.id,
+        'succeeded',
+      )
+      return this.totpAuthentication.beginAdminLogin(user)
+    }
+
+    const now = this.clock.now()
+    const refreshToken = this.accessTokens.newRefreshToken()
+    const session = await this.persistence.createSession({
+      userId: user.id,
+      organizationId: user.organizationId,
+      refreshTokenHash: this.accessTokens.hashOpaqueToken(refreshToken),
+      lastActivityAt: now,
+      absoluteExpiresAt: new Date(now.getTime() + ABSOLUTE_SESSION_MS),
+      revokedAt: null,
+      secondFactorVerifiedAt: null,
+    })
+    user.lastAccessAt = now
+    await this.persistence.updateUser(user)
+    await this.recordAudit(
+      user.id,
+      'auth.sso.login.succeeded',
+      'user',
+      user.id,
+      'succeeded',
+    )
+    return this.tokenResponse(user, session.id, refreshToken)
+  }
+
   async acceptAdminInvitation(input: {
     token: string
     name: string

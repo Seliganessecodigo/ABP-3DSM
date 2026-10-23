@@ -17,6 +17,13 @@ import { AuthenticationGuard } from './authentication.guard'
 import { AUTH_CLOCK, SystemAuthClock } from './clock'
 import { TotpService } from './totp.service'
 import { TotpAuthenticationService } from './totp-authentication.service'
+import { ExternalIdentityEntity } from '../../database/entities/external-identity.entity'
+import { SsoHandoffEntity } from '../../database/entities/sso-handoff.entity'
+import { SsoInvitationEntity } from '../../database/entities/sso-invitation.entity'
+import { SsoTransactionEntity } from '../../database/entities/sso-transaction.entity'
+import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-transport'
+import { GoogleOidcClient } from './google-oidc-client'
+import { SsoAuthenticationService } from './sso-authentication.service'
 
 @Module({
   imports: [
@@ -26,6 +33,10 @@ import { TotpAuthenticationService } from './totp-authentication.service'
       AuthTokenEntity,
       OrganizationEntity,
       UserEntity,
+      ExternalIdentityEntity,
+      SsoHandoffEntity,
+      SsoInvitationEntity,
+      SsoTransactionEntity,
     ]),
   ],
   controllers: [AuthenticationController],
@@ -33,6 +44,9 @@ import { TotpAuthenticationService } from './totp-authentication.service'
     AuthenticationPersistence,
     AuthenticationService,
     TotpAuthenticationService,
+    SsoAuthenticationService,
+    GoogleOidcClient,
+    { provide: GOOGLE_OIDC_TRANSPORT, useClass: FetchGoogleOidcTransport },
     AccessTokenService,
     TotpService,
     PasswordHasher,
