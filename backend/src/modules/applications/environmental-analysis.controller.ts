@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -12,6 +13,10 @@ import {
 import { EnvironmentalAnalysisDto } from './environmental-analysis.dto'
 import { EnvironmentalAnalysisPeriodQueryDto } from './environmental-analysis-period-query.dto'
 import { EnvironmentalAnalysisService } from './environmental-analysis.service'
+import {
+  EnvironmentalRecalculationPreviewDto,
+  EnvironmentalRecalculationPreviewRequestDto,
+} from './environmental-recalculation-preview.dto'
 import {
   EnvironmentalAnalysisSeriesContributionsDto,
   EnvironmentalAnalysisSeriesDto,
@@ -25,6 +30,22 @@ import {
 @Controller('applications/:id/analysis')
 export class EnvironmentalAnalysisController {
   constructor(private readonly analysis: EnvironmentalAnalysisService) {}
+
+  @Post('recalculation-preview')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Gerar prévia ambiental sem alterar o histórico' })
+  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
+  @ApiBody({ type: EnvironmentalRecalculationPreviewRequestDto })
+  @ApiOkResponse({ type: EnvironmentalRecalculationPreviewDto })
+  @ApiBadRequestResponse({ description: 'ID ou período inválido' })
+  @ApiNotFoundResponse({ description: 'Aplicação não encontrada' })
+  @ApiServiceUnavailableResponse({ description: 'Prévia ambiental indisponível' })
+  previewRecalculation(
+    @Param("id") id: string,
+    @Body() request: EnvironmentalRecalculationPreviewRequestDto,
+  ): Promise<EnvironmentalRecalculationPreviewDto> {
+    return this.analysis.previewRecalculation(id, request.from, request.to)
+  }
 
   @Get('series')
   @ApiOperation({ summary: 'Consultar série ambiental persistida por granularidade' })
