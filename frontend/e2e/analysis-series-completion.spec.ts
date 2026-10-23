@@ -108,6 +108,7 @@ test('mantém análise histórica disponível para uma aplicação removida', as
         disk: { value: 0, unit: 'GB/s', status: 'available' },
         network: { value: 1.2, unit: 'Mbps', status: 'available' },
       },
+      environmental: { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null },
     } })
   })
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=design-review')

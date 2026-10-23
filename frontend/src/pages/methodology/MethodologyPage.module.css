@@ -1,0 +1,45 @@
+.page { min-width: 0; }
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--text-secondary); font-size: 12px; }
+.breadcrumb a { color: var(--accent-default); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.indicator { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 24px; margin-bottom: 16px; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px 24px; background: var(--surface-card); }
+.indicator h2 { margin: 0 0 4px; color: var(--text-primary); font-size: 17px; }
+.indicator p { margin: 0; color: var(--text-secondary); font-size: 12px; }
+.kicker { margin: 0 0 5px !important; color: var(--accent-default) !important; font-size: 10px !important; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.value { color: var(--text-primary) !important; white-space: nowrap; }
+.value strong { font-size: 26px; letter-spacing: -.03em; }
+.status, .tag { display: inline-flex; align-items: center; min-height: 28px; border: 1px solid var(--success-foreground); border-radius: 99px; padding: 0 10px; color: var(--success-foreground); background: var(--success-background); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.tag { border-color: var(--border-default); color: var(--text-secondary); background: var(--surface-raised); }
+.card { min-width: 0; margin-bottom: 16px; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; background: var(--surface-card); }
+.card > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.card h2 { margin: 0 0 14px; color: var(--text-primary); font-size: 16px; }
+.card h3 { margin: 0 0 10px; color: var(--text-secondary); font-size: 12px; }
+.formula { overflow-x: auto; margin: 12px 0 8px; border: 1px solid var(--border-default); border-radius: 8px; padding: 18px; color: var(--text-primary); background: var(--surface-raised); font: 600 15px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.note, .disclaimer { color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.grid > section { min-width: 0; border: 1px solid var(--border-default); border-radius: 8px; padding: 16px; background: var(--surface-card); }
+.grid dl, .metadata { display: grid; gap: 10px; margin: 0; }
+.grid dl > div, .metadata > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 10px; border-bottom: 1px solid var(--border-default); padding-bottom: 8px; }
+.grid dl > div:last-child, .metadata > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.grid dt, .metadata dt { color: var(--text-secondary); font-size: 11px; overflow-wrap: anywhere; }
+.grid dd, .metadata dd { min-width: 0; margin: 0; color: var(--text-primary); font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+.gridCards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.gridCards .card { margin-bottom: 16px; }
+.card ul { display: grid; gap: 8px; margin: 0; padding-left: 20px; color: var(--text-primary); font-size: 12px; line-height: 1.6; }
+.card > p:not(.kicker) { color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+.metadata a { color: var(--accent-default); }
+.disclaimer { border-left: 3px solid var(--accent-default); padding-left: 12px; }
+@media (max-width: 760px) {
+  .indicator { grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 16px; }
+  .indicator .status { grid-column: 1 / -1; justify-self: start; }
+  .grid, .gridCards { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .grid > section { margin-bottom: 10px; }
+  .card { padding: 16px; }
+}
+@media (max-width: 420px) {
+  .card > header { flex-direction: column; }
+  .indicator { align-items: start; }
+  .value strong { font-size: 21px; }
+  .grid dl > div, .metadata > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}

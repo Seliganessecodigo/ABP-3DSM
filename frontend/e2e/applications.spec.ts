@@ -518,12 +518,13 @@ test('intervalo invertido vindo da URL é rejeitado sem parecer que não há apl
   await expect(row(page, 'svc-0142')).toBeVisible()
 })
 
-test('menu destaca Aplicações e mantém funcionalidades adiadas desabilitadas', async ({ page }) => {
+test('menu destaca Aplicações, habilita metodologia e mantém funcionalidades adiadas desabilitadas', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')
   const navigation = page.getByRole('navigation')
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).toHaveAttribute('aria-current', 'page')
-  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Metodologia', 'Configurações']) {
+  await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
+  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
@@ -543,7 +544,9 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
   await expect(opener).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('navigation')).toBeVisible()
   await expect.poll(() => page.getByRole('dialog').evaluate((element) => element.getBoundingClientRect().width)).toBe(320)
-  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Metodologia', 'Configurações']) {
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Metodologia', exact: true }))
+    .toHaveAttribute('href', '/methodology')
+  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
     await expect(destination).toBeVisible()
     await expect(destination).toBeDisabled()
