@@ -13,7 +13,7 @@ export interface AuthenticatedUser {
   role: 'ADMIN' | 'ANALYST' | 'VISITOR'
 }
 
-export interface Credentials { organization: string; email: string; password: string }
+export interface Credentials { email: string; password: string }
 export class AuthenticationError extends Error {
   readonly status: number
   readonly code: string

@@ -9,11 +9,13 @@ test('visitante consegue abrir o login a partir do catálogo público', async ({
 
   await expect(page).toHaveURL(/\/login$/)
   await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByLabel('Organização')).toHaveCount(0)
 })
 
 test('usuário entra com credenciais válidas e retorna à tela inicial', async ({ page }) => {
   await mockCatalog(page, [])
   await page.route('**/api/auth/login', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ email: 'ana@example.com', password: 'password123' })
     await route.fulfill({ json: { accessToken: 'access-test', refreshToken: 'refresh-test', tokenType: 'Bearer', expiresIn: 900 } })
   })
   await page.route('**/api/auth/me', async (route) => {
@@ -23,7 +25,6 @@ test('usuário entra com credenciais válidas e retorna à tela inicial', async 
     await route.fulfill({ status: 500, json: { message: 'temporary revocation failure' } })
   })
   await page.goto('/login')
-  await page.getByLabel('Organização').fill('green-energy')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar' }).click()
@@ -39,13 +40,11 @@ test('credenciais inválidas mostram erro genérico e limpam apenas a senha', as
   await mockCatalog(page, [])
   await page.route('**/api/auth/login', async (route) => route.fulfill({ status: 401, json: { message: 'sensitive backend detail' } }))
   await page.goto('/login')
-  await page.getByLabel('Organização').fill('green-energy')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('wrong-password')
   await page.getByRole('button', { name: 'Entrar' }).click()
 
   await expect(page.getByRole('alert')).toHaveText('E-mail ou senha inválidos. Confira os dados e tente novamente.')
-  await expect(page.getByLabel('Organização')).toHaveValue('green-energy')
   await expect(page.getByLabel('E-mail institucional')).toHaveValue('ana@example.com')
   await expect(page.getByLabel('Senha')).toHaveValue('')
   await expect(page.getByText('sensitive backend detail')).toHaveCount(0)
@@ -66,7 +65,6 @@ test('renova a sessão uma vez quando a consulta inicial do perfil retorna 401',
     await route.fulfill({ json: { id: 'user-1', organizationId: 'org-1', name: 'Ana Silva', email: 'ana@example.com', role: 'ANALYST' } })
   })
   await page.goto('/login')
-  await page.getByLabel('Organização').fill('green-energy')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar' }).click()
@@ -80,7 +78,6 @@ test('desafio TOTP não cria sessão nem navega para a tela inicial', async ({ p
   await mockCatalog(page, [])
   await page.route('**/api/auth/login', async (route) => route.fulfill({ json: { status: 'TOTP_REQUIRED', challengeToken: 'challenge-test', expiresIn: 300 } }))
   await page.goto('/login')
-  await page.getByLabel('Organização').fill('green-energy')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar' }).click()
@@ -95,7 +92,6 @@ test('recarregar a página encerra a sessão mantida apenas em memória', async 
   await page.route('**/api/auth/login', async (route) => route.fulfill({ json: { accessToken: 'access-test', refreshToken: 'refresh-test', tokenType: 'Bearer', expiresIn: 900 } }))
   await page.route('**/api/auth/me', async (route) => route.fulfill({ json: { id: 'user-1', organizationId: 'org-1', name: 'Ana Silva', email: 'ana@example.com', role: 'ANALYST' } }))
   await page.goto('/login')
-  await page.getByLabel('Organização').fill('green-energy')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar' }).click()

@@ -27,6 +27,13 @@ export class AuthenticationPersistence {
     return this.users.findOne({ where: { organizationId, email } })
   }
 
+  findUserByEmail(email: string) {
+    return this.users
+      .createQueryBuilder('user')
+      .where('LOWER(user.email) = :email', { email })
+      .getOne()
+  }
+
   findUserById(id: string) {
     return this.users.findOne({ where: { id } })
   }

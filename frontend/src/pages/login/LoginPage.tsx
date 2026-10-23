@@ -16,7 +16,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     try {
-      await signIn({ organization: String(form.get('organization') ?? '').trim(), email: String(form.get('email') ?? '').trim(), password: String(form.get('password') ?? '') })
+      await signIn({ email: String(form.get('email') ?? '').trim(), password: String(form.get('password') ?? '') })
       navigate('/')
     } catch (cause) {
       setError(cause instanceof TotpRequiredError ? t('totpRequired') : cause instanceof AuthenticationError && cause.status === 403 ? t('forbidden') : t('invalidCredentials'))
@@ -30,7 +30,6 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       <h2 id="login-heading">{t('heading')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
-        <label>{t('organization')}<input name="organization" autoComplete="organization" required /></label>
         <label>{t('email')}<input name="email" type="email" autoComplete="username" required /></label>
         <label>{t('password')}<input name="password" type="password" autoComplete="current-password" required /></label>
         {error && <p className={styles.error} role="alert">{error}</p>}

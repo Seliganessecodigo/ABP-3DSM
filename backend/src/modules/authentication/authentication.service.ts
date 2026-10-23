@@ -71,18 +71,12 @@ export class AuthenticationService {
   ) {}
 
   async login(input: {
-    organization: string
     email: string
     password: string
   }): Promise<AuthenticationLoginResponse> {
     this.accessTokens.assertConfigured()
-    const organization = await this.persistence.findOrganizationBySlug(
-      input.organization.trim().toLowerCase(),
-    )
     const email = normalizeEmail(input.email)
-    const user = organization
-      ? await this.persistence.findUser(organization.id, email)
-      : null
+    const user = await this.persistence.findUserByEmail(email)
 
     if (
       !user ||

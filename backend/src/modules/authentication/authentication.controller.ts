@@ -187,7 +187,7 @@ export class AuthenticationController {
   @ApiUnauthorizedResponse({ description: 'Credenciais inválidas' })
   @ApiTooManyRequestsResponse({ description: 'Desafio TOTP limitado por conta' })
   login(@Body() body: LoginDto) {
-    requireStrings(body, ['organization', 'email', 'password'])
+    requireStrings(body, ['email', 'password'])
     validateEmail(body.email)
     if (body.password.length > 1024) {
       throw new BadRequestException('Senha excede o limite aceito')

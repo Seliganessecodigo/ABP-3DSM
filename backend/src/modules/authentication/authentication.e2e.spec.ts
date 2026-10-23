@@ -229,12 +229,11 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
   async function login(
     email = 'analyst@example.test',
     password = 'testing password phrase',
-    organization = currentSlug,
   ) {
     const response = await fetch(new URL('/auth/login', await app.getUrl()), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ organization, email, password }),
+      body: JSON.stringify({ email, password }),
     })
     return {
       response,
@@ -342,20 +341,12 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     })
   }
 
-  let currentSlug = ''
-  let otherOrganizationSlug = ''
   beforeAll(async () => {
-    const [record] = await database.query(
-      'SELECT slug FROM organizations WHERE id = $1',
-      [organizationId],
-    )
-    currentSlug = record.slug as string
     const [otherOrganization] = await database.query(
-      'INSERT INTO organizations (name, slug) VALUES ($1, $2) RETURNING id, slug',
+      'INSERT INTO organizations (name, slug) VALUES ($1, $2) RETURNING id',
       ['Other Authentication Test', `other-auth-test-${Date.now()}`],
     )
     otherOrganizationId = otherOrganization.id as string
-    otherOrganizationSlug = otherOrganization.slug as string
   })
 
   it('autentica e retorna somente os dados públicos da conta', async () => {
@@ -741,29 +732,28 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     expect(newCode.status).toBe(200)
   })
 
-  it('responde da mesma forma para senha, e-mail ou organização inválidos', async () => {
+  it('responde da mesma forma para senha e e-mail inválidos', async () => {
     const wrongPassword = await login('analyst@example.test', 'wrong password')
     const unknownEmail = await login('missing@example.test')
-    const unknownOrganization = await login(
-      'analyst@example.test',
-      'testing password phrase',
-      'missing-org',
-    )
     expect(wrongPassword.response.status).toBe(401)
     expect(unknownEmail.response.status).toBe(401)
-    expect(unknownOrganization.response.status).toBe(401)
     expect(wrongPassword.body).toEqual(unknownEmail.body)
-    expect(wrongPassword.body).toEqual(unknownOrganization.body)
   })
 
-  it('não autentica uma conta usando o identificador de outra organização', async () => {
-    const { response, body } = await login(
-      'analyst@example.test',
-      'testing password phrase',
-      otherOrganizationSlug,
-    )
-    expect(response.status).toBe(401)
-    expect(body).toMatchObject({ code: 'INVALID_CREDENTIALS' })
+  it('autentica pelo e-mail sem exigir organização no corpo da requisição', async () => {
+    const { response, body } = await login()
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ tokenType: 'Bearer', expiresIn: 900 })
+    expect(body).not.toHaveProperty('organization')
+  })
+
+  it('não aceita organização como campo obrigatório do contrato de login', async () => {
+    const response = await fetch(new URL('/auth/login', await app.getUrl()), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'analyst@example.test', password: 'testing password phrase' }),
+    })
+    expect(response.status).toBe(200)
   })
 
   it('rotaciona refresh tokens e rejeita o valor anterior', async () => {
@@ -1420,7 +1410,6 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          organization: slug,
           email: 'admin@example.test',
           password: 'new secure password',
         }),
@@ -1480,7 +1469,6 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          organization: slug,
           email: 'admin@example.test',
           password: '12345678',
         }),

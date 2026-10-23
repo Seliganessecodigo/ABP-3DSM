@@ -2,9 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { UserRole } from '../../database/entities/user.entity'
 
 export class LoginDto {
-  @ApiProperty({ example: 'acme' })
-  organization!: string
-
   @ApiProperty({ example: 'admin@example.com' })
   email!: string
 
