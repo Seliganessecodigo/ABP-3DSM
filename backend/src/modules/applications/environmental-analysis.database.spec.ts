@@ -386,6 +386,59 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
     }
   })
 
+  it('orders factor warnings alphabetically using locale-aware comparison', async () => {
+    const warningApplicationId = `preview-warning-sort-${randomUUID()}`
+    await database.query(
+      'INSERT INTO applications (id, name, state) VALUES ($1, $2, $3)',
+      [warningApplicationId, 'Warning order preview', 'AVAILABLE'],
+    )
+    const observation = {
+      applicationId: warningApplicationId,
+      intervalStart: fromUtc,
+      intervalEnd: toUtc,
+      collectedAt: toUtc,
+      energy: 0.000031,
+      emissions: 0.00217,
+      methodology,
+      emissionsReasons: [],
+    }
+    await insertSummaryObservation(database, {
+      ...observation,
+      id: randomUUID(),
+      intervalStart: '2026-10-01T03:00:00.001Z',
+      factorSnapshot: { ...factorSnapshot, regionCode: 'br-a' },
+    })
+    await insertSummaryObservation(database, {
+      ...observation,
+      id: randomUUID(),
+      intervalStart: '2026-10-01T03:00:00.002Z',
+      factorSnapshot: { ...factorSnapshot, regionCode: 'br-A' },
+    })
+    const factorRequest = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+      .mockRejectedValue(new Error('factor unavailable'))
+    try {
+      const response = await postPreview(app, warningApplicationId)
+      const body = (await response.json()) as {
+        warnings: { code: string; regionCode: string | null }[]
+      }
+
+      expect(response.status).toBe(200)
+      expect(body.warnings.map((warning) => warning.regionCode)).toEqual([
+        'br-a',
+        'br-A',
+      ])
+    } finally {
+      factorRequest.mockRestore()
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [
+        warningApplicationId,
+      ])
+      await database.query('DELETE FROM applications WHERE id = $1', [
+        warningApplicationId,
+      ])
+    }
+  })
+
   it('returns an empty result and skips external calls when there are no observations', async () => {
     const emptyApplicationId = `preview-empty-${randomUUID()}`
     await database.query(

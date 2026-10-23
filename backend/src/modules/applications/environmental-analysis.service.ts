@@ -177,7 +177,7 @@ export class EnvironmentalAnalysisService {
       const warnings: { code: string; regionCode: string | null }[] = [
         ...failedRegions,
       ]
-        .sort()
+        .sort((left, right) => left.localeCompare(right))
         .map((regionCode) => ({
           code: "CARBON_FACTOR_UNAVAILABLE",
           regionCode,
