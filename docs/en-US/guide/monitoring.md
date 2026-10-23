@@ -1,6 +1,6 @@
 # Use the catalog and investigate an application
 
-This guide covers the existing catalog and operational detail. Environmental dashboards, analysis and administration remain planned in the [epics](../roadmap).
+This guide covers the catalog, operational detail and per-application environmental analysis available in the interface. The aggregate summary exists in the API, but dashboards, ranking, comparison and administration remain planned in the [epics](../roadmap).
 
 ## Find an application
 
@@ -17,7 +17,15 @@ Catalog and detail request the API on entry and schedule the next request 60 sec
 
 The interface shows attempt and valid-response times. A failure following success preserves previous data; it is not a new observation. The catalog's manual refresh retries without reloading the page. Leaving the screen cancels pending requests.
 
+## Analyze environmental results
+
+In application detail, choose a rolling window of 24 hours, 7, 30 or 90 days and an hourly, daily, monthly or yearly granularity. The series shows energy and CO₂e from persisted results. Its overlay compares the selected window with the immediately preceding window of equal duration. This is a time comparison for one application, not a ranking or a comparison across applications.
+
+Use table filters and sorting to locate buckets. Inspect a bucket to see included contributions and exclusions with their reasons. The table is paginated; the interface currently loads only the first contribution page. Gaps and exclusions do not mean zero. Without calculable evidence, the result remains unavailable.
+
 ## Interpret outcomes
+
+To trace an indicator, open **View full methodology** from application detail. You can also choose **Methodology** in navigation and select an application. The page presents the recorded model, formula, parameters and assumptions, plus carbon-factor details when available. The detail link uses the selected collection; navigation uses the latest valid collection. The page explains saved evidence and does not recalculate the result.
 
 | Situation | Meaning and next step |
 | --- | --- |
@@ -32,7 +40,7 @@ The interface shows attempt and valid-response times. A failure following succes
 
 `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` and `REMOVED` describe operational state. Freshness, attempt reason and calculability are separate dimensions. An available application may lack a carbon factor; an unavailable one may have valid history.
 
-The API already exposes collection evidence; full metric and freshness presentation has separate UI deliverables. Read [Methodology and data meaning](../product/methodology) before interpreting indicators.
+The detail screen shows operational status, source metrics, environmental results, a time series and period-based contribution inspection. Read the [API reference](../reference/api) and [methodology](../product/methodology) to distinguish missing data, failures and zero.
 
 ## Language and reporting problems
 

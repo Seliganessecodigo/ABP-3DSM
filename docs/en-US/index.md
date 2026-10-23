@@ -27,7 +27,7 @@ GreenER is an academic project in the Multiplatform Software Development program
 
 ## Status and reading paths
 
-The documentation distinguishes available behavior, planned scope and pending decisions. Catalog and detail have an interface; the backend also provides periodic collection and evidence queries. An API route does not imply delivery of the entire corresponding UI experience.
+The documentation distinguishes available behavior, planned scope and pending decisions. The interface provides the catalog, operational detail, metric evidence, theme preference, per-application environmental analysis and access to the recorded methodology for each observation. The API also provides an aggregate summary without a dedicated screen yet; ranking and comparison remain planned.
 
 - [Vision and scope](./product/vision)
 - [User guide](./guide/monitoring)

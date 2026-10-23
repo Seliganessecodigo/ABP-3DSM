@@ -27,7 +27,7 @@ GreenER es un proyecto académico del programa de Desarrollo de Software Multipl
 
 ## Estado y rutas de lectura
 
-La documentación distingue funciones disponibles, alcance planificado y decisiones pendientes. Catálogo/detalle tienen interfaz; backend también ofrece recopilación periódica y evidencias. Una ruta API no significa toda la experiencia UI entregada.
+La documentación distingue funciones disponibles, alcance planificado y decisiones pendientes. La interfaz ofrece catálogo, detalle operativo, evidencias métricas, preferencia de tema, análisis ambiental por aplicación y consulta de la metodología registrada para cada observación. La API también ofrece un resumen agregado sin pantalla propia; el ranking y la comparación siguen planificados.
 
 - [Visión y alcance](./product/vision)
 - [Guía de uso](./guide/monitoring)

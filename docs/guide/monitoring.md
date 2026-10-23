@@ -1,6 +1,6 @@
 # Usar o catálogo e investigar uma aplicação
 
-Este guia cobre catálogo e detalhe operacional existentes. Telas de dashboard, análise ambiental e administração continuam descritas como escopo nos [épicos](../roadmap).
+Este guia cobre catálogo, detalhe operacional e análise ambiental por aplicação, disponíveis na interface. O resumo agregado já existe na API, mas dashboard, ranking, comparação e administração permanecem no escopo dos [épicos](../roadmap).
 
 ## Encontrar uma aplicação
 
@@ -17,7 +17,15 @@ Catálogo e detalhe consultam a API ao abrir e agendam nova consulta 60 segundos
 
 A interface informa horários da tentativa e da resposta válida. Uma falha após sucesso mantém os dados anteriores; eles não devem ser lidos como uma nova observação. A atualização manual do catálogo permite tentar novamente sem recarregar a página. Ao sair da tela, consultas pendentes são canceladas.
 
+## Analisar resultados ambientais
+
+No detalhe, escolha uma janela móvel de 24 horas, 7, 30 ou 90 dias e a granularidade de hora, dia, mês ou ano. A série mostra energia e CO₂e dos resultados persistidos; a sobreposição compara a janela selecionada com a janela imediatamente anterior, de mesma duração. Essa é uma comparação temporal da mesma aplicação, não um ranking nem uma comparação entre aplicações.
+
+Use os filtros e a ordenação da tabela para localizar buckets. Inspecione um bucket para consultar as contribuições incluídas e as exclusões com seus motivos. A tabela pagina os resultados; a interface ainda carrega a primeira página das contribuições. Lacunas e exclusões não representam zero. Sem evidência calculável, o resultado permanece indisponível.
+
 ## Interpretar o que aconteceu
+
+Para rastrear um indicador, abra **Ver metodologia completa** no detalhe da aplicação; também é possível escolher **Metodologia** na navegação e selecionar uma aplicação. A página apresenta o modelo, a fórmula, os parâmetros e pressupostos registrados, além dos dados do fator de carbono quando disponíveis. Pelo detalhe, ela usa a coleta selecionada; pela navegação, usa a coleta válida mais recente. A página explica a evidência salva e não recalcula o resultado.
 
 | Situação | Leitura e próxima ação |
 | --- | --- |
@@ -32,7 +40,7 @@ A interface informa horários da tentativa e da resposta válida. Uma falha apó
 
 `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` e `REMOVED` descrevem o estado operacional. Frescor, motivo da tentativa e possibilidade de calcular indicadores são dimensões adicionais. Uma aplicação disponível pode não ter fator de carbono; uma indisponível pode possuir histórico válido.
 
-A API já expõe evidências de coletas, mas o bloco completo de métricas e frescor tem entregas específicas na interface. Consulte [Metodologia e significado dos dados](../product/methodology) antes de interpretar indicadores.
+A tela de detalhe apresenta estado operacional, métricas, resultados ambientais, série histórica e contribuições consultáveis por período. Consulte a [referência da API](../reference/api) e a [metodologia](../product/methodology) para interpretar os dados sem confundir ausência, falha e zero.
 
 ## Idioma e comunicação de problemas
 

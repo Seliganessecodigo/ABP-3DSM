@@ -15,28 +15,32 @@ Esses públicos descrevem necessidades; a matriz completa de papéis e permissõ
 
 ## Escopo e disponibilidade
 
-Referência da documentação: 15/10/2026, código de `develop`. Cada ambiente pode executar uma revisão diferente; uma issue encerrada não comprova disponibilidade em produção.
+Referência da documentação: código de `develop` em 23/10/2026 (commit `1633ca2`). Cada ambiente pode executar uma revisão diferente; uma issue encerrada não comprova disponibilidade em produção.
 
 | Capacidade | Situação documentada |
 | --- | --- |
-| Catálogo, busca/filtro de estado, navegação e oito idiomas | Implementados na interface. |
-| Descoberta, eventos de ciclo de vida, coleta periódica e persistência | Implementados no backend. |
-| Estado operacional e consulta de evidências de coletas | Expostos pela API; a apresentação completa nas telas tem tasks próprias. |
-| Dashboard ambiental, energia/CO₂e, séries, ranking e comparação | Escopo planejado; não são prometidos como funções disponíveis. |
-| Temas, autenticação, administração, simulação regional e prévia de recálculo | Escopo planejado, com dependências registradas no backlog. |
+| Catálogo, busca, filtros, paginação, navegação e oito idiomas | Implementados na interface. |
+| Descoberta, eventos de ciclo de vida, coleta periódica, incidentes e persistência | Implementados no backend. |
+| Estado operacional, métricas de origem, evidências e metodologia da coleta | API e detalhe da aplicação disponíveis; uma página expõe modelo, fórmula, parâmetros e fator registrados sem recalcular. Falhas, ausência e dados antigos permanecem distintos. |
+| Análise ambiental por aplicação, série temporal e inspeção de contribuições | Disponíveis na API e integradas ao detalhe da aplicação. |
+| Resumo agregado ambiental | Endpoint disponível na API (`GET /analysis/summary`); dashboard agregado ainda não está disponível na interface. |
+| Ranking e comparação entre aplicações | Escopo planejado; não são prometidos como funções disponíveis. |
+| Tema claro/escuro | Preferência disponível na interface. |
+| Autenticação, administração, simulação regional e prévia de recálculo | Escopo planejado, com dependências registradas no backlog. |
 
 ## Jornadas e valor
 
 1. Localizar uma aplicação no catálogo e abrir seu detalhe: confirmar identidade, localização e estado.
 2. Investigar uma mudança: distinguir última tentativa, última observação válida e ausência de dados.
-3. No escopo ambiental planejado, selecionar um período, ler resultados com cobertura e metodologia e comparar aplicações no mesmo recorte.
-4. Na administração planejada, alterar parâmetros autorizados sem reescrever resultados históricos.
+3. No detalhe, selecionar período e granularidade, interpretar série/cobertura e investigar as contribuições de um bucket sem transformar lacunas em zero.
+4. No escopo planejado, resumir todas as aplicações, ordená-las por impacto e comparar resultados compatíveis.
+5. Na administração planejada, alterar parâmetros autorizados sem reescrever resultados históricos.
 
 O [guia de uso](../guide/monitoring) descreve a experiência existente; os [épicos](../roadmap) detalham o comportamento esperado.
 
 ## Limites do produto
 
-Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. Exportação CSV, personalização de colunas e comparação com período anterior não entram no MVP apenas por aparecerem no protótipo. Mapa é opcional.
+Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. A série do detalhe compara uma aplicação com a janela imediatamente anterior de mesma duração; isso não representa comparação entre aplicações ou dashboard de períodos. Exportação CSV e personalização de colunas não entram no MVP apenas por aparecerem no protótipo. Mapa é opcional.
 
 ## Como avaliar o resultado
 

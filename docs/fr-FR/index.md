@@ -27,7 +27,7 @@ GreenER est un projet académique du cursus de développement logiciel multiplat
 
 ## État et parcours de lecture
 
-La documentation distingue comportement disponible, périmètre prévu et décisions en attente. Catalogue/détail ont une interface ; le backend fournit aussi collecte périodique et preuves. Une route API ne prouve pas la livraison de toute l’expérience UI.
+La documentation distingue comportement disponible, périmètre prévu et décisions en attente. L’interface propose le catalogue, le détail opérationnel, les preuves métriques, le choix du thème, l’analyse environnementale par application et l’accès à la méthode enregistrée pour chaque observation. L’API offre aussi un résumé agrégé sans écran dédié ; classement et comparaison restent prévus.
 
 - [Vision et périmètre](./product/vision)
 - [Guide d’utilisation](./guide/monitoring)

@@ -25,7 +25,7 @@ D01 y EP00 se confirmaron el 15/10/2026; las demás reglas constan en backlog y 
 | Acceso/cuentas | Papeles, bootstrap, sesión, contraseña y recuperación. | #90/#91/#158/#160/#245 |
 | Fuentes/operación | Confirmar cuotas y límites de concurrencia con los responsables de las API. La política de timeout/retry/retrasos de #243 está aprobada. | #155/#243 |
 | Continuidad | Retención, backup/restauración, disponibilidad/rendimiento. | #110/#120/#125/#166 |
-| Extras Figma | CSV, columnas, período anterior, eficiencia por transacción. | #61/#248/#252 |
+| Extras Figma | CSV, columnas y eficiencia por transacción. El detalle ya superpone la serie con el período anterior equivalente; la comparación entre aplicaciones y el dashboard temporal siguen siendo otro alcance. | #61/#248/#252 |
 
 El PO decide alcance/comportamiento con responsables técnicos; contratos externos requieren proveedor. No se asignan fechas ni personas por suposición.
 

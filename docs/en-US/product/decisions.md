@@ -25,7 +25,7 @@ D01 and the EP00 restructuring were confirmed on 2026-10-15. Other rules are rec
 | Access and accounts | Role matrix, bootstrap, sessions, password/recovery policies. | #90/#91/#158/#160/#245 |
 | Sources and operations | Quotas and concurrency limits still require confirmation with API owners. The #243 timeout/retry/delay policy is approved. | #155/#243 |
 | Continuity | Retention, backup/restore and availability/performance targets. | #110/#120/#125/#166 |
-| Prototype extras | CSV, configurable columns, previous period and efficiency per transaction. | #61/#248/#252 |
+| Prototype extras | CSV, configurable columns and efficiency per transaction. Application detail already overlays the series with the equivalent previous period; cross-application comparison and a period dashboard remain separate scope. | #61/#248/#252 |
 
 The PO resolves scope and behavior with technical owners; source contracts require provider confirmation. This table assumes neither deadlines nor individual assignments.
 

@@ -6,7 +6,7 @@ Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia 
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend oferece catálogo e detalhe de aplicações; o backend disponibiliza descoberta, coleta periódica, estado operacional e consulta de evidências persistidas. A apresentação completa dessas evidências, os cálculos ambientais, o dashboard, as análises e a administração têm entregas próprias no backlog. A [visão do produto](docs/product/vision.md) distingue disponibilidade por camada e escopo planejado.
+O frontend oferece catálogo, detalhe operacional, evidências de métricas, análise ambiental por aplicação e uma página que explica a metodologia registrada para cada coleta. O backend disponibiliza descoberta, coleta periódica, incidentes, consultas ambientais por aplicação e um endpoint de resumo agregado. O resumo agregado ainda não tem uma tela própria; ranking, comparação, administração, simulação regional e prévia de recálculo permanecem no backlog. A [visão do produto](docs/product/vision.md) registra o estado por camada e a data de referência.
 
 ## Épicos
 

@@ -25,7 +25,7 @@ D01 und EP00 am 15.10.2026 bestätigt; andere Regeln in Backlog/versionierten Ve
 | Zugriff/Konten | Rollen, Bootstrap, Sitzungen, Passwort/Wiederherstellung. | #90/#91/#158/#160/#245 |
 | Quellen/Betrieb | Quoten und Parallelitätsgrenzen mit den API-Verantwortlichen bestätigen. Die Timeout-/Retry-/Verzögerungsrichtlinie aus #243 ist freigegeben. | #155/#243 |
 | Kontinuität | Aufbewahrung, Backup/Restore, Verfügbarkeit/Leistung. | #110/#120/#125/#166 |
-| Figma-Extras | CSV, Spalten, Vorperiode, Effizienz pro Transaktion. | #61/#248/#252 |
+| Figma-Extras | CSV, Spalten und Effizienz pro Transaktion. Das Detail überlagert die Reihe bereits mit dem entsprechenden Vorzeitraum; anwendungsübergreifender Vergleich und Perioden-Dashboard bleiben eigener Umfang. | #61/#248/#252 |
 
 PO und technische Verantwortliche klären Umfang/Verhalten, Anbieter bestätigt Quellverträge. Keine erfundenen Termine/Zuweisungen.
 

@@ -1,6 +1,6 @@
 # Utiliser le catalogue et étudier une application
 
-Ce guide couvre le catalogue et le détail opérationnel existants. Tableau de bord environnemental, analyses et administration restent prévus dans les [épopées](../roadmap).
+Ce guide couvre le catalogue, le détail opérationnel et l’analyse environnementale par application, disponibles dans l’interface. Le résumé agrégé existe dans l’API, mais le tableau de bord, le classement, la comparaison et l’administration restent prévus dans les [épopées](../roadmap).
 
 ## Trouver une application
 
@@ -17,7 +17,15 @@ Catalogue et détail interrogent l’API à l’ouverture, puis 60 secondes apr�
 
 L’interface affiche l’heure de tentative et de réponse valide. Après un succès, un échec conserve les anciennes données sans en faire une nouvelle observation. L’actualisation manuelle du catalogue permet de réessayer sans recharger. Quitter l’écran annule les requêtes en cours.
 
+## Analyser les résultats environnementaux
+
+Dans le détail d’une application, choisissez une fenêtre glissante de 24 heures, 7, 30 ou 90 jours et une granularité horaire, quotidienne, mensuelle ou annuelle. La série présente l’énergie et le CO₂e des résultats persistés. La superposition compare la fenêtre choisie à la fenêtre précédente de même durée. Il s’agit d’une comparaison temporelle pour une application, pas d’un classement ni d’une comparaison entre applications.
+
+Utilisez les filtres et le tri du tableau pour trouver une période. Inspectez-la pour consulter les contributions incluses et les exclusions avec leurs motifs. Le tableau est paginé ; l’interface ne charge actuellement que la première page des contributions. Les lacunes et exclusions ne valent pas zéro. Sans preuve calculable, le résultat reste indisponible.
+
 ## Interpréter les situations
+
+Pour retracer un indicateur, ouvrez **Voir la méthodologie complète** dans le détail de l’application. Vous pouvez aussi choisir **Méthodologie** dans la navigation et sélectionner une application. La page présente le modèle, la formule, les paramètres et hypothèses enregistrés, ainsi que les détails du facteur carbone lorsqu’ils sont disponibles. Le lien du détail utilise la collecte sélectionnée ; la navigation utilise la dernière collecte valide. La page explique les preuves enregistrées sans recalculer le résultat.
 
 | Situation | Signification / action |
 | --- | --- |
@@ -30,7 +38,7 @@ L’interface affiche l’heure de tentative et de réponse valide. Après un su
 
 ## État, langue et assistance
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` et `REMOVED` sont des états opérationnels. Fraîcheur, motif et calculabilité sont distincts. Une application disponible peut manquer de facteur carbone ; une indisponible peut avoir un historique valide. Les preuves sont déjà dans l’API ; leur présentation complète a ses tâches UI. Lire la [méthodologie](../product/methodology).
+`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` et `REMOVED` sont des états opérationnels. Fraîcheur, motif et calculabilité sont distincts. Une application disponible peut manquer de facteur carbone ; une indisponible peut avoir un historique valide. Le détail affiche l’état, les métriques, les résultats environnementaux, la série historique et les contributions consultables par période. Consultez la [référence API](../reference/api) et la [méthodologie](../product/methodology) pour distinguer absence, erreur et zéro.
 
 Le sélecteur propose huit langues et mémorise la préférence dans ce navigateur. La langue ne change ni identité ni instants.
 
