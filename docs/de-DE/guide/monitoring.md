@@ -1,6 +1,6 @@
 # Katalog nutzen und Anwendungen untersuchen
 
-Dieses Handbuch beschreibt Katalog, Betriebsdetail und die in der Oberfläche verfügbare Umweltanalyse je Anwendung. Die aggregierte Zusammenfassung gibt es bereits in der API; Dashboard, Rangliste, Vergleich und Administration bleiben in den [Epics](../roadmap) geplant.
+Dieses Handbuch beschreibt Katalog, Betriebsdetail und die in der Oberfläche verfügbare Umweltanalyse je Anwendung.
 
 ## Anwendung finden
 

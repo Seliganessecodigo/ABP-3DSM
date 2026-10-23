@@ -1,6 +1,6 @@
 # Utiliser le catalogue et étudier une application
 
-Ce guide couvre le catalogue, le détail opérationnel et l’analyse environnementale par application, disponibles dans l’interface. Le résumé agrégé existe dans l’API, mais le tableau de bord, le classement, la comparaison et l’administration restent prévus dans les [épopées](../roadmap).
+Ce guide couvre le catalogue, le détail opérationnel et l’analyse environnementale par application, disponibles dans l’interface.
 
 ## Trouver une application
 

@@ -1,12 +1,14 @@
 # GreenER
 
+**[Acessar a documentação completa em HTML](https://seliganessecodigo.github.io/ABP-3DSM/)**
+
 Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia e emissões equivalentes de CO₂ (CO₂e).
 
 ## Visão geral
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend oferece catálogo, detalhe operacional, evidências de métricas, análise ambiental por aplicação e uma página que explica a metodologia registrada para cada coleta. O backend disponibiliza descoberta, coleta periódica, incidentes, consultas ambientais por aplicação e um endpoint de resumo agregado. O resumo agregado ainda não tem uma tela própria; ranking, comparação, administração, simulação regional e prévia de recálculo permanecem no backlog. A [visão do produto](docs/product/vision.md) registra o estado por camada e a data de referência.
+O frontend oferece catálogo, detalhe operacional, evidências de métricas, análise ambiental por aplicação e uma página que explica a metodologia registrada para cada coleta. O backend disponibiliza descoberta, coleta periódica, incidentes, consultas ambientais por aplicação e um endpoint de resumo agregado. O resumo agregado está disponível na API, sem tela própria. A [visão do produto](docs/product/vision.md) registra o estado por camada e a data de referência.
 
 ## Épicos
 

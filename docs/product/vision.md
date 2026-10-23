@@ -8,7 +8,6 @@ O GreenER ajuda a responder três perguntas: quais aplicações estão sendo aco
 | --- | --- |
 | Gestão de infraestrutura | Reconhecer aplicações e acompanhar mudanças do ambiente. |
 | Análise operacional e ambiental | Investigar períodos, comparar resultados compatíveis e entender lacunas. |
-| Operação administrativa | Alterar parâmetros e acesso com autorização e rastreabilidade. |
 | Equipe de desenvolvimento e avaliação | Reproduzir o ambiente e demonstrar critérios de aceite. |
 
 Esses públicos descrevem necessidades; a matriz completa de papéis e permissões ainda depende de [decisão de produto](./decisions).
@@ -24,23 +23,19 @@ Referência da documentação: código de `develop` em 23/10/2026 (commit `1633c
 | Estado operacional, métricas de origem, evidências e metodologia da coleta | API e detalhe da aplicação disponíveis; uma página expõe modelo, fórmula, parâmetros e fator registrados sem recalcular. Falhas, ausência e dados antigos permanecem distintos. |
 | Análise ambiental por aplicação, série temporal e inspeção de contribuições | Disponíveis na API e integradas ao detalhe da aplicação. |
 | Resumo agregado ambiental | Endpoint disponível na API (`GET /analysis/summary`); dashboard agregado ainda não está disponível na interface. |
-| Ranking e comparação entre aplicações | Escopo planejado; não são prometidos como funções disponíveis. |
 | Tema claro/escuro | Preferência disponível na interface. |
-| Autenticação, administração, simulação regional e prévia de recálculo | Escopo planejado, com dependências registradas no backlog. |
 
 ## Jornadas e valor
 
 1. Localizar uma aplicação no catálogo e abrir seu detalhe: confirmar identidade, localização e estado.
 2. Investigar uma mudança: distinguir última tentativa, última observação válida e ausência de dados.
 3. No detalhe, selecionar período e granularidade, interpretar série/cobertura e investigar as contribuições de um bucket sem transformar lacunas em zero.
-4. No escopo planejado, resumir todas as aplicações, ordená-las por impacto e comparar resultados compatíveis.
-5. Na administração planejada, alterar parâmetros autorizados sem reescrever resultados históricos.
 
 O [guia de uso](../guide/monitoring) descreve a experiência existente; os [épicos](../roadmap) detalham o comportamento esperado.
 
 ## Limites do produto
 
-Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. A série do detalhe compara uma aplicação com a janela imediatamente anterior de mesma duração; isso não representa comparação entre aplicações ou dashboard de períodos. Exportação CSV e personalização de colunas não entram no MVP apenas por aparecerem no protótipo. Mapa é opcional.
+Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. A série do detalhe compara uma aplicação com a janela imediatamente anterior de mesma duração; isso não representa comparação entre aplicações ou dashboard de períodos. Mapa é opcional.
 
 ## Como avaliar o resultado
 

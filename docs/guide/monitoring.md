@@ -1,6 +1,6 @@
 # Usar o catálogo e investigar uma aplicação
 
-Este guia cobre catálogo, detalhe operacional e análise ambiental por aplicação, disponíveis na interface. O resumo agregado já existe na API, mas dashboard, ranking, comparação e administração permanecem no escopo dos [épicos](../roadmap).
+Este guia cobre catálogo, detalhe operacional e análise ambiental por aplicação, disponíveis na interface.
 
 ## Encontrar uma aplicação
 

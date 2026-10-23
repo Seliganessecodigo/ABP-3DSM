@@ -1,6 +1,6 @@
 # Usare il catalogo e analizzare un’applicazione
 
-Guida al catalogo, al dettaglio operativo e all’analisi ambientale per applicazione disponibile nell’interfaccia. Il riepilogo aggregato esiste nell’API; dashboard, classifica, confronto e amministrazione restano pianificati negli [epic](../roadmap).
+Guida al catalogo, al dettaglio operativo e all’analisi ambientale per applicazione disponibile nell’interfaccia.
 
 ## Trovare un’applicazione
 

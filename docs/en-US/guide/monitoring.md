@@ -1,6 +1,6 @@
 # Use the catalog and investigate an application
 
-This guide covers the catalog, operational detail and per-application environmental analysis available in the interface. The aggregate summary exists in the API, but dashboards, ranking, comparison and administration remain planned in the [epics](../roadmap).
+This guide covers the catalog, operational detail and per-application environmental analysis available in the interface.
 
 ## Find an application
 
