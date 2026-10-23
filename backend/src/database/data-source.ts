@@ -47,7 +47,7 @@ export default new DataSource({
     SsoInvitationEntity,
     SsoTransactionEntity,
   ],
-  migrations: [resolve(__dirname, 'migrations/**/*{.ts,.js}')],
+  migrations: [resolve(__dirname, 'migrations/**/!(*.spec).{ts,js}')],
   migrationsTableName: 'migrations',
   synchronize: false,
   migrationsRun: false,
