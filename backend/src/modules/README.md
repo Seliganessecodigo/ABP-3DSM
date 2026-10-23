@@ -74,6 +74,12 @@ ID vazio ou período inválido retorna `400` (`INVALID_APPLICATION_ID` ou `INVAL
 
 O teste focado `src/modules/applications/environmental-analysis.database.spec.ts` usa PostgreSQL real e só executa quando `TEST_DATABASE_URL` aponta para um banco isolado. O próprio teste aplica as migrations necessárias. Exemplo local sem credenciais embutidas (substitua pelo endereço local do banco de teste): `TEST_DATABASE_URL=postgres://localhost:5432/greener_test npm test -- --runInBand --runTestsByPath src/modules/applications/environmental-analysis.database.spec.ts`. No PowerShell, defina `$env:TEST_DATABASE_URL` para esse endereço antes de executar o mesmo comando `npm test`; não use banco de desenvolvimento ou produção, pois o teste insere e remove linhas próprias.
 
+## Prévia de recálculo ambiental — #263
+
+`POST /applications/{id}/analysis/recalculation-preview` recebe `from` e `to` no corpo (RFC 3339 com fuso explícito) e retorna os totais ambientais persistidos ao lado de uma prévia recalculada em memória. A prévia usa `simplified-energy` v1, consulta o fator de carbono atual por região histórica e informa metodologia, fatores, coberturas, razões e avisos. O snapshot original de fator tem prioridade; sem ele, a região é reconstruída pelo histórico de cadastro no instante da coleta. Falha em uma consulta regional ou ausência de região retorna `status: partial`, preservando o que foi calculável.
+
+A rota é pública e não altera coletas, resultados ambientais, fatores persistidos, rankings, séries nem totais oficiais. Sem observações, retorna `status: empty` e não consulta serviço externo. O período máximo é 30 dias e a consulta aceita até 10.000 observações intersectadas; exceder qualquer limite retorna `400`, sem truncamento. Aplicação inexistente retorna `404`; falha de leitura/processamento retorna `503`. Revisar a integração com a configuração ativa quando a #95 for implementada.
+
 ## Série e contribuições ambientais — #174
 
 `GET /applications/{id}/analysis/series?from={RFC3339}&to={RFC3339}&granularity={hour|day|month|year}` retorna a série de energia e CO₂e, totais, coberturas e eventos. `from`/`to` exigem offset explícito; a consulta normaliza os instantes para UTC e usa `[from,to)`. Os buckets seguem o calendário UTC da granularidade pedida. O primeiro e o último bucket podem ser parciais: `bucketStart`/`bucketEnd` descrevem o bucket civil completo e `period.from`/`period.to` descrevem a parte contada dentro da janela.

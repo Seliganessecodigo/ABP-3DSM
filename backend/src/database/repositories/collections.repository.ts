@@ -100,6 +100,22 @@ export class CollectionsRepository {
     return rows
   }
 
+  findForRecalculationPreview(
+    applicationId: string,
+    periodStart: Date,
+    periodEnd: Date,
+  ): Promise<CollectionEntity[]> {
+    return this.repository
+      .createQueryBuilder("collection")
+      .where("collection.applicationId = :applicationId", { applicationId })
+      .andWhere("collection.intervalStart < :periodEnd", { periodEnd })
+      .andWhere("collection.intervalEnd > :periodStart", { periodStart })
+      .orderBy("collection.intervalStart", "ASC")
+      .addOrderBy("collection.id", "ASC")
+      .take(10_001)
+      .getMany();
+  }
+
   async findEnvironmentalByApplicationsAndPeriod(
     applicationIds: readonly string[],
     periodStartNanoseconds: bigint,
