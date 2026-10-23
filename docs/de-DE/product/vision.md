@@ -8,34 +8,33 @@ GreenER beantwortet drei Fragen: Welche Anwendungen werden überwacht, welche Be
 | --- | --- |
 | Infrastrukturmanagement | Anwendungen und Änderungen der Umgebung erkennen. |
 | Betriebs- und Umweltanalyse | Zeiträume untersuchen, vergleichbare Ergebnisse vergleichen und Lücken verstehen. |
-| Administration | Parameter und Zugriff autorisiert und nachvollziehbar ändern. |
 | Entwicklung und Bewertung | Umgebung reproduzieren und Akzeptanzkriterien demonstrieren. |
 
 Das sind Nutzerbedürfnisse; die vollständige Berechtigungsmatrix ist eine [offene Entscheidung](./decisions).
 
 ## Umfang und Verfügbarkeit
 
-Referenz: `develop`-Quellstand vom 15.10.2026. Umgebungen können andere Revisionen ausführen; ein geschlossenes Issue beweist keine Produktionsverfügbarkeit.
+Referenz: `develop`-Quellstand vom 23.10.2026 (Commit `1633ca2`). Umgebungen können andere Revisionen ausführen; ein geschlossenes Issue beweist keine Produktionsverfügbarkeit.
 
 | Funktion | Dokumentierter Stand |
 | --- | --- |
-| Katalog, Suche/Zustandsfilter, Navigation, acht Sprachen | In der Oberfläche implementiert. |
-| Erkennung, Lebenszyklusereignisse, regelmäßige Sammlung, Speicherung | Im Backend implementiert. |
-| Betriebszustand und Abfrage von Erfassungsbelegen | Per API vorhanden; vollständige UI-Darstellung hat eigene Tasks. |
-| Umweltdashboard, Energie/CO₂e, Zeitreihen, Rangliste, Vergleich | Geplanter Umfang. |
-| Themes, Authentifizierung, Administration, regionale Simulation, Neuberechnungsvorschau | Geplant mit Backlog-Abhängigkeiten. |
+| Katalog, Suche, Filter, Seitennavigation, Navigation und acht Sprachen | In der Oberfläche implementiert. |
+| Erkennung, Lebenszyklusereignisse, regelmäßige Sammlung, Vorfälle und Speicherung | Im Backend implementiert. |
+| Betriebszustand, Quellmetriken, Erfassungsbelege und Methodik | Per API und im Anwendungsdetail verfügbar; eine eigene Seite erklärt gespeichertes Modell, Formel, Parameter und Faktor ohne Neuberechnung. Fehler, fehlende und veraltete Daten bleiben unterscheidbar. |
+| Umweltanalyse, Zeitreihen und Beitragsprüfung je Anwendung | In der API verfügbar und in das Anwendungsdetail integriert. |
+| Aggregierte Umweltübersicht | API-Endpunkt verfügbar (`GET /analysis/summary`); noch kein aggregiertes Dashboard in der Oberfläche. |
+| Helles/dunkles Theme | Als Oberflächenpräferenz verfügbar. |
 
 ## Abläufe und Nutzen
 
 1. Anwendung finden, Detail öffnen und Identität, Ort und Zustand prüfen.
 2. Änderungen anhand des letzten Versuchs, der letzten gültigen Beobachtung und fehlender Daten untersuchen.
-3. Im geplanten Umweltumfang Zeitraum, Abdeckung und Methodik prüfen und denselben Ausschnitt vergleichen.
-4. In der geplanten Administration autorisierte Parameter ändern, ohne Historie umzuschreiben.
+3. Im Detail Zeitraum und Granularität wählen, Zeitreihe/Abdeckung verstehen und Bucket-Beiträge prüfen, ohne Lücken als Null zu behandeln.
 
 Das [Handbuch](../guide/monitoring) beschreibt vorhandenes Verhalten; die [Epics](../roadmap) beschreiben den Sollumfang.
 
 ## Grenzen und Bewertung
 
-Schätzungen sind keine direkte Strommessung und kein Beweis kausaler Einsparungen. Effizienz pro Transaktion benötigt Arbeitslastdaten. CSV, konfigurierbare Spalten und Vorperiodenvergleich gehören nicht allein wegen Figma zum MVP. Eine Karte ist optional.
+Schätzungen sind keine direkte Strommessung und kein Beweis kausaler Einsparungen. Effizienz pro Transaktion benötigt Arbeitslastdaten. Die Zeitreihe im Detail vergleicht eine Anwendung mit dem unmittelbar vorherigen Fenster gleicher Dauer; dies bietet weder anwendungsübergreifenden Vergleich noch Periodenvergleich im Dashboard. Eine Karte ist optional.
 
 In Reviews prüfen: Anwendung auffindbar, Null von fehlenden Daten unterscheidbar, Ergebnis bis Zeitraum, Einheit und Belegen nachvollziehbar. Schwierigkeiten, Feedback und Änderungen in [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133)/[#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134) erfassen. Zeit-, Zufriedenheits- und Leistungsziele benötigen Ausgangswerte und Freigabe.

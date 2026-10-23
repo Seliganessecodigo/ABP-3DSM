@@ -27,7 +27,7 @@ GreenER è un progetto accademico del corso di sviluppo software multipiattaform
 
 ## Stato e percorsi di lettura
 
-Documentazione distingue disponibile, pianificato e pendente. Catalogo/dettaglio hanno UI; backend offre raccolta periodica e consultazione evidenze. Una rotta API non significa intera esperienza UI consegnata.
+La documentazione distingue funzionalità disponibili, ambito pianificato e decisioni pendenti. L’interfaccia offre catalogo, dettaglio operativo, evidenze metriche, preferenza del tema, analisi ambientale per applicazione e accesso alla metodologia registrata per ogni osservazione. L’API offre anche un riepilogo aggregato senza una schermata dedicata; classifica e confronto restano pianificati.
 
 - [Visione e ambito](./product/vision)
 - [Guida all’uso](./guide/monitoring)

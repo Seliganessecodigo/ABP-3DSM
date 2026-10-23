@@ -27,7 +27,7 @@ GreenER é um projeto acadêmico de Desenvolvimento de Software Multiplataforma 
 
 ## Estado e caminhos de leitura
 
-A documentação distingue comportamento disponível, escopo planejado e decisões pendentes. O catálogo e o detalhe têm interface; o backend também dispõe de coleta periódica e consultas de evidências. A presença de uma rota não significa que toda a experiência correspondente esteja entregue na UI.
+A documentação distingue comportamento disponível, escopo planejado e decisões pendentes. Catálogo, detalhe operacional, evidências métricas, tema, análise ambiental por aplicação e consulta da metodologia registrada estão disponíveis na interface. A API também fornece um resumo agregado, ainda sem uma tela própria; ranking e comparação permanecem planejados.
 
 - [Visão e escopo](./product/vision)
 - [Guia de uso](./guide/monitoring)

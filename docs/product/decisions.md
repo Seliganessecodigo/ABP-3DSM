@@ -25,7 +25,7 @@ D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regra
 | Acesso e contas | Matriz de papéis, bootstrap, sessão e políticas de senha/recuperação. | #90/#91/#158/#160/#245 |
 | Fontes e operação | Cotas e limites de concorrência ainda precisam ser confirmados com os responsáveis pelas APIs. A política de timeout/retry/atraso do #243 está aprovada. | #155/#243 |
 | Continuidade | Retenção, backup/restauração, metas de disponibilidade e desempenho. | #110/#120/#125/#166 |
-| Extras do protótipo | CSV, colunas configuráveis, período anterior e eficiência por transação. | #61/#248/#252 |
+| Extras do protótipo | CSV, colunas configuráveis e eficiência por transação. O detalhe já sobrepõe a série da aplicação com o período anterior equivalente; comparação entre aplicações e dashboard temporal seguem separados. | #61/#248/#252 |
 
 O PO resolve escopo e comportamento com os responsáveis técnicos; contratos de fontes exigem confirmação do fornecedor. Nenhuma data ou responsável individual é presumido nesta tabela.
 

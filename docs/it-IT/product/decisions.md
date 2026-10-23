@@ -25,7 +25,7 @@ D01 e EP00 confermati il 15/10/2026; altre regole in backlog/contratti versionat
 | Accessi/conti | Ruoli, bootstrap, sessioni, password/recupero. | #90/#91/#158/#160/#245 |
 | Fonti/operazione | Confermare quote e limiti di concorrenza con i responsabili delle API. La policy di timeout/retry/ritardi di #243 è approvata. | #155/#243 |
 | Continuità | Conservazione, backup/ripristino, disponibilità/prestazioni. | #110/#120/#125/#166 |
-| Extra Figma | CSV, colonne, periodo precedente, efficienza per transazione. | #61/#248/#252 |
+| Extra Figma | CSV, colonne ed efficienza per transazione. Il dettaglio sovrappone già la serie al periodo precedente equivalente; confronto tra applicazioni e dashboard temporale restano fuori da questo ambito. | #61/#248/#252 |
 
 PO e responsabili tecnici decidono ambito/comportamento; fornitori confermano contratti. Nessuna data o persona assegnata per ipotesi.
 

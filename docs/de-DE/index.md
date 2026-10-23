@@ -27,7 +27,7 @@ GreenER ist ein akademisches Projekt im Studiengang Multiplatform Software Devel
 
 ## Stand und Lesepfade
 
-Dokumentation trennt vorhandenes Verhalten, geplanten Umfang, offene Entscheidungen. Katalog/Detail haben UI; Backend bietet auch regelmäßige Sammlung und Belegabfragen. Eine API-Route bedeutet nicht vollständige UI-Lieferung.
+Die Dokumentation unterscheidet vorhandenes Verhalten, geplanten Umfang und offene Entscheidungen. Die Oberfläche bietet Katalog, Betriebsdetail, Metrikbelege, Theme-Einstellung, Umweltanalyse je Anwendung und Zugriff auf die gespeicherte Methodik jeder Beobachtung. Die API bietet außerdem eine aggregierte Übersicht ohne eigene Oberfläche; Rangliste und Vergleich bleiben geplant.
 
 - [Vision und Umfang](./product/vision)
 - [Benutzerhandbuch](./guide/monitoring)

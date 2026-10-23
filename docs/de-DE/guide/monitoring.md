@@ -1,6 +1,6 @@
 # Katalog nutzen und Anwendungen untersuchen
 
-Dieses Handbuch beschreibt vorhandenen Katalog und Betriebsdetail. Umweltdashboard, Analyse und Administration bleiben in den [Epics](../roadmap) geplant.
+Dieses Handbuch beschreibt Katalog, Betriebsdetail und die in der Oberfläche verfügbare Umweltanalyse je Anwendung.
 
 ## Anwendung finden
 
@@ -17,7 +17,15 @@ Katalog und Detail rufen beim Öffnen ab und planen den nächsten Abruf 60 Sekun
 
 Die UI zeigt Versuchs- und gültige Antwortzeiten. Bei Fehler nach Erfolg bleiben frühere Daten erhalten, ohne als neue Beobachtung zu gelten. Manuelle Katalogaktualisierung erlaubt erneuten Versuch ohne Seitenreload. Verlassen bricht laufende Anfragen ab.
 
+## Umweltergebnisse untersuchen
+
+Im Anwendungsdetail wählen Sie ein rollierendes Fenster von 24 Stunden, 7, 30 oder 90 Tagen sowie eine stündliche, tägliche, monatliche oder jährliche Granularität. Die Zeitreihe zeigt Energie und CO₂e aus gespeicherten Ergebnissen. Die Überlagerung vergleicht das gewählte Fenster mit dem unmittelbar vorherigen Fenster gleicher Dauer. Das ist ein Zeitvergleich für eine Anwendung, keine Rangliste und kein Vergleich zwischen Anwendungen.
+
+Mit Filtern und Sortierung der Tabelle finden Sie Buckets. Prüfen Sie einen Bucket auf enthaltene Beiträge und Ausschlüsse samt Gründen. Die Tabelle ist paginiert; die Oberfläche lädt derzeit nur die erste Beitragsseite. Lücken und Ausschlüsse bedeuten nicht null. Ohne berechenbare Belege bleibt das Ergebnis nicht verfügbar.
+
 ## Situationen verstehen
+
+Für die Nachverfolgung eines Indikators öffnen Sie im Anwendungsdetail **Vollständige Methodik ansehen**. Alternativ wählen Sie in der Navigation **Methodik** und danach eine Anwendung. Die Seite zeigt das gespeicherte Modell, die Formel, Parameter und Annahmen sowie verfügbare Angaben zum Kohlenstofffaktor. Der Link im Detail verwendet die ausgewählte Erfassung; die Navigation verwendet die letzte gültige Erfassung. Die Seite erklärt gespeicherte Belege und berechnet das Ergebnis nicht neu.
 
 | Situation | Bedeutung / Aktion |
 | --- | --- |
@@ -30,7 +38,7 @@ Die UI zeigt Versuchs- und gültige Antwortzeiten. Bei Fehler nach Erfolg bleibe
 
 ## Zustand, Sprache und Support
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` und `REMOVED` sind Betriebszustände. Aktualität, Grund und Berechenbarkeit sind eigenständig. Verfügbar kann ohne Kohlenstofffaktor sein; nicht verfügbar kann gültige Historie haben. Erfassungsbelege sind per API vorhanden; vollständige Metrik-/Aktualitätsdarstellung hat UI-Tasks. Siehe [Methodik](../product/methodology).
+`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` und `REMOVED` sind Betriebszustände. Aktualität, Grund und Berechenbarkeit sind eigenständig. Verfügbar kann ohne Kohlenstofffaktor sein; nicht verfügbar kann gültige Historie haben. Das Detail zeigt Betriebszustand, Metriken, Umweltergebnisse, Zeitreihe und Beiträge je Zeitraum. Siehe [API-Referenz](../reference/api) und [Methodik](../product/methodology), um fehlende Daten, Fehler und Nullwerte zu unterscheiden.
 
 Der Sprachwähler bietet acht Sprachen und speichert die Auswahl in diesem Browser. Sprache verändert weder Identität noch Beobachtungszeitpunkte.
 
