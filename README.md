@@ -86,6 +86,8 @@ O backend oferece login por e-mail e senha, access JWT com validade de 15 minuto
 
 Com as migrations aplicadas, crie uma organização e envie o convite ao representante definindo `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL` no ambiente antes de executar `npm run organizations:create-invitation` em `backend/`. Para reenviar um convite de uma organização existente, omita `ORGANIZATION_NAME` e informe o slug e o e-mail do representante. O representante cadastra o primeiro Admin; o Admin confirma o próprio e-mail e define a senha nesse fluxo. Os endpoints e seus contratos estão publicados em `/docs`.
 
+Para testar o login local sem SMTP, suba a API com `docker compose up -d api` e execute `docker compose exec api npm run auth:create-test-login`. O comando só funciona com `NODE_ENV=development`, cria/atualiza o usuário `login.teste@greener.test` na organização `greener-teste`, com papel `VISITOR`, e gera uma senha temporária no terminal. Use esses dados em `/login`; cada execução redefine a senha.
+
 Para recuperar um autenticador perdido, o suporte deve validar a autoridade atual da organização por canal independente antes de operar. No backend, execute `npm run authentication:recover-admin-totp` com `ORGANIZATION_SLUG`, `ADMIN_EMAIL`, `NEW_RECOVERY_REPRESENTATIVE_EMAIL`, `SUPPORT_OPERATOR_ID` e `SUPPORT_RECOVERY_REASON` no ambiente. A operação redefine TOTP, atualiza o contato de recuperação, revoga as sessões e registra auditoria; não use edição manual do banco. O Admin deve autenticar novamente e configurar TOTP.
 
 ## Tecnologias
