@@ -20,6 +20,17 @@ export interface CollectionEvidence {
   collectionIntervalSeconds: number | null; isStale: boolean; state: string; reason: string
   lastCheckedAt: string | null
   metrics: { cpu: MetricEvidence; memory: MetricEvidence; disk: MetricEvidence; network: MetricEvidence }
+  environmental: EnvironmentalEvidence
+}
+
+interface EnvironmentalReason { code: string; metric?: string }
+interface EnvironmentalFormula { status: 'available' | 'unavailable'; expression: string | null; inputUnits: Record<string, string> | null; outputUnit: string | null; reason: string | null }
+interface EnvironmentalModel { key: string; version: string; configId: string | null; configVersion: string | null; parameters: Record<string, number>; formula: EnvironmentalFormula; powerContributionsW: Record<string, number | null>; reasons: EnvironmentalReason[] }
+interface EnvironmentalFactorSnapshot { id: string | null; version: string | null; contractVersion: string | null; regionCode: string | null; country: string | null; region: string | null; city: string | null; intensity: number | null; unit: string | null; queriedAt: string | null; source: string | null; validFrom: string | null; validUntil: string | null }
+export interface EnvironmentalEvidence {
+  status: 'present' | 'absent'; absenceReason: string | null
+  energy: null | { valueKwh: number | null; calculatedValueKwh: number | null; coverage: number | null; durationSeconds: number | null; averagePowerW: number | null; model: EnvironmentalModel }
+  carbon: null | { valueGramsCo2e: number | null; calculatedValueGramsCo2e: number | null; calculatedValueKilogramsCo2e: number | null; factor: number | null; factorSnapshot: EnvironmentalFactorSnapshot | null; formula: { expression: string; energyUnit: string; factorUnit: string; gramsUnit: string; kilogramsUnit: string }; reasons: EnvironmentalReason[] }
 }
 function trimTrailingSlashes(value: string) {
   let end = value.length
@@ -104,13 +115,43 @@ export function parseCollectionEvidence(value: unknown): CollectionEvidence {
     !isDate(value.intervalStart) || !isDate(value.intervalEnd) || !isDate(value.collectedAt) ||
     !(value.collectionIntervalSeconds === null || (typeof value.collectionIntervalSeconds === 'number' && Number.isFinite(value.collectionIntervalSeconds))) ||
     typeof value.isStale !== 'boolean' || typeof value.state !== 'string' || typeof value.reason !== 'string' ||
-    !(value.lastCheckedAt === null || isDate(value.lastCheckedAt)) || !isRecord(value.metrics)) {
+    !(value.lastCheckedAt === null || isDate(value.lastCheckedAt)) || !isRecord(value.metrics) || !isRecord(value.environmental)) {
     throw new Error('Evidência incompatível com a aplicação')
   }
   return { id: value.id, applicationId: value.applicationId, intervalStart: value.intervalStart, intervalEnd: value.intervalEnd,
     collectedAt: value.collectedAt, collectionIntervalSeconds: value.collectionIntervalSeconds as number | null,
     isStale: value.isStale, state: value.state, reason: value.reason, lastCheckedAt: value.lastCheckedAt as string | null,
-    metrics: { cpu: parseMetric(value.metrics.cpu), memory: parseMetric(value.metrics.memory), disk: parseMetric(value.metrics.disk), network: parseMetric(value.metrics.network) } }
+    metrics: { cpu: parseMetric(value.metrics.cpu), memory: parseMetric(value.metrics.memory), disk: parseMetric(value.metrics.disk), network: parseMetric(value.metrics.network) },
+    environmental: parseEnvironmentalEvidence(value.environmental) }
+}
+
+function finiteOrNull(value: unknown): value is number | null { return value === null || typeof value === 'number' && Number.isFinite(value) }
+function parseEnvironmentalEvidence(value: unknown): EnvironmentalEvidence {
+  if (!isRecord(value) || !['present', 'absent'].includes(String(value.status)) || !(value.absenceReason === null || typeof value.absenceReason === 'string')) throw new Error('Evidência ambiental incompatível')
+  if (value.status === 'absent') {
+    if (value.energy !== null || value.carbon !== null || value.absenceReason === null) throw new Error('Ausência ambiental incompatível')
+    return value as unknown as EnvironmentalEvidence
+  }
+  if (value.absenceReason !== null || !isRecord(value.energy) || !isRecord(value.carbon)) throw new Error('Evidência ambiental incompatível')
+  const energy = value.energy; const model = energy.model; const carbon = value.carbon; const carbonFormula = carbon.formula
+  if (!['valueKwh', 'calculatedValueKwh', 'coverage', 'durationSeconds', 'averagePowerW'].every((key) => finiteOrNull(energy[key])) ||
+    !isRecord(model) || typeof model.key !== 'string' || typeof model.version !== 'string' ||
+    !(model.configId === null || typeof model.configId === 'string') || !(model.configVersion === null || typeof model.configVersion === 'string') ||
+    !isRecord(model.parameters) || !Object.values(model.parameters).every((item) => typeof item === 'number' && Number.isFinite(item)) ||
+    !isRecord(model.formula) || !['available', 'unavailable'].includes(String(model.formula.status)) ||
+    !(model.formula.expression === null || typeof model.formula.expression === 'string') ||
+    !(model.formula.outputUnit === null || typeof model.formula.outputUnit === 'string') ||
+    !(model.formula.inputUnits === null || isRecord(model.formula.inputUnits) && Object.values(model.formula.inputUnits).every((item) => typeof item === 'string')) ||
+    !Array.isArray(model.reasons) || !Array.isArray(carbon.reasons) ||
+    !['valueGramsCo2e', 'calculatedValueGramsCo2e', 'calculatedValueKilogramsCo2e', 'factor'].every((key) => finiteOrNull(carbon[key])) ||
+    !isRecord(carbonFormula) || !['expression', 'energyUnit', 'factorUnit', 'gramsUnit', 'kilogramsUnit'].every((key) => typeof carbonFormula[key] === 'string')) throw new Error('Evidência ambiental incompatível')
+  for (const reason of [...model.reasons, ...carbon.reasons]) if (!isRecord(reason) || typeof reason.code !== 'string') throw new Error('Razão ambiental incompatível')
+  if (carbon.factorSnapshot !== null) {
+    const snapshot = carbon.factorSnapshot
+    if (!isRecord(snapshot) || !['id', 'version', 'contractVersion', 'regionCode', 'country', 'region', 'city', 'unit', 'source'].every((key) => snapshot[key] === null || typeof snapshot[key] === 'string') ||
+      !['intensity'].every((key) => finiteOrNull(snapshot[key])) || !['queriedAt', 'validFrom', 'validUntil'].every((key) => optionalDate(snapshot[key]))) throw new Error('Snapshot do fator ambiental incompatível')
+  }
+  return value as unknown as EnvironmentalEvidence
 }
 
 export async function getLatestCollectionEvidence(id: string, signal: AbortSignal): Promise<CollectionEvidence> {
@@ -120,3 +161,5 @@ export async function getLatestCollectionEvidence(id: string, signal: AbortSigna
 export async function getCollectionEvidence(id: string, collectionId: string, signal: AbortSignal): Promise<CollectionEvidence> {
   return parseCollectionEvidence(await getJson(collectionEndpoint(id, collectionId), signal))
 }
+
+function optionalDate(value: unknown): value is string | null { return value === null || isDate(value) }

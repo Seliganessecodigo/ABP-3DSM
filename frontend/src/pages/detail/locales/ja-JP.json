@@ -190,5 +190,6 @@
   "evidenceClearFilters": "フィルターをクリア",
   "evidenceNoMatches": "条件に一致する証拠はありません。",
   "evidenceFilteredCount": "全{{total}}件中{{count}}件の指標",
-  "analysisCloseDetails": "\u8a73\u7d30\u3092\u9589\u3058\u308b"
+  "analysisCloseDetails": "\u8a73\u7d30\u3092\u9589\u3058\u308b",
+  "methodologyFullPage": "方法論の詳細を見る"
 }

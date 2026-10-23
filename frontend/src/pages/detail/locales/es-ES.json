@@ -190,5 +190,6 @@
   "evidenceClearFilters": "Borrar filtros",
   "evidenceNoMatches": "Ninguna evidencia coincide con estos filtros.",
   "evidenceFilteredCount": "{{count}} de {{total}} métricas",
-  "analysisCloseDetails": "Cerrar detalles"
+  "analysisCloseDetails": "Cerrar detalles",
+  "methodologyFullPage": "Ver metodología completa"
 }

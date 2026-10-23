@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'detail'; id: string }
+type Route = { kind: 'catalog' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null }
 function routeFromLocation(): Route {
+  if (window.location.pathname === '/methodology' || window.location.pathname === '/methodology/') return { kind: 'methodology', id: null }
+  const methodology = /^\/services\/([^/]+)\/methodology$/.exec(window.location.pathname)
+  if (methodology) {
+    try { return { kind: 'methodology', id: decodeURIComponent(methodology[1]) } } catch { return { kind: 'methodology', id: methodology[1] } }
+  }
   const match = /^\/services\/(.+)$/.exec(window.location.pathname)
   if (!match) return { kind: 'catalog' }
   try { return { kind: 'detail', id: decodeURIComponent(match[1]) } } catch { return { kind: 'detail', id: match[1] } }
