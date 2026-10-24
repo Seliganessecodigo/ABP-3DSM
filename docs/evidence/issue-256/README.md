@@ -1,6 +1,12 @@
 # Issue #256 — protótipo de login e navegação administrativa
 
-Quatro telas oficiais aprovadas para o fluxo de login dentro da aba Administração. O item Administração continua selecionado no menu; após autenticar, o conteúdo da aba apresenta o hub administrativo.
+Telas oficiais aprovadas para o fluxo responsivo da issue #256. O login acontece dentro da aba Administração, que permanece selecionada no menu. Após autenticar, o usuário chega ao hub administrativo mostrado abaixo.
+
+## Primeira página após o login
+
+| Desktop | Mobile |
+| --- | --- |
+| ![Hub de Administração após o login — desktop](issue-256-design-desktop.png) | ![Hub de Administração após o login — mobile](issue-256-design-mobile.png) |
 
 ## Marca-d’água
 
@@ -14,4 +20,4 @@ Quatro telas oficiais aprovadas para o fluxo de login dentro da aba Administraç
 | --- | --- |
 | ![Login em tema escuro — desktop](issue-256-login-dark-desktop.png) | ![Login em tema escuro — mobile](issue-256-login-dark-mobile.png) |
 
-Estas imagens registram o protótipo aprovado para a [issue #256](https://github.com/Seliganessecodigo/ABP-3DSM/issues/256). O PR não implementa a autenticação nem redesenha as páginas internas do hub administrativo.
+Estas seis imagens registram o protótipo aprovado para a [issue #256](https://github.com/Seliganessecodigo/ABP-3DSM/issues/256). O PR não implementa a autenticação nem redesenha as páginas internas do hub administrativo.
