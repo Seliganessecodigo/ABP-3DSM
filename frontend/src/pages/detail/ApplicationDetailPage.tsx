@@ -118,7 +118,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     : null
   const locationSummary = application?.location
     ? [application.location.country, application.location.regionCode, application.location.region,
-      verificationTime ? tDetail('verifiedAt', { time: verificationTime }) : null].filter(Boolean).join(' \u00b7 ')
+      verificationTime && tDetail('verifiedAt', { time: verificationTime })].filter(Boolean).join(' \u00b7 ')
     : tCommon('location.unknown')
   const evidenceContent = application && <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound} compact
       selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing || analysisPending} onRefresh={retry}

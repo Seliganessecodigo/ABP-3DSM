@@ -449,6 +449,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       }
     : undefined
   const { preserveEmpty, emptyResult, invalidContext, showData, initialLoading, showUnavailable } = getDisplayState(data, status, lastSuccessStatus)
+  const seriesPoints = data?.series.status === 'available' ? data.series.points : []
   if (initialLoading) return <section aria-label={labels.heading} className={styles.loadingLayout}>
     <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
   </section>
@@ -474,9 +475,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}
-          coverage={data.energyCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="energy" />
+          coverage={data.energyCoverage} seriesPoints={seriesPoints} metric="energy" />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
-          coverage={data.emissionsCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="emissions" />
+          coverage={data.emissionsCoverage} seriesPoints={seriesPoints} metric="emissions" />
         <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />
       </div>}
     </section>
