@@ -75,7 +75,6 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   return <main className={styles.page}>
     <header className={styles.heading}>
       <h1>{t('title')}</h1>
-      <p>{t('subtitle')}</p>
     </header>
     <section className={styles.card} aria-labelledby="totp-heading">
       <h2 id="totp-heading" ref={headingRef} tabIndex={-1}>{t(isSetup ? 'totpSetupHeading' : 'totpChallengeHeading')}</h2>

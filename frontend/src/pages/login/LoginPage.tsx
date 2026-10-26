@@ -65,7 +65,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     />
   }
   return <main className={styles.page}>
-    <header className={styles.heading}><h1>{t('title')}</h1><p>{t('subtitle')}</p></header>
+    <header className={styles.heading}><h1>{t('title')}</h1></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading">{t('heading')}</h2>
       <p>{t('description')}</p>
