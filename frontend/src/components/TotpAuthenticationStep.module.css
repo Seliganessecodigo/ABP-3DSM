@@ -1,0 +1,21 @@
+.page { min-height: calc(100vh - 58px); padding: 10px clamp(18px, 3vw, 30px) 40px; color: var(--text-primary, #26332f); background: var(--background-page, #f4f7f5); }
+.heading { margin-bottom: 12px; border-radius: 10px; padding: 14px 10px; background: var(--surface-card, #fff); }
+.heading h1 { margin: 0 0 4px; font-size: 20px; }
+.heading p { margin: 0; color: var(--text-secondary, #61736b); font-size: 11px; }
+.card { width: min(100%, 450px); min-height: 335px; border-radius: 10px; padding: 22px 20px; background: var(--surface-card, #fff); }
+.card h2 { margin: 0 0 10px; color: var(--accent-default, #075844); font-size: 19px; }
+.card h2:focus { outline: 2px solid var(--accent-default, #087454); outline-offset: 4px; }
+.card > p { margin-bottom: 18px; color: var(--text-secondary, #61736b); font-size: 12px; line-height: 1.5; }
+.provisioning { display: grid; justify-items: center; gap: 14px; margin: 18px 0; }
+.qrFrame { display: grid; place-items: center; border-radius: 8px; padding: 14px; background: #fff; }
+.manual { width: 100%; color: var(--text-primary, #26332f); font-size: 12px; }
+.manual summary { cursor: pointer; font-weight: 650; }
+.manual p { color: var(--text-secondary, #61736b); line-height: 1.5; }
+.manual code { display: block; overflow-wrap: anywhere; margin-bottom: 10px; border: 1px solid var(--border-control, #dce6e0); border-radius: 6px; padding: 9px; background: var(--control-background, #f4f7f5); }
+.copyMessage { margin: 7px 0 0; }
+.card form { display: grid; gap: 10px; }
+.card label { font-size: 12px; font-weight: 650; }
+.card input { width: 100%; height: 42px; border: 1px solid var(--border-control, #dce6e0); border-radius: 8px; padding: 0 10px; color: var(--text-primary, #26332f); background: var(--control-background, #f4f7f5); font: inherit; font-size: 16px; letter-spacing: .25em; }
+.error { margin: 0; color: var(--error-foreground, #a32626); font-size: 12px; }
+.cancel { margin-top: 15px; border: 0; padding: 5px 0; color: var(--accent-default, #087454); background: transparent; font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+@media (max-width: 640px) { .page { padding: 8px 14px 30px; } .heading { padding-inline: 8px; } .card { min-height: 0; padding: 20px 16px; } }

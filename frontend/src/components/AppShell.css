@@ -36,3 +36,8 @@
 @media (max-width: 640px) {
   .topbar-actions { gap: 8px; }
 }
+@media (max-width: 360px) {
+  .topbar { padding-inline: 10px; }
+  .topbar-actions { gap: 4px; }
+  .topbar-actions .language-control select { max-width: 100px; }
+}

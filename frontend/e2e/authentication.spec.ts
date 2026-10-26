@@ -74,7 +74,7 @@ test('renova a sessão uma vez quando a consulta inicial do perfil retorna 401',
   expect(profileRequests).toBe(2)
 })
 
-test('desafio TOTP não cria sessão nem navega para a tela inicial', async ({ page }) => {
+test('desafio TOTP não cria sessão até que a pessoa informe o código', async ({ page }) => {
   await mockCatalog(page, [])
   await page.route('**/api/auth/login', async (route) => route.fulfill({ json: { status: 'TOTP_REQUIRED', challengeToken: 'challenge-test', expiresIn: 300 } }))
   await page.goto('/login')
@@ -83,7 +83,8 @@ test('desafio TOTP não cria sessão nem navega para a tela inicial', async ({ p
   await page.getByRole('button', { name: 'Entrar' }).click()
 
   await expect(page).toHaveURL(/\/login$/)
-  await expect(page.getByRole('alert')).toHaveText('Sua conta exige uma etapa adicional de autenticação, disponível em outra etapa do produto.')
+  await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
+  await expect(page.getByLabel('Código do autenticador')).toBeVisible()
   await expect(page.getByText('Ana Silva')).toHaveCount(0)
 })
 

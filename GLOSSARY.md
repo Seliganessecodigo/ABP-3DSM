@@ -27,8 +27,11 @@ Etapa adicional de autenticação que exige comprovação além da senha. Nesta 
 **Autenticador TOTP**:
 Aplicativo ou dispositivo que gera códigos temporários de uso único a partir de um segredo compartilhado e do horário atual.
 
+**Cadastro do autenticador TOTP**:
+Vínculo inicial entre uma conta GreenER elegível e um autenticador compatível, ativado somente depois que a pessoa confirma um código válido.
+
 **Desafio TOTP**:
-Etapa temporária após a validação da senha, na qual a pessoa comprova posse do autenticador antes de receber uma sessão GreenER com acesso normal.
+Etapa temporária após o primeiro fator de autenticação, na qual a pessoa comprova posse do autenticador antes de receber uma sessão GreenER com acesso normal. O primeiro fator pode ser senha local ou identidade SSO.
 
 **Representante da organização**:
 Contato autorizado pela organização para receber o convite inicial do primeiro Administrador e validar recuperações de autenticador. Essa indicação não cria uma conta GreenER e pode ser substituída pelo suporte após validação independente da nova autoridade e registro de auditoria.

@@ -14,12 +14,27 @@ export interface AuthenticatedUser {
 }
 
 export interface Credentials { email: string; password: string }
+export interface TotpSetupRequired {
+  status: 'TOTP_SETUP_REQUIRED'
+  setupToken: string
+  expiresIn: number
+}
+export interface TotpChallengeRequired {
+  status: 'TOTP_REQUIRED'
+  challengeToken: string
+  expiresIn: number
+}
+export type LoginResult = SessionTokens | TotpSetupRequired | TotpChallengeRequired
+export interface TotpProvisioning {
+  setupToken: string
+  provisioningUri: string
+  expiresIn: number
+}
 export class AuthenticationError extends Error {
   readonly status: number
   readonly code: string
   constructor(status: number, code = '') { super(`HTTP ${status}`); this.status = status; this.code = code }
 }
-export class TotpRequiredError extends Error {}
 
 const apiBase = ((import.meta.env.VITE_API_URL as string | undefined) ?? '/api').replace(/\/+$/, '')
 const endpoint = (path: string) => `${apiBase}/auth/${path}`
@@ -34,6 +49,34 @@ function parseTokens(value: unknown): SessionTokens {
   return { accessToken: value.accessToken, refreshToken: value.refreshToken, tokenType: 'Bearer', expiresIn: value.expiresIn }
 }
 
+function parseLoginResult(value: unknown): LoginResult {
+  if (isRecord(value) && value.status === 'TOTP_SETUP_REQUIRED' &&
+    typeof value.setupToken === 'string' && value.setupToken &&
+    typeof value.expiresIn === 'number' && Number.isFinite(value.expiresIn) && value.expiresIn > 0) {
+    return { status: 'TOTP_SETUP_REQUIRED', setupToken: value.setupToken, expiresIn: value.expiresIn }
+  }
+  if (isRecord(value) && value.status === 'TOTP_REQUIRED' &&
+    typeof value.challengeToken === 'string' && value.challengeToken &&
+    typeof value.expiresIn === 'number' && Number.isFinite(value.expiresIn) && value.expiresIn > 0) {
+    return { status: 'TOTP_REQUIRED', challengeToken: value.challengeToken, expiresIn: value.expiresIn }
+  }
+  return parseTokens(value)
+}
+
+function parseTotpProvisioning(value: unknown): TotpProvisioning {
+  if (!isRecord(value) || typeof value.setupToken !== 'string' || !value.setupToken ||
+    typeof value.provisioningUri !== 'string' || !value.provisioningUri ||
+    typeof value.expiresIn !== 'number' || !Number.isFinite(value.expiresIn) || value.expiresIn <= 0) {
+    throw new Error('Resposta de configuraÃ§Ã£o TOTP invÃ¡lida')
+  }
+  let uri: URL
+  try { uri = new URL(value.provisioningUri) } catch { throw new Error('URI de configuraÃ§Ã£o TOTP invÃ¡lida') }
+  if (uri.protocol !== 'otpauth:' || uri.hostname !== 'totp' || !uri.searchParams.get('secret')) {
+    throw new Error('URI de configuraÃ§Ã£o TOTP invÃ¡lida')
+  }
+  return { setupToken: value.setupToken, provisioningUri: uri.toString(), expiresIn: value.expiresIn }
+}
+
 async function requestJson(url: string, init: RequestInit = {}): Promise<unknown> {
   const response = await fetch(url, { ...init, headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...init.headers } })
   if (!response.ok) {
@@ -45,10 +88,28 @@ async function requestJson(url: string, init: RequestInit = {}): Promise<unknown
   return response.json() as Promise<unknown>
 }
 
-export async function login(credentials: Credentials): Promise<SessionTokens> {
+export async function login(credentials: Credentials): Promise<LoginResult> {
   const response = await requestJson(endpoint('login'), { method: 'POST', body: JSON.stringify(credentials) })
-  if (isRecord(response) && (response.status === 'TOTP_REQUIRED' || response.status === 'TOTP_SETUP_REQUIRED')) throw new TotpRequiredError()
-  return parseTokens(response)
+  return parseLoginResult(response)
+}
+
+export async function beginTotpSetup(setupToken: string): Promise<TotpProvisioning> {
+  const response = await requestJson(endpoint('totp/setup'), { method: 'POST', body: JSON.stringify({ setupToken }) })
+  return parseTotpProvisioning(response)
+}
+
+export async function confirmTotpSetup(setupToken: string, code: string): Promise<SessionTokens> {
+  return parseTokens(await requestJson(endpoint('totp/setup/confirm'), {
+    method: 'POST',
+    body: JSON.stringify({ setupToken, code }),
+  }))
+}
+
+export async function verifyTotpChallenge(challengeToken: string, code: string): Promise<SessionTokens> {
+  return parseTokens(await requestJson(endpoint('totp/challenge'), {
+    method: 'POST',
+    body: JSON.stringify({ challengeToken, code }),
+  }))
 }
 
 export async function getCurrentUser(accessToken: string): Promise<AuthenticatedUser> {
