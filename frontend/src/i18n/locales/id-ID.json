@@ -52,5 +52,10 @@
   "reason.CARBON_FACTOR_UNAVAILABLE": "Faktor karbon tidak tersedia",
   "reason.REMOVAL_CONFIRMED": "Penghapusan dikonfirmasi",
   "loading.description": "Tunggu hingga permintaan selesai. Nilai belum ditampilkan.",
-  "loading.processing": "Memproses…"
+  "loading.processing": "Memproses…",
+  "auth.login": "Masuk",
+  "auth.signOut": "Keluar",
+  "auth.role.ADMIN": "Administrator",
+  "auth.role.ANALYST": "Analis",
+  "auth.role.VISITOR": "Pengunjung"
 }

@@ -56,5 +56,6 @@
   "reason.CARBON_FACTOR_UNAVAILABLE": "Fator de carbono indisponível",
   "reason.REMOVAL_CONFIRMED": "Remoção confirmada",
   "loading.description": "Aguarde a consulta. Nenhum valor foi apresentado ainda.",
-  "loading.processing": "Processando…"
+  "loading.processing": "Processando…",
+  "auth.login": "Entrar"
 }
