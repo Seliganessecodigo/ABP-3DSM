@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null }
+type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null }
 function routeFromLocation(): Route {
+  if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') return { kind: 'dashboard' }
   if (window.location.pathname === '/methodology' || window.location.pathname === '/methodology/') return { kind: 'methodology', id: null }
   const methodology = /^\/services\/([^/]+)\/methodology$/.exec(window.location.pathname)
   if (methodology) {

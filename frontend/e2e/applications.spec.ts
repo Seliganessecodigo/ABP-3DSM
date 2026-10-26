@@ -518,13 +518,14 @@ test('intervalo invertido vindo da URL é rejeitado sem parecer que não há apl
   await expect(row(page, 'svc-0142')).toBeVisible()
 })
 
-test('menu destaca Aplicações, habilita metodologia e mantém funcionalidades adiadas desabilitadas', async ({ page }) => {
+test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar funcionalidades adiadas', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')
   const navigation = page.getByRole('navigation')
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('href', '/dashboard')
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
-  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
+  for (const name of ['Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
@@ -546,7 +547,9 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
   await expect.poll(() => page.getByRole('dialog').evaluate((element) => element.getBoundingClientRect().width)).toBe(320)
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Metodologia', exact: true }))
     .toHaveAttribute('href', '/methodology')
-  for (const name of ['Dashboard', 'Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Dashboard', exact: true }))
+    .toHaveAttribute('href', '/dashboard')
+  for (const name of ['Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
     await expect(destination).toBeVisible()
     await expect(destination).toBeDisabled()
@@ -673,6 +676,7 @@ test('drawer aberto impede a rolagem do conteúdo ao fundo', async ({ page }) =>
   await page.setViewportSize({ width: 390, height: 600 })
   await mockCatalog(page, largeCatalog())
   await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'api-001', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight)).toBe(true)
   await page.getByRole('button', { name: 'Abrir menu' }).click()
 

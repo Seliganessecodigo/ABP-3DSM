@@ -23,3 +23,7 @@ The number of consecutive valid observations for the same incident identity and 
 ## Stale observation
 
 Previously valid data that remains available but is older than the latest monitoring attempt. A failure or missing value is not represented as zero.
+
+**Environmental temporal coverage**:
+The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
+_Avoid_: Application coverage, data share

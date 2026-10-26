@@ -3,7 +3,7 @@
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
 `app/` contém a navegação e inicialização global. Providers globais ficam nessa camada quando mais de uma rota depende deles.
 
-- `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os oito idiomas.
+- `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os oito idiomas. `pages/dashboard/` compõe os resumos ambientais e filtros de `features/analysis/`.
 - `components/`: interface compartilhada por telas ou infraestrutura visual, como `AppShell`, `LanguageSelector`, ações e feedback de requisição. Elementos específicos continuam junto da página que os usa.
 - `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página. `features/analysis/` integra resumo, série e consulta da primeira página de contribuições por bucket; paginação interativa continua pendente. Consulte o README do módulo para o contrato corrente e seus limites.
 - `utils/`: funções independentes de React, como formatação de datas.
