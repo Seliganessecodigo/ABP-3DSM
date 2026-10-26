@@ -7,6 +7,7 @@ export { supportedLocales, type Locale } from './i18n/types.ts'
 export const localeNames: Record<Locale, string> = {
   'pt-BR': 'Portugu\u00eas (Brasil)', 'en-US': 'English (US)', 'es-ES': 'Espa\u00f1ol', 'fr-FR': 'Fran\u00e7ais',
   'de-DE': 'Deutsch', 'it-IT': 'Italiano', 'ja-JP': '\u65e5\u672c\u8a9e', 'zh-CN': '\u7b80\u4f53\u4e2d\u6587',
+  'ko-KR': '한국어', 'ru-RU': 'Русский', 'hi-IN': 'हिन्दी', 'id-ID': 'Bahasa Indonesia',
 }
 
 const pageNamespaces = import.meta.glob<NamespaceResources>('./pages/*/i18n.ts', { eager: true, import: 'default' })
