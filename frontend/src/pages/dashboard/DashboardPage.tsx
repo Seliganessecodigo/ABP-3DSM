@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { stateLabel } from '../../features/applications/presentation.ts'
 import { periodPresets } from '../../features/analysis/periodContext.ts'
@@ -65,6 +66,23 @@ function normalizeNumberInput(value: string): string {
   return value.trim()
 }
 
+function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode'>) {
+  if (query.period === null) return null
+  return {
+    period: query.period,
+    state: query.state === 'ALL' ? null : query.state,
+    regionCode: query.regionCode,
+  }
+}
+
+function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: number) {
+  const pageCount = pageSize === 'all' ? 1 : Math.ceil(total / pageSize)
+  const page = total === 0 ? 1 : Math.min(requestedPage, pageCount)
+  const from = pageSize === 'all' ? 0 : (page - 1) * pageSize
+  const to = pageSize === 'all' ? total : Math.min(page * pageSize, total)
+  return { pageCount, page, from, to }
+}
+
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
@@ -75,12 +93,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
   const [compositionDirection, setCompositionDirection] = useState<'asc' | 'desc'>('desc')
   const period = query.period
-  const data = useDashboard(period === null ? null : {
-    period,
-    state: query.state === 'ALL' ? null : query.state,
-    regionCode: query.regionCode,
-  })
+  const data = useDashboard(summaryFilters(query))
   const refresh = data.refresh
+  const pending = ['loading', 'refreshing'].includes(data.status)
 
   const labels = useMemo(() => ({
     AVAILABLE: stateLabel('AVAILABLE', tCommon),
@@ -95,11 +110,8 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     locale,
     (state) => labels[state],
   ), [data.applications.items, data.data?.applications, labels, locale, query])
-  const pageCount = query.pageSize === 'all' ? 1 : Math.ceil(table.total / query.pageSize)
-  const page = table.total === 0 ? 1 : Math.min(query.page, pageCount)
-  const visibleRows = query.pageSize === 'all'
-    ? table.items
-    : table.items.slice((page - 1) * query.pageSize, page * query.pageSize)
+  const { pageCount, page, from, to } = pageRange(table.total, query.pageSize, query.page)
+  const visibleRows = table.items.slice(from, to)
   const activeFilterCount = activeDashboardFilterCount(query.filters)
   const regionCodes = [...new Set(data.applications.items.flatMap((application) => application.location?.regionCode ?? []))]
     .sort((left, right) => left.localeCompare(right, locale))
@@ -163,6 +175,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     return next
   })
   const changePeriod = (next: typeof periodPresets[number]) => {
+    if (pending && period === next) return
     update({ period: next })
     refresh()
   }
@@ -171,6 +184,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     if (pageSize) update({ pageSize })
   }
   const retry = () => {
+    if (pending) return
     refresh()
   }
   const detailsLink = (id: string, name: string) => <a
@@ -191,10 +205,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <div>
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
         <h1>{t('title')}</h1>
-        <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>
+        {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
-      <button className={styles.refreshButton} type="button" onClick={retry} disabled={data.status === 'loading' || data.status === 'refreshing'}>
+      <button className={styles.refreshButton} type="button" aria-disabled={pending}
+        aria-busy={pending} onClick={retry}>
         {data.status === 'refreshing' ? t('refreshing') : t('refresh')}
       </button>
     </header>
@@ -202,7 +217,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     <section className={styles.controls} aria-label={t('filters.contextHeading')}>
       <div className={styles.periods} role="group" aria-label={t('period')}>
         {periodPresets.map((preset) => <button key={preset} type="button" aria-pressed={period === preset}
-          className={period === preset ? styles.selected : ''} onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
+          aria-disabled={period === preset && pending}
+          className={period === preset ? styles.selected : ''}
+          onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
       <label>{t('region')}
@@ -224,7 +241,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
     </section>
 
-    {data.status === 'loading' && <p className={styles.status} role="status">{t('loading')}</p>}
+    {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
       <p>{data.data ? t('refreshError') : t('error')}</p>
       {!data.data && <button type="button" onClick={retry}>{t('retry')}</button>}
@@ -273,7 +290,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </section>
 
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
-      {data.status === 'refreshing' && <p className={styles.status} role="status">{t('refreshing')}</p>}
+      {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
       <section className={styles.visualizations}>
         <article className={styles.card}>
@@ -409,8 +426,8 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           </div>}
         {table.total > 0 && <footer className={styles.pagination}>
           <p>{t('table.range', {
-            from: query.pageSize === 'all' ? 1 : (page - 1) * query.pageSize + 1,
-            to: query.pageSize === 'all' ? table.total : Math.min(page * query.pageSize, table.total),
+            from: from + 1,
+            to,
             total: table.total,
           })}</p>
           <label>{t('table.pageSize')}<select value={query.pageSize} onChange={(event) => changePageSize(event.target.value)}>

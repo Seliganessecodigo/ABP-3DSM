@@ -9,6 +9,10 @@ const timeZoneByLocale: Record<Locale, string> = {
   'it-IT': 'Europe/Rome',
   'ja-JP': 'Asia/Tokyo',
   'zh-CN': 'Asia/Shanghai',
+  'ko-KR': 'Asia/Seoul',
+  'ru-RU': 'Europe/Moscow',
+  'hi-IN': 'Asia/Kolkata',
+  'id-ID': 'Asia/Jakarta',
 }
 
 export function getTimeZoneForLocale(locale: string): string {

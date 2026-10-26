@@ -1,4 +1,5 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
+import { LoadingState } from '../../components/LoadingState.tsx'
 import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
@@ -361,7 +362,7 @@ function MethodologySection({ result, state, labels }: Readonly<{
 }>) {
   return <section className={styles.provenance} aria-labelledby="analysis-methodology-heading">
     <h2 id="analysis-methodology-heading">{labels.methodologyHeading}</h2>
-    {state === 'loading' && <output>{labels.loading}</output>}
+    {state === 'loading' && <LoadingState title={labels.loading} compact />}
     {state === 'error' && <output>{labels.methodologyUnavailable}</output>}
     {state === 'unavailable' && !result && <output>{labels.methodologyUnavailable}</output>}
     {result?.status === 'unavailable' && <div className={styles.unavailable}>
@@ -406,6 +407,8 @@ function getDisplayState(data: AnalysisViewModel | null, status: AnalysisStatus,
   return {
     preserveEmpty,
     emptyResult,
+    initialLoading: status === 'loading',
+    showUnavailable: (status === 'unavailable' || status === 'error') && data === null && !preserveEmpty,
     invalidContext: status === 'invalid-period' || status === 'invalid-granularity',
     showData: (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult,
   }
@@ -445,13 +448,16 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         onInspectContributions(bucketStart)
       }
     : undefined
-  const { preserveEmpty, emptyResult, invalidContext, showData } = getDisplayState(data, status, lastSuccessStatus)
+  const { preserveEmpty, emptyResult, invalidContext, showData, initialLoading, showUnavailable } = getDisplayState(data, status, lastSuccessStatus)
+  const seriesPoints = data?.series.status === 'available' ? data.series.points : []
+  if (initialLoading) return <section aria-label={labels.heading} className={styles.loadingLayout}>
+    <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
+  </section>
   return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
-      {status === 'loading' && <output>{labels.loading}</output>}
-      {status === 'refreshing' && <output>{labels.refreshing}</output>}
+      {status === 'refreshing' && <LoadingState title={labels.refreshing} compact />}
       {status === 'empty' && <output>{labels.empty}</output>}
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
       {status === 'unavailable' && <output>{labels.unavailable}</output>}
@@ -465,13 +471,13 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <ActionButton onClick={onRetry}>{labels.retry}</ActionButton>
       </div>}
       </div>
-      {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
+      {showUnavailable && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}
-          coverage={data.energyCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="energy" />
+          coverage={data.energyCoverage} seriesPoints={seriesPoints} metric="energy" />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
-          coverage={data.emissionsCoverage} seriesPoints={data.series.status === 'available' ? data.series.points : []} metric="emissions" />
+          coverage={data.emissionsCoverage} seriesPoints={seriesPoints} metric="emissions" />
         <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />
       </div>}
     </section>

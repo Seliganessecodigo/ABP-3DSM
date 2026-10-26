@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { Application } from '../../features/applications/api.ts'
 import { ActionButton } from '../../components/ActionButton.tsx'
+import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatDate } from '../../utils/formatDate.ts'
 import { useMethodology } from './useMethodology.ts'
 import styles from './MethodologyPage.module.css'
@@ -41,7 +42,7 @@ export function MethodologyPage({ id, navigate }: Readonly<{ id: string | null; 
       <ActionButton disabled={!selectedApplicationId} onClick={() => navigate(`/services/${encodeURIComponent(selectedApplicationId)}/methodology`)}>{t('continue')}</ActionButton>
     </section>}
     {!id && status === 'catalog-empty' && <section className="empty-state"><h2>{t('catalogEmpty')}</h2><p>{t('catalogEmptyDescription')}</p></section>}
-    {isLoading && <p className="notice" role="status">{t('loading')}</p>}
+    {isLoading && <LoadingState title={t('loading')} />}
     {status === 'not-found' && <section className="empty-state"><h2>{t('notFound')}</h2><p>{t('notFoundDescription')}</p></section>}
     {status === 'no-collection' && <section className="empty-state"><h2>{t('noCollection')}</h2><p>{t('noCollectionDescription')}</p></section>}
     {status === 'no-result' && <section className="empty-state"><h2>{t('noResult')}</h2><p>{t('noResultDescription')}</p></section>}

@@ -28,7 +28,7 @@
   cursor: pointer;
 }
 .refreshButton { color: var(--accent-on-accent); background: var(--accent-default); border-color: var(--accent-default); font-weight: 650; white-space: nowrap; }
-.refreshButton:disabled, .pagination button:disabled { cursor: not-allowed; opacity: .65; }
+.refreshButton[aria-disabled='true'], .pagination button:disabled { cursor: not-allowed; opacity: .65; }
 .controls {
   display: flex;
   align-items: end;

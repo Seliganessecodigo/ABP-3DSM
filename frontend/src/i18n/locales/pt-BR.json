@@ -50,5 +50,7 @@
   "reason.INVALID_FIELD": "A fonte informou um campo inválido",
   "reason.MONITORING_CYCLE_DELAYED": "O ciclo de monitoramento está atrasado",
   "reason.CARBON_FACTOR_UNAVAILABLE": "Fator de carbono indisponível",
-  "reason.REMOVAL_CONFIRMED": "Remoção confirmada"
+  "reason.REMOVAL_CONFIRMED": "Remoção confirmada",
+  "loading.description": "Aguarde a consulta. Nenhum valor foi apresentado ainda.",
+  "loading.processing": "Processando…"
 }

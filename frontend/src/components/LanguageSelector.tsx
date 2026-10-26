@@ -11,6 +11,10 @@ function LanguageFlag({ locale }: Readonly<{ locale: Locale }>) {
   if (locale === 'de-DE') return <svg {...common}><rect width="24" height="5.4" rx="2" fill="#222"/><path d="M0 5.3h24v5.4H0z" fill="#d43e42"/><path d="M0 10.6h24v5.4H0z" fill="#f3c641"/></svg>
   if (locale === 'it-IT') return <svg {...common}><rect width="8" height="16" rx="2" fill="#26935b"/><path d="M8 0h8v16H8z" fill="#fff"/><path d="M16 0h8v16h-8z" fill="#d9414a"/></svg>
   if (locale === 'ja-JP') return <svg {...common}><rect width="24" height="16" rx="2" fill="#fff"/><circle cx="12" cy="8" r="4.5" fill="#c93445"/></svg>
+  if (locale === 'ko-KR') return <svg {...common}><rect width="24" height="16" rx="2" fill="#fff"/><circle cx="12" cy="8" r="4" fill="#cd2e3a"/><path d="M8 8a4 4 0 0 0 8 0 2 2 0 0 0-4 0 2 2 0 0 1-4 0" fill="#0047a0"/><path d="m3 4 2-2m-1 4 2-2m12 8 2-2m-1 4 2-2M3 12l2 2m-1-4 2 2M18 2l2 2m-1 0 2 2" stroke="#222" strokeWidth="1"/></svg>
+  if (locale === 'ru-RU') return <svg {...common}><rect width="24" height="16" rx="2" fill="#fff"/><path d="M0 5.3h24v5.4H0z" fill="#0039a6"/><path d="M0 10.6h24V16H0z" fill="#d52b1e"/></svg>
+  if (locale === 'hi-IN') return <svg {...common}><rect width="24" height="16" rx="2" fill="#fff"/><path d="M0 0h24v5.3H0z" fill="#ff9933"/><path d="M0 10.7h24V16H0z" fill="#138808"/><circle cx="12" cy="8" r="2" fill="none" stroke="#000080" strokeWidth=".7"/><path d="M10 8h4m-2-2v4m-1.4-3.4 2.8 2.8m0-2.8-2.8 2.8" stroke="#000080" strokeWidth=".4"/></svg>
+  if (locale === 'id-ID') return <svg {...common}><rect width="24" height="16" rx="2" fill="#fff"/><path d="M0 0h24v8H0z" fill="#ce1126"/></svg>
   return <svg {...common}><rect width="24" height="16" rx="2" fill="#d83d42"/><path d="m5 2 .8 1.7 1.9.2-1.4 1.2.4 1.8L5 6l-1.7.9.4-1.8-1.4-1.2 1.9-.2z" fill="#f5d34e"/></svg>
 }
 

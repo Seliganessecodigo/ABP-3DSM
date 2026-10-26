@@ -1,5 +1,6 @@
 import type { AnalysisContributionsPage } from '../../features/analysis/source.ts'
 import styles from './AnalysisContributions.module.css'
+import { LoadingState } from '../../components/LoadingState.tsx'
 
 type Labels = Readonly<{
   heading: string
@@ -55,7 +56,7 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
   if (data === null && !loading && !error) return null
   return <section className={styles.section} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
-    {loading && <output aria-live="polite">{labels.loading}</output>}
+    {loading && <LoadingState title={labels.loading} compact />}
     {error && <output role="alert">{labels.error}</output>}
     {data && <>
       <section className={styles.totals} aria-label={labels.totals}>
