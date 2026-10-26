@@ -82,6 +82,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     regionCode: query.regionCode,
   })
   const refresh = data.refresh
+  const pending = ['loading', 'refreshing'].includes(data.status)
 
   const labels = useMemo(() => ({
     AVAILABLE: stateLabel('AVAILABLE', tCommon),
@@ -192,12 +193,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <div>
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
         <h1>{t('title')}</h1>
-        {(data.data || (!data.applications.loading && !data.applications.error)) && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
+        {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
-      <button className={styles.refreshButton} type="button" aria-disabled={data.status === 'loading' || data.status === 'refreshing'}
-        aria-busy={data.status === 'loading' || data.status === 'refreshing'}
-        onClick={() => { if (data.status !== 'loading' && data.status !== 'refreshing') retry() }}>
+      <button className={styles.refreshButton} type="button" aria-disabled={pending}
+        aria-busy={pending} onClick={pending ? undefined : retry}>
         {data.status === 'refreshing' ? t('refreshing') : t('refresh')}
       </button>
     </header>
@@ -205,9 +205,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     <section className={styles.controls} aria-label={t('filters.contextHeading')}>
       <div className={styles.periods} role="group" aria-label={t('period')}>
         {periodPresets.map((preset) => <button key={preset} type="button" aria-pressed={period === preset}
-          aria-disabled={period === preset && (data.status === 'loading' || data.status === 'refreshing')}
+          aria-disabled={period === preset && pending}
           className={period === preset ? styles.selected : ''}
-          onClick={() => { if (period !== preset || (data.status !== 'loading' && data.status !== 'refreshing')) changePeriod(preset) }}>{t(`period.${preset}`)}</button>)}
+          onClick={period === preset && pending ? undefined : () => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
       <label>{t('region')}

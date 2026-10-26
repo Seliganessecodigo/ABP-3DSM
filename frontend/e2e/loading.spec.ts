@@ -18,6 +18,7 @@ for (const width of [390, 1366]) {
         await expect(loading).toBeVisible()
         await expect(loading).toHaveAttribute('aria-busy', 'true')
         await expect(loading.getByRole('status')).toContainText(/carregando/i)
+        await expect(page.getByRole('status')).toHaveCount(1)
         await expect(loading.locator('[data-loading-skeleton]')).toBeVisible()
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
         await page.screenshot({ path: test.info().outputPath('loading.png'), fullPage: true })

@@ -407,6 +407,8 @@ function getDisplayState(data: AnalysisViewModel | null, status: AnalysisStatus,
   return {
     preserveEmpty,
     emptyResult,
+    initialLoading: status === 'loading',
+    showUnavailable: (status === 'unavailable' || status === 'error') && data === null && !preserveEmpty,
     invalidContext: status === 'invalid-period' || status === 'invalid-granularity',
     showData: (status === 'available' || status === 'refreshing' || status === 'error' || status === 'unavailable') && data !== null && !emptyResult,
   }
@@ -446,15 +448,14 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         onInspectContributions(bucketStart)
       }
     : undefined
-  const { preserveEmpty, emptyResult, invalidContext, showData } = getDisplayState(data, status, lastSuccessStatus)
-  if (status === 'loading' && data === null) return <section aria-label={labels.heading} className={styles.loadingLayout}>
+  const { preserveEmpty, emptyResult, invalidContext, showData, initialLoading, showUnavailable } = getDisplayState(data, status, lastSuccessStatus)
+  if (initialLoading) return <section aria-label={labels.heading} className={styles.loadingLayout}>
     <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
   </section>
   return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
-      {status === 'loading' && <output>{labels.loading}</output>}
       {status === 'refreshing' && <LoadingState title={labels.refreshing} compact />}
       {status === 'empty' && <output>{labels.empty}</output>}
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
@@ -469,7 +470,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <ActionButton onClick={onRetry}>{labels.retry}</ActionButton>
       </div>}
       </div>
-      {((status === 'unavailable' || status === 'error') && data === null && !preserveEmpty) && <UnavailableSlots labels={labels} />}
+      {showUnavailable && <UnavailableSlots labels={labels} />}
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}

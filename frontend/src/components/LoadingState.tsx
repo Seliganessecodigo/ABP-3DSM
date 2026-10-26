@@ -10,13 +10,13 @@ export function LoadingState({ title, panelTitle, layout = 'content', compact = 
 }>) {
   const { t } = useTranslation('common')
   const spinner = <span className={styles.spinner} aria-hidden="true" />
-  if (compact) return <span className={styles.inline} role="status">{spinner}{title}</span>
+  if (compact) return <output className={styles.inline}>{spinner}{title}</output>
   return <div className={`${styles.loading} ${styles[layout]}`} data-loading-state={layout} aria-busy="true">
-    <div className={styles.notice} role="status">
-      <h2>{title}</h2>
-      <p>{t('loading.description')}</p>
+    <output className={styles.notice}>
+      <strong>{title}</strong>
+      <span className={styles.description}>{t('loading.description')}</span>
       <span className={styles.processing}>{spinner}{t('loading.processing')}</span>
-    </div>
+    </output>
     <div className={styles.placeholders} data-loading-skeleton aria-hidden="true">
       {layout !== 'table' && <div className={styles.cards}>{Array.from({ length: layout === 'dashboard' ? 4 : 3 }, (_, index) =>
         <div className={styles.card} key={index}><span /><span /><span /></div>)}</div>}

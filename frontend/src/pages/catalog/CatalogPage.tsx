@@ -179,7 +179,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
       return <button key={key} onClick={() => clearFilter(key as keyof NonNullable<CatalogQuery['filters']>)}>{tCatalog(labels[key] ?? key)} ×</button>
     })}<button onClick={() => { setQuery((current) => ({ ...current, search: '', state: 'ALL', filters: {}, dateRangeInvalid: false, page: 1 })); setDraftFilters({}); setDateError(false) }}>{tCatalog('clearFilters')}</button></div>}
     {loading && <LoadingState title={tCatalog('loading')} layout="table" />}
-    {refreshing && <LoadingState title={tCatalog('loading')} compact />}
+    {!loading && hasSnapshot && refreshing && <LoadingState title={tCatalog('loading')} compact />}
     {error && <RequestFeedback state="error"><h2>{tCatalog('errorTitle')}</h2><p>{hasSnapshot ? tCatalog('stale') : tCatalog('errorNotRemoved')}</p><ActionButton onClick={retry} disabled={refreshing || loading}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {!loading && hasSnapshot && applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
     {!loading && hasSnapshot && applications.length > 0 && result.total === 0 && <RequestFeedback state="empty"><h2>{tCatalog('noResults')}</h2><p>{tCatalog('adjustFilters')}</p></RequestFeedback>}

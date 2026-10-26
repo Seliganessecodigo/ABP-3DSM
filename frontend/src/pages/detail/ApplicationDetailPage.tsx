@@ -111,6 +111,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const methodologyUrl = `/services/${encodeURIComponent(id)}/methodology${methodologyParams.size ? `?${methodologyParams.toString()}` : ''}`
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
+  const analysisPending = ['loading', 'refreshing'].includes(analysisState)
   const backUrl = `/${window.location.search}`
   const verificationTime = application?.lastCheckedAt && Number.isFinite(Date.parse(application.lastCheckedAt))
     ? new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: displayTimeZone }).format(new Date(application.lastCheckedAt))
@@ -120,7 +121,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       verificationTime ? tDetail('verifiedAt', { time: verificationTime }) : null].filter(Boolean).join(' \u00b7 ')
     : tCommon('location.unknown')
   const evidenceContent = application && <OperationalEvidence evidence={currentCollection} loading={collectionLoading} notFound={collectionNotFound} compact
-      selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing || analysisState === 'loading' || analysisState === 'refreshing'} onRefresh={retry}
+      selected={selectedCollectionId !== null} error={collectionError} refreshing={refreshing || analysisPending} onRefresh={retry}
       calculability={application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}
       formatDate={(value) => formatDate(value, locale, tCommon('date.noObservation'), displayTimeZone)}
       formatNumber={(value) => formatNumber(value, locale)}
@@ -159,7 +160,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
     <a className="button secondary" href={methodologyUrl} onClick={(event) => { event.preventDefault(); navigate(methodologyUrl) }}>{tDetail('methodologyFullPage')}</a>
   </>
-  return <main className={`content ${styles['detail-content']} ${application ? '' : styles.withoutApplication}`} tabIndex={-1}>
+  return <main className={`content ${styles['detail-content']}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {!application && (<a className={styles['back-link']} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{'\u2190'} {tDetail('back')}</a>)}
     {loading && <LoadingState title={tDetail('loading')} panelTitle={tDetail('analysisSeriesHeading')} layout="detail" />}
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
@@ -167,7 +168,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {application && <><div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div><div className={styles.detailTop}>
       <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <PeriodSelector compact className={styles.periodSelector} title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')}
-        busy={analysisState === 'loading' || analysisState === 'refreshing'}
+        busy={analysisPending}
         options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))}
         onSelect={(period) => {
           setAnalysisAnchor(analysisNow())
