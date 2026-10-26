@@ -20,4 +20,3 @@ export function collectionResponse(overrides: Record<string, unknown> = {}) {
     environmental, ...overrides,
   }
 }
-
