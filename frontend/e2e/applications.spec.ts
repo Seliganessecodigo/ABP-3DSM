@@ -676,6 +676,7 @@ test('drawer aberto impede a rolagem do conteúdo ao fundo', async ({ page }) =>
   await page.setViewportSize({ width: 390, height: 600 })
   await mockCatalog(page, largeCatalog())
   await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'api-001', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight)).toBe(true)
   await page.getByRole('button', { name: 'Abrir menu' }).click()
 
