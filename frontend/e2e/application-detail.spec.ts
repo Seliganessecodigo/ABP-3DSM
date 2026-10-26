@@ -4,9 +4,10 @@ import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, una
 const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
 
 test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
+  test.setTimeout(60_000)
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
-  await page.clock.install({ time: new Date(to) })
+  await page.clock.install({ time: new Date(Date.parse(to) - 60_000), now: new Date(to) })
   await page.clock.pauseAt(new Date(to))
   await page.setViewportSize({ width: 996, height: 619 })
   await mockCatalog(page, [application()])

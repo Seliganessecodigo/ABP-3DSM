@@ -178,7 +178,7 @@
 }
 @media (max-width: 720px) {
   .page { padding: 16px 12px 28px; }
-  .header { align-items: flex-start; }
+  .header { align-items: flex-start; flex-wrap: wrap; }
   .header { gap: 12px; }
   .header h1 { font-size: 24px; }
   .summaryMeta { line-height: 1.5; }
