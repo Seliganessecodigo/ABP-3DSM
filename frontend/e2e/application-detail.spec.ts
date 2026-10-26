@@ -160,7 +160,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
   await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
   await expect(page.locator('#analysis-details')).toContainText('2026.1')
-  await page.getByRole('button', { name: 'Fechar detalhes' }).click()
+  await page.getByRole('button', { name: 'Fechar detalhes' }).click({ timeout: 10_000 })
 
   await page.setViewportSize({ width: 1888, height: 1000 })
   const wideViewport = await page.evaluate(() => {
