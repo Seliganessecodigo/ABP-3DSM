@@ -1,0 +1,2477 @@
+[
+  {
+    "name": "catalogo-1366-claro",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas (5)\nDisponível (2)\nIndisponível (1)\nSem métricas (1)\nRemovida (1)\nAplicação\n↑\n\tPaís\n\tCódigo regional\n\tCidade\n\tEstado\n\tÚltima verificação\n\tAções\n\napp-checkout\n\tEstados Unidos\tUS-VA\tNão informada\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-estoque\n\tBrasil\tBR-SP\tSão Paulo\t\n×\nIndisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-legado\n\tBrasil\tBR-SP\tSão Paulo\t\n□\nRemovida\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-pagamentos\n\tBrasil\tBR-SP\tSão Paulo\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-relatorios\n\tBrasil\tBR-SP\tSão Paulo\t\n!\nSem métricas\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\nExibindo 1–5 de 5 aplicações\nItens por página\n5\n10\n15\n20\nTodas\n1",
+    "headings": [
+      "Aplicações",
+      "app-checkout",
+      "app-estoque",
+      "app-legado",
+      "app-pagamentos",
+      "app-relatorios"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content",
+        "width": 1174,
+        "height": 718,
+        "scrollHeight": 718
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "dashboard-1366-claro",
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "MONITORAMENTO\n\nDashboard ambiental\n\n1 aplicações no escopo atual\n\n2 kWh | 340 gCO2e | 19/10/2026 – 26/10/2026\n\nAtualizar dados\n24 horas\n7 dias\n30 dias\n90 dias\nRegião histórica\nTodas as regiões\nBR-SP\nUS-VA\nEstado atual\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\n\nComparação com período anterior indisponível até a definição e aprovação das regras.\n\nEnergia\n\n2 kWh\n\nCobertura de energia: 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura de CO₂e: 100%\n\nCobertura do período\n100%\nCobertura de energia\n100%\nCobertura de CO₂e\n100%\nAplicações por estado (1)\nDisponível\n1\nIndisponível\n0\nSem métricas\n0\nRemovida\n0\n\nDados coletados até 17/10/2026, 17:00\n\nSérie temporal\n\nA série histórica agregada ainda não faz parte do contrato da API. Nenhum valor demonstrativo é exibido.\n\nComposição de CO₂e por aplicação\nVer barras\nTotal\n340 gCO2e\napp-pagamentos\n340 gCO2e\n100%\nAplicações com resultados (1)\nBuscar aplicações\nFiltros\n\nA região exibida é a atual da aplicação. O filtro regional dos indicadores usa a região histórica de cada coleta.\n\nAplicação\tEstado\tRegião atual\tEnergia\tCO₂e\tCobertura de energia\tCobertura de CO₂e\napp-pagamentos\tDisponível\tBR-SP\t2 kWh\t340 gCO2e\t100%\t100%\n\n1–1 de 1 aplicações\n\nItens por página\n5\n10\n15\n20\nTodas\nAnterior\n1\nPróxima",
+    "headings": [
+      "Dashboard ambiental",
+      "Energia",
+      "CO₂e",
+      "Cobertura do período",
+      "Aplicações por estado (1)",
+      "Série temporal",
+      "Composição de CO₂e por aplicação",
+      "Aplicações com resultados (1)"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 993,
+        "scrollHeight": 993
+      },
+      {
+        "name": "_page_cnfzg_1",
+        "width": 1174,
+        "height": 993,
+        "scrollHeight": 993
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações",
+      "Anterior",
+      "Próxima"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-1366-claro",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:35 BRT\nÚltimo sucesso\n26/10/2026, 10:35 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nEvolução de CO₂e\n\n0,34 - 0,35 kgCO2e\n\nPeríodo atual\nPeríodo anterior\n0,35\n0,35\n0,34\n0,34\n0,34\n19/10\n20/10\n21/10\n22/10\n23/10\n24/10\n25/10\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evolução de CO₂e",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-1366-claro",
+    "url": "/services/svc-0142/methodology",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de app-pagamentos foi calculado para esta coleta.\n\nVoltar à aplicação\n\nINDICADOR DESTA COLETA\n\nEnergia estimada\n\napp-pagamentos\n\n12,5 kWh\n\nEstimativa\n\nCÁLCULO APLICADO\n\nFórmula\nVersão 1\nenergia = cpu × duração\n\nA fórmula documenta o método registrado para este resultado. O GreenER não recalcula o valor nesta tela.\n\nEntradas e unidades\ncpuPercent\n%\ndurationSeconds\ns\ncpuWattsAt100Percent\nW\nResultado e unidade\nEnergia estimada\nkWh\nParâmetros utilizados\ncpuWattsAt100Percent\n100 W\nConfiguração vinculada\nVersão\n2026.1\nIdentificador\nconfig-1\nValidade e fonte\nVersão\nv1\nFator de carbono\n336 gCO2e/kWh\nConsultado pelo GreenER em\n17/10/2026, 17:32 BRT\nEmissões estimadas\n4.200 gCO₂e\nFórmula de carbono\nkWh × gCO2e/kWh = gCO2e\nIntervalo da coleta\n17/10/2026, 17:00 BRT – 17/10/2026, 17:30 BRT\n\nEnergia e emissões são estimativas derivadas das evidências disponíveis; não representam medição elétrica direta. Ausência de dados não significa zero.",
+    "headings": [
+      "Metodologia",
+      "Energia estimada",
+      "Fórmula",
+      "Entradas e unidades",
+      "Resultado e unidade",
+      "Parâmetros utilizados",
+      "Configuração vinculada",
+      "Validade e fonte"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 1152,
+        "scrollHeight": 1152
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1174,
+        "height": 1152,
+        "scrollHeight": 1152
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-selecao-1366",
+    "url": "/methodology",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de foi calculado para esta coleta.\n\nEscolha uma aplicação\n\nSelecione uma aplicação para consultar sua metodologia.\n\nSelecionar aplicação \nSelecionar aplicação\napp-pagamentos\napp-checkout\napp-estoque\napp-relatorios\napp-legado\n Continuar",
+    "headings": [
+      "Metodologia",
+      "Escolha uma aplicação"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1174,
+        "height": 347,
+        "scrollHeight": 347
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-tabela",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:35 BRT\nÚltimo sucesso\n26/10/2026, 10:35 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nLimpar filtros\nBuscar série\nData inicial da série\nData final da série\nStatus da energia\nTodas\nDisponível\nAusente\nNão calculável\nStatus de CO₂e\nTodas\nDisponível\nAusente\nNão calculável\nUnidade da energia\nSelecione uma unidade\nkWh\nEnergia mínima\nEnergia máxima\nMínimo de CO₂e\nMáximo de CO₂e\nMomento\tEnergia\tCO₂e\n19/10/2026, 10:35Inspecionar contribuições\t1 kWh\t340 gCO2e\n20/10/2026, 10:35Inspecionar contribuições\t2 kWh\t341 gCO2e\n21/10/2026, 10:35Inspecionar contribuições\t3 kWh\t342 gCO2e\n22/10/2026, 10:35Inspecionar contribuições\t4 kWh\t343 gCO2e\n23/10/2026, 10:35Inspecionar contribuições\t5 kWh\t344 gCO2e\n24/10/2026, 10:35Inspecionar contribuições\t6 kWh\t345 gCO2e\n25/10/2026, 10:35Inspecionar contribuições\t7 kWh\t346 gCO2e\nItens por página\n5\n10\n15\n20\nTodos\nAnterior\nExibindo 1–7 de 7\nPróxima\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-contexto",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\n×\nComposição do impacto ambiental\nTotais do período\nEnergia\n\n2 kWh\n\nCO₂e\n\n340 gCO2e\n\nComposição ambiental indisponível\nMetodologia aplicada\n\nIndisponível\n\nMetodologia original indisponível\n\nIdentificação e situação\nIdentificador\nsvc-0142\nEstado\nDisponível\nPrimeira observação\n09/10/2026, 09:00 BRT\nÚltima verificação\n09/10/2026, 14:32 BRT\nCondição operacional\nMotivo\nMétricas válidas\nÚltima verificação\n09/10/2026, 14:32 BRT\nÚltima observação válida\n09/10/2026, 14:30 BRT\nFrescor\nObservação atual\nSuficiência da observação operacional\nMétricas operacionais suficientes\nLocalização\nCódigo regional\nBR-SP\nPaís\nBrasil\nRegião\nSão Paulo\nCidade\nSão Paulo\nLatitude\n-23,55\nLongitude\n-46,63\nVer metodologia completa\nAtualização automática\n\nFrequência da interface: 60 s · Última tentativa: 26/10/2026, 10:35 BRT · Última resposta válida: 26/10/2026, 10:35 BRT\n\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:35 BRT\nÚltimo sucesso\n26/10/2026, 10:35 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nLimpar filtros\nBuscar série\nData inicial da série\nData final da série\nStatus da energia\nTodas\nDisponível\nAusente\nNão calculável\nStatus de CO₂e\nTodas\nDisponível\nAusente\nNão calculável\nUnidade da energia\nSelecione uma unidade\nkWh\nEnergia mínima\nEnergia máxima\nMínimo de CO₂e\nMáximo de CO₂e\nMomento\tEnergia\tCO₂e\n19/10/2026, 10:35Inspecionar contribuições\t1 kWh\t340 gCO2e\n20/10/2026, 10:35Inspecionar contribuições\t2 kWh\t341 gCO2e\n21/10/2026, 10:35Inspecionar contribuições\t3 kWh\t342 gCO2e\n22/10/2026, 10:35Inspecionar contribuições\t4 kWh\t343 gCO2e\n23/10/2026, 10:35Inspecionar contribuições\t5 kWh\t344 gCO2e\n24/10/2026, 10:35Inspecionar contribuições\t6 kWh\t345 gCO2e\n25/10/2026, 10:35Inspecionar contribuições\t7 kWh\t346 gCO2e\nItens por página\n5\n10\n15\n20\nTodos\nAnterior\nExibindo 1–7 de 7\nPróxima\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "catalogo-filtros",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas (5)\nDisponível (2)\nIndisponível (1)\nSem métricas (1)\nRemovida (1)\nFiltros por coluna\n\nCombine os campos para refinar as aplicações.\n\n×\nNome ou identificador\nPaís\nCódigo regional\nCidade\nEstado\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\nCidade não informada\nlastCheck: Fuso horário: America/Sao_Paulo\nVerificada a partir de\nVerificada até\n\nA busca geral e os filtros ativos são combinados.\nLimpar filtros preserva a ordenação atual.\n\nLimpar filtros\nAplicar filtros\nAplicação\n↑\n\tPaís\n\tCódigo regional\n\tCidade\n\tEstado\n\tÚltima verificação\n\tAções\n\napp-checkout\n\tEstados Unidos\tUS-VA\tNão informada\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-estoque\n\tBrasil\tBR-SP\tSão Paulo\t\n×\nIndisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-legado\n\tBrasil\tBR-SP\tSão Paulo\t\n□\nRemovida\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-pagamentos\n\tBrasil\tBR-SP\tSão Paulo\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-relatorios\n\tBrasil\tBR-SP\tSão Paulo\t\n!\nSem métricas\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\nExibindo 1–5 de 5 aplicações\nItens por página\n5\n10\n15\n20\nTodas\n1",
+    "headings": [
+      "Aplicações",
+      "Filtros por coluna",
+      "app-checkout",
+      "app-estoque",
+      "app-legado",
+      "app-pagamentos",
+      "app-relatorios"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content",
+        "width": 1174,
+        "height": 718,
+        "scrollHeight": 718
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "catalogo-1920-claro",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas (5)\nDisponível (2)\nIndisponível (1)\nSem métricas (1)\nRemovida (1)\nAplicação\n↑\n\tPaís\n\tCódigo regional\n\tCidade\n\tEstado\n\tÚltima verificação\n\tAções\n\napp-checkout\n\tEstados Unidos\tUS-VA\tNão informada\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-estoque\n\tBrasil\tBR-SP\tSão Paulo\t\n×\nIndisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-legado\n\tBrasil\tBR-SP\tSão Paulo\t\n□\nRemovida\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-pagamentos\n\tBrasil\tBR-SP\tSão Paulo\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-relatorios\n\tBrasil\tBR-SP\tSão Paulo\t\n!\nSem métricas\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\nExibindo 1–5 de 5 aplicações\nItens por página\n5\n10\n15\n20\nTodas\n1",
+    "headings": [
+      "Aplicações",
+      "app-checkout",
+      "app-estoque",
+      "app-legado",
+      "app-pagamentos",
+      "app-relatorios"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "content",
+        "width": 1728,
+        "height": 718,
+        "scrollHeight": 718
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "dashboard-1920-claro",
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "MONITORAMENTO\n\nDashboard ambiental\n\n1 aplicações no escopo atual\n\n2 kWh | 340 gCO2e | 19/10/2026 – 26/10/2026\n\nAtualizar dados\n24 horas\n7 dias\n30 dias\n90 dias\nRegião histórica\nTodas as regiões\nBR-SP\nUS-VA\nEstado atual\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\n\nComparação com período anterior indisponível até a definição e aprovação das regras.\n\nEnergia\n\n2 kWh\n\nCobertura de energia: 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura de CO₂e: 100%\n\nCobertura do período\n100%\nCobertura de energia\n100%\nCobertura de CO₂e\n100%\nAplicações por estado (1)\nDisponível\n1\nIndisponível\n0\nSem métricas\n0\nRemovida\n0\n\nDados coletados até 17/10/2026, 17:00\n\nSérie temporal\n\nA série histórica agregada ainda não faz parte do contrato da API. Nenhum valor demonstrativo é exibido.\n\nComposição de CO₂e por aplicação\nVer barras\nTotal\n340 gCO2e\napp-pagamentos\n340 gCO2e\n100%\nAplicações com resultados (1)\nBuscar aplicações\nFiltros\n\nA região exibida é a atual da aplicação. O filtro regional dos indicadores usa a região histórica de cada coleta.\n\nAplicação\tEstado\tRegião atual\tEnergia\tCO₂e\tCobertura de energia\tCobertura de CO₂e\napp-pagamentos\tDisponível\tBR-SP\t2 kWh\t340 gCO2e\t100%\t100%\n\n1–1 de 1 aplicações\n\nItens por página\n5\n10\n15\n20\nTodas\nAnterior\n1\nPróxima",
+    "headings": [
+      "Dashboard ambiental",
+      "Energia",
+      "CO₂e",
+      "Cobertura do período",
+      "Aplicações por estado (1)",
+      "Série temporal",
+      "Composição de CO₂e por aplicação",
+      "Aplicações com resultados (1)"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "_page_cnfzg_1",
+        "width": 1728,
+        "height": 993,
+        "scrollHeight": 993
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações",
+      "Anterior",
+      "Próxima"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-1920-claro",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:35 BRT\nÚltimo sucesso\n26/10/2026, 10:35 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nEvolução de CO₂e\n\n0,34 - 0,35 kgCO2e\n\nPeríodo atual\nPeríodo anterior\n0,35\n0,35\n0,34\n0,34\n0,34\n19/10\n20/10\n21/10\n22/10\n23/10\n24/10\n25/10\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evolução de CO₂e",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-1920-claro",
+    "url": "/services/svc-0142/methodology",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de app-pagamentos foi calculado para esta coleta.\n\nVoltar à aplicação\n\nINDICADOR DESTA COLETA\n\nEnergia estimada\n\napp-pagamentos\n\n12,5 kWh\n\nEstimativa\n\nCÁLCULO APLICADO\n\nFórmula\nVersão 1\nenergia = cpu × duração\n\nA fórmula documenta o método registrado para este resultado. O GreenER não recalcula o valor nesta tela.\n\nEntradas e unidades\ncpuPercent\n%\ndurationSeconds\ns\ncpuWattsAt100Percent\nW\nResultado e unidade\nEnergia estimada\nkWh\nParâmetros utilizados\ncpuWattsAt100Percent\n100 W\nConfiguração vinculada\nVersão\n2026.1\nIdentificador\nconfig-1\nValidade e fonte\nVersão\nv1\nFator de carbono\n336 gCO2e/kWh\nConsultado pelo GreenER em\n17/10/2026, 17:32 BRT\nEmissões estimadas\n4.200 gCO₂e\nFórmula de carbono\nkWh × gCO2e/kWh = gCO2e\nIntervalo da coleta\n17/10/2026, 17:00 BRT – 17/10/2026, 17:30 BRT\n\nEnergia e emissões são estimativas derivadas das evidências disponíveis; não representam medição elétrica direta. Ausência de dados não significa zero.",
+    "headings": [
+      "Metodologia",
+      "Energia estimada",
+      "Fórmula",
+      "Entradas e unidades",
+      "Resultado e unidade",
+      "Parâmetros utilizados",
+      "Configuração vinculada",
+      "Validade e fonte"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1152,
+        "scrollHeight": 1152
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1728,
+        "height": 1152,
+        "scrollHeight": 1152
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-selecao-1920",
+    "url": "/methodology",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "Aplicações\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de foi calculado para esta coleta.\n\nEscolha uma aplicação\n\nSelecione uma aplicação para consultar sua metodologia.\n\nSelecionar aplicação \nSelecionar aplicação\napp-pagamentos\napp-checkout\napp-estoque\napp-relatorios\napp-legado\n Continuar",
+    "headings": [
+      "Metodologia",
+      "Escolha uma aplicação"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1728,
+        "height": 347,
+        "scrollHeight": 347
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "catalogo-1920-escuro",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas (5)\nDisponível (2)\nIndisponível (1)\nSem métricas (1)\nRemovida (1)\nAplicação\n↑\n\tPaís\n\tCódigo regional\n\tCidade\n\tEstado\n\tÚltima verificação\n\tAções\n\napp-checkout\n\tEstados Unidos\tUS-VA\tNão informada\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-estoque\n\tBrasil\tBR-SP\tSão Paulo\t\n×\nIndisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-legado\n\tBrasil\tBR-SP\tSão Paulo\t\n□\nRemovida\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-pagamentos\n\tBrasil\tBR-SP\tSão Paulo\t\n✓\nDisponível\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\n\n\napp-relatorios\n\tBrasil\tBR-SP\tSão Paulo\t\n!\nSem métricas\n\t09/10/2026, 14:32 BRT\t\nVer detalhes\nExibindo 1–5 de 5 aplicações\nItens por página\n5\n10\n15\n20\nTodas\n1",
+    "headings": [
+      "Aplicações",
+      "app-checkout",
+      "app-estoque",
+      "app-legado",
+      "app-pagamentos",
+      "app-relatorios"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "content",
+        "width": 1728,
+        "height": 718,
+        "scrollHeight": 718
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "dashboard-1920-escuro",
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "MONITORAMENTO\n\nDashboard ambiental\n\n1 aplicações no escopo atual\n\n2 kWh | 340 gCO2e | 19/10/2026 – 26/10/2026\n\nAtualizar dados\n24 horas\n7 dias\n30 dias\n90 dias\nRegião histórica\nTodas as regiões\nBR-SP\nUS-VA\nEstado atual\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\n\nComparação com período anterior indisponível até a definição e aprovação das regras.\n\nEnergia\n\n2 kWh\n\nCobertura de energia: 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura de CO₂e: 100%\n\nCobertura do período\n100%\nCobertura de energia\n100%\nCobertura de CO₂e\n100%\nAplicações por estado (1)\nDisponível\n1\nIndisponível\n0\nSem métricas\n0\nRemovida\n0\n\nDados coletados até 17/10/2026, 17:00\n\nSérie temporal\n\nA série histórica agregada ainda não faz parte do contrato da API. Nenhum valor demonstrativo é exibido.\n\nComposição de CO₂e por aplicação\nVer barras\nTotal\n340 gCO2e\napp-pagamentos\n340 gCO2e\n100%\nAplicações com resultados (1)\nBuscar aplicações\nFiltros\n\nA região exibida é a atual da aplicação. O filtro regional dos indicadores usa a região histórica de cada coleta.\n\nAplicação\tEstado\tRegião atual\tEnergia\tCO₂e\tCobertura de energia\tCobertura de CO₂e\napp-pagamentos\tDisponível\tBR-SP\t2 kWh\t340 gCO2e\t100%\t100%\n\n1–1 de 1 aplicações\n\nItens por página\n5\n10\n15\n20\nTodas\nAnterior\n1\nPróxima",
+    "headings": [
+      "Dashboard ambiental",
+      "Energia",
+      "CO₂e",
+      "Cobertura do período",
+      "Aplicações por estado (1)",
+      "Série temporal",
+      "Composição de CO₂e por aplicação",
+      "Aplicações com resultados (1)"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "_page_cnfzg_1",
+        "width": 1728,
+        "height": 993,
+        "scrollHeight": 993
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações",
+      "Anterior",
+      "Próxima"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-1920-escuro",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:36 BRT\nÚltimo sucesso\n26/10/2026, 10:36 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nEvolução de CO₂e\n\n0,34 - 0,35 kgCO2e\n\nPeríodo atual\nPeríodo anterior\n0,35\n0,35\n0,34\n0,34\n0,34\n19/10\n20/10\n21/10\n22/10\n23/10\n24/10\n25/10\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evolução de CO₂e",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1728,
+        "height": 1080,
+        "scrollHeight": 1080
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-1920-escuro",
+    "url": "/services/svc-0142/methodology",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de app-pagamentos foi calculado para esta coleta.\n\nVoltar à aplicação\n\nINDICADOR DESTA COLETA\n\nEnergia estimada\n\napp-pagamentos\n\n12,5 kWh\n\nEstimativa\n\nCÁLCULO APLICADO\n\nFórmula\nVersão 1\nenergia = cpu × duração\n\nA fórmula documenta o método registrado para este resultado. O GreenER não recalcula o valor nesta tela.\n\nEntradas e unidades\ncpuPercent\n%\ndurationSeconds\ns\ncpuWattsAt100Percent\nW\nResultado e unidade\nEnergia estimada\nkWh\nParâmetros utilizados\ncpuWattsAt100Percent\n100 W\nConfiguração vinculada\nVersão\n2026.1\nIdentificador\nconfig-1\nValidade e fonte\nVersão\nv1\nFator de carbono\n336 gCO2e/kWh\nConsultado pelo GreenER em\n17/10/2026, 17:32 BRT\nEmissões estimadas\n4.200 gCO₂e\nFórmula de carbono\nkWh × gCO2e/kWh = gCO2e\nIntervalo da coleta\n17/10/2026, 17:00 BRT – 17/10/2026, 17:30 BRT\n\nEnergia e emissões são estimativas derivadas das evidências disponíveis; não representam medição elétrica direta. Ausência de dados não significa zero.",
+    "headings": [
+      "Metodologia",
+      "Energia estimada",
+      "Fórmula",
+      "Entradas e unidades",
+      "Resultado e unidade",
+      "Parâmetros utilizados",
+      "Configuração vinculada",
+      "Validade e fonte"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1728,
+        "height": 1152,
+        "scrollHeight": 1152
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1728,
+        "height": 1152,
+        "scrollHeight": 1152
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "catalogo-390-claro",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas (5)\nDisponível (2)\nIndisponível (1)\nSem métricas (1)\nRemovida (1)\napp-checkout\nPaís: Estados Unidos\nCódigo regional: US-VA\nCidade: Não informada\nEstado:\n✓\nDisponível\nÚltima verificação: 09/10/2026, 14:32 BRT\nVer detalhes\napp-estoque\nPaís: Brasil\nCódigo regional: BR-SP\nCidade: São Paulo\nEstado:\n×\nIndisponível\nÚltima verificação: 09/10/2026, 14:32 BRT\nVer detalhes\napp-legado\nPaís: Brasil\nCódigo regional: BR-SP\nCidade: São Paulo\nEstado:\n□\nRemovida\nÚltima verificação: 09/10/2026, 14:32 BRT\nVer detalhes\napp-pagamentos\nPaís: Brasil\nCódigo regional: BR-SP\nCidade: São Paulo\nEstado:\n✓\nDisponível\nÚltima verificação: 09/10/2026, 14:32 BRT\nVer detalhes\napp-relatorios\nPaís: Brasil\nCódigo regional: BR-SP\nCidade: São Paulo\nEstado:\n!\nSem métricas\nÚltima verificação: 09/10/2026, 14:32 BRT\nVer detalhes\nExibindo 1–5 de 5 aplicações\nItens por página\n5\n10\n15\n20\nTodas\n1",
+    "headings": [
+      "Aplicações",
+      "app-checkout",
+      "app-estoque",
+      "app-legado",
+      "app-pagamentos",
+      "app-relatorios"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 2004,
+        "scrollHeight": 2004
+      },
+      {
+        "name": "content",
+        "width": 390,
+        "height": 1960,
+        "scrollHeight": 1960
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "dashboard-390-claro",
+    "url": "/dashboard",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "MONITORAMENTO\n\nDashboard ambiental\n\n1 aplicações no escopo atual\n\n2 kWh | 340 gCO2e | 19/10/2026 – 26/10/2026\n\nAtualizar dados\n24 horas\n7 dias\n30 dias\n90 dias\nRegião histórica\nTodas as regiões\nBR-SP\nUS-VA\nEstado atual\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\n\nComparação com período anterior indisponível até a definição e aprovação das regras.\n\nEnergia\n\n2 kWh\n\nCobertura de energia: 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura de CO₂e: 100%\n\nCobertura do período\n100%\nCobertura de energia\n100%\nCobertura de CO₂e\n100%\nAplicações por estado (1)\nDisponível\n1\nIndisponível\n0\nSem métricas\n0\nRemovida\n0\n\nDados coletados até 17/10/2026, 17:00\n\nSérie temporal\n\nA série histórica agregada ainda não faz parte do contrato da API. Nenhum valor demonstrativo é exibido.\n\nComposição de CO₂e por aplicação\nVer barras\nTotal\n340 gCO2e\napp-pagamentos\n340 gCO2e\n100%\nAplicações com resultados (1)\nBuscar aplicações\nFiltros\n\nA região exibida é a atual da aplicação. O filtro regional dos indicadores usa a região histórica de cada coleta.\n\napp-pagamentos\nDisponível\nBR-SP\n2 kWh\n340 gCO2e\n100%\n100%\n\n1–1 de 1 aplicações\n\nItens por página\n5\n10\n15\n20\nTodas\nAnterior\n1\nPróxima",
+    "headings": [
+      "Dashboard ambiental",
+      "Energia",
+      "CO₂e",
+      "Cobertura do período",
+      "Aplicações por estado (1)",
+      "Série temporal",
+      "Composição de CO₂e por aplicação",
+      "Aplicações com resultados (1)"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 1770,
+        "scrollHeight": 1770
+      },
+      {
+        "name": "_page_cnfzg_1",
+        "width": 390,
+        "height": 1726,
+        "scrollHeight": 1726
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações",
+      "Anterior",
+      "Próxima"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-390-claro",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\napp-pagamentos\nDisponível\n\nBrasil · BR-SP · São Paulo · verificado às 14:32\n\nPeríodo de análise\n24 horas\n7 dias\n30 dias\n90 dias\nImpacto ambiental\nEnergia\n\n2 kWh\n\nCobertura 100%\n\nCO₂e\n\n340 gCO2e\n\nCobertura 100%\n\nFator regional\n\nIndisponível\n\nFator de carbono indisponível\n\nCobertura\n100%\n\nDados válidos no período\n\nComo este número foi calculado\nEstimativa · Metodologia aplicada ↗\nEnergia\n2 kWh\n×\nFator regional\nIndisponível: Fator de carbono indisponível\n=\nCO₂e\n340 gCO2e\nQualidade da coleta\nÚltima tentativa\n26/10/2026, 10:36 BRT\nÚltimo sucesso\n26/10/2026, 10:36 BRT\nEvolução do consumo e emissões • 7 dias\nEnergia\nCO₂e\nGráfico\nTabela\nGranularidade\nHora\nDia\nMês\nAno\n\nFuso horário: America/Sao_Paulo\n\nEvolução de CO₂e\n\n0,34 - 0,35 kgCO2e\n\nPeríodo atual\nPeríodo anterior\n0,35\n0,35\n0,34\n0,34\n0,34\n19/10\n20/10\n21/10\n22/10\n23/10\n24/10\n25/10\nEvidências da coleta\n\nÚltima observação válida\n\nFiltros e período\nMétrica ↑\tValor\tSituação\nCPU\t38 %\tVálido\nDisco\t0 GB/s\tZero explícito\nMemória\tSem valor\tAusente\nRede de saída\t1,2 Mbps\tVálido\n\nZero explícito é válido; ausência não equivale a zero.",
+    "headings": [
+      "app-pagamentos",
+      "Período de análise",
+      "Impacto ambiental",
+      "Energia",
+      "CO₂e",
+      "Fator regional",
+      "Cobertura",
+      "Como este número foi calculado",
+      "Composição do impacto ambiental",
+      "Totais do período",
+      "Metodologia aplicada",
+      "Identificação e situação",
+      "Condição operacional",
+      "Localização",
+      "Atualização automática",
+      "Qualidade da coleta",
+      "Evolução do consumo e emissões • 7 dias",
+      "Granularidade",
+      "Evolução de CO₂e",
+      "Evidências da coleta"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 1433,
+        "scrollHeight": 1433
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 390,
+        "height": 1389,
+        "scrollHeight": 1389
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-390-claro",
+    "url": "/services/svc-0142/methodology",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "Aplicações\n›\napp-pagamentos\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de app-pagamentos foi calculado para esta coleta.\n\nVoltar à aplicação\n\nINDICADOR DESTA COLETA\n\nEnergia estimada\n\napp-pagamentos\n\n12,5 kWh\n\nEstimativa\n\nCÁLCULO APLICADO\n\nFórmula\nVersão 1\nenergia = cpu × duração\n\nA fórmula documenta o método registrado para este resultado. O GreenER não recalcula o valor nesta tela.\n\nEntradas e unidades\ncpuPercent\n%\ndurationSeconds\ns\ncpuWattsAt100Percent\nW\nResultado e unidade\nEnergia estimada\nkWh\nParâmetros utilizados\ncpuWattsAt100Percent\n100 W\nConfiguração vinculada\nVersão\n2026.1\nIdentificador\nconfig-1\nValidade e fonte\nVersão\nv1\nFator de carbono\n336 gCO2e/kWh\nConsultado pelo GreenER em\n17/10/2026, 17:32 BRT\nEmissões estimadas\n4.200 gCO₂e\nFórmula de carbono\nkWh × gCO2e/kWh = gCO2e\nIntervalo da coleta\n17/10/2026, 17:00 BRT – 17/10/2026, 17:30 BRT\n\nEnergia e emissões são estimativas derivadas das evidências disponíveis; não representam medição elétrica direta. Ausência de dados não significa zero.",
+    "headings": [
+      "Metodologia",
+      "Energia estimada",
+      "Fórmula",
+      "Entradas e unidades",
+      "Resultado e unidade",
+      "Parâmetros utilizados",
+      "Configuração vinculada",
+      "Validade e fonte"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 1793,
+        "scrollHeight": 1793
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 390,
+        "height": 1749,
+        "scrollHeight": 1749
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-selecao-390",
+    "url": "/methodology",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "Aplicações\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de foi calculado para esta coleta.\n\nEscolha uma aplicação\n\nSelecione uma aplicação para consultar sua metodologia.\n\nSelecionar aplicação \nSelecionar aplicação\napp-pagamentos\napp-checkout\napp-estoque\napp-relatorios\napp-legado\n Continuar",
+    "headings": [
+      "Metodologia",
+      "Escolha uma aplicação"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 398,
+        "scrollHeight": 398
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 390,
+        "height": 354,
+        "scrollHeight": 354
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "menu-mobile",
+    "url": "/methodology",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mainText": "Aplicações\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de foi calculado para esta coleta.\n\nEscolha uma aplicação\n\nSelecione uma aplicação para consultar sua metodologia.\n\nSelecionar aplicação \nSelecionar aplicação\napp-pagamentos\napp-checkout\napp-estoque\napp-relatorios\napp-legado\n Continuar",
+    "headings": [
+      "Metodologia",
+      "Escolha uma aplicação"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 390,
+        "height": 398,
+        "scrollHeight": 398
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 390,
+        "height": 354,
+        "scrollHeight": 354
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "catalogo-loading",
+    "url": "/?tz=America%2FSao_Paulo",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "MONITORAMENTO\n\nAplicações\n\nCatálogo das aplicações monitoradas e sua situação atual.\n\nAtualizar catálogo\nFiltros por coluna\n⌕\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\nCarregando aplicações...\nAguarde a consulta. Nenhum valor foi apresentado ainda.\nProcessando…",
+    "headings": [
+      "Aplicações"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content",
+        "width": 1174,
+        "height": 735,
+        "scrollHeight": 735
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "dashboard-loading",
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "MONITORAMENTO\n\nDashboard ambiental\nAtualizar dados\n24 horas\n7 dias\n30 dias\n90 dias\nRegião histórica\nTodas as regiões\nEstado atual\nTodas\nDisponível\nIndisponível\nSem métricas\nRemovida\n\nComparação com período anterior indisponível até a definição e aprovação das regras.\n\nCarregando resumo ambiental…\nAguarde a consulta. Nenhum valor foi apresentado ainda.\nProcessando…\nSérie temporal",
+    "headings": [
+      "Dashboard ambiental",
+      "Série temporal"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "_page_cnfzg_1",
+        "width": 1174,
+        "height": 640,
+        "scrollHeight": 640
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "detalhe-loading",
+    "url": "/services/svc-0142",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "← Voltar ao catálogo\nCarregando aplicação...\nAguarde a consulta. Nenhum valor foi apresentado ainda.\nProcessando…\nEvolução do consumo e emissões",
+    "headings": [
+      "Evolução do consumo e emissões"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _detail-content_1usnq_1",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  },
+  {
+    "name": "metodologia-loading",
+    "url": "/services/svc-0142/methodology",
+    "viewport": {
+      "width": 1366,
+      "height": 850
+    },
+    "mainText": "Aplicações\n›\nMetodologia\n\nINDICADORES AMBIENTAIS\n\nMetodologia\n\nEntenda como o indicador de foi calculado para esta coleta.\n\nVoltar à aplicação\nCarregando metodologia...\nAguarde a consulta. Nenhum valor foi apresentado ainda.\nProcessando…",
+    "headings": [
+      "Metodologia"
+    ],
+    "horizontalOverflow": 0,
+    "scrollContainers": [
+      {
+        "name": "workspace",
+        "width": 1174,
+        "height": 850,
+        "scrollHeight": 850
+      },
+      {
+        "name": "content _page_g2x5p_1",
+        "width": 1174,
+        "height": 651,
+        "scrollHeight": 651
+      }
+    ],
+    "disabledNavigation": [
+      "Histórico",
+      "Ranking",
+      "Comparação",
+      "Simulação regional",
+      "Configurações"
+    ],
+    "languages": [
+      {
+        "locale": "pt-BR",
+        "name": "Português (Brasil)"
+      },
+      {
+        "locale": "en-US",
+        "name": "English (US)"
+      },
+      {
+        "locale": "es-ES",
+        "name": "Español"
+      },
+      {
+        "locale": "fr-FR",
+        "name": "Français"
+      },
+      {
+        "locale": "de-DE",
+        "name": "Deutsch"
+      },
+      {
+        "locale": "it-IT",
+        "name": "Italiano"
+      },
+      {
+        "locale": "ja-JP",
+        "name": "日本語"
+      },
+      {
+        "locale": "zh-CN",
+        "name": "简体中文"
+      },
+      {
+        "locale": "ko-KR",
+        "name": "한국어"
+      },
+      {
+        "locale": "ru-RU",
+        "name": "Русский"
+      },
+      {
+        "locale": "hi-IN",
+        "name": "हिन्दी"
+      },
+      {
+        "locale": "id-ID",
+        "name": "Bahasa Indonesia"
+      }
+    ]
+  }
+]
