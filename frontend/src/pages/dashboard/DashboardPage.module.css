@@ -1,5 +1,6 @@
 .page {
-  max-width: 1600px;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
   padding: 20px clamp(16px, 2vw, 28px) 40px;
   color: var(--text-primary);
@@ -177,7 +178,7 @@
 }
 @media (max-width: 720px) {
   .page { padding: 16px 12px 28px; }
-  .header { align-items: flex-start; }
+  .header { align-items: flex-start; flex-wrap: wrap; }
   .header { gap: 12px; }
   .header h1 { font-size: 24px; }
   .summaryMeta { line-height: 1.5; }

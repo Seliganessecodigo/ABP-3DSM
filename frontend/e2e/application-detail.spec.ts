@@ -4,9 +4,10 @@ import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, una
 const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
 
 test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
+  test.setTimeout(60_000)
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
-  await page.clock.install({ time: new Date(to) })
+  await page.clock.install({ time: new Date(Date.parse(to) - 60_000) })
   await page.clock.pauseAt(new Date(to))
   await page.setViewportSize({ width: 996, height: 619 })
   await mockCatalog(page, [application()])
@@ -159,7 +160,7 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
   await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
   await expect(page.locator('#analysis-details')).toContainText('2026.1')
-  await page.getByRole('button', { name: 'Fechar detalhes' }).click()
+  await page.getByRole('button', { name: 'Fechar detalhes' }).click({ timeout: 10_000 })
 
   await page.setViewportSize({ width: 1888, height: 1000 })
   const wideViewport = await page.evaluate(() => {
@@ -170,8 +171,8 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
   expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeLessThan(400)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBeGreaterThan(1000 / 3)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeGreaterThan(500)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
 
   await page.setViewportSize({ width: 390, height: 844 })

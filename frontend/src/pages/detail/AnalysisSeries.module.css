@@ -17,7 +17,7 @@
 .unitChart { min-width: 0; }
 .axisSummary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .legend { display: flex; gap: 16px; margin-bottom: 4px; color: var(--text-secondary); font-size: 10px; }
-.chartFigure { min-width: 0; margin: 0; }
+.chartFigure { position: relative; min-width: 0; margin: 0; }
 .legend span::before { display: inline-block; width: 12px; margin: 0 4px 2px 0; border-top: 2px solid var(--accent-default); content: ''; }
 .legend .previousLegend::before { border-top-style: dashed; border-top-color: var(--text-secondary); }
 .legend .eventLegend::before { width: 0; height: 8px; margin: 0 6px 0 0; border-top: 0; border-left: 1px dashed var(--text-secondary); vertical-align: -1px; }
@@ -27,11 +27,10 @@
 .chart polyline { fill: none; stroke: var(--accent-default); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .chart .previousSeries { stroke: var(--text-secondary); stroke-width: 2; stroke-dasharray: 5 4; }
 .chart .area { fill: var(--accent-default); opacity: .12; }
-.chart circle { fill: var(--accent-default); stroke: var(--surface-card); stroke-width: 2; }
-.chart circle:focus-visible { outline: none; stroke: var(--text-primary); stroke-width: 3; }
-.chartTooltip { pointer-events: none; }
-.chartTooltip rect { fill: var(--text-primary); }
-.chartTooltip text { fill: var(--surface-card); font-size: 9px; }
+.chart polyline, .chart line, .chart .point { vector-effect: non-scaling-stroke; }
+.chart .point { fill: none; stroke: var(--accent-default); stroke-width: 8; stroke-linecap: round; }
+.chart .point:focus-visible { outline: none; stroke: var(--text-primary); stroke-width: 10; }
+.chartTooltip { position: absolute; z-index: 1; display: grid; gap: 4px; width: 180px; max-width: calc(100% - 16px); border-radius: 5px; padding: 8px; color: var(--surface-card); background: var(--text-primary); font-size: 11px; overflow-wrap: anywhere; pointer-events: none; }
 .eventMarker { color: var(--text-secondary); }
 .eventMarker line { stroke: currentColor; stroke-width: 2; opacity: .75; }
 .axis { stroke: var(--border-default); stroke-width: 1; }
@@ -58,6 +57,12 @@
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
 @media (min-width: 901px) { .chart { height: 176px; } }
 @media (min-width: 901px) and (max-height: 700px) { .chart { height: 148px; } }
-@media (min-width: 901px) and (min-height: 800px) { .section { height: auto; align-self: start; } .charts { min-height: 0; flex: none; } .chartGroup, .unitChart { display: block; min-height: 0; } .plot { min-height: 0; } .chartFigure { display: block; min-height: 0; } .chart { height: 176px; } }
+@media (min-width: 901px) and (min-height: 800px) {
+  .charts { min-height: 0; flex: 1; }
+  .chartGroup, .unitChart { display: flex; min-height: 0; flex-direction: column; flex: 1; }
+  .plot { min-height: 176px; flex: 1; }
+  .chartFigure { display: flex; min-height: 0; }
+  .chart { height: 100%; min-height: 176px; }
+}
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } }
 @media (max-width: 480px) { .header { align-items: flex-start; flex-direction: column; gap: 8px; } .table th, .table td { padding: 12px; } }
