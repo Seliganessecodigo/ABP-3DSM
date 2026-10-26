@@ -25,6 +25,7 @@ export interface TotpChallengeRequired {
   expiresIn: number
 }
 export type LoginResult = SessionTokens | TotpSetupRequired | TotpChallengeRequired
+export type SsoHandoffResult = LoginResult
 export interface TotpProvisioning {
   setupToken: string
   provisioningUri: string
@@ -91,6 +92,20 @@ async function requestJson(url: string, init: RequestInit = {}): Promise<unknown
 export async function login(credentials: Credentials): Promise<LoginResult> {
   const response = await requestJson(endpoint('login'), { method: 'POST', body: JSON.stringify(credentials) })
   return parseLoginResult(response)
+}
+
+export function googleSsoStartUrl(codeChallenge: string, invitation?: string): string {
+  const url = new URL(endpoint('sso/google'), window.location.origin)
+  url.searchParams.set('code_challenge', codeChallenge)
+  if (invitation) url.searchParams.set('invite', invitation)
+  return url.toString()
+}
+
+export async function exchangeSsoHandoff(code: string, codeVerifier: string): Promise<SsoHandoffResult> {
+  return parseLoginResult(await requestJson(endpoint('sso/handoff/exchange'), {
+    method: 'POST',
+    body: JSON.stringify({ code, codeVerifier }),
+  }))
 }
 
 export async function beginTotpSetup(setupToken: string): Promise<TotpProvisioning> {

@@ -1,9 +1,12 @@
 import styles from './LoginPage.module.css'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError, type TotpProvisioning } from '../../features/authentication/api.ts'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { TotpAuthenticationStep } from '../../components/TotpAuthenticationStep.tsx'
+import { redirectToGoogleSso, ssoInvitationStorageKey, ssoVerifierStorageKey } from '../../features/authentication/sso.ts'
+
+const ssoEnabled = import.meta.env.VITE_GOOGLE_SSO_ENABLED === 'true'
 
 type TotpState =
   | { kind: 'setup'; provisioning: TotpProvisioning }
@@ -15,6 +18,16 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [totpState, setTotpState] = useState<TotpState | null>(null)
+  const [invitation, setInvitation] = useState(() =>
+    new URLSearchParams(window.location.hash.slice(1)).get('sso_invite') ?? sessionStorage.getItem(ssoInvitationStorageKey) ?? '',
+  )
+  useEffect(() => {
+    const fromFragment = new URLSearchParams(window.location.hash.slice(1)).get('sso_invite')
+    if (fromFragment) {
+      sessionStorage.setItem(ssoInvitationStorageKey, fromFragment)
+      window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`)
+    }
+  }, [])
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
@@ -22,6 +35,9 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     try {
+      sessionStorage.removeItem(ssoInvitationStorageKey)
+      sessionStorage.removeItem(ssoVerifierStorageKey)
+      setInvitation('')
       const result = await signIn({ email: String(form.get('email') ?? '').trim(), password: String(form.get('password') ?? '') })
       const password = formElement.elements.namedItem('password')
       if (password instanceof HTMLInputElement) password.value = ''
@@ -47,6 +63,12 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       const password = formElement.elements.namedItem('password')
       if (password instanceof HTMLInputElement) password.value = ''
     } finally { setSubmitting(false) }
+  }
+  async function handleGoogleSignIn() {
+    setError('')
+    setSubmitting(true)
+    try { await redirectToGoogleSso(invitation || undefined) }
+    catch { setError(t('ssoFailed')); setSubmitting(false) }
   }
   async function submitTotpCode(code: string) {
     if (!totpState) return
@@ -75,6 +97,12 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
         {error && <p className={styles.error} role="alert">{error}</p>}
         <button className={styles.submit} type="submit" disabled={submitting}>{submitting ? t('submitting') : t('submit')}</button>
       </form>
+      {ssoEnabled && <div className={styles.sso}>
+        <div className={styles.divider}><span>{t('ssoDivider')}</span></div>
+        <button className={styles.google} type="button" onClick={() => void handleGoogleSignIn()} disabled={submitting}>
+          {submitting ? t('ssoStarting') : invitation ? t('ssoAcceptInvitation') : t('ssoGoogle')}
+        </button>
+      </div>}
     </section>
   </main>
 }

@@ -35,7 +35,7 @@ test('Admin cadastra o autenticador e só recebe sessão após confirmar um cód
   await page.getByRole('combobox').selectOption('pt-BR')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   const setupHeading = page.getByRole('heading', { name: 'Configure seu autenticador' })
   await expect(setupHeading).toBeVisible()
@@ -81,7 +81,7 @@ test('código incorreto no cadastro mantém o QR e permite uma nova tentativa', 
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Configure seu autenticador' })).toBeVisible()
   await page.getByLabel('Código do autenticador').fill('123456')
   await page.getByRole('button', { name: 'Confirmar e entrar' }).click()
@@ -115,7 +115,7 @@ test('chave manual fica recolhida e pode ser copiada quando solicitada', async (
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   const secret = page.getByText('JBSWY3DPEHPK3PXP', { exact: true })
   await expect(secret).toBeHidden()
@@ -147,7 +147,7 @@ test('Admin só recebe sessão após validar o desafio TOTP e o código preserva
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
   expect(profileRequests).toBe(0)
@@ -183,7 +183,7 @@ test('mantém desafio após códigos rejeitados e retorna ao login quando a API 
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -221,7 +221,7 @@ test('cancelar o cadastro limpa o fluxo temporário e não persiste credenciais'
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('img', { name: 'QR Code para configurar o autenticador' })).toBeVisible()
   await page.getByRole('button', { name: 'Voltar ao login' }).click()
 
@@ -252,7 +252,7 @@ test('formato inválido é anunciado no cliente sem chamar a API de desafio', as
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   const codeInput = page.getByLabel('Código do autenticador')
   await codeInput.fill('123')
   await page.getByRole('button', { name: 'Verificar e entrar' }).click()
@@ -281,7 +281,7 @@ test('bloqueia novo envio enquanto a validação TOTP está pendente', async ({ 
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await page.getByLabel('Código do autenticador').fill('123456')
   await page.getByRole('button', { name: 'Verificar e entrar' }).click()
   const submitting = page.getByRole('button', { name: 'Verificando…' })
@@ -313,7 +313,7 @@ test('credencial de setup recusada retorna ao login sem renovar credenciais', as
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
   await expect(page.getByRole('alert')).toHaveText('A etapa de autenticação expirou. Entre novamente com suas credenciais.')
@@ -331,7 +331,7 @@ test('recarregar durante o desafio retorna ao login sem persistir a credencial t
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
   await page.reload()
 
@@ -356,7 +356,7 @@ test('limite de novos desafios mostra orientação sem expor detalhes do backend
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('alert')).toHaveText('Muitas tentativas de autenticação. Aguarde um pouco antes de tentar novamente.')
   await expect(page.getByText('internal detail')).toHaveCount(0)
@@ -373,7 +373,7 @@ test('atraso progressivo orienta a pessoa a aguardar antes de novo login', async
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('alert')).toHaveText('Aguarde um momento antes de tentar novamente.')
   await expect(page.getByText('internal detail')).toHaveCount(0)
@@ -406,7 +406,7 @@ test('cadastro TOTP apresenta textos nas oito localidades suportadas', async ({ 
   await page.getByRole('combobox').selectOption('pt-BR')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   for (const item of cases) {
     await page.getByRole('combobox').selectOption(item.locale)
     await expect(page.locator('html')).toHaveAttribute('lang', item.locale)
@@ -433,7 +433,7 @@ test('cadastro do autenticador cabe em uma tela móvel sem rolagem horizontal', 
   await page.getByRole('combobox').selectOption('pt-BR')
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('img', { name: 'QR Code para configurar o autenticador' })).toBeVisible()
   const dimensions = await page.evaluate(() => ({

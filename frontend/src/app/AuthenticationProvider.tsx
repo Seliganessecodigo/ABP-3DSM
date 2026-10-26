@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AuthenticationError, beginTotpSetup as requestTotpSetup, confirmTotpSetup as requestTotpConfirmation, getCurrentUser, login, logout, refreshSession, verifyTotpChallenge as requestTotpChallenge, type AuthenticatedUser, type Credentials, type LoginResult, type SessionTokens, type TotpProvisioning } from '../features/authentication/api.ts'
+import { AuthenticationError, beginTotpSetup as requestTotpSetup, confirmTotpSetup as requestTotpConfirmation, exchangeSsoHandoff, getCurrentUser, login, logout, refreshSession, verifyTotpChallenge as requestTotpChallenge, type AuthenticatedUser, type Credentials, type LoginResult, type SessionTokens, type TotpProvisioning } from '../features/authentication/api.ts'
 import { AuthenticationContext } from './authentication-context.ts'
 
 export function AuthenticationProvider({ children }: Readonly<{ children: ReactNode }>) {
@@ -21,6 +21,11 @@ export function AuthenticationProvider({ children }: Readonly<{ children: ReactN
     if (!('status' in result)) await completeSession(result)
     return result
   }, [completeSession])
+  const completeSsoHandoff = useCallback(async (code: string, verifier: string): Promise<LoginResult> => {
+    const result = await exchangeSsoHandoff(code, verifier)
+    if (!('status' in result)) await completeSession(result)
+    return result
+  }, [completeSession])
   const beginTotpSetup = useCallback((setupToken: string): Promise<TotpProvisioning> => requestTotpSetup(setupToken), [])
   const confirmTotpSetup = useCallback(async (setupToken: string, code: string) => {
     await completeSession(await requestTotpConfirmation(setupToken, code))
@@ -34,6 +39,6 @@ export function AuthenticationProvider({ children }: Readonly<{ children: ReactN
     if (!active) return
     try { await logout(active.tokens.accessToken) } catch { /* a sessão local sempre termina */ }
   }, [session])
-  const value = useMemo(() => ({ user: session?.user ?? null, signIn, beginTotpSetup, confirmTotpSetup, verifyTotpChallenge, signOut }), [session, signIn, beginTotpSetup, confirmTotpSetup, verifyTotpChallenge, signOut])
+  const value = useMemo(() => ({ user: session?.user ?? null, signIn, completeSsoHandoff, beginTotpSetup, confirmTotpSetup, verifyTotpChallenge, signOut }), [session, signIn, completeSsoHandoff, beginTotpSetup, confirmTotpSetup, verifyTotpChallenge, signOut])
   return <AuthenticationContext.Provider value={value}>{children}</AuthenticationContext.Provider>
 }

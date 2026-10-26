@@ -8,6 +8,7 @@ services:
     environment:
       NODE_ENV: development
       VITE_API_URL: ${VITE_API_URL:-http://localhost:${API_PORT:-3000}}
+      VITE_GOOGLE_SSO_ENABLED: ${VITE_GOOGLE_SSO_ENABLED:-false}
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     volumes:

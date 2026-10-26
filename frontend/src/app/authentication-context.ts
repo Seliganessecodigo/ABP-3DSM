@@ -4,6 +4,7 @@ import type { AuthenticatedUser, Credentials, LoginResult, TotpProvisioning } fr
 export interface AuthenticationContextValue {
   user: AuthenticatedUser | null
   signIn: (credentials: Credentials) => Promise<LoginResult>
+  completeSsoHandoff: (code: string, verifier: string) => Promise<LoginResult>
   beginTotpSetup: (setupToken: string) => Promise<TotpProvisioning>
   confirmTotpSetup: (setupToken: string, code: string) => Promise<void>
   verifyTotpChallenge: (challengeToken: string, code: string) => Promise<void>

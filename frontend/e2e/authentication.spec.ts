@@ -27,7 +27,7 @@ test('usuário entra com credenciais válidas e retorna à tela inicial', async 
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page).toHaveURL(/\/$/)
   await expect(page.getByText('Ana Silva')).toBeVisible()
@@ -42,7 +42,7 @@ test('credenciais inválidas mostram erro genérico e limpam apenas a senha', as
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('wrong-password')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page.getByRole('alert')).toHaveText('E-mail ou senha inválidos. Confira os dados e tente novamente.')
   await expect(page.getByLabel('E-mail institucional')).toHaveValue('ana@example.com')
@@ -67,7 +67,7 @@ test('renova a sessão uma vez quando a consulta inicial do perfil retorna 401',
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page).toHaveURL(/\/$/)
   await expect(page.getByText('Ana Silva')).toBeVisible()
@@ -80,7 +80,7 @@ test('desafio TOTP não cria sessão até que a pessoa informe o código', async
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
   await expect(page).toHaveURL(/\/login$/)
   await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
@@ -95,7 +95,7 @@ test('recarregar a página encerra a sessão mantida apenas em memória', async 
   await page.goto('/login')
   await page.getByLabel('E-mail institucional').fill('ana@example.com')
   await page.getByLabel('Senha').fill('password123')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await expect(page.getByText('Ana Silva')).toBeVisible()
 
   await page.reload()
