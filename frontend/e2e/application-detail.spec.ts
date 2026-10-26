@@ -170,8 +170,8 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   })
   expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
   expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(176)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeLessThan(400)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBeGreaterThan(1000 / 3)
+  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeGreaterThan(500)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
 
   await page.setViewportSize({ width: 390, height: 844 })

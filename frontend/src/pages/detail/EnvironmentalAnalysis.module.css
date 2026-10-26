@@ -97,6 +97,8 @@
   .coverageColumn { padding-top: 0; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .contextColumn { grid-template-columns: 1fr; }
+  .calculation > header { flex-wrap: wrap; }
+  .calculation > header a { white-space: normal; overflow-wrap: anywhere; }
 }
 @media (max-width: 480px) {
   .formula { gap: 4px; }

@@ -210,19 +210,19 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
               {eventMarkers.map(event => <g key={event.id} data-series-event-marker="true" data-event-count={event.count} className={styles.eventMarker}>
                 <title>{event.title}</title><line x1={event.x} y1="100" x2={event.x} y2="108" />
               </g>)}
-              {[...interactivePoints.values()].map(({ point, reading }) => <circle key={point.id} cx={point.x} cy={point.y} r="4" role="button" tabIndex={0}
+              {/* A ponta arredondada mantém o ponto circular quando o SVG muda de proporção. */}
+              {[...interactivePoints.values()].map(({ point, reading }) => <path key={point.id} className={styles.point} d={`M${point.x} ${point.y}l0.01 0.01`} role="button" tabIndex={0}
                   aria-label={`${formatDate(reading.timestamp)}: ${formatChartValue(reading.value, locale)} ${displayUnit}`}
                   onMouseEnter={() => setActivePointId(point.id)} onMouseLeave={() => setActivePointId(null)}
                   onFocus={() => setActivePointId(point.id)} onBlur={() => setActivePointId(null)}
                   onKeyDown={event => { if (event.key === 'Escape') setActivePointId(null) }} />)}
-              {activePoint && activeCoordinate && <g className={styles.chartTooltip} data-chart-tooltip="true" role="status" aria-live="polite"
-                transform={`translate(${Math.max(8, Math.min(476, activeCoordinate.x + 8))},${Math.max(4, activeCoordinate.y - 52)})`}>
-                <rect width="120" height={activeComparison ? 48 : 34} rx="5" />
-                <text x="8" y="12">{new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(activePoint.timestamp))}</text>
-                <text x="8" y="25">{labels.tooltipCurrent}: {formatChartValue(activePoint.value, locale)} {displayUnit}</text>
-                {activeComparison && <text x="8" y="39">{labels.tooltipPrevious}: {formatChartValue(activeComparison.value, locale)} {displayUnit}</text>}
-              </g>}
             </svg>
+              {activePoint && activeCoordinate && <div className={styles.chartTooltip} data-chart-tooltip="true" role="status" aria-live="polite"
+                style={{ left: `clamp(8px, ${activeCoordinate.x / 6}%, calc(100% - 188px))`, top: `max(4px, calc(${activeCoordinate.y / 1.08}% - 80px))` }}>
+                <span>{new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(activePoint.timestamp))}</span>
+                <span>{labels.tooltipCurrent}: {formatChartValue(activePoint.value, locale)} {displayUnit}</span>
+                {activeComparison && <span>{labels.tooltipPrevious}: {formatChartValue(activeComparison.value, locale)} {displayUnit}</span>}
+              </div>}
             </figure>
           </div>
           <div className={styles.timeAxis}>{axisPoints.map(point => <time key={point.id} dateTime={point.timestamp}>
