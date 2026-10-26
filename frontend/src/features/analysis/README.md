@@ -12,6 +12,21 @@ O endpoint `GET /applications/{id}/analysis/series/contributions` fornece inspe�
 
 `pages/detail/useEnvironmentalAnalysis.ts` controla estados transitórios, retry, cancelamento com `AbortSignal`, descarte de resposta obsoleta para aplicação/contexto antigo e preservação do último sucesso somente no mesmo contexto. `lastAttemptAt` e `lastSuccessAt` são instantes do relógio do cliente registrados pelo hook; não significam instante de coleta, observação ou atualização do backend. `lastSuccessStatus` distingue resultado disponível de resultado global vazio. Indisponibilidade e falha de transporte são distintas de sucesso vazio e não viram zero; uma resposta vazia após valor anterior substitui esse valor, sem ressuscitá-lo em falha posterior.
 
+## Resumo ambiental do dashboard
+
+`pages/dashboard/` consulta `GET /analysis/summary` com os limites UTC semiabertos derivados dos mesmos presets e âncora usados pelo detalhe. Estado e código regional são filtros multivalorados do contrato; o seletor regional apresenta os códigos atuais do catálogo, enquanto o backend classifica resultados pela região histórica da coleta. O adapter valida intervalo, medidas, coberturas, contagens, identidade das aplicações contribuintes e presença dos metadados de proveniência antes de expor os dados à página.
+
+A resposta contém energia, emissões em `gCO2e`, coberturas temporais independentes e composição reconciliável por aplicação. `applications[]` inclui apenas aplicações com algum resultado ambiental; a tabela deixa esse limite explícito e usa a localização atual do catálogo para sua coluna de região. As contagens de estado continuam cobrindo o escopo selecionado, inclusive aplicações sem resultado.
+
+O contrato atual não oferece série histórica agregada entre aplicações nem define comparação com período anterior. O dashboard informa essas pendências sem calcular séries no cliente, interpolar lacunas ou mostrar valores demonstrativos. As opções de filtros locais, ordenação e paginação da tabela são aplicadas à coleção completa de contribuições antes de paginar.
+
+Validações direcionadas:
+
+```sh
+npm run test:unit -- tests/unit/environmentalSummary.spec.ts tests/unit/dashboardData.spec.ts
+npx playwright test --project=chromium e2e/dashboard.spec.ts
+```
+
 ## Modelo de apresentação entregue
 
 O modelo representa:

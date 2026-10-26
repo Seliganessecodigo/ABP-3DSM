@@ -188,7 +188,7 @@ function readSeries(value: unknown, applicationId: string) {
   return { points, events }
 }
 
-function rangeFor(period: string, now: Date) {
+export function analysisRangeFor(period: string, now: Date) {
   const duration = ({ '24h': 24, '7d': 168, '30d': 720, '90d': 2160 } as const)[period as '24h' | '7d' | '30d' | '90d']
   if (duration === undefined) throw new Error('Invalid analysis period')
   const to = now.toISOString()
@@ -232,7 +232,7 @@ function readContributionMeasure(value: unknown, name: string) {
 
 async function loadContributions(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
   pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage> {
-  const range = rangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
+  const range = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
   const query = new URLSearchParams({ ...range, granularity: context.granularity ?? 'hour', bucketStart,
     page: String(page), pageSize: String(pageSize) })
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')
@@ -312,7 +312,7 @@ async function getJson(url: string, signal: AbortSignal): Promise<unknown> {
 }
 
 async function loadEnvironmentalAnalysis(applicationId: string, period: string, granularity: string | null, anchor: string | undefined, signal: AbortSignal): Promise<AnalysisSourceResult> {
-  const range = rangeFor(period, anchor ? new Date(anchor) : new Date())
+  const range = analysisRangeFor(period, anchor ? new Date(anchor) : new Date())
   const selectedGranularity = granularity ?? 'hour'
   const [summary, series] = await Promise.all([
     getJson(endpoint(applicationId, '', range), signal),
@@ -372,8 +372,8 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
 }
 
 async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]> {
-  const currentRange = rangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
-  const previousRange = rangeFor(context.period, new Date(currentRange.from))
+  const currentRange = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
+  const previousRange = analysisRangeFor(context.period, new Date(currentRange.from))
   const response = await getJson(endpoint(applicationId, '/series', previousRange, context.granularity ?? 'hour'), signal)
   return readSeries(response, applicationId).points
 }
