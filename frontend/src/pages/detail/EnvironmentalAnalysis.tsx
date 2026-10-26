@@ -1,4 +1,5 @@
 import { ActionButton } from '../../components/ActionButton.tsx'
+import { LoadingState } from '../../components/LoadingState.tsx'
 import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
@@ -361,7 +362,7 @@ function MethodologySection({ result, state, labels }: Readonly<{
 }>) {
   return <section className={styles.provenance} aria-labelledby="analysis-methodology-heading">
     <h2 id="analysis-methodology-heading">{labels.methodologyHeading}</h2>
-    {state === 'loading' && <output>{labels.loading}</output>}
+    {state === 'loading' && <LoadingState title={labels.loading} compact />}
     {state === 'error' && <output>{labels.methodologyUnavailable}</output>}
     {state === 'unavailable' && !result && <output>{labels.methodologyUnavailable}</output>}
     {result?.status === 'unavailable' && <div className={styles.unavailable}>
@@ -446,12 +447,15 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       }
     : undefined
   const { preserveEmpty, emptyResult, invalidContext, showData } = getDisplayState(data, status, lastSuccessStatus)
+  if (status === 'loading' && data === null) return <section aria-label={labels.heading} className={styles.loadingLayout}>
+    <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
+  </section>
   return <div className={styles.analysisLayout}>
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
       {status === 'loading' && <output>{labels.loading}</output>}
-      {status === 'refreshing' && <output>{labels.refreshing}</output>}
+      {status === 'refreshing' && <LoadingState title={labels.refreshing} compact />}
       {status === 'empty' && <output>{labels.empty}</output>}
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
       {status === 'unavailable' && <output>{labels.unavailable}</output>}

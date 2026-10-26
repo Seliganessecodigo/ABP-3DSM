@@ -50,5 +50,7 @@
   "reason.INVALID_FIELD": "The source provided an invalid field",
   "reason.MONITORING_CYCLE_DELAYED": "The monitoring cycle is delayed",
   "reason.CARBON_FACTOR_UNAVAILABLE": "Carbon factor unavailable",
-  "reason.REMOVAL_CONFIRMED": "Removal confirmed"
+  "reason.REMOVAL_CONFIRMED": "Removal confirmed",
+  "loading.description": "Please wait while the request completes. No values are shown yet.",
+  "loading.processing": "Processing…"
 }

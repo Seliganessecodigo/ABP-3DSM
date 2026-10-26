@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { stateLabel } from '../../features/applications/presentation.ts'
 import { periodPresets } from '../../features/analysis/periodContext.ts'
@@ -191,10 +192,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <div>
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
         <h1>{t('title')}</h1>
-        <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>
+        {(data.data || (!data.applications.loading && !data.applications.error)) && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
-      <button className={styles.refreshButton} type="button" onClick={retry} disabled={data.status === 'loading' || data.status === 'refreshing'}>
+      <button className={styles.refreshButton} type="button" aria-disabled={data.status === 'loading' || data.status === 'refreshing'}
+        aria-busy={data.status === 'loading' || data.status === 'refreshing'}
+        onClick={() => { if (data.status !== 'loading' && data.status !== 'refreshing') retry() }}>
         {data.status === 'refreshing' ? t('refreshing') : t('refresh')}
       </button>
     </header>
@@ -202,7 +205,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     <section className={styles.controls} aria-label={t('filters.contextHeading')}>
       <div className={styles.periods} role="group" aria-label={t('period')}>
         {periodPresets.map((preset) => <button key={preset} type="button" aria-pressed={period === preset}
-          className={period === preset ? styles.selected : ''} onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
+          aria-disabled={period === preset && (data.status === 'loading' || data.status === 'refreshing')}
+          className={period === preset ? styles.selected : ''}
+          onClick={() => { if (period !== preset || (data.status !== 'loading' && data.status !== 'refreshing')) changePeriod(preset) }}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
       <label>{t('region')}
@@ -224,7 +229,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
     </section>
 
-    {data.status === 'loading' && <p className={styles.status} role="status">{t('loading')}</p>}
+    {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
       <p>{data.data ? t('refreshError') : t('error')}</p>
       {!data.data && <button type="button" onClick={retry}>{t('retry')}</button>}
@@ -273,7 +278,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </section>
 
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
-      {data.status === 'refreshing' && <p className={styles.status} role="status">{t('refreshing')}</p>}
+      {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
       <section className={styles.visualizations}>
         <article className={styles.card}>
