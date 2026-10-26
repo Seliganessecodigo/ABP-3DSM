@@ -1,5 +1,6 @@
 ---
 layout: home
+isHome: false
 hero:
   name: GreenER
   text: Energía e impacto ambiental, con contexto
@@ -7,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Primeros pasos
-      link: /getting-started
+      link: /es-ES/getting-started
     - theme: alt
       text: Explorar las épicas
-      link: /roadmap
+      link: /es-ES/roadmap
 features:
   - title: Supervisión
     details: Descubrimiento y seguimiento de aplicaciones con estados claros.
@@ -24,8 +25,14 @@ features:
 
 GreenER es un proyecto académico del programa de Desarrollo de Software Multiplataforma de Fatec Jacareí, Brasil. Su objetivo es supervisar aplicaciones, estimar el consumo de energía e informar las emisiones equivalentes de CO₂ (CO₂e).
 
-## Estado actual
+## Estado y rutas de lectura
 
-El frontend ofrece actualmente un catálogo de aplicaciones y una página de detalle. El backend proporciona la API del catálogo y realiza el descubrimiento inicial de aplicaciones. Los paneles, los cálculos ambientales, los análisis y la administración forman parte del alcance del producto y están organizados en el [backlog de épicas](./roadmap).
+La documentación distingue funciones disponibles, alcance planificado y decisiones pendientes. La interfaz ofrece catálogo, detalle operativo, evidencias métricas, preferencia de tema, análisis ambiental por aplicación y consulta de la metodología registrada para cada observación. La API también ofrece un resumen agregado sin pantalla propia; el ranking y la comparación siguen planificados.
 
-Las estimaciones dependen de los datos de origen y de los contratos documentados. La falta de datos, los errores o los datos desactualizados no significan consumo ni emisiones iguales a cero.
+- [Visión y alcance](./product/vision)
+- [Guía de uso](./guide/monitoring)
+- [Metodología y datos](./product/methodology)
+- [Calidad y aceptación](./product/quality)
+- [Decisiones y dependencias](./product/decisions)
+- [Referencia de la API](./reference/api)
+- [Operación y diagnóstico](./operations)

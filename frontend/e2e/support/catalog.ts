@@ -12,6 +12,10 @@ export interface ApplicationResponse {
     longitude: number
   } | null
   state: 'AVAILABLE' | 'UNAVAILABLE' | 'NO_METRICS' | 'REMOVED'
+  reason: 'NO_OBSERVATION' | 'METRICS_VALID' | 'METRICS_MISSING' | 'SOURCE_TIMEOUT' | 'SOURCE_ERROR' | 'REQUIRED_FIELD_MISSING' | 'INVALID_FIELD' | 'MONITORING_CYCLE_DELAYED' | 'CARBON_FACTOR_UNAVAILABLE' | 'REMOVAL_CONFIRMED'
+  lastObservationAt: string | null
+  isStale: boolean
+  isCalculable: boolean
   firstSeenAt: string
   lastCheckedAt: string | null
   removedAt: string | null
@@ -24,6 +28,10 @@ export function application(overrides: Partial<ApplicationResponse> = {}): Appli
     name: 'app-pagamentos',
     location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo', latitude: -23.55, longitude: -46.63 },
     state: 'AVAILABLE',
+    reason: 'METRICS_VALID',
+    lastObservationAt: '2026-10-09T17:30:00.000Z',
+    isStale: false,
+    isCalculable: true,
     firstSeenAt: '2026-10-09T12:00:00.000Z',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
     removedAt: null,
@@ -48,14 +56,18 @@ export function largeCatalog(): ApplicationResponse[] {
 }
 
 export async function mockApi(page: Page, handler: (route: Route) => Promise<void>) {
-  await page.route(/\/applications(?:\/[^/?]+)?(?:\?.*)?$/, async (route) => {
+  await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?(?:\?.*)?$/, async (route) => {
     if (route.request().isNavigationRequest()) {
       await route.continue()
       return
     }
     const pathname = new URL(route.request().url()).pathname
-    if (!/^\/(?:api\/)?applications(?:\/[^/?]+)?$/.test(pathname)) {
+    if (!/^\/(?:api\/)?applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/.test(pathname)) {
       await route.continue()
+      return
+    }
+    if (pathname.includes('/collections/')) {
+      await route.fulfill({ status: 404, json: { code: 'COLLECTION_NOT_FOUND', message: 'No collection evidence available in this test' } })
       return
     }
     await handler(route)
@@ -82,7 +94,7 @@ export async function unavailable(route: Route) {
 }
 
 export function row(page: Page, id: string) {
-  return page.getByRole('row').filter({ has: page.getByText(id, { exact: true }) })
+  return page.locator(`tr[data-catalog-row-id="${id.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"]`)
 }
 
 export function search(page: Page) {

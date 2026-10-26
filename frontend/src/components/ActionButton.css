@@ -1,0 +1,2 @@
+.button.action-button { min-height: 44px; gap: 8px; padding-inline: 16px; }
+.button.action-button[aria-disabled="true"] { opacity: .55; cursor: progress; }

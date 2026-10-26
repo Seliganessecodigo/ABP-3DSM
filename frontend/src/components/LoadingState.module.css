@@ -1,0 +1,32 @@
+.loading { display: flex; min-width: 0; min-height: 0; height: 100%; flex-direction: column; gap: 12px; }
+.notice, .card, .panel { min-width: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; background: var(--surface-card); }
+.notice { display: block; flex: 0 0 auto; }
+.notice strong { display: block; margin: 0 0 8px; color: var(--text-primary); font-size: 14px; overflow-wrap: anywhere; }
+.description { display: block; margin: 0 0 12px; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.processing { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; min-height: 36px; border-radius: 6px; padding: 8px 16px; color: var(--accent-on-accent); background: var(--accent-default); }
+.inline { display: block; min-width: 0; color: var(--text-secondary); font-size: 12px; }
+.inline .spinner { margin-right: 8px; vertical-align: -2px; }
+.spinner { display: inline-block; width: 12px; height: 12px; flex: 0 0 auto; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+.placeholders { display: flex; min-width: 0; min-height: 0; flex: 1; flex-direction: column; gap: 12px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.dashboard .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.card { display: grid; align-content: start; gap: 12px; }
+.card span, .panel span { display: block; min-width: 0; height: 12px; border-radius: 4px; background: var(--control-disabled); animation: pulse 1.6s ease-in-out infinite; }
+.card span:first-child { width: 36%; }
+.card span:nth-child(2) { width: 60%; height: 24px; }
+.panel { position: relative; display: grid; min-height: 180px; flex: 1; align-content: center; gap: 16px; }
+.panel h3 { position: absolute; top: 16px; left: 16px; right: 16px; margin: 0; color: var(--text-primary); font-size: 13px; }
+.panel span { height: 16px; }
+.rows { min-height: 300px; gap: 24px; }
+.rows span:first-child { height: 24px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 50% { opacity: .45; } }
+@media (max-width: 640px) {
+  .cards, .dashboard .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .detail .cards > :last-child, .content .cards > :last-child { grid-column: 1 / -1; }
+  .notice, .card, .panel { padding: 12px; }
+  .loading { height: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .card span, .panel span { animation: none; }
+}

@@ -12,9 +12,6 @@
     "start:azure": "npm run migration:run:prod && npm run start:prod",
     "applications:discover": "ts-node -e \"require('./src/scripts/discover-applications').runCli()\"",
     "applications:discover:prod": "node -e \"require('./dist/scripts/discover-applications').runCli()\"",
-    "organizations:create-invitation": "ts-node src/scripts/create-organization-invitation.ts",
-    "auth:create-test-login": "ts-node src/scripts/create-test-login.ts",
-    "authentication:recover-admin-totp": "ts-node src/scripts/recover-admin-totp.ts",
     "test": "jest --config ./jest.config.js",
     "test:watch": "jest --config ./jest.config.js --watch",
     "test:cov": "jest --config ./jest.config.js --coverage",
@@ -25,7 +22,10 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
-    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts"
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts",
+    "organizations:create-invitation": "ts-node src/scripts/create-organization-invitation.ts",
+    "auth:create-test-login": "ts-node src/scripts/create-test-login.ts",
+    "authentication:recover-admin-totp": "ts-node src/scripts/recover-admin-totp.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -33,13 +33,13 @@
     "@nestjs/platform-express": "^11.1.6",
     "@nestjs/swagger": "^11.2.5",
     "@nestjs/typeorm": "^11.0.3",
-    "argon2": "^0.45.1",
     "dotenv": "^16.6.1",
-    "nodemailer": "^10.2.0",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "typeorm": "^0.3.31"
+    "typeorm": "^0.3.31",
+    "argon2": "^0.45.1",
+    "nodemailer": "^10.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

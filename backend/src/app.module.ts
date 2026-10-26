@@ -4,10 +4,11 @@ import { AppService } from './app.service'
 import { DatabaseModule } from './database/database.module'
 import { ApplicationsModule } from './modules/applications/applications.module'
 import { IntegrationsModule } from './integrations/integrations.module'
+import { CarbonModule } from './modules/carbon/carbon.module'
 import { AuthenticationModule } from './modules/authentication/authentication.module'
 
 @Module({
-  imports: [DatabaseModule, ApplicationsModule, IntegrationsModule, AuthenticationModule],
+  imports: [DatabaseModule, ApplicationsModule, IntegrationsModule, CarbonModule, AuthenticationModule],
   controllers: [AppController],
   providers: [AppService],
 })

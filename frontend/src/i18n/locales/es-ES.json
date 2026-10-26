@@ -1,5 +1,6 @@
 {
   "language.label": "Idioma",
+  "theme.darkMode": "Modo oscuro",
   "account": "Cuenta",
   "auth.signOut": "Cerrar sesión",
   "auth.role.ADMIN": "Administrador",
@@ -7,6 +8,11 @@
   "auth.role.VISITOR": "Visitante",
   "app.tagline": "Energía más consciente",
   "topbar": "GreenER · Monitorización",
+  "nav.openMenu": "Abrir menú",
+  "nav.closeMenu": "Cerrar menú",
+  "nav.collapse": "Contraer navegación",
+  "nav.expand": "Expandir navegación",
+  "nav.preferences": "Preferencias",
   "nav.main": "Navegación principal",
   "nav.monitoring": "Monitorización",
   "nav.dashboard": "Panel",
@@ -33,5 +39,8 @@
   "state.AVAILABLE": "Disponible",
   "state.UNAVAILABLE": "No disponible",
   "state.NO_METRICS": "Sin métricas",
-  "state.REMOVED": "Eliminada"
+  "state.REMOVED": "Eliminada",
+  "date.lastObservation": "Última observación válida", "freshness.stale": "Observación desactualizada", "freshness.current": "Observación actual", "calculability.available": "Las métricas operativas son suficientes", "calculability.unavailable": "Las métricas operativas son insuficientes", "reason.NO_OBSERVATION": "Aún no hay observación válida", "reason.METRICS_VALID": "Métricas válidas", "reason.METRICS_MISSING": "Faltan métricas", "reason.SOURCE_TIMEOUT": "La fuente tardó demasiado en responder", "reason.SOURCE_ERROR": "La fuente devolvió un error", "reason.REQUIRED_FIELD_MISSING": "La fuente no proporcionó un campo obligatorio", "reason.INVALID_FIELD": "La fuente proporcionó un campo no válido", "reason.MONITORING_CYCLE_DELAYED": "El ciclo de monitoreo está retrasado", "reason.CARBON_FACTOR_UNAVAILABLE": "Factor de carbono no disponible", "reason.REMOVAL_CONFIRMED": "Eliminación confirmada",
+  "loading.description": "Espera a que termine la consulta. Todavía no se muestran valores.",
+  "loading.processing": "Procesando…"
 }

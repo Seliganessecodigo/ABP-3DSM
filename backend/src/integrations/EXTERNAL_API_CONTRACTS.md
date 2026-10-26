@@ -13,7 +13,7 @@ Especificações OpenAPI consultadas em 2026-10-06:
 
 Antes de mudar DTOs ou adapters, compare o OpenAPI publicado com esta referência e registre a versão/data da alteração. As URLs /openapi.json são a fonte para schemas completos e exemplos atuais.
 
-Nenhuma das duas especificações declara esquema de autenticação. Isso significa que a documentação não especifica autenticação; não é garantia de que o ambiente nunca exigirá credenciais. Timeout, rate limit, paginação e política de retry também não estão descritos.
+Nenhuma das duas especificações declara esquema de autenticação. Isso significa que a documentação não especifica autenticação; não é garantia de que o ambiente nunca exigirá credenciais. Timeout, rate limit, paginação e política de retry também não estão descritos. O ciclo do GreenER usa concorrência inicial configurável de duas chamadas de métricas por processo; isso é uma escolha operacional conservadora, não um limite publicado pela API, e requer confirmação com o responsável pelo serviço.
 
 ## Agregador de métricas
 
@@ -75,4 +75,4 @@ A resposta publicada não fornece versão do fator, data de vigência, fonte bib
 4. Distinguir timestamp de recebimento do GreenER de timestamp de origem; as respostas documentadas não trazem o segundo.
 5. Preservar última observação válida durante falha, manter a aplicação no catálogo quando a coleta de métricas falhar e guardar motivo/status explícito em vez de gravar zero.
 6. Como a origem não informa vigência dos fatores, não usar o timestamp de consulta como se fosse vigência oficial. A versão interna deve identificar o snapshot recebido e permanecer ligada às coletas que o utilizaram.
-7. Não inferir autenticação, limite de chamadas, timeout ou retry a partir da ausência desses campos no OpenAPI. Confirmar requisitos operacionais com o responsável pela API antes de fixar esses parâmetros.
+7. Não inferir autenticação, limite de chamadas, timeout ou retry a partir da ausência desses campos no OpenAPI. O limite inicial configurável de duas chamadas simultâneas é provisório e deve ser confirmado com o responsável pela API antes de aumentar a carga.

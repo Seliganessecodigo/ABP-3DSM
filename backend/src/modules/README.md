@@ -8,6 +8,30 @@
 
 Módulos NestJS organizados por domínio GreenER. Cada módulo reúne as rotas/controllers, serviços de aplicação, DTOs, regras de domínio e integrações próprias do domínio, mantendo dependências explícitas.
 
+## Energia estimada — regra de domínio
+
+`calculations/energy-calculation.ts` expõe `calculateObservationEnergy` como função pura, sem HTTP, ORM ou consulta a fontes. Recebe identidade da aplicação/coleta, intervalo, recebimento e métricas normalizadas (`cpuPercent`, `memoryGb`, `diskGb`, `networkGb`). O modelo inicial `simplified-energy`, versão interna `1`, usa os valores do exemplo do [desafio GreenER](https://docs.unilaunch.org/share/x29w8jgwdb/p/greener-abp-2-semestre-b7FiqU6UC1): CPU máxima de 100 W, memória de 0,375 W/GB, disco de 0,01 W/GB e rede de 0,02 W/GB. Esses parâmetros foram adotados para a configuração inicial; não são medição elétrica real nem versão oficial da origem.
+
+A potência é a soma dos quatro componentes. A energia em kWh é a potência em watts multiplicada pela duração em segundos dividida por 3.600.000, sem arredondamento intermediário. Por exemplo, CPU de 50%, memória de 2 GB, disco de 10 GB e rede de 1 GB representam 50,87 W e aproximadamente 0,0008478333333333333 kWh em 60 segundos. O resultado preserva chave/versão e uma cópia imutável dos parâmetros utilizados. Métrica obrigatória ausente, inválida ou fora do domínio, configuração inválida e intervalo inválido retornam energia indisponível com razões estruturadas; zero válido continua calculável. Resultados numéricos não finitos não são apresentados como energia válida.
+
+`calculations/energy-period.ts` expõe `aggregateApplicationEnergyPeriod` para uma aplicação e um período com início incluído e fim excluído. Os instantes precisam de fuso explícito e são normalizados para UTC. A regra recorta as coletas nas bordas, usa a potência média de cada coleta e conta cada trecho uma vez. Em sobreposições, prevalece o maior horário de recebimento; empate usa ID em ordem lexical crescente independente do locale. A observação vencedora inválida deixa lacuna, sem fallback silencioso para a anterior. IDs repetidos com os mesmos dados não duplicam energia; dados conflitantes para o mesmo ID invalidam a entrada. Observações de outra aplicação são excluídas explicitamente.
+
+Cobertura é a duração calculável dividida pela duração do período solicitado. As contribuições e exclusões descrevem os trechos que sustentam o resultado; lacunas não viram zero. Sem duração calculável, energia é `null` e cobertura é zero. Um total fora da representação numérica retorna `null` com `NON_FINITE_RESULT`, preservando a descrição das contribuições e a cobertura da evidência. Período inválido e identidade alvo vazia geram `EnergyPeriodInputError` tipado.
+
+Estas funções não gravam resultados, calculam CO₂e nem expõem novas rotas. A integração no ciclo de coleta e as consultas ambientais são entregas independentes. Para verificar a regra, execute em `backend/`: `npm test -- --runInBand --runTestsByPath src/modules/calculations/energy-calculation.spec.ts src/modules/calculations/energy-period.spec.ts`. A cobertura é gerada com `npm run test:cov -- --runInBand`.
+
+## Resultados ambientais por coleta
+
+O ciclo de monitoramento calcula energia e CO₂e a partir da observação persistida e do snapshot de fator efetivamente capturado, reutilizando as funções puras de cálculo. A migration `CollectionCalculationEvidence1791380000000` acrescenta `collections.calculationEvidence` como JSONB nullable: registros anteriores continuam sem evidência, sem recálculo ou preenchimento automático com valores atuais.
+
+O envelope de evidência tem `version: 1`, `energy` e `carbon`. Ele preserva o modelo e sua versão, parâmetros, contribuições de potência, razões de indisponibilidade e o snapshot do fator com suas versões e horário de consulta. As referências de configuração cadastrada permanecem nulas quando o modelo utilizado possui apenas parâmetros versionados embutidos; nenhum cadastro fictício é criado. O campo operacional `reason` não é reutilizado para razões ambientais.
+
+`CollectionsRepository.persistEnvironmentalBundle(collectionId, bundle)` bloqueia a coleta por ID e grava os campos ambientais e a evidência numa única transação. Uma proposta equivalente é no-op; uma proposta divergente gera `EnvironmentalBundleConflictError` e preserva o resultado original. A evidência versionada é obrigatória nessa operação. Se a gravação falhar, a observação operacional permanece e pode ser finalizada em nova tentativa. Uma coleta já finalizada não recaptura o fator nem recalcula o histórico ao repetir o ciclo. Cancelar o ciclo durante a consulta do fator não grava um resultado de fator indisponível; o ciclo mantém o motivo operacional `CYCLE_CANCELLED`.
+
+Energia, emissão em gramas e fator são persistidos com oito casas decimais; cobertura é uma fração entre zero e um, com quatro casas. Os cálculos não arredondam valores intermediários. A quantização na persistência pode representar valores muito pequenos como zero. Para uma observação inteira calculável, cobertura é um, inclusive quando o consumo medido é zero; dados inválidos não viram consumo zero. Fator ausente mantém energia calculável e deixa CO₂e indisponível com razão tipada.
+
+Essa gravação não acrescenta endpoints nem altera a representação HTTP das evidências de métricas. As consultas ambientais e de metodologia são contratos próprios dos consumidores.
+
 ## Catálogo de aplicações
 
 As rotas públicas `GET /applications` e `GET /applications/{id}` leem somente o catálogo persistido. A primeira retorna uma coleção (vazia quando não há aplicações); a segunda retorna 404 para ID inexistente e 400 para ID vazio. Falha de consulta retorna 503 com `CATALOG_UNAVAILABLE`.
@@ -22,10 +46,121 @@ O contrato OpenAPI 1.0.0 está em `GET /openapi.json` e a interface de documenta
 
 `DiscoveryService.discover(cycleId)` consulta `/services` antes de abrir a transação. Para cada ID ainda desconhecido, grava aplicação e evento `discovered` com ator `system`, horário observado pelo GreenER e referência ao ciclo. A gravação usa conflito ignorado no ID para manter idempotência entre ciclos simultâneos; só um cadastro realmente inserido gera evento. Falha ou snapshot inválido da origem não abre transação. `metrics_path` é persistido, mas não integra o DTO público. A migration `DiscoverApplications1791350000000` acrescenta a referência de ciclo e remove limites de comprimento de ID/nome que não constam no contrato externo. Mudanças em aplicações já conhecidas ficam para a task #171.
 
-`InitialCatalogSyncRunner` cria um ciclo `startup-catalog-discovery`, executa essa descoberta e encerra o ciclo com contagens. O comando `npm run applications:discover` é executado pelo Compose depois das migrations e pode ser repetido sem duplicar aplicações ou eventos. Se o agregador falhar, o ciclo termina como `FAILED`, o erro fica nos logs e o servidor ainda inicia.
+`InitialCatalogSyncRunner` cria um ciclo `startup-catalog-discovery`, executa essa descoberta e encerra o ciclo com contagens. O comando `npm run applications:discover` é executado pelo Compose depois das migrations e pode ser repetido sem duplicar aplicações ou eventos. A sincronização inicial e o scheduler compartilham a mesma trava de processo, política de retry e regras de incidentes; o backend atual é executado com uma instância.
 
-`RemovalService.reconcile(cycleId)` consulta um snapshot completo e válido de `/services` e marca como `REMOVED` as identidades conhecidas ausentes. A política aprovada confirma a primeira ausência no mesmo ciclo: o evento `removed` guarda `observedAt` e `confirmedAt` iguais ao horário de recebimento do GreenER, além de origem, ciclo e ator. Estado, `removedAt` e evento são gravados na mesma transação; repetir o snapshot não duplica a transição. `ApplicationsRepository.findForCollection()` exclui aplicações removidas das próximas coletas; coletas e eventos anteriores continuam persistidos. O agendador de coleta ainda não está implementado nesta task.
+`RemovalService.reconcile(cycleId)` consulta um snapshot completo e válido de `/services` e marca como `REMOVED` as identidades conhecidas ausentes. A política aprovada confirma a primeira ausência no mesmo ciclo: o evento `removed` guarda `observedAt` e `confirmedAt` iguais ao horário de recebimento do GreenER, além de origem, ciclo e ator. Estado, `removedAt` e evento são gravados na mesma transação; repetir o snapshot não duplica a transição. `ApplicationsRepository.findForCollection()` exclui aplicações removidas das próximas coletas; coletas e eventos anteriores continuam persistidos.
 
 `ReturnService.reconcile(cycleId)` reativa a mesma identidade quando ela reaparece em um snapshot completo e válido. Limpa `removedAt`, registra `returned` com horário, ciclo, origem e ator na mesma transação, e volta a incluí-la na seleção de coletas. Conforme decisão do responsável, o estado passa a `UNAVAILABLE` até uma nova coleta classificar as métricas; a presença no catálogo não é apresentada como métrica válida. O serviço não cria coletas retroativas para o intervalo removido.
 
+`GET /applications/{id}/collections/latest` expõe a observação válida mais recente, e `GET /applications/{id}/collections/{collectionId}` consulta uma observação dentro do escopo da aplicação. Ambas leem somente dados persistidos; aplicação inexistente retorna `APPLICATION_NOT_FOUND`, ausência de observação retorna `COLLECTION_NOT_FOUND` e falha de leitura retorna `APPLICATION_EVIDENCE_UNAVAILABLE` (503). Os valores e unidades de CPU, memória, disco e rede são apresentados independentemente, com status `available`, `missing` ou `invalid`; zero explícito permanece válido. A resposta inclui duração informada pela origem, recebimento GreenER e limites do intervalo derivados conforme #154, mais estado/motivo/horário da tentativa atual. Uma falha recente mantém a observação válida anterior disponível e `isStale: true`. Essas consultas não chamam o agregador nem calculam energia ou CO₂e.
+
 `CollectionsRepository.findHistoryByApplication(id)` lê as coletas persistidas da mesma identidade em ordem temporal. Remoção e retorno não alteram essas linhas; o intervalo removido não ganha pontos nem valores zero. A representação explícita da lacuna na resposta temporal será definida pela task #114, que ainda não fornece esse contrato.
+
+## Metodologia do resultado por coleta — #58
+
+As consultas públicas `GET /applications/{id}/collections/{collectionId}` e `GET /applications/{id}/collections/latest` incluem o bloco `environmental`, associado à coleta retornada. A consulta lê somente o resultado persistido, sem recalcular, consultar fatores atuais ou substituir parâmetros históricos. O OpenAPI descreve campos, unidades, motivos estruturados e nulabilidade.
+
+Com evidência versão `1`, `status: present` informa energia e carbono, parâmetros efetivos, chave/versão do modelo, contribuições de potência e snapshot original do fator. `energy.valueKwh`, `carbon.valueGramsCo2e` e `carbon.factor` vêm das colunas quantizadas; os campos `calculatedValue*` preservam os valores originais do JSONB. `energy.coverage` é a fração persistida entre zero e um. As referências `configId`/`configVersion` continuam nulas quando não há cadastro associado; os parâmetros capturados continuam disponíveis.
+
+Para `simplified-energy` versão `1`, a resposta apresenta a fórmula fixa daquela versão e as unidades de entrada e saída. Uma chave ou versão desconhecida mantém seus valores e parâmetros, mas retorna `formula.status: unavailable`, campos da fórmula nulos e `FORMULA_UNAVAILABLE`; não recebe a fórmula atual como substituta. A fórmula de carbono descreve kWh × gCO2e/kWh = gCO2e e a conversão para kgCO2e. A versão do contrato do fator não representa a versão da fórmula. No snapshot, `queriedAt` indica consulta pelo GreenER; fonte e vigência desconhecidas permanecem nulas.
+
+Sem evidência suportada, a coleta continua retornando sucesso com `status: absent`, `absenceReason: ENVIRONMENTAL_EVIDENCE_UNAVAILABLE`, energia e carbono nulos, sem inferir a causa histórica. Um bundle presente pode conter resultado parcial, valores nulos e razões específicas; zero válido permanece zero. Os erros existentes de recurso inexistente (404) e falha de leitura (503) permanecem distintos desses estados.
+
+Os testes HTTP/PostgreSQL estão em `src/modules/applications/applications.database.spec.ts`. Para executá-los, defina `TEST_DATABASE_URL` para um PostgreSQL isolado e rode `npm test -- --runInBand --runTestsByPath src/modules/applications/applications.database.spec.ts`. A suíte aplica migrations e manipula seus registros de teste; não use o banco de desenvolvimento ou produção.
+
+## Consulta ambiental por período — #235
+
+`GET /applications/{id}/analysis?from={RFC3339}&to={RFC3339}` expõe o resumo ambiental das coletas persistidas. `from` e `to` exigem fuso explícito, são normalizados para UTC e delimitam o intervalo semiaberto `[from,to)`. A resposta `EnvironmentalAnalysisDto` contém `status` (`available` ou `empty`), aplicação e período, totais de energia e emissões, coberturas independentes e `provenance` agrupada: metodologias, fatores efetivamente usados e razões. O resumo não inclui linhas de contribuições/exclusões por coleta; a inspeção individual, com snapshots completos, pertence à série paginada de #174. O endpoint não chama o agregador de métricas nem consulta fatores atuais.
+
+Os valores são os resultados ambientais já salvos em cada coleta: energia em `kWh` e emissões em `gCO2e`. A projeção recorta cada coleta às bordas do período e rateia proporcionalmente seu valor persistido pela duração contada. Sobreposições são resolvidas por `collectedAt` mais recente; empate usa ID lexical crescente. Se a coleta vencedora não tiver valor para uma métrica, não há fallback para uma coleta anterior. Não se recalcula energia a partir das métricas brutas nem emissões com o fator atual.
+
+`value: 0` é um resultado disponível; `value: null` indica que não há resultado utilizável. `status: empty` significa que nenhuma coleta intersecta o período e retorna valores nulos, coberturas zero e proveniência vazia. Para períodos com observações, a cobertura de cada métrica é a fração entre zero e um do período solicitado sustentada por um valor disponível para essa métrica. Uma lacuna ou ausência de fator não se transforma em zero; `energy.reasons`, `emissions.reasons` e `provenance.reasons` trazem motivos estruturados. `provenance.methodologies` deduplica a combinação completa de `key`, `version` e `parameters`. `provenance.factors` agrupa a identidade efetiva do fator por `regionCode`, país, região, cidade, intensidade, unidade, versão, versão do contrato, fonte e vigência; valores diferentes nesses atributos permanecem entradas distintas mesmo com a mesma versão nominal. `queriedAt.from/to` informa a faixa de horários de consulta GreenER observados para aquele grupo, não a vigência do fator. IDs e timestamps de consulta individuais, além dos snapshots integrais associados a cada coleta, são expostos pelo drilldown de #174. Unidades e precisão seguem os campos persistidos e o DTO, sem conversão ou recálculo adicional no controller.
+
+ID vazio ou período inválido retorna `400` (`INVALID_APPLICATION_ID` ou `INVALID_ANALYSIS_PERIOD`); aplicação inexistente retorna `404` (`APPLICATION_NOT_FOUND`); falha de leitura ou análise retorna `503` (`APPLICATION_ANALYSIS_UNAVAILABLE`). A validação e a consulta ficam no service/repository; o controller apenas expõe parâmetros, DTO e respostas OpenAPI.
+
+O teste focado `src/modules/applications/environmental-analysis.database.spec.ts` usa PostgreSQL real e só executa quando `TEST_DATABASE_URL` aponta para um banco isolado. O próprio teste aplica as migrations necessárias. Exemplo local sem credenciais embutidas (substitua pelo endereço local do banco de teste): `TEST_DATABASE_URL=postgres://localhost:5432/greener_test npm test -- --runInBand --runTestsByPath src/modules/applications/environmental-analysis.database.spec.ts`. No PowerShell, defina `$env:TEST_DATABASE_URL` para esse endereço antes de executar o mesmo comando `npm test`; não use banco de desenvolvimento ou produção, pois o teste insere e remove linhas próprias.
+
+## Prévia de recálculo ambiental — #263
+
+`POST /applications/{id}/analysis/recalculation-preview` recebe `from` e `to` no corpo (RFC 3339 com fuso explícito) e retorna os totais ambientais persistidos ao lado de uma prévia recalculada em memória. A prévia usa `simplified-energy` v1, consulta o fator de carbono atual por região histórica e informa metodologia, fatores, coberturas, razões e avisos. O snapshot original de fator tem prioridade; sem ele, a região é reconstruída pelo histórico de cadastro no instante da coleta. Falha em uma consulta regional ou ausência de região retorna `status: partial`, preservando o que foi calculável.
+
+A rota é pública e não altera coletas, resultados ambientais, fatores persistidos, rankings, séries nem totais oficiais. Sem observações, retorna `status: empty` e não consulta serviço externo. O período máximo é 30 dias e a consulta aceita até 10.000 observações intersectadas; exceder qualquer limite retorna `400`, sem truncamento. Aplicação inexistente retorna `404`; falha de leitura/processamento retorna `503`. Revisar a integração com a configuração ativa quando a #95 for implementada.
+
+## Série e contribuições ambientais — #174
+
+`GET /applications/{id}/analysis/series?from={RFC3339}&to={RFC3339}&granularity={hour|day|month|year}` retorna a série de energia e CO₂e, totais, coberturas e eventos. `from`/`to` exigem offset explícito; a consulta normaliza os instantes para UTC e usa `[from,to)`. Os buckets seguem o calendário UTC da granularidade pedida. O primeiro e o último bucket podem ser parciais: `bucketStart`/`bucketEnd` descrevem o bucket civil completo e `period.from`/`period.to` descrevem a parte contada dentro da janela.
+
+A série usa energia e emissões já persistidas, sem reconstruir energia de métricas brutas nem consultar fatores atuais. Rateia o resultado salvo pela duração de sobreposição; cobertura de energia e CO₂e é calculada separadamente sobre a porção consultada. Trechos sem observação ou resultado ficam como lacunas (`null`, cobertura zero quando nada é utilizável), nunca como zero. Valor zero persistido continua disponível. A API rejeita janelas com mais de 10.000 buckets (`400`, `ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED`); não trunca pontos nem troca a granularidade automaticamente.
+
+O endpoint `GET /applications/{id}/analysis/series/contributions` recebe os mesmos `from`, `to` e `granularity`, além de `bucketStart`; aceita `page` (padrão 1) e `pageSize` (padrão 10; `5`, `10`, `15`, `20` ou `all`). `all` solicita o conjunto completo do bucket e exige `page=1`. A resposta informa bucket, totais/coberturas daquele bucket, dados de paginação, contribuições e exclusões. A paginação ordena contribuições de forma estável pelo início contado e ID da coleta; ela não altera a série nem seus valores. Para cada contribuição retornada, preserva intervalo original e contado, `collectedAt`, valores originais e rateados, razões, metodologia/parâmetros e snapshot original do fator. O resumo #235 continua contendo apenas totais, coberturas e proveniência distinta agrupada; IDs e snapshots individuais são responsabilidade deste drilldown.
+
+Eventos com timestamp dentro de `[from,to)` incluem `status_changed`, `removed`, `returned` e mudanças geográficas (`region_changed`); alterações apenas de nome não são exibidas como mudança de região. `methodology_changed` compara chave, versão e parâmetros da coleta com a coleta persistida imediatamente anterior, mesmo quando ela antecede a janela. `factor_version_changed` só é emitido quando duas coletas adjacentes têm snapshots/versionamento e a versão muda; ausência de fator, por si só, não gera evento. Os eventos retornam horário e detalhes antes/depois.
+
+Aplicação inexistente retorna `404` (`APPLICATION_NOT_FOUND`); período, granularidade, ponto, limite ou paginação inválidos retornam `400` com código específico; falha de leitura retorna `503` (`APPLICATION_ANALYSIS_UNAVAILABLE`). Os testes puros de série/eventos estão em `src/modules/calculations/persisted-environmental-series.spec.ts` e `persisted-environmental-series-events.spec.ts`; o teste HTTP/PostgreSQL fica em `src/modules/applications/environmental-analysis-series.database.spec.ts` e usa o `TEST_DATABASE_URL` isolado descrito acima.
+
+`MonitoringCycleRunner` executa reconciliação e coleta a partir de um único snapshot válido de `/services`. Cada aplicação é processada com concorrência limitada por `MONITORING_METRICS_CONCURRENCY`, incluindo a consulta de métricas e do fator de carbono. A coleta de métricas é gravada com unidades explícitas, intervalo `[receivedAt - collection_interval_seconds, receivedAt]` e `collectedAt` como recebimento do GreenER; a origem não fornece instante de medição. A identidade `(applicationId, intervalStart)` torna a repetição idempotente. Falhas não criam valores zero e preservam as observações válidas anteriores. Falhas em gravações são registradas como falhas de persistência, não como indisponibilidade de origem.
+
+Os adapters de métricas e intensidade de carbono aplicam prazo total de 30 segundos e até três tentativas por chamada lógica. Repetem apenas erros de rede temporários, timeout, 408, 429 e 5xx; respeitam `Retry-After` para 429 dentro do prazo total. A trava compartilhada ignora novos ticks enquanto um ciclo estiver ativo. O shutdown aborta requisições em andamento e termina o ciclo como `FAILED` com detalhe `CYCLE_CANCELLED`, sem abrir incidente da origem.
+
+Falhas das operações `/services`, `/metrics/{id}` e fator de carbono são mantidas em `monitoring_incidents`, com identidades independentes por fonte/integração e escopo global ou por aplicação. Uma falha abre ou atualiza o incidente; somente três respostas válidas, processadas e persistidas em ciclos distintos resolvem o incidente correspondente. O histórico público é consultado em `GET /monitoring/incidents`, com filtros `applicationId`, `source`, `integration` e `status`, paginação por `page`/`limit` (padrões 1/20, máximo 100) e ordenação mais recente primeiro. Os campos de resposta contêm somente razões categorizadas e metadados operacionais seguros.
+
+## Resumo ambiental agregado por período — #156
+
+`GET /analysis/summary?from={RFC3339}&to={RFC3339}` agrega resultados ambientais já persistidos, sem chamar serviços externos ou recalcular medidas. `from` e `to` exigem timezone explícito e definem o intervalo semiaberto `[from,to)`, normalizado para UTC. Filtros opcionais aceitam valores repetidos: `states=AVAILABLE&states=NO_METRICS`, `regionCodes=br-sudeste&regionCodes=br-norte` e `applicationIds=id-1&applicationIds=id-2`. Valores dentro do filtro usam OU; dimensões diferentes usam E. Sem filtros, todas as aplicações entram no escopo.
+
+O estado é atual e totais, composição, coberturas e contagens usam o escopo filtrado. A resposta sempre informa `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` e `REMOVED`. Energia (`kWh`) e emissões (`gCO2e`) são medidas independentes. `value: 0` é zero válido; `value: null` é ausência de resultado utilizável. A cobertura soma a duração válida de cada aplicação e divide pela duração solicitada multiplicada pelo número de aplicações incluídas; ausência de dados reduz a cobertura. A composição lista apenas aplicações com ao menos uma medida utilizável.
+
+O filtro de região resolve `regionCode` no `collectedAt` de cada coleta usando eventos `registration_changed`; mudanças posteriores não reclassificam observações anteriores. Com filtro geográfico, aplicações sem coleta correspondente não entram no escopo. Uma resposta `empty` tem totais nulos e coberturas zero. Filtros ou períodos inválidos retornam `400`; falhas de leitura retornam `503` (`ANALYSIS_SUMMARY_UNAVAILABLE`). O schema da resposta e os parâmetros estão publicados em `/openapi.json` e `/docs`.
+
+O teste HTTP/PostgreSQL fica em `src/modules/applications/environmental-analysis.database.spec.ts`. Execute com `TEST_DATABASE_URL` apontando para um banco isolado; nunca use o banco de desenvolvimento ou produção.
+
+Para o resumo agregado da #156, os testes HTTP e PostgreSQL estão em `src/modules/applications/environmental-analysis-summary.database.spec.ts` e usam as mesmas migrations e a mesma exigência de banco isolado.
+
+Exemplo reduzido de resposta com resultados utilizáveis:
+
+```json
+{
+  "status": "available",
+  "period": { "from": "2026-10-01T03:00:00Z", "to": "2026-10-01T03:01:00Z" },
+  "dataAsOf": "2026-10-01T03:00:30Z",
+  "totals": {
+    "energy": { "value": 3, "unit": "kWh", "reasons": [] },
+    "emissions": { "value": 85, "unit": "gCO2e", "reasons": [] }
+  },
+  "coverage": { "energy": 1, "emissions": 0.6666666666666666 },
+  "states": { "AVAILABLE": 1, "UNAVAILABLE": 1, "NO_METRICS": 0, "REMOVED": 1 },
+  "applications": [
+    {
+      "applicationId": "app-1",
+      "name": "Serviço A",
+      "state": "AVAILABLE",
+      "energy": { "value": 2, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": null, "unit": "gCO2e", "reasons": [{ "code": "CARBON_FACTOR_UNAVAILABLE" }] },
+      "coverage": { "energy": 1, "emissions": 0 }
+    },
+    {
+      "applicationId": "app-2",
+      "name": "Serviço B",
+      "state": "UNAVAILABLE",
+      "energy": { "value": 1, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": 85, "unit": "gCO2e", "reasons": [] },
+      "coverage": { "energy": 1, "emissions": 1 }
+    },
+    {
+      "applicationId": "app-3",
+      "name": "Serviço C",
+      "state": "REMOVED",
+      "energy": { "value": 0, "unit": "kWh", "reasons": [] },
+      "emissions": { "value": 0, "unit": "gCO2e", "reasons": [] },
+      "coverage": { "energy": 1, "emissions": 1 }
+    }
+  ],
+  "provenance": {
+    "methodologies": [{ "key": "persisted-energy-model", "version": "model-v3", "parameters": { "cpuWattsAt100Percent": 100, "memoryWattsPerGb": 0.375, "diskWattsPerGb": 0.01, "networkWattsPerGb": 0.02 } }],
+    "factors": [{ "contractVersion": "contract-v1", "regionCode": "br-sudeste", "country": "Brazil", "region": "Sudeste", "city": null, "intensity": 85, "unit": "gCO2e/kWh", "version": "factor-v1", "source": "persisted-factor-source", "validFrom": "2026-10-01T00:00:00Z", "validUntil": "2026-11-01T00:00:00Z", "queriedAt": { "from": "2026-10-01T03:00:20Z", "to": "2026-10-01T03:00:30Z" } }],
+    "reasons": []
+  }
+}
+```
+
+Quando nenhuma medida puder ser calculada, `status` é `empty`, ambos os valores de total são `null` e as coberturas são zero; as contagens de estado ainda descrevem as aplicações que correspondem aos filtros.

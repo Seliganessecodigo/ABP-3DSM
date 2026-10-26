@@ -22,3 +22,9 @@ issueと技術文書で契約や決定を確認します。エンドポイント
 ## ドキュメントサイト
 
 公開する内容は`docs/`のMarkdownで管理します。8言語すべてで該当ページを更新し、`npm run docs:build`でサイトを確認します。
+
+## Git
+
+Branchはissue付きなら`type/number-description`、なければ`type/description`。小文字、アクセントなしkebab-case。Commit・PR題名は`type(scope): description`で、説明はポルトガル語の動詞開始、末尾ピリオドなし。`Refs #N`、決定・制約、実際の検証を含めます。[AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md)が正式基準です。
+
+[品質と受け入れ](./product/quality) · [決定と依存事項](./product/decisions)

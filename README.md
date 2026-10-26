@@ -1,15 +1,18 @@
 # GreenER
 
+**[Acessar a documentação completa em HTML](https://seliganessecodigo.github.io/ABP-3DSM/)**
+
 Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia e emissões equivalentes de CO₂ (CO₂e).
 
 ## Visão geral
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend já oferece catálogo e detalhe de aplicações; o backend disponibiliza a API do catálogo e a descoberta inicial. Dashboard, cálculos ambientais, análise e administração continuam organizados no backlog.
+O frontend oferece catálogo, detalhe operacional, evidências de métricas, análise ambiental por aplicação e uma página que explica a metodologia registrada para cada coleta. O backend disponibiliza descoberta, coleta periódica, incidentes, consultas ambientais por aplicação e um endpoint de resumo agregado. O resumo agregado está disponível na API, sem tela própria. A [visão do produto](docs/product/vision.md) registra o estado por camada e a data de referência.
 
 ## Épicos
 
+- [EP00 — Fundações técnicas, qualidade e processo de entrega](https://github.com/Seliganessecodigo/ABP-3DSM/issues/99)
 - [EP01 — Catálogo de Aplicações](https://github.com/Seliganessecodigo/ABP-3DSM/issues/1)
 - [EP02 — Monitoramento de Aplicações](https://github.com/Seliganessecodigo/ABP-3DSM/issues/2)
 - [EP03 — Cálculo de Impacto Ambiental](https://github.com/Seliganessecodigo/ABP-3DSM/issues/3)
@@ -20,6 +23,8 @@ O frontend já oferece catálogo e detalhe de aplicações; o backend disponibil
 ## Documentação multilíngue
 
 O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês e chinês simplificado.
+
+Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos oito idiomas.
 
 | Idioma | Fonte Markdown |
 | --- | --- |
@@ -80,18 +85,6 @@ Os containers executam as migrations e tentam descobrir aplicações na iniciali
 
 Comandos adicionais: `npm run dev:detached`, `npm run dev:logs` e `npm run dev:down`.
 
-### Autenticação do backend
-
-O backend oferece login por e-mail e senha, access JWT com validade de 15 minutos, refresh token rotativo e sessões revogáveis. Contas `ADMIN` precisam configurar e validar TOTP de seis dígitos (HMAC-SHA1, 30 segundos) antes de receber uma sessão normal; `ANALYST` e `VISITOR` continuam no fluxo atual. Configure `AUTH_JWT_SECRET`, `AUTH_PASSWORD_PEPPER` e uma chave TOTP AES-256-GCM externa ao banco, com pelo menos 32 bytes aleatórios e sem reutilização entre chaves. Os nomes de versão e o mapa `AUTH_TOTP_ENCRYPTION_KEYS` ficam em configuração externa. Para rodízio de pepper, informe `AUTH_PASSWORD_PEPPER_KEYS` como mapa JSON de versões ainda necessárias e `AUTH_PASSWORD_PEPPER_VERSION` como versão ativa; mantenha a chave `legacy` enquanto existirem hashes antigos sem versão. Configure também os dados SMTP (`SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` e, se necessário, `SMTP_USER`/`SMTP_PASSWORD`) e `APP_BASE_URL`; sem SMTP o envio do convite e da confirmação falha de forma explícita.
-
-O login com Google fica oculto por padrão. Para habilitá-lo, defina `VITE_GOOGLE_SSO_ENABLED=true` no `.env` e configure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` e `SSO_RETURN_URL` com as URIs cadastradas no Google. Reinicie o frontend após alterar a variável `VITE_`; o fluxo retorna por `/sso/callback` e troca o código de uso único pela sessão GreenER. As credenciais reais não devem ser versionadas.
-
-Com as migrations aplicadas, crie uma organização e envie o convite ao representante definindo `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL` no ambiente antes de executar `npm run organizations:create-invitation` em `backend/`. Para reenviar um convite de uma organização existente, omita `ORGANIZATION_NAME` e informe o slug e o e-mail do representante. O representante cadastra o primeiro Admin; o Admin confirma o próprio e-mail e define a senha nesse fluxo. Os endpoints e seus contratos estão publicados em `/docs`.
-
-Para testar o login local sem SMTP, suba a API com `docker compose up -d api` e execute `docker compose exec api npm run auth:create-test-login`. O comando só funciona com `NODE_ENV=development`, cria/atualiza o usuário `login.teste@greener.test` na organização `greener-teste`, com papel `VISITOR`, e gera uma senha temporária no terminal. Use esses dados em `/login`; cada execução redefine a senha.
-
-Para recuperar um autenticador perdido, o suporte deve validar a autoridade atual da organização por canal independente antes de operar. No backend, execute `npm run authentication:recover-admin-totp` com `ORGANIZATION_SLUG`, `ADMIN_EMAIL`, `NEW_RECOVERY_REPRESENTATIVE_EMAIL`, `SUPPORT_OPERATOR_ID` e `SUPPORT_RECOVERY_REASON` no ambiente. A operação redefine TOTP, atualiza o contato de recuperação, revoga as sessões e registra auditoria; não use edição manual do banco. O Admin deve autenticar novamente e configurar TOTP.
-
 ## Tecnologias
 
 React 19, TypeScript, Vite, i18next, NestJS, TypeORM, PostgreSQL, Docker Compose, Playwright, Jest e SonarQube Cloud.
@@ -99,3 +92,48 @@ React 19, TypeScript, Vite, i18next, NestJS, TypeORM, PostgreSQL, Docker Compose
 ## Contribuição
 
 As issues do GitHub organizam épicos, histórias e tarefas. O trabalho parte de `develop` e é enviado por pull request para `develop`, seguindo Conventional Commits. Consulte [`AGENTS.md`](AGENTS.md) e as [diretrizes de frontend](skills/frontend/SKILL.md) e [backend](skills/backend/SKILL.md).
+
+## 👥 Equipe
+
+<div align="center">
+  <table>
+    <tr>
+      <th>Membro</th>
+      <th>Função</th>
+      <th>GitHub</th>
+      <th>LinkedIn</th>
+    </tr>
+    <tr>
+      <td>Gianluca Lourenço Alves</td>
+      <td>Product Owner</td>
+      <td><a href="https://github.com/GianlucaAlves"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Gianluca Lourenço Alves"></a></td>
+      <td><a href="https://www.linkedin.com/in/gianluca-alves"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn de Gianluca Lourenço Alves"></a></td>
+    </tr>
+    <tr>
+      <td>Guilherme Oliveira</td>
+      <td>Scrum Master</td>
+      <td><a href="https://github.com/guioliv3"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Guilherme Oliveira"></a></td>
+      <td><a href="https://www.linkedin.com/in/guilherme-henrique-de-oliveira-97076535b"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn de Guilherme Oliveira"></a></td>
+    </tr>
+    <tr>
+      <td>Victor Coutinho</td>
+      <td>Desenvolvedor</td>
+      <td><a href="https://github.com/Vitaixs"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Victor Coutinho"></a></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Lucas Cecon</td>
+      <td>Desenvolvedor</td>
+      <td><a href="https://github.com/lucas-cecon"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub de Lucas Cecon"></a></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Breno</td>
+      <td>Desenvolvedor</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+  </table>
+</div>
+
+

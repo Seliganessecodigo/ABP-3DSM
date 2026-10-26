@@ -29,3 +29,9 @@ Thumbs.db
 /specs/
 /tickets/
 docs/.vitepress/.temp/
+
+# Local agent setup, unrelated to application feature PRs
+.agents/skills/
+/skills-lock.json
+/GLOSSARY.md
+/docs/agents/

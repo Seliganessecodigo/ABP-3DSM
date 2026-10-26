@@ -4,6 +4,7 @@ import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationsController } from './applications.controller'
 import { ApplicationsRepository } from './applications.repository'
 import { ApplicationsService } from './applications.service'
+import { CollectionEvidenceService } from './collection-evidence.service'
 import { configureOpenApi } from '../../openapi'
 
 describe('catálogo de aplicações', () => {
@@ -16,6 +17,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -30,15 +32,40 @@ describe('catálogo de aplicações', () => {
     try {
       const response = await fetch(new URL('/openapi.json', await app.getUrl()))
       const document = (await response.json()) as {
-        components: { schemas: { ApplicationDto: { properties: Record<string, unknown> } } }
+        paths: Record<string, unknown>
+        components: {
+          schemas: { ApplicationDto: { properties: Record<string, unknown> } }
+        }
       }
       expect(response.status).toBe(200)
-      expect(document.components.schemas.ApplicationDto.properties).toMatchObject({
+      expect(document.paths).toMatchObject({
+        '/applications/{id}/collections/latest': {
+          get: {
+            responses: {
+              '200': expect.anything(),
+              '404': expect.anything(),
+              '503': expect.anything(),
+            },
+          },
+        },
+        '/applications/{id}/collections/{collectionId}': {
+          get: {
+            responses: {
+              '200': expect.anything(),
+              '404': expect.anything(),
+              '503': expect.anything(),
+            },
+          },
+        },
+      })
+      expect(
+        document.components.schemas.ApplicationDto.properties,
+      ).toMatchObject({
         state: expect.anything(),
-        reason: expect.objectContaining({ nullable: true }),
+        reason: expect.objectContaining({ type: 'string' }),
         lastObservationAt: expect.objectContaining({ nullable: true }),
         isStale: expect.objectContaining({ type: 'boolean' }),
-        isCalculable: expect.objectContaining({ nullable: true }),
+        isCalculable: expect.objectContaining({ type: 'boolean' }),
       })
     } finally {
       await app.close()
@@ -50,6 +77,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -75,6 +103,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -121,10 +150,10 @@ describe('catálogo de aplicações', () => {
             longitude: -46.6333,
           },
           state: 'AVAILABLE',
-          reason: null,
+          reason: 'NO_OBSERVATION',
           lastObservationAt: null,
           isStale: false,
-          isCalculable: null,
+          isCalculable: false,
           firstSeenAt: '2026-10-06T10:00:00.000Z',
           lastCheckedAt: '2026-10-06T10:05:00.000Z',
           removedAt: null,
@@ -141,6 +170,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -187,6 +217,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -216,6 +247,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -272,6 +304,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -298,6 +331,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),
@@ -324,6 +358,7 @@ describe('catálogo de aplicações', () => {
       controllers: [ApplicationsController],
       providers: [
         ApplicationsService,
+        { provide: CollectionEvidenceService, useValue: {} },
         ApplicationsRepository,
         {
           provide: getRepositoryToken(ApplicationEntity),

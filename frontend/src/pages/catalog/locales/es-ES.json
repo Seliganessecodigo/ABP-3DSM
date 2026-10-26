@@ -7,6 +7,8 @@
   "searchLabel": "Buscar aplicaciones por nombre, identificador o región",
   "searchPlaceholder": "Buscar por nombre, identificador o región...",
   "filterLabel": "Filtrar aplicaciones por estado",
+  "regionFilter": "Filtrar por región",
+  "allRegions": "Todas las regiones",
   "loading": "Cargando aplicaciones...",
   "errorTitle": "No se pudo consultar el catálogo",
   "stale": "Se muestran los últimos datos válidos; podrían estar desactualizados.",
@@ -25,8 +27,16 @@
   "next": "Siguiente",
   "previousAria": "Página anterior",
   "nextAria": "Página siguiente",
-  "noneSelected": "Ninguna aplicación seleccionada",
-  "selectHint": "Selecciona una aplicación para ver sus detalles, métricas e historial.",
   "updated": "Catálogo actualizado",
-  "stateHint": "Los estados se muestran con texto e indicadores visuales."
+  "columnFilters": "Filtros por columna", "regionCode": "Código regional", "cityMissing": "Ciudad no indicada",
+  "from": "Verificada desde", "to": "Verificada hasta", "timeZone": "Zona horaria: {{timeZone}}",
+  "invalidDateRange": "La fecha inicial debe ser anterior o igual a la fecha final.", "clearFilters": "Borrar filtros",
+  "activeFilters": "Filtros activos", "range": "Mostrando {{start}}–{{end}} de {{count}} aplicaciones",
+  "pageSize": "Elementos por página", "all": "Todas", "nameFilter": "Nombre o identificador",
+  "countryFilter": "País", "regionCodeFilter": "Código regional", "cityFilter": "Ciudad", "stateFilter": "Estado",
+  "filterDialogDescription": "Combina campos para filtrar las aplicaciones.", "closeFilters": "Cerrar filtros por columna",
+  "namePlaceholder": "Escribe parte de un nombre o ID...", "countryPlaceholder": "Escribe un país...",
+  "regionPlaceholder": "Escribe una región...", "cityPlaceholder": "Escribe una ciudad...",
+  "filterCombinationNote": "La búsqueda general y los filtros activos se combinan.",
+  "clearPreservesSort": "Al borrar los filtros se conserva el orden actual.", "applyFilters": "Aplicar filtros"
 }

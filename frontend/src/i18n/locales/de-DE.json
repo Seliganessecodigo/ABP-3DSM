@@ -1,5 +1,6 @@
 {
   "language.label": "Sprache",
+  "theme.darkMode": "Dunkelmodus",
   "account": "Konto",
   "auth.signOut": "Abmelden",
   "auth.role.ADMIN": "Administrator",
@@ -7,6 +8,11 @@
   "auth.role.VISITOR": "Besucher",
   "app.tagline": "Bewusster mit Energie umgehen",
   "topbar": "GreenER · Überwachung",
+  "nav.openMenu": "Menü öffnen",
+  "nav.closeMenu": "Menü schließen",
+  "nav.collapse": "Navigation einklappen",
+  "nav.expand": "Navigation ausklappen",
+  "nav.preferences": "Einstellungen",
   "nav.main": "Hauptnavigation",
   "nav.monitoring": "Überwachung",
   "nav.dashboard": "Dashboard",
@@ -33,5 +39,8 @@
   "state.AVAILABLE": "Verfügbar",
   "state.UNAVAILABLE": "Nicht verfügbar",
   "state.NO_METRICS": "Keine Metriken",
-  "state.REMOVED": "Entfernt"
+  "state.REMOVED": "Entfernt",
+  "date.lastObservation": "Letzte gültige Beobachtung", "freshness.stale": "Veraltete Beobachtung", "freshness.current": "Aktuelle Beobachtung", "calculability.available": "Ausreichende Betriebsmetriken", "calculability.unavailable": "Unzureichende Betriebsmetriken", "reason.NO_OBSERVATION": "Noch keine gültige Beobachtung", "reason.METRICS_VALID": "Gültige Metriken", "reason.METRICS_MISSING": "Metriken fehlen", "reason.SOURCE_TIMEOUT": "Die Quelle antwortete zu spät", "reason.SOURCE_ERROR": "Die Quelle hat einen Fehler gemeldet", "reason.REQUIRED_FIELD_MISSING": "Die Quelle lieferte ein Pflichtfeld nicht", "reason.INVALID_FIELD": "Die Quelle lieferte ein ungültiges Feld", "reason.MONITORING_CYCLE_DELAYED": "Der Überwachungszyklus ist verzögert", "reason.CARBON_FACTOR_UNAVAILABLE": "CO₂-Faktor nicht verfügbar", "reason.REMOVAL_CONFIRMED": "Entfernung bestätigt",
+  "loading.description": "Bitte warten Sie auf die Abfrage. Es werden noch keine Werte angezeigt.",
+  "loading.processing": "Wird verarbeitet…"
 }

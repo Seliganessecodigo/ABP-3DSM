@@ -52,3 +52,33 @@ Os testes de URL direta e recarga usam o Vite. A suíte não cobre integração 
 vivo com o backend, leitores de tela reais, polling, cálculo ambiental ou
 configuração de deep links no hosting. A CI executa lint, testes e build do
 frontend; o gate SonarQube Cloud continua obrigatório na PR para `develop`.
+
+## Temas (US-17 / #214)
+
+As preferências da sidebar oferecem um único interruptor “Modo escuro”, conforme
+a revisão visual do solicitante: desligado aplica claro; ligado aplica escuro.
+O primeiro acesso segue o sistema até a primeira interação. Esta revisão remove
+a ação visível de retorno ao sistema, ajustando esse critério original da US-17.
+A preferência local (`greener-theme`: `light`, `dark`, `system`) é distinta da
+aparência efetiva. Ausência ou valor inválido segue o sistema; escolhas antigas
+claro/escuro continuam válidas. Armazenamento indisponível não impede alternar
+na sessão, mas não garante persistência após recarga.
+
+O script clássico bloqueante em `public/theme-init.js`, referenciado no início
+do documento, aplica a escolha antes da primeira pintura. `app/useTheme.ts`
+coordena a preferência e mudanças do sistema; `components/ThemeSelector` apresenta
+o interruptor. Os tokens ficam em `styles/theme.css`, no elemento raiz, e os
+estilos das páginas consomem esses tokens. Não há chamada de API para temas.
+
+A referência é a tabela semântica inferior do PNG “Design System · Cores e
+Componentes”, fornecido para #213/#214. Ajustes para contraste no tema claro:
+texto de sucesso `#00875D` → `#006B49`, atenção `#9F6506` → `#895700`, erro
+`#DC4C45` → `#B83233` e neutro `#607087` → `#56657B`. Borda de controle clara
+`#788C82` é separada da borda decorativa `#DCE8E3`. No escuro, a borda segue
+`#607F70`. Valide as combinações usadas com texto ≥ 4,5:1 e controles/foco ≥ 3:1.
+Gráficos futuros devem consumir cores semânticas e identificação textual; o PNG
+não fornece paleta de séries e não há gráfico executável nesta entrega.
+
+`npm run test:e2e -- theme.spec.ts` executa a suíte de temas no Chromium.
+Ela usa a interface pública e os mocks HTTP existentes. A revisão visual complementa
+os testes automatizados; não equivale à homologação do PO.

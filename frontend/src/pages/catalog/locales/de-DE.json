@@ -7,6 +7,8 @@
   "searchLabel": "Anwendungen nach Name, Kennung oder Region suchen",
   "searchPlaceholder": "Nach Name, Kennung oder Region suchen...",
   "filterLabel": "Anwendungen nach Status filtern",
+  "regionFilter": "Nach Region filtern",
+  "allRegions": "Alle Regionen",
   "loading": "Anwendungen werden geladen...",
   "errorTitle": "Verzeichnis konnte nicht geladen werden",
   "stale": "Die letzten gültigen Daten werden angezeigt. Sie sind möglicherweise veraltet.",
@@ -25,8 +27,16 @@
   "next": "Weiter",
   "previousAria": "Vorherige Seite",
   "nextAria": "Nächste Seite",
-  "noneSelected": "Keine Anwendung ausgewählt",
-  "selectHint": "Anwendung auswählen, um Details, Metriken und Verlauf anzuzeigen.",
   "updated": "Verzeichnis aktualisiert",
-  "stateHint": "Anwendungsstatus werden mit Text und visuellen Hinweisen dargestellt."
+  "columnFilters": "Spaltenfilter", "regionCode": "Regionscode", "cityMissing": "Stadt nicht angegeben",
+  "from": "Geprüft ab", "to": "Geprüft bis", "timeZone": "Zeitzone: {{timeZone}}",
+  "invalidDateRange": "Das Startdatum muss vor oder am Enddatum liegen.", "clearFilters": "Filter zurücksetzen",
+  "activeFilters": "Aktive Filter", "range": "{{start}}–{{end}} von {{count}} Anwendungen",
+  "pageSize": "Einträge pro Seite", "all": "Alle", "nameFilter": "Name oder Kennung",
+  "countryFilter": "Land", "regionCodeFilter": "Regionscode", "cityFilter": "Stadt", "stateFilter": "Status",
+  "filterDialogDescription": "Kombinieren Sie Felder, um Anwendungen einzugrenzen.", "closeFilters": "Spaltenfilter schließen",
+  "namePlaceholder": "Teil eines Namens oder einer Kennung...", "countryPlaceholder": "Land eingeben...",
+  "regionPlaceholder": "Region eingeben...", "cityPlaceholder": "Stadt eingeben...",
+  "filterCombinationNote": "Allgemeine Suche und aktive Filter werden kombiniert.",
+  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden"
 }

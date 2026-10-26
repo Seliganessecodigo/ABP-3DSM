@@ -1,5 +1,6 @@
 ---
 layout: home
+isHome: false
 hero:
   name: GreenER
   text: Energie und Umweltauswirkungen im Kontext
@@ -7,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Erste Schritte
-      link: /getting-started
+      link: /de-DE/getting-started
     - theme: alt
       text: Epics entdecken
-      link: /roadmap
+      link: /de-DE/roadmap
 features:
   - title: Überwachung
     details: Anwendungen entdecken und mit klaren Statusangaben überwachen.
@@ -24,8 +25,14 @@ features:
 
 GreenER ist ein akademisches Projekt im Studiengang Multiplatform Software Development an der Fatec Jacareí in Brasilien. Ziel ist es, Anwendungen zu überwachen, ihren Energieverbrauch zu schätzen und CO₂-Äquivalent-Emissionen (CO₂e) darzustellen.
 
-## Aktueller Stand
+## Stand und Lesepfade
 
-Das Frontend bietet derzeit einen Anwendungskatalog und eine Detailseite. Das Backend stellt die Katalog-API bereit und führt die erste Anwendungserkennung aus. Dashboards, Umweltberechnungen, Analysen und Administration gehören zum Produktumfang und sind im [Epic-Backlog](./roadmap) organisiert.
+Die Dokumentation unterscheidet vorhandenes Verhalten, geplanten Umfang und offene Entscheidungen. Die Oberfläche bietet Katalog, Betriebsdetail, Metrikbelege, Theme-Einstellung, Umweltanalyse je Anwendung und Zugriff auf die gespeicherte Methodik jeder Beobachtung. Die API bietet außerdem eine aggregierte Übersicht ohne eigene Oberfläche; Rangliste und Vergleich bleiben geplant.
 
-Schätzungen hängen von Quelldaten und dokumentierten Verträgen ab. Fehlende oder fehlerhafte Daten sowie veraltete Werte bedeuten keinen Verbrauch und keine Emissionen von null.
+- [Vision und Umfang](./product/vision)
+- [Benutzerhandbuch](./guide/monitoring)
+- [Methodik und Daten](./product/methodology)
+- [Qualität und Abnahme](./product/quality)
+- [Entscheidungen und Abhängigkeiten](./product/decisions)
+- [API-Referenz](./reference/api)
+- [Betrieb und Diagnose](./operations)

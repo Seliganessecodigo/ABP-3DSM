@@ -1,0 +1,2 @@
+scripts/smoke-test-staging-api.sh text eol=lf
+frontend/docker-entrypoint.sh text eol=lf

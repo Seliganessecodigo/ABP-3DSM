@@ -1,0 +1,121 @@
+.section {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.compact {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.compact h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.compact .options {
+  display: block;
+}
+
+.compact .choices {
+  gap: 4px;
+}
+
+.compact .option,
+.compact .repair {
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.compact .alert {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 4px);
+  right: 0;
+  width: max-content;
+  max-width: min(320px, 72vw);
+  padding: 8px;
+  background: var(--surface-card);
+}
+
+.unavailable {
+  color: var(--text-secondary);
+}
+
+.options {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option,
+.repair {
+  min-height: 44px;
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  font: inherit;
+  cursor: pointer;
+}
+
+.option[aria-pressed='true'] {
+  border-color: var(--accent-default);
+  color: var(--accent-on-accent);
+  background: var(--accent-default);
+}
+
+.option:focus-visible,
+.repair:focus-visible {
+  outline: 2px solid var(--accent-default);
+  outline-offset: 2px;
+}
+
+.alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--warning-foreground);
+  border-radius: 8px;
+  color: var(--warning-foreground);
+  background: var(--warning-background);
+}
+
+.alert p {
+  margin: 0;
+}
+
+.repair {
+  border-color: var(--border-control);
+  background: var(--surface-card);
+}
+
+.repair:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
