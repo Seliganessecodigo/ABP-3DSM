@@ -135,5 +135,3 @@ As issues do GitHub organizam épicos, histórias e tarefas. O trabalho parte de
     </tr>
   </table>
 </div>
-
-
