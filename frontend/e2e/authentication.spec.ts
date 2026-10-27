@@ -29,7 +29,7 @@ test('usuário entra com credenciais válidas e retorna à tela inicial', async 
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('Ana Silva')).toBeVisible()
   await expect(page.getByText('Analista')).toBeVisible()
   await page.getByRole('button', { name: 'Sair' }).click()
@@ -69,7 +69,7 @@ test('renova a sessão uma vez quando a consulta inicial do perfil retorna 401',
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('Ana Silva')).toBeVisible()
   expect(profileRequests).toBe(2)
 })

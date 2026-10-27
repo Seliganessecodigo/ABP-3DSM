@@ -415,9 +415,11 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
 
   it('returns a structured 503 when aggregate persistence cannot be read', async () => {
     const renamed = `summary_collections_${randomUUID().replaceAll('-', '')}`
+    const id = `summary-unavailable-${randomUUID()}`
+    await insertApplication(database, id, 'AVAILABLE')
     await database.query(`ALTER TABLE collections RENAME TO "${renamed}"`)
     try {
-      const query = new URLSearchParams({ from, to })
+      const query = new URLSearchParams({ from, to, applicationIds: id })
       const response = await fetch(
         new URL(`/analysis/summary?${query}`, await app.getUrl()),
       )
@@ -427,6 +429,7 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
       })
     } finally {
       await database.query(`ALTER TABLE "${renamed}" RENAME TO collections`)
+      await removeApplications(database, [id])
     }
   })
 })

@@ -9,6 +9,7 @@ import { RecalculationEntity } from "../../database/entities/recalculation.entit
 import { AuditLogEntity } from "../../database/entities/audit-log.entity";
 import { MonitoringIncidentEntity } from "../../database/entities/monitoring-incident.entity";
 import { UserEntity } from "../../database/entities/user.entity";
+import { OrganizationEntity } from "../../database/entities/organization.entity";
 import { InitialSchema1791240000000 } from "../../database/migrations/1791240000000-InitialSchema";
 import { CompleteMonitoringPersistence1791250000000 } from "../../database/migrations/1791250000000-CompleteMonitoringPersistence";
 import { AddApplicationLocation1791260000000 } from "../../database/migrations/1791260000000-AddApplicationLocation";
@@ -82,6 +83,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         RecalculationEntity,
         AuditLogEntity,
         UserEntity,
+        OrganizationEntity,
         MonitoringIncidentEntity,
       ],
       migrations: [
