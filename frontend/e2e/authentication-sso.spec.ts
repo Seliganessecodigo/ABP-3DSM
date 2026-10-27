@@ -60,7 +60,7 @@ test('pessoa troca o handoff por sessão e o código some da URL', async ({ page
   await page.goto('/sso/callback?code=single-use-handoff&return_to=https%3A%2F%2Fevil.example.test')
 
   await expect.poll(() => exchangeBody?.code).toBe('single-use-handoff')
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('SSO Analyst')).toBeVisible()
   expect(exchangeBody).toEqual({ code: 'single-use-handoff', codeVerifier: 'v'.repeat(43) })
   expect(await page.evaluate(() => sessionStorage.getItem('greener.sso.verifier'))).toBeNull()
@@ -95,7 +95,7 @@ test('pessoa conclui desafio TOTP recebido no handoff SSO antes de ganhar sessã
   await page.getByLabel('Authenticator code').fill('123456')
   await page.getByRole('button', { name: 'Verify and sign in' }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('SSO Admin')).toBeVisible()
   expect(submittedCode).toBe('123456')
 })

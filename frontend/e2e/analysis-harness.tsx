@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import '../src/index.css'
 import '../src/i18n.ts'
 import { AppShell } from '../src/components/AppShell.tsx'
+import { AuthenticationProvider } from '../src/app/AuthenticationProvider.tsx'
 import { useRoute } from '../src/app/useRoute.ts'
 import type { AnalysisCompositionResult, AnalysisFactor, AnalysisGranularityCapabilities, AnalysisMethodology, AnalysisSeriesPoint, AnalysisSource, AnalysisSourceResult } from '../src/features/analysis/source.ts'
 import { ApplicationDetailPage } from '../src/pages/detail/ApplicationDetailPage.tsx'
@@ -231,9 +232,11 @@ const source: AnalysisSource = {
 export function Harness() {
   const { navigate } = useRoute()
   const id = new URLSearchParams(window.location.search).get('applicationId') ?? 'svc-0142'
-  return <AppShell navigate={navigate}>
-    <ApplicationDetailPage id={id} navigate={navigate} analysisSource={source} />
-  </AppShell>
+  return <AuthenticationProvider>
+    <AppShell navigate={navigate}>
+      <ApplicationDetailPage id={id} navigate={navigate} analysisSource={source} />
+    </AppShell>
+  </AuthenticationProvider>
 }
 
 createRoot(document.getElementById('root')!).render(<Harness />)

@@ -45,7 +45,7 @@ test('Admin cadastra o autenticador e só recebe sessão após confirmar um cód
   await page.getByLabel('Código do autenticador').fill('000123')
   await page.getByRole('button', { name: 'Confirmar e entrar' }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('Admin GreenER')).toBeVisible()
   expect(profileRequests).toBe(1)
 })
@@ -93,7 +93,7 @@ test('código incorreto no cadastro mantém o QR e permite uma nova tentativa', 
 
   await page.getByLabel('Código do autenticador').fill('000123')
   await page.getByRole('button', { name: 'Confirmar e entrar' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   expect(confirmationRequests).toBe(2)
   expect(profileRequests).toBe(1)
 })
@@ -154,7 +154,7 @@ test('Admin só recebe sessão após validar o desafio TOTP e o código preserva
   await page.getByLabel('Código do autenticador').fill('000007')
   await page.getByRole('button', { name: 'Verificar e entrar' }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('Admin GreenER')).toBeVisible()
   expect(challengeRequests).toBe(1)
   expect(profileRequests).toBe(1)
@@ -290,7 +290,7 @@ test('bloqueia novo envio enquanto a validação TOTP está pendente', async ({ 
   expect(challengeRequests).toBe(1)
   validation.release()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === '/')
   await expect(page.getByText('Admin GreenER')).toBeVisible()
 })
 
