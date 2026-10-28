@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises'
 
 const names = ['Energia', 'Emissões de CO₂e', 'Cobertura dos dados', 'Padrão das análises']
 const energy = { threshold: 10, unit: 'kWh', scope: 'application', referencePeriod: 'month', alertsEnabled: true }
-const initial = () => ({ energy: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: energy }, emissions: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { ...energy, threshold: 2, unit: 'kgCO2e' } }, coverage: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { thresholdPercent: 80, alertsEnabled: true } }, analysis: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { periodDays: 30, granularity: 'day' } } })
+const initial = () => ({ energy: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { ...energy } }, emissions: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { ...energy, threshold: 2, unit: 'kgCO2e' } }, coverage: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { thresholdPercent: 80, alertsEnabled: true } }, analysis: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { periodDays: 30, granularity: 'day' } } })
 async function signIn(page: Page) {
   await mockCatalog(page, [])
   await page.route('**/api/auth/login', (route) => route.fulfill({ json: { accessToken: 'preferences-access', refreshToken: 'preferences-refresh', tokenType: 'Bearer', expiresIn: 900 } }))
@@ -151,6 +151,33 @@ test('renova JWT no salvamento sem apagar a edição nem perder a resposta salva
   await expect(page.getByText('8 kWh por aplicação/mês', { exact: true })).toBeVisible()
   await expect(page.getByText('Preferências salvas', { exact: true })).toBeVisible()
   expect(attempts).toBe(2)
+})
+
+test('não apresenta preferência ativa quando a resposta tem unidade inválida e permite tentar novamente', async ({ page }) => {
+  let invalid = true
+  await page.route('**/api/me/preferences', (route) => {
+    const preferences = initial()
+    if (invalid) preferences.energy.value.unit = 'W'
+    return route.fulfill({ json: preferences })
+  })
+  await signIn(page)
+  await expect(page.getByText('Preferência indisponível', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Limite em edição', { exact: true })).toBeDisabled()
+  await expect(page.getByText('10 kWh por aplicação/mês', { exact: true })).toHaveCount(0)
+  invalid = false
+  await page.getByRole('button', { name: 'Tentar novamente', exact: true }).click()
+  await expect(page.getByLabel('Limite em edição', { exact: true })).toHaveValue('10')
+})
+
+test('resposta de salvamento inválida mantém valor ativo e alterações', async ({ page }) => {
+  await mockPreferences(page)
+  await page.route('**/api/me/preferences/energy', (route) => route.fulfill({ json: { revision: 0, updatedAt: 'invalid', value: energy } }))
+  await signIn(page)
+  await page.getByLabel('Limite em edição', { exact: true }).fill('8')
+  await page.getByRole('button', { name: 'Salvar minhas preferências' }).click()
+  await expect(page.getByRole('alert')).toContainText('Não foi possível salvar')
+  await expect(page.getByText('10 kWh por aplicação/mês', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Limite em edição', { exact: true })).toHaveValue('8')
 })
 
 test('padrões salvos preenchem a análise e respeitam filtros explícitos da URL', async ({ page }) => {

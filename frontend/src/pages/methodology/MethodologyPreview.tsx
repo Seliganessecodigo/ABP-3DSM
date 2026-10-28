@@ -4,6 +4,7 @@ import { stateIcons, stateLabel } from '../../features/applications/presentation
 import type { ApplicationState } from '../../features/applications/catalog.ts'
 import type { PreferenceDraft, PreferenceTab } from './usePreferenceDraft.ts'
 import styles from './Preferences.module.css'
+import { formatDate } from '../../utils/formatDate.ts'
 
 // Illustrative observations from the approved design, never substitutes for API data.
 const applications: { name: string; state: ApplicationState; energy: number | null; emissions: number | null; coverage: number | null; us?: boolean }[] = [
@@ -50,7 +51,7 @@ export function MethodologyPreview({ tab, drafts }: Readonly<{ tab: PreferenceTa
             <td data-label={catalog('app')}><strong>{application.name}</strong>{warnings.length > 0 && <div className={styles.rowWarnings}><b>{t('warningCount', { count: warnings.length })}</b>{warnings.map((warning) => <span key={warning}>{warning}</span>)}</div>}</td>
             <td data-label={common('location.country')}>{t(application.us ? 'us' : 'brazil')}</td><td data-label={catalog('regionCode')}>{application.us ? 'US-VA' : 'BR-SP'}</td><td data-label={common('location.city')}>{application.us ? common('location.cityUnknown') : t('saoPaulo')}</td>
             <td data-label={common('state.label')}><span className={`state-badge state-${application.state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[application.state]}</span>{stateLabel(application.state, common)}</span></td>
-            <td data-label={common('date.lastCheck')}>{new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date('2026-10-09T17:32:00Z'))}</td>
+            <td data-label={common('date.lastCheck')}>{formatDate('2026-10-09T17:32:00Z', locale, common('date.noObservation'), 'America/Sao_Paulo')}</td>
             <td data-label={catalog('actions')}><svg className={styles.eye} role="img" aria-label={t('exampleAction')} viewBox="0 0 20 20"><path d="M1.8 10s3-5.2 8.2-5.2 8.2 5.2 8.2 5.2-3 5.2-8.2 5.2S1.8 10 1.8 10Z"/><circle cx="10" cy="10" r="2.4"/></svg></td>
           </tr>
         })}</tbody></table></div>

@@ -18,16 +18,13 @@ function parse(tab: PreferenceTab, value: unknown): SavedPreference {
   return { revision: value.revision, updatedAt: value.updatedAt, draft: parseDraft(tab, value.value) }
 }
 function parseDraft(tab: PreferenceTab, data: Record<string, unknown>): PreferenceDraft {
-  let draft: PreferenceDraft
   if (tab === 'analysis') {
     if (data.periodDays !== 7 && data.periodDays !== 30 || data.granularity !== 'hour' && data.granularity !== 'day') throw new Error('Invalid analysis preference')
-    draft = { value: '', enabled: true, period: data.periodDays === 7 ? '7' : '30', granularity: data.granularity }
-  } else {
-    const threshold = tab === 'coverage' ? data.thresholdPercent : data.threshold
-    if (!numeric(threshold) || tab === 'coverage' && threshold > 100 || typeof data.alertsEnabled !== 'boolean' || tab !== 'coverage' && (data.scope !== 'application' || data.referencePeriod !== 'month' || data.unit !== (tab === 'energy' ? 'kWh' : 'kgCO2e'))) throw new Error('Invalid limit preference')
-    draft = { value: String(threshold), enabled: data.alertsEnabled, period: '7', granularity: 'hour' }
+    return { value: '', enabled: true, period: data.periodDays === 7 ? '7' : '30', granularity: data.granularity }
   }
-  return draft
+  const threshold = tab === 'coverage' ? data.thresholdPercent : data.threshold
+  if (!numeric(threshold) || tab === 'coverage' && threshold > 100 || typeof data.alertsEnabled !== 'boolean' || tab !== 'coverage' && (data.scope !== 'application' || data.referencePeriod !== 'month' || data.unit !== (tab === 'energy' ? 'kWh' : 'kgCO2e'))) throw new Error('Invalid limit preference')
+  return { value: String(threshold), enabled: data.alertsEnabled, period: '7', granularity: 'hour' }
 }
 export async function getPreferences(request: AuthenticatedFetch, signal: AbortSignal): Promise<Preferences> {
   const response = await request(`${apiBase}/me/preferences`, { signal })
