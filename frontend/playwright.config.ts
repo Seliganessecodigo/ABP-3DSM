@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+const testOrigin = `http://127.0.0.1:${process.env.PLAYWRIGHT_PORT ?? '4173'}`
 
 export default defineConfig({
   fullyParallel: true,
@@ -9,7 +10,7 @@ export default defineConfig({
   use: {
     actionTimeout: 5_000,
     navigationTimeout: 15_000,
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: testOrigin,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
     locale: 'pt-BR',
@@ -27,8 +28,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173 --strictPort',
-    url: 'http://127.0.0.1:4173',
+    command: `npm run dev -- --host 127.0.0.1 --port ${process.env.PLAYWRIGHT_PORT ?? '4173'} --strictPort`,
+    url: testOrigin,
     reuseExistingServer: false,
     env: { VITE_GOOGLE_SSO_ENABLED: 'true' },
   },

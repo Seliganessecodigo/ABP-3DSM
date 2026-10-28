@@ -1,84 +1,99 @@
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
-import type { Application } from '../../features/applications/api.ts'
 import { ActionButton } from '../../components/ActionButton.tsx'
-import { LoadingState } from '../../components/LoadingState.tsx'
-import { formatDate } from '../../utils/formatDate.ts'
-import { useMethodology } from './useMethodology.ts'
-import styles from './MethodologyPage.module.css'
+import { RecordedMethodology } from './RecordedMethodology.tsx'
+import { MethodologyExplanation } from './MethodologyExplanation.tsx'
+import { MethodologyPreview } from './MethodologyPreview.tsx'
+import { preferenceTabs, usePreferenceDraft } from './usePreferenceDraft.ts'
+import styles from './Preferences.module.css'
+import { useAuthentication } from '../../app/useAuthentication.ts'
 
 export function MethodologyPage({ id, navigate }: Readonly<{ id: string | null; navigate: (url: string) => void }>) {
-  const { t, i18n } = useTranslation('methodology')
+  const { user } = useAuthentication()
+  return id ? <main tabIndex={-1}><RecordedMethodology id={id} navigate={navigate} /></main> : <MethodologyPreferences key={user?.id ?? 'public'} navigate={navigate} />
+}
+
+function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+  const { t, i18n } = useTranslation('methodology', { keyPrefix: 'preferences' })
+  const [recordedOpen, setRecordedOpen] = useState(false)
   const { t: common } = useTranslation('common')
-  const locale = i18n.resolvedLanguage ?? 'pt-BR'
-  const { application, collection, data, status, retry, applications } = useMethodology(id)
-  const [selectedApplicationId, setSelectedApplicationId] = useState('')
-  const params = new URLSearchParams(window.location.search)
-  const backUrl = id ? `/services/${encodeURIComponent(id)}${params.size ? `?${params.toString()}` : ''}` : '/'
-  const date = (value: string) => formatDate(value, locale, common('date.noObservation'))
-  const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value)
-  const energy = data?.energy
-  const method = energy?.model
-  const snapshot = data?.carbon?.factorSnapshot
-  const referenceUrl = snapshot?.source && /^https?:\/\//i.test(snapshot.source) ? snapshot.source : null
-  const isLoading = status === 'loading'
-  return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <nav className={styles.breadcrumb} aria-label={common('nav.main')}>
-      <a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{common('nav.applications')}</a>
-      {application && <><span aria-hidden="true">›</span><a href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{application.name}</a></>}
-      <span aria-hidden="true">›</span><span aria-current="page">{t('title')}</span>
-    </nav>
-    <header className="page-heading">
-      <div><p className="eyebrow">{t('eyebrow')}</p><h1>{t('title')}</h1>
-        <p>{t('description', { application: application?.name ?? '' })}</p></div>
-      {id && <a className="button secondary" href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{t('back')}</a>}
-    </header>
-    {!id && status === 'select-application' && <section className="empty-state">
-      <h2>{t('chooseApplication')}</h2><p>{t('chooseApplicationDescription')}</p>
-      <label htmlFor="methodology-application">{t('selectApplication')}</label>{' '}
-      <select id="methodology-application" value={selectedApplicationId} onChange={(event) => setSelectedApplicationId(event.target.value)}>
-        <option value="">{t('selectApplication')}</option>{applications.map((item: Application) => <option key={item.id} value={item.id}>{item.name}</option>)}
-      </select>{' '}
-      <ActionButton disabled={!selectedApplicationId} onClick={() => navigate(`/services/${encodeURIComponent(selectedApplicationId)}/methodology`)}>{t('continue')}</ActionButton>
-    </section>}
-    {!id && status === 'catalog-empty' && <section className="empty-state"><h2>{t('catalogEmpty')}</h2><p>{t('catalogEmptyDescription')}</p></section>}
-    {isLoading && <LoadingState title={t('loading')} />}
-    {status === 'not-found' && <section className="empty-state"><h2>{t('notFound')}</h2><p>{t('notFoundDescription')}</p></section>}
-    {status === 'no-collection' && <section className="empty-state"><h2>{t('noCollection')}</h2><p>{t('noCollectionDescription')}</p></section>}
-    {status === 'no-result' && <section className="empty-state"><h2>{t('noResult')}</h2><p>{t('noResultDescription')}</p></section>}
-    {status === 'unavailable' && <section className="empty-state"><h2>{t('unavailable')}</h2><p>{t('unavailableDescription')}</p></section>}
-    {status === 'error' && <section className="empty-state" role="alert"><h2>{t('error')}</h2><p>{t('errorDescription')}</p><ActionButton onClick={retry}>{common('actions.retry')}</ActionButton></section>}
-    {data && collection && <>
-      <section className={styles.indicator} aria-labelledby="methodology-indicator-title">
-        <div><p className={styles.kicker}>{t('indicator')}</p><h2 id="methodology-indicator-title">{t('energyEstimate')}</h2><p>{application?.name}</p></div>
-        <p className={styles.value}>{!energy || energy.valueKwh === null ? t('notCalculable') : <><strong>{number(energy.valueKwh)}</strong> kWh</>}</p>
-        <span className={styles.status}>{energy?.valueKwh !== null && energy ? t('estimated') : t('notCalculable')}</span>
+  const state = usePreferenceDraft()
+  const { tab, draft, dirty, valid, pendingTab, saveError, saving } = state
+  const dialog = useRef<HTMLDialogElement>(null)
+  const tabList = useRef<HTMLDivElement>(null)
+  const form = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    if (!pendingTab) return
+    const activeTab = tabList.current?.querySelector<HTMLButtonElement>('[aria-selected="true"]')
+    const element = dialog.current
+    element?.showModal()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { element?.close(); document.body.style.overflow = previousOverflow; activeTab?.focus() }
+  }, [pendingTab])
+  const unit = tab === 'energy' ? 'kWh' : 'kg CO₂e'
+  const number = (value: string) => new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR', { maximumFractionDigits: 6 }).format(Number(value))
+  function preferenceText(value: typeof draft) {
+    return tab === 'analysis' ? `${t('days', { count: Number(value.period) })} • ${t(value.granularity)}` : tab === 'coverage'
+      ? t('activeCoverage', { value: number(value.value), status: t(value.enabled ? 'enabled' : 'disabled') })
+      : t('activeLimit', { value: number(value.value), unit })
+  }
+  const active = state.active[tab]
+  const activeText = state.loadState === 'loading' ? t('loadingPreferences') : state.loadState === 'error' ? t('activeUnavailable') : active ? preferenceText(active.draft) : t(state.authenticated ? 'noPreference' : 'signInActive')
+  const activeSummary = active && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
+  const savingUnavailable = <p className={styles.saveError} role="alert">{saveError ? t(saveError) : ''}</p>
+  const save = () => { if (form.current?.reportValidity()) void state.save() }
+  return <main className={styles.page} tabIndex={-1}>
+    <header className={styles.heading}><p className={styles.eyebrow}>{common('nav.system')}</p><h1>{t('title')}</h1><p>{t('description')}</p></header>
+    <div className={styles.tabRow}>
+      <div ref={tabList} className={styles.tabs} role="tablist" aria-label={t('individual')} onKeyDown={(event) => {
+        const index = preferenceTabs.indexOf(tab)
+        const next = event.key === 'ArrowRight' ? (index + 1) % 4 : event.key === 'ArrowLeft' ? (index + 3) % 4 : event.key === 'Home' ? 0 : event.key === 'End' ? 3 : null
+        if (next === null) return
+        event.preventDefault(); state.switchTab(preferenceTabs[next])
+        if (!dirty) tabList.current?.querySelector<HTMLButtonElement>(`#tab-${preferenceTabs[next]}`)?.focus()
+      }}>{preferenceTabs.map((item) => <button key={item} id={`tab-${item}`} type="button" role="tab" tabIndex={tab === item ? 0 : -1} aria-selected={tab === item} aria-controls="preference-panel" onClick={() => state.switchTab(item)}>{t(`tabs.${item}`)}</button>)}</div>
+      <span>{t('individual')}</span>
+    </div>
+    <div id="preference-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className={styles.columns}>
+      <MethodologyExplanation tab={tab} />
+      <section className={`${styles.card} ${tab === 'energy' || tab === 'emissions' ? styles.limitCard : ''}`} aria-labelledby="edit-title">
+        <p className={styles.step}>{t('stepEdit')}</p><h2 id="edit-title">{t(`${tab}.editTitle`)}</h2><p className={styles.intro}>{t(`${tab}.editDescription`)}</p>
+        <div className={styles.activePreference}><span>{t('active')}</span><strong>{activeText}</strong></div>
+        {state.loadState === 'error' && <div role="alert"><p>{t('loadError')}</p><ActionButton appearance="secondary" onClick={state.retry}>{common('actions.retry')}</ActionButton></div>}
+        <form ref={form} onSubmit={(event) => { event.preventDefault(); save() }}>
+          <fieldset disabled={saving || state.loadState !== 'ready'} className={styles.formFields}>
+          {(tab === 'energy' || tab === 'emissions') && <>
+            <label>{t('scope')}<select><option>{t('perApplication')}</option></select></label>
+            <div className={styles.fields}><label>{t('limitEditing')}<input type="number" min="0" step="any" required value={draft.value} onChange={(event) => state.update({ value: event.target.value })} /></label><label>{t('unit')}<select value={unit} onChange={() => {}}><option>{unit}</option></select></label></div>
+            <label>{t('referencePeriod')}<select><option>{t('monthly')}</option></select></label>
+            <label className={styles.toggle}><input type="checkbox" role="switch" checked={draft.enabled} onChange={(event) => state.update({ enabled: event.target.checked })} /><span aria-hidden="true" />{t('highlight')}</label>
+          </>}
+          {tab === 'coverage' && <>
+            <label>{t('referenceEditing')}<div className={styles.coverageField}><div><input type="number" min="0" max="100" step="any" required value={draft.value} onChange={(event) => state.update({ value: event.target.value })} /><span>%</span></div>{dirty && <span className={styles.badge}>{t('editing')}</span>}</div></label>
+            <label className={styles.toggle}><input type="checkbox" role="switch" checked={draft.enabled} onChange={(event) => state.update({ enabled: event.target.checked })} /><span aria-hidden="true" />{t('coverageToggle')}</label>
+            <p className={styles.formNote}>{t('coverageNote')}</p>
+          </>}
+          {tab === 'analysis' && <>
+            <label>{t('periodEditing')}<select value={draft.period} onChange={(event) => state.update({ period: event.target.value === '7' ? '7' : '30' })}><option value="7">{t('days', { count: 7 })}</option><option value="30">{t('days', { count: 30 })}</option></select></label>
+            <label>{t('granularityEditing')}<select value={draft.granularity} onChange={(event) => state.update({ granularity: event.target.value === 'hour' ? 'hour' : 'day' })}><option value="hour">{t('hour')}</option><option value="day">{t('day')}</option></select></label>
+            <p className={styles.editNote}>{dirty && <span className={styles.badge}>{t('editing')}</span>}{t('previewFollows')}</p>
+          </>}
+          </fieldset>
+          {!valid && <p className={styles.saveError} role="alert">{t('invalidValue')}</p>}
+        </form>
       </section>
-      {status === 'not-calculable' && <section className="empty-state"><h2>{t('notCalculable')}</h2><p>{t('notCalculableDescription')}</p></section>}
-      {data.status === 'absent' && <section className="empty-state"><h2>{t('unavailable')}</h2><p>{t('unavailableDescription')}</p></section>}
-      {method && <>
-      <section className={styles.card} aria-labelledby="formula-heading">
-        <header><div><p className={styles.kicker}>{t('calculation')}</p><h2 id="formula-heading">{t('formula')}</h2></div><span className={styles.tag}>{t('version')} {method.version}</span></header>
-          {method.formula.status === 'available' && method.formula.expression ? <pre className={styles.formula}><code>{method.formula.expression}</code></pre> : <p className={styles.note}>{t('unavailableDescription')}</p>}
-          <p className={styles.note}>{t('formulaNote')}</p>
-          <div className={styles.grid}>
-            <section><h3>{t('inputs')}</h3><dl>{Object.entries(method.formula.inputUnits ?? {}).map(([name, unit]) => <div key={name}><dt>{name}</dt><dd>{unit}</dd></div>)}</dl></section>
-            <section><h3>{t('output')}</h3><dl><div><dt>{t('energyEstimate')}</dt><dd>{method.formula.outputUnit ?? t('unknown')}</dd></div></dl></section>
-            {Object.keys(method.parameters).length > 0 && <section><h3>{t('parameters')}</h3><dl>{Object.entries(method.parameters).map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{number(value)} {method.formula.inputUnits?.[name] ?? ''}</dd></div>)}</dl></section>}
-            <section><h3>{t('configuration')}</h3><dl><div><dt>{t('version')}</dt><dd>{method.configVersion ?? t('unknown')}</dd></div>{method.configId && <div><dt>{t('identifier')}</dt><dd>{method.configId}</dd></div>}</dl></section>
-          </div>
-      </section>
-      <section className={styles.card}>
-        <h2>{t('validityAndSource')}</h2><dl className={styles.metadata}>
-          {snapshot && <><div><dt>{t('version')}</dt><dd>{snapshot.version ?? t('unknown')}</dd></div><div><dt>{t('factor')}</dt><dd>{snapshot.intensity === null ? t('notProvided') : `${number(snapshot.intensity)} ${snapshot.unit ?? ''}`}</dd></div>
-            {snapshot.source && <div><dt>{t('reference')}</dt><dd>{referenceUrl ? <a href={referenceUrl} target="_blank" rel="noopener noreferrer">{snapshot.source}</a> : snapshot.source}</dd></div>}
-            <div><dt>{t('queriedAt')}</dt><dd>{snapshot.queriedAt ? date(snapshot.queriedAt) : t('notProvided')}</dd></div></>}
-          {data.carbon && <><div><dt>{t('carbonEstimate')}</dt><dd>{data.carbon.valueGramsCo2e === null ? t('notProvided') : `${number(data.carbon.valueGramsCo2e)} gCO₂e`}</dd></div><div><dt>{t('carbonFormula')}</dt><dd>{data.carbon.formula.expression}</dd></div></>}
-          <div><dt>{t('collectionPeriod')}</dt><dd>{date(collection.intervalStart)} – {date(collection.intervalEnd)}</dd></div>
-        </dl>
-      </section>
-      <p className={styles.disclaimer}>{t('estimateNotice')}</p>
-      </>}
-    </>}
+      <MethodologyPreview tab={tab} drafts={state.drafts} />
+    </div>
+    <footer className={styles.footer}><div><strong>{t(`tabs.${tab}`)} • {t(dirty ? 'unsaved' : state.saved ? 'saved' : active ? 'upToDate' : 'exampleState')}</strong><p>{t('saveNote')}</p></div><div className={styles.actions}><ActionButton appearance="secondary" onClick={state.cancel} disabled={!dirty || saving}>{t('cancel')}</ActionButton><ActionButton onClick={save} pending={saving} disabled={!valid || state.loadState !== 'ready'}>{t(saving ? 'saving' : 'save')}</ActionButton></div></footer>
+    {saveError && !pendingTab && savingUnavailable}
+    {state.saved && <p role="status">{t('saved')}</p>}
+    <details className={styles.recorded} onToggle={(event) => setRecordedOpen(event.currentTarget.open)}><summary>{t('recorded')}</summary>{recordedOpen && <RecordedMethodology id={null} navigate={navigate} />}</details>
+    <dialog ref={dialog} className={styles.dialog} aria-labelledby="pending-title" aria-describedby="pending-description" onCancel={(event) => { event.preventDefault(); state.continueEditing() }}>
+      <h2 id="pending-title">{t('pendingTitle')}</h2><p id="pending-description">{t('pendingDescription', { from: t(`tabs.${tab}`), to: pendingTab ? t(`tabs.${pendingTab}`) : '' })}</p>
+      <div className={styles.summary}><strong>{t(`summaryTitle.${tab}`)}</strong><p>{t('pendingValue', { active: activeSummary, value: preferenceText(draft) })}</p></div>
+      {saveError && savingUnavailable}
+      <div className={styles.actions}><ActionButton appearance="secondary" onClick={state.continueEditing} disabled={saving}>{t('continueEditing')}</ActionButton><ActionButton appearance="secondary" onClick={state.discardAndSwitch} disabled={saving}>{t('discardSwitch')}</ActionButton><ActionButton onClick={save} pending={saving} disabled={!valid}>{t('saveSwitch')}</ActionButton></div>
+    </dialog>
   </main>
 }

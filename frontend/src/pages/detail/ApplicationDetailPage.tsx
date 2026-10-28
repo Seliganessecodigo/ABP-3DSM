@@ -18,6 +18,7 @@ import { getTimeZoneForLocale } from '../../utils/timeZone.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
+import { useAnalysisDefaults } from './useAnalysisDefaults.ts'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
 
@@ -58,6 +59,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
 }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
   const { t: tCommon } = useTranslation('common')
+  const analysisDefaultsReady = useAnalysisDefaults()
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
   const selectedCollectionId = new URLSearchParams(window.location.search).get('collectionId')
   const searchParams = new URLSearchParams(window.location.search)
@@ -102,7 +104,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const { application, loading, refreshing, notFound, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refreshCycle, retry,
     collection, collectionLoading, collectionNotFound, collectionError } = useApplicationDetail(id, selectedCollectionId)
   const environmentalAnalysis = useEnvironmentalAnalysis(id, analysisPeriod, analysisGranularity, analysisSource,
-    application !== null && selectedPeriod !== null, refreshCycle, analysisAnchor)
+    application !== null && selectedPeriod !== null && analysisDefaultsReady, refreshCycle, analysisAnchor)
   const granularityCapabilities = environmentalAnalysis.data?.granularity ?? { status: 'unavailable' as const }
   const unsupportedGranularity = isUnsupportedGranularity(analysisGranularity, granularityCapabilities)
   const currentCollection = visibleCollection(collection, selectedCollectionId)

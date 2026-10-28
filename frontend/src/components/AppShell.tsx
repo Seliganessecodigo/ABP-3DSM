@@ -8,7 +8,7 @@ import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
 import { useAuthentication } from '../app/useAuthentication.ts'
 
-export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail'; login?: boolean }>) {
+export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
   const { user, signOut } = useAuthentication()
   const methodologyActive = window.location.pathname === '/methodology' || window.location.pathname.startsWith('/services/') && window.location.pathname.endsWith('/methodology')
@@ -75,7 +75,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
     }
   }, [closeMobileMenu, mobileMenuOpen])
 
-  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${login ? ' login-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
+  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${variant === 'methodology' ? ' methodology-layout' : ''}${login ? ' login-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}

@@ -15,7 +15,7 @@ function App() {
 function Application() {
   const { route, navigate } = useRoute()
   const login = route.kind === 'login' || route.kind === 'sso-callback'
-  return <AppShell navigate={navigate} variant={route.kind === 'detail' ? 'detail' : 'default'} login={login}>
+  return <AppShell navigate={navigate} variant={route.kind === 'detail' ? 'detail' : route.kind === 'methodology' && !route.id ? 'methodology' : 'default'} login={login}>
     {route.kind === 'login'
       ? <LoginPage navigate={navigate} />
       : route.kind === 'sso-callback'
