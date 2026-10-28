@@ -1,5 +1,9 @@
 # Organização do frontend
 
+`pages/methodology/` contém as quatro abas em `MethodologyPage`, rascunhos em `usePreferenceDraft` e componentes locais de explicação/prévia. `RecordedMethodology` preserva a consulta histórica por coleta. `features/preferences/` valida o contrato HTTP autenticado; `pages/detail/useAnalysisDefaults` aplica somente padrões ausentes na URL.
+
+Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 estiver ocupada, inclusive em worktrees simultâneos. Metodologia carrega Inter local de `assets/fonts/`, com licença SIL OFL, para reproduzir as referências sem CDN em runtime.
+
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
 `app/` contém a navegação e inicialização global. Providers globais ficam nessa camada quando mais de uma rota depende deles.
 

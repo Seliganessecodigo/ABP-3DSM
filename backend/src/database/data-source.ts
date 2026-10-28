@@ -1,3 +1,4 @@
+import { UserPreferenceEntity } from "./entities/user-preference.entity";
 import { config as loadEnv } from "dotenv";
 import { resolve } from "node:path";
 import { DataSource } from "typeorm";
@@ -31,6 +32,7 @@ export default new DataSource({
   type: "postgres",
   url: databaseUrl,
   entities: [
+    UserPreferenceEntity,
     ApplicationEntity,
     ApplicationEventEntity,
     CollectionEntity,

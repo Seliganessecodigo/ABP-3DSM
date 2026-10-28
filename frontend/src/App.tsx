@@ -15,19 +15,23 @@ function App() {
 function Application() {
   const { route, navigate } = useRoute()
   const login = route.kind === 'login' || route.kind === 'sso-callback'
-  return <AppShell navigate={navigate} variant={route.kind === 'detail' ? 'detail' : 'default'} login={login}>
-    {route.kind === 'login'
-      ? <LoginPage navigate={navigate} />
-      : route.kind === 'sso-callback'
-      ? <SsoCallbackPage navigate={navigate} />
-      : route.kind === 'dashboard'
-      ? <DashboardPage key="dashboard" navigate={navigate} />
-      : route.kind === 'detail'
-      ? <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
-      : route.kind === 'methodology'
-        ? <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
-        : <CatalogPage key="catalog" navigate={navigate} />}
+  let variant: 'default' | 'detail' | 'methodology' = 'default'
+  if (route.kind === 'detail') variant = 'detail'
+  if (route.kind === 'methodology' && !route.id) variant = 'methodology'
+  return <AppShell navigate={navigate} variant={variant} login={login}>
+    <RoutedPage route={route} navigate={navigate} />
   </AppShell>
+}
+
+function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) {
+  switch (route.kind) {
+    case 'login': return <LoginPage navigate={navigate} />
+    case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
+    case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
+    case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
+    case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
+    default: return <CatalogPage key="catalog" navigate={navigate} />
+  }
 }
 
 export default App

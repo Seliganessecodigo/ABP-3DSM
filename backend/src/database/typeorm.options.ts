@@ -1,3 +1,4 @@
+import { UserPreferenceEntity } from "./entities/user-preference.entity";
 import type { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { config as loadEnv } from "dotenv";
 import { resolve } from "node:path";
@@ -32,6 +33,7 @@ export function typeOrmOptions(): TypeOrmModuleOptions {
     type: "postgres",
     url,
     entities: [
+      UserPreferenceEntity,
       ApplicationEntity,
       ApplicationEventEntity,
       CollectionEntity,
