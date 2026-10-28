@@ -54,5 +54,6 @@
   "clearPreservesSort": "При сбросе фильтров текущая сортировка сохраняется.",
   "applyFilters": "Применить фильтры",
   "total_few": "{{count}} приложения",
-  "total_many": "{{count}} приложений"
+  "total_many": "{{count}} приложений",
+  "login": "Sign in"
 }

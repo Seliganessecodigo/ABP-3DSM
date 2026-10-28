@@ -6,9 +6,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
+import { useAuthentication } from '../app/useAuthentication.ts'
 
-export function AppShell({ children, navigate, variant = 'default' }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' }>) {
+export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail'; login?: boolean }>) {
   const { t } = useTranslation('common')
+  const { user, signOut } = useAuthentication()
   const methodologyActive = window.location.pathname === '/methodology' || window.location.pathname.startsWith('/services/') && window.location.pathname.endsWith('/methodology')
   const dashboardActive = window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -73,7 +75,7 @@ export function AppShell({ children, navigate, variant = 'default' }: Readonly<{
     }
   }, [closeMobileMenu, mobileMenuOpen])
 
-  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
+  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${login ? ' login-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
@@ -103,9 +105,10 @@ export function AppShell({ children, navigate, variant = 'default' }: Readonly<{
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
         <LanguageSelector />
         <ThemeSelector />
+        {user ? <div className="auth-account"><span><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></div> : !login && <a className="auth-login" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>{t('auth.login')}</a>}
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span></header>{children}</div>
+    <div className="workspace"><header className="topbar">{!login && <button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button>}<img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
   </div>
 }

@@ -2,6 +2,7 @@
   "eyebrow": "监控",
   "title": "应用程序",
   "description": "受监控应用程序目录及其当前状态。",
+  "login": "登录",
   "refresh": "刷新目录",
   "searchLabel": "按名称、标识符或区域搜索应用程序",
   "searchPlaceholder": "按名称、标识符或区域搜索...",

@@ -91,6 +91,15 @@
   .sidebar-backdrop { position: fixed; z-index: 19; inset: 0; display: block; border: 0; background: rgb(0 0 0 / 45%); }
 }
 .sidebar nav button:focus-visible, .sidebar nav a:focus-visible, .sidebar-collapse-toggle:focus-visible, .brand:focus-visible { outline: 2px solid var(--sidebar-accent); outline-offset: 2px; }
+.auth-login { display: block; min-height: 36px; padding: 9px 8px; border-radius: 8px; color: var(--accent-on-accent); background: var(--accent-default); text-align: center; text-decoration: none; font-size: 12px; font-weight: 700; }
+.auth-account { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; padding: 8px 4px; color: var(--sidebar-text); font-size: 11px; }
+.auth-account span { display: grid; gap: 2px; min-width: 0; }
+.auth-account strong, .auth-account small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-account button { border: 0; padding: 4px; color: var(--sidebar-accent); background: transparent; font: inherit; cursor: pointer; }
+.login-layout { display: block; min-height: 100vh; }
+.login-layout .sidebar { display: none; }
+.login-layout .topbar { display: flex; }
+.login-layout .topbar-actions { display: flex; align-items: center; gap: 14px; }
 @media (prefers-reduced-motion: reduce) {
   .app-layout, .sidebar, .brand-name, .brand-wordmark, .nav-heading, .nav-label, .sidebar-preferences, .sidebar-collapse-toggle svg { transition-duration: .01ms; }
 }

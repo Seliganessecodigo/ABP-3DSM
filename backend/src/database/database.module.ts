@@ -17,6 +17,13 @@ import { RecalculationsRepository } from "./repositories/recalculations.reposito
 import { AuditLogsRepository } from "./repositories/audit-logs.repository";
 import { MonitoringIncidentsRepository } from "./repositories/monitoring-incidents.repository";
 import { typeOrmOptions } from "./typeorm.options";
+import { OrganizationEntity } from "./entities/organization.entity";
+import { AuthSessionEntity } from "./entities/auth-session.entity";
+import { AuthTokenEntity } from "./entities/auth-token.entity";
+import { ExternalIdentityEntity } from "./entities/external-identity.entity";
+import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
+import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
+import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
 
 @Global()
 @Module({
@@ -31,6 +38,13 @@ import { typeOrmOptions } from "./typeorm.options";
       RecalculationEntity,
       AuditLogEntity,
       MonitoringIncidentEntity,
+      OrganizationEntity,
+      AuthSessionEntity,
+      AuthTokenEntity,
+      ExternalIdentityEntity,
+      SsoHandoffEntity,
+      SsoInvitationEntity,
+      SsoTransactionEntity,
     ]),
   ],
   providers: [

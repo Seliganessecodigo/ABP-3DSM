@@ -663,11 +663,11 @@ test('foco do menu móvel entra no drawer e permanece contido por Tab', async ({
 
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   const closeButton = page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' })
-  const themeToggle = page.getByRole('dialog').getByRole('switch', { name: 'Modo escuro', exact: true })
+  const loginLink = page.getByRole('dialog').getByRole('link', { name: 'Entrar', exact: true })
   await expect(closeButton).toBeFocused()
 
   await page.keyboard.press('Shift+Tab')
-  await expect(themeToggle).toBeFocused()
+  await expect(loginLink).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(closeButton).toBeFocused()
 })

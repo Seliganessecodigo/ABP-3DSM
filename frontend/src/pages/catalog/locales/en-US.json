@@ -2,6 +2,7 @@
   "eyebrow": "Monitoring",
   "title": "Applications",
   "description": "Catalog of monitored applications and their current status.",
+  "login": "Sign in",
   "refresh": "Refresh catalog",
   "searchLabel": "Search applications by name, ID, or region",
   "searchPlaceholder": "Search by name, ID, or region...",

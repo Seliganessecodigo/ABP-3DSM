@@ -52,5 +52,10 @@
   "reason.CARBON_FACTOR_UNAVAILABLE": "탄소 계수 사용 불가",
   "reason.REMOVAL_CONFIRMED": "제거 확인됨",
   "loading.description": "조회가 완료될 때까지 기다려 주세요. 아직 값이 표시되지 않습니다.",
-  "loading.processing": "처리 중…"
+  "loading.processing": "처리 중…",
+  "auth.login": "로그인",
+  "auth.signOut": "로그아웃",
+  "auth.role.ADMIN": "관리자",
+  "auth.role.ANALYST": "분석가",
+  "auth.role.VISITOR": "방문자"
 }

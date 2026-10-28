@@ -52,5 +52,6 @@
   "cityPlaceholder": "도시 입력...",
   "filterCombinationNote": "통합 검색과 적용된 필터가 함께 사용됩니다.",
   "clearPreservesSort": "필터를 초기화해도 현재 정렬 순서는 유지됩니다.",
-  "applyFilters": "필터 적용"
+  "applyFilters": "필터 적용",
+  "login": "Sign in"
 }

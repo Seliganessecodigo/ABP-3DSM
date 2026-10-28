@@ -2,6 +2,10 @@
   "language.label": "Language",
   "theme.darkMode": "Dark mode",
   "account": "Account",
+  "auth.signOut": "Sign out",
+  "auth.role.ADMIN": "Administrator",
+  "auth.role.ANALYST": "Analyst",
+  "auth.role.VISITOR": "Visitor",
   "app.tagline": "More conscious energy",
   "topbar": "GreenER · Monitoring",
   "nav.openMenu": "Open menu",
@@ -52,5 +56,6 @@
   "reason.CARBON_FACTOR_UNAVAILABLE": "Carbon factor unavailable",
   "reason.REMOVAL_CONFIRMED": "Removal confirmed",
   "loading.description": "Please wait while the request completes. No values are shown yet.",
-  "loading.processing": "Processing…"
+  "loading.processing": "Processing…",
+  "auth.login": "Sign in"
 }

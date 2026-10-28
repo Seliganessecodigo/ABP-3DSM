@@ -52,5 +52,6 @@
   "cityPlaceholder": "Ketik kota...",
   "filterCombinationNote": "Pencarian umum dan filter aktif digabungkan.",
   "clearPreservesSort": "Menghapus filter mempertahankan urutan saat ini.",
-  "applyFilters": "Terapkan filter"
+  "applyFilters": "Terapkan filter",
+  "login": "Sign in"
 }

@@ -52,5 +52,10 @@
   "reason.CARBON_FACTOR_UNAVAILABLE": "कार्बन गुणांक अनुपलब्ध है",
   "reason.REMOVAL_CONFIRMED": "हटाने की पुष्टि हुई",
   "loading.description": "अनुरोध पूरा होने की प्रतीक्षा करें। अभी कोई मान नहीं दिखाया गया है।",
-  "loading.processing": "प्रक्रिया जारी है…"
+  "loading.processing": "प्रक्रिया जारी है…",
+  "auth.login": "साइन इन करें",
+  "auth.signOut": "साइन आउट",
+  "auth.role.ADMIN": "व्यवस्थापक",
+  "auth.role.ANALYST": "विश्लेषक",
+  "auth.role.VISITOR": "आगंतुक"
 }

@@ -1,5 +1,11 @@
 # modules
 
+## Autenticação SSO
+
+`POST /auth/sso/invitations` permite ao Admin ativo da organização emitir convite com e-mail, nome e papel GreenER. `GET /auth/sso/google` inicia login global Google (`code_challenge` S256; convite opcional no parâmetro `invite`), `GET /auth/sso/google/callback` valida o retorno e redireciona à URL fixa `SSO_RETURN_URL` com um código de handoff, e `POST /auth/sso/handoff/exchange` troca o código com `code` e `codeVerifier`. O handoff dura 60 segundos, é de uso único e nunca inclui JWT na URL. Admin recebe o desafio/setup TOTP existente antes de obter sessão.
+
+`DELETE /auth/sso/identities/{userId}` permite a Admin ativo revogar o vínculo de outra conta da mesma organização; o Admin não pode remover o próprio vínculo. Um novo convite permite vincular a identidade substituta. As variáveis `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` e `SSO_RETURN_URL` são configuradas fora do Git; a callback exata precisa ser cadastrada no Google Cloud Console. SMTP existente envia convites e o banco persiste somente o hash dos tokens.
+
 Módulos NestJS organizados por domínio GreenER. Cada módulo reúne as rotas/controllers, serviços de aplicação, DTOs, regras de domínio e integrações próprias do domínio, mantendo dependências explícitas.
 
 ## Energia estimada — regra de domínio

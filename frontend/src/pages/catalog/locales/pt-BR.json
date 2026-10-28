@@ -2,6 +2,7 @@
   "eyebrow": "Monitoramento",
   "title": "Aplicações",
   "description": "Catálogo das aplicações monitoradas e sua situação atual.",
+  "login": "Entrar",
   "refresh": "Atualizar catálogo",
   "searchLabel": "Buscar aplicações por nome, identificador ou região",
   "searchPlaceholder": "Buscar por nome, identificador ou região...",

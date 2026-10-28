@@ -2,6 +2,7 @@
   "eyebrow": "Suivi",
   "title": "Applications",
   "description": "Catalogue des applications suivies et de leur état actuel.",
+  "login": "Se connecter",
   "refresh": "Actualiser le catalogue",
   "searchLabel": "Rechercher des applications par nom, identifiant ou région",
   "searchPlaceholder": "Rechercher par nom, identifiant ou région...",

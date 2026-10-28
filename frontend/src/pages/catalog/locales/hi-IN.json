@@ -52,5 +52,6 @@
   "cityPlaceholder": "शहर लिखें...",
   "filterCombinationNote": "सामान्य खोज और सक्रिय फ़िल्टर साथ लागू होते हैं।",
   "clearPreservesSort": "फ़िल्टर हटाने पर वर्तमान क्रम बना रहता है।",
-  "applyFilters": "फ़िल्टर लागू करें"
+  "applyFilters": "फ़िल्टर लागू करें",
+  "login": "Sign in"
 }
