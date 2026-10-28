@@ -190,6 +190,7 @@ test('captura edição e diálogo nas referências atuais', async ({ page }, tes
     if (index < 2) await page.getByLabel('Limite em edição', { exact: true }).fill(index === 0 ? '8' : '1.5')
     else if (index === 2) await page.getByLabel('Referência em edição', { exact: false }).fill('85')
     else { await page.getByLabel('Período em edição').selectOption('7'); await page.getByLabel('Granularidade em edição').selectOption('hour') }
+    await page.getByRole('heading', { level: 1 }).click()
     await page.screenshot({ path: `${directory}/1894-edicao-${index + 1}.png`, fullPage: true })
     if (index === 0) {
       await page.getByRole('tab', { name: names[2], exact: true }).click()

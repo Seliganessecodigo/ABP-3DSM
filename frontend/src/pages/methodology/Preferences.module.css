@@ -116,7 +116,7 @@
 .summary strong { color: var(--accent-default); font-size: 14px; text-transform: uppercase; }
 .summary p { margin: 4px 0 0; font-size: 18px; line-height: 1.5; }
 .dialog .actions > button { flex: 1; padding-inline: 16px; }
-@media (max-width: 1599px) {
+@media (max-width: 1799px) {
   .page { padding: 32px 36px; }
   .tabs { gap: 10px; flex: 1; }
   .tabs button { flex: 1; padding-inline: 16px; font-size: 16px; }
@@ -133,7 +133,7 @@
   .footer { align-items: flex-start; flex-wrap: wrap; }
   .actions { margin-left: auto; }
 }
-@media (min-width: 1600px) {
+@media (min-width: 1800px) {
   .previewHeading { position: relative; padding-top: 5px; margin-top: 0; }
   .previewHeading > .badge { position: absolute; right: 0; top: 1px; }
   .previewHeading h2 { margin-top: 5px; }
