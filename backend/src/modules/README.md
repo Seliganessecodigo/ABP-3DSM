@@ -1,5 +1,9 @@
 # modules
 
+## Preferências pessoais de Metodologia
+
+`GET /me/preferences` e `PUT /me/preferences/:tab` reutilizam a autenticação para consultar/salvar uma aba de preferências do próprio usuário, com revisão concorrente e auditoria transacional. Ausência retorna `null`, sem limites padrão. Veja [contrato, migration e testes](preferences/README.md).
+
 ## Autenticação SSO
 
 `POST /auth/sso/invitations` permite ao Admin ativo da organização emitir convite com e-mail, nome e papel GreenER. `GET /auth/sso/google` inicia login global Google (`code_challenge` S256; convite opcional no parâmetro `invite`), `GET /auth/sso/google/callback` valida o retorno e redireciona à URL fixa `SSO_RETURN_URL` com um código de handoff, e `POST /auth/sso/handoff/exchange` troca o código com `code` e `codeVerifier`. O handoff dura 60 segundos, é de uso único e nunca inclui JWT na URL. Admin recebe o desafio/setup TOTP existente antes de obter sessão.
