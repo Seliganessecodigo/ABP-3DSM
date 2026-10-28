@@ -8,6 +8,14 @@ import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
 import { useAuthentication } from '../app/useAuthentication.ts'
 
+function layoutClasses(variant: 'default' | 'detail' | 'methodology', login: boolean, expanded: boolean) {
+  const classes = ['app-layout']
+  if (variant !== 'default') classes.push(`${variant}-layout`)
+  if (login) classes.push('login-layout')
+  if (!expanded) classes.push('sidebar-collapsed')
+  return classes.join(' ')
+}
+
 export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
   const { user, signOut } = useAuthentication()
@@ -75,7 +83,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
     }
   }, [closeMobileMenu, mobileMenuOpen])
 
-  return <div className={`app-layout${variant === 'detail' ? ' detail-layout' : ''}${variant === 'methodology' ? ' methodology-layout' : ''}${login ? ' login-layout' : ''}${desktopExpanded ? '' : ' sidebar-collapsed'}`}>
+  return <div className={layoutClasses(variant, login, desktopExpanded)}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}

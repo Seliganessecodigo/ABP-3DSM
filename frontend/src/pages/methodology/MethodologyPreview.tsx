@@ -13,6 +13,9 @@ const applications: { name: string; state: ApplicationState; energy: number | nu
   { name: 'app-pagamentos', state: 'AVAILABLE', energy: 8.6, emissions: 1.7, coverage: 92 },
   { name: 'app-relatorios', state: 'NO_METRICS', energy: null, emissions: null, coverage: null },
 ]
+const previewTitles: Record<PreferenceTab, string> = { energy: 'highlightsPreview', emissions: 'highlightsPreview', coverage: 'warningsPreview', analysis: 'analysisPreview' }
+const previewNotices: Record<PreferenceTab, string> = { energy: 'limitNotice', emissions: 'limitNotice', coverage: 'coverage.previewNotice', analysis: 'analysis.previewNotice' }
+const axisPositions = [{ index: 0, x: 28, anchor: 'start' }, { index: 3, x: 220, anchor: 'start' }, { index: 6, x: 430, anchor: 'end' }] as const
 
 export function MethodologyPreview({ tab, drafts }: Readonly<{ tab: PreferenceTab; drafts: Record<PreferenceTab, PreferenceDraft> }>) {
   const { t, i18n } = useTranslation('methodology', { keyPrefix: 'preferences' })
@@ -22,19 +25,23 @@ export function MethodologyPreview({ tab, drafts }: Readonly<{ tab: PreferenceTa
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value)
   const draft = drafts[tab]
   const numeric = draft.value.trim() !== '' && Number.isFinite(Number(draft.value)) ? Number(draft.value) : null
-  const description = tab === 'analysis' ? `${t('days', { count: Number(draft.period) })} • ${t(draft.granularity)}`
-    : numeric === null ? t('invalidValue') : tab === 'coverage' ? t('coveragePreview', { value: number(numeric) }) : t('limitPreview', { value: number(numeric), unit: tab === 'energy' ? 'kWh' : 'kg CO₂e' })
+  function description() {
+    if (tab === 'analysis') return `${t('days', { count: Number(draft.period) })} • ${t(draft.granularity)}`
+    if (numeric === null) return t('invalidValue')
+    if (tab === 'coverage') return t('coveragePreview', { value: number(numeric) })
+    return t('limitPreview', { value: number(numeric), unit: tab === 'energy' ? 'kWh' : 'kg CO₂e' })
+  }
   return <section className={`${styles.card} ${styles.preview}`} aria-labelledby="preview-title">
     <p className={styles.step}>{t('stepPreview')}</p>
-    <div className={styles.previewHeading}><h2 id="preview-title">{t(tab === 'analysis' ? 'analysisPreview' : tab === 'coverage' ? 'warningsPreview' : 'highlightsPreview')}</h2><span className={styles.badge}>{t('exampleData')}</span></div>
-    <p className={styles.previewDescription}>{description}</p>
+    <div className={styles.previewHeading}><h2 id="preview-title">{t(previewTitles[tab])}</h2><span className={styles.badge}>{t('exampleData')}</span></div>
+    <p className={styles.previewDescription}>{description()}</p>
     {tab === 'analysis' ? <AnalysisPreview draft={draft} /> : <>
       <div className={styles.catalogPreview}><table><thead><tr><th scope="col">{catalog('app')} <span aria-hidden="true">↑</span></th><th scope="col">{common('location.country')}</th><th scope="col">{catalog('regionCode')}</th><th scope="col">{common('location.city')}</th><th scope="col">{common('state.label')}</th><th scope="col">{common('date.lastCheck')}</th><th scope="col">{catalog('actions')}</th></tr></thead>
         <tbody>{applications.map((application) => {
           const warnings: string[] = []
           for (const metric of ['energy', 'emissions', 'coverage'] as const) {
             const preference = drafts[metric]
-            const threshold = preference.value.trim() === '' ? NaN : Number(preference.value)
+            const threshold = preference.value.trim() === '' ? Number.NaN : Number(preference.value)
             const value = application[metric]
             if (!preference.enabled || !Number.isFinite(threshold) || threshold < 0 || metric === 'coverage' && threshold > 100 || value === null) continue
             if (metric === 'coverage' ? value < threshold : value > threshold) warnings.push(t(`warning.${metric}`, { value: number(value), limit: number(threshold) }))
@@ -49,7 +56,7 @@ export function MethodologyPreview({ tab, drafts }: Readonly<{ tab: PreferenceTa
         })}</tbody></table></div>
       <p className={styles.previewCaption}>{t('combinedWarnings')}</p>
     </>}
-    <p className={styles.previewFoot}>{t(tab === 'analysis' ? 'analysis.previewNotice' : tab === 'coverage' ? 'coverage.previewNotice' : 'limitNotice')}</p>
+    <p className={styles.previewFoot}>{t(previewNotices[tab])}</p>
   </section>
 }
 
@@ -64,7 +71,7 @@ function AnalysisPreview({ draft }: Readonly<{ draft: PreferenceDraft }>) {
   const unit = metric === 'energy' ? 'kWh' : 'kg CO₂e'
   return <div className={styles.chartBox}>
     <h3>{t('chartTitle', { count: Number(draft.period) })}</h3>
-    <div className={styles.chartControls}><div role="group" aria-label={t('chartMetric')}>{(['energy', 'emissions'] as const).map((item) => <button key={item} aria-pressed={metric === item} onClick={() => setMetric(item)}>{item === 'emissions' ? 'CO₂e' : t('tabs.energy')}</button>)}</div><div role="group" aria-label={t('chartView')}>{(['chart', 'table'] as const).map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{t(item)}</button>)}</div></div>
+    <div className={styles.chartControls}><fieldset aria-label={t('chartMetric')}>{(['energy', 'emissions'] as const).map((item) => <button key={item} aria-pressed={metric === item} onClick={() => setMetric(item)}>{item === 'emissions' ? 'CO₂e' : t('tabs.energy')}</button>)}</fieldset><fieldset aria-label={t('chartView')}>{(['chart', 'table'] as const).map((item) => <button key={item} aria-pressed={view === item} onClick={() => setView(item)}>{t(item)}</button>)}</fieldset></div>
     <div className={styles.legend}><span>— {t('currentPeriod')}</span><span>··· {t('previousPeriod')}</span></div>
     {view === 'chart' ? <svg className={styles.chart} viewBox="0 0 438 196" role="img" aria-label={t('chartDescription', { unit, period: t(draft.granularity) })}>
       {[8, 4, 0].map((value, index) => <text key={value} x="0" y={14 + index * 75}>{number(metric === 'energy' ? value : value / 4)}</text>)}
@@ -73,7 +80,7 @@ function AnalysisPreview({ draft }: Readonly<{ draft: PreferenceDraft }>) {
       <path className={styles.chartLine} d="M34 1V161H428" />
       <path className={styles.trendLine} d="M34 141 100 121 166 101 232 81 298 61 364 41 428 21" />
       {[34, 100, 166, 232, 298, 364, 428].map((x, index) => <circle key={x} cx={x} cy={141 - index * 20} r="4"><title>{date(dates[index])}: {number((index + 1) * (metric === 'energy' ? 1 : .25))} {unit}</title></circle>)}
-      {[0, 3, 6].map((index) => <text key={index} x={index === 0 ? 28 : index === 3 ? 220 : 430} y="190" textAnchor={index === 6 ? 'end' : 'start'}>{date(dates[index])}</text>)}
+      {axisPositions.map(({ index, x, anchor }) => <text key={index} x={x} y="190" textAnchor={anchor}>{date(dates[index])}</text>)}
     </svg> : <table className={styles.chartTable}><caption>{t('exampleData')} · {t(draft.granularity)}</caption><thead><tr><th>{t('date')}</th><th>{metric === 'energy' ? t('tabs.energy') : 'CO₂e'} ({unit})</th></tr></thead><tbody>{dates.map((day, index) => <tr key={day.toISOString()}><td>{date(day)}</td><td>{number((index + 1) * (metric === 'energy' ? 1 : .25))}</td></tr>)}</tbody></table>}
     <p className={styles.chartCaption}>{t(metric === 'energy' ? 'energyChartCaption' : 'emissionsChartCaption')}</p>
   </div>

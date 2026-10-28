@@ -14,7 +14,8 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
   const { application, collection, data, status, retry, applications } = useMethodology(id)
   const [selectedApplicationId, setSelectedApplicationId] = useState('')
   const params = new URLSearchParams(window.location.search)
-  const backUrl = id ? `/services/${encodeURIComponent(id)}${params.size ? `?${params.toString()}` : ''}` : '/'
+  const backQuery = params.size ? `?${params.toString()}` : ''
+  const backUrl = id ? `/services/${encodeURIComponent(id)}${backQuery}` : '/'
   const date = (value: string) => formatDate(value, locale, common('date.noObservation'))
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value)
   const energy = data?.energy

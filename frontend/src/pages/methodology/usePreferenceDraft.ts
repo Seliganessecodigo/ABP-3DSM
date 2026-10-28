@@ -13,6 +13,11 @@ const examples: Record<PreferenceTab, PreferenceDraft> = {
 function draftValues(preferences: Preferences) {
   return { energy: preferences.energy?.draft ?? examples.energy, emissions: preferences.emissions?.draft ?? examples.emissions, coverage: preferences.coverage?.draft ?? examples.coverage, analysis: preferences.analysis?.draft ?? examples.analysis }
 }
+function saveFailure(error: unknown) {
+  if (error instanceof PreferenceError && error.status === 409) return 'conflict'
+  if (error instanceof PreferenceError && error.status === 401) return 'signIn'
+  return 'saveUnavailable'
+}
 
 export function usePreferenceDraft() {
   const { user, authenticatedFetch } = useAuthentication()
@@ -61,7 +66,12 @@ export function usePreferenceDraft() {
     if (dirty) setPendingTab(next)
     else { setTab(next); setSaveError(null); setSaved(false) }
   }
-  function discardAndSwitch() { if (!pendingTab || saving) return; cancel(); setTab(pendingTab); setPendingTab(null) }
+  function discardAndSwitch() {
+    if (!pendingTab || saving) return
+    cancel()
+    setTab(pendingTab)
+    setPendingTab(null)
+  }
   async function save() {
     if (!valid || saving) return
     if (!user) { setSaveError('signIn'); return }
@@ -76,7 +86,7 @@ export function usePreferenceDraft() {
       if (pendingTab) { setTab(pendingTab); setPendingTab(null) }
     } catch (error) {
       if (error instanceof PreferenceError && error.status === 409) conflictDetected.current = true
-      if (!controller.signal.aborted) setSaveError(error instanceof PreferenceError && error.status === 409 ? 'conflict' : error instanceof PreferenceError && error.status === 401 ? 'signIn' : 'saveUnavailable')
+      if (!controller.signal.aborted) setSaveError(saveFailure(error))
     } finally { if (!controller.signal.aborted) setSaving(false) }
   }
   return { tab, draft, drafts, active, dirty, valid, pendingTab, saveError, saving, saved, loadState, authenticated: !!user, update, cancel, switchTab, discardAndSwitch, save, retry: () => { setLoadState('loading'); setAttempt((value) => value + 1) }, continueEditing: () => { if (!saving) { setPendingTab(null); setSaveError(null) } } }

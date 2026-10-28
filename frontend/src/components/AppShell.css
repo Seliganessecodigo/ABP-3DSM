@@ -122,8 +122,8 @@
   .methodology-layout:not(.sidebar-collapsed) .language-control { min-height: 44px; gap: 12px; }
   .methodology-layout:not(.sidebar-collapsed) .language-code { font-size: 16px; }
 }
-.methodology-layout { font-family: GreenERInter, Inter, ui-sans-serif, system-ui, sans-serif; font-optical-sizing: none; }
-.methodology-layout { --methodology-dialog-offset: 180px; }
+.methodology-layout { --methodology-dialog-offset: 180px; font-family: GreenERInter, Inter, ui-sans-serif, system-ui, sans-serif; font-optical-sizing: none; }
+
 @media (min-width: 1600px) { .methodology-layout { --methodology-dialog-offset: 270px; } }
 .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 72px; }
 @media (max-width: 640px) { .methodology-layout, .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 0px; } }

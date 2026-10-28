@@ -110,7 +110,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const currentCollection = visibleCollection(collection, selectedCollectionId)
   const methodologyParams = new URLSearchParams(window.location.search)
   if (currentCollection) methodologyParams.set('collectionId', currentCollection.id)
-  const methodologyUrl = `/services/${encodeURIComponent(id)}/methodology${methodologyParams.size ? `?${methodologyParams.toString()}` : ''}`
+  const methodologyQuery = methodologyParams.size ? `?${methodologyParams.toString()}` : ''
+  const methodologyUrl = `/services/${encodeURIComponent(id)}/methodology${methodologyQuery}`
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)

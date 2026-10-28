@@ -173,7 +173,7 @@ test('as quatro abas têm textos traduzidos nos doze idiomas', async ({ page }) 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
     for (const tab of await page.getByRole('tab').all()) {
       await tab.click()
-      await expect(page.getByRole('main')).not.toContainText('preferences.')
+      await expect(page.getByRole('main')).not.toContainText(/\bpreferences\.[a-zA-Z]/)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     }
   }
