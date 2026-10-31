@@ -1,15 +1,17 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisSeriesResult } from '../../features/analysis/source.ts'
-import { formatInstantForDateTimeInput, getBrowserTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
+import { formatInstantForDateTimeInput, defaultTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { chartDomain, collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
 import styles from './AnalysisSeries.module.css'
 
 type Labels = Readonly<{
   heading: string
+  historyIntervalsHeading: string
   regionHeading: string
   graph: string
   table: string
   metricToggle: string
+  compareMetrics: string
   currentPeriod: string
   previousPeriod: string
   tooltipCurrent: string
@@ -33,9 +35,11 @@ type Labels = Readonly<{
   from: string
   to: string
   timeZone: (zone: string) => string
+  rangeBounds: string
   invalidDateRange: string
   energyStatus: string
   emissionsStatus: string
+  columnFilters: string
   allStatuses: string
   availableStatus: string
   unavailableStatus: string
@@ -56,6 +60,7 @@ type Labels = Readonly<{
   previous: string
   next: string
   rangeStatus: (start: number, end: number, count: number) => string
+  focusEvent: string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
 }>
 type ChartLabels = Labels & Readonly<{
@@ -161,9 +166,7 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
         for (const event of events) {
           const time = Date.parse(event.at)
           if (!Number.isFinite(time) || time < minTime || time > maxTime || chronological.length === 0) continue
-          const nearest = chronological.reduce((best, point) =>
-            Math.abs(Date.parse(point.timestamp) - time) < Math.abs(Date.parse(best.timestamp) - time) ? point : best, chronological[0]!)
-          const x = maxTime === minTime ? 300 : 8 + ((Date.parse(nearest.timestamp) - minTime) / (maxTime - minTime)) * 584
+          const x = maxTime === minTime ? 300 : 8 + ((time - minTime) / (maxTime - minTime)) * 584
           const bucket = Math.floor(x / 24)
           const marker = markerGroups.get(bucket) ?? { id: `event-bin-${bucket}`, x: bucket * 24 + 12, title: labels.eventSummary(event), count: 0 }
           marker.count += 1
@@ -234,6 +237,154 @@ function Chart({ points, comparisonPoints, events, metric, label, locale, timeZo
   </div>
 }
 
+function ComparisonChart({ points, comparisonPoints, events, energyUnit, emissionsUnit, locale, timeZone, formatDate, labels }: Readonly<{
+  points: readonly AnalysisSeriesPoint[]
+  comparisonPoints: readonly AnalysisSeriesPoint[]
+  events: readonly AnalysisSeriesEvent[]
+  energyUnit: string
+  emissionsUnit: string
+  locale: string
+  timeZone: string
+  formatDate: (value: string) => string
+  labels: ChartLabels
+}>) {
+  const [activePoint, setActivePoint] = useState<{ id: string; metric: 'energy' | 'emissions' } | null>(null)
+  const chronological = [...points].sort((a, b) => {
+    const left = Date.parse(a.timestamp)
+    const right = Date.parse(b.timestamp)
+    return (Number.isFinite(left) ? left : Number.POSITIVE_INFINITY) - (Number.isFinite(right) ? right : Number.POSITIVE_INFINITY)
+  })
+  const timestamps = chronological.map(point => Date.parse(point.timestamp)).filter(Number.isFinite)
+  const minTime = timestamps.length ? Math.min(...timestamps) : 0
+  const maxTime = timestamps.length ? Math.max(...timestamps) : 0
+  const energyValues = chronological.map(point => point.energy.status === 'available' && point.energy.unit === energyUnit &&
+    Number.isFinite(point.energy.value) && Number.isFinite(Date.parse(point.timestamp))
+    ? { id: point.id, timestamp: point.timestamp, time: Date.parse(point.timestamp), value: point.energy.value }
+    : null)
+  const emissionsDisplayUnit = emissionsUnit === 'gCO2e' ? 'kgCO2e' : emissionsUnit
+  const emissionsScale = emissionsUnit === 'gCO2e' ? 0.001 : 1
+  const emissionsValues = chronological.map(point => point.emissions.status === 'available' && point.emissions.unit === emissionsUnit &&
+    Number.isFinite(point.emissions.value) && Number.isFinite(Date.parse(point.timestamp))
+    ? { id: point.id, timestamp: point.timestamp, time: Date.parse(point.timestamp), value: point.emissions.value * emissionsScale }
+    : null)
+  const comparisonChronological = [...comparisonPoints].sort((a, b) => {
+    const left = Date.parse(a.timestamp)
+    const right = Date.parse(b.timestamp)
+    return (Number.isFinite(left) ? left : Number.POSITIVE_INFINITY) - (Number.isFinite(right) ? right : Number.POSITIVE_INFINITY)
+  })
+  const previousEnergyValues = comparisonChronological.map(point => point.energy.status === 'available' && point.energy.unit === energyUnit &&
+    Number.isFinite(point.energy.value) && Number.isFinite(Date.parse(point.timestamp))
+    ? { id: point.id, time: Date.parse(point.timestamp), value: point.energy.value }
+    : null)
+  const previousEmissionsValues = comparisonChronological.map(point => point.emissions.status === 'available' && point.emissions.unit === emissionsUnit &&
+    Number.isFinite(point.emissions.value) && Number.isFinite(Date.parse(point.timestamp))
+    ? { id: point.id, time: Date.parse(point.timestamp), value: point.emissions.value * emissionsScale }
+    : null)
+  const energyDomain = chartDomain([...energyValues, ...previousEnergyValues].flatMap(point => point ? [point.value] : []))
+  const emissionsDomain = chartDomain([...emissionsValues, ...previousEmissionsValues].flatMap(point => point ? [point.value] : []))
+  const coordinates = (values: readonly ({ id: string; time: number; value: number } | null)[], domain: ReturnType<typeof chartDomain>,
+    range: Readonly<{ minimum: number; maximum: number }>): (PlotPoint | null)[] => values.map(point => point && ({
+      id: point.id,
+      x: range.maximum === range.minimum ? 300 : 8 + ((point.time - range.minimum) / (range.maximum - range.minimum)) * 584,
+      y: 108 - ((point.value - domain.minimum) / (domain.maximum - domain.minimum)) * 108,
+    }))
+  const energyCoordinates = coordinates(energyValues, energyDomain, { minimum: minTime, maximum: maxTime })
+  const emissionsCoordinates = coordinates(emissionsValues, emissionsDomain, { minimum: minTime, maximum: maxTime })
+  const comparisonTimes = comparisonChronological.map(point => Date.parse(point.timestamp)).filter(Number.isFinite)
+  const comparisonMinTime = comparisonTimes.length ? Math.min(...comparisonTimes) : 0
+  const comparisonMaxTime = comparisonTimes.length ? Math.max(...comparisonTimes) : 0
+  const comparisonRange = { minimum: comparisonMinTime, maximum: comparisonMaxTime }
+  const previousEnergyCoordinates = coordinates(previousEnergyValues, energyDomain, comparisonRange)
+  const previousEmissionsCoordinates = coordinates(previousEmissionsValues, emissionsDomain, comparisonRange)
+  const energySegments = chartSegments(energyCoordinates, true)
+  const emissionsSegments = chartSegments(emissionsCoordinates, false)
+  const previousEnergySegments = chartSegments(previousEnergyCoordinates, false)
+  const previousEmissionsSegments = chartSegments(previousEmissionsCoordinates, false)
+  const markerGroups = new Map<number, { id: string; x: number; title: string; count: number }>()
+  for (const event of events) {
+    const time = Date.parse(event.at)
+    if (!Number.isFinite(time) || time < minTime || time > maxTime || chronological.length === 0) continue
+    const x = maxTime === minTime ? 300 : 8 + ((time - minTime) / (maxTime - minTime)) * 584
+    const bucket = Math.floor(x / 24)
+    const marker = markerGroups.get(bucket) ?? { id: `event-bin-${bucket}`, x: bucket * 24 + 12, title: labels.eventSummary(event), count: 0 }
+    marker.count += 1
+    markerGroups.set(bucket, marker)
+  }
+  const eventMarkers = [...markerGroups.values()].map(marker => ({ ...marker,
+    title: marker.count > 1 ? `${marker.title} · ${marker.count}` : marker.title }))
+  const visibleEventCount = eventMarkers.reduce((total, marker) => total + marker.count, 0)
+  const hasGaps = chronological.some(point => point.energy.status !== 'available' || point.energy.unit !== energyUnit ||
+    point.emissions.status !== 'available' || point.emissions.unit !== emissionsUnit)
+  const axisPointCount = Math.min(7, chronological.length)
+  const axisPoints = Array.from({ length: axisPointCount }, (_, index) => chronological[
+    axisPointCount <= 1 ? 0 : Math.round(index * (chronological.length - 1) / (axisPointCount - 1))
+  ])
+  const activeIndex = activePoint ? chronological.findIndex(point => point.id === activePoint.id) : -1
+  const activeEnergy = activeIndex >= 0 ? energyValues[activeIndex] : null
+  const activeEmissions = activeIndex >= 0 ? emissionsValues[activeIndex] : null
+  const activePreviousEnergy = activeIndex >= 0 ? previousEnergyValues[activeIndex] : null
+  const activePreviousEmissions = activeIndex >= 0 ? previousEmissionsValues[activeIndex] : null
+  const activeCoordinate = activeIndex >= 0
+    ? activePoint?.metric === 'energy' ? energyCoordinates[activeIndex] : emissionsCoordinates[activeIndex]
+    : null
+  const hasPrevious = previousEnergySegments.length > 0 || previousEmissionsSegments.length > 0
+  return <div className={styles.combinedChart}>
+    <div className={styles.legend}>
+      <span className={styles.energyLegend}>{labels.energy} ({energyUnit})</span>
+      <span className={styles.emissionsLegend}>{labels.emissions} ({emissionsDisplayUnit})</span>
+      {hasPrevious && <span className={styles.previousLegend}>{labels.previousPeriod}</span>}
+      {visibleEventCount > 0 && <span className={styles.eventLegend}>{visibleEventCount} · {labels.eventsHeading}</span>}
+    </div>
+    <div className={styles.comparisonPlot}>
+      <div className={styles.yAxis} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
+        <span key={index}>{formatAnalysisNumber(energyDomain.maximum - energyDomain.step * index, locale)}</span>)}</div>
+      <figure className={styles.chartFigure} aria-label={`${labels.energyChart} (${energyUnit}) · ${labels.emissionsChart} (${emissionsDisplayUnit})`}>
+        <svg className={styles.chart} viewBox="0 0 600 108" preserveAspectRatio="none" role="group"
+          aria-label={labels.heading}>
+          {Array.from({ length: 5 }, (_, index) => <line key={index} className={styles.grid} x1="8" y1={index * 27} x2="592" y2={index * 27} />)}
+          <line className={styles.axis} x1="8" y1="108" x2="592" y2="108" />
+          <line className={styles.axis} x1="8" y1="0" x2="8" y2="108" />
+          <line className={styles.axis} x1="592" y1="0" x2="592" y2="108" />
+          {energySegments.map(segment => segment.area && <polygon key={`energy:${segment.key}:area`} className={styles.area} points={segment.area} />)}
+          {previousEnergySegments.map(segment => <polyline key={`previous-energy:${segment.key}`} className={styles.previousSeries} points={segment.points} />)}
+          {previousEmissionsSegments.map(segment => <polyline key={`previous-emissions:${segment.key}`} className={`${styles.previousSeries} ${styles.previousEmissionsSeries}`} points={segment.points} />)}
+          {energySegments.map(segment => <polyline key={`energy:${segment.key}`} points={segment.points} />)}
+          {emissionsSegments.map(segment => <polyline key={`emissions:${segment.key}`} className={styles.emissionsSeries} points={segment.points} />)}
+          {eventMarkers.map(event => <g key={event.id} data-series-event-marker="true" data-event-count={event.count} className={styles.eventMarker}>
+            <title>{event.title}</title><line x1={event.x} y1="100" x2={event.x} y2="108" />
+          </g>)}
+          {[...energyCoordinates.entries()].map(([index, point]) => point && <path key={`energy:${point.id}`} className={styles.point}
+            d={`M${point.x} ${point.y}l0.01 0.01`} role="button" tabIndex={0}
+            aria-label={`${formatDate(energyValues[index]!.timestamp)}: ${labels.energy} ${formatChartValue(energyValues[index]!.value, locale)} ${energyUnit}`}
+            onMouseEnter={() => setActivePoint({ id: point.id, metric: 'energy' })}
+            onMouseLeave={() => setActivePoint(null)} onFocus={() => setActivePoint({ id: point.id, metric: 'energy' })}
+            onBlur={() => setActivePoint(null)} onKeyDown={event => { if (event.key === 'Escape') setActivePoint(null) }} />)}
+          {[...emissionsCoordinates.entries()].map(([index, point]) => point && <path key={`emissions:${point.id}`}
+            className={`${styles.point} ${styles.emissionsPoint}`} d={`M${point.x} ${point.y}l0.01 0.01`} role="button" tabIndex={0}
+            aria-label={`${formatDate(emissionsValues[index]!.timestamp)}: ${labels.emissions} ${formatChartValue(emissionsValues[index]!.value, locale)} ${emissionsDisplayUnit}`}
+            onMouseEnter={() => setActivePoint({ id: point.id, metric: 'emissions' })}
+            onMouseLeave={() => setActivePoint(null)} onFocus={() => setActivePoint({ id: point.id, metric: 'emissions' })}
+            onBlur={() => setActivePoint(null)} onKeyDown={event => { if (event.key === 'Escape') setActivePoint(null) }} />)}
+        </svg>
+        {activePoint && activeCoordinate && <div className={styles.chartTooltip} data-chart-tooltip="true" role="status" aria-live="polite"
+          style={{ left: `clamp(8px, ${activeCoordinate.x / 6}%, calc(100% - 188px))`, top: `max(4px, calc(${activeCoordinate.y / 1.08}% - 80px))` }}>
+          <span>{new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(chronological[activeIndex].timestamp))}</span>
+          {activeEnergy && <span>{labels.tooltipCurrent} · {labels.energy}: {formatChartValue(activeEnergy.value, locale)} {energyUnit}</span>}
+          {activeEmissions && <span>{labels.tooltipCurrent} · {labels.emissions}: {formatChartValue(activeEmissions.value, locale)} {emissionsDisplayUnit}</span>}
+          {activePreviousEnergy && <span>{labels.tooltipPrevious} · {labels.energy}: {formatChartValue(activePreviousEnergy.value, locale)} {energyUnit}</span>}
+          {activePreviousEmissions && <span>{labels.tooltipPrevious} · {labels.emissions}: {formatChartValue(activePreviousEmissions.value, locale)} {emissionsDisplayUnit}</span>}
+        </div>}
+      </figure>
+      <div className={`${styles.yAxis} ${styles.rightAxis}`} aria-hidden="true">{Array.from({ length: 5 }, (_, index) =>
+        <span key={index}>{formatAnalysisNumber(emissionsDomain.maximum - emissionsDomain.step * index, locale)}</span>)}</div>
+    </div>
+    <div className={`${styles.timeAxis} ${styles.comparisonTimeAxis}`}>{axisPoints.map(point => <time key={point.id} dateTime={point.timestamp}>
+      {new Intl.DateTimeFormat(locale, { timeZone, month: '2-digit', day: '2-digit' }).format(new Date(point.timestamp))}
+    </time>)}</div>
+    {hasGaps && <p className={styles.gapNote}>{labels.gapsNote}</p>}
+  </div>
+}
+
 type SeriesFilterProps = Readonly<{
   query: AnalysisSeriesQuery
   fromDraft: string
@@ -258,37 +409,42 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
   energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit, invalidEnergyRange,
   invalidEmissionsRange, labels, onClear, onQueryChange, onUpdateDate }: SeriesFilterProps) {
   return <div className={styles.filters}>
-    <button type="button" onClick={onClear}>{labels.clearFilters}</button>
-    <label>{labels.search}<input type="search" value={query.search} placeholder={labels.searchPlaceholder}
+    <label className={styles.searchFilter}>{labels.search}<input type="search" value={query.search} placeholder={labels.searchPlaceholder}
       onChange={event => onQueryChange({ ...query, search: event.target.value })} /></label>
-    <label>{labels.from}<input type="datetime-local" value={fromDraft} onChange={event => onUpdateDate('from', event.target.value)} /></label>
-    <label>{labels.to}<input type="datetime-local" value={toDraft} onChange={event => onUpdateDate('to', event.target.value)} /></label>
-    <label>{labels.energyStatus}<select value={query.energyStatus} onChange={event => onQueryChange({ ...query, energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
-      <option value="">{labels.allStatuses}</option>
-      <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
-      <option value="not-calculable">{labels.notCalculableStatus}</option>
-    </select></label>
-    <label>{labels.emissionsStatus}<select value={query.emissionsStatus} onChange={event => onQueryChange({ ...query, emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
-      <option value="">{labels.allStatuses}</option>
-      <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
-      <option value="not-calculable">{labels.notCalculableStatus}</option>
-    </select></label>
-    <label>{labels.energyUnit}<select value={energyUnit} onChange={event => onQueryChange({ ...query, energyUnit: event.target.value })}>
-      <option value="">{labels.selectUnit}</option>
-      {energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
-    </select></label>
-    <label>{labels.energyMin}<input type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
-      aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMin: event.target.value })} /></label>
-    <label>{labels.energyMax}<input type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
-      aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMax: event.target.value })} /></label>
-    {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select value={emissionsUnit} onChange={event => onQueryChange({ ...query, emissionsUnit: event.target.value })}>
-      <option value="">{labels.selectUnit}</option>
-      {emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
-    </select></label>}
-    <label>{labels.emissionsMin}<input type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
-      aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMin: event.target.value })} /></label>
-    <label>{labels.emissionsMax}<input type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
-      aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMax: event.target.value })} /></label>
+    <details className={styles.columnFilters}>
+      <summary>{labels.columnFilters}</summary>
+      <div className={styles.filterFields}>
+        <button type="button" onClick={onClear}>{labels.clearFilters}</button>
+        <label>{labels.from}<input type="datetime-local" value={fromDraft} onChange={event => onUpdateDate('from', event.target.value)} /></label>
+        <label>{labels.to}<input type="datetime-local" value={toDraft} onChange={event => onUpdateDate('to', event.target.value)} /></label>
+        <label>{labels.energyStatus}<select value={query.energyStatus} onChange={event => onQueryChange({ ...query, energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+          <option value="">{labels.allStatuses}</option>
+          <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
+          <option value="not-calculable">{labels.notCalculableStatus}</option>
+        </select></label>
+        <label>{labels.emissionsStatus}<select value={query.emissionsStatus} onChange={event => onQueryChange({ ...query, emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+          <option value="">{labels.allStatuses}</option>
+          <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
+          <option value="not-calculable">{labels.notCalculableStatus}</option>
+        </select></label>
+        <label>{labels.energyUnit}<select value={energyUnit} onChange={event => onQueryChange({ ...query, energyUnit: event.target.value })}>
+          <option value="">{labels.selectUnit}</option>
+          {energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+        </select></label>
+        <label>{labels.energyMin}<input type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+          aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMin: event.target.value })} /></label>
+        <label>{labels.energyMax}<input type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+          aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMax: event.target.value })} /></label>
+        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select value={emissionsUnit} onChange={event => onQueryChange({ ...query, emissionsUnit: event.target.value })}>
+          <option value="">{labels.selectUnit}</option>
+          {emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+        </select></label>}
+        <label>{labels.emissionsMin}<input type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+          aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMin: event.target.value })} /></label>
+        <label>{labels.emissionsMax}<input type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+          aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMax: event.target.value })} /></label>
+      </div>
+    </details>
   </div>
 }
 
@@ -331,8 +487,8 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
         ? <tr><td colSpan={3}>{emptyMessage}</td></tr>
         : visiblePoints.map(point => <tr key={point.id}>
           <td>{formatDate(point.timestamp)}{onInspectContributions && <button type="button" onClick={() => onInspectContributions(point.timestamp)}>{labels.inspectContributions}</button>}</td>
-          <td>{readingText(point.energy, locale, labels)}</td>
-          <td>{readingText(point.emissions, locale, labels)}</td>
+          <td data-label={labels.energy}>{readingText(point.energy, locale, labels)}</td>
+          <td data-label={labels.emissions}>{readingText(point.emissions, locale, labels)}</td>
         </tr>)}</tbody>
     </table>
     <div className={styles.pagination}>
@@ -372,32 +528,44 @@ type SeriesContentProps = Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   view: 'graph' | 'table'
-  metric: 'energy' | 'emissions'
+  metric: 'energy' | 'emissions' | 'compare'
   locale: string
   timeZone: string
   comparisonPoints: readonly AnalysisSeriesPoint[]
   labels: ChartLabels
   formatDate: (value: string) => string
+  historyMode: boolean
   invalidDateRange: boolean
   filterProps: SeriesFilterProps
   tableProps: SeriesTableProps
 }>
 
-function SeriesContent({ series, state, view, metric, locale, timeZone, comparisonPoints, labels, formatDate, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
+function SeriesContent({ series, state, view, metric, locale, timeZone, comparisonPoints, labels, formatDate, historyMode, invalidDateRange, filterProps, tableProps }: SeriesContentProps) {
   if (series.status === 'unavailable') {
     const message = state === 'loading' ? labels.loading : `${labels.unavailable}: ${labels.reasons[series.reason]}`
     return <p><output aria-live="polite">{message}</output></p>
   }
   if (view === 'graph') {
+    const energyUnits = collectSeriesUnits(series.points, 'energy')
+    const emissionsUnits = collectSeriesUnits(series.points, 'emissions')
+    if (historyMode && metric === 'compare' && energyUnits.length === 1 && emissionsUnits.length === 1)
+      return <div className={styles.combinedCharts}>
+        <ComparisonChart points={series.points} comparisonPoints={comparisonPoints} events={series.events ?? []}
+          energyUnit={energyUnits[0]} emissionsUnit={emissionsUnits[0]} locale={locale} timeZone={timeZone}
+          formatDate={formatDate} labels={labels} />
+      </div>
     return <div className={styles.charts}>
-      <Chart points={series.points} comparisonPoints={comparisonPoints} events={series.events ?? []} metric={metric} label={metric === 'energy' ? labels.energyChart : labels.emissionsChart}
+      {(metric === 'energy' || metric === 'compare') && <Chart points={series.points} comparisonPoints={comparisonPoints} events={series.events ?? []} metric="energy" label={labels.energyChart}
         locale={locale} timeZone={timeZone} formatDate={formatDate} labels={labels} />
+      }
+      {(metric === 'emissions' || metric === 'compare') && <Chart points={series.points} comparisonPoints={comparisonPoints} events={series.events ?? []} metric="emissions" label={labels.emissionsChart}
+        locale={locale} timeZone={timeZone} formatDate={formatDate} labels={labels} />}
     </div>
   }
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventsHeading, eventSummary }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventsHeading, eventSummary, historyMode = false }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -413,9 +581,12 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   controlContent?: ReactNode
   eventsHeading: string
   eventSummary: (event: AnalysisSeriesEvent) => string
+  historyMode?: boolean
 }>) {
   const [view, setView] = useState<'graph' | 'table'>('graph')
-  const [metric, setMetric] = useState<'energy' | 'emissions'>('emissions')
+  const [metric, setMetric] = useState<'energy' | 'emissions' | 'compare'>(() => historyMode ? 'compare' : 'emissions')
+  const [focusedEventId, setFocusedEventId] = useState<string | null>(null)
+  const eventRefs = useRef(new Map<string, HTMLLIElement>())
   const fromKey = JSON.stringify([query.from, query.timeZone])
   const toKey = JSON.stringify([query.to, query.timeZone])
   const [fromDraftState, setFromDraftState] = useState(() => ({ key: fromKey, value: formatInstantForDateTimeInput(query.from, query.timeZone) }))
@@ -477,7 +648,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     setFromDraftState({ key: fromKey, value: '' })
     setToDraftState({ key: toKey, value: '' })
     onQueryChange({ ...query, search: '', energyStatus: '', emissionsStatus: '', from: '', to: '',
-      timeZone: getBrowserTimeZone(), energyUnit: '', emissionsUnit: '', energyMin: '', energyMax: '', emissionsMin: '', emissionsMax: '' })
+      timeZone: defaultTimeZone(), energyUnit: '', emissionsUnit: '', energyMin: '', energyMax: '', emissionsMin: '', emissionsMax: '' })
   }
   const filterProps: SeriesFilterProps = {
     query, fromDraft, toDraft, energyUnits, emissionsUnits, energyUnit, emissionsUnit, energyUnitRequired,
@@ -491,23 +662,47 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     onPaginationChange, onInspectContributions,
   }
   const chartLabels: ChartLabels = { ...labels, eventsHeading, eventSummary }
-  return <section className={styles.section} aria-label={labels.regionHeading}>
+  const events = series.status === 'available' ? series.events ?? [] : []
+  return <section className={`${styles.section} ${historyMode ? styles.historyMode : ''}`} aria-label={labels.regionHeading}>
+    <div className={historyMode ? styles.historyChart : undefined}>
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>
       <div className={styles.metricToggle} role="group" aria-label={labels.metricToggle}>
         <button type="button" aria-pressed={metric === 'energy'} onClick={() => setMetric('energy')}>{labels.energy}</button>
         <button type="button" aria-pressed={metric === 'emissions'} onClick={() => setMetric('emissions')}>{labels.emissions}</button>
+        <button type="button" aria-pressed={metric === 'compare'} onClick={() => setMetric('compare')}>{labels.compareMetrics}</button>
       </div>
-      <div className={styles.toggle} aria-label={labels.heading}>
+      {!historyMode && <div className={styles.toggle} aria-label={labels.heading}>
         <button type="button" aria-pressed={view === 'graph'} onClick={() => setView('graph')}>{labels.graph}</button>
         <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>{labels.table}</button>
-      </div>
+      </div>}
       {controlContent}
       </div>
     </div>
-    <p className={styles.timeZone}>{labels.timeZone(query.timeZone)}</p>
-    <SeriesContent series={series} state={state} view={view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate}
+    <p className={styles.timeZone}>{labels.timeZone(query.timeZone)}{labels.rangeBounds ? ` · ${labels.rangeBounds}` : ''}</p>
+    <SeriesContent series={series} state={state} view={historyMode ? 'graph' : view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate} historyMode={historyMode}
       invalidDateRange={invalidDateRange} filterProps={filterProps} tableProps={tableProps} />
+    </div>
+    {events.length > 0 && <section className={styles.events} aria-label={eventsHeading}>
+      <h3>{eventsHeading}</h3>
+      <ul>{events.map((event) => <li key={event.id} ref={(element) => {
+        if (element) eventRefs.current.set(event.id, element)
+        else eventRefs.current.delete(event.id)
+      }} tabIndex={-1} aria-current={focusedEventId === event.id ? 'true' : undefined}>
+        <time dateTime={event.at}>{formatSeriesDate(event.at)}</time>
+        <span>{eventSummary(event)}</span>
+        <button type="button" onClick={() => {
+          setFocusedEventId(event.id)
+          eventRefs.current.get(event.id)?.focus()
+        }}>{labels.focusEvent}</button>
+      </li>)}</ul>
+    </section>}
+    {historyMode && <section className={styles.historyIntervals} aria-label={labels.historyIntervalsHeading}>
+      <header><h3>{labels.historyIntervalsHeading}</h3></header>
+      <SeriesContent series={series} state={state} view="table" metric={metric} locale={locale} timeZone={query.timeZone}
+        comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate} historyMode={historyMode} invalidDateRange={invalidDateRange}
+        filterProps={filterProps} tableProps={tableProps} />
+    </section>}
   </section>
 }

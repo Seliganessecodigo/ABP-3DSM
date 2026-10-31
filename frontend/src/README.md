@@ -7,9 +7,9 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
 `app/` contém a navegação e inicialização global. Providers globais ficam nessa camada quando mais de uma rota depende deles.
 
-- `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os doze idiomas. `pages/dashboard/` compõe os resumos ambientais e filtros de `features/analysis/`.
+- `pages/<tela>/`: componente da página, estilos em CSS Modules, hooks específicos, parâmetros de URL e `locales/` com os doze idiomas. `pages/dashboard/` compõe os resumos ambientais e filtros de `features/analysis/`; `pages/history/` seleciona a aplicação e reutiliza a análise de `pages/detail/`.
 - `components/`: interface compartilhada por telas ou infraestrutura visual, como `AppShell`, `LanguageSelector`, `LoadingState`, ações e feedback de requisição. `LoadingState` apresenta aviso e placeholders no carregamento inicial; na atualização, use a versão compacta e preserve os dados anteriores. Ações pendentes usam `aria-disabled` com bloqueio do handler para manter o foco. Elementos específicos continuam junto da página que os usa.
-- `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página. `features/analysis/` integra resumo, série e consulta da primeira página de contribuições por bucket; paginação interativa continua pendente. Consulte o README do módulo para o contrato corrente e seus limites.
+- `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página. `features/analysis/` integra resumo, série e consulta paginada de contribuições por bucket. Consulte o README do módulo para o contrato corrente e seus limites.
 - `utils/`: funções independentes de React, como formatação de datas.
 - `styles/shared.css`: estilos visuais usados por várias páginas, como botões, cabeçalhos e mensagens. `index.css` contém reset, base e tokens globais; cada componente compartilhado importa seu próprio CSS.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
@@ -31,4 +31,4 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 5. Registre caminho e parâmetros em `app/useRoute.ts`, associe a página em `App.tsx` e preserve navegação do browser.
 6. Se a tela precisa de dados, use hooks para coordenar carregamento e uma feature tipada para API/cache/validação; confira o contrato do backend. Cubra carregamento, sucesso, vazio, erro e atualização conforme aplicável.
 
-O roteamento atual cobre o catálogo, `/services/:id`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
+O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/history`, `/methodology`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.

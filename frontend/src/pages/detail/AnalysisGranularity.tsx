@@ -9,12 +9,13 @@ export type AnalysisGranularityLabels = Readonly<{
   options: Readonly<Record<string, string>>
 }>
 
-export function AnalysisGranularity({ capabilities, requestedValue, onChange, labels, compact = false }: Readonly<{
+export function AnalysisGranularity({ capabilities, requestedValue, onChange, labels, compact = false, select = false }: Readonly<{
   capabilities: AnalysisGranularityCapabilities
   requestedValue: string | null
   onChange: (value: string) => void
   labels: AnalysisGranularityLabels
   compact?: boolean
+  select?: boolean
 }>) {
   const sectionClass = compact ? `${styles.section} ${styles.compact}` : styles.section
   if (capabilities.status === 'unavailable') {
@@ -37,11 +38,17 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
         <button type="button" className={styles.repair} disabled={selectedValue === null}
           onClick={() => selectedValue !== null && onChange(selectedValue)}>{labels.repair}</button>
       </div>}
-      <div className={styles.choices}>
+      {select ? <label className={styles.selectLabel}><span>{labels.heading}</span><select aria-label={labels.heading}
+        value={selectedValue ?? ''} onChange={(event) => {
+          const option = capabilities.options.find(({ value }) => value === event.target.value)
+          if (option) onChange(option.value)
+        }}>
+        {capabilities.options.map(({ value, label }) => <option key={value} value={value}>{labels.options[value] ?? label}</option>)}
+      </select></label> : <div className={styles.choices}>
         {capabilities.options.map(({ value, label }) => <button key={value} type="button"
           className={styles.option} aria-pressed={selectedValue === value}
         onClick={() => onChange(value)}>{labels.options[value] ?? label}</button>)}
-      </div>
+      </div>}
     </fieldset>
   </section>
 }

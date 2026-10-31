@@ -148,7 +148,7 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await expect(page.locator('#analysis-details')).not.toHaveAttribute('open', '')
 })
 
-test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série', async ({ page }) => {
+test('trocar idioma mantém o fuso selecionado nas datas operacional, ambiental e da série', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.route(/\/applications\/svc-0142\/collections\/collection-history$/, async (route) => {
     await route.fulfill({ json: {
@@ -175,13 +175,13 @@ test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série
   await page.getByLabel('Idioma').selectOption('en-US')
   await expect(page.locator('[data-language-flag="en-US"]')).toBeVisible()
 
-  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('5:32 PM')
-  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('5:32 PM')
+  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('2:32 PM')
+  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('2:32 PM')
   await page.locator('#analysis-details summary').click()
   await page.getByRole('button', { name: 'Table', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('5:00 PM')
+  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
   const params = new URL(page.url()).searchParams
-  expect(params.get('seriesTimeZone')).toBe('Etc/GMT+0')
+  expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
 })
@@ -401,7 +401,7 @@ test('filtra pontos por instante local em AND com status e reinicia a paginaçã
 
   const from = series.getByLabel('Data inicial da série', { exact: true })
   const to = series.getByLabel('Data final da série', { exact: true })
-  await expect(series.getByText('Fuso horário: America/Sao_Paulo', { exact: true })).toBeVisible()
+  await expect(series.getByText('Fuso horário: America/Sao_Paulo')).toBeVisible()
   await from.fill('2026-10-17T10:00')
   await to.fill('2026-10-17T12:00')
   await series.getByRole('combobox', { name: 'Status de CO₂e', exact: true }).selectOption('available')
@@ -523,7 +523,7 @@ test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o p
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
-  await expect(series.getByText('Fuso horário: America/Sao_Paulo', { exact: true })).toBeVisible()
+  await expect(series.getByText('Fuso horário: America/Sao_Paulo')).toBeVisible()
   await expect(series.getByLabel('Data inicial da série', { exact: true })).toHaveValue('2026-10-17T10:00')
   await expect(series.getByLabel('Data final da série', { exact: true })).toHaveValue('2026-10-17T12:00')
 

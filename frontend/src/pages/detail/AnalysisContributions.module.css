@@ -14,6 +14,136 @@
   margin: 0;
 }
 
+.historySection {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.historySection > h2 {
+  color: var(--text-primary);
+  font-size: 24px;
+}
+
+.historySection > p {
+  color: var(--text-secondary);
+}
+
+.historyTableScroll {
+  overflow-x: auto;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text-primary);
+}
+
+.historyTable th,
+.historyTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-default);
+  text-align: left;
+}
+
+.historyTable th {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.historyTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.historyTable tbody tr[aria-current='true'] {
+  background: var(--control-hover);
+}
+
+.historyTable button {
+  min-height: 40px;
+  border: 1px solid var(--border-control);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--accent-default);
+  background: var(--surface-card);
+  font: inherit;
+  cursor: pointer;
+}
+
+.historyTable button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.historyDetails {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface-card);
+}
+
+.historyDetails > h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.historyDetails .list li {
+  border: 0;
+  padding: 0;
+}
+
+.historyDetails h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pagination label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination select,
+.pagination button {
+  min-height: 40px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  font: inherit;
+}
+
+.pagination button {
+  cursor: pointer;
+}
+
+.pagination button:disabled,
+.pagination select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pagination button:focus-visible,
+.pagination select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .totals,
 .list li {
   display: grid;
@@ -62,4 +192,57 @@
   margin: 0;
   color: var(--text-primary);
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .historyTableScroll {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .historyTable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .historyTable,
+  .historyTable tbody,
+  .historyTable tbody tr {
+    display: grid;
+    gap: 12px;
+  }
+
+  .historyTable tbody tr {
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--surface-card);
+  }
+
+  .historyTable tbody tr[aria-current='true'] {
+    border-color: var(--accent-default);
+  }
+
+  .historyTable tbody td {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 8px;
+    border: 0;
+    padding: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .historyTable tbody td::before {
+    color: var(--text-secondary);
+    content: attr(data-label);
+  }
+
+  .historyTable tbody td:last-child {
+    display: block;
+  }
 }

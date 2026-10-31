@@ -209,13 +209,19 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
     const url = new URL(route.request().url())
     if (url.pathname.endsWith('/series/contributions')) {
       contributionsRequests.push(url)
+      const requestedPage = Number(url.searchParams.get('page') ?? '1')
+      const requestedPageSize = url.searchParams.get('pageSize') ?? '10'
+      const pageSize = requestedPageSize === 'all' ? 'all' : Number(requestedPageSize)
+      const totalPages = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(intervalContributions.length / pageSize))
+      const start = pageSize === 'all' ? 0 : (requestedPage - 1) * pageSize
+      const end = pageSize === 'all' ? intervalContributions.length : start + pageSize
       await route.fulfill({ json: {
         applicationId: 'svc-0142', period: { from, to }, granularity: 'hour',
         bucket: { start: bucketStart, end: bucketEnd, period: { from: bucketStart, to: bucketEnd } },
         totals: { energy: { value: 77.5, unit: 'kWh', reasons: [] }, emissions: { value: 26350, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 1, emissions: 1 },
-        pagination: { page: 1, pageSize: 10, totalItems: 12, totalPages: 2, hasNextPage: true },
-        contributions: intervalContributions.slice(0, 10), exclusions: [{ collectionId: null,
+        pagination: { page: requestedPage, pageSize, totalItems: 12, totalPages, hasNextPage: requestedPage < totalPages },
+        contributions: intervalContributions.slice(start, end), exclusions: [{ collectionId: null,
           interval: { from: '2026-10-17T18:55:00.000Z', to: bucketStart },
           energyReasons: [{ code: 'NO_OBSERVATION' }], emissionsReasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }] }],
       } })
@@ -252,6 +258,7 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   expect(contributionsRequest.searchParams.get('to')).toBe(to)
   expect(contributionsRequest.searchParams.get('granularity')).toBe('hour')
   expect(contributionsRequest.searchParams.get('bucketStart')).toBe(bucketStart)
+  expect(contributionsRequest.searchParams.get('page') ?? '1').toBe('1')
   expect(contributionsRequest.searchParams.get('pageSize') ?? '10').toBe('10')
   const inspection = page.getByRole('region', { name: 'Contribuições do intervalo selecionado', exact: true })
   await expect(inspection.getByText('factor-original-1', { exact: true })).toBeVisible()
@@ -273,4 +280,17 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   await expect(inspection).toContainText('Sem observações disponíveis')
   await expect(inspection).toContainText('Fator de carbono indisponível')
   await expect(page.getByText('Página 1 de 2', { exact: true })).toBeVisible()
+  await inspection.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await expect(page.getByText('Página 2 de 2', { exact: true })).toBeVisible()
+  await expect(inspection.getByText('factor-original-11', { exact: true })).toBeVisible()
+  expect(contributionsRequests).toHaveLength(2)
+  expect(contributionsRequests[1]?.searchParams.get('page')).toBe('2')
+
+  await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('5')
+  await expect(page.getByText('Página 1 de 3', { exact: true })).toBeVisible()
+  await inspection.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await expect(inspection.getByText('factor-original-6', { exact: true })).toBeVisible()
+  await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('all')
+  await expect(page.getByText('Página 1 de 1', { exact: true })).toBeVisible()
+  await expect(inspection.getByText('factor-original-12', { exact: true })).toBeVisible()
 })
