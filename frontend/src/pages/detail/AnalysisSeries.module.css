@@ -1,5 +1,6 @@
 .section { display: flex; min-width: 0; height: 100%; flex-direction: column; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 8px 12px 0; background: var(--surface-card); }
 .historyMode { height: auto; gap: 12px; border: 0; padding: 0; background: transparent; }
+.chartContent { display: flex; min-height: 0; flex: 1; flex-direction: column; }
 .historyMode .header { margin-bottom: 0; }
 .historyMode .header h2 { font-size: 18px; }
 .historyMode .timeZone { display: none; }
@@ -94,10 +95,10 @@
 @media (min-width: 901px) { .chart { height: 176px; } }
 @media (min-width: 901px) and (max-height: 700px) { .chart { height: 148px; } }
 @media (min-width: 901px) and (min-height: 800px) {
-  .charts { min-height: 0; flex: 1; }
+  .charts { display: flex; min-height: 0; flex: 1; flex-direction: column; }
   .chartGroup, .unitChart { display: flex; min-height: 0; flex-direction: column; flex: 1; }
   .plot { min-height: 176px; flex: 1; }
-  .chartFigure { display: flex; min-height: 0; }
+  .chartFigure { display: flex; min-height: 0; flex: 1; }
   .chart { height: 100%; min-height: 176px; }
 }
 @media (max-width: 640px) { .controls { width: 100%; max-width: 100%; min-width: 0; flex-wrap: wrap; } .toggle, .metricToggle { flex-wrap: wrap; } .events li { grid-template-columns: 1fr auto; } .events li span { grid-column: 1 / -1; } }
@@ -123,6 +124,6 @@
   .historyMode .table td:first-child button { min-height: 32px; border: 0; padding: 4px 0; color: var(--accent-default); background: transparent; font-weight: 650; }
 }
 @media (min-width: 641px) {
+  .filters { grid-template-columns: minmax(0, 1fr); }
   .columnFilters > summary { display: none; }
-  .columnFilters:not([open]) > .filterFields { display: flex; }
 }

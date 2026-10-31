@@ -562,7 +562,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <p>{labels.gapsNote}</p>
       </div>}
       {data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>
-        {data.series.events.map(event => <li key={event.id}>{labels.seriesEventSummary(event)}</li>)}
+        {data.series.events.slice(0, 25).map(event => <li key={event.id}>{labels.seriesEventSummary(event)}</li>)}
       </ul>}
       {status === 'error' && <div className={styles.analysisError} role="alert">
         <p>{labels.error}</p>

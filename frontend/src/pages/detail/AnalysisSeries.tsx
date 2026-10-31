@@ -411,7 +411,7 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
   return <div className={styles.filters}>
     <label className={styles.searchFilter}>{labels.search}<input type="search" value={query.search} placeholder={labels.searchPlaceholder}
       onChange={event => onQueryChange({ ...query, search: event.target.value })} /></label>
-    <details className={styles.columnFilters}>
+    <details className={styles.columnFilters} open>
       <summary>{labels.columnFilters}</summary>
       <div className={styles.filterFields}>
         <button type="button" onClick={onClear}>{labels.clearFilters}</button>
@@ -664,7 +664,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   const chartLabels: ChartLabels = { ...labels, eventsHeading, eventSummary }
   const events = series.status === 'available' ? series.events ?? [] : []
   return <section className={`${styles.section} ${historyMode ? styles.historyMode : ''}`} aria-label={labels.regionHeading}>
-    <div className={historyMode ? styles.historyChart : undefined}>
+    <div className={`${styles.chartContent} ${historyMode ? styles.historyChart : ''}`}>
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>
@@ -684,7 +684,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
     <SeriesContent series={series} state={state} view={historyMode ? 'graph' : view} metric={metric} locale={locale} timeZone={query.timeZone} comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate} historyMode={historyMode}
       invalidDateRange={invalidDateRange} filterProps={filterProps} tableProps={tableProps} />
     </div>
-    {events.length > 0 && <section className={styles.events} aria-label={eventsHeading}>
+    {events.length > 0 && events.length <= 25 && <section className={styles.events} aria-label={eventsHeading}>
       <h3>{eventsHeading}</h3>
       <ul>{events.map((event) => <li key={event.id} ref={(element) => {
         if (element) eventRefs.current.set(event.id, element)

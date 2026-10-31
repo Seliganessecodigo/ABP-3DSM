@@ -20,6 +20,7 @@
 .evidenceColumn { grid-column: 2; grid-row: 3; }
 .contextColumn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .calculationDetails { position: relative; min-width: 0; }
+.calculationDetails:not([open]) > .contextColumn { display: none; }
 .calculationDetails > summary { color: var(--accent-default); font-size: 10px; font-weight: 650; cursor: pointer; list-style: none; white-space: nowrap; }
 .calculationDetails > summary::-webkit-details-marker { display: none; }
 .calculationDetails[open] { position: absolute; z-index: 3; top: 100%; right: 0; max-width: min(560px, 72vw); max-height: min(72vh, 520px); overflow: auto; border: 1px solid var(--border-default); border-radius: 8px; padding: 8px 12px; background: var(--surface-card); box-shadow: 0 8px 28px rgb(0 0 0 / 16%); }
