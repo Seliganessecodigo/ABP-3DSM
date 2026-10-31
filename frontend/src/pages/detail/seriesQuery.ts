@@ -17,8 +17,8 @@ export type AnalysisSeriesQuery = Readonly<{
   direction: 'asc' | 'desc'
 }>
 
-export function getBrowserTimeZone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+export function defaultTimeZone() {
+  return 'America/Sao_Paulo'
 }
 
 type WallTime = Readonly<{ year: number; month: number; day: number; hour: number; minute: number }>
@@ -98,7 +98,7 @@ export function readAnalysisSeriesQuery(params: URLSearchParams): AnalysisSeries
     emissionsStatus: emissionsStatus === null ? '' : parseAnalysisSeriesReadingStatus(emissionsStatus),
     from: params.get('seriesFrom') ?? '',
     to: params.get('seriesTo') ?? '',
-    timeZone: params.get('seriesTimeZone') || getBrowserTimeZone(),
+    timeZone: params.get('seriesTimeZone') || defaultTimeZone(),
     energyUnit: params.get('seriesEnergyUnit') ?? '',
     emissionsUnit: params.get('seriesEmissionsUnit') ?? '',
     energyMin: params.get('seriesEnergyMin') ?? '',

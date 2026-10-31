@@ -158,6 +158,15 @@ function readMeasure(value: unknown, empty = false): AnalysisReading {
     : { status: 'available', value: value.value, unit: value.unit }
 }
 
+function readSeriesMeasure(value: unknown, empty: boolean): AnalysisReading {
+  const reading = readMeasure(value, empty)
+  assertRecord(value, 'analysis series measure')
+  const reasons = readReasonCodes(value.reasons, 'analysis series measure reasons')
+  return reading.status === 'not-calculable' && reasons.some(({ code }) => code === 'NO_OBSERVATION')
+    ? { status: 'unavailable', reason: 'noObservation' }
+    : reading
+}
+
 function readCoverage(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new Error('Invalid analysis coverage')
   return value
@@ -172,7 +181,7 @@ function readSeries(value: unknown, applicationId: string) {
     if (typeof entry.bucketStart !== 'string' || !Number.isFinite(Date.parse(entry.bucketStart)) ||
       typeof entry.bucketEnd !== 'string' || !Number.isFinite(Date.parse(entry.bucketEnd))) throw new Error('Invalid analysis point')
     return { id: entry.bucketStart, timestamp: entry.bucketStart, bucketEnd: entry.bucketEnd,
-      energy: readMeasure(entry.energy, value.status === 'empty'), emissions: readMeasure(entry.emissions, value.status === 'empty') }
+      energy: readSeriesMeasure(entry.energy, value.status === 'empty'), emissions: readSeriesMeasure(entry.emissions, value.status === 'empty') }
   })
   const eventTypes = ['status_changed', 'removed', 'returned', 'region_changed', 'methodology_changed', 'factor_version_changed']
   const events = value.events.map((entry): AnalysisSeriesEvent => {

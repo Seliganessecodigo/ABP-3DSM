@@ -21,6 +21,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const { user, signOut } = useAuthentication()
   const methodologyActive = window.location.pathname === '/methodology' || window.location.pathname.startsWith('/services/') && window.location.pathname.endsWith('/methodology')
   const dashboardActive = window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/'
+  const historyActive = window.location.pathname === '/history' || window.location.pathname === '/history/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -99,8 +100,8 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
         <a href="/dashboard" aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/dashboard') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/" aria-label={t('nav.applications')} aria-current={methodologyActive || dashboardActive ? undefined : 'page'} className={methodologyActive || dashboardActive ? '' : 'selected'} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
-        <button aria-label={t('nav.history')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3.3 7.4A7 7 0 1 1 3 11" /><path d="M3.2 3.8v3.8H7M10 6v4l2.8 1.7" /></svg><span className="nav-label">{t('nav.history')}</span></button>
+        <a href="/" aria-label={t('nav.applications')} aria-current={methodologyActive || dashboardActive || historyActive ? undefined : 'page'} className={methodologyActive || dashboardActive || historyActive ? '' : 'selected'} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href="/history" aria-label={t('nav.history')} aria-current={historyActive ? 'page' : undefined} className={historyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/history') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3.3 7.4A7 7 0 1 1 3 11" /><path d="M3.2 3.8v3.8H7M10 6v4l2.8 1.7" /></svg><span className="nav-label">{t('nav.history')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
         <button aria-label={t('nav.comparison')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></button>

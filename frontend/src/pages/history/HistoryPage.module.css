@@ -1,0 +1,71 @@
+.page {
+  min-width: 0;
+  min-height: 100%;
+  padding: 20px 24px 24px;
+}
+
+.heading {
+  margin-bottom: 16px;
+}
+
+.heading h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(24px, 2.2vw, 30px);
+}
+
+.heading p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.selector {
+  display: grid;
+  grid-template-columns: minmax(16rem, 24rem);
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--surface-card);
+}
+
+.selector > p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.applicationFilter {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.applicationFilter select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.applicationFilter select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+
+  .selector {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+}
