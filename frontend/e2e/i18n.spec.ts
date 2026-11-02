@@ -26,7 +26,7 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
     { locale: 'zh-CN', title: '应用程序', available: '可用', details: '查看详情', identity: '标识信息和状态', location: '位置' },
   ]
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   const languageSelector = page.getByRole('combobox').filter({ has: page.locator('option[value="en-US"]') })
   for (const item of cases) {
     await languageSelector.selectOption(item.locale)
@@ -37,7 +37,7 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
     await page.locator('#analysis-details summary').click()
     await expect(page.getByRole('heading', { name: item.identity, exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: item.location, exact: true })).toBeVisible()
-    await page.goto('/')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
   }
 })
 
@@ -66,4 +66,3 @@ test('controles do menu móvel são acessíveis nos oito idiomas', async ({ page
     await expect(opener).toHaveAttribute('aria-expanded', 'false')
   }
 })
-

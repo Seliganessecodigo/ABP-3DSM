@@ -3,14 +3,14 @@ import { application, gate, largeCatalog, mixedCatalog, mockApi, mockCatalog, ro
 
 test('gestor consulta uma aplicação reconhecida pelo nome e ID sem login', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(row(page, 'svc-0142')).toHaveCount(1)
   await expect(row(page, 'svc-0142')).toContainText('app-pagamentos')
 })
 
 test('nomes iguais permanecem em linhas distintas por identidade', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'svc-outro' })])
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(row(page, 'svc-0142')).toContainText('app-pagamentos')
   await expect(row(page, 'svc-outro')).toContainText('app-pagamentos')
   await expect(row(page, 'svc-0142')).not.toContainText('svc-0142')

@@ -3,8 +3,7 @@ import { application, mockCatalog } from './support/catalog.ts'
 
 test('detalhe consulta resumo e série no mesmo período e mostra os dados ambientais recebidos', async ({ page }) => {
   const initialTo = '2026-10-17T20:00:00.000Z'
-  await page.clock.install({ time: new Date(initialTo) })
-  await page.clock.pauseAt(new Date(initialTo))
+  await page.clock.setFixedTime(new Date(initialTo))
   const requests: URL[] = []
   await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
     const url = new URL(route.request().url())

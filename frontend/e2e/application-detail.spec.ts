@@ -561,7 +561,9 @@ test('falha ao atualizar preserva evidência e permite nova tentativa', async ({
   await page.goto('/services/svc-0142')
   const evidenceRegion = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidenceRegion).toContainText('38 %')
-  await evidenceRegion.getByRole('button', { name: /atualizar dados/i }).click()
+  const refresh = evidenceRegion.getByRole('button', { name: /atualizar dados/i })
+  await expect(refresh).toBeEnabled()
+  await refresh.click()
   await expect(evidenceRegion.getByRole('alert')).toBeVisible()
   await expect(evidenceRegion).toContainText('38 %')
   await evidenceRegion.getByRole('button', { name: /tentar novamente/i }).click()
@@ -577,10 +579,10 @@ test('evidência inexistente e intervalo selecionado indisponível não usam fal
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
   const evidence = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidence).toContainText(/nenhuma evidência disponível/i)
-  await page.goto('/services/svc-0142?collectionId=collection-missing')
+  await page.goto('/services/svc-0142?collectionId=collection-missing', { waitUntil: 'domcontentloaded' })
   await expect(evidence).toContainText(/evidência selecionada não está disponível/i)
   await expect(evidence.getByRole('table')).toHaveCount(0)
 })
@@ -610,7 +612,7 @@ test('resposta atrasada de uma seleção anterior não substitui a aplicação a
       await route.fulfill({ json: second })
     }
   })
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
   try {
     await expect(page.getByRole('status')).toContainText(/carregando/i)
     await started.wait
@@ -632,7 +634,7 @@ test('resposta atrasada de uma seleção anterior não substitui a aplicação a
 test('detail sidebar matches the catalog and collapses without clipping English', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await mockCatalog(page, [application()])
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
 
   const sidebar = page.locator('.sidebar')
   await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(180)
