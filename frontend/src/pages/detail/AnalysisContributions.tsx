@@ -1,9 +1,11 @@
 import type { AnalysisContributionsPage } from '../../features/analysis/source.ts'
+import { useState } from 'react'
 import styles from './AnalysisContributions.module.css'
 import { LoadingState } from '../../components/LoadingState.tsx'
 
 type Labels = Readonly<{
   heading: string
+  historyDescription: string
   loading: string
   error: string
   collection: string
@@ -20,6 +22,13 @@ type Labels = Readonly<{
   countedValue: string
   durationRatio: string
   exclusions: string
+  detailsHeading: string
+  openContribution: string
+  emptyContributions: string
+  pageSize: string
+  allRows: string
+  previous: string
+  next: string
   reason: string
   parameters: string
   contractVersion: string
@@ -37,14 +46,19 @@ type Labels = Readonly<{
   pageStatus: (current: number, total: number) => string
 }>
 
-export function AnalysisContributions({ data, loading, error, locale, formatDate, labels }: Readonly<{
+type Contribution = AnalysisContributionsPage['contributions'][number]
+
+export function AnalysisContributions({ data, loading, error, locale, formatDate, labels, onPaginationChange, historyLayout = false }: Readonly<{
   data: AnalysisContributionsPage | null
   loading: boolean
   error: boolean
   locale: string
   formatDate: (value: string) => string
   labels: Labels
+  onPaginationChange?: (page: number, pageSize: number | 'all') => void
+  historyLayout?: boolean
 }>) {
+  const [selectedKey, setSelectedKey] = useState('')
   const number = (value: number | null, unit: string) => value === null
     ? '—'
     : `${new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)} ${unit}`
@@ -53,49 +67,97 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
     day: '2-digit', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }).format(new Date(value))
   const reasons = (values: readonly Readonly<{ code: string; metric?: string }>[]) => values.map(({ code, metric }) =>
     `${labels.reasons[code] ?? code}${metric ? ` (${metric})` : ''}`).join(', ')
+  const renderContribution = (contribution: Contribution, selectedHistoryContribution = false) => <li
+    key={`${contribution.collectionId}-${contribution.countedInterval.from}-${contribution.countedInterval.to}`}>
+    {selectedHistoryContribution
+      ? <h4>{labels.countedInterval}: {formatDate(contribution.countedInterval.from)} – {formatDate(contribution.countedInterval.to)}</h4>
+      : <h3>{labels.collection}: {contribution.collectionId}</h3>}
+    <dl>
+      {selectedHistoryContribution && <div><dt>{labels.collection}</dt><dd>{contribution.collectionId}</dd></div>}
+      <div><dt>{labels.originalInterval}</dt><dd>{formatDate(contribution.originalInterval.from)} – {formatDate(contribution.originalInterval.to)}</dd></div>
+      <div><dt>{labels.countedInterval}</dt><dd>{formatDate(contribution.countedInterval.from)} – {formatDate(contribution.countedInterval.to)}</dd></div>
+      <div><dt>{labels.collectedAt}</dt><dd>{formatDate(contribution.collectedAt)}</dd></div>
+      <div><dt>{labels.energy}</dt><dd>{labels.originalValue}: {number(contribution.energy.originalValue, contribution.energy.unit)} · {labels.countedValue}: {number(contribution.energy.value, contribution.energy.unit)}</dd></div>
+      <div><dt>{labels.emissions}</dt><dd>{labels.originalValue}: {number(contribution.emissions.originalValue, contribution.emissions.unit)} · {labels.countedValue}: {number(contribution.emissions.value, contribution.emissions.unit)}</dd></div>
+      <div><dt>{labels.durationRatio}</dt><dd>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(contribution.durationRatio)}</dd></div>
+      {contribution.energy.reasons.length > 0 && <div><dt>{labels.reason} · {labels.energy}</dt><dd>{reasons(contribution.energy.reasons)}</dd></div>}
+      {contribution.emissions.reasons.length > 0 && <div><dt>{labels.reason} · {labels.emissions}</dt><dd>{reasons(contribution.emissions.reasons)}</dd></div>}
+      {contribution.methodology && <div><dt>{labels.methodology}</dt><dd><span>{contribution.methodology.key}</span><span>{contribution.methodology.version}</span></dd></div>}
+      {contribution.methodology && Object.entries(contribution.methodology.parameters).length > 0 && <div><dt>{labels.parameters}</dt><dd>{Object.entries(contribution.methodology.parameters).map(([key, value]) => `${key}: ${new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)}`).join(', ')}</dd></div>}
+      {contribution.factorSnapshot && <>
+        <div><dt>{labels.factor}</dt><dd>{contribution.factorSnapshot.version}</dd></div>
+        {contribution.factorSnapshot.id !== null && <div><dt>{labels.factorId}</dt><dd>{contribution.factorSnapshot.id}</dd></div>}
+        {contribution.factorSnapshot.contractVersion !== null && <div><dt>{labels.contractVersion}</dt><dd>{contribution.factorSnapshot.contractVersion}</dd></div>}
+        {contribution.factorSnapshot.regionCode !== null && <div><dt>{labels.regionCode}</dt><dd>{contribution.factorSnapshot.regionCode}</dd></div>}
+        {contribution.factorSnapshot.country !== null && <div><dt>{labels.country}</dt><dd>{contribution.factorSnapshot.country}</dd></div>}
+        {contribution.factorSnapshot.region !== null && <div><dt>{labels.region}</dt><dd>{contribution.factorSnapshot.region}</dd></div>}
+        {contribution.factorSnapshot.city !== null && <div><dt>{labels.city}</dt><dd>{contribution.factorSnapshot.city}</dd></div>}
+        {contribution.factorSnapshot.intensity !== null && contribution.factorSnapshot.unit !== null && <div><dt>{labels.intensity}</dt><dd>{number(contribution.factorSnapshot.intensity, contribution.factorSnapshot.unit)}</dd></div>}
+        {contribution.factorSnapshot.source !== null && <div><dt>{labels.source}</dt><dd>{contribution.factorSnapshot.source}</dd></div>}
+        {contribution.factorSnapshot.queriedAt !== null && <div><dt>{labels.queriedAt}</dt><dd>{formatDate(contribution.factorSnapshot.queriedAt)}</dd></div>}
+        {contribution.factorSnapshot.validFrom !== null && <div><dt>{labels.validFrom}</dt><dd>{validityDate(contribution.factorSnapshot.validFrom)}</dd></div>}
+        {contribution.factorSnapshot.validUntil !== null && <div><dt>{labels.validUntil}</dt><dd>{validityDate(contribution.factorSnapshot.validUntil)}</dd></div>}
+      </>}
+    </dl>
+  </li>
   if (data === null && !loading && !error) return null
-  return <section className={styles.section} aria-label={labels.heading}>
+  const contributionKey = (collectionId: string, from: string, to: string) => `${collectionId}:${from}:${to}`
+  const selectedContribution = data?.contributions.find(({ collectionId, countedInterval }) =>
+    contributionKey(collectionId, countedInterval.from, countedInterval.to) === selectedKey) ?? data?.contributions[0] ?? null
+  const detailContributions = historyLayout
+    ? selectedContribution ? [selectedContribution] : []
+    : data?.contributions ?? []
+  return <section className={`${styles.section} ${historyLayout ? styles.historySection : ''}`} aria-label={labels.heading}>
     <h2>{labels.heading}</h2>
+    {historyLayout && <p>{labels.historyDescription}</p>}
     {loading && <LoadingState title={labels.loading} compact />}
     {error && <output role="alert">{labels.error}</output>}
     {data && <>
-      <section className={styles.totals} aria-label={labels.totals}>
+      {!historyLayout && <section className={styles.totals} aria-label={labels.totals}>
         <h3>{labels.totals}</h3>
         <p>{labels.energy}: {data.totals.energy.status === 'available' ? number(data.totals.energy.value, data.totals.energy.unit) : '—'}</p>
         <p>{labels.emissions}: {data.totals.emissions.status === 'available' ? number(data.totals.emissions.value, data.totals.emissions.unit) : '—'}</p>
         <p>{labels.coverage}: {coverage(data.coverage.energy)} / {coverage(data.coverage.emissions)}</p>
-      </section>
-      <ol className={styles.list}>
-        {data.contributions.map((contribution) => <li key={`${contribution.collectionId}-${contribution.countedInterval.from}-${contribution.countedInterval.to}`}>
-          <h3>{labels.collection}: {contribution.collectionId}</h3>
-          <dl>
-            <div><dt>{labels.originalInterval}</dt><dd>{formatDate(contribution.originalInterval.from)} – {formatDate(contribution.originalInterval.to)}</dd></div>
-            <div><dt>{labels.countedInterval}</dt><dd>{formatDate(contribution.countedInterval.from)} – {formatDate(contribution.countedInterval.to)}</dd></div>
-            <div><dt>{labels.collectedAt}</dt><dd>{formatDate(contribution.collectedAt)}</dd></div>
-            <div><dt>{labels.energy}</dt><dd>{labels.originalValue}: {number(contribution.energy.originalValue, contribution.energy.unit)} · {labels.countedValue}: {number(contribution.energy.value, contribution.energy.unit)}</dd></div>
-            <div><dt>{labels.emissions}</dt><dd>{labels.originalValue}: {number(contribution.emissions.originalValue, contribution.emissions.unit)} · {labels.countedValue}: {number(contribution.emissions.value, contribution.emissions.unit)}</dd></div>
-            <div><dt>{labels.durationRatio}</dt><dd>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(contribution.durationRatio)}</dd></div>
-            {contribution.energy.reasons.length > 0 && <div><dt>{labels.reason} · {labels.energy}</dt><dd>{reasons(contribution.energy.reasons)}</dd></div>}
-            {contribution.emissions.reasons.length > 0 && <div><dt>{labels.reason} · {labels.emissions}</dt><dd>{reasons(contribution.emissions.reasons)}</dd></div>}
-            {contribution.methodology && <div><dt>{labels.methodology}</dt><dd><span>{contribution.methodology.key}</span><span>{contribution.methodology.version}</span></dd></div>}
-            {contribution.methodology && Object.entries(contribution.methodology.parameters).length > 0 && <div><dt>{labels.parameters}</dt><dd>{Object.entries(contribution.methodology.parameters).map(([key, value]) => `${key}: ${new Intl.NumberFormat(locale, { maximumSignificantDigits: 21 }).format(value)}`).join(', ')}</dd></div>}
-            {contribution.factorSnapshot && <>
-              <div><dt>{labels.factor}</dt><dd>{contribution.factorSnapshot.version}</dd></div>
-              {contribution.factorSnapshot.id !== null && <div><dt>{labels.factorId}</dt><dd>{contribution.factorSnapshot.id}</dd></div>}
-              {contribution.factorSnapshot.contractVersion !== null && <div><dt>{labels.contractVersion}</dt><dd>{contribution.factorSnapshot.contractVersion}</dd></div>}
-              {contribution.factorSnapshot.regionCode !== null && <div><dt>{labels.regionCode}</dt><dd>{contribution.factorSnapshot.regionCode}</dd></div>}
-              {contribution.factorSnapshot.country !== null && <div><dt>{labels.country}</dt><dd>{contribution.factorSnapshot.country}</dd></div>}
-              {contribution.factorSnapshot.region !== null && <div><dt>{labels.region}</dt><dd>{contribution.factorSnapshot.region}</dd></div>}
-              {contribution.factorSnapshot.city !== null && <div><dt>{labels.city}</dt><dd>{contribution.factorSnapshot.city}</dd></div>}
-              {contribution.factorSnapshot.intensity !== null && contribution.factorSnapshot.unit !== null && <div><dt>{labels.intensity}</dt><dd>{number(contribution.factorSnapshot.intensity, contribution.factorSnapshot.unit)}</dd></div>}
-              {contribution.factorSnapshot.source !== null && <div><dt>{labels.source}</dt><dd>{contribution.factorSnapshot.source}</dd></div>}
-              {contribution.factorSnapshot.queriedAt !== null && <div><dt>{labels.queriedAt}</dt><dd>{formatDate(contribution.factorSnapshot.queriedAt)}</dd></div>}
-              {contribution.factorSnapshot.validFrom !== null && <div><dt>{labels.validFrom}</dt><dd>{validityDate(contribution.factorSnapshot.validFrom)}</dd></div>}
-              {contribution.factorSnapshot.validUntil !== null && <div><dt>{labels.validUntil}</dt><dd>{validityDate(contribution.factorSnapshot.validUntil)}</dd></div>}
-            </>}
-          </dl>
-        </li>)}
-      </ol>
+      </section>}
+      {historyLayout && <div className={styles.historyTableScroll}>
+        <table className={styles.historyTable} aria-label={labels.heading}>
+          <thead><tr>
+            <th scope="col">{labels.countedInterval}</th>
+            <th scope="col">{labels.energy}</th>
+            <th scope="col">{labels.emissions}</th>
+            <th scope="col">{labels.durationRatio}</th>
+            <th scope="col">{labels.methodology}</th>
+            <th scope="col">{labels.detailsHeading}</th>
+          </tr></thead>
+          <tbody>{data.contributions.length === 0
+            ? <tr><td colSpan={6}>{labels.emptyContributions}</td></tr>
+            : data.contributions.map((contribution) => {
+              const key = contributionKey(contribution.collectionId, contribution.countedInterval.from, contribution.countedInterval.to)
+              const selected = key === (selectedContribution
+                ? contributionKey(selectedContribution.collectionId, selectedContribution.countedInterval.from, selectedContribution.countedInterval.to)
+                : '')
+              return <tr key={key} aria-current={selected ? 'true' : undefined}>
+                <td data-label={labels.countedInterval}>{formatDate(contribution.countedInterval.from)} – {formatDate(contribution.countedInterval.to)}</td>
+                <td data-label={labels.energy}>{number(contribution.energy.value, contribution.energy.unit)}</td>
+                <td data-label={labels.emissions}>{number(contribution.emissions.value, contribution.emissions.unit)}</td>
+                <td data-label={labels.durationRatio}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(contribution.durationRatio)}</td>
+                <td data-label={labels.methodology}>{contribution.methodology ? `${contribution.methodology.key} · ${contribution.methodology.version}` : '—'}</td>
+                <td data-label={labels.detailsHeading}><button type="button" aria-pressed={selected}
+                  onClick={() => setSelectedKey(key)}>{labels.openContribution}</button></td>
+              </tr>
+            })}
+          </tbody>
+        </table>
+      </div>}
+      {historyLayout && selectedContribution && <section className={styles.historyDetails} aria-label={labels.detailsHeading}>
+        <h3>{labels.detailsHeading}</h3>
+        <ol className={styles.list}>
+          {selectedContribution && renderContribution(selectedContribution, true)}
+        </ol>
+      </section>}
+      {!historyLayout && <ol className={styles.list}>
+        {detailContributions.map((contribution) => renderContribution(contribution))}
+      </ol>}
       {data.exclusions.length > 0 && <section className={styles.exclusions} aria-label={labels.exclusions}>
         <h3>{labels.exclusions}</h3>
         <ul className={styles.list}>{data.exclusions.map((exclusion) => <li key={`${exclusion.collectionId ?? 'none'}-${exclusion.from}-${exclusion.to}`}>
@@ -105,7 +167,18 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
           {exclusion.emissionsReasons.length > 0 && <p>{labels.emissions}: {reasons(exclusion.emissionsReasons)}</p>}
         </li>)}</ul>
       </section>}
-      <output aria-live="polite">{labels.pageStatus(data.pagination.page, data.pagination.totalPages)}</output>
+      <div className={styles.pagination}>
+        <label>{labels.pageSize}<select value={data.pagination.pageSize} disabled={!onPaginationChange}
+          onChange={(event) => onPaginationChange?.(1, event.target.value === 'all' ? 'all' : Number(event.target.value))}>
+          {[5, 10, 15, 20].map((size) => <option key={size} value={size}>{size}</option>)}
+          <option value="all">{labels.allRows}</option>
+        </select></label>
+        <button type="button" disabled={!onPaginationChange || data.pagination.page <= 1}
+          onClick={() => onPaginationChange?.(data.pagination.page - 1, data.pagination.pageSize)}>{labels.previous}</button>
+        <output aria-live="polite">{labels.pageStatus(data.pagination.page, data.pagination.totalPages)}</output>
+        <button type="button" disabled={!onPaginationChange || !data.pagination.hasNextPage}
+          onClick={() => onPaginationChange?.(data.pagination.page + 1, data.pagination.pageSize)}>{labels.next}</button>
+      </div>
     </>}
   </section>
 }

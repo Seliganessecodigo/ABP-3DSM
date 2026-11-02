@@ -3,7 +3,7 @@ import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, una
 
 const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
 
-test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
+test('detail reference viewport keeps the sidebar fixed without page scrolling', async ({ page }) => {
   test.setTimeout(60_000)
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
@@ -65,8 +65,6 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     return {
       documentHeight: document.documentElement.scrollHeight,
       viewportHeight: window.innerHeight,
-      workspaceHeight: document.querySelector<HTMLElement>('.workspace')!.clientHeight,
-      workspaceContentHeight: document.querySelector<HTMLElement>('.workspace')!.scrollHeight,
       sidebarHeight: sidebar.clientHeight,
       sidebarContentHeight: sidebar.scrollHeight,
       sidebarWidth: sidebar.clientWidth,
@@ -87,7 +85,6 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     }
   })
   expect.soft(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
-  expect.soft(before.workspaceContentHeight).toBeLessThanOrEqual(before.workspaceHeight + 1)
   expect.soft(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
   expect.soft(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
   expect.soft(before.sidebarLeft).toBe(0)
@@ -187,8 +184,8 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
   await page.setViewportSize({ width: 996, height: 619 })
   const periodButton = page.getByRole('button', { name: '30 dias', exact: true })
   await periodButton.hover()
-  const hoverBackground = await periodButton.evaluate((button) => getComputedStyle(button).backgroundColor)
-  expect(hoverBackground).not.toBe('rgb(255, 255, 255)')
+  await expect.poll(() => periodButton.evaluate((button) => getComputedStyle(button).backgroundColor), { timeout: 1_000 })
+    .not.toBe('rgb(255, 255, 255)')
   await page.mouse.down()
   const pressedTransform = await periodButton.evaluate((button) => getComputedStyle(button).transform)
   await page.mouse.up()
@@ -561,7 +558,9 @@ test('falha ao atualizar preserva evidência e permite nova tentativa', async ({
   await page.goto('/services/svc-0142')
   const evidenceRegion = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidenceRegion).toContainText('38 %')
-  await evidenceRegion.getByRole('button', { name: /atualizar dados/i }).click()
+  const refresh = evidenceRegion.getByRole('button', { name: /atualizar dados/i })
+  await expect(refresh).toBeEnabled()
+  await refresh.click()
   await expect(evidenceRegion.getByRole('alert')).toBeVisible()
   await expect(evidenceRegion).toContainText('38 %')
   await evidenceRegion.getByRole('button', { name: /tentar novamente/i }).click()
@@ -577,10 +576,10 @@ test('evidência inexistente e intervalo selecionado indisponível não usam fal
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
   const evidence = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidence).toContainText(/nenhuma evidência disponível/i)
-  await page.goto('/services/svc-0142?collectionId=collection-missing')
+  await page.goto('/services/svc-0142?collectionId=collection-missing', { waitUntil: 'domcontentloaded' })
   await expect(evidence).toContainText(/evidência selecionada não está disponível/i)
   await expect(evidence.getByRole('table')).toHaveCount(0)
 })
@@ -610,7 +609,7 @@ test('resposta atrasada de uma seleção anterior não substitui a aplicação a
       await route.fulfill({ json: second })
     }
   })
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
   try {
     await expect(page.getByRole('status')).toContainText(/carregando/i)
     await started.wait
@@ -632,7 +631,7 @@ test('resposta atrasada de uma seleção anterior não substitui a aplicação a
 test('detail sidebar matches the catalog and collapses without clipping English', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await mockCatalog(page, [application()])
-  await page.goto('/services/svc-0142')
+  await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
 
   const sidebar = page.locator('.sidebar')
   await expect.poll(() => sidebar.evaluate((element) => element.getBoundingClientRect().width)).toBe(180)

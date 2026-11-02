@@ -186,7 +186,7 @@ for (const theme of ['Claro', 'Escuro']) {
         await route.fulfill({ json: isCatalog ? (response === 'success' ? [application()] : []) : application() })
       }
     })
-    await page.goto('/')
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
     const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
     if ((await toggle.getAttribute('aria-checked')) !== String(theme === 'Escuro')) await toggle.click()
     try {
@@ -202,13 +202,16 @@ for (const theme of ['Claro', 'Escuro']) {
     await expect(page.getByRole('dialog')).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath(`filters-${theme}.png`), fullPage: true })
     await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toBeHidden()
     await row(page, 'svc-0142').getByRole('link').click()
     await page.locator('#analysis-details summary').click()
     await expect(page.getByRole('heading', { name: 'Identificação e situação', exact: true })).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath(`detail-${theme}.png`), fullPage: true })
     await page.getByRole('link', { name: /voltar/i }).click()
     response = 'empty'
-    await page.getByRole('button', { name: 'Atualizar catálogo' }).click()
+    const refresh = page.getByRole('button', { name: 'Atualizar catálogo' })
+    await expect(refresh).toBeEnabled()
+    await refresh.click()
     await expect(page.getByRole('heading', { name: 'Nenhuma aplicação reconhecida', exact: true })).toBeVisible()
     await expect(page.locator('html')).toHaveCSS('color-scheme', theme === 'Claro' ? 'light' : 'dark')
   })

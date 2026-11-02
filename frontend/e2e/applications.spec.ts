@@ -3,14 +3,14 @@ import { application, gate, largeCatalog, mixedCatalog, mockApi, mockCatalog, ro
 
 test('gestor consulta uma aplicação reconhecida pelo nome e ID sem login', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(row(page, 'svc-0142')).toHaveCount(1)
   await expect(row(page, 'svc-0142')).toContainText('app-pagamentos')
 })
 
 test('nomes iguais permanecem em linhas distintas por identidade', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'svc-outro' })])
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(row(page, 'svc-0142')).toContainText('app-pagamentos')
   await expect(row(page, 'svc-outro')).toContainText('app-pagamentos')
   await expect(row(page, 'svc-0142')).not.toContainText('svc-0142')
@@ -524,8 +524,9 @@ test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar 
   const navigation = page.getByRole('navigation')
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('href', '/dashboard')
+  await expect(navigation.getByRole('link', { name: 'Histórico', exact: true })).toHaveAttribute('href', '/history')
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
-  for (const name of ['Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
+  for (const name of ['Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
@@ -549,7 +550,9 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
     .toHaveAttribute('href', '/methodology')
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Dashboard', exact: true }))
     .toHaveAttribute('href', '/dashboard')
-  for (const name of ['Histórico', 'Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Histórico', exact: true }))
+    .toHaveAttribute('href', '/history')
+  for (const name of ['Ranking', 'Comparação', 'Simulação regional', 'Configurações']) {
     const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
     await expect(destination).toBeVisible()
     await expect(destination).toBeDisabled()
