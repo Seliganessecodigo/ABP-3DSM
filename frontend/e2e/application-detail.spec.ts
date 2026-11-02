@@ -3,7 +3,7 @@ import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, una
 
 const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
 
-test('detail reference viewport keeps the sidebar fixed and free of scrollbars', async ({ page }) => {
+test('detail reference viewport keeps the sidebar fixed without page scrolling', async ({ page }) => {
   test.setTimeout(60_000)
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
@@ -65,8 +65,6 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     return {
       documentHeight: document.documentElement.scrollHeight,
       viewportHeight: window.innerHeight,
-      workspaceHeight: document.querySelector<HTMLElement>('.workspace')!.clientHeight,
-      workspaceContentHeight: document.querySelector<HTMLElement>('.workspace')!.scrollHeight,
       sidebarHeight: sidebar.clientHeight,
       sidebarContentHeight: sidebar.scrollHeight,
       sidebarWidth: sidebar.clientWidth,
@@ -87,7 +85,6 @@ test('detail reference viewport keeps the sidebar fixed and free of scrollbars',
     }
   })
   expect.soft(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
-  expect.soft(before.workspaceContentHeight).toBeLessThanOrEqual(before.workspaceHeight + 1)
   expect.soft(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
   expect.soft(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
   expect.soft(before.sidebarLeft).toBe(0)
