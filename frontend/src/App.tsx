@@ -6,6 +6,7 @@ import { MethodologyPage } from './pages/methodology/MethodologyPage.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx'
 import { LoginPage } from './pages/login/LoginPage.tsx'
 import { SsoCallbackPage } from './pages/login/SsoCallbackPage.tsx'
+import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
 
 function App() {
@@ -30,6 +31,7 @@ function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) 
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
     case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
     case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
+    case 'administration': return <RecalculationPreviewPage navigate={navigate} />
     default: return <CatalogPage key="catalog" navigate={navigate} />
   }
 }

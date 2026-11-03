@@ -2,6 +2,8 @@
 
 `pages/methodology/` contém as quatro abas em `MethodologyPage`, rascunhos em `usePreferenceDraft` e componentes locais de explicação/prévia. `RecordedMethodology` preserva a consulta histórica por coleta. `features/preferences/` valida o contrato HTTP autenticado; `pages/detail/useAnalysisDefaults` aplica somente padrões ausentes na URL.
 
+`pages/recalculationPreview/` apresenta a prévia de recálculo em administração, com escopo local à tela e sem persistir a resposta. `features/analysis/recalculationPreview.ts` valida a resposta do endpoint de prévia; o resultado permanece separado da análise histórica.
+
 Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 estiver ocupada, inclusive em worktrees simultâneos. Metodologia carrega Inter local de `assets/fonts/`, com licença SIL OFL, para reproduzir as referências sem CDN em runtime.
 
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
@@ -31,4 +33,4 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 5. Registre caminho e parâmetros em `app/useRoute.ts`, associe a página em `App.tsx` e preserve navegação do browser.
 6. Se a tela precisa de dados, use hooks para coordenar carregamento e uma feature tipada para API/cache/validação; confira o contrato do backend. Cubra carregamento, sucesso, vazio, erro e atualização conforme aplicável.
 
-O roteamento atual cobre o catálogo, `/services/:id`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
+O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/methodology`, `/administration/calculations`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
