@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreenER — movimento v3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e5ebe6;font-family:'Segoe UI',Arial,sans-serif;color:#153c2a}#wrap{margin:auto;overflow:hidden}#viewport{position:relative;width:1920px;height:1080px;overflow:hidden;perspective:1800px;background:#f3f8f1}#backdrop{position:absolute;inset:0;width:1920px;height:1080px}#subject{position:absolute;left:0;top:0;transform-origin:50% 50%;backface-visibility:hidden;will-change:transform;filter:drop-shadow(0 28px 36px #001c242c)}#caption{position:absolute;margin:0;font-size:76px;font-weight:600;line-height:1.13;letter-spacing:-2px;white-space:pre-line;pointer-events:none}#brand{position:absolute;top:48px;left:96px;font-size:30px;font-weight:650;letter-spacing:-1px}#note{position:absolute;bottom:25px;left:0;right:0;text-align:center;font-size:17px;letter-spacing:.25px;pointer-events:none}nav{display:flex;flex-wrap:wrap;align-items:center;gap:18px;max-width:1100px;margin:20px auto;padding:0 20px}button{border:0;border-radius:30px;background:#076047;color:white;padding:12px 24px;font:inherit;cursor:pointer}input{flex:1;min-width:110px;accent-color:#076047}.render nav{display:none}.preview #viewport{transform-origin:top left}
+</style>
+<div id="wrap"><div id="viewport"><canvas id="backdrop" width="1920" height="1080"></canvas><div id="brand">GreenER</div><h1 id="caption"></h1><canvas id="subject" aria-label="Interface GreenER em uma composição animada"></canvas><div id="note">Interface real · Dados ilustrativos</div></div></div>
+<nav aria-label="Controles da prévia"><button id="play">Reproduzir</button><input id="seek" type="range" min="0" max="14" step="0.01" value="0" aria-label="Posição no vídeo"><span id="time">0:00 / 0:14</span></nav>
+<audio id="audio" src="output/study-v3/soundtrack.wav" preload="none"></audio>
+<script>
+const clamp=x=>Math.max(0,Math.min(1,x)),smooth=x=>{x=clamp(x);return x*x*(3-2*x)},mix=(a,b,p)=>a+(b-a)*p;
+const surface=document.querySelector('#subject'),ctx=surface.getContext('2d'),bg=document.querySelector('#backdrop').getContext('2d'),caption=document.querySelector('#caption');
+const scenes=[
+ {file:'desktop-catalog-light',w:1260,h:760,x:960,y:625,scale:1,roll:-3,color:[245,250,243],title:'Um novo ponto de vista.'},
+ {file:'mobile-catalog-light',w:400,h:860,x:1300,y:555,scale:1,roll:-4,color:[238,249,237],title:'A mesma visão.\nNa sua mão.'},
+ {file:'desktop-catalog-dark',w:1260,h:760,x:960,y:625,scale:1,roll:3,color:[13,42,30],title:'Mude a perspectiva.'},
+ {file:'mobile-detail-light',w:400,h:860,x:1300,y:555,scale:1,roll:3,color:[231,245,233],title:'Continue.\nDe onde estiver.'},
+ {file:'green-er-mark',w:1100,h:760,x:960,y:540,scale:1,roll:0,color:[245,250,243],title:''},
+];
+const moves=[
+ {start:1.2,end:3.2,axis:[0,1,0],dx:150,dy:-120,roll:-34,lift:170},
+ {start:4.1,end:6.1,axis:[1,0,0],dx:-160,dy:-170,roll:48,lift:130},
+ {start:7,end:9,axis:[.6,.8,0],dx:-100,dy:140,roll:-64,lift:160},
+ {start:9.9,end:11.9,axis:[0,1,0],dx:130,dy:-90,roll:58,lift:190},
+];
+window.transitionTimes=moves.map(m=>(m.start+m.end)/2);window.motionChecks=true;
+function rounded(c,x,y,w,h,r,color){c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=color;c.fill()}
+function texture(index,progress){
+ const s=scenes[index];surface.width=s.w*2;surface.height=s.h*2;surface.style.width=s.w+'px';surface.style.height=s.h+'px';ctx.setTransform(2,0,0,2,0,0);
+ if(index===4){
+   ctx.fillStyle='rgb(245,250,243)';ctx.fillRect(0,0,s.w,s.h);
+   ctx.save();ctx.globalCompositeOperation='multiply';ctx.drawImage(s.image,s.w/2-68,150,136,142);ctx.restore();
+   ctx.fillStyle='#123f2c';ctx.textAlign='center';ctx.font='600 108px "Segoe UI",Arial,sans-serif';ctx.fillText('GreenER',s.w/2,430);
+   ctx.fillStyle='#4a7058';ctx.font='36px "Segoe UI",Arial,sans-serif';ctx.fillText('Keep track. Keep it GreenER.',s.w/2,520);return;
+ }
+ const phone=index%2===1,radius=phone?43:21;
+ rounded(ctx,0,0,s.w,s.h,radius,'#20342a');ctx.save();ctx.beginPath();ctx.roundRect(11,11,s.w-22,s.h-22,phone?33:11);ctx.clip();
+ const sourceHeight=(s.h-22)*s.image.width/(s.w-22),available=Math.max(0,s.image.height-sourceHeight),scroll=index===3?Math.min(available,180*smooth(progress)):Math.min(available,25*smooth(progress));
+ ctx.drawImage(s.image,0,scroll,s.image.width,sourceHeight,11,11,s.w-22,s.h-22);ctx.restore();
+ // Camera stays in the bezel; it never covers the actual site header.
+ ctx.fillStyle='#95ab9d';ctx.beginPath();ctx.arc(s.w/2,5.5,2,0,Math.PI*2);ctx.fill();
+}
+window.draw=t=>{
+ t=Math.max(0,Math.min(14,t));let index=moves.filter(m=>t>=m.end).length,move=moves[index],active=Boolean(move&&t>=move.start),p=active?smooth((t-move.start)/(move.end-move.start)):0;
+ const selected=active?index+(p>=.5?1:0):index,a=scenes[index],b=scenes[Math.min(index+1,4)],s=scenes[selected];
+ const last=index?moves[index-1].end:0,next=move?.start??14,hold=smooth((t-last)/Math.max(.1,next-last));
+ let x=s.x,y=s.y,roll=s.roll,rotation=0,scale=1,depth=0,axis=[0,1,0];
+ if(active){
+   const arc=Math.sin(p*Math.PI);x=mix(a.x,b.x,p)+move.dx*arc;y=mix(a.y,b.y,p)+move.dy*arc;
+   roll=mix(a.roll,b.roll,p)+move.roll*arc;rotation=p<.5?180*p:180*p-180;axis=move.axis;
+   // Smooth full-frame motion; source geometry changes only while edge-on.
+   scale=mix(index===0?1.08:1.025,index===3?1.03:1,p)+.15*arc;depth=move.lift*arc;
+ }else if(index===0){scale=mix(.9,1.08,hold);roll=mix(-5,-3,hold)}
+ else if(index<4){scale=mix(1,1.025,hold);roll+=Math.sin(hold*Math.PI)*.8}
+ else scale=mix(1.03,1,hold);
+ const visibleStart=selected===0?0:window.transitionTimes[selected-1],visibleEnd=selected===4?14:window.transitionTimes[selected],textureProgress=clamp((t-visibleStart)/(visibleEnd-visibleStart));
+ texture(selected,textureProgress);
+ surface.style.filter=selected===4?'none':'drop-shadow(0 28px 36px #001c242c)';
+ surface.style.transform=`translate(${x-s.w/2}px,${y-s.h/2}px) translateZ(${depth}px) rotateZ(${roll}deg) rotate3d(${axis.join(',')},${rotation}deg) scale(${scale})`;
+ const colors=active?a.color.map((value,i)=>mix(value,b.color[i],p)):s.color,dark=colors[0]<100;
+ bg.fillStyle=`rgb(${colors.map(Math.round).join(',')})`;bg.fillRect(0,0,1920,1080);
+ if(selected!==4){const light=bg.createRadialGradient(x,y,10,x,y,1300);light.addColorStop(0,'#ffffff10');light.addColorStop(1,'#133e2307');bg.fillStyle=light;bg.fillRect(0,0,1920,1080)}
+ caption.textContent=s.title;caption.style.color=dark?'#e9fff1':'#173e2d';caption.style.opacity=String(active?p<.5?1-smooth(p/.12):smooth((p-.88)/.12):1);
+ caption.style.left=selected%2?'150px':'90px';caption.style.top=selected%2?'390px':'110px';caption.style.width=selected%2?'820px':'1740px';caption.style.textAlign=selected%2?'left':'center';
+ document.querySelector('#brand').style.color=dark?'#c0e7cd':'#0b6545';document.querySelector('#brand').style.opacity=selected===4?'0':'.85';
+ document.querySelector('#note').style.color=dark?'#9ac3a8':'#6c8876';document.querySelector('#note').style.opacity=selected===4?'0':'.85';
+ window.frameState={scene:selected,active,rotation,x,y,roll,scale,depth,textureProgress,visibleTextures:1};return window.frameState;
+};
+window.ready=Promise.all(scenes.map(s=>new Promise((resolve,reject)=>{s.image=new Image();s.image.onload=resolve;s.image.onerror=reject;s.image.src=`assets/${s.file}.png`}))).then(()=>document.fonts.ready).then(()=>window.draw(0));
+const rendering=new URLSearchParams(location.search).has('render');document.body.className=rendering?'render':'preview';
+function resize(){if(rendering)return;const scale=Math.min(innerWidth/1920,.72);document.querySelector('#viewport').style.transform=`scale(${scale})`;document.querySelector('#wrap').style.width=`${1920*scale}px`;document.querySelector('#wrap').style.height=`${1080*scale}px`}resize();addEventListener('resize',resize);
+const play=document.querySelector('#play'),seek=document.querySelector('#seek'),audio=document.querySelector('#audio');let running=false,position=0,start=0;
+function update(){window.draw(position);seek.value=position;document.querySelector('#time').textContent=`0:${String(Math.floor(position)).padStart(2,'0')} / 0:14`}
+function tick(now){if(!running)return;position=Math.min(14,(now-start)/1000);update();if(position>=14){running=false;play.textContent='Reproduzir';audio.pause()}else requestAnimationFrame(tick)}
+play.onclick=async()=>{await window.ready;running=!running;play.textContent=running?'Pausar':'Reproduzir';if(running){if(position>=14)position=0;start=performance.now()-position*1000;audio.currentTime=position;audio.play().catch(()=>{});requestAnimationFrame(tick)}else audio.pause()};seek.oninput=()=>{position=Number(seek.value);start=performance.now()-position*1000;update();if(audio.readyState)audio.currentTime=position};
+</script>
+</html>

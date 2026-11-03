@@ -1,10 +1,27 @@
 # GreenER — produto em movimento
 
+## Versão atual: v3
+
+A direção de movimento da v2 foi aceita pelo usuário como referência, com pedido explícito de uma versão corrigida. **`motion-v3.html` / `render-v3.mjs`** entregam o novo corte de **14 segundos**, com quatro passagens em direções diferentes, aproximações, giros e pausas curtas para reconhecer o produto. V1 e v2 permanecem intactas.
+
+O teste `verify-motion.mjs` reproduziu na v2 duas capturas expostas no mesmo recorte nas quatro passagens e o título inicial fora do quadro. Na v3, uma única superfície apresenta uma captura por vez, com proporção preservada. A captura muda quando a superfície está de perfil; posição, escala e rolagem da imagem permanecem contínuas. Títulos ficam na composição frontal, e as telas de fundo que disputavam atenção foram removidas. A ampliação/rotação pode cruzar os limites do quadro durante movimentos intencionais; nos enquadramentos de leitura o dispositivo fica inteiramente visível.
+
+```powershell
+node creative/responsive-commercial/verify-motion.mjs frontend
+node creative/responsive-commercial/render-v3.mjs frontend 'C:/caminho/ffmpeg.exe'
+```
+
+O teste também pode receber `motion-study.html` como terceiro argumento para reproduzir as falhas conhecidas da v2. Na v3, verifica troca de captura de perfil, continuidade nos limites das cenas, uma textura por quadro, enquadramentos de leitura e ausência de erros de JavaScript. Essa verificação não substitui a avaliação visual do movimento.
+
+Saídas da v3: `output/study-v3/greener-motion-v3.mp4`, áudio, storyboard, quadros e relatório. A prévia editável é `motion-v3.html`; `--storyboard` no renderizador gera apenas os quadros de revisão. O storyboard versionado fica em `assets/storyboard-v3.png`. O áudio segue a trilha sintética original, com os efeitos reposicionados para as quatro passagens. Sem locução.
+
+Ritmo: abertura até 1,2 s; diagonal lateral até 3,2 s; pausa; giro vertical de 4,1 a 6,1 s; pausa; giro diagonal de 7 a 9 s; pausa; chegada à marca de 9,9 a 11,9 s; assinatura até 14 s. O conceito mantém capturas reais com dados ilustrativos e a indisponibilidade ambiental da implementação atual. As animações pertencem ao comercial.
+
 ## Feedback e estudo v2
 
 O usuário rejeitou a linguagem do primeiro corte: o cubo lateral ficou literal e repetitivo. A referência desejada é um comercial conceitual de moda/perfume: aproximação do sujeito, um movimento que puxa a cena seguinte e novas poses/perspectivas conectadas, com passagens em várias direções. Citou também a troca de dimensões de “Multiverso da Loucura” como analogia de energia e continuidade. O corte v1 permanece disponível para comparação; sua direção de movimento não está aprovada.
 
-`motion-study.html` e `render-study.mjs` produzem um **estudo de 12 segundos** para avaliar essa correção antes de montar outro comercial completo. A câmera percorre um mundo contínuo com interfaces reais, aproximação, deslocamento diagonal, subida, inclinação e meia-volta. Passagens em primeiro plano transportam a interface entre os enquadramentos com revelações por lados diferentes. O estudo reutiliza os assets capturados; não altera a aplicação. A nova direção aguarda feedback do usuário.
+`motion-study.html` e `render-study.mjs` produzem um **estudo de 12 segundos**. A câmera percorre um mundo contínuo com interfaces reais, aproximação, deslocamento diagonal, subida, inclinação e meia-volta. Passagens em primeiro plano transportam a interface entre os enquadramentos com revelações por lados diferentes. O estudo reutiliza os assets capturados; não altera a aplicação. O usuário gostou da direção e solicitou a correção dos defeitos visuais na v3.
 
 ```powershell
 node creative/responsive-commercial/render-study.mjs frontend 'C:/caminho/ffmpeg.exe'
