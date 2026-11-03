@@ -1,5 +1,7 @@
 # GreenER — comercial das pegadas
 
+Para retomar refinamentos em outra conversa, leia [a nota de continuidade](CONTINUIDADE.md), com as decisões aceitas, a referência v1 e o estado do trabalho.
+
 Primeiro corte aprovado a partir do brainstorming: peça de 30 segundos, horizontal, 1920 × 1080, 30 fps, sem locução. Fundo claro, pegadas vetoriais originais, entrada breve da interface real e encerramento com a marca e **“Keep track. Keep it GreenER.”**
 
 ## Roteiro
