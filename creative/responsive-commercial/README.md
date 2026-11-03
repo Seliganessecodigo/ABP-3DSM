@@ -1,5 +1,17 @@
 # GreenER — produto em movimento
 
+## Feedback e estudo v2
+
+O usuário rejeitou a linguagem do primeiro corte: o cubo lateral ficou literal e repetitivo. A referência desejada é um comercial conceitual de moda/perfume: aproximação do sujeito, um movimento que puxa a cena seguinte e novas poses/perspectivas conectadas, com passagens em várias direções. Citou também a troca de dimensões de “Multiverso da Loucura” como analogia de energia e continuidade. O corte v1 permanece disponível para comparação; sua direção de movimento não está aprovada.
+
+`motion-study.html` e `render-study.mjs` produzem um **estudo de 12 segundos** para avaliar essa correção antes de montar outro comercial completo. A câmera percorre um mundo contínuo com interfaces reais, aproximação, deslocamento diagonal, subida, inclinação e meia-volta. Passagens em primeiro plano transportam a interface entre os enquadramentos com revelações por lados diferentes. O estudo reutiliza os assets capturados; não altera a aplicação. A nova direção aguarda feedback do usuário.
+
+```powershell
+node creative/responsive-commercial/render-study.mjs frontend 'C:/caminho/ffmpeg.exe'
+```
+
+Saídas independentes em `output/study-v2/`: `greener-motion-study-v2.mp4`, `soundtrack.wav`, storyboard, quadros e relatório. Para revisar apenas os quadros antes de exportar, acrescente `--storyboard`. A prévia `motion-study.html` usa o áudio dessa subpasta. O storyboard de referência v2 está em `assets/storyboard-study-v2.png`. Os arquivos do corte v1 permanecem intactos.
+
 Corte de exploração de **26 segundos, 1920 × 1080, 30 fps**, para o usuário avaliar se a linguagem de movimento corresponde à referência que descreveu. Esta versão é um conceito separado do comercial das pegadas, preservado na branch `feat/comercial-greener` / PR #333.
 
 ## Intenção

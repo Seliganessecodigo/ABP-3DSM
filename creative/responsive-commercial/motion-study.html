@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreenER — estudo de movimento v2</title>
+<style>#handoff{position:absolute;left:50%;top:50%;width:1000px;height:900px;border:11px solid #183b2c;border-radius:36px;overflow:hidden;opacity:0;pointer-events:none;box-shadow:0 40px 120px #00252d60;transform-origin:50% 50%;background:#f5faf5}#handoff img{position:absolute;inset:0;width:100%;height:auto;display:block}#handoff .next{z-index:1}</style>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e6eee7;font-family:'Segoe UI',Arial,sans-serif;color:#123d2c}#wrap{margin:auto;overflow:hidden}#viewport{position:relative;width:1920px;height:1080px;overflow:hidden;background:#eef6ee;perspective:1200px;perspective-origin:50% 50%;isolation:isolate}#world{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;transform-origin:0 0}.island{position:absolute;width:0;height:0;transform-style:preserve-3d}.screen{position:absolute;overflow:hidden;backface-visibility:hidden;box-shadow:0 35px 65px #001b3545;background:#f3faf5;border:12px solid #192c23;border-radius:24px;transform:translate(-50%,-50%)}.screen img{width:100%;display:block}.desktop{width:1400px;height:890px}.phone{width:430px;height:920px;border-radius:46px;border-width:11px}.caption{position:absolute;white-space:nowrap;font-size:68px;font-weight:600;letter-spacing:-2px;color:#0b5135;backface-visibility:hidden;transform:translate(-50%,-50%) translateY(-555px)}.portal{position:absolute;width:520px;height:1010px;border:3px solid #80e1a970;border-radius:64px;transform-style:preserve-3d;pointer-events:none}.rail{position:absolute;height:5px;border-radius:3px;background:linear-gradient(90deg,#008b5770,#c9f07b80);transform-origin:0 0;box-shadow:0 0 20px #90dc9960}.brand{position:absolute;width:1300px;height:780px;transform:translate(-50%,-50%);text-align:center;background:linear-gradient(140deg,#fafff8,#e8f6e9);border:1px solid #ffffff;border-radius:60px;box-shadow:0 30px 90px #001b3520;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column}.brand img{width:150px;height:auto;mix-blend-mode:multiply}.brand strong{font-size:120px;font-weight:600;letter-spacing:-5px;margin:20px 0}.brand span{font-size:37px;letter-spacing:-.5px;color:#426e54}.orbit{position:absolute;pointer-events:none;border:2px solid #8acbb04a;border-radius:50%;width:2000px;height:2000px;transform:translate(-50%,-50%) rotateX(72deg);box-shadow:0 0 120px #78dca51a}#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 45%,#02372920)}#note{position:absolute;bottom:24px;left:30px;right:30px;display:flex;justify-content:space-between;font-size:16px;letter-spacing:.4px;color:#6b927a;pointer-events:none}nav{display:flex;flex-wrap:wrap;gap:18px;align-items:center;max-width:1100px;margin:20px auto;padding:0 20px}button{font:inherit;background:#07583e;color:white;border:0;border-radius:30px;padding:12px 24px;cursor:pointer}input{flex:1;min-width:110px;accent-color:#07583e}.render nav{display:none}.preview #viewport{transform-origin:top left}
+</style>
+<div id="wrap"><div id="viewport"><div id="world">
+  <div class="orbit"></div>
+  <div class="island" id="a"><div class="caption">Um novo ponto de vista.</div><div class="screen desktop"><img src="assets/desktop-catalog-light.png" alt="Catálogo desktop"></div></div>
+  <div class="island" id="b"><div class="caption">Continue.</div><div class="screen phone"><img src="assets/mobile-catalog-light.png" alt="Catálogo móvel"></div></div>
+  <div class="island" id="c"><div class="caption" style="color:#cdf5db">Mude a perspectiva.</div><div class="screen desktop"><img src="assets/desktop-catalog-dark.png" alt="Catálogo escuro"></div></div>
+  <div class="island" id="d"><div class="caption">O foco continua.</div><div class="screen phone"><img src="assets/mobile-detail-light.png" alt="Detalhe móvel"></div></div>
+  <div class="island" id="e"><div class="brand"><img src="assets/green-er-mark.png" alt=""><strong>GreenER</strong><span>Keep track. Keep it GreenER.</span></div></div>
+</div><div id="handoff"><img class="previous" alt=""><img class="next" alt=""></div><div id="vignette"></div><div id="note"><span>ESTUDO DE MOVIMENTO · V2</span><span>Interface real · Dados ilustrativos</span></div></div></div>
+<nav aria-label="Controles da prévia"><button id="play">Reproduzir</button><input id="seek" aria-label="Posição no vídeo" type="range" min="0" max="12" value="0" step="0.01"><span id="time">0:00 / 0:12</span></nav>
+<audio id="audio" src="output/study-v2/soundtrack.wav" preload="none"></audio>
+<script>
+const clamp=x=>Math.max(0,Math.min(1,x)),smooth=x=>{x=clamp(x);return x*x*(3-2*x)},lerp=(a,b,p)=>a+(b-a)*p;
+const world=document.querySelector('#world'),viewport=document.querySelector('#viewport');
+// One continuous world; camera changes position, roll, pitch and distance.
+const islands=[
+ {id:'a',x:0,y:0,z:0,rx:4,ry:-12,rz:-3},
+ {id:'b',x:900,y:-150,z:100,rx:-10,ry:-30,rz:-28},
+ {id:'c',x:1200,y:-950,z:-100,rx:32,ry:16,rz:52},
+ {id:'d',x:250,y:-1350,z:150,rx:-20,ry:25,rz:135},
+ {id:'e',x:-400,y:-800,z:-250,rx:0,ry:0,rz:180},
+];
+for(const island of islands){island.el=document.querySelector('#'+island.id);island.el.style.transform=`translate3d(${island.x}px,${island.y}px,${island.z}px) rotateZ(${island.rz}deg) rotateY(${island.ry}deg) rotateX(${island.rx}deg)`}
+for(let i=0;i<7;i++){const portal=document.createElement('div');portal.className='portal';portal.style.transform=`translate(-50%,-50%) translateZ(${-100-i*150}px) rotateZ(${i*9}deg) scale(${1+i*.13})`;islands[3].el.prepend(portal)}
+for(let i=0;i<islands.length-1;i++){
+ const a=islands[i],b=islands[i+1],dx=b.x-a.x,dy=b.y-a.y;const rail=document.createElement('div');rail.className='rail';rail.style.width=`${Math.hypot(dx,dy)}px`;rail.style.transform=`translate3d(${a.x}px,${a.y+470}px,${a.z-100}px) rotateZ(${Math.atan2(dy,dx)*180/Math.PI}deg)`;world.append(rail);
+}
+const keys=[
+ {t:0,i:0,d:1750,offsetY:0,roll:-7},
+ {t:1.55,i:0,d:640,offsetY:110,roll:7},
+ {t:3.5,i:1,d:1450,offsetY:0,roll:0},
+ {t:4.2,i:1,d:1050,offsetY:100,roll:-9},
+ {t:6.1,i:2,d:1450,offsetY:0,roll:0},
+ {t:6.65,i:2,d:850,offsetY:0,roll:12},
+ {t:8.55,i:3,d:1350,offsetY:0,roll:0},
+ {t:9.05,i:3,d:1050,offsetY:180,roll:-9},
+ {t:10.65,i:4,d:1650,offsetY:0,roll:0},
+ {t:12,i:4,d:1550,offsetY:0,roll:0},
+];
+window.transitionTimes=[2.525,5.15,7.6,9.85];
+window.draw=t=>{
+ t=Math.max(0,Math.min(12,t));let n=0;while(n<keys.length-2&&t>keys[n+1].t)n++;
+ const a=keys[n],b=keys[n+1],p=smooth((t-a.t)/(b.t-a.t)),from=islands[a.i],to=islands[b.i],moving=a.i!==b.i;
+ const pos={};for(const k of ['x','y','z','rx','ry','rz'])pos[k]=lerp(from[k],to[k],p);
+ const arc=Math.sin(p*Math.PI);pos.x+=moving?40*arc*(n%2?1:-1):0;pos.y+=lerp(a.offsetY,b.offsetY,p)+(moving?-40*arc:0);pos.rz+=lerp(a.roll,b.roll,p)+(moving?16*arc:0);
+ const distance=lerp(a.d,b.d,p)+(moving?650*arc:0);
+ world.style.transform=`translateZ(${1200-distance}px) rotateX(${-pos.rx}deg) rotateY(${-pos.ry}deg) rotateZ(${-pos.rz}deg) translate3d(${-pos.x}px,${-pos.y}px,${-pos.z}px)`;
+ const finale=1-smooth((t-10.35)/.35),phase=lerp(a.i,b.i,p);for(let i=0;i<islands.length;i++){islands[i].el.style.opacity=String(Math.max(.035,Math.exp(-Math.pow(i-phase,2)*1.65))*(i===4?1:finale))}
+ document.querySelectorAll('.rail,.orbit').forEach(el=>el.style.opacity=finale);
+ // A foreground match wipe carries the actual interface across the camera handoff.
+ const handoff=document.querySelector('#handoff');
+ if(moving){
+   const oldImage=from.el.querySelector('img'),newImage=to.el.querySelector('img');
+   const previous=handoff.querySelector('.previous'),nextImage=handoff.querySelector('.next');
+   if(previous.src!==oldImage.src)previous.src=oldImage.src;if(nextImage.src!==newImage.src)nextImage.src=newImage.src;
+   const turn=[-42,70,-95,40][a.i],pitch=[28,-40,48,-25][a.i],yaw=[40,-25,35,-42][a.i];
+   const width=lerp(a.i%2?430:1400,b.i===4?1300:b.i%2?430:1400,p);
+   handoff.style.width=`${width}px`;handoff.style.height=`${lerp(a.i%2?920:890,b.i===4?780:b.i%2?920:890,p)}px`;
+   handoff.style.opacity=String(smooth(p/.25)*smooth((1-p)/.25));
+   handoff.style.transform=`translate(-50%,-50%) translate3d(${240*Math.sin(p*2*Math.PI)}px,${(a.i%2?150:-150)*arc}px,${420*arc}px) rotateZ(${turn*arc}deg) rotateX(${pitch*arc}deg) rotateY(${yaw*arc}deg)`;
+   nextImage.style.clipPath=a.i===0?`inset(0 ${(1-p)*100}% 0 0)`:a.i===1?`inset(${(1-p)*100}% 0 0 0)`:a.i===2?`inset(0 0 0 ${(1-p)*100}%)`:`inset(0 0 ${(1-p)*100}% 0)`;
+ }else handoff.style.opacity='0';
+ const darkness=smooth((t-4.3)/1.2)*(1-smooth((t-8.4)/1.3));viewport.style.background=`rgb(${Math.round(lerp(238,8,darkness))},${Math.round(lerp(246,45,darkness))},${Math.round(lerp(238,32,darkness))})`;
+ document.querySelector('#note').style.opacity=t>10.3?String(1-smooth((t-10.3)/.5)):'.85';
+ // Exact camera cancellation keeps the final brand upright despite the half turn.
+ window.frameState={segment:n,moving,x:pos.x,y:pos.y,z:pos.z,roll:pos.rz,pitch:pos.rx,yaw:pos.ry,distance};return window.frameState;
+};
+window.ready=Promise.all([...document.images].filter(img=>img.getAttribute('src')).map(img=>img.decode())).then(()=>document.fonts.ready).then(()=>window.draw(0));
+const render=new URLSearchParams(location.search).has('render');document.body.className=render?'render':'preview';
+function resize(){if(render)return;const s=Math.min(innerWidth/1920,.72);viewport.style.transform=`scale(${s})`;document.querySelector('#wrap').style.width=`${1920*s}px`;document.querySelector('#wrap').style.height=`${1080*s}px`}resize();addEventListener('resize',resize);
+const play=document.querySelector('#play'),seek=document.querySelector('#seek'),audio=document.querySelector('#audio');let running=false,position=0,start=0;
+function update(){window.draw(position);seek.value=position;document.querySelector('#time').textContent=`0:${String(Math.floor(position)).padStart(2,'0')} / 0:12`}
+function tick(now){if(!running)return;position=Math.min(12,(now-start)/1000);update();if(position>=12){running=false;play.textContent='Reproduzir';audio.pause()}else requestAnimationFrame(tick)}
+play.onclick=async()=>{await window.ready;running=!running;play.textContent=running?'Pausar':'Reproduzir';if(running){if(position>=12)position=0;start=performance.now()-position*1000;audio.currentTime=position;audio.play().catch(()=>{});requestAnimationFrame(tick)}else audio.pause()};seek.oninput=()=>{position=Number(seek.value);start=performance.now()-position*1000;update();if(audio.readyState)audio.currentTime=position};
+</script>
+</html>
