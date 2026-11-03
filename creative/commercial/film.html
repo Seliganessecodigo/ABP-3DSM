@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreenER — Keep track. Keep it GreenER.</title>
+<style>
+  * { box-sizing: border-box } body { margin: 0; background: #eceeea; color: #18392f; font-family: Arial, sans-serif; min-height: 100vh; display: grid; place-content: center; gap: 16px }
+  canvas { width: min(100vw, 1280px); height: auto; display: block; background: #fafbf8; box-shadow: 0 20px 80px #193a3018 }
+  nav { display: flex; gap: 18px; align-items: center; padding: 0 24px; flex-wrap: wrap } button { border: 0; background: #0b604a; color: white; padding: 12px 22px; border-radius: 24px; font: inherit; cursor: pointer } input { flex: 1; accent-color: #087d59 } span { font-size: 14px }
+</style>
+<canvas id="film" width="1920" height="1080" aria-label="Comercial GreenER: pegadas levam ao logo, com apresentação do catálogo de aplicações."></canvas>
+<nav aria-label="Controles da prévia"><button id="play">Reproduzir</button><input id="seek" type="range" min="0" max="30" step="0.01" value="0" aria-label="Posição no vídeo"><span id="time">0:00 / 0:30</span><span>Som disponível após renderizar.</span></nav>
+<audio id="audio" src="output/soundtrack.wav" preload="none"></audio>
+<script>
+const canvas = document.querySelector('canvas'), ctx = canvas.getContext('2d');
+const W = 1920, H = 1080, duration = 30;
+const ink = '#172d26', green = '#007b55', paper = '#fafbf8';
+const clamp = x => Math.max(0, Math.min(1, x));
+const smooth = x => { x = clamp(x); return x*x*(3-2*x) };
+const ease = x => 1-Math.pow(1-clamp(x),3);
+const opacity = (t,a,b,fade=.65) => smooth((t-a)/fade)*smooth((b-t)/fade);
+const load = src => new Promise((resolve,reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src });
+let logo, catalog;
+// The tread silhouette is original vector geometry, inspired by walking ink marks.
+const sole = new Path2D('M -15 -40 C -29 -40 -31 -21 -27 -6 L -20 15 Q -17 23 -5 23 L 13 22 Q 23 21 25 10 L 27 -9 C 31 -31 19 -43 3 -43 Z');
+const heel = new Path2D('M -18 31 Q -25 58 -7 64 L 9 64 Q 25 58 19 30 Z');
+const steps = Array.from({length:19},(_,i) => {
+  const u = i/18, x = 360+1260*u, y = 695-105*Math.sin(u*Math.PI*1.4);
+  return { x, y:y+(i%2 ? 42:-42), angle:Math.PI/2+Math.atan(-105*Math.PI*1.4*Math.cos(u*Math.PI*1.4)/1260)+(i%2?.08:-.08), at:.65+i*.68, side:i%2 };
+});
+window.stepTimes = [...steps.map(s=>s.at),23.65,24.30,24.95];
+function text(value,x,y,size,weight=500,color=ink,align='center') {
+  ctx.font = `${weight} ${size}px "Segoe UI", Arial, sans-serif`; ctx.fillStyle=color; ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(value,x,y);
+}
+function footprint(x,y,angle,scale,alpha,side,color=ink) {
+  ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.scale(side?-scale:scale,scale); ctx.globalAlpha*=alpha;
+  ctx.fillStyle=color; ctx.fill(sole); ctx.fill(heel);
+  ctx.strokeStyle=paper; ctx.lineWidth=2.8; ctx.globalAlpha*=.62;
+  for(let y=-25;y<16;y+=10) { ctx.beginPath(); ctx.moveTo(-23,y);ctx.lineTo(22,y-6);ctx.stroke() }
+  ctx.beginPath();ctx.moveTo(-19,46);ctx.lineTo(21,46);ctx.stroke();ctx.restore();
+}
+function titleScene(t,start,end,lines) {
+  ctx.save();ctx.globalAlpha=opacity(t,start,end,.8);const shift=18*(1-ease((t-start)/1.3));
+  lines.forEach((line,i)=>text(line,W/2,350+i*100+shift,84,600));ctx.restore();
+}
+function draw(t) {
+  t=Math.max(0,Math.min(duration,t));ctx.globalAlpha=1;ctx.fillStyle=paper;ctx.fillRect(0,0,W,H);
+  const bg=ctx.createRadialGradient(960,480,80,960,480,1100);bg.addColorStop(0,'#ffffff');bg.addColorStop(1,paper);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  if(t<16) {
+    ctx.save();ctx.globalAlpha=smooth((16-t)/.85);
+    const pull=smooth((t-10.7)/4.1),scale=1.40-.55*pull;
+    ctx.translate(960,620);ctx.scale(scale,scale);ctx.translate(-(600+360*pull),-620);
+    steps.forEach(s=> { const age=t-s.at;if(age<0)return;const arrive=ease(age/.30);footprint(s.x,s.y+6*(1-arrive),s.angle,.67+.06*(1-arrive),arrive*(.72+.28*Math.exp(-age)),s.side) });ctx.restore();
+    titleScene(t,4.4,10.6,['Toda aplicação','deixa uma pegada.']);
+    titleScene(t,10.8,15.8,['Mesmo quando','você não vê.']);
+  }
+  if(t>=15.8 && t<23.5) {
+    ctx.save();ctx.globalAlpha=opacity(t,15.8,23.5,.65);
+    text('Torne o impacto visível.',960,155,76,600);
+    const p=ease((t-16)/7),w=1280+70*p,h=w*catalog.height/catalog.width,x=(W-w)/2,y=270-20*p;
+    ctx.save();ctx.shadowColor='#0d3c2926';ctx.shadowBlur=65;ctx.shadowOffsetY=25;ctx.fillStyle='white';ctx.beginPath();ctx.roundRect(x-5,y-5,w+10,h+10,18);ctx.fill();ctx.restore();
+    ctx.save();ctx.beginPath();ctx.roundRect(x,y,w,h,12);ctx.clip();ctx.drawImage(catalog,x,y,w,h);ctx.restore();
+    text('Interface real · Dados ilustrativos',960,1041,20,400,'#728078');ctx.restore();
+  }
+  if(t>=23.3) {
+    ctx.save();ctx.globalAlpha=smooth((t-23.3)/.65);
+    [23.65,24.30,24.95].forEach((at,i)=>footprint(490+i*150,730-i*100+(i%2?20:-20),.98,.67,ease((t-at)/.3)*smooth((27.2-t)/1.4),i%2));
+    const reveal=ease((t-25.15)/1.3);ctx.globalAlpha*=reveal;
+    const s=1+.045*(1-reveal);ctx.translate(960,430);ctx.scale(s,s);ctx.globalCompositeOperation='multiply';ctx.drawImage(logo,-101,-105,202,210);ctx.restore();
+    ctx.save();ctx.globalAlpha=smooth((t-25.65)/.9);
+    ctx.font='600 112px "Segoe UI", Arial, sans-serif';const a=ctx.measureText('Green').width,b=ctx.measureText('ER').width;
+    text('Green',960-(a+b)/2,620,112,600,ink,'left');text('ER',960-(a+b)/2+a,620,112,600,green,'left');
+    ctx.globalAlpha*=smooth((t-26.8)/.85);text('Keep track. Keep it GreenER.',960,745,42,400,'#52645b');ctx.restore();
+  }
+  return t;
+}
+window.draw = draw;
+window.ready = Promise.all([load('assets/green-er-mark.png'),load('assets/catalog.png'),document.fonts.ready]).then(([a,b])=>{logo=a;catalog=b;draw(0)});
+const play=document.querySelector('#play'),seek=document.querySelector('#seek'),audio=document.querySelector('#audio');let playing=false,position=0,started=0;
+function tick(now) { if(!playing)return;position=Math.min(duration,(now-started)/1000);draw(position);seek.value=position;document.querySelector('#time').textContent=`0:${String(Math.floor(position)).padStart(2,'0')} / 0:30`;if(position>=duration){playing=false;play.textContent='Reproduzir';audio.pause()}else requestAnimationFrame(tick) }
+play.onclick=async()=>{await window.ready;playing=!playing;play.textContent=playing?'Pausar':'Reproduzir';if(playing){if(position>=duration)position=0;started=performance.now()-position*1000;audio.currentTime=position;audio.play().catch(()=>{});requestAnimationFrame(tick)}else audio.pause()};
+seek.oninput=()=>{position=Number(seek.value);started=performance.now()-position*1000;draw(position);if(audio.readyState)audio.currentTime=position;document.querySelector('#time').textContent=`0:${String(Math.floor(position)).padStart(2,'0')} / 0:30`};
+</script>
+</html>
