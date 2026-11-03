@@ -1,6 +1,36 @@
 # GreenER — produto em movimento
 
-## Versão atual: v3
+## Versão atual: v4 — o conteúdo conduz o movimento
+
+O usuário considerou os tipos de transição da v3 adequados, mas apontou que eram aleatórios em relação ao conteúdo. A v4 segue um percurso único da aplicação **`app-pagamentos` / `svc-0142`**, com ações que motivam cada passagem. Mantém as versões anteriores para comparação. A execução criativa da v4 aguarda avaliação do usuário.
+
+| Tempo | Ação e movimento |
+| --- | --- |
+| 0–2,8 s | Busca real: vazio → `pa` → `paga` → `pagamentos`. Aproximação e destaque do resultado. |
+| 2,8–5,5 s | A linha selecionada sai da tabela, percorre uma diagonal e assume o cartão do layout móvel. |
+| 5,5–6,4 s | Leitura do cartão e toque no link real **Ver detalhes**. |
+| 6,4–8,8 s | O próprio cartão se expande até a tela de detalhe. Nome e estado acompanham o movimento. |
+| 8,8–10 s | Detalhe da mesma aplicação e início de rolagem. |
+| 10–12,8 s | A rolagem conduz o movimento ascendente e a abertura do mesmo detalhe no computador. |
+| 12,8–17,2 s | Leitura no desktop e afastamento para revelar os dois dispositivos com a mesma aplicação. |
+| 17,2–20 s | Marca e assinatura. |
+
+`capture-story.mjs` percorre o frontend real: digita a busca e clica no resultado para abrir `/services/svc-0142`. Gera sete capturas claras novas e `assets/story-geometry.js`, com as coordenadas DOM reais da linha/cartão, nome, estado, busca e ação. Nenhuma troca de tema participa da v4. Dados de exemplo seguem o contrato e as mesmas fixtures já documentadas nesta pasta; não há dados ambientais fabricados.
+
+`story-v4.html` usa essas posições para manter o mesmo nome e estado como elementos contínuos. Durante a transformação, as demais informações recuam e o nome/estado ganham destaque antes de ocupar suas posições no novo layout. A tipografia intermediária usa o texto, a fonte e a cor medidos na interface. Essas transformações pertencem ao comercial; não representam animações implementadas no site.
+
+```powershell
+node creative/responsive-commercial/verify-story.mjs frontend
+node creative/responsive-commercial/render-v4.mjs frontend 'C:/caminho/ffmpeg.exe'
+```
+
+Saídas isoladas em `output/story-v4/`: `greener-story-v4.mp4` (20 s, 1080p, 30 fps), áudio, quadros, storyboard e relatório. A prévia editável é `story-v4.html`; `--storyboard` gera apenas os quadros. A evidência versionada é `assets/storyboard-v4.png`. A trilha sintética original acompanha os quatro momentos de passagem, sem locução.
+
+Para atualizar as capturas, inicie o frontend desejado na porta 4189 e execute `node creative/responsive-commercial/capture-story.mjs frontend http://127.0.0.1:4189`. Os assets `story-*` são exclusivos desta versão.
+
+O teste confere a identidade nas sete capturas, a ordem busca/clique/rolagem, o nome dentro do quadro em todos os 601 instantes amostrados, a continuidade do nome nos sete encaixes, controles da prévia e ausência de erros JavaScript. Ele não avalia subjetivamente a direção criativa. Os arquivos do frontend/backend permanecem intactos.
+
+## V3 — referência técnica anterior
 
 A direção de movimento da v2 foi aceita pelo usuário como referência, com pedido explícito de uma versão corrigida. **`motion-v3.html` / `render-v3.mjs`** entregam o novo corte de **14 segundos**, com quatro passagens em direções diferentes, aproximações, giros e pausas curtas para reconhecer o produto. V1 e v2 permanecem intactas.
 

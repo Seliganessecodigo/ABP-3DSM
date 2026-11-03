@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreenER — uma aplicação, qualquer tela · v4</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e6eee7;color:#173e2d;font-family:'Segoe UI',Arial,sans-serif}#wrap{margin:auto;overflow:hidden}#viewport{width:1920px;height:1080px;display:block;transform-origin:top left}nav{display:flex;flex-wrap:wrap;align-items:center;gap:18px;max-width:1100px;margin:20px auto;padding:0 20px}button{border:0;border-radius:30px;background:#076047;color:white;padding:12px 24px;font:inherit;cursor:pointer}input{flex:1;min-width:110px;accent-color:#076047}.render nav{display:none}
+</style>
+<div id="wrap"><canvas id="viewport" width="1920" height="1080" aria-label="Busca de pagamentos, transformação do resultado em cartão móvel e abertura do detalhe da mesma aplicação"></canvas></div>
+<nav aria-label="Controles da prévia"><button id="play">Reproduzir</button><input id="seek" type="range" min="0" max="20" step="0.01" value="0" aria-label="Posição no vídeo"><span id="time">0:00 / 0:20</span></nav>
+<audio id="audio" src="output/story-v4/soundtrack.wav" preload="none"></audio>
+<script src="assets/story-geometry.js"></script>
+<script>
+const canvas=document.querySelector('canvas'),c=canvas.getContext('2d');
+const clamp=x=>Math.max(0,Math.min(1,x)),smooth=x=>{x=clamp(x);return x*x*(3-2*x)},mix=(a,b,p)=>a+(b-a)*p;
+const travel=x=>{x=clamp(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const blend=(a,b,p)=>Object.fromEntries(['x','y','w','h'].map(k=>[k,mix(a[k],b[k],p)]));
+const keys=['story-desktop-base','story-search-0','story-search-1','story-search-2','story-mobile-result','story-mobile-detail','story-desktop-detail'];
+const images={},prepared={};let geometry,logo;
+const PHONE={x:1110,y:124,w:390,h:844},DESKTOP={x:300,y:190,w:1320,h:825},RESULT_SCROLL=150;
+window.transitionTimes=[4.15,7.6,11.4,15.7];window.storyDuration=20;
+function rect(x,y,w,h){return{x,y,w,h}}
+function rounded(r,radius,fill,stroke){c.beginPath();c.roundRect(r.x,r.y,r.w,r.h,radius);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=1.3;c.stroke()}}
+function label(text,x,y,size=66,alpha=1,align='center'){c.save();c.globalAlpha*=alpha;c.fillStyle='#153f2c';c.font=`600 ${size}px "Segoe UI",Arial,sans-serif`;c.textAlign=align;c.textBaseline='middle';text.split('\n').forEach((line,i)=>c.fillText(line,x,y+i*size*1.16));c.restore()}
+function mapBox(key,box,view,scroll=0){const s=view.w/geometry[key].width;return rect(view.x+box.x*s,view.y+(box.y-scroll)*s,box.w*s,box.h*s)}
+function point(r){return{x:r.x+r.w/2,y:r.y+r.h/2}}
+function native(key,view,scroll=0,alpha=1,erase=false){
+ c.save();c.globalAlpha*=alpha;c.shadowColor='#06352c28';c.shadowBlur=32;c.shadowOffsetY=20;
+ rounded(rect(view.x-11,view.y-11,view.w+22,view.h+22),key.includes('mobile')?37:18,'#23392d');c.shadowColor='transparent';
+ c.save();c.beginPath();c.roundRect(view.x,view.y,view.w,view.h,key.includes('mobile')?27:8);c.clip();const g=geometry[key];
+ c.drawImage(images[key],0,scroll*g.dpr,g.width*g.dpr,g.height*g.dpr,view.x,view.y,view.w,view.h);
+ if(erase){const hole=mapBox(key,g.subject,view,scroll);rounded(hole,9,'#f4faf6')}
+ c.restore();c.restore();
+}
+function crop(key,r,context=c,destination=r){const d=geometry[key].dpr;context.drawImage(images[key],r.x*d,r.y*d,r.w*d,r.h*d,destination.x,destination.y,destination.w,destination.h)}
+function prepare(key,region){
+ const g=geometry[key],out=document.createElement('canvas');out.width=Math.ceil(region.w*g.dpr);out.height=Math.ceil(region.h*g.dpr);const x=out.getContext('2d');
+ x.drawImage(images[key],region.x*g.dpr,region.y*g.dpr,region.w*g.dpr,region.h*g.dpr,0,0,out.width,out.height);
+ for(const field of ['name','badge']){const b=g[field];x.fillStyle=g[field+'Background'];x.fillRect((b.x-region.x-1)*g.dpr,(b.y-region.y-1)*g.dpr,(b.w+2)*g.dpr,(b.h+2)*g.dpr)}
+ return{key,region,image:out};
+}
+function localBox(g,field,region){const b=g[field];return rect((b.x-region.x)/region.w,(b.y-region.y)/region.h,b.w/region.w,b.h/region.h)}
+function fitBody(texture,w,h,alpha){
+ if(alpha<=0)return;c.save();c.globalAlpha*=alpha;const s=Math.min(w/texture.region.w,h/texture.region.h),dw=texture.region.w*s,dh=texture.region.h*s;
+ c.drawImage(texture.image,(w-dw)/2,(h-dh)/2,dw,dh);c.restore();
+}
+function morph(from,to,a,b,p,options={}){
+ const r=blend(a,b,p),arc=Math.sin(Math.PI*p);r.x+=(options.dx??0)*arc;r.y+=(options.dy??0)*arc;
+ c.save();c.translate(r.x+r.w/2,r.y+r.h/2);c.rotate((options.roll??0)*arc*Math.PI/180);c.transform(1,0,(options.tilt??0)*arc,1,0,0);c.translate(-r.w/2,-r.h/2);
+ c.shadowColor='#04392e30';c.shadowBlur=(options.shadow??30)*arc;c.shadowOffsetY=18*arc;
+ if(options.frame)rounded(rect(-11,-11,r.w+22,r.h+22),mix(37,18,p),'#23392d');
+ rounded(rect(0,0,r.w,r.h),mix(options.radiusFrom??2,options.radiusTo??10,p),'#fff','#d4e3da');c.shadowColor='transparent';
+ c.save();c.beginPath();c.roundRect(0,0,r.w,r.h,mix(options.radiusFrom??2,options.radiusTo??10,p));c.clip();
+ fitBody(from,r.w,r.h,1-smooth(p/.32));fitBody(to,r.w,r.h,smooth((p-.66)/.34));
+ let anchor;
+ const emphasis=arc*arc,nameFrom=geometry[from.key].name,nameTo=geometry[to.key].name,nameRatio=mix(nameFrom.w/nameFrom.h,nameTo.w/nameTo.h,p),largeNameWidth=Math.min(r.w*.76,460,r.h*2.4),largeNameHeight=largeNameWidth/nameRatio,badgeWidth=Math.min(r.w*.35,120),badgeHeight=badgeWidth/(geometry[to.key].badge.w/geometry[to.key].badge.h),groupTop=(r.h-largeNameHeight-badgeHeight-20)/2;
+ for(const field of ['name','badge']){
+   const u=localBox(geometry[from.key],field,from.region),v=localBox(geometry[to.key],field,to.region),n=blend(u,v,p),dest=rect(n.x*r.w,n.y*r.h,n.w*r.w,n.h*r.h);
+   const focused=field==='name'?rect((r.w-largeNameWidth)/2,groupTop,largeNameWidth,largeNameHeight):rect((r.w-badgeWidth)/2,groupTop+largeNameHeight+20,badgeWidth,badgeHeight);
+   Object.assign(dest,blend(dest,focused,emphasis));
+   // The same service label travels as one element between the real layouts.
+   const source=p<.5?from.key:to.key;
+   if(field==='name'){
+     c.save();c.globalAlpha*=1-emphasis;crop(source,geometry[source][field],c,dest);c.restore();
+     c.save();c.globalAlpha*=emphasis;c.font=geometry[source].font;c.fillStyle=geometry[source].color;c.textBaseline='alphabetic';const m=c.measureText(geometry[source].text);c.translate(dest.x,dest.y);c.scale(dest.w/m.width,dest.h/(m.actualBoundingBoxAscent+m.actualBoundingBoxDescent));c.fillText(geometry[source].text,0,m.actualBoundingBoxAscent);c.restore();
+   }else{c.save();c.beginPath();c.roundRect(dest.x,dest.y,dest.w,dest.h,dest.h/2);c.clip();crop(source,geometry[source][field],c,dest);c.restore()}
+   if(field==='name'){const m=c.getTransform(),q=m.transformPoint(new DOMPoint(dest.x+dest.w/2,dest.y+dest.h/2));anchor={x:q.x,y:q.y}}
+ }
+ c.restore();c.restore();return anchor;
+}
+function tap(at,t,alpha=1){const p=clamp((t-5.9)/.5);c.save();c.globalAlpha*=alpha*(1-p);c.strokeStyle='#00a56d';c.lineWidth=3;c.beginPath();c.arc(at.x,at.y,12+40*p,0,Math.PI*2);c.stroke();c.restore()}
+function searchView(t){const p=smooth(t/2.8),w=mix(1320,1850,p);return rect(960-w/2,mix(210,140,p),w,w*900/1440)}
+function footer(alpha=1){c.save();c.globalAlpha*=alpha;rounded(rect(710,1032,500,40),20,'#f5faf3ee');label('Interface real · Dados ilustrativos',960,1052,17);c.restore()}
+window.draw=t=>{
+ t=Math.max(0,Math.min(20,t));c.globalAlpha=1;c.fillStyle='#f5faf3';c.fillRect(0,0,1920,1080);
+ let phase,anchor,searchText='pagamentos',trigger=null;const sr=searchView(2.8),rowA=mapBox('story-search-2',geometry['story-search-2'].subject,sr),cardB=mapBox('story-mobile-result',geometry['story-mobile-result'].subject,PHONE,RESULT_SCROLL);
+ if(t<2.8){
+   phase='search';const key=t<.75?'story-desktop-base':t<1.25?'story-search-0':t<1.75?'story-search-1':'story-search-2';searchText=t<.75?'':t<1.25?'pa':t<1.75?'paga':'pagamentos';const view=searchView(t);native(key,view);
+   label('Encontre o que importa.',960,108,68,1-smooth((t-.8)/.6));
+   if(t>1.9){const box=mapBox(key,geometry[key].subject,view);c.save();c.globalAlpha=smooth((t-1.9)/.5);rounded(box,5,null,'#00a46b');c.restore()}
+   anchor=point(mapBox(key,geometry[key].name,view));
+ }else if(t<5.5){
+   phase='row-to-card';trigger='search-result';const p=travel((t-2.8)/2.7);native('story-search-2',sr,0,1-smooth(p/.35),true);native('story-mobile-result',PHONE,RESULT_SCROLL,smooth((p-.5)/.5),true);
+   anchor=morph(prepared.row,prepared.card,rowA,cardB,p,{dx:60,dy:-170,roll:-24,tilt:.12});
+ }else if(t<6.4){
+   phase='mobile-result';native('story-mobile-result',PHONE,RESULT_SCROLL);label('A mesma aplicação.\nNa sua mão.',150,420,72,smooth((t-5.5)/.25)*(1-smooth((t-6.1)/.3)),'left');
+   anchor=point(mapBox('story-mobile-result',geometry['story-mobile-result'].name,PHONE,RESULT_SCROLL));
+   if(t>=5.9){tap(point(mapBox('story-mobile-result',geometry['story-mobile-result'].action,PHONE,RESULT_SCROLL)),t);trigger='details-click'}
+ }else if(t<8.8){
+   phase='card-to-detail';trigger='details-click';const p=travel((t-6.4)/2.4);native('story-mobile-result',PHONE,RESULT_SCROLL,1,true);
+   anchor=morph(prepared.card,prepared.mobile,cardB,PHONE,p,{dy:-70,roll:-12,tilt:-.06,radiusFrom:10,radiusTo:27});
+ }else if(t<10){
+   phase='mobile-detail';const scroll=18*smooth((t-8.8)/1.2);native('story-mobile-detail',PHONE,scroll);label('Cada detalhe,\nno seu contexto.',150,420,72,smooth((t-8.8)/.2)*(1-smooth((t-9.8)/.2)),'left');anchor=point(mapBox('story-mobile-detail',geometry['story-mobile-detail'].name,PHONE,scroll));
+ }else if(t<12.8){
+   phase='detail-to-desktop';trigger='detail-scroll';const p=travel((t-10)/2.8);anchor=morph(prepared.mobileScrolled,prepared.desktop,PHONE,DESKTOP,p,{dy:-150,roll:18,tilt:-.12,radiusFrom:27,radiusTo:8,frame:true});
+ }else if(t<14.2){
+   phase='desktop-detail';native('story-desktop-detail',DESKTOP);label('Continue acompanhando.',960,110,68,smooth((t-12.8)/.3)*(1-smooth((t-13.8)/.4)));anchor=point(mapBox('story-desktop-detail',geometry['story-desktop-detail'].name,DESKTOP));
+ }else if(t<17.2){
+   phase='both-devices';trigger='context-reveal';const p=smooth((t-14.2)/3),desk=blend(DESKTOP,rect(170,300,1050,656.25),p),phone=rect(mix(1740,1430,p),mix(320,290,p),260,260*844/390);
+   native('story-desktop-detail',desk);native('story-mobile-detail',phone,0,p);label('A mesma aplicação. Em qualquer tela.',960,140,64,p);anchor=point(mapBox('story-desktop-detail',geometry['story-desktop-detail'].name,desk));
+ }else{
+   phase='brand';const p=smooth((t-17.2)/.8);native('story-desktop-detail',rect(170,300,1050,656.25),0,1-p);native('story-mobile-detail',rect(1430,290,260,260*844/390),0,1-p);
+   c.save();c.globalAlpha=p;c.globalCompositeOperation='multiply';c.drawImage(logo,884,280,152,158);c.restore();label('GreenER',960,555,112,p);label('Keep track. Keep it GreenER.',960,680,38,p);anchor={x:960,y:555};
+ }
+ footer(phase==='brand'?1-smooth((t-17.2)/.8):1);
+ window.frameState={phase,applicationId:'svc-0142',searchText,trigger,anchorX:anchor.x,anchorY:anchor.y};return window.frameState;
+};
+window.ready=(async()=>{
+ geometry=window.storyGeometry;
+ await Promise.all(keys.map(key=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{images[key]=img;resolve()};img.onerror=reject;img.src=`assets/${key}.png`})));
+ logo=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src='assets/green-er-mark.png'});
+ const region=key=>rect(0,0,geometry[key].width,geometry[key].height);
+ prepared.row=prepare('story-search-2',geometry['story-search-2'].subject);prepared.card=prepare('story-mobile-result',geometry['story-mobile-result'].subject);prepared.mobile=prepare('story-mobile-detail',region('story-mobile-detail'));
+ prepared.mobileScrolled=prepare('story-mobile-detail',rect(0,18,390,844));prepared.desktop=prepare('story-desktop-detail',region('story-desktop-detail'));
+ await document.fonts.ready;return window.draw(0);
+})();
+const rendering=new URLSearchParams(location.search).has('render');document.body.className=rendering?'render':'preview';
+function resize(){if(rendering)return;const s=Math.min(innerWidth/1920,.72);canvas.style.transform=`scale(${s})`;document.querySelector('#wrap').style.width=`${1920*s}px`;document.querySelector('#wrap').style.height=`${1080*s}px`}resize();addEventListener('resize',resize);
+const play=document.querySelector('#play'),seek=document.querySelector('#seek'),audio=document.querySelector('#audio');let running=false,position=0,start=0;
+function update(){window.draw(position);seek.value=position;document.querySelector('#time').textContent=`0:${String(Math.floor(position)).padStart(2,'0')} / 0:20`}
+function tick(now){if(!running)return;position=Math.min(20,(now-start)/1000);update();if(position>=20){running=false;play.textContent='Reproduzir';audio.pause()}else requestAnimationFrame(tick)}
+play.onclick=async()=>{await window.ready;running=!running;play.textContent=running?'Pausar':'Reproduzir';if(running){if(position>=20)position=0;start=performance.now()-position*1000;audio.currentTime=position;audio.play().catch(()=>{});requestAnimationFrame(tick)}else audio.pause()};seek.oninput=()=>{position=Number(seek.value);start=performance.now()-position*1000;update();if(audio.readyState)audio.currentTime=position};
+</script>
+</html>
