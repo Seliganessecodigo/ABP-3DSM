@@ -28,6 +28,10 @@ Previously valid data that remains available but is older than the latest monito
 The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
 _Avoid_: Application coverage, data share
 
+**Recalculation preview**:
+An unsaved estimate that applies the current calculation configuration to preserved observations for a selected application and period, presented separately from the original result. It does not replace or contribute to official history, charts, or totals.
+_Avoid_: Recalculated history, saved preview
+
 ## SSO
 
 **Login SSO**:
