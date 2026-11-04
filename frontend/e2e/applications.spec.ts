@@ -527,7 +527,7 @@ test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar 
   await expect(navigation.getByRole('link', { name: 'Histórico', exact: true })).toHaveAttribute('href', '/history')
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
   await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/administration/calculations')
-  for (const name of ['Histórico', 'Ranking', 'Comparação', 'Simulação regional']) {
+  for (const name of ['Ranking', 'Comparação', 'Simulação regional']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
