@@ -1,0 +1,52 @@
+.page { display: grid; gap: 16px; min-height: calc(100vh - 48px); padding: clamp(16px, 3vw, 30px); color: var(--text-primary); background: var(--background-page); }
+.heading, .tabs, .banner, .card, .resultPage { border-radius: 12px; background: var(--surface-card); }
+.heading { padding: 18px; }
+.heading h1 { margin-bottom: 6px; color: var(--text-primary); font-size: clamp(22px, 3vw, 28px); }
+.heading p { margin-bottom: 0; color: var(--text-secondary); font-size: 13px; }
+.eyebrow { margin-bottom: 4px !important; font-size: 11px !important; }
+.tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 6px; }
+.tabs a, .tabs span { display: grid; gap: 3px; overflow: hidden; padding: 10px 12px; border-radius: 7px; color: var(--text-secondary); background: var(--background-page); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.tabs span { opacity: .72; }
+.tabs small { font-size: 10px; }
+.tabs a:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.tabs [aria-current="page"] { color: var(--accent-default); background: var(--accent-subtle); font-weight: 700; }
+.banner { padding: 14px 18px; color: var(--accent-default); background: var(--accent-subtle); font-size: 13px; font-weight: 650; }
+.card, .resultPage { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--border-default); }
+.card h2, .resultPage h2 { margin: 0; font-size: 16px; }
+.card p, .resultPage p { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
+.card form { display: grid; gap: 12px; margin-top: 8px; }
+.card label { display: grid; gap: 6px; color: var(--text-primary); font-size: 12px; font-weight: 650; }
+.card input, .card select { width: 100%; min-height: 42px; border: 1px solid var(--border-default); border-radius: 7px; padding: 8px 10px; color: var(--text-primary); background: var(--surface-card); font: inherit; }
+.card input:focus-visible, .card select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.dateFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.primaryButton, .secondaryButton { min-height: 40px; border: 0; border-radius: 8px; padding: 0 16px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+.primaryButton { min-width: 160px; color: var(--accent-on-accent); background: var(--accent-default); }
+.secondaryButton { color: var(--text-primary); background: var(--background-page); }
+.primaryButton:disabled { opacity: .55; cursor: not-allowed; }
+.primaryButton:focus-visible, .secondaryButton:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.note { padding: 10px 12px; border-left: 3px solid var(--accent-default); background: var(--accent-subtle); }
+.formHint { color: var(--text-secondary); }
+.resultPage { gap: 14px; }
+.resultPage > h2 { font-size: 25px; }
+.measureGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }
+.measure { display: grid; gap: 10px; min-width: 0; padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); }
+.measure h3, .provenance h3 { margin: 0; font-size: 15px; }
+.measureValues { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.measureValues p { display: grid; gap: 6px; padding: 10px; border-radius: 8px; background: var(--background-page); }
+.measureValues strong { color: var(--text-primary); overflow-wrap: anywhere; }
+.coverage, .difference, .reasons { font-size: 12px !important; }
+.difference { color: var(--accent-default) !important; font-weight: 700; }
+.warning { padding: 12px; border-radius: 8px; color: var(--text-primary); background: var(--accent-subtle); }
+.provenance { display: grid; gap: 6px; padding: 14px; border-radius: 8px; background: var(--background-page); }
+.provenance p { overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .page { gap: 12px; min-height: 0; padding: 14px; }
+  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabs span { white-space: normal; }
+  .measureGrid { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .dateFields, .measureValues { grid-template-columns: 1fr; }
+  .primaryButton, .secondaryButton { width: 100%; }
+}
