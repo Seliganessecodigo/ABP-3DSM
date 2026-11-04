@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AuthenticationError } from '../features/authentication/api.ts'
 import styles from './TotpAuthenticationStep.module.css'
 import loginStyles from '../pages/login/LoginPage.module.css'
+import greenErMark from '../assets/green-er-mark.png'
 
 type Props = Readonly<{
   kind: 'setup' | 'challenge'
