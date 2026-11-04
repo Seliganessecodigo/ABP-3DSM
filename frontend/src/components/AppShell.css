@@ -109,6 +109,7 @@
   .login-layout .sidebar { display: flex; }
   .login-layout .topbar { display: flex; }
   .topbar-actions { display: none; gap: 8px; }
+  .login-layout .topbar .topbar-actions { display: none; }
 }
 @media (min-width: 1600px) {
   .methodology-layout:not(.sidebar-collapsed) { grid-template-columns: 270px minmax(0, 1fr); column-gap: 0; margin: 3px 0 0 5px; }
@@ -130,4 +131,3 @@
 @media (min-width: 1600px) { .methodology-layout { --methodology-dialog-offset: 270px; } }
 .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 72px; }
 @media (max-width: 640px) { .methodology-layout, .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 0px; } }
-

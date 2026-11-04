@@ -73,7 +73,8 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
     }
   }
 
-  return <main className={styles.page}>`r`n    <img className={styles.watermark} src={greenErMark} alt="" />
+  return <main className={styles.page}>
+    <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}>
       <h1>{t('title')}</h1>
     </header>
@@ -115,4 +116,3 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
     </section>
   </main>
 }
-

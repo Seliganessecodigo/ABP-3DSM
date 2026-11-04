@@ -87,7 +87,8 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       onExpired={() => { setTotpState(null); setError(t('totpExpired')) }}
     />
   }
-  return <main className={styles.page}>`r`n    <img className={styles.watermark} src={greenErMark} alt="" />
+  return <main className={styles.page}>
+    <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><h1>{t('heading')}</h1></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading">{t('submit')}</h2>
@@ -107,4 +108,3 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     </section>
   </main>
 }
-
