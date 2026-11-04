@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError } from '../features/authentication/api.ts'
 import styles from './TotpAuthenticationStep.module.css'
-import greenErMark from '../assets/green-er-mark.png'
+import loginStyles from '../pages/login/LoginPage.module.css'
 
 type Props = Readonly<{
   kind: 'setup' | 'challenge'
@@ -73,12 +73,13 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
     }
   }
 
-  return <main className={styles.page}>
-    <img className={styles.watermark} src={greenErMark} alt="" />
-    <header className={styles.heading}>
-      <h1>{t('title')}</h1>
+  return <main className={loginStyles.page}>
+    <img className={loginStyles.watermark} src={greenErMark} alt="" />
+    <header className={loginStyles.heading}>
+      <p className={loginStyles.eyebrow}>{t('title')}</p>
+      <h1>{t('heading')}</h1>
     </header>
-    <section className={styles.card} aria-labelledby="totp-heading">
+    <section className={`${loginStyles.card} ${styles.totpCard}`} aria-labelledby="totp-heading">
       <h2 id="totp-heading" ref={headingRef} tabIndex={-1}>{t(isSetup ? 'totpSetupHeading' : 'totpChallengeHeading')}</h2>
       <p>{t(isSetup ? 'totpSetupDescription' : 'totpChallengeDescription')}</p>
       {isSetup && provisioningUri && <div className={styles.provisioning}>
@@ -93,7 +94,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           {copyMessage && <p className={styles.copyMessage} role="status">{copyMessage}</p>}
         </details>
       </div>}
-      <form onSubmit={(event) => void handleSubmit(event)} noValidate>
+      <form className={styles.form} onSubmit={(event) => void handleSubmit(event)} noValidate>
         <label htmlFor="totp-code">{t('totpCodeLabel')}</label>
         <input
           ref={codeRef}
@@ -103,11 +104,12 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
+          className={styles.codeInput}
           value={code}
           onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
           aria-describedby={error ? 'totp-error' : undefined}
         />
-        {error && <p className={styles.error} id="totp-error" role="alert">{error}</p>}
+        {error && <p className={loginStyles.error} id="totp-error" role="alert">{error}</p>}
         <button className="button" type="submit" disabled={submitting}>
           {submitting ? t('totpSubmitting') : t(isSetup ? 'totpSetupSubmit' : 'totpChallengeSubmit')}
         </button>
