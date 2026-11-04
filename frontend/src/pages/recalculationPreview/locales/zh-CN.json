@@ -1,7 +1,7 @@
 {
   "administration": "管理",
-  "title": "重新计算预览",
-  "subtitle": "原始结果将保持不变。",
+  "title": "管理",
+  "subtitle": "监控、参数、审计和访问控制 • 受限区域",
   "health": "健康状态",
   "monitoring": "监控",
   "calculations": "计算",
@@ -52,5 +52,11 @@
   "unknownWarning": "部分数据无法计算。",
   "carbonFactorReason": "碳系数不可用。",
   "energyReason": "能耗数据不可用。",
-  "unknownReason": "后端报告无法计算此值。"
+  "unknownReason": "后端报告无法计算此值。",
+  "navigationUnavailable": "暂不可用",
+  "selectApplicationHint": "选择一个应用以启用预览。",
+  "selectPeriodHint": "请输入时间段的开始和结束日期。",
+  "modelTitle": "估算模型",
+  "energyFormula": "能源 (kWh) = 功率 (kW) × 时长 (h)",
+  "emissionsFormula": "CO₂e (kg) = 能源 (kWh) × 区域因子 (gCO₂e/kWh) ÷ 1000"
 }

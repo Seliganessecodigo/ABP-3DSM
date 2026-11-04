@@ -1,7 +1,7 @@
 {
   "administration": "Amministrazione",
-  "title": "Anteprima del ricalcolo",
-  "subtitle": "I risultati originali restano conservati.",
+  "title": "Amministrazione",
+  "subtitle": "Monitoraggio, parametri, audit e controllo degli accessi • Area riservata",
   "health": "Stato",
   "monitoring": "Monitoraggio",
   "calculations": "Calcoli",
@@ -52,5 +52,11 @@
   "unknownWarning": "Alcuni dati non sono stati calcolati.",
   "carbonFactorReason": "Fattore di carbonio non disponibile.",
   "energyReason": "Energia non disponibile.",
-  "unknownReason": "Il backend ha segnalato che questo valore non è stato calcolato."
+  "unknownReason": "Il backend ha segnalato che questo valore non è stato calcolato.",
+  "navigationUnavailable": "Non disponibile",
+  "selectApplicationHint": "Seleziona un’applicazione per attivare l’anteprima.",
+  "selectPeriodHint": "Inserisci entrambe le date del periodo.",
+  "modelTitle": "Modello di stima",
+  "energyFormula": "Energia (kWh) = potenza (kW) × durata (h)",
+  "emissionsFormula": "CO₂e (kg) = energia (kWh) × fattore regionale (gCO₂e/kWh) ÷ 1000"
 }

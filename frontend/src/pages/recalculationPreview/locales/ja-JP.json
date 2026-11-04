@@ -1,7 +1,7 @@
 {
   "administration": "管理",
-  "title": "再計算プレビュー",
-  "subtitle": "元の結果は保持されます。",
+  "title": "管理",
+  "subtitle": "監視、パラメーター、監査、アクセス制御 • 制限エリア",
   "health": "状態",
   "monitoring": "監視",
   "calculations": "計算",
@@ -52,5 +52,11 @@
   "unknownWarning": "一部のデータを計算できませんでした。",
   "carbonFactorReason": "炭素係数を利用できません。",
   "energyReason": "エネルギーを利用できません。",
-  "unknownReason": "バックエンドから、この値を計算できないと通知されました。"
+  "unknownReason": "バックエンドから、この値を計算できないと通知されました。",
+  "navigationUnavailable": "利用できません",
+  "selectApplicationHint": "プレビューを有効にするにはアプリケーションを選択してください。",
+  "selectPeriodHint": "期間の開始日と終了日を入力してください。",
+  "modelTitle": "推定モデル",
+  "energyFormula": "エネルギー (kWh) = 電力 (kW) × 時間 (h)",
+  "emissionsFormula": "CO₂e (kg) = エネルギー (kWh) × 地域係数 (gCO₂e/kWh) ÷ 1000"
 }

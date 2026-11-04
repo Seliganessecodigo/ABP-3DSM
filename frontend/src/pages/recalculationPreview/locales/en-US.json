@@ -1,7 +1,7 @@
 {
   "administration": "Administration",
-  "title": "Recalculation preview",
-  "subtitle": "Original results remain preserved.",
+  "title": "Administration",
+  "subtitle": "Monitoring, parameters, audit, and access control • Restricted area",
   "health": "Health",
   "monitoring": "Monitoring",
   "calculations": "Calculations",
@@ -52,5 +52,11 @@
   "unknownWarning": "Some data could not be calculated.",
   "carbonFactorReason": "Carbon factor unavailable.",
   "energyReason": "Energy unavailable.",
-  "unknownReason": "The backend reported that this value could not be calculated."
+  "unknownReason": "The backend reported that this value could not be calculated.",
+  "navigationUnavailable": "Unavailable",
+  "selectApplicationHint": "Select an application to enable the preview.",
+  "selectPeriodHint": "Enter both dates for the period.",
+  "modelTitle": "Estimation model",
+  "energyFormula": "Energy (kWh) = power (kW) × duration (h)",
+  "emissionsFormula": "CO₂e (kg) = energy (kWh) × regional factor (gCO₂e/kWh) ÷ 1000"
 }

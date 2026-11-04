@@ -1,7 +1,7 @@
 {
   "administration": "Verwaltung",
-  "title": "Neuberechnungsvorschau",
-  "subtitle": "Originalergebnisse bleiben erhalten.",
+  "title": "Administration",
+  "subtitle": "Überwachung, Parameter, Audit und Zugriffskontrolle • Geschützter Bereich",
   "health": "Status",
   "monitoring": "Überwachung",
   "calculations": "Berechnungen",
@@ -52,5 +52,11 @@
   "unknownWarning": "Einige Daten konnten nicht berechnet werden.",
   "carbonFactorReason": "CO₂-Faktor nicht verfügbar.",
   "energyReason": "Energie nicht verfügbar.",
-  "unknownReason": "Das Backend meldet, dass dieser Wert nicht berechnet werden konnte."
+  "unknownReason": "Das Backend meldet, dass dieser Wert nicht berechnet werden konnte.",
+  "navigationUnavailable": "Nicht verfügbar",
+  "selectApplicationHint": "Wählen Sie eine Anwendung aus, um die Vorschau zu aktivieren.",
+  "selectPeriodHint": "Geben Sie beide Daten für den Zeitraum ein.",
+  "modelTitle": "Schätzmodell",
+  "energyFormula": "Energie (kWh) = Leistung (kW) × Dauer (h)",
+  "emissionsFormula": "CO₂e (kg) = Energie (kWh) × regionaler Faktor (gCO₂e/kWh) ÷ 1000"
 }

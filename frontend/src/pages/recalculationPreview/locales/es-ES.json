@@ -1,7 +1,7 @@
 {
   "administration": "Administración",
-  "title": "Vista previa del recálculo",
-  "subtitle": "Los resultados originales se conservan.",
+  "title": "Administración",
+  "subtitle": "Supervisión, parámetros, auditoría y control de acceso • Área restringida",
   "health": "Salud",
   "monitoring": "Monitorización",
   "calculations": "Cálculos",
@@ -52,5 +52,11 @@
   "unknownWarning": "Algunos datos no se pudieron calcular.",
   "carbonFactorReason": "Factor de carbono no disponible.",
   "energyReason": "Energía no disponible.",
-  "unknownReason": "El backend informó que este valor no se pudo calcular."
+  "unknownReason": "El backend informó que este valor no se pudo calcular.",
+  "navigationUnavailable": "No disponible",
+  "selectApplicationHint": "Selecciona una aplicación para activar la vista previa.",
+  "selectPeriodHint": "Introduce las dos fechas del período.",
+  "modelTitle": "Modelo de estimación",
+  "energyFormula": "Energía (kWh) = potencia (kW) × duración (h)",
+  "emissionsFormula": "CO₂e (kg) = energía (kWh) × factor regional (gCO₂e/kWh) ÷ 1000"
 }

@@ -1,7 +1,7 @@
 {
   "administration": "Administrasi",
-  "title": "Pratinjau perhitungan ulang",
-  "subtitle": "Hasil asli tetap dipertahankan.",
+  "title": "Administrasi",
+  "subtitle": "Pemantauan, parameter, audit, dan kontrol akses • Area terbatas",
   "health": "Kesehatan",
   "monitoring": "Pemantauan",
   "calculations": "Perhitungan",
@@ -52,5 +52,11 @@
   "unknownWarning": "Beberapa data tidak dapat dihitung.",
   "carbonFactorReason": "Faktor karbon tidak tersedia.",
   "energyReason": "Data energi tidak tersedia.",
-  "unknownReason": "Backend melaporkan bahwa nilai ini tidak dapat dihitung."
+  "unknownReason": "Backend melaporkan bahwa nilai ini tidak dapat dihitung.",
+  "navigationUnavailable": "Tidak tersedia",
+  "selectApplicationHint": "Pilih aplikasi untuk mengaktifkan pratinjau.",
+  "selectPeriodHint": "Masukkan kedua tanggal periode.",
+  "modelTitle": "Model estimasi",
+  "energyFormula": "Energi (kWh) = daya (kW) × durasi (h)",
+  "emissionsFormula": "CO₂e (kg) = energi (kWh) × faktor regional (gCO₂e/kWh) ÷ 1000"
 }

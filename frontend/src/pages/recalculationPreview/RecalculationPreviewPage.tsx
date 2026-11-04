@@ -39,6 +39,8 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
   const generateButton = useRef<HTMLButtonElement | null>(null)
   const hadResult = useRef(false)
   const period = useMemo(() => selectedPeriod(from, to), [from, to])
+  const generationHint = applicationsState !== 'ready' || applications.length === 0 ? null :
+    !applicationId ? 'selectApplicationHint' : !from || !to ? 'selectPeriodHint' : !period ? 'periodInvalid' : null
 
   useEffect(() => {
     if (result) {
@@ -124,8 +126,12 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
   }
 
   return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.heading}><p className={styles.eyebrow}>{t('administration')}</p><h1>{t('title')}</h1><p>{t('subtitle')}</p></header>
-    <div className={styles.tabs} role="group" aria-label={t('administration')}><span>{t('health')}</span><span>{t('monitoring')}</span><span aria-current="page">{t('calculations')}</span><span>{t('audit')}</span><span>{t('access')}</span></div>
+    <header className={styles.heading}><h1>{t('title')}</h1><p>{t('subtitle')}</p></header>
+    <nav className={styles.tabs} aria-label={t('administration')}>
+      {[['health', 'health'], ['monitoring', 'monitoring'], ['calculations', 'calculations'], ['audit', 'audit'], ['access', 'access']].map(([key, label]) => key === 'calculations'
+        ? <a key={key} href="/administration/calculations" aria-current="page">{t(label)}</a>
+        : <span key={key} aria-disabled="true" title={t('navigationUnavailable')}>{t(label)}<small>{t('navigationUnavailable')}</small></span>)}
+    </nav>
     {result ? <section className={styles.resultPage} aria-labelledby="preview-title">
       <h2 id="preview-title" ref={resultHeading} tabIndex={-1}>{t('resultTitle')}</h2>
       <p>{t('preserved')}</p>
@@ -142,6 +148,11 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
       <button className={styles.secondaryButton} type="button" onClick={() => { clearPreviousRequest(); }}>{t('back')}</button>
     </section> : <>
       <section className={styles.banner} aria-label={t('statusBanner')}>● {t('calculations')} · {t('preserved')}</section>
+      <section className={styles.card} aria-labelledby="estimation-model-title">
+        <h2 id="estimation-model-title">{t('modelTitle')}</h2>
+        <p>{t('energyFormula')}</p>
+        <p>{t('emissionsFormula')}</p>
+      </section>
       <section className={styles.card}><h2>{t('parametersTitle')}</h2><p>{t('configurationNote')}</p></section>
       <section className={styles.card}><h2>{t('recalculateTitle')}</h2><p>{t('recalculateDescription')}</p>
         {applicationsState === 'loading' && <p role="status">{t('loadingApplications')}</p>}
@@ -155,13 +166,13 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
             <label>{t('from')}<input type="date" value={from} max={to || undefined} onChange={(event) => { clearPreviousRequest(); setFrom(event.target.value) }} /></label>
             <label>{t('to')}<input type="date" value={to} min={from || undefined} onChange={(event) => { clearPreviousRequest(); setTo(event.target.value) }} /></label>
           </div>
-          {from && to && !period && <p role="alert">{t('periodInvalid')}</p>}
           {requestError && <p role="alert">{t(requestError)}</p>}
           <p className={styles.note}>{t('noSave')}</p>
           <div className={styles.actions}>
-            <button ref={generateButton} className={styles.primaryButton} type="submit" disabled={!applicationId || !period || pending || applicationsState !== 'ready'}>{pending ? t('processing') : t('generate')}</button>
+            <button ref={generateButton} className={styles.primaryButton} type="submit" aria-describedby={generationHint && !pending ? 'generate-preview-hint' : undefined} disabled={!applicationId || !period || pending || applicationsState !== 'ready'}>{pending ? t('processing') : t('generate')}</button>
             <button className={styles.secondaryButton} type="button" onClick={() => navigate('/methodology')}>{t('methodology')}</button>
           </div>
+          {generationHint && !pending && <p id="generate-preview-hint" className={styles.formHint} role="status">{t(generationHint)}</p>}
           {pending && <p role="status" aria-live="polite">{t('processing')}</p>}
         </form>
       </section>

@@ -1,7 +1,7 @@
 {
   "administration": "प्रशासन",
-  "title": "पुनर्गणना पूर्वावलोकन",
-  "subtitle": "मूल परिणाम सुरक्षित रहते हैं।",
+  "title": "प्रशासन",
+  "subtitle": "निगरानी, पैरामीटर, ऑडिट और एक्सेस नियंत्रण • प्रतिबंधित क्षेत्र",
   "health": "स्थिति",
   "monitoring": "निगरानी",
   "calculations": "गणनाएँ",
@@ -52,5 +52,11 @@
   "unknownWarning": "कुछ डेटा की गणना नहीं हो सकी।",
   "carbonFactorReason": "कार्बन गुणांक उपलब्ध नहीं है।",
   "energyReason": "ऊर्जा डेटा उपलब्ध नहीं है।",
-  "unknownReason": "बैकएंड ने बताया कि इस मान की गणना नहीं हो सकी।"
+  "unknownReason": "बैकएंड ने बताया कि इस मान की गणना नहीं हो सकी।",
+  "navigationUnavailable": "उपलब्ध नहीं",
+  "selectApplicationHint": "पूर्वावलोकन सक्षम करने के लिए एक एप्लिकेशन चुनें।",
+  "selectPeriodHint": "अवधि की दोनों तिथियाँ दर्ज करें।",
+  "modelTitle": "अनुमान मॉडल",
+  "energyFormula": "ऊर्जा (kWh) = शक्ति (kW) × अवधि (h)",
+  "emissionsFormula": "CO₂e (kg) = ऊर्जा (kWh) × क्षेत्रीय कारक (gCO₂e/kWh) ÷ 1000"
 }

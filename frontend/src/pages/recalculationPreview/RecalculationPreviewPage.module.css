@@ -5,7 +5,10 @@
 .heading p { margin-bottom: 0; color: var(--text-secondary); font-size: 13px; }
 .eyebrow { margin-bottom: 4px !important; font-size: 11px !important; }
 .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 6px; }
-.tabs span { overflow: hidden; padding: 10px 12px; border-radius: 7px; color: var(--text-secondary); background: var(--background-page); text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.tabs a, .tabs span { display: grid; gap: 3px; overflow: hidden; padding: 10px 12px; border-radius: 7px; color: var(--text-secondary); background: var(--background-page); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.tabs span { opacity: .72; }
+.tabs small { font-size: 10px; }
+.tabs a:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .tabs [aria-current="page"] { color: var(--accent-default); background: var(--accent-subtle); font-weight: 700; }
 .banner { padding: 14px 18px; color: var(--accent-default); background: var(--accent-subtle); font-size: 13px; font-weight: 650; }
 .card, .resultPage { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--border-default); }
@@ -23,6 +26,7 @@
 .primaryButton:disabled { opacity: .55; cursor: not-allowed; }
 .primaryButton:focus-visible, .secondaryButton:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .note { padding: 10px 12px; border-left: 3px solid var(--accent-default); background: var(--accent-subtle); }
+.formHint { color: var(--text-secondary); }
 .resultPage { gap: 14px; }
 .resultPage > h2 { font-size: 25px; }
 .measureGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }

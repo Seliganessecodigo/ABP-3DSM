@@ -1,7 +1,7 @@
 {
   "administration": "관리",
-  "title": "재계산 미리보기",
-  "subtitle": "원래 결과는 보존됩니다.",
+  "title": "관리",
+  "subtitle": "모니터링, 매개변수, 감사 및 액세스 제어 • 제한 구역",
   "health": "상태",
   "monitoring": "모니터링",
   "calculations": "계산",
@@ -52,5 +52,11 @@
   "unknownWarning": "일부 데이터를 계산할 수 없습니다.",
   "carbonFactorReason": "탄소 계수를 사용할 수 없습니다.",
   "energyReason": "에너지 데이터를 사용할 수 없습니다.",
-  "unknownReason": "백엔드에서 이 값을 계산할 수 없다고 알렸습니다."
+  "unknownReason": "백엔드에서 이 값을 계산할 수 없다고 알렸습니다.",
+  "navigationUnavailable": "사용할 수 없음",
+  "selectApplicationHint": "미리보기를 활성화하려면 애플리케이션을 선택하세요.",
+  "selectPeriodHint": "기간의 시작일과 종료일을 모두 입력하세요.",
+  "modelTitle": "추정 모델",
+  "energyFormula": "에너지 (kWh) = 전력 (kW) × 시간 (h)",
+  "emissionsFormula": "CO₂e (kg) = 에너지 (kWh) × 지역 계수 (gCO₂e/kWh) ÷ 1000"
 }

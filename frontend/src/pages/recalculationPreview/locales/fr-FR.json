@@ -1,7 +1,7 @@
 {
   "administration": "Administration",
-  "title": "Aperçu du recalcul",
-  "subtitle": "Les résultats d’origine sont conservés.",
+  "title": "Administration",
+  "subtitle": "Surveillance, paramètres, audit et contrôle d’accès • Zone réservée",
   "health": "Santé",
   "monitoring": "Surveillance",
   "calculations": "Calculs",
@@ -52,5 +52,11 @@
   "unknownWarning": "Certaines données n’ont pas pu être calculées.",
   "carbonFactorReason": "Facteur carbone indisponible.",
   "energyReason": "Énergie indisponible.",
-  "unknownReason": "Le backend indique que cette valeur n’a pas pu être calculée."
+  "unknownReason": "Le backend indique que cette valeur n’a pas pu être calculée.",
+  "navigationUnavailable": "Indisponible",
+  "selectApplicationHint": "Sélectionnez une application pour activer l’aperçu.",
+  "selectPeriodHint": "Saisissez les deux dates de la période.",
+  "modelTitle": "Modèle d’estimation",
+  "energyFormula": "Énergie (kWh) = puissance (kW) × durée (h)",
+  "emissionsFormula": "CO₂e (kg) = énergie (kWh) × facteur régional (gCO₂e/kWh) ÷ 1000"
 }
