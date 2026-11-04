@@ -99,7 +99,6 @@
 .login-layout { min-height: 100vh; }
 .login-layout .sidebar { display: flex; }
 .login-layout .topbar { display: none; }
-.login-layout .topbar-actions { display: flex; align-items: center; gap: 14px; }
 @media (prefers-reduced-motion: reduce) {
   .app-layout, .sidebar, .brand-name, .brand-wordmark, .nav-heading, .nav-label, .sidebar-preferences, .sidebar-collapse-toggle svg { transition-duration: .01ms; }
 }
