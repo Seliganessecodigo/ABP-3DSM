@@ -96,15 +96,18 @@
 .auth-account span { display: grid; gap: 2px; min-width: 0; }
 .auth-account strong, .auth-account small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .auth-account button { border: 0; padding: 4px; color: var(--sidebar-accent); background: transparent; font: inherit; cursor: pointer; }
-.login-layout { display: block; min-height: 100vh; }
-.login-layout .sidebar { display: none; }
-.login-layout .topbar { display: flex; }
+.login-layout { min-height: 100vh; }
+.login-layout .sidebar { display: flex; }
+.login-layout .topbar { display: none; }
 .login-layout .topbar-actions { display: flex; align-items: center; gap: 14px; }
 @media (prefers-reduced-motion: reduce) {
   .app-layout, .sidebar, .brand-name, .brand-wordmark, .nav-heading, .nav-label, .sidebar-preferences, .sidebar-collapse-toggle svg { transition-duration: .01ms; }
 }
 .topbar-actions { display: flex; align-items: center; gap: 16px; }
 @media (max-width: 640px) {
+  .login-layout { display: block; }
+  .login-layout .sidebar { display: flex; }
+  .login-layout .topbar { display: flex; }
   .topbar-actions { display: none; gap: 8px; }
 }
 @media (min-width: 1600px) {
@@ -127,3 +130,4 @@
 @media (min-width: 1600px) { .methodology-layout { --methodology-dialog-offset: 270px; } }
 .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 72px; }
 @media (max-width: 640px) { .methodology-layout, .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 0px; } }
+
