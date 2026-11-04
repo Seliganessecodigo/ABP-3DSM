@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError } from '../features/authentication/api.ts'
 import styles from './TotpAuthenticationStep.module.css'
+import greenErMark from '../assets/green-er-mark.png'
 
 type Props = Readonly<{
   kind: 'setup' | 'challenge'
@@ -73,6 +74,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   }
 
   return <main className={styles.page}>
+    <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}>
       <h1>{t('title')}</h1>
     </header>

@@ -198,7 +198,7 @@ test('mantém desafio após códigos rejeitados e retorna ao login quando a API 
 
   await page.getByLabel('Código do autenticador').fill('123456')
   await page.getByRole('button', { name: 'Verificar e entrar' }).click()
-  await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Acesso administrativo' })).toBeVisible()
   await expect(page.getByRole('alert')).toHaveText('A etapa de autenticação expirou. Entre novamente com suas credenciais.')
   await expect(page.getByLabel('Código do autenticador')).toHaveCount(0)
   expect(challengeRequests).toBe(6)
@@ -225,7 +225,7 @@ test('cancelar o cadastro limpa o fluxo temporário e não persiste credenciais'
   await expect(page.getByRole('img', { name: 'QR Code para configurar o autenticador' })).toBeVisible()
   await page.getByRole('button', { name: 'Voltar ao login' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Acesso administrativo' })).toBeVisible()
   await expect(page.getByRole('img', { name: 'QR Code para configurar o autenticador' })).toHaveCount(0)
   await expect(page).toHaveURL('http://127.0.0.1:4173/login')
   const browserState = await page.evaluate(() => JSON.stringify({
@@ -315,7 +315,7 @@ test('credencial de setup recusada retorna ao login sem renovar credenciais', as
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 
-  await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Acesso administrativo' })).toBeVisible()
   await expect(page.getByRole('alert')).toHaveText('A etapa de autenticação expirou. Entre novamente com suas credenciais.')
   await expect(page.getByRole('img', { name: 'QR Code para configurar o autenticador' })).toHaveCount(0)
   expect(setupRequests).toBe(1)
@@ -335,7 +335,7 @@ test('recarregar durante o desafio retorna ao login sem persistir a credencial t
   await expect(page.getByRole('heading', { name: 'Verificação em duas etapas' })).toBeVisible()
   await page.reload()
 
-  await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Acesso administrativo' })).toBeVisible()
   await expect(page.getByLabel('Código do autenticador')).toHaveCount(0)
   await expect(page).toHaveURL('http://127.0.0.1:4173/login')
   const browserState = await page.evaluate(() => JSON.stringify({
@@ -430,7 +430,9 @@ test('cadastro do autenticador cabe em uma tela móvel sem rolagem horizontal', 
   }))
 
   await page.goto('/login')
-  await page.getByRole('combobox').selectOption('pt-BR')
+  await page.getByRole('button', { name: 'Abrir menu' }).click()
+  await page.getByRole('dialog').getByRole('combobox').selectOption('pt-BR')
+  await page.getByRole('dialog').getByRole('button', { name: 'Fechar menu' }).click()
   await page.getByLabel('E-mail institucional').fill('admin@example.com')
   await page.getByLabel('Senha').fill('password123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()

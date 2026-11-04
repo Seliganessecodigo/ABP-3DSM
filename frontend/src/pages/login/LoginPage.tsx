@@ -1,4 +1,5 @@
 import styles from './LoginPage.module.css'
+import greenErMark from '../../assets/green-er-mark.png'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError, type TotpProvisioning } from '../../features/authentication/api.ts'
@@ -87,9 +88,10 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     />
   }
   return <main className={styles.page}>
-    <header className={styles.heading}><h1>{t('title')}</h1></header>
+    <img className={styles.watermark} src={greenErMark} alt="" />
+    <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><h1>{t('heading')}</h1></header>
     <section className={styles.card} aria-labelledby="login-heading">
-      <h2 id="login-heading">{t('heading')}</h2>
+      <h2 id="login-heading">{t('submit')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
         <label>{t('email')}<input name="email" type="email" autoComplete="username" required /></label>
