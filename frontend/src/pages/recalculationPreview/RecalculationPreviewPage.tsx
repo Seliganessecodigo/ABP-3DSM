@@ -125,7 +125,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
 
   return <main className={styles.page} tabIndex={-1}>
     <header className={styles.heading}><p className={styles.eyebrow}>{t('administration')}</p><h1>{t('title')}</h1><p>{t('subtitle')}</p></header>
-    <nav className={styles.tabs} aria-label={t('administration')}><span>{t('health')}</span><span>{t('monitoring')}</span><span aria-current="page">{t('calculations')}</span><span>{t('audit')}</span><span>{t('access')}</span></nav>
+    <div className={styles.tabs} role="group" aria-label={t('administration')}><span>{t('health')}</span><span>{t('monitoring')}</span><span aria-current="page">{t('calculations')}</span><span>{t('audit')}</span><span>{t('access')}</span></div>
     {result ? <section className={styles.resultPage} aria-labelledby="preview-title">
       <h2 id="preview-title" ref={resultHeading} tabIndex={-1}>{t('resultTitle')}</h2>
       <p>{t('preserved')}</p>
