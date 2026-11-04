@@ -218,7 +218,7 @@ test('descarta resposta atrasada quando o período muda durante a solicitação'
       await route.fulfill({ json: {
         status: 'available', original: analysis({ energy: 2, emissions: 0.8 }), preview: analysis({ energy: 3, emissions: 1 }), warnings: [],
       } })
-    } catch { /* the form aborts the request when its context changes */ }
+    } catch { /* o formulário aborta a requisição quando o contexto muda */ }
   })
   await page.goto('/administration/calculations')
   await page.getByLabel('Aplicação').selectOption('svc-0142')
@@ -235,13 +235,18 @@ test('descarta resposta atrasada quando o período muda durante a solicitação'
 
 test('descarta resposta atrasada quando a aplicação muda durante a solicitação', async ({ page }) => {
   await page.route('**/api/applications', (route) => route.fulfill({ json: [application(), application({ id: 'svc-0200', name: 'app-relatorios' })] }))
+  let releaseResponse = () => {}
+  let finishResponse = () => {}
+  const responseGate = new Promise<void>((resolve) => { releaseResponse = resolve })
+  const responseHandled = new Promise<void>((resolve) => { finishResponse = resolve })
   await page.route('**/api/applications/*/analysis/recalculation-preview', async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await responseGate
     try {
       await route.fulfill({ json: {
         status: 'available', original: analysis({ energy: 2, emissions: 0.8 }), preview: analysis({ energy: 3, emissions: 1 }), warnings: [],
       } })
     } catch { /* the form aborts the request when its context changes */ }
+    finally { finishResponse() }
   })
   await page.goto('/administration/calculations')
   await page.getByLabel('Aplicação').selectOption('svc-0142')
@@ -250,7 +255,8 @@ test('descarta resposta atrasada quando a aplicação muda durante a solicitaç�
   await page.getByRole('button', { name: 'Gerar prévia' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Processando' })).toBeVisible()
   await page.getByLabel('Aplicação').selectOption('svc-0200')
-  await page.waitForTimeout(350)
+  releaseResponse()
+  await responseHandled
   await expect(page.getByRole('region', { name: 'Energia' })).toHaveCount(0)
   await expect(page.getByRole('alert')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Gerar prévia' })).toBeEnabled()
