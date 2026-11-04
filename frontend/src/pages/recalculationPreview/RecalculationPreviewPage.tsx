@@ -107,6 +107,12 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
     return t(key, regionCode ? { region: regionCode } : undefined)
   }
 
+  function reasonMessage(reason: { code: string; metric?: string }) {
+    const known = reason.code === 'CARBON_FACTOR_UNAVAILABLE' ? 'carbonFactorReason' :
+      reason.code === 'ENERGY_UNAVAILABLE' ? 'energyReason' : null
+    return `${known ? t(known) : reason.code}${reason.metric ? ` (${reason.metric})` : ''}`
+  }
+
   function renderMeasure(label: string, key: 'energy' | 'emissions') {
     if (!result) return null
     const original = result.original[key]
@@ -121,7 +127,8 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
       </div>
       <p className={styles.coverage}>{t('coverage')}: {formatNumber(result.original.coverage[key] * 100, 2)}% / {formatNumber(result.preview.coverage[key] * 100, 2)}%</p>
       {change.reason ? <p className={styles.difference}>{t(change.reason)}</p> : <p className={styles.difference}>{t('difference')}: {new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR', { style: 'percent', signDisplay: 'always', maximumFractionDigits: 2 }).format(change.value!)}</p>}
-      {(original.reasons.length > 0 || preview.reasons.length > 0) && <p className={styles.reasons}>{[...new Set([...original.reasons, ...preview.reasons].map((reason) => reason.code))].map((code) => t(code === 'CARBON_FACTOR_UNAVAILABLE' ? 'carbonFactorReason' : code === 'ENERGY_UNAVAILABLE' ? 'energyReason' : 'unknownReason')).join(' ')}</p>}
+      {original.reasons.length > 0 && <p className={styles.reasons}>{t('original')}: {original.reasons.map(reasonMessage).join(' ')}</p>}
+      {preview.reasons.length > 0 && <p className={styles.reasons}>{t('preview')}: {preview.reasons.map(reasonMessage).join(' ')}</p>}
     </section>
   }
 
@@ -135,19 +142,21 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
     {result ? <section className={styles.resultPage} aria-labelledby="preview-title">
       <h2 id="preview-title" ref={resultHeading} tabIndex={-1}>{t('resultTitle')}</h2>
       <p>{t('preserved')}</p>
+      <p>{t('application')}: {applications.find((item) => item.id === result.original.applicationId)?.name ?? result.original.applicationId}</p>
+      <p>{t('from')}: {new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR').format(new Date(result.original.period.from))} · {t('to')}: {new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR').format(new Date(Date.parse(result.original.period.to) - 1))}</p>
       <p>{t('noSave')}</p>
       <p role="status">{t(result.status === 'partial' ? 'statusPartial' : result.status === 'empty' ? 'statusEmpty' : 'statusAvailable')}</p>
-      {result.status === 'partial' && result.warnings.length > 0 && <div role="status" className={styles.warning}>{result.warnings.map((warning) => warningMessage(warning.code, warning.regionCode)).join(' ')}</div>}
+      {result.warnings.length > 0 && <div role="status" className={styles.warning}>{result.warnings.map((warning) => warningMessage(warning.code, warning.regionCode)).join(' ')}</div>}
       <div className={styles.measureGrid}>{renderMeasure(t('energy'), 'energy')}{renderMeasure(t('emissions'), 'emissions')}</div>
       <section className={styles.provenance} aria-label={t('methodAndFactors')}>
         <h3>{t('methodAndFactors')}</h3>
-        {result.preview.provenance.methodologies.map((method) => <p key={`${method.key}-${method.version}`}>{t('method')}: {method.key} v{method.version}</p>)}
-        {result.preview.provenance.factors.map((factor, index) => <p key={`${factor.regionCode}-${factor.version}-${index}`}>{t('factor')}: {[factor.regionCode, factor.version, factor.intensity === null ? null : `${formatNumber(factor.intensity)} ${factor.unit ?? ''}`].filter(Boolean).join(' · ') || t('unavailable')}</p>)}
+        {result.preview.provenance.methodologies.map((method) => <p key={`${method.key}-${method.version}`}>{t('method')}: {method.key} v{method.version} · {JSON.stringify(method.parameters)}</p>)}
+        {result.preview.provenance.factors.map((factor, index) => <p key={`${factor.regionCode}-${factor.version}-${index}`}>{t('factor')}: {[factor.regionCode, factor.country, factor.region, factor.city, factor.version, factor.contractVersion, factor.source, factor.intensity === null ? null : `${formatNumber(factor.intensity)} ${factor.unit ?? ''}`, factor.validFrom, factor.validUntil, factor.queriedAt.from, factor.queriedAt.to].filter(Boolean).join(' · ') || t('unavailable')}</p>)}
         {result.preview.provenance.methodologies.length === 0 && result.preview.provenance.factors.length === 0 && <p>{t('provenanceUnavailable')}</p>}
       </section>
       <button className={styles.secondaryButton} type="button" onClick={() => { clearPreviousRequest(); }}>{t('back')}</button>
     </section> : <>
-      <section className={styles.banner} aria-label={t('statusBanner')}>● {t('calculations')} · {t('preserved')}</section>
+      <section className={styles.banner} aria-label={t('calculations')}>● {t('calculations')} · {t('preserved')}</section>
       <section className={styles.card} aria-labelledby="estimation-model-title">
         <h2 id="estimation-model-title">{t('modelTitle')}</h2>
         <p>{t('energyFormula')}</p>
