@@ -21,6 +21,7 @@ import {
   GoogleOidcTransport,
 } from './google-oidc-transport'
 import { AccessTokenService } from './access-token.service'
+import { CarbonIntensityAdapter } from '../../integrations/carbon-intensity.adapter'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeWithDatabase = testDatabaseUrl ? describe : describe.skip
@@ -845,6 +846,44 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     const publicResponse = await fetch(new URL('/health', await app.getUrl()))
     expect(privateResponse.status).toBe(401)
     expect(publicResponse.status).toBe(200)
+  })
+
+  it('permite leituras públicas sem sessão', async () => {
+    const regions = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchRegions')
+      .mockResolvedValue({ regions: [], total: 0 })
+    try {
+      const publicPaths = [
+        '/health',
+        '/applications',
+        '/monitoring/incidents',
+        '/carbon/regions',
+        '/analysis/summary?from=2026-10-01T00%3A00%3A00Z&to=2026-10-01T00%3A01%3A00Z',
+      ]
+      for (const path of publicPaths) {
+        const response = await fetch(new URL(path, await app.getUrl()))
+        expect(response.status).toBe(200)
+      }
+    } finally {
+      regions.mockRestore()
+    }
+  })
+
+  it('recusa convite sem sessão antes de enviar e-mail', async () => {
+    const response = await fetch(
+      new URL('/auth/sso/invitations', await app.getUrl()),
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: 'unauthorized-invite@example.test',
+          name: 'Unauthorized Invite',
+          role: 'ANALYST',
+        }),
+      },
+    )
+    expect(response.status).toBe(401)
+    expect(sentEmails).toHaveLength(0)
   })
 
   it('aplica o limite absoluto de sete dias mesmo com atividade recente', async () => {
