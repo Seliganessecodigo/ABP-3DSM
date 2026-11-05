@@ -47,7 +47,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    if (!/^\\d{6}$/.test(code)) {
+    if (!/^\d{6}$/.test(code)) {
       setError(t('totpInvalidFormat'))
       codeRef.current?.focus()
       return
@@ -110,7 +110,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           maxLength={6}
           className={styles.codeInput}
           value={code}
-          onChange={(event) => setCode(event.target.value.replace(/\\D/g, '').slice(0, 6))}
+          onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
           aria-describedby={error ? 'totp-error' : undefined}
         />
         {error && <p className={loginStyles.error} id="totp-error" role="alert">{error}</p>}
