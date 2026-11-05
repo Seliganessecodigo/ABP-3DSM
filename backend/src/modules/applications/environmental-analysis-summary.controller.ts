@@ -9,12 +9,14 @@ import {
 } from '@nestjs/swagger'
 import { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 import { EnvironmentalAnalysisSummaryService } from './environmental-analysis-summary.service'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('analysis')
 @Controller('analysis/summary')
 export class EnvironmentalAnalysisSummaryController {
   constructor(private readonly summary: EnvironmentalAnalysisSummaryService) {}
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Consultar resumo ambiental agregado por período' })
   @ApiQuery({ name: 'from', required: true, type: String, format: 'date-time' })

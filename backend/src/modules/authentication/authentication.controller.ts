@@ -51,6 +51,7 @@ import { AuthenticationGuard } from './authentication.guard'
 import { CurrentPrincipal } from './current-principal.decorator'
 import { RequireRoles } from './roles.decorator'
 import { RolesGuard } from './roles.guard'
+import { PublicRoute } from './public-route.decorator'
 import { UserRole } from '../../database/entities/user.entity'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import {
@@ -102,6 +103,7 @@ export class AuthenticationController {
     await this.sso.revokeIdentity(principal, userId)
   }
 
+  @PublicRoute()
   @Get('sso/google')
   @ApiOperation({ summary: 'Iniciar autenticação OIDC com Google' })
   @ApiResponse({ status: 302, description: 'Redireciona para a autenticação Google' })
@@ -123,6 +125,7 @@ export class AuthenticationController {
       })
   }
 
+  @PublicRoute()
   @Get('sso/google/callback')
   @ApiOperation({ summary: 'Processar o callback OIDC do Google' })
   @ApiResponse({ status: 302, description: 'Redireciona à UI com handoff ou erro genérico' })
@@ -153,6 +156,7 @@ export class AuthenticationController {
     }
   }
 
+  @PublicRoute()
   @Post('sso/handoff/exchange')
   @HttpCode(200)
   @ApiOperation({ summary: 'Trocar código de handoff por sessão GreenER ou desafio TOTP' })
@@ -172,6 +176,7 @@ export class AuthenticationController {
     return this.sso.exchangeHandoff(body)
   }
 
+  @PublicRoute()
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Autenticar usuário e iniciar sessão' })
@@ -195,6 +200,7 @@ export class AuthenticationController {
     return this.authentication.login(body)
   }
 
+  @PublicRoute()
   @Post('totp/setup')
   @HttpCode(200)
   @ApiOperation({ summary: 'Preparar configuração TOTP do Admin inicial' })
@@ -205,6 +211,7 @@ export class AuthenticationController {
     return this.authentication.beginInitialTotpSetup(body.setupToken)
   }
 
+  @PublicRoute()
   @Post('totp/setup/confirm')
   @HttpCode(200)
   @ApiOperation({ summary: 'Confirmar configuração TOTP e iniciar sessão Admin' })
@@ -216,6 +223,7 @@ export class AuthenticationController {
     return this.authentication.confirmInitialTotpSetup(body.setupToken, body.code)
   }
 
+  @PublicRoute()
   @Post('totp/challenge')
   @HttpCode(200)
   @ApiOperation({ summary: 'Validar desafio TOTP de login' })
@@ -269,6 +277,7 @@ export class AuthenticationController {
     )
   }
 
+  @PublicRoute()
   @Post('sessions/refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Rotacionar o refresh token da sessão' })
@@ -302,6 +311,7 @@ export class AuthenticationController {
     }
   }
 
+  @PublicRoute()
   @Post('invitations/accept')
   @HttpCode(202)
   @ApiOperation({
@@ -320,6 +330,7 @@ export class AuthenticationController {
     return this.authentication.acceptAdminInvitation(body)
   }
 
+  @PublicRoute()
   @Post('email/confirm')
   @HttpCode(200)
   @ApiOperation({
@@ -330,6 +341,7 @@ export class AuthenticationController {
     return this.authentication.confirmEmail(body)
   }
 
+  @PublicRoute()
   @Post('email/confirmation/resend')
   @HttpCode(200)
   @ApiOperation({ summary: 'Solicitar reenvio da confirmação do e-mail' })
