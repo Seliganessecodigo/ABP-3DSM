@@ -9,9 +9,12 @@ import { AddApplicationLocation1791260000000 } from '../../database/migrations/1
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
+import { MonitoringIncidents1791370000000 } from '../../database/migrations/1791370000000-MonitoringIncidents'
+import { CollectionCalculationEvidence1791380000000 } from '../../database/migrations/1791380000000-CollectionCalculationEvidence'
 import { AuthenticationAndOrganizations1791400000000 } from '../../database/migrations/1791400000000-AuthenticationAndOrganizations'
 import { AdminTotpAuthentication1791410000000 } from '../../database/migrations/1791410000000-AdminTotpAuthentication'
 import { SsoAuthentication1791420000000 } from '../../database/migrations/1791420000000-SsoAuthentication'
+import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
@@ -122,9 +125,12 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
         ApplicationOperationalStatus1791360000000,
+        MonitoringIncidents1791370000000,
+        CollectionCalculationEvidence1791380000000,
         AuthenticationAndOrganizations1791400000000,
         AdminTotpAuthentication1791410000000,
         SsoAuthentication1791420000000,
+        UserPreferences1793200000000,
       ],
     })
     await database.initialize()
