@@ -14,6 +14,21 @@ type Props = Readonly<{
   onExpired: () => void
 }>
 
+function getTotpErrorKey(cause: unknown, isSetup: boolean) {
+  if (!(cause instanceof AuthenticationError)) return 'totpGenericError'
+  if (cause.code === 'INVALID_TOTP_CODE') return isSetup ? 'totpSetupInvalidCode' : 'totpChallengeInvalidCode'
+  if (cause.status === 403) return 'forbidden'
+  if (cause.code === 'TOTP_CHALLENGE_RATE_LIMITED') return 'totpRateLimited'
+  if (cause.code === 'TOTP_CHALLENGE_DELAYED') return 'totpDelayed'
+  return 'totpGenericError'
+}
+
+function getSubmitLabel(t: (key: string) => string, submitting: boolean, isSetup: boolean) {
+  if (submitting) return t('totpSubmitting')
+  if (isSetup) return t('totpSetupSubmit')
+  return t('totpChallengeSubmit')
+}
+
 export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, onCancel, onExpired }: Props) {
   const { t } = useTranslation('login')
   const [code, setCode] = useState('')
@@ -32,7 +47,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    if (!/^\d{6}$/.test(code)) {
+    if (!/^\\d{6}$/.test(code)) {
       setError(t('totpInvalidFormat'))
       codeRef.current?.focus()
       return
@@ -43,21 +58,9 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
     } catch (cause) {
       if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CHALLENGE') {
         onExpired()
-      } else if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CODE') {
-        setCode('')
-        setError(t(isSetup ? 'totpSetupInvalidCode' : 'totpChallengeInvalidCode'))
-        codeRef.current?.focus()
-      } else if (cause instanceof AuthenticationError && cause.status === 403) {
-        setError(t('forbidden'))
-        codeRef.current?.focus()
-      } else if (cause instanceof AuthenticationError && cause.code === 'TOTP_CHALLENGE_RATE_LIMITED') {
-        setError(t('totpRateLimited'))
-        codeRef.current?.focus()
-      } else if (cause instanceof AuthenticationError && cause.code === 'TOTP_CHALLENGE_DELAYED') {
-        setError(t('totpDelayed'))
-        codeRef.current?.focus()
       } else {
-        setError(t('totpGenericError'))
+        if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CODE') setCode('')
+        setError(t(getTotpErrorKey(cause, isSetup)))
         codeRef.current?.focus()
       }
     } finally {
@@ -92,7 +95,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           <p>{t('totpManualWarning')}</p>
           <code>{manualSecret}</code>
           <button className="button secondary" type="button" onClick={() => void copyManualSecret()}>{t('totpCopySecret')}</button>
-          {copyMessage && <p className={styles.copyMessage} role="status">{copyMessage}</p>}
+          {copyMessage && <output className={styles.copyMessage}>{copyMessage}</output>}
         </details>
       </div>}
       <form className={styles.form} onSubmit={(event) => void handleSubmit(event)} noValidate>
@@ -107,12 +110,12 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           maxLength={6}
           className={styles.codeInput}
           value={code}
-          onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          onChange={(event) => setCode(event.target.value.replace(/\\D/g, '').slice(0, 6))}
           aria-describedby={error ? 'totp-error' : undefined}
         />
         {error && <p className={loginStyles.error} id="totp-error" role="alert">{error}</p>}
         <button className="button" type="submit" disabled={submitting}>
-          {submitting ? t('totpSubmitting') : t(isSetup ? 'totpSetupSubmit' : 'totpChallengeSubmit')}
+          {getSubmitLabel(t, submitting, isSetup)}
         </button>
       </form>
       <button className={styles.cancel} type="button" onClick={onCancel}>{t('totpBackToLogin')}</button>
