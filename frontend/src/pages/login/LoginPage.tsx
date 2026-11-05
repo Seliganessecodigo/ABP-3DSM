@@ -1,4 +1,5 @@
 import styles from './LoginPage.module.css'
+import greenErMark from '../../assets/green-er-mark.png'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError, type TotpProvisioning } from '../../features/authentication/api.ts'
@@ -11,6 +12,36 @@ const ssoEnabled = import.meta.env.VITE_GOOGLE_SSO_ENABLED === 'true'
 type TotpState =
   | { kind: 'setup'; provisioning: TotpProvisioning }
   | { kind: 'challenge'; challengeToken: string }
+
+function readCredentials(form: FormData) {
+  const email = form.get('email')
+  const password = form.get('password')
+  return {
+    email: typeof email === 'string' ? email.trim() : '',
+    password: typeof password === 'string' ? password : '',
+  }
+}
+
+function clearPassword(formElement: HTMLFormElement) {
+  const password = formElement.elements.namedItem('password')
+  if (password instanceof HTMLInputElement) password.value = ''
+}
+
+function authenticationErrorKey(cause: unknown) {
+  if (!(cause instanceof AuthenticationError)) return 'totpGenericError'
+  if (cause.code === 'INVALID_TOTP_CHALLENGE') return 'totpExpired'
+  if (cause.code === 'TOTP_CHALLENGE_RATE_LIMITED') return 'totpRateLimited'
+  if (cause.code === 'TOTP_CHALLENGE_DELAYED') return 'totpDelayed'
+  if (cause.status === 401) return 'invalidCredentials'
+  if (cause.status === 403) return 'forbidden'
+  return 'totpGenericError'
+}
+
+function googleButtonLabel(t: (key: string) => string, submitting: boolean, invitation: string) {
+  if (submitting) return t('ssoStarting')
+  if (invitation) return t('ssoAcceptInvitation')
+  return t('ssoGoogle')
+}
 
 export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t } = useTranslation('login')
@@ -33,14 +64,13 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     setError('')
     setSubmitting(true)
     const formElement = event.currentTarget
-    const form = new FormData(formElement)
+    const credentials = readCredentials(new FormData(formElement))
     try {
       sessionStorage.removeItem(ssoInvitationStorageKey)
       sessionStorage.removeItem(ssoVerifierStorageKey)
       setInvitation('')
-      const result = await signIn({ email: String(form.get('email') ?? '').trim(), password: String(form.get('password') ?? '') })
-      const password = formElement.elements.namedItem('password')
-      if (password instanceof HTMLInputElement) password.value = ''
+      const result = await signIn(credentials)
+      clearPassword(formElement)
       if ('status' in result && result.status === 'TOTP_SETUP_REQUIRED') {
         setTotpState({ kind: 'setup', provisioning: await beginTotpSetup(result.setupToken) })
       } else if ('status' in result && result.status === 'TOTP_REQUIRED') {
@@ -49,20 +79,11 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
         navigate('/')
       }
     } catch (cause) {
-      setError(cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CHALLENGE'
-        ? t('totpExpired')
-        : cause instanceof AuthenticationError && cause.code === 'TOTP_CHALLENGE_RATE_LIMITED'
-          ? t('totpRateLimited')
-          : cause instanceof AuthenticationError && cause.code === 'TOTP_CHALLENGE_DELAYED'
-            ? t('totpDelayed')
-            : cause instanceof AuthenticationError && cause.status === 401
-              ? t('invalidCredentials')
-              : cause instanceof AuthenticationError && cause.status === 403
-                ? t('forbidden')
-                : t('totpGenericError'))
-      const password = formElement.elements.namedItem('password')
-      if (password instanceof HTMLInputElement) password.value = ''
-    } finally { setSubmitting(false) }
+      setError(t(authenticationErrorKey(cause)))
+      clearPassword(formElement)
+    } finally {
+      setSubmitting(false)
+    }
   }
   async function handleGoogleSignIn() {
     setError('')
@@ -87,9 +108,10 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     />
   }
   return <main className={styles.page}>
-    <header className={styles.heading}><h1>{t('title')}</h1></header>
+    <img className={styles.watermark} src={greenErMark} alt="" />
+    <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><h1>{t('heading')}</h1></header>
     <section className={styles.card} aria-labelledby="login-heading">
-      <h2 id="login-heading">{t('heading')}</h2>
+      <h2 id="login-heading">{t('submit')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
         <label>{t('email')}<input name="email" type="email" autoComplete="username" required /></label>
@@ -100,7 +122,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       {ssoEnabled && <div className={styles.sso}>
         <div className={styles.divider}><span>{t('ssoDivider')}</span></div>
         <button className={styles.google} type="button" onClick={() => void handleGoogleSignIn()} disabled={submitting}>
-          {submitting ? t('ssoStarting') : invitation ? t('ssoAcceptInvitation') : t('ssoGoogle')}
+          {googleButtonLabel(t, submitting, invitation)}
         </button>
       </div>}
     </section>

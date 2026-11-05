@@ -16,13 +16,30 @@ function layoutClasses(variant: 'default' | 'detail' | 'methodology', login: boo
   return classes.join(' ')
 }
 
+function isMethodologyPath(pathname: string) {
+  return pathname === '/methodology' || (pathname.startsWith('/services/') && pathname.endsWith('/methodology'))
+}
+
+function isDashboardPath(pathname: string) {
+  return pathname === '/dashboard' || pathname === '/dashboard/'
+}
+
+function isHistoryPath(pathname: string) {
+  return pathname === '/history' || pathname === '/history/'
+}
+
+function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, history: boolean) {
+  return !methodology && !dashboard && !administration && !history
+}
+
 export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
   const { user, signOut } = useAuthentication()
-  const methodologyActive = window.location.pathname === '/methodology' || window.location.pathname.startsWith('/services/') && window.location.pathname.endsWith('/methodology')
-  const dashboardActive = window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/'
-  const historyActive = window.location.pathname === '/history' || window.location.pathname === '/history/'
+  const methodologyActive = isMethodologyPath(window.location.pathname)
+  const dashboardActive = isDashboardPath(window.location.pathname)
+  const historyActive = isHistoryPath(window.location.pathname)
   const administrationActive = window.location.pathname.startsWith('/administration/')
+  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive, historyActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -101,7 +118,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
         <a href="/dashboard" aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/dashboard') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/" aria-label={t('nav.applications')} aria-current={methodologyActive || dashboardActive || administrationActive || historyActive ? undefined : 'page'} className={methodologyActive || dashboardActive || administrationActive || historyActive ? '' : 'selected'} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href="/" aria-label={t('nav.applications')} aria-current={applicationsActive ? 'page' : undefined} className={applicationsActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
         <a href="/history" aria-label={t('nav.history')} aria-current={historyActive ? 'page' : undefined} className={historyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/history') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3.3 7.4A7 7 0 1 1 3 11" /><path d="M3.2 3.8v3.8H7M10 6v4l2.8 1.7" /></svg><span className="nav-label">{t('nav.history')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
@@ -119,6 +136,6 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div className="workspace"><header className="topbar">{!login && <button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button>}<img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
+    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
   </div>
 }

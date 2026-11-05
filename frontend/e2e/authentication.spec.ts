@@ -8,7 +8,7 @@ test('visitante consegue abrir o login a partir do catálogo público', async ({
   await page.getByRole('link', { name: 'Entrar' }).click()
 
   await expect(page).toHaveURL(/\/login$/)
-  await expect(page.getByRole('heading', { name: 'Login administrativo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Acesso administrativo' })).toBeVisible()
   await expect(page.getByLabel('Organização')).toHaveCount(0)
 })
 
