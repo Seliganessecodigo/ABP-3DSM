@@ -1,0 +1,18 @@
+$kind: http-request
+name: Consultar última coleta
+order: 2000
+method: GET
+url: '{{base_url}}/applications/{{applicationId}}/collections/latest'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('retorna intervalo de uma coleta persistida', function () {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.json()).to.have.property('intervalStart');
+        pm.expect(pm.response.json()).to.have.property('intervalEnd');
+      });
+
+      const collection = pm.response.json();
+      pm.collectionVariables.set('from', collection.intervalStart);
+      pm.collectionVariables.set('to', collection.intervalEnd);

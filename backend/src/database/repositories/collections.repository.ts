@@ -116,6 +116,33 @@ export class CollectionsRepository {
       .getMany();
   }
 
+  async findForRegionalSimulation(
+    applicationId: string,
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<PersistedEnvironmentalInterval[]> {
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<EnvironmentalCollectionRow[]>(
+      `SELECT id,
+        to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
+        to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
+        to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+        "energyKwh", "carbonGrams", "calculationEvidence"
+      FROM collections
+      WHERE "applicationId" = $1
+        AND "intervalStart" < $3::timestamptz
+        AND "intervalEnd" > $2::timestamptz
+      ORDER BY "intervalStart" ASC, id ASC
+      LIMIT 10001`,
+      [
+        applicationId,
+        formatUtcTimestamp(startBound),
+        formatUtcTimestamp(endBound),
+      ],
+    )
+  }
+
   async findEnvironmentalByApplicationsAndPeriod(
     applicationIds: readonly string[],
     periodStartNanoseconds: bigint,

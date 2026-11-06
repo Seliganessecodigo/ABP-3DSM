@@ -1,5 +1,13 @@
 # Cálculo de CO₂e
 
+## Simulação regional — #86
+
+`calculateRegionalSimulation` calcula um cenário sem persistir resultado. A energia e os intervalos vêm das coletas ambientais persistidas, com recorte, desempate de sobreposições e lacunas resolvidos por `resolvePersistedEnvironmentalSegments`. O destino usa um único fator atual consultado para a região escolhida; a referência usa o snapshot guardado em cada coleta e pode combinar fatores preservados diferentes.
+
+A função retorna energia, emissões de referência e destino, coberturas independentes, snapshots/horários de consulta e diferenças assinada e percentual. Diferença absoluta é destino menos referência em `gCO2e`; percentual usa a referência como base, só quando a cobertura é compatível e a referência é positiva. Com referência zero, a diferença absoluta continua disponível e o percentual recebe `ZERO_REFERENCE`. Fator ausente nunca é preenchido pelo snapshot mais recente. Cobertura de referência menor deixa diferenças indisponíveis com `INCOMPATIBLE_COVERAGE`; erro do destino mantém a referência e retorna a razão de integração.
+
+O endpoint reutiliza fatores somente em memória para aquela resposta. Cada nova chamada consulta o fator atual novamente; falha não grava tentativa, fator ou resultado. `queriedAt` é o horário da consulta GreenER, nunca vigência oficial.
+
 `calculateCarbonEmission` é uma função pura: recebe energia em kWh e o snapshot explícito do fator, sem consultar HTTP, banco ou relógio.
 
 Emissões em gramas = energia em kWh × intensidade em gCO₂e/kWh. A conversão para quilogramas divide o resultado por 1000, sem arredondamento intermediário. Por exemplo, 2 kWh com intensidade de 100 gCO₂e/kWh produzem 200 gCO₂e, equivalentes a 0,2 kgCO₂e. A precisão de persistência é responsabilidade do consumidor.
