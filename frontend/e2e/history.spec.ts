@@ -90,7 +90,7 @@ test('history selection shows the environmental series and keeps its context', a
   await graphMode.click()
   await expect(graphMode).toHaveAttribute('aria-pressed', 'true')
   await expect(series.locator('[data-series-bar]')).toHaveCount(0)
-  await expect(series.locator('svg path.point')).toHaveCount(4)
+  await expect(series.locator('figure svg [role="button"]')).toHaveCount(4)
   await expect(series.getByText('Energia (kWh)', { exact: true })).toBeVisible()
   await expect(series.getByText('CO₂e (gCO2e)', { exact: true })).toBeVisible()
   await expect(series.getByRole('button', { name: /Energia.*kWh/ }).first()).toBeVisible()
