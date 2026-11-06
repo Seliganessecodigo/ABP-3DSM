@@ -18,7 +18,9 @@
   border: 0;
   padding: 0;
   background: transparent;
+  gap: 24px;
 }
+.mobileHeading { display: none; }
 
 .historySection > h2 {
   color: var(--text-primary);
@@ -65,11 +67,11 @@
 
 .historyTable button {
   min-height: 40px;
-  border: 1px solid var(--border-control);
+  border: 0;
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 6px 0;
   color: var(--accent-default);
-  background: var(--surface-card);
+  background: transparent;
   font: inherit;
   cursor: pointer;
 }
@@ -84,14 +86,22 @@
   gap: 12px;
   border: 1px solid var(--border-default);
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px 16px;
   background: var(--surface-card);
 }
 
 .historyDetails > h3 {
   color: var(--text-primary);
-  font-size: 18px;
+  font-size: 20px;
 }
+.selectedSummary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; }
+.selectedSummary > div { display: grid; gap: 10px; color: var(--text-secondary); font-size: 14px; }
+.selectedSummary > div > p:first-child { color: var(--text-primary); font-size: 16px; }
+.selectedSummary > a { min-width: 205px; justify-content: flex-start; }
+.auditDetails { color: var(--text-secondary); font-size: 12px; }
+.auditDetails > summary { width: fit-content; min-height: 36px; padding-block: 8px; color: var(--accent-default); cursor: pointer; overflow-wrap: anywhere; }
+.auditDetails .list { margin-top: 12px; }
+.historySection .pagination { color: var(--text-secondary); font-size: 12px; }
 
 .historyDetails .list li {
   border: 0;
@@ -195,6 +205,8 @@
 }
 
 @media (max-width: 640px) {
+  .desktopHeading { display: none; }
+  .mobileHeading { display: inline; }
   .historyTableScroll {
     overflow: visible;
     border: 0;
@@ -213,36 +225,48 @@
   .historyTable,
   .historyTable tbody,
   .historyTable tbody tr {
+    grid-template-columns: minmax(0, 1fr);
     display: grid;
     gap: 12px;
   }
 
   .historyTable tbody tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     border: 1px solid var(--border-default);
     border-radius: 8px;
-    padding: 12px;
+    padding: 16px 12px;
     background: var(--surface-card);
   }
 
-  .historyTable tbody tr[aria-current='true'] {
-    border-color: var(--accent-default);
-  }
+  .historyTable tbody tr[aria-current='true'] { background: var(--surface-card); }
 
   .historyTable tbody td {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 8px;
+    display: block;
     border: 0;
     padding: 0;
     overflow-wrap: anywhere;
   }
 
   .historyTable tbody td::before {
-    color: var(--text-secondary);
-    content: attr(data-label);
+    content: none;
   }
 
   .historyTable tbody td:last-child {
     display: block;
+    grid-column: 2 / -1;
+    justify-self: end;
   }
+  .historySection { gap: 20px; }
+  .historySection > h2 { font-size: 22px; }
+  .historySection > p { font-size: 13px; line-height: 1.7; }
+  .historyTable tbody { gap: 16px; }
+  .historyTable tbody tr { gap: 8px 4px; }
+  .historyTable tbody td { font-size: 13px; color: var(--text-secondary); }
+  .historyTable tbody td:first-child { grid-column: 1 / -1; font-size: 16px; font-weight: 650; color: var(--text-primary); }
+  .historyTable tbody td:nth-child(5) { grid-column: 1; align-self: center; color: var(--accent-default); }
+  .historyDetails { gap: 16px; margin-top: 12px; padding: 18px 14px; }
+  .selectedSummary { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .selectedSummary > a { width: 100%; }
+  .selectedSummary > div { gap: 12px; line-height: 1.6; }
+  .selectedSummary > div > p:first-child { font-size: 14px; }
 }

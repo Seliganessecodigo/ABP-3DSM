@@ -53,9 +53,12 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   if (selectedApplication) return <ApplicationDetailPage key={selectedApplication.id} id={selectedApplication.id}
     navigate={navigate} historyOnly historyApplicationSelector={applicationSelector} />
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className={styles.heading}>
-      <h1>{tDetail('historyTitle')}</h1>
-      <p>{tDetail('historyDescription')}</p>
+    <header className="page-heading">
+      <div>
+        <p className="eyebrow">{tCatalog('eyebrow')}</p>
+        <h1>{tDetail('historyTitle')}</h1>
+        <p>{tDetail('historyDescription')}</p>
+      </div>
     </header>
     <section className={styles.selector} aria-label={tCatalog('app')}>
       {applicationSelector}

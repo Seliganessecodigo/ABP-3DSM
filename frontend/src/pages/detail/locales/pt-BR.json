@@ -1,4 +1,8 @@
 {
+  "historyMobileDescription": "Energia, emissões e mudanças no histórico da aplicação.",
+  "historySeriesHeading": "Evolução no período",
+  "historyCompositionHeading": "Composição do agregado",
+  "historyViewGap": "Ver lacuna",
   "periodTitle": "Período de análise",
   "periodInvalid": "Selecione um período válido",
   "periods.24h": "24 horas",
@@ -159,6 +163,7 @@
   "analysisNoAttempt": "Sem tentativa registrada",
   "analysisNoSuccess": "Sem consulta bem-sucedida",
   "analysisGraph": "Gráfico",
+  "analysisColumns": "Colunas",
   "analysisTable": "Tabela",
   "analysisSeriesEnergyChart": "Evolução de energia",
   "analysisSeriesEmissionsChart": "Evolução de CO₂e",
@@ -209,5 +214,10 @@
   "evidenceNoMatches": "Nenhuma evidência corresponde aos filtros.",
   "evidenceFilteredCount": "{{count}} de {{total}} métricas",
   "analysisCloseDetails": "Fechar detalhes",
-  "methodologyFullPage": "Ver metodologia completa"
+  "methodologyFullPage": "Ver metodologia completa",
+  "historyContribution": "Contribuição",
+  "historyViewCollection": "Ver coleta e métricas",
+  "historyTableNote": "A busca, os filtros e a paginação não alteram o gráfico nem os totais.",
+  "historyReturnNote": "Voltar restaura os critérios e a página do histórico, com foco no intervalo que abriu esta inspeção.",
+  "historyRecalculationPreview": "Prévia de recálculo"
 }

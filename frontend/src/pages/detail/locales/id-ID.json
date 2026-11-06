@@ -1,4 +1,8 @@
 {
+  "historyMobileDescription": "Energi, emisi, dan perubahan dalam riwayat aplikasi.",
+  "historySeriesHeading": "Perkembangan selama periode",
+  "historyCompositionHeading": "Komposisi agregat",
+  "historyViewGap": "Lihat celah",
   "periodTitle": "Periode analisis",
   "periodInvalid": "Pilih periode yang valid",
   "periods.24h": "24 jam",
@@ -159,6 +163,7 @@
   "analysisNoAttempt": "Tidak ada upaya yang tercatat",
   "analysisNoSuccess": "Tidak ada kueri berhasil",
   "analysisGraph": "Grafik",
+  "analysisColumns": "Kolom",
   "analysisTable": "Tabel",
   "analysisSeriesEnergyChart": "Tren energi",
   "analysisSeriesEmissionsChart": "Tren CO₂e",
@@ -209,5 +214,10 @@
   "evidenceNoMatches": "Tidak ada bukti yang cocok dengan filter ini.",
   "evidenceFilteredCount": "{{count}} dari {{total}} metrik",
   "analysisCloseDetails": "Tutup detail",
-  "methodologyFullPage": "Lihat metodologi lengkap"
+  "methodologyFullPage": "Lihat metodologi lengkap",
+  "historyContribution": "Kontribusi",
+  "historyViewCollection": "Lihat pengumpulan dan metrik",
+  "historyTableNote": "Pencarian, filter, dan halaman tidak mengubah grafik atau total.",
+  "historyReturnNote": "Kembali memulihkan kriteria dan halaman riwayat, dengan fokus pada interval yang diperiksa.",
+  "historyRecalculationPreview": "Pratinjau penghitungan ulang"
 }

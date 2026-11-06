@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { application, mockCatalog } from './support/catalog.ts'
 
-test('history selection shows the environmental series and focuses recorded events without changing its context', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-28T12:00:00.000Z'))
   await mockCatalog(page, [application()])
   await page.route(/\/applications\/svc-0142\/analysis\/series\/contributions(?:\?.*)?$/, async (route) => {
@@ -61,6 +61,9 @@ test('history selection shows the environmental series and focuses recorded even
     } })
   })
 
+})
+
+test('history selection shows the environmental series and keeps its context', async ({ page }) => {
   await page.goto('/history')
   const applicationSelect = page.getByRole('combobox', { name: 'Aplicação', exact: true })
   await applicationSelect.selectOption('svc-0142')
@@ -73,20 +76,34 @@ test('history selection shows the environmental series and focuses recorded even
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await expect(series.getByRole('button', { name: 'Comparar métricas', exact: true })).toBeVisible()
   await expect(series.getByRole('figure')).toHaveCount(1)
+  await expect(series.getByRole('button', { name: 'Tabela', exact: true })).toHaveCount(0)
+  const graphMode = series.getByRole('button', { name: 'Gráfico', exact: true })
+  const columnMode = series.getByRole('button', { name: 'Colunas', exact: true })
+  await expect(graphMode).toHaveAttribute('aria-pressed', 'true')
+  await expect(columnMode).toHaveAttribute('aria-pressed', 'false')
+  await expect(series.getByRole('table')).toHaveCount(1)
+  await columnMode.click()
+  await expect(columnMode).toHaveAttribute('aria-pressed', 'true')
+  await expect(series.locator('[data-series-bar="energy"]')).toHaveCount(2)
+  await expect(series.locator('[data-series-bar="emissions"]')).toHaveCount(2)
+  await graphMode.click()
+  await expect(graphMode).toHaveAttribute('aria-pressed', 'true')
+  await expect(series.locator('[data-series-bar]')).toHaveCount(0)
+  await expect(series.locator('svg path.point')).toHaveCount(4)
   await expect(series.getByText('Energia (kWh)', { exact: true })).toBeVisible()
-  await expect(series.getByText('CO₂e (kgCO2e)', { exact: true })).toBeVisible()
+  await expect(series.getByText('CO₂e (gCO2e)', { exact: true })).toBeVisible()
   await expect(series.getByRole('button', { name: /Energia.*kWh/ }).first()).toBeVisible()
-  await expect(series.getByRole('button', { name: /CO₂e.*kgCO2e/ }).first()).toBeVisible()
+  await expect(series.getByRole('button', { name: /CO₂e.*gCO2e/ }).first()).toBeVisible()
   await expect(series.getByRole('table')).toContainText('Sem observações disponíveis')
 
-  const event = series.getByRole('region', { name: 'Eventos do período', exact: true })
-  await expect(event).toContainText('Região alterada')
-  await event.getByRole('button', { name: 'Ver', exact: true }).click()
-  await expect(event.getByRole('listitem').first()).toHaveAttribute('aria-current', 'true')
-  await expect(event.getByRole('listitem').first()).toContainText('26/10/2026')
+  await expect(series.getByRole('region', { name: 'Eventos do período', exact: true })).toHaveCount(0)
   expect(new URL(page.url()).pathname).toBe('/history')
   const params = new URL(page.url()).searchParams
   expect(params.get('applicationId')).toBe('svc-0142')
+
+  await series.getByRole('searchbox', { name: 'Buscar série', exact: true }).fill('kWh')
+  await series.getByRole('columnheader', { name: 'Energia', exact: true }).getByRole('button').click()
+  await series.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('5')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('heading', { name: 'Cobertura', exact: true })).toBeVisible()
@@ -94,7 +111,13 @@ test('history selection shows the environmental series and focuses recorded even
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390)
   await expect(series.locator('table')).toHaveJSProperty('scrollWidth',
     await series.locator('table').evaluate(table => table.clientWidth))
+})
 
+test('interval inspection preserves filtered history and restores focus after returning', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesSearch=kWh&seriesSort=energy&seriesSize=5')
+  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
+  const beforeInspectionParams = new URL(page.url()).searchParams
   await series.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).first().click()
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
   const contributions = page.getByRole('table', { name: 'Contribuições que compõem o agregado', exact: true })
@@ -103,6 +126,8 @@ test('history selection shows the environmental series and focuses recorded even
   await expect(selectedContribution).toContainText('history-collection-1')
   await contributions.getByRole('button', { name: 'Abrir', exact: true }).nth(1).click()
   await expect(selectedContribution).toContainText('history-collection-2')
+  await expect(selectedContribution.getByRole('link', { name: 'Ver coleta e métricas', exact: false }))
+    .toHaveAttribute('href', /\/services\/svc-0142\?.*collectionId=history-collection-2/)
   expect(new URL(page.url()).searchParams.get('inspectionBucket')).toBe('2026-10-27T00:00:00.000Z')
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
@@ -115,7 +140,11 @@ test('history selection shows the environmental series and focuses recorded even
   expect(returnedParams.get('applicationId')).toBe('svc-0142')
   expect(returnedParams.get('period')).toBe('7d')
   expect(returnedParams.get('granularity')).toBe('day')
-  expect(returnedParams.get('seriesTimeZone')).toBe('America/Sao_Paulo')
+  expect(returnedParams.get('seriesTimeZone')).toBe(beforeInspectionParams.get('seriesTimeZone'))
+  expect(returnedParams.get('seriesSearch')).toBe('kWh')
+  expect(returnedParams.get('seriesSort')).toBe('energy')
+  expect(returnedParams.get('seriesSize')).toBe('5')
+  await expect(series.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).first()).toBeFocused()
 
   await page.reload()
   await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('svc-0142')
@@ -127,4 +156,12 @@ test('history selection shows the environmental series and focuses recorded even
 
   await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesTimeZone=America%2FSao_Paulo&inspectionBucket=2026-10-27T00%3A00%3A00.000Z')
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
+})
+
+test('selected contribution opens its existing collection detail', async ({ page }) => {
+  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&inspectionBucket=2026-10-27T00%3A00%3A00.000Z')
+  await page.getByRole('link', { name: 'Ver coleta e métricas', exact: false }).click()
+  await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
+  expect(new URL(page.url()).pathname).toBe('/services/svc-0142')
+  expect(new URL(page.url()).searchParams.get('collectionId')).toBe('history-collection-1')
 })

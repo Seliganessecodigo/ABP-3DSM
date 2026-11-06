@@ -1,4 +1,8 @@
 {
+  "historyMobileDescription": "应用历史中的能源、排放和变化。",
+  "historySeriesHeading": "期间趋势",
+  "historyCompositionHeading": "汇总组成",
+  "historyViewGap": "查看缺口",
   "periodTitle": "分析周期",
   "periodInvalid": "请选择有效的周期",
   "periods.24h": "24 小时",
@@ -159,6 +163,7 @@
   "analysisNoAttempt": "没有记录的尝试",
   "analysisNoSuccess": "没有成功的查询",
   "analysisGraph": "图表",
+  "analysisColumns": "柱状图",
   "analysisTable": "表格",
   "analysisSeriesEnergyChart": "能源趋势",
   "analysisSeriesEmissionsChart": "CO₂e趋势",
@@ -209,5 +214,10 @@
   "evidenceNoMatches": "没有证据符合这些筛选条件。",
   "evidenceFilteredCount": "{{total}}项指标中有{{count}}项",
   "analysisCloseDetails": "\u5173\u95ed\u8be6\u60c5",
-  "methodologyFullPage": "查看完整方法说明"
+  "methodologyFullPage": "查看完整方法说明",
+  "historyContribution": "贡献",
+  "historyViewCollection": "查看采集和指标",
+  "historyTableNote": "搜索、筛选和分页不会改变图表或总计。",
+  "historyReturnNote": "返回时恢复历史条件和页码，并聚焦于打开此次检查的区间。",
+  "historyRecalculationPreview": "重新计算预览"
 }

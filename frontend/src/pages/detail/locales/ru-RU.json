@@ -1,4 +1,8 @@
 {
+  "historyMobileDescription": "Энергия, выбросы и изменения в истории приложения.",
+  "historySeriesHeading": "Динамика за период",
+  "historyCompositionHeading": "Состав агрегата",
+  "historyViewGap": "Посмотреть пробел",
   "periodTitle": "Период анализа",
   "periodInvalid": "Выберите допустимый период",
   "periods.24h": "24 часа",
@@ -159,6 +163,7 @@
   "analysisNoAttempt": "Попытки не зарегистрированы",
   "analysisNoSuccess": "Нет успешных запросов",
   "analysisGraph": "График",
+  "analysisColumns": "Столбцы",
   "analysisTable": "Таблица",
   "analysisSeriesEnergyChart": "Динамика энергии",
   "analysisSeriesEmissionsChart": "Динамика CO₂e",
@@ -209,5 +214,10 @@
   "evidenceNoMatches": "Нет свидетельств, соответствующих фильтрам.",
   "evidenceFilteredCount": "{{count}} из {{total}} метрик",
   "analysisCloseDetails": "Закрыть подробности",
-  "methodologyFullPage": "Полная методика"
+  "methodologyFullPage": "Полная методика",
+  "historyContribution": "Вклад",
+  "historyViewCollection": "Посмотреть сбор и метрики",
+  "historyTableNote": "Поиск, фильтры и страницы не изменяют график и итоги.",
+  "historyReturnNote": "Возврат восстанавливает условия и страницу истории с фокусом на проверенном интервале.",
+  "historyRecalculationPreview": "Предпросмотр пересчёта"
 }
