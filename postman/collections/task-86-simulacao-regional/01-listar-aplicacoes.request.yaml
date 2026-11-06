@@ -1,0 +1,23 @@
+$kind: http-request
+name: Listar aplicações
+order: 1000
+method: GET
+url: '{{base_url}}/applications'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('retorna aplicações', function () {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.json()).to.be.an('array');
+      });
+
+      const applications = pm.response.json();
+      const application = applications.find((item) => item.isCalculable && item.lastObservationAt);
+      pm.test('existe aplicação com observação calculável', function () {
+        pm.expect(application, 'precisa haver pelo menos uma aplicação com coleta').to.exist;
+      });
+      if (application) {
+        pm.collectionVariables.set('applicationId', application.id);
+        pm.collectionVariables.set('referenceRegionCode', application.location?.regionCode || '');
+      }

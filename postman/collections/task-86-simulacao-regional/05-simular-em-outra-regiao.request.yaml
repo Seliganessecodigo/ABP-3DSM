@@ -1,0 +1,58 @@
+$kind: http-request
+name: Simular em outra região
+order: 5000
+method: POST
+url: '{{base_url}}/applications/{{applicationId}}/analysis/regional-simulation'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "from": "{{from}}",
+      "to": "{{to}}",
+      "destinationRegionCode": "{{destinationRegionCode}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('simulação responde com resultado estruturado', function () {
+        pm.response.to.have.status(200);
+        const result = pm.response.json();
+        pm.expect(result.status).to.be.oneOf(['available', 'partial', 'empty']);
+        pm.expect(result).to.have.property('period');
+        pm.expect(result).to.have.property('energy');
+        pm.expect(result).to.have.property('reference');
+        pm.expect(result).to.have.property('destination');
+        pm.expect(result).to.have.property('coverage');
+        pm.expect(result).to.have.property('difference');
+        pm.expect(result).to.have.property('referenceFactors').that.is.an('array');
+        pm.expect(result.energy.unit).to.eql('kWh');
+        pm.expect(result.reference.unit).to.eql('gCO2e');
+        pm.expect(result.destination.unit).to.eql('gCO2e');
+        pm.expect(result.destinationFactor.regionCode).to.eql(pm.collectionVariables.get('destinationRegionCode'));
+      });
+
+      pm.test('diferenças correspondem às emissões comparadas', function () {
+        const result = pm.response.json();
+        if (result.reference.value !== null && result.destination.value !== null) {
+          const expectedAbsolute = result.destination.value - result.reference.value;
+          pm.expect(result.difference.absolute.value).to.be.closeTo(expectedAbsolute, 14);
+          if (result.reference.value > 0) {
+            pm.expect(result.difference.percent.value).to.be.closeTo(expectedAbsolute / result.reference.value, 12);
+          }
+        }
+      });
+
+      const result = pm.response.json();
+      console.log('Task 86 simulation:', JSON.stringify({
+        status: result.status,
+        energy: result.energy,
+        reference: result.reference,
+        destinationFactor: result.destinationFactor,
+        destination: result.destination,
+        coverage: result.coverage,
+        difference: result.difference,
+      }, null, 2));
