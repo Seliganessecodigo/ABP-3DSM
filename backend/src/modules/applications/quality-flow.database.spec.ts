@@ -20,7 +20,7 @@ describeDatabase('RNF-06: real HTTP sources → application → PostgreSQL → p
     return response.json()
   }
   beforeEach(async () => { fixture = await createQualityFixture() }, 60_000)
-  afterEach(async () => { await fixture?.close() })
+  afterEach(async () => { await fixture?.close() }, 60_000)
 
   it('discovers, calculates and reconciles persisted evidence with dashboard, detail, series and preview', async () => {
     await fixture.cycle()
