@@ -18,15 +18,18 @@
   border: 0;
   padding: 0;
   background: transparent;
+  gap: 12px;
 }
+.mobileHeading { display: none; }
 
 .historySection > h2 {
   color: var(--text-primary);
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .historySection > p {
   color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .historyTableScroll {
@@ -44,7 +47,7 @@
 
 .historyTable th,
 .historyTable td {
-  padding: 12px 16px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border-default);
   text-align: left;
 }
@@ -65,11 +68,11 @@
 
 .historyTable button {
   min-height: 40px;
-  border: 1px solid var(--border-control);
+  border: 0;
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 6px 0;
   color: var(--accent-default);
-  background: var(--surface-card);
+  background: transparent;
   font: inherit;
   cursor: pointer;
 }
@@ -81,17 +84,35 @@
 
 .historyDetails {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   border: 1px solid var(--border-default);
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px;
   background: var(--surface-card);
 }
 
 .historyDetails > h3 {
   color: var(--text-primary);
-  font-size: 18px;
+  font-size: 16px;
 }
+.selectedSummary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.selectedSummary > div { display: grid; gap: 6px; color: var(--text-secondary); font-size: 12px; }
+.selectedSummary > div > p:first-child { color: var(--text-primary); font-size: 14px; }
+.selectedSummary > a { min-width: 205px; justify-content: flex-start; }
+.auditDetails { color: var(--text-secondary); font-size: 12px; }
+.auditDetails > summary { width: fit-content; min-height: 36px; padding-block: 8px; color: var(--accent-default); cursor: pointer; overflow-wrap: anywhere; }
+.auditDetails .list { margin-top: 12px; }
+.historySection .pagination { position: relative; justify-content: space-between; padding: 4px 0 16px; color: var(--text-secondary); font-size: 11px; }
+.historySection .pagination > output { margin-right: auto; }
+.historySection .pagination label { position: absolute; left: 50%; transform: translateX(-50%); }
+.historySection .pagination select { min-height: 36px; padding: 4px 8px; font-size: 11px; }
+.pageControls { display: flex; align-items: center; gap: 6px; }
+.pageNumber, .currentPage, .pageButton { width: 36px; height: 36px; min-height: 36px; display: inline-grid; place-items: center; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; color: var(--text-primary); background: var(--surface-card); font: inherit; font-size: 12px; cursor: pointer; }
+.currentPage { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 700; }
+.pageNumber:hover, .pageButton:hover:not(:disabled) { border-color: var(--accent-default); color: var(--accent-default); background: var(--control-hover); }
+.currentPage:hover { color: var(--accent-on-accent); background: var(--accent-default); filter: brightness(.92); }
+.pageButton { padding: 0; }
+.pageButton svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 .historyDetails .list li {
   border: 0;
@@ -143,6 +164,9 @@
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
+.historySection .pagination .pageNumber,
+.historySection .pagination .currentPage,
+.historySection .pagination .pageButton { width: 36px; height: 36px; min-height: 36px; padding: 0; }
 
 .totals,
 .list li {
@@ -195,6 +219,8 @@
 }
 
 @media (max-width: 640px) {
+  .desktopHeading { display: none; }
+  .mobileHeading { display: inline; }
   .historyTableScroll {
     overflow: visible;
     border: 0;
@@ -213,36 +239,52 @@
   .historyTable,
   .historyTable tbody,
   .historyTable tbody tr {
+    grid-template-columns: minmax(0, 1fr);
     display: grid;
     gap: 12px;
   }
 
   .historyTable tbody tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     border: 1px solid var(--border-default);
     border-radius: 8px;
-    padding: 12px;
+    padding: 16px 12px;
     background: var(--surface-card);
   }
 
-  .historyTable tbody tr[aria-current='true'] {
-    border-color: var(--accent-default);
-  }
+  .historyTable tbody tr[aria-current='true'] { background: var(--surface-card); }
 
   .historyTable tbody td {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 8px;
+    display: block;
     border: 0;
     padding: 0;
     overflow-wrap: anywhere;
   }
 
   .historyTable tbody td::before {
-    color: var(--text-secondary);
-    content: attr(data-label);
+    content: none;
   }
 
   .historyTable tbody td:last-child {
     display: block;
+    grid-column: 2 / -1;
+    justify-self: end;
   }
+  .historySection { gap: 8px; }
+  .historySection > h2 { font-size: 18px; }
+  .historySection > p { display: none; }
+  .historyTable tbody { gap: 4px; }
+  .historyTable tbody tr { gap: 2px; padding: 6px 8px; }
+  .historyTable tbody td { font-size: 11px; color: var(--text-secondary); }
+  .historyTable tbody td:first-child { grid-column: 1 / -1; font-size: 13px; font-weight: 650; color: var(--text-primary); }
+  .historyTable tbody td:nth-child(5) { grid-column: 1; align-self: center; color: var(--accent-default); }
+  .historyDetails { gap: 4px; margin-top: 0; padding: 8px; }
+  .selectedSummary { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .selectedSummary > a { width: 100%; }
+  .selectedSummary > div { gap: 2px; line-height: 1.2; }
+  .selectedSummary > div > p:first-child { font-size: 14px; }
+  .historySection .pagination { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); justify-content: stretch; gap: 8px; padding: 6px 0 18px; }
+  .historySection .pagination > output { grid-column: 1 / -1; grid-row: 1; font-size: 10px; }
+  .historySection .pagination label { position: static; grid-column: 2; grid-row: 2; gap: 6px; transform: none; }
+  .historySection .pageControls { grid-column: 3; grid-row: 2; justify-content: end; gap: 4px; }
 }

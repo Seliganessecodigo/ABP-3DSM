@@ -19,7 +19,8 @@ test('aplica filtro antes da paginação e Todos mostra todos os pontos filtrado
   await series.getByRole('combobox', { name: 'Status da energia', exact: true }).selectOption('available')
   await pageSize.selectOption('5')
   await expect(table.getByRole('row')).toHaveCount(6)
-  await series.getByRole('combobox', { name: 'Página', exact: true }).selectOption('2')
+  await series.getByRole('button', { name: 'Página 2 de 2', exact: true }).click()
+  await expect(series.getByRole('button', { name: 'Página 2 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(table.getByRole('row')).toHaveCount(2)
 
   await pageSize.selectOption('all')
@@ -45,7 +46,8 @@ test('refresh que reduz a série remove a página que deixou de existir', async 
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
   const table = series.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(6)
-  await series.getByRole('combobox', { name: 'Página', exact: true }).selectOption('2')
+  await series.getByRole('button', { name: 'Página 2 de 3', exact: true }).click()
+  await expect(series.getByRole('button', { name: 'Página 2 de 3', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(table.getByRole('row')).toHaveCount(6)
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
 
@@ -67,7 +69,7 @@ test('preserva deep link da página 2 até chegar uma série válida e só a cla
 
   const table = series.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(6)
-  await expect(series.getByRole('combobox', { name: 'Página', exact: true })).toHaveValue('2')
+  await expect(series.getByRole('button', { name: 'Página 2 de 3', exact: true })).toHaveAttribute('aria-current', 'page')
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
 
   await page.getByRole('region', { name: 'Evidências operacionais' })

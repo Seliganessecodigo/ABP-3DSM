@@ -14,7 +14,7 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
       const points = [4, 6].map((value, index) => {
         const bucketStart = new Date(Date.parse(from) + index * 60 * 60 * 1000).toISOString()
         return { bucketStart, bucketEnd: new Date(Date.parse(bucketStart) + 60 * 60 * 1000).toISOString(),
-          energy: { value, unit: 'kWh', reasons: [] }, emissions: { value: value * 340, unit: 'gCO2e', reasons: [] } }
+          energy: { value, unit: 'kWh', reasons: [] }, emissions: { value: value * 340, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } }
       })
       await route.fulfill({ json: {
         status: 'available', applicationId: 'svc-0142',
