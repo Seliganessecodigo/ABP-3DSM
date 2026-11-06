@@ -218,6 +218,17 @@
   "historyContribution": "Kontribusi",
   "historyViewCollection": "Lihat pengumpulan dan metrik",
   "historyTableNote": "Pencarian, filter, dan halaman tidak mengubah grafik atau total.",
+  "analysisSeriesApply": "Terapkan filter",
+  "analysisSeriesCloseFilters": "Tutup filter kolom",
+  "historyIntervalsUnit": "interval",
+  "historyNoFilters": "Tidak ada filter aktif",
+  "historySearchPlaceholder": "Cari di semua kolom...",
+  "historyStart": "Mulai",
+  "historyInspect": "Periksa",
+  "historyRange": "{{start}}\u2013{{end}} dari {{count}} interval",
+  "historyActiveFilters": "{{count}} filter aktif",
+  "historyMethodology": "Metodologi",
+  "historyAction": "Aksi",
   "historyReturnNote": "Kembali memulihkan kriteria dan halaman riwayat, dengan fokus pada interval yang diperiksa.",
   "historyRecalculationPreview": "Pratinjau penghitungan ulang"
 }

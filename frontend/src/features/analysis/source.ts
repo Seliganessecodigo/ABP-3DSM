@@ -48,6 +48,7 @@ export type AnalysisSeriesPoint = Readonly<{
   id: string
   timestamp: string
   bucketEnd?: string
+  coverage?: Readonly<{ energy: number; emissions: number }>
   energy: AnalysisReading
   emissions: AnalysisReading
 }>
@@ -180,7 +181,9 @@ function readSeries(value: unknown, applicationId: string) {
     assertRecord(entry, 'analysis point')
     if (typeof entry.bucketStart !== 'string' || !Number.isFinite(Date.parse(entry.bucketStart)) ||
       typeof entry.bucketEnd !== 'string' || !Number.isFinite(Date.parse(entry.bucketEnd))) throw new Error('Invalid analysis point')
+    assertRecord(entry.coverage, 'analysis point coverage')
     return { id: entry.bucketStart, timestamp: entry.bucketStart, bucketEnd: entry.bucketEnd,
+      coverage: { energy: readCoverage(entry.coverage.energy), emissions: readCoverage(entry.coverage.emissions) },
       energy: readSeriesMeasure(entry.energy, value.status === 'empty'), emissions: readSeriesMeasure(entry.emissions, value.status === 'empty') }
   })
   const eventTypes = ['status_changed', 'removed', 'returned', 'region_changed', 'methodology_changed', 'factor_version_changed']

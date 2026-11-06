@@ -101,6 +101,8 @@ type Labels = Readonly<{
   invalidNumericRange: string
   invalidUnit: string
   clearFilters: string
+  applyFilters: string
+  closeFilters: string
   mixedUnits: string
   energyStatus: string
   emissionsStatus: string
@@ -484,7 +486,7 @@ function getSeriesStatus(status: AnalysisStatus, emptyResult: boolean): 'loading
   return status
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, inspectionBucket, collectionHref }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
   data: AnalysisViewModel | null
   status: AnalysisStatus
   locale: string
@@ -507,6 +509,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   lastSuccessAt: string | null
   lastSuccessStatus: 'available' | 'empty' | null
   historyMode?: boolean
+  historyRegionFallback?: string | null
   inspectionBucket: string | null
   collectionHref?: (collectionId: string) => string
 }>) {
@@ -519,6 +522,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     : undefined
   const { preserveEmpty, emptyResult, invalidContext, showData, initialLoading, showUnavailable } = getDisplayState(data, status, lastSuccessStatus)
   const seriesPoints = data?.series.status === 'available' ? data.series.points : []
+  const methodologyVersions = data?.methodology.status === 'available'
+    ? [...new Set(data.methodology.entries.map(({ version }) => version))] : []
+  const historyMethodologyFallback = methodologyVersions.length === 1 ? methodologyVersions[0] : null
   const historyHasMetrics = historyMode && showData && data !== null
   const energyCoverage = partialCoverageLabel(data?.energyCoverage, locale)
   const emissionsCoverage = partialCoverageLabel(data?.emissionsCoverage, locale)
@@ -612,6 +618,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}
+          historyRegionFallback={historyRegionFallback} historyMethodologyFallback={historyMethodologyFallback}
           state={getSeriesStatus(status, emptyResult)} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
       heading: labels.seriesHeading, historyIntervalsHeading: labels.historyIntervalsHeading,
       regionHeading: labels.regionHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
@@ -635,6 +642,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       emissionsMin: labels.emissionsMin, emissionsMax: labels.emissionsMax,
       invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
       clearFilters: labels.clearFilters,
+      applyFilters: labels.applyFilters, closeFilters: labels.closeFilters,
+      coverage: labels.coverage, region: labels.region, methodology: labels.methodologyHeading,
       inspectContributions: labels.inspectContributions,
       emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,

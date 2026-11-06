@@ -218,6 +218,17 @@
   "historyContribution": "Contribution",
   "historyViewCollection": "View collection and metrics",
   "historyTableNote": "Search, filters and pagination do not change the chart or totals.",
+  "analysisSeriesApply": "Apply filters",
+  "analysisSeriesCloseFilters": "Close column filters",
+  "historyIntervalsUnit": "intervals",
+  "historyNoFilters": "No active filters",
+  "historySearchPlaceholder": "Search all columns...",
+  "historyStart": "Start",
+  "historyInspect": "Inspect",
+  "historyRange": "{{start}}\u2013{{end}} of {{count}} intervals",
+  "historyActiveFilters": "{{count}} active filter(s)",
+  "historyMethodology": "Methodology",
+  "historyAction": "Action",
   "historyReturnNote": "Returning restores the history criteria and page, focusing the interval that opened this inspection.",
   "historyRecalculationPreview": "Recalculation preview"
 }

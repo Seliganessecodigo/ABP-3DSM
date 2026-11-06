@@ -40,12 +40,12 @@ test.beforeEach(async ({ page }) => {
         coverage: { energy: 0.75, emissions: 0.75 },
         points: [
           { bucketStart: '2026-10-27T00:00:00.000Z', bucketEnd: '2026-10-27T01:00:00.000Z',
-            energy: { value: 1, unit: 'kWh', reasons: [] }, emissions: { value: 400, unit: 'gCO2e', reasons: [] } },
+            energy: { value: 1, unit: 'kWh', reasons: [] }, emissions: { value: 400, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
           { bucketStart: '2026-10-27T01:00:00.000Z', bucketEnd: '2026-10-27T02:00:00.000Z',
             energy: { value: null, unit: 'kWh', reasons: [{ code: 'NO_OBSERVATION' }] },
-            emissions: { value: null, unit: 'gCO2e', reasons: [{ code: 'NO_OBSERVATION' }] } },
+            emissions: { value: null, unit: 'gCO2e', reasons: [{ code: 'NO_OBSERVATION' }] }, coverage: { energy: 0, emissions: 0 } },
           { bucketStart: '2026-10-27T02:00:00.000Z', bucketEnd: '2026-10-27T03:00:00.000Z',
-            energy: { value: 2, unit: 'kWh', reasons: [] }, emissions: { value: 800, unit: 'gCO2e', reasons: [] } },
+            energy: { value: 2, unit: 'kWh', reasons: [] }, emissions: { value: 800, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
         ],
         events: [{ id: 'region-change-1', at: '2026-10-27T01:30:00.000Z', type: 'region_changed',
           details: { before: { regionCode: 'BR-SP' }, after: { regionCode: 'BR-RJ' } } }],
@@ -64,7 +64,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('history selection shows the environmental series and keeps its context', async ({ page }) => {
-  await page.goto('/history')
+  await page.goto('/history', { waitUntil: 'commit' })
   const applicationSelect = page.getByRole('combobox', { name: 'Aplicação', exact: true })
   await applicationSelect.selectOption('svc-0142')
 
@@ -164,4 +164,44 @@ test('selected contribution opens its existing collection detail', async ({ page
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   expect(new URL(page.url()).pathname).toBe('/services/svc-0142')
   expect(new URL(page.url()).searchParams.get('collectionId')).toBe('history-collection-1')
+})
+
+test('history intervals match the reference card layout and apply column filters from a dialog', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/history', { waitUntil: 'commit' })
+  const applicationSelect = page.getByRole('combobox', { name: 'Aplicação', exact: true })
+  await expect(applicationSelect).toBeVisible({ timeout: 15_000 })
+  await applicationSelect.selectOption('svc-0142')
+  const intervals = page.getByRole('region', { name: 'Intervalos do histórico', exact: true })
+  await expect(intervals.getByRole('searchbox')).toBeVisible()
+  await expect(intervals.getByRole('button', { name: 'Filtros por coluna', exact: true })).toBeVisible()
+  await expect(intervals.getByRole('table').locator('tbody tr')).toHaveCount(3)
+  await expect(intervals.getByRole('table')).toContainText('100%')
+  await expect(intervals.locator('.state-badge')).toHaveCount(3)
+  await expect(intervals.locator('.state-no_metrics')).toContainText('Sem métricas')
+  await expect(intervals.getByLabel('Momento')).toHaveCount(0)
+  const searchBounds = await intervals.getByRole('searchbox').boundingBox()
+  const filterBounds = await intervals.getByRole('button', { name: 'Filtros por coluna', exact: true }).boundingBox()
+  expect(Math.abs((searchBounds?.y ?? 0) - (filterBounds?.y ?? 0))).toBeLessThanOrEqual(1)
+  const intervalBounds = await intervals.boundingBox()
+  expect(intervalBounds?.height).toBeLessThanOrEqual(844)
+  await page.screenshot({ path: 'test-results/history-intervals-mobile.png', fullPage: true })
+  await intervals.getByRole('button', { name: 'Filtros por coluna', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Filtros por coluna' })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('combobox', { name: 'Status da energia' }).selectOption('unavailable')
+  await dialog.getByRole('button', { name: 'Aplicar filtros' }).click()
+  await expect(intervals.getByRole('table').locator('tbody tr')).toHaveCount(1)
+  await intervals.getByRole('button', { name: 'Filtros por coluna', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Limpar filtros' }).click()
+  await expect(intervals.getByRole('table').locator('tbody tr')).toHaveCount(3)
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.screenshot({ path: 'test-results/history-intervals-desktop.png', fullPage: true })
+  await expect(intervals.getByRole('columnheader', { name: 'Início', exact: true })).toBeVisible()
+  const startHeader = intervals.getByRole('columnheader', { name: /Início/ })
+  await expect(startHeader).toHaveAttribute('aria-sort', 'none')
+  await startHeader.getByRole('button').click()
+  await expect(startHeader).toHaveAttribute('aria-sort', 'ascending')
+  await startHeader.getByRole('button').click()
+  await expect(startHeader).toHaveAttribute('aria-sort', 'descending')
 })

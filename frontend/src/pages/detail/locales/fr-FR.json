@@ -218,6 +218,17 @@
   "historyContribution": "Contribution",
   "historyViewCollection": "Voir la collecte et les métriques",
   "historyTableNote": "La recherche, les filtres et la pagination ne modifient ni le graphique ni les totaux.",
+  "analysisSeriesApply": "Appliquer les filtres",
+  "analysisSeriesCloseFilters": "Fermer les filtres par colonne",
+  "historyIntervalsUnit": "intervalles",
+  "historyNoFilters": "Aucun filtre actif",
+  "historySearchPlaceholder": "Rechercher dans toutes les colonnes...",
+  "historyStart": "D\u00e9but",
+  "historyInspect": "Inspecter",
+  "historyRange": "{{start}}\u2013{{end}} sur {{count}} intervalles",
+  "historyActiveFilters": "{{count}} filtre(s) actif(s)",
+  "historyMethodology": "M\u00e9thodologie",
+  "historyAction": "Action",
   "historyReturnNote": "Le retour restaure les critères et la page de l’historique, avec le focus sur l’intervalle inspecté.",
   "historyRecalculationPreview": "Aperçu du recalcul"
 }

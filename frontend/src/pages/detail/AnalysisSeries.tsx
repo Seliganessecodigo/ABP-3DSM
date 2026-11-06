@@ -5,6 +5,7 @@ import type { AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, 
 import { formatInstantForDateTimeInput, defaultTimeZone, parseDateTimeInputInZone, parseAnalysisSeriesPageSize, parseAnalysisSeriesReadingStatus, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { chartDomain, collectSeriesUnits, formatSeriesNumber, formatSeriesReading, hasInvalidDateRange, readNumericRange, readSeriesRowRange, selectSeriesPoints } from './analysisSeriesData.ts'
 import styles from './AnalysisSeries.module.css'
+import { stateIcons, stateLabel } from '../../features/applications/presentation.ts'
 
 type Labels = Readonly<{
   heading: string
@@ -21,6 +22,9 @@ type Labels = Readonly<{
   moment: string
   energy: string
   emissions: string
+  coverage: string
+  region: string
+  methodology: string
   energyChart: string
   emissionsChart: string
   unavailable: string
@@ -57,6 +61,8 @@ type Labels = Readonly<{
   invalidNumericRange: string
   invalidUnit: string
   clearFilters: string
+  applyFilters: string
+  closeFilters: string
   inspectContributions: string
   mixedUnits: string
   previous: string
@@ -72,6 +78,24 @@ type ChartLabels = Labels & Readonly<{
 
 function readingText(reading: AnalysisReading, locale: string, labels: Labels) {
   return formatSeriesReading(reading, locale, labels)
+}
+
+function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
+  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
+  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
+  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
+  return [1, ...(first > 2 ? ['ellipsis-start' as const] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []), pageCount]
+}
+
+function hasNoObservation(reading: AnalysisReading) {
+  return reading.status !== 'available' && reading.reason === 'noObservation'
+}
+
+function coverageText(point: AnalysisSeriesPoint, locale: string) {
+  if (!point.coverage) return '—'
+  const energy = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(point.coverage.energy)
+  const emissions = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(point.coverage.emissions)
+  return energy === emissions ? energy : `E ${energy} · CO₂e ${emissions}`
 }
 
 function formatAnalysisNumber(value: number, locale: string) {
@@ -448,23 +472,51 @@ type SeriesFilterProps = Readonly<{
 function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits, energyUnit, emissionsUnit,
   energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit, invalidEnergyRange,
   invalidEmissionsRange, labels, onClear, onQueryChange, onUpdateDate, historyMode = false }: SeriesFilterProps) {
+  const { t } = useTranslation('detail')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [draftQuery, setDraftQuery] = useState(query)
+  const [draftFrom, setDraftFrom] = useState(fromDraft)
+  const [draftTo, setDraftTo] = useState(toDraft)
+  const filterButton = useRef<HTMLButtonElement>(null)
+  const filterDialog = useRef<HTMLElement>(null)
+  const closeFilters = () => { setFiltersOpen(false); filterButton.current?.focus() }
+  useEffect(() => {
+    if (!filtersOpen) return
+    filterDialog.current?.focus()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleDialogKeys = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { closeFilters(); return }
+      if (event.key !== 'Tab') return
+      const focusable = filterDialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled)')
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    }
+    document.addEventListener('keydown', handleDialogKeys)
+    return () => {
+      document.removeEventListener('keydown', handleDialogKeys)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [filtersOpen])
+  const isHistory = historyMode
+  const updateDraft = (update: Partial<AnalysisSeriesQuery>) => setDraftQuery(current => ({ ...current, ...update }))
+  const applyFilters = () => {
+    const from = draftFrom === '' ? '' : parseDateTimeInputInZone(draftFrom, query.timeZone)
+    const to = draftTo === '' ? '' : parseDateTimeInputInZone(draftTo, query.timeZone)
+    if (from === null || to === null) return
+    onQueryChange({ ...draftQuery, from, to })
+    closeFilters()
+  }
   return <div className={styles.filters}>
-    <label className={styles.searchFilter}>{labels.search}<input type="search" value={query.search} placeholder={labels.searchPlaceholder}
+    <label className={styles.searchFilter}>{labels.search}<input type="search" value={query.search} placeholder={historyMode ? t('historySearchPlaceholder') : labels.searchPlaceholder}
       onChange={event => onQueryChange({ ...query, search: event.target.value })} /></label>
-    {historyMode && <label className={styles.mobileSort}>{labels.moment}
-        <select value={`${query.sort || 'moment'}:${query.direction}`} onChange={event => {
-          const [column, direction] = event.target.value.split(':')
-          if ((column === 'moment' || column === 'energy' || column === 'emissions') && (direction === 'asc' || direction === 'desc'))
-            onQueryChange({ ...query, sort: column, direction })
-        }}>
-          {(['moment', 'energy', 'emissions'] as const).flatMap(column => (['asc', 'desc'] as const).map(direction =>
-            <option key={`${column}:${direction}`} value={`${column}:${direction}`}
-              disabled={(column === 'energy' && (energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0)) ||
-                (column === 'emissions' && (emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0))}>
-              {labels[column]} {direction === 'asc' ? '↑' : '↓'}</option>))}
-        </select>
-    </label>}
-    <details className={styles.columnFilters} open={historyMode ? undefined : true}>
+    {isHistory ? <button ref={filterButton} type="button" className={styles.filterTrigger} aria-expanded={filtersOpen}
+      aria-controls="history-column-filters" onClick={() => {
+        setDraftQuery(query); setDraftFrom(fromDraft); setDraftTo(toDraft); setFiltersOpen(true)
+      }}>{labels.columnFilters}</button> : <details className={styles.columnFilters} open>
       <summary>{labels.columnFilters}</summary>
       <div className={styles.filterFields}>
         <button type="button" onClick={onClear}>{labels.clearFilters}</button>
@@ -497,12 +549,49 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
         <label>{labels.emissionsMax}<input type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMax: event.target.value })} /></label>
       </div>
-    </details>
+    </details>}
+    {isHistory && filtersOpen && <div className={styles.filterBackdrop} onMouseDown={event => {
+      if (event.target === event.currentTarget) closeFilters()
+    }}><section ref={filterDialog} id="history-column-filters" className={styles.filterDialog} role="dialog" aria-modal="true"
+      aria-labelledby="history-filter-title" tabIndex={-1}>
+      <header className={styles.filterDialogHeader}><div><h2 id="history-filter-title">{labels.columnFilters}</h2><p>{labels.searchPlaceholder}</p></div>
+        <button type="button" aria-label={labels.closeFilters} onClick={closeFilters}>×</button></header>
+      <div className={styles.filterDialogGrid}>
+        <label>{labels.from}<input type="datetime-local" value={draftFrom} onChange={event => setDraftFrom(event.target.value)} /></label>
+        <label>{labels.to}<input type="datetime-local" value={draftTo} onChange={event => setDraftTo(event.target.value)} /></label>
+        <label>{labels.energyStatus}<select value={draftQuery.energyStatus} onChange={event => updateDraft({ energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+          <option value="">{labels.allStatuses}</option><option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option><option value="not-calculable">{labels.notCalculableStatus}</option>
+        </select></label>
+        <label>{labels.emissionsStatus}<select value={draftQuery.emissionsStatus} onChange={event => updateDraft({ emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+          <option value="">{labels.allStatuses}</option><option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option><option value="not-calculable">{labels.notCalculableStatus}</option>
+        </select></label>
+        <label>{labels.energyUnit}<select value={draftQuery.energyUnit} onChange={event => updateDraft({ energyUnit: event.target.value })}>
+          <option value="">{labels.selectUnit}</option>{energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+        </select></label>
+        <label>{labels.energyMin}<input type="number" step="any" value={draftQuery.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+          aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMin: event.target.value })} /></label>
+        <label>{labels.energyMax}<input type="number" step="any" value={draftQuery.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+          aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMax: event.target.value })} /></label>
+        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select value={draftQuery.emissionsUnit} onChange={event => updateDraft({ emissionsUnit: event.target.value })}>
+          <option value="">{labels.selectUnit}</option>{emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+        </select></label>}
+        <label>{labels.emissionsMin}<input type="number" step="any" value={draftQuery.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+          aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMin: event.target.value })} /></label>
+        <label>{labels.emissionsMax}<input type="number" step="any" value={draftQuery.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+          aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMax: event.target.value })} /></label>
+      </div>
+      <footer className={styles.filterDialogFooter}><button type="button" onClick={() => { onClear(); closeFilters() }}>{labels.clearFilters}</button>
+        <button type="button" onClick={applyFilters}>{labels.applyFilters}</button></footer>
+    </section></div>}
   </div>
 }
 
 type SeriesTableProps = Readonly<{
   historyMode?: boolean
+  historyRegionFallback?: string | null
+  historyMethodologyFallback?: string | null
+  activeFilterCount?: number
+  tableEvents?: readonly AnalysisSeriesEvent[]
   points: readonly AnalysisSeriesPoint[]
   filteredPoints: readonly AnalysisSeriesPoint[]
   visiblePoints: readonly AnalysisSeriesPoint[]
@@ -526,41 +615,76 @@ type SeriesTableProps = Readonly<{
   onInspectContributions?: (bucketStart: string) => void
 }>
 
-function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, pageSize, firstRow, lastRow,
+function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, pageSize, firstRow, lastRow, tableEvents = [], activeFilterCount = 0,
+  historyRegionFallback = null, historyMethodologyFallback = null,
   energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit, energyUnits, emissionsUnits,
   locale, labels, formatDate, sortState, onSort, onPaginationChange, onInspectContributions, historyMode = false }: SeriesTableProps) {
   const { t } = useTranslation('detail')
+  const { t: tCommon } = useTranslation('common')
   const emptyMessage = points.length === 0 ? labels.noPoints : labels.noMatches
+  const metadataAt = (point: AnalysisSeriesPoint, eventType: 'region_changed' | 'methodology_changed', key: string) => {
+    const events = (tableEvents ?? []).filter(event => event.type === eventType).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
+    const beforePoint = events.filter(event => Date.parse(event.at) <= Date.parse(point.timestamp)).at(-1)
+    const snapshot = beforePoint?.details.after ?? events.find(event => Date.parse(event.at) > Date.parse(point.timestamp))?.details.before
+    if (!snapshot || typeof snapshot !== 'object') return eventType === 'region_changed'
+      ? historyRegionFallback ?? '—' : historyMethodologyFallback ?? '—'
+    const value = (snapshot as Record<string, unknown>)[key]
+    if (typeof value === 'string') return value
+    if (key === 'regionCode') {
+      const location = (snapshot as Record<string, unknown>).location
+      if (location && typeof location === 'object' && typeof (location as Record<string, unknown>).regionCode === 'string') return (location as Record<string, unknown>).regionCode as string
+    }
+    return eventType === 'region_changed' ? historyRegionFallback ?? '—' : historyMethodologyFallback ?? '—'
+  }
+  const stateFor = (point: AnalysisSeriesPoint) => {
+    if (point.energy.status === 'available' && point.emissions.status === 'available') return 'AVAILABLE' as const
+    if (hasNoObservation(point.energy) && hasNoObservation(point.emissions)) return 'NO_METRICS' as const
+    return 'UNAVAILABLE' as const
+  }
+  const statusReason = (point: AnalysisSeriesPoint) => [...new Set([point.energy, point.emissions]
+    .flatMap(reading => reading.status === 'available' ? [] : [labels.reasons[reading.reason]]))].join(' · ')
   return <>
+    {historyMode && <p className={styles.intervalStatus}>{filteredPoints.length} {t('historyIntervalsUnit')} · {activeFilterCount === 0 ? t('historyNoFilters') : t('historyActiveFilters', { count: activeFilterCount })}</p>}
     <table className={styles.table}>
       <thead><tr>
-        <th scope="col" aria-sort={sortState('moment')}><button type="button" onClick={() => onSort('moment')}>{labels.moment}</button></th>
-        <th scope="col" aria-sort={sortState('energy')}><button type="button" disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}</button></th>
-        <th scope="col" aria-sort={sortState('emissions')}><button type="button" disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}</button></th>
-        {historyMode && onInspectContributions && <th scope="col">{labels.inspectContributions}</th>}
+        <th scope="col" aria-sort={sortState('moment')}><button className={styles.sortButton} type="button" onClick={() => onSort('moment')}>{historyMode ? t('historyStart') : labels.moment}<span aria-hidden="true">{sortState('moment') === 'ascending' ? '↑' : sortState('moment') === 'descending' ? '↓' : ''}</span></button></th>
+        <th scope="col" aria-sort={sortState('energy')}><button className={styles.sortButton} type="button" disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}<span aria-hidden="true">{sortState('energy') === 'ascending' ? '↑' : sortState('energy') === 'descending' ? '↓' : ''}</span></button></th>
+        <th scope="col" aria-sort={sortState('emissions')}><button className={styles.sortButton} type="button" disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}<span aria-hidden="true">{sortState('emissions') === 'ascending' ? '↑' : sortState('emissions') === 'descending' ? '↓' : ''}</span></button></th>
+        {historyMode && <><th scope="col">{labels.coverage}</th><th scope="col">{labels.region}</th><th scope="col">{t('historyMethodology')}</th></>}
+        {historyMode && <th scope="col">{tCommon('state.label')}</th>}
+        {historyMode && onInspectContributions && <th scope="col">{t('historyAction')}</th>}
       </tr></thead>
       <tbody>{filteredPoints.length === 0
-        ? <tr><td colSpan={historyMode && onInspectContributions ? 4 : 3}>{emptyMessage}</td></tr>
+        ? <tr><td colSpan={historyMode ? onInspectContributions ? 8 : 7 : 3}>{emptyMessage}</td></tr>
         : visiblePoints.map(point => <tr key={point.id}>
           <td><time dateTime={point.timestamp}>{formatDate(point.timestamp)}</time>{historyMode && point.bucketEnd && <span className={styles.intervalEnd}> → {formatDate(point.bucketEnd)}</span>}{!historyMode && onInspectContributions && <button type="button" data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{labels.inspectContributions}</button>}</td>
-          <td data-label={labels.energy}>{readingText(point.energy, locale, labels)}</td>
-          <td data-label={labels.emissions}>{readingText(point.emissions, locale, labels)}</td>
-          {historyMode && onInspectContributions && <td className={styles.intervalAction}><button type="button" aria-label={labels.inspectContributions} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : labels.inspectContributions} →</button></td>}
+          <td data-label={labels.energy}>{historyMode && hasNoObservation(point.energy) ? '—' : readingText(point.energy, locale, labels)}</td>
+          <td data-label={labels.emissions}>{historyMode && hasNoObservation(point.emissions) ? '—' : readingText(point.emissions, locale, labels)}</td>
+                    {historyMode && <><td className={styles.desktopMetadata} data-label={labels.region}>{metadataAt(point, 'region_changed', 'regionCode')}</td>
+            <td className={styles.desktopMetadata} data-label={labels.methodology}>{metadataAt(point, 'methodology_changed', 'version')}</td>
+            <td className={styles.desktopMetadata} data-label={labels.coverage}>{coverageText(point, locale)}</td>
+            <td className={styles.mobileMetrics}>{hasNoObservation(point.energy) && hasNoObservation(point.emissions)
+              ? t('historyViewGap') : `${readingText(point.energy, locale, labels)} · ${readingText(point.emissions, locale, labels)}`}</td>
+            <td className={styles.mobileContext}>{metadataAt(point, 'region_changed', 'regionCode')} · {metadataAt(point, 'methodology_changed', 'version')} · {coverageText(point, locale)}</td></>}
+          {historyMode && <td className={styles.intervalState}><details className={styles.stateDetails}><summary><span className={`state-badge state-${stateFor(point).toLowerCase()}`}><span aria-hidden="true">{stateIcons[stateFor(point)]}</span>{stateLabel(stateFor(point), tCommon)}</span></summary><span className={styles.stateMetadata}>{stateFor(point) === 'AVAILABLE' ? tCommon('reason.METRICS_VALID') : statusReason(point)}</span></details></td>}
+          {historyMode && onInspectContributions && <td className={styles.intervalAction}><button type="button" aria-label={point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : t('historyInspect')} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? <>{t('historyViewGap')} →</> : <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>}</button></td>}
         </tr>)}</tbody>
     </table>
     <div className={styles.pagination}>
+      <output aria-live="polite">{historyMode ? t('historyRange', { start: firstRow, end: lastRow, count: filteredPoints.length }) : labels.rangeStatus(firstRow, lastRow, filteredPoints.length)}</output>
       <label>{labels.pageSize}<select value={pageSize} onChange={event => onPaginationChange(1, parseAnalysisSeriesPageSize(event.target.value))}>
         {[5, 10, 15, 20].map(size => <option key={size} value={size}>{size}</option>)}
         <option value="all">{labels.allRows}</option>
       </select></label>
-      {pageCount > 1 && <label>{labels.pageChoice}<select value={page} onChange={event => onPaginationChange(Number(event.target.value), pageSize)}>
-        {Array.from({ length: pageCount }, (_, index) => index + 1).map(number => <option key={number} value={number}>{number}</option>)}
-      </select></label>}
-      <button type="button" disabled={page <= 1} onClick={() => onPaginationChange(page - 1, pageSize)}>{labels.previous}</button>
-      {pageCount > 1 && <output aria-live="polite">{labels.pageStatus(page, pageCount)}</output>}
-      <output aria-live="polite">{labels.rangeStatus(firstRow, lastRow, filteredPoints.length)}</output>
-      <button type="button" disabled={page >= pageCount} onClick={() => onPaginationChange(page + 1, pageSize)}>{labels.next}</button>
+      <div className={styles.pageControls}>
+        <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.previous} disabled={page <= 1} onClick={() => onPaginationChange(page - 1, pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
+        {paginationPages(page, pageCount).map(number => typeof number === 'number'
+          ? <button key={number} type="button" aria-current={number === page ? 'page' : undefined} aria-label={labels.pageStatus(number, pageCount)} className={number === page ? styles.currentPage : styles.pageNumber} onClick={() => onPaginationChange(number, pageSize)}>{number}</button>
+          : <span key={number} aria-hidden="true">…</span>)}
+        <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.next} disabled={page >= pageCount} onClick={() => onPaginationChange(page + 1, pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
+      </div>
     </div>
+    {historyMode && <p className={styles.mobileTableNote}>{t('historyTableNote')}</p>}
   </>
 }
 
@@ -623,7 +747,7 @@ function SeriesContent({ series, state, view, metric, locale, timeZone, comparis
   return <SeriesTableView {...filterProps} invalidDateRange={invalidDateRange} tableProps={tableProps} />
 }
 
-export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventsHeading, eventSummary, historyMode = false }: Readonly<{
+export function AnalysisSeries({ series, state, locale, labels, formatDate, page, pageSize, query, comparisonPoints, onPaginationChange, onQueryChange, onInspectContributions, controlContent, eventsHeading, eventSummary, historyMode = false, historyRegionFallback = null, historyMethodologyFallback = null }: Readonly<{
   series: AnalysisSeriesResult
   state: 'loading' | 'refreshing' | 'available' | 'unavailable' | 'error' | 'invalid-period'
   locale: string
@@ -640,6 +764,8 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   eventsHeading: string
   eventSummary: (event: AnalysisSeriesEvent) => string
   historyMode?: boolean
+  historyRegionFallback?: string | null
+  historyMethodologyFallback?: string | null
 }>) {
   const { t } = useTranslation('detail')
   const [view, setView] = useState<'graph' | 'table'>('graph')
@@ -718,9 +844,12 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   }
   const tableProps: SeriesTableProps = {
     historyMode,
+    historyRegionFallback, historyMethodologyFallback,
+    activeFilterCount: [query.search, query.from, query.to, query.energyStatus, query.emissionsStatus,
+      query.energyUnit, query.emissionsUnit, query.energyMin, query.energyMax, query.emissionsMin, query.emissionsMax].filter(Boolean).length,
     points, filteredPoints, visiblePoints, page: currentPage, pageCount, pageSize, firstRow: rowRange.first,
     lastRow: rowRange.last, energyUnitRequired, emissionsUnitRequired, invalidEnergyUnit, invalidEmissionsUnit,
-    energyUnits, emissionsUnits, locale, labels, formatDate: formatSeriesDate, sortState, onSort: toggleSort,
+    energyUnits, emissionsUnits, locale, labels, tableEvents: series.status === 'available' ? series.events : [], formatDate: formatSeriesDate, sortState, onSort: toggleSort,
     onPaginationChange, onInspectContributions,
   }
   const chartLabels: ChartLabels = { ...labels, eventsHeading, eventSummary }
@@ -765,8 +894,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
       </li>)}</ul>
     </section>}
     {historyMode && <section className={styles.historyIntervals} aria-label={labels.historyIntervalsHeading}>
-      <header><h3>{labels.historyIntervalsHeading}</h3></header>
-      <p className={styles.tableNote}>{t('historyTableNote')}</p>
+      <header><h3>{labels.historyIntervalsHeading}</h3><p className={styles.tableNote}>{t('historyTableNote')}</p></header>
 
       <SeriesContent series={series} state={state} view="table" metric={metric} locale={locale} timeZone={query.timeZone} chartStyle={chartStyle}
         comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate} historyMode={historyMode} invalidDateRange={invalidDateRange}

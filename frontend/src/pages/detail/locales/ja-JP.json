@@ -218,6 +218,17 @@
   "historyContribution": "寄与",
   "historyViewCollection": "収集データとメトリクスを表示",
   "historyTableNote": "検索、フィルター、ページ切り替えはグラフや合計に影響しません。",
+  "analysisSeriesApply": "????????",
+  "analysisSeriesCloseFilters": "??????????",
+  "historyIntervalsUnit": "????",
+  "historyNoFilters": "??????????",
+  "historySearchPlaceholder": "\u3059\u3079\u3066\u306e\u5217\u3092\u691c\u7d22...",
+  "historyStart": "\u958b\u59cb",
+  "historyInspect": "\u8a73\u7d30\u3092\u898b\u308b",
+  "historyRange": "{{count}} \u4ef6\u4e2d {{start}}\u2013{{end}} \u4ef6",
+  "historyActiveFilters": "????????: {{count}} ?",
+  "historyMethodology": "\u65b9\u6cd5\u8ad6",
+  "historyAction": "\u64cd\u4f5c",
   "historyReturnNote": "戻ると履歴の条件とページを復元し、検査した区間にフォーカスします。",
   "historyRecalculationPreview": "再計算プレビュー"
 }

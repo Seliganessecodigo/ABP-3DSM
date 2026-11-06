@@ -218,6 +218,17 @@
   "historyContribution": "기여",
   "historyViewCollection": "수집 및 지표 보기",
   "historyTableNote": "검색, 필터 및 페이지 변경은 차트나 합계에 영향을 주지 않습니다.",
+  "analysisSeriesApply": "?? ??",
+  "analysisSeriesCloseFilters": "? ?? ??",
+  "historyIntervalsUnit": "? ??",
+  "historyNoFilters": "?? ?? ??",
+  "historySearchPlaceholder": "\ubaa8\ub4e0 \uc5f4\uc5d0\uc11c \uac80\uc0c9...",
+  "historyStart": "\uc2dc\uc791",
+  "historyInspect": "\uac80\uc0ac",
+  "historyRange": "{{count}}\uac1c \uc911 {{start}}\u2013{{end}}",
+  "historyActiveFilters": "?? ?? {{count}}?",
+  "historyMethodology": "\ubc29\ubc95\ub860",
+  "historyAction": "\uc791\uc5c5",
   "historyReturnNote": "돌아가면 기록 조건과 페이지가 복원되고 검사한 구간에 초점이 맞춰집니다.",
   "historyRecalculationPreview": "재계산 미리보기"
 }

@@ -255,6 +255,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       </div>}
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
+        historyRegionFallback={application?.location?.regionCode ?? null}
         inspectionBucket={historyOnly ? inspectionBucket : null}
         collectionHref={(collectionId) => {
           const params = new URLSearchParams(window.location.search)
@@ -398,6 +399,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           emissionsMin: tDetail('analysisSeriesEmissionsMin'), emissionsMax: tDetail('analysisSeriesEmissionsMax'),
           invalidNumericRange: tDetail('analysisSeriesInvalidNumericRange'), invalidUnit: tDetail('analysisSeriesInvalidUnit'),
           clearFilters: tDetail('analysisSeriesClearFilters'),
+          applyFilters: tDetail('analysisSeriesApply'), closeFilters: tDetail('analysisSeriesCloseFilters'),
           mixedUnits: tDetail('analysisSeriesMixedUnits'),
           energyStatus: tDetail('analysisSeriesEnergyStatus'), emissionsStatus: tDetail('analysisSeriesEmissionsStatus'),
           allStatuses: tDetail('analysisSeriesAllStatuses'), availableStatus: tDetail('analysisAvailableStatus'),

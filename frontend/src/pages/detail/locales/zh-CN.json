@@ -218,6 +218,17 @@
   "historyContribution": "贡献",
   "historyViewCollection": "查看采集和指标",
   "historyTableNote": "搜索、筛选和分页不会改变图表或总计。",
+  "analysisSeriesApply": "????",
+  "analysisSeriesCloseFilters": "?????",
+  "historyIntervalsUnit": "?????",
+  "historyNoFilters": "???????",
+  "historySearchPlaceholder": "\u641c\u7d22\u6240\u6709\u5217...",
+  "historyStart": "\u5f00\u59cb\u65f6\u95f4",
+  "historyInspect": "\u68c0\u67e5",
+  "historyRange": "{{count}} \u4e2a\u533a\u95f4\u4e2d\u7684 {{start}}\u2013{{end}}",
+  "historyActiveFilters": "??? {{count}} ???",
+  "historyMethodology": "\u65b9\u6cd5",
+  "historyAction": "\u64cd\u4f5c",
   "historyReturnNote": "返回时恢复历史条件和页码，并聚焦于打开此次检查的区间。",
   "historyRecalculationPreview": "重新计算预览"
 }
