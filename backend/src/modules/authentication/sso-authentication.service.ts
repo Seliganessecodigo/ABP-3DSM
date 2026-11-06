@@ -124,6 +124,13 @@ export class SsoAuthenticationService {
           revokedAt: null,
         }),
       )
+      await manager.getRepository(AuditLogEntity).save(
+        auditRecord(principal.userId, 'auth.sso.invitation.issued', 'sso_invitation', tokenHash, {
+          organizationId: principal.organizationId,
+          email,
+          role: input.role,
+        }),
+      )
     })
 
     const frontend = configuredUrl(process.env.APP_BASE_URL, 'APP_BASE_URL')
@@ -134,13 +141,6 @@ export class SsoAuthenticationService {
       'Convite para acessar o GreenER',
       `Olá, ${name}. Um administrador convidou você para acessar o GreenER.\n\n` +
         `Entre com sua conta Google por este link (válido por 24 horas):\n${inviteUrl.toString()}`,
-    )
-    await this.auditLogs.save(
-      auditRecord(principal.userId, 'auth.sso.invitation.issued', 'sso_invitation', tokenHash, {
-        organizationId: principal.organizationId,
-        email,
-        role: input.role,
-      }),
     )
     return { expiresAt: expiresAt.toISOString() }
   }
