@@ -24,6 +24,8 @@ import { ExternalIdentityEntity } from "./entities/external-identity.entity";
 import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
+import { AuditWriter } from "../shared/audit/audit-writer";
+import { UserEntity } from "./entities/user.entity";
 
 @Global()
 @Module({
@@ -45,6 +47,7 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
       SsoHandoffEntity,
       SsoInvitationEntity,
       SsoTransactionEntity,
+      UserEntity,
     ]),
   ],
   providers: [
@@ -56,6 +59,7 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
     RecalculationsRepository,
     AuditLogsRepository,
     MonitoringIncidentsRepository,
+    AuditWriter,
   ],
   exports: [
     TypeOrmModule,
@@ -67,6 +71,7 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
     RecalculationsRepository,
     AuditLogsRepository,
     MonitoringIncidentsRepository,
+    AuditWriter,
   ],
 })
 export class DatabaseModule {}

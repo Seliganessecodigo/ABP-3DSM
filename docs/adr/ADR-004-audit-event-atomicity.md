@@ -1,0 +1,3 @@
+# ADR-004 — Atomicidade e autoria dos eventos de auditoria
+
+Eventos de sucesso são gravados na mesma transação da mutação para impedir divergência entre estado e trilha; eventos de negação ou falha são gravados fora da transação revertida para preservar a tentativa sem representar uma mutação inexistente. O contrato de aplicação é append-only, sem bloqueio adicional no banco nesta entrega, e os eventos novos armazenam explicitamente o tipo e a identidade do ator; registros legados não recebem autoria inferida. Recuperações privilegiadas operadas por suporte externo usam o tipo `operator` e preservam o motivo livre já validado, pois o operador não possui uma identidade de usuário GreenER.
