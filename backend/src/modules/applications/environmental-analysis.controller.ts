@@ -72,6 +72,7 @@ export class EnvironmentalAnalysisController {
     )
   }
 
+  @PublicRoute()
   @Get('series')
   @ApiOperation({ summary: 'Consultar série ambiental persistida por granularidade' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
