@@ -25,12 +25,14 @@ import {
   EnvironmentalAnalysisSeriesContributionsQueryDto,
   EnvironmentalAnalysisSeriesQueryDto,
 } from './environmental-analysis-series-query.dto'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('applications')
 @Controller('applications/:id/analysis')
 export class EnvironmentalAnalysisController {
   constructor(private readonly analysis: EnvironmentalAnalysisService) {}
 
+  @PublicRoute()
   @Post('recalculation-preview')
   @HttpCode(200)
   @ApiOperation({ summary: 'Gerar prévia ambiental sem alterar o histórico' })
@@ -47,6 +49,7 @@ export class EnvironmentalAnalysisController {
     return this.analysis.previewRecalculation(id, request.from, request.to)
   }
 
+  @PublicRoute()
   @Get('series')
   @ApiOperation({ summary: 'Consultar série ambiental persistida por granularidade' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -64,6 +67,7 @@ export class EnvironmentalAnalysisController {
     return this.analysis.getSeriesByPeriod(id, query.from, query.to, query.granularity)
   }
 
+  @PublicRoute()
   @Get('series/contributions')
   @ApiOperation({ summary: 'Consultar contribuições persistidas de um bucket da série ambiental' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -92,6 +96,7 @@ export class EnvironmentalAnalysisController {
     )
   }
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Consultar resultados ambientais persistidos por período' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { APP_GUARD } from '@nestjs/core'
 import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AuthTokenEntity } from '../../database/entities/auth-token.entity'
@@ -52,6 +53,8 @@ import { SsoAuthenticationService } from './sso-authentication.service'
     PasswordHasher,
     AuthenticationGuard,
     RolesGuard,
+    { provide: APP_GUARD, useClass: AuthenticationGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: AUTH_CLOCK, useClass: SystemAuthClock },
     SmtpEmailDelivery,
     { provide: EMAIL_DELIVERY, useExisting: SmtpEmailDelivery },

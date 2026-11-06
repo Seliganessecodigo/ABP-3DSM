@@ -9,9 +9,12 @@ import { AddApplicationLocation1791260000000 } from '../../database/migrations/1
 import { CarbonFactorSnapshots1791340000000 } from '../../database/migrations/1791340000000-CarbonFactorSnapshots'
 import { DiscoverApplications1791350000000 } from '../../database/migrations/1791350000000-DiscoverApplications'
 import { ApplicationOperationalStatus1791360000000 } from '../../database/migrations/1791360000000-ApplicationOperationalStatus'
+import { MonitoringIncidents1791370000000 } from '../../database/migrations/1791370000000-MonitoringIncidents'
+import { CollectionCalculationEvidence1791380000000 } from '../../database/migrations/1791380000000-CollectionCalculationEvidence'
 import { AuthenticationAndOrganizations1791400000000 } from '../../database/migrations/1791400000000-AuthenticationAndOrganizations'
 import { AdminTotpAuthentication1791410000000 } from '../../database/migrations/1791410000000-AdminTotpAuthentication'
 import { SsoAuthentication1791420000000 } from '../../database/migrations/1791420000000-SsoAuthentication'
+import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
@@ -21,6 +24,7 @@ import {
   GoogleOidcTransport,
 } from './google-oidc-transport'
 import { AccessTokenService } from './access-token.service'
+import { CarbonIntensityAdapter } from '../../integrations/carbon-intensity.adapter'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeWithDatabase = testDatabaseUrl ? describe : describe.skip
@@ -121,9 +125,12 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         CarbonFactorSnapshots1791340000000,
         DiscoverApplications1791350000000,
         ApplicationOperationalStatus1791360000000,
+        MonitoringIncidents1791370000000,
+        CollectionCalculationEvidence1791380000000,
         AuthenticationAndOrganizations1791400000000,
         AdminTotpAuthentication1791410000000,
         SsoAuthentication1791420000000,
+        UserPreferences1793200000000,
       ],
     })
     await database.initialize()
@@ -845,6 +852,44 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     const publicResponse = await fetch(new URL('/health', await app.getUrl()))
     expect(privateResponse.status).toBe(401)
     expect(publicResponse.status).toBe(200)
+  })
+
+  it('permite leituras públicas sem sessão', async () => {
+    const regions = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchRegions')
+      .mockResolvedValue({ regions: [], total: 0 })
+    try {
+      const publicPaths = [
+        '/health',
+        '/applications',
+        '/monitoring/incidents',
+        '/carbon/regions',
+        '/analysis/summary?from=2026-10-01T00%3A00%3A00Z&to=2026-10-01T00%3A01%3A00Z',
+      ]
+      for (const path of publicPaths) {
+        const response = await fetch(new URL(path, await app.getUrl()))
+        expect(response.status).toBe(200)
+      }
+    } finally {
+      regions.mockRestore()
+    }
+  })
+
+  it('recusa convite sem sessão antes de enviar e-mail', async () => {
+    const response = await fetch(
+      new URL('/auth/sso/invitations', await app.getUrl()),
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email: 'unauthorized-invite@example.test',
+          name: 'Unauthorized Invite',
+          role: 'ANALYST',
+        }),
+      },
+    )
+    expect(response.status).toBe(401)
+    expect(sentEmails).toHaveLength(0)
   })
 
   it('aplica o limite absoluto de sete dias mesmo com atividade recente', async () => {
