@@ -6,6 +6,7 @@ import { OrganizationEntity } from '../../database/entities/organization.entity'
 import { UserEntity, UserRole } from '../../database/entities/user.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AccessTokenService } from '../authentication/access-token.service'
+import { MonitoringIncidentEntity, MonitoringIncidentStatus } from '../../database/entities/monitoring-incident.entity'
 
 const describeDatabase = process.env.TEST_DATABASE_URL ? describe : describe.skip
 
@@ -75,7 +76,8 @@ describeDatabase('RNF-06: real HTTP sources → application → PostgreSQL → p
     fixture.sources.failedMetrics.add('quality-api')
     await fixture.cycle()
     const partial = await fixture.database.getRepository(CollectionEntity).find({ order: { collectedAt: 'DESC' } })
-    expect(partial.length).toBeGreaterThan(originals.length)
+    expect(partial).toHaveLength(originals.length + 1)
+    expect(partial.filter((row) => row.applicationId === 'quality-api')).toHaveLength(1)
     expect(partial[0].applicationId).toBe('quality-worker')
     fixture.sources.failedMetrics.clear()
     fixture.sources.carbonUnavailable = true
@@ -91,6 +93,11 @@ describeDatabase('RNF-06: real HTTP sources → application → PostgreSQL → p
     const recovered = await fixture.database.getRepository(ApplicationEntity).findOneByOrFail({ id: identity.id })
     expect(recovered.id).toBe(identity.id)
     expect(recovered.firstSeenAt).toEqual(identity.firstSeenAt)
+    expect(recovered.state).toBe('AVAILABLE')
+    expect(recovered.isStale).toBe(false)
+    const incidents = await fixture.database.getRepository(MonitoringIncidentEntity).find()
+    expect(incidents.length).toBeGreaterThan(0)
+    expect(incidents.every((incident) => incident.status === MonitoringIncidentStatus.RESOLVED)).toBe(true)
     const collections = fixture.database.getRepository(CollectionEntity)
     for (const original of originals) expect(await collections.findOneByOrFail({ id: original.id })).toEqual(original)
     const latest = await collections.find({ order: { collectedAt: 'DESC' }, take: 2 })
