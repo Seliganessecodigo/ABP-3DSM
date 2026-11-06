@@ -117,7 +117,7 @@ jobs:
         working-directory: backend
         run: npm run typecheck
 
-      - name: Unit tests
+      - name: Backend tests with PostgreSQL and coverage
         working-directory: backend
         run: npm test -- --runInBand --coverage --coverageReporters=lcov --coverageReporters=text
 
@@ -136,6 +136,27 @@ jobs:
       - name: Run database migrations when configured
         working-directory: backend
         run: npm run migration:run:prod
+
+      - name: Install frontend dependencies for integrated flow
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install browser for integrated flow
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Test UI against real backend and isolated PostgreSQL
+        working-directory: frontend
+        run: npm run test:integration
+
+      - name: Upload integrated flow failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrated-flow-failures
+          path: frontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
 
   sonarqube:
     name: SonarQube Cloud quality gate

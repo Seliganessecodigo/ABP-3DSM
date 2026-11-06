@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "playwright test",
     "test:e2e": "playwright test --project=chromium",
-    "test:unit": "playwright test --project=unit"
+    "test:unit": "playwright test --project=unit",
+    "test:integration": "playwright test --config playwright.integration.config.ts"
   },
   "dependencies": {
     "i18next": "^26.4.4",
