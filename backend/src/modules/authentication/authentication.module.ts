@@ -24,9 +24,11 @@ import { SsoTransactionEntity } from '../../database/entities/sso-transaction.en
 import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-transport'
 import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
+import { AuditModule } from '../../shared/audit/audit.module'
 
 @Module({
   imports: [
+    AuditModule,
     TypeOrmModule.forFeature([
       AuthSessionEntity,
       AuthTokenEntity,

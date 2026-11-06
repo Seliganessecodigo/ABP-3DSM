@@ -24,6 +24,7 @@ import { AuthenticationAndOrganizations1791400000000 } from '../src/database/mig
 import { AdminTotpAuthentication1791410000000 } from '../src/database/migrations/1791410000000-AdminTotpAuthentication'
 import { SsoAuthentication1791420000000 } from '../src/database/migrations/1791420000000-SsoAuthentication'
 import { UserPreferences1793200000000 } from '../src/database/migrations/1793200000000-UserPreferences'
+import { AuditActorIdentity1793300000000 } from '../src/database/migrations/1793300000000-AuditActorIdentity'
 
 /** Real application/adapters/migrations; only the external HTTP sources and email are local fixtures. */
 export async function createQualityFixture(port = 0, collectBeforeListening = false) {
@@ -100,7 +101,8 @@ export async function createQualityFixture(port = 0, collectBeforeListening = fa
         DiscoverApplications1791350000000, ApplicationOperationalStatus1791360000000,
         MonitoringIncidents1791370000000, CollectionCalculationEvidence1791380000000,
         AuthenticationAndOrganizations1791400000000, AdminTotpAuthentication1791410000000,
-        SsoAuthentication1791420000000, UserPreferences1793200000000],
+        SsoAuthentication1791420000000, UserPreferences1793200000000,
+        AuditActorIdentity1793300000000],
     })
     await database.initialize()
     await database.runMigrations()

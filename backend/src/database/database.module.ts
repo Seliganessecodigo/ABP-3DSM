@@ -6,7 +6,6 @@ import { MonitoringCycleEntity } from "./entities/monitoring-cycle.entity";
 import { CarbonRegionEntity } from "./entities/carbon-region.entity";
 import { CalculationConfigEntity } from "./entities/calculation-config.entity";
 import { RecalculationEntity } from "./entities/recalculation.entity";
-import { AuditLogEntity } from "./entities/audit-log.entity";
 import { MonitoringIncidentEntity } from "./entities/monitoring-incident.entity";
 import { ApplicationEventsRepository } from "./repositories/application-events.repository";
 import { CollectionsRepository } from "./repositories/collections.repository";
@@ -14,7 +13,6 @@ import { MonitoringCyclesRepository } from "./repositories/monitoring-cycles.rep
 import { CarbonRegionsRepository } from "./repositories/carbon-regions.repository";
 import { CalculationConfigsRepository } from "./repositories/calculation-configs.repository";
 import { RecalculationsRepository } from "./repositories/recalculations.repository";
-import { AuditLogsRepository } from "./repositories/audit-logs.repository";
 import { MonitoringIncidentsRepository } from "./repositories/monitoring-incidents.repository";
 import { typeOrmOptions } from "./typeorm.options";
 import { OrganizationEntity } from "./entities/organization.entity";
@@ -24,8 +22,6 @@ import { ExternalIdentityEntity } from "./entities/external-identity.entity";
 import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
-import { AuditWriter } from "../shared/audit/audit-writer";
-import { UserEntity } from "./entities/user.entity";
 
 @Global()
 @Module({
@@ -38,7 +34,6 @@ import { UserEntity } from "./entities/user.entity";
       CarbonRegionEntity,
       CalculationConfigEntity,
       RecalculationEntity,
-      AuditLogEntity,
       MonitoringIncidentEntity,
       OrganizationEntity,
       AuthSessionEntity,
@@ -47,7 +42,6 @@ import { UserEntity } from "./entities/user.entity";
       SsoHandoffEntity,
       SsoInvitationEntity,
       SsoTransactionEntity,
-      UserEntity,
     ]),
   ],
   providers: [
@@ -57,9 +51,7 @@ import { UserEntity } from "./entities/user.entity";
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
-    AuditLogsRepository,
     MonitoringIncidentsRepository,
-    AuditWriter,
   ],
   exports: [
     TypeOrmModule,
@@ -69,9 +61,7 @@ import { UserEntity } from "./entities/user.entity";
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
-    AuditLogsRepository,
     MonitoringIncidentsRepository,
-    AuditWriter,
   ],
 })
 export class DatabaseModule {}
