@@ -87,6 +87,11 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
     expect(result.coverage.value).toEqual({ thresholdPercent: 85, alertsEnabled: true })
     const audit = await database.getRepository(AuditLogEntity).find({ where: { entityId: `${user.id}:energy` }, order: { createdAt: 'ASC' } })
     expect(audit).toHaveLength(2)
+    expect(audit[0]).toMatchObject({
+      actorType: 'user',
+      actorUserId: user.id,
+      actorLabel: user.name,
+    })
     expect(audit[0].before).toBeNull()
     expect(audit[1].before).toEqual({ revision: 1, value: energy })
     expect(audit[1].after).toMatchObject({ revision: 2 })

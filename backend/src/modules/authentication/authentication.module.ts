@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { APP_GUARD } from '@nestjs/core'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AuthTokenEntity } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
@@ -25,11 +24,12 @@ import { SsoTransactionEntity } from '../../database/entities/sso-transaction.en
 import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-transport'
 import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
+import { AuditModule } from '../../shared/audit/audit.module'
 
 @Module({
   imports: [
+    AuditModule,
     TypeOrmModule.forFeature([
-      AuditLogEntity,
       AuthSessionEntity,
       AuthTokenEntity,
       OrganizationEntity,

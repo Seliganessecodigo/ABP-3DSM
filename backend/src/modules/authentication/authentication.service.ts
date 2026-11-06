@@ -5,16 +5,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import { randomBytes } from 'node:crypto'
 import {
   DataSource,
   IsNull,
   MoreThan,
   QueryFailedError,
-  Repository,
 } from 'typeorm'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import {
   AuthTokenEntity,
@@ -31,6 +28,7 @@ import {
   AuthenticationLoginResponse,
   TotpAuthenticationService,
 } from './totp-authentication.service'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 
 const ACCESS_SECONDS = 15 * 60
 const IDLE_SESSION_MS = 12 * 60 * 60 * 1000
@@ -63,8 +61,7 @@ export class AuthenticationService {
     private readonly dataSource: DataSource,
     @Inject(AUTH_CLOCK)
     private readonly clock: AuthClock,
-    @InjectRepository(AuditLogEntity)
-    private readonly auditLogs: Repository<AuditLogEntity>,
+    private readonly auditWriter: AuditWriter,
     @Inject(EMAIL_DELIVERY)
     private readonly emailDelivery: EmailDelivery,
     private readonly totpAuthentication: TotpAuthenticationService,
@@ -727,24 +724,22 @@ export class AuthenticationService {
     action: string,
     entityType: string,
     entityId: string,
-    outcome: string,
+    outcome: 'succeeded' | 'denied',
   ) {
-    return this.auditLogs.insert({
-      actor,
-      actorUserId:
-        actor === 'anonymous' ||
-        actor === 'system' ||
-        actor === 'representative' ||
-        actor.startsWith('support:')
-          ? null
-          : actor,
+    const auditActor =
+      actor === 'anonymous' ||
+      actor === 'representative' ||
+      actor.startsWith('support:')
+        ? { type: 'unauthenticated' as const }
+        : actor === 'system'
+          ? { type: 'system' as const, componentId: 'authentication' }
+          : { type: 'user' as const, userId: actor }
+    return this.auditWriter.record({
+      actor: auditActor,
       action,
       entityType,
       entityId,
-      before: null,
-      after: null,
-      reason: null,
-      outcome,
+      outcome: outcome === 'succeeded' ? 'success' : outcome,
     })
   }
 }

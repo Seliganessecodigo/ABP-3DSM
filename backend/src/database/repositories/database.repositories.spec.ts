@@ -78,6 +78,26 @@ describe('database repositories', () => {
     expect(mock.save).not.toHaveBeenCalled()
   })
 
+  it('appends audit records through the caller transaction when provided', async () => {
+    const { repository, mock } = createRepository<AuditLogEntity>()
+    const transactionRepository = createRepository<AuditLogEntity>()
+    const manager = {
+      getRepository: jest.fn().mockReturnValue(transactionRepository.repository),
+    }
+    const auditLogs = new AuditLogsRepository(repository)
+
+    await auditLogs.append(
+      { actor: 'monitoring-scheduler', actorType: 'system' },
+      manager as never,
+    )
+
+    expect(manager.getRepository).toHaveBeenCalledWith(AuditLogEntity)
+    expect(transactionRepository.mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ actor: 'monitoring-scheduler' }),
+    )
+    expect(mock.insert).not.toHaveBeenCalled()
+  })
+
   it('appends recalculation records', async () => {
     const { repository, mock } = createRepository<RecalculationEntity>()
     const recalculations = new RecalculationsRepository(repository)

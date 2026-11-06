@@ -15,6 +15,7 @@ import { AuthenticationAndOrganizations1791400000000 } from '../../database/migr
 import { AdminTotpAuthentication1791410000000 } from '../../database/migrations/1791410000000-AdminTotpAuthentication'
 import { SsoAuthentication1791420000000 } from '../../database/migrations/1791420000000-SsoAuthentication'
 import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
+import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
@@ -131,6 +132,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         AdminTotpAuthentication1791410000000,
         SsoAuthentication1791420000000,
         UserPreferences1793200000000,
+        AuditActorIdentity1793300000000,
       ],
     })
     await database.initialize()

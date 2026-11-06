@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common'
 import { AuthenticationModule } from '../authentication/authentication.module'
+import { AuditModule } from '../../shared/audit/audit.module'
 import { PreferencesController } from './preferences.controller'
 import { PreferencesRepository } from './preferences.repository'
 import { PreferencesService } from './preferences.service'
 
-@Module({ imports: [AuthenticationModule], controllers: [PreferencesController], providers: [PreferencesService, PreferencesRepository] })
+@Module({
+  imports: [AuthenticationModule, AuditModule],
+  controllers: [PreferencesController],
+  providers: [PreferencesService, PreferencesRepository],
+})
 export class PreferencesModule {}

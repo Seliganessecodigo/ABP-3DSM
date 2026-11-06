@@ -11,8 +11,20 @@ export class AuditLogEntity {
   @Column({ type: 'varchar', length: 128 })
   actor!: string
 
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  actorType!: 'user' | 'system' | 'operator' | 'unauthenticated' | null
+
   @Column({ type: 'uuid', nullable: true })
   actorUserId!: string | null
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  actorSystemId!: string | null
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  actorExternalId!: string | null
+
+  @Column({ type: 'varchar', length: 160, nullable: true })
+  actorLabel!: string | null
 
   @ManyToOne(() => UserEntity, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'actorUserId' })

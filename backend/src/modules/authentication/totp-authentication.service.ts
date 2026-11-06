@@ -6,9 +6,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { DataSource, EntityManager, IsNull, MoreThan, Repository } from 'typeorm'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
+import { DataSource, EntityManager, IsNull, MoreThan } from 'typeorm'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import {
   AuthTokenEntity,
@@ -21,6 +19,7 @@ import { AUTH_CLOCK, AuthClock } from './clock'
 import { PasswordHasher } from './password-hasher.service'
 import { TotpService } from './totp.service'
 import type { AuthPrincipal, TokenResponse } from './authentication.service'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000
 const SETUP_CREDENTIAL_MS = 5 * 60 * 1000
@@ -53,8 +52,7 @@ export class TotpAuthenticationService {
     private readonly passwords: PasswordHasher,
     private readonly totp: TotpService,
     @Inject(AUTH_CLOCK) private readonly clock: AuthClock,
-    @InjectRepository(AuditLogEntity)
-    private readonly auditLogs: Repository<AuditLogEntity>,
+    private readonly auditWriter: AuditWriter,
   ) {}
 
   async beginAdminLogin(user: UserEntity): Promise<TotpSetupRequired | TotpChallengeRequired> {
@@ -212,9 +210,13 @@ export class TotpAuthenticationService {
       await tokens.save(challenge)
       await users.save(user)
       const session = await this.createSession(manager, user, now)
-      await manager.getRepository(AuditLogEntity).insert(
-        auditRecord(user.id, 'auth.login.totp.succeeded', 'user', user.id),
-      )
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: user.id },
+        action: 'auth.login.totp.succeeded',
+        entityType: 'user',
+        entityId: user.id,
+        outcome: 'success',
+      }, manager)
       return { session, user }
     })
     if ('error' in result) throw result.error
@@ -335,9 +337,13 @@ export class TotpAuthenticationService {
         },
         { revokedAt: now },
       )
-      await manager.getRepository(AuditLogEntity).insert(
-        auditRecord(user.id, 'auth.totp.replaced', 'user', user.id),
-      )
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: user.id },
+        action: 'auth.totp.replaced',
+        entityType: 'user',
+        entityId: user.id,
+        outcome: 'success',
+      }, manager)
     })
     return { message: 'Autenticador substituído. Entre novamente para continuar.' }
   }
@@ -380,7 +386,6 @@ export class TotpAuthenticationService {
           })
         : null
       if (!organization || !user) throw new BadRequestException('Conta Admin não encontrada')
-      const before = { representativeEmail: organization.recoveryRepresentativeEmail }
       organization.recoveryRepresentativeEmail = representativeEmail
       await organizations.save(organization)
       user.totpSecretCiphertext = null
@@ -397,18 +402,14 @@ export class TotpAuthenticationService {
         { userId: user.id, revokedAt: IsNull() },
         { revokedAt: now },
       )
-      const audit = manager.getRepository(AuditLogEntity).create({
-        actor: `support:${operatorId}`,
-        actorUserId: null,
+      await this.auditWriter.record({
+        actor: { type: 'operator', operatorId },
         action: 'auth.totp.recovered',
         entityType: 'user',
         entityId: user.id,
-        before,
-        after: { representativeEmail },
         reason,
-        outcome: 'succeeded',
-      })
-      await manager.getRepository(AuditLogEntity).save(audit)
+        outcome: 'success',
+      }, manager)
     })
   }
 
@@ -459,9 +460,13 @@ export class TotpAuthenticationService {
       await users.save(user)
       await tokens.save(confirmation)
       const session = await this.createSession(manager, user, now, refreshToken)
-      await manager.getRepository(AuditLogEntity).insert(
-        auditRecord(user.id, 'auth.totp.activated', 'user', user.id),
-      )
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: user.id },
+        action: 'auth.totp.activated',
+        entityType: 'user',
+        entityId: user.id,
+        outcome: 'success',
+      }, manager)
       return { user, session }
     })
     return {
@@ -561,7 +566,13 @@ export class TotpAuthenticationService {
   }
 
   private recordAudit(userId: string, action: string, entityId: string) {
-    return this.auditLogs.insert(auditRecord(userId, action, 'user', entityId))
+    return this.auditWriter.record({
+      actor: { type: 'user', userId },
+      action,
+      entityType: 'user',
+      entityId,
+      outcome: 'success',
+    })
   }
 }
 
@@ -573,20 +584,6 @@ function clearPendingTotp(user: UserEntity): void {
   user.totpPendingCiphertext = null
   user.totpPendingKeyVersion = null
   user.totpPendingExpiresAt = null
-}
-
-function auditRecord(actor: string, action: string, entityType: string, entityId: string) {
-  return {
-    actor,
-    actorUserId: actor.startsWith('support:') ? null : actor,
-    action,
-    entityType,
-    entityId,
-    before: null,
-    after: null,
-    reason: null,
-    outcome: 'succeeded',
-  }
 }
 
 function normalizeEmail(value: string): string {

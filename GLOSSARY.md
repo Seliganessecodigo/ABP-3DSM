@@ -67,3 +67,12 @@ Etapa temporária após o primeiro fator de autenticação, na qual a pessoa com
 
 **Representante da organização**:
 Contato autorizado pela organização para receber o convite inicial do primeiro Administrador e validar recuperações de autenticador. Essa indicação não cria uma conta GreenER e pode ser substituída pelo suporte após validação independente da nova autoridade e registro de auditoria.
+
+**Operador externo**:
+Pessoa identificada fora das contas GreenER que executa uma recuperação privilegiada, como a recuperação do autenticador TOTP de um Administrador.
+
+## Auditoria
+
+**Evento de auditoria**:
+Registro histórico de uma ação relevante, com autoria, instante, alvo e resultado, usado para explicar mudanças e tentativas sem expor credenciais ou segredos.
+_Avoid_: Log de auditoria, histórico de alterações

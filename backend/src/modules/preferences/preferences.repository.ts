@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { UserPreferenceEntity } from '../../database/entities/user-preference.entity'
 import { UserEntity } from '../../database/entities/user.entity'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 import type { AuthPrincipal } from '../authentication/authentication.service'
 import type { PreferenceTab, PreferenceValue } from './preferences.dto'
 
 @Injectable()
 export class PreferencesRepository {
-  constructor(private readonly database: DataSource) {}
+  constructor(
+    private readonly database: DataSource,
+    private readonly auditWriter: AuditWriter,
+  ) {}
   find(userId: string) {
     return this.database.getRepository(UserPreferenceEntity).findBy({ userId })
   }
@@ -20,11 +23,16 @@ export class PreferencesRepository {
       const before = await repository.findOneBy({ userId: principal.userId, tab })
       if ((before?.revision ?? 0) !== expectedRevision) return null
       const after = await repository.save(repository.create({ userId: principal.userId, tab, value, revision: expectedRevision + 1, updatedAt: new Date() }))
-      await manager.getRepository(AuditLogEntity).save({
-        actor: principal.userId, actorUserId: principal.userId, action: 'preference.saved', entityType: 'user_preference', entityId: `${principal.userId}:${tab}`,
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: principal.userId },
+        action: 'preference.saved',
+        entityType: 'user_preference',
+        entityId: `${principal.userId}:${tab}`,
         before: before ? { value: before.value, revision: before.revision } : null,
-        after: { value: after.value, revision: after.revision }, reason: 'Preferência pessoal de apresentação', outcome: 'success',
-      })
+        after: { value: after.value, revision: after.revision },
+        allowedSnapshotFields: ['value', 'revision'],
+        outcome: 'success',
+      }, manager)
       return after
     })
   }
