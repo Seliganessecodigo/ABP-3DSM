@@ -50,6 +50,13 @@ type Labels = Readonly<{
 
 type Contribution = AnalysisContributionsPage['contributions'][number]
 
+function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
+  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
+  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
+  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
+  return [1, ...(first > 2 ? ['ellipsis-start' as const] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []), pageCount]
+}
+
 export function AnalysisContributions({ data, loading, error, locale, formatDate, labels, onPaginationChange, historyLayout = false, collectionHref, timeZone = 'UTC' }: Readonly<{
   data: AnalysisContributionsPage | null
   loading: boolean
@@ -182,7 +189,7 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
       {!historyLayout && <ol className={styles.list}>
         {detailContributions.map((contribution) => renderContribution(contribution))}
       </ol>}
-      {data.exclusions.length > 0 && <section className={styles.exclusions} aria-label={labels.exclusions}>
+      {!historyLayout && data.exclusions.length > 0 && <section className={styles.exclusions} aria-label={labels.exclusions}>
         <h3>{labels.exclusions}</h3>
         <ul className={styles.list}>{data.exclusions.map((exclusion) => <li key={`${exclusion.collectionId ?? 'none'}-${exclusion.from}-${exclusion.to}`}>
           <h4>{exclusion.collectionId ?? '—'}</h4>
@@ -192,16 +199,23 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
         </li>)}</ul>
       </section>}
       <div className={styles.pagination}>
+        <output aria-live="polite">{labels.pageStatus(data.pagination.page, data.pagination.totalPages)}</output>
         <label>{labels.pageSize}<select value={data.pagination.pageSize} disabled={!onPaginationChange}
           onChange={(event) => onPaginationChange?.(1, event.target.value === 'all' ? 'all' : Number(event.target.value))}>
           {[5, 10, 15, 20].map((size) => <option key={size} value={size}>{size}</option>)}
           <option value="all">{labels.allRows}</option>
         </select></label>
-        <button type="button" disabled={!onPaginationChange || data.pagination.page <= 1}
-          onClick={() => onPaginationChange?.(data.pagination.page - 1, data.pagination.pageSize)}>{labels.previous}</button>
-        <output aria-live="polite">{labels.pageStatus(data.pagination.page, data.pagination.totalPages)}</output>
-        <button type="button" disabled={!onPaginationChange || !data.pagination.hasNextPage}
-          onClick={() => onPaginationChange?.(data.pagination.page + 1, data.pagination.pageSize)}>{labels.next}</button>
+        <nav className={styles.pageControls} aria-label={labels.heading}>
+          <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.previous} disabled={!onPaginationChange || data.pagination.page <= 1}
+            onClick={() => onPaginationChange?.(data.pagination.page - 1, data.pagination.pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
+          {paginationPages(data.pagination.page, data.pagination.totalPages).map(page => typeof page === 'number'
+            ? <button key={page} type="button" aria-current={page === data.pagination.page ? 'page' : undefined}
+              aria-label={labels.pageStatus(page, data.pagination.totalPages)} className={page === data.pagination.page ? styles.currentPage : styles.pageNumber}
+              disabled={!onPaginationChange} onClick={() => onPaginationChange?.(page, data.pagination.pageSize)}>{page}</button>
+            : <span key={page} aria-hidden="true">…</span>)}
+          <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.next} disabled={!onPaginationChange || !data.pagination.hasNextPage}
+            onClick={() => onPaginationChange?.(data.pagination.page + 1, data.pagination.pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
+        </nav>
       </div>
     </>}
   </section>

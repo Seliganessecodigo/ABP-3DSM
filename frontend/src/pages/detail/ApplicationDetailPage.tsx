@@ -137,6 +137,9 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)
   const backUrl = `/${window.location.search}`
+  const historyUrlParams = new URLSearchParams(searchParams)
+  historyUrlParams.delete('inspectionBucket')
+  const historyUrl = `/history${historyUrlParams.size ? `?${historyUrlParams.toString()}` : ''}`
   const verificationTime = application?.lastCheckedAt && Number.isFinite(Date.parse(application.lastCheckedAt))
     ? new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: displayTimeZone }).format(new Date(application.lastCheckedAt))
     : null
@@ -205,11 +208,12 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
         month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
       } }} />
-  return <main ref={historyRoot} className={`content ${styles['detail-content']} ${historyOnly ? styles.historyContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
+  return <main ref={historyRoot} className={`content ${styles['detail-content']} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>
       {inspectionBucket ? <>
         <div className={styles.historyInspectionHeading}>
           <div>
+            <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><a href={historyUrl} onClick={(event) => { event.preventDefault(); closeHistoryInspection() }}>{tDetail('historyTitle')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyInspectionHeading')}</span></nav>
             <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
             <h1>{tDetail('historyInspectionHeading')}</h1>
             <p>{application?.name} · {displayTimeZone}</p>
@@ -220,6 +224,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         </div>
       </> : <>
         <div className={styles.historyHeading}>
+          <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyTitle')}</span></nav>
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
           <h1>{tDetail('historyTitle')}</h1>
           <p className={styles.historyDesktopDescription}>{tDetail('historyDescription')}</p>

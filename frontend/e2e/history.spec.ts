@@ -27,7 +27,8 @@ test.beforeEach(async ({ page }) => {
         methodology: { key: 'energy-estimate', version: index === 0 ? 'v1' : 'v2', parameters: {} },
         factorSnapshot: null,
       })),
-      exclusions: [],
+      exclusions: [{ collectionId: null, interval: { from: bucketStart, to: bucketEnd },
+        energyReasons: [{ code: 'NO_OBSERVATION' }], emissionsReasons: [] }],
     } })
   })
   await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
@@ -115,11 +116,15 @@ test('history selection shows the environmental series and keeps its context', a
 
 test('interval inspection preserves filtered history and restores focus after returning', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesSearch=kWh&seriesSort=energy&seriesSize=5')
+  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesSearch=kWh&seriesSort=energy&seriesSize=5', { waitUntil: 'commit' })
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   const beforeInspectionParams = new URL(page.url()).searchParams
-  await series.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).first().click()
+  await series.getByRole('button', { name: 'Inspecionar', exact: true }).first().click()
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
+  const breadcrumb = page.getByRole('navigation', { name: 'Histórico', exact: true })
+  await expect(breadcrumb).toContainText('Aplicações')
+  await expect(breadcrumb).toContainText('Inspeção do intervalo')
+  await expect(page.getByRole('region', { name: 'Exclusões', exact: true })).toHaveCount(0)
   const contributions = page.getByRole('table', { name: 'Contribuições que compõem o agregado', exact: true })
   await expect(contributions.getByRole('row')).toHaveCount(3)
   const selectedContribution = page.getByRole('region', { name: 'Detalhes da contribuição', exact: true })
@@ -132,6 +137,8 @@ test('interval inspection preserves filtered history and restores focus after re
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Detalhes da contribuição', exact: true })).toContainText('history-collection-1')
+  const inspectionHeight = await page.locator('main').evaluate((main) => ({ content: main.scrollHeight, viewport: main.clientHeight }))
+  expect(inspectionHeight.content).toBeLessThanOrEqual(inspectionHeight.viewport)
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390)
   await page.getByRole('button', { name: 'Voltar ao histórico', exact: false }).click()
   await expect(page.getByRole('heading', { name: 'Histórico ambiental', exact: true })).toBeVisible()
@@ -144,17 +151,17 @@ test('interval inspection preserves filtered history and restores focus after re
   expect(returnedParams.get('seriesSearch')).toBe('kWh')
   expect(returnedParams.get('seriesSort')).toBe('energy')
   expect(returnedParams.get('seriesSize')).toBe('5')
-  await expect(series.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).first()).toBeFocused()
+  await expect(series.getByRole('button', { name: 'Inspecionar', exact: true }).first()).toBeFocused()
 
   await page.reload()
   await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('svc-0142')
-  await expect(page.getByRole('region', { name: 'Eventos do período', exact: true })).toContainText('Região alterada')
+  await expect(page.getByRole('list', { name: 'Eventos do período', exact: true })).toContainText('Região alterada')
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('combobox', { name: 'Período de análise', exact: true })).toBeVisible()
   await expect(page.getByText('Intervalos do histórico', { exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 
-  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesTimeZone=America%2FSao_Paulo&inspectionBucket=2026-10-27T00%3A00%3A00.000Z')
+  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&seriesTimeZone=America%2FSao_Paulo&inspectionBucket=2026-10-27T00%3A00%3A00.000Z', { waitUntil: 'commit' })
   await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
 })
 
@@ -166,12 +173,25 @@ test('selected contribution opens its existing collection detail', async ({ page
   expect(new URL(page.url()).searchParams.get('collectionId')).toBe('history-collection-1')
 })
 
+test('interval inspection hides exclusions and fits with its breadcrumb in one viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/history?applicationId=svc-0142&period=7d&granularity=day&inspectionBucket=2026-10-27T00%3A00%3A00.000Z', { waitUntil: 'commit' })
+  await expect(page.getByRole('heading', { name: 'Inspeção do intervalo', exact: true })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Histórico', exact: true })).toContainText('Aplicações')
+  await expect(page.getByRole('navigation', { name: 'Histórico', exact: true })).toContainText('Inspeção do intervalo')
+  await expect(page.getByRole('table', { name: 'Contribuições que compõem o agregado', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Exclusões', exact: true })).toHaveCount(0)
+  const height = await page.locator('main').evaluate((main) => ({ content: main.scrollHeight, viewport: main.clientHeight }))
+  expect(height.content).toBeLessThanOrEqual(height.viewport)
+})
+
 test('history intervals match the reference card layout and apply column filters from a dialog', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/history', { waitUntil: 'commit' })
   const applicationSelect = page.getByRole('combobox', { name: 'Aplicação', exact: true })
   await expect(applicationSelect).toBeVisible({ timeout: 15_000 })
   await applicationSelect.selectOption('svc-0142')
+  await expect(page.getByRole('navigation').filter({ hasText: 'Histórico ambiental' })).toBeVisible()
   const intervals = page.getByRole('region', { name: 'Intervalos do histórico', exact: true })
   await expect(intervals.getByRole('searchbox')).toBeVisible()
   await expect(intervals.getByRole('button', { name: 'Filtros por coluna', exact: true })).toBeVisible()
