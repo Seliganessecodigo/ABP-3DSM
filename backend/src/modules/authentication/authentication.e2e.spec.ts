@@ -16,6 +16,7 @@ import { AdminTotpAuthentication1791410000000 } from '../../database/migrations/
 import { SsoAuthentication1791420000000 } from '../../database/migrations/1791420000000-SsoAuthentication'
 import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
+import { UserAccountStatus1793400000000 } from '../../database/migrations/1793400000000-UserAccountStatus'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
@@ -26,6 +27,7 @@ import {
 } from './google-oidc-transport'
 import { AccessTokenService } from './access-token.service'
 import { CarbonIntensityAdapter } from '../../integrations/carbon-intensity.adapter'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL
 const describeWithDatabase = testDatabaseUrl ? describe : describe.skip
@@ -133,6 +135,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         SsoAuthentication1791420000000,
         UserPreferences1793200000000,
         AuditActorIdentity1793300000000,
+        UserAccountStatus1793400000000,
       ],
     })
     await database.initialize()
@@ -165,8 +168,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     const [user] = await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ANALYST', true, $4, now()) RETURNING id`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ANALYST', 'ACTIVE', $4, now()) RETURNING id`,
       ['Test Analyst', 'analyst@example.test', passwordHash, organizationId],
     )
     userId = user.id as string
@@ -250,15 +253,18 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     }
   }
 
-  async function createSsoAdminSession(email: string) {
+  async function createSsoAdminSession(
+    email: string,
+    adminOrganizationId = organizationId,
+  ) {
     const passwordHash = await app
       .get(PasswordHasher)
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
-      ['SSO Test Admin', email, passwordHash, organizationId],
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
+      ['SSO Test Admin', email, passwordHash, adminOrganizationId],
     )
     const firstLogin = await login(email, 'testing password phrase')
     const setup = await fetch(new URL('/auth/totp/setup', await app.getUrl()), {
@@ -401,15 +407,15 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       const legacyEmail = `legacy-pepper-${Date.now()}@example.test`
       await database.query(
         `INSERT INTO users (
-          name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-        ) VALUES ($1, $2, $3, 'ANALYST', true, $4, now())`,
+          name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+        ) VALUES ($1, $2, $3, 'ANALYST', 'ACTIVE', $4, now())`,
         ['Legacy Pepper User', legacyEmail, unversionedHash, organizationId],
       )
       const malformedEmail = `malformed-hash-${Date.now()}@example.test`
       await database.query(
         `INSERT INTO users (
-          name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-        ) VALUES ($1, $2, $3, 'ANALYST', true, $4, now())`,
+          name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+        ) VALUES ($1, $2, $3, 'ANALYST', 'ACTIVE', $4, now())`,
         [
           'Malformed Hash User',
           malformedEmail,
@@ -440,8 +446,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
       ['TOTP Admin', email, passwordHash, organizationId],
     )
     const { response, body } = await login(
@@ -473,8 +479,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
       ['TOTP Flow Admin', email, passwordHash, organizationId],
     )
 
@@ -604,8 +610,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
       ['TOTP Expiry Admin', email, passwordHash, organizationId],
     )
     const expiredSetup = await login(email, 'testing password phrase')
@@ -654,8 +660,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
       ['TOTP Replacement Admin', email, passwordHash, organizationId],
     )
     const setupLogin = await login(email, 'testing password phrase')
@@ -806,7 +812,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
   it('bloqueia imediatamente uma conta desativada com sessão aberta', async () => {
     const session = await login()
     const anotherSession = await login()
-    await database.query('UPDATE users SET "isActive" = false WHERE id = $1', [
+    await database.query(`UPDATE users SET status = 'DEACTIVATED' WHERE id = $1`, [
       userId,
     ])
     const response = await fetch(new URL('/auth/me', await app.getUrl()), {
@@ -821,8 +827,228 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       },
     })
     expect(otherResponse.status).toBe(401)
-    await database.query('UPDATE users SET "isActive" = true WHERE id = $1', [
+    await database.query(`UPDATE users SET status = 'ACTIVE' WHERE id = $1`, [
       userId,
+    ])
+  })
+
+  it('altera estados, revoga sessões e preserva auditoria e retries', async () => {
+    const slug = `account-lifecycle-${Date.now()}`
+    createdOrganizationSlugs.push(slug)
+    const [organization] = await database.query(
+      'INSERT INTO organizations (name, slug) VALUES ($1, $2) RETURNING id',
+      ['Account Lifecycle Test', slug],
+    )
+    const adminEmail = `lifecycle-admin-${Date.now()}@example.test`
+    const adminSession = await createSsoAdminSession(
+      adminEmail,
+      organization.id as string,
+    )
+    const [admin] = await database.query(
+      'SELECT id FROM users WHERE email = $1',
+      [adminEmail],
+    )
+    const passwordHash = await app
+      .get(PasswordHasher)
+      .hash('testing password phrase')
+    const targetEmail = `lifecycle-target-${Date.now()}@example.test`
+    const [target] = await database.query(
+      `INSERT INTO users (
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ANALYST', 'ACTIVE', $4, now()) RETURNING id`,
+      ['Lifecycle Target', targetEmail, passwordHash, organization.id],
+    )
+    const firstSession = await login(targetEmail)
+    const secondSession = await login(targetEmail)
+    const endpoint = new URL(
+      `/auth/users/${target.id as string}/status`,
+      await app.getUrl(),
+    )
+    const request = (
+      status: string,
+      expectedStatus: string,
+      reason = 'Acesso temporariamente suspenso',
+      accessToken = adminSession.accessToken as string,
+    ) =>
+      fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ status, expectedStatus, reason }),
+      })
+
+    const unauthenticated = await fetch(endpoint, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        status: 'BLOCKED',
+        expectedStatus: 'ACTIVE',
+        reason: 'Acesso temporariamente suspenso',
+      }),
+    })
+    expect(unauthenticated.status).toBe(401)
+    expect(
+      (
+        await request(
+          'BLOCKED',
+          'ACTIVE',
+          'Acesso temporariamente suspenso',
+          firstSession.body.accessToken as string,
+        )
+      ).status,
+    ).toBe(403)
+    expect((await request('BLOCKED', 'ACTIVE', '   ')).status).toBe(400)
+    expect((await request('BLOCKED', 'DEACTIVATED')).status).toBe(409)
+
+    const blocked = await request('BLOCKED', 'ACTIVE')
+    expect(blocked.status).toBe(200)
+    expect(await blocked.json()).toMatchObject({
+      userId: target.id,
+      status: 'BLOCKED',
+      changed: true,
+    })
+    const revokedSessions = await database.query(
+      'SELECT "revokedAt" FROM auth_sessions WHERE "userId" = $1',
+      [target.id],
+    )
+    expect(revokedSessions).toHaveLength(2)
+    expect(
+      revokedSessions.every((session: { revokedAt: Date | null }) =>
+        Boolean(session.revokedAt),
+      ),
+    ).toBe(true)
+    expect((await login(targetEmail)).response.status).toBe(401)
+    expect(
+      (
+        await fetch(new URL('/auth/me', await app.getUrl()), {
+          headers: {
+            authorization: `Bearer ${firstSession.body.accessToken as string}`,
+          },
+        })
+      ).status,
+    ).toBe(401)
+
+    const repeated = await request('BLOCKED', 'ACTIVE')
+    expect(repeated.status).toBe(200)
+    expect(await repeated.json()).toMatchObject({
+      status: 'BLOCKED',
+      changed: false,
+    })
+    expect((await request('DEACTIVATED', 'BLOCKED')).status).toBe(200)
+    expect((await request('ACTIVE', 'DEACTIVATED')).status).toBe(200)
+    expect((await login(targetEmail)).response.status).toBe(200)
+    expect(
+      (
+        await fetch(new URL('/auth/me', await app.getUrl()), {
+          headers: {
+            authorization: `Bearer ${secondSession.body.accessToken as string}`,
+          },
+        })
+      ).status,
+    ).toBe(401)
+
+    const deniedEvents = await database.query(
+      `SELECT outcome, before, reason FROM audit_logs
+       WHERE "entityId" = $1 AND action = 'account.status.denied'`,
+      [target.id],
+    )
+    expect(deniedEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          outcome: 'denied',
+          before: { status: 'ACTIVE' },
+          reason: 'Acesso temporariamente suspenso',
+        }),
+      ]),
+    )
+    expect(
+      await database.query(
+        `SELECT outcome FROM audit_logs
+         WHERE "entityId" = $1 AND action = 'account.status.unchanged'`,
+        [target.id],
+      ),
+    ).toEqual([{ outcome: 'success' }])
+
+    const auditFailure = jest
+      .spyOn(app.get(AuditWriter), 'record')
+      .mockRejectedValueOnce(new Error('audit storage unavailable'))
+    const failedTransition = await request('BLOCKED', 'ACTIVE')
+    auditFailure.mockRestore()
+    expect(failedTransition.status).toBe(500)
+    expect(
+      await database.query('SELECT status FROM users WHERE id = $1', [
+        target.id,
+      ]),
+    ).toMatchObject([{ status: 'ACTIVE' }])
+    expect(
+      await database.query(
+        'SELECT COUNT(*)::int AS count FROM auth_sessions WHERE "userId" = $1 AND "revokedAt" IS NULL',
+        [target.id],
+      ),
+    ).toMatchObject([{ count: 1 }])
+
+    const selfBlock = await fetch(
+      new URL(`/auth/users/${admin.id as string}/status`, await app.getUrl()),
+      {
+        method: 'PATCH',
+        headers: {
+          authorization: `Bearer ${adminSession.accessToken as string}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'BLOCKED',
+          expectedStatus: 'ACTIVE',
+          reason: 'Self-block attempt',
+        }),
+      },
+    )
+    expect(selfBlock.status).toBe(409)
+    expect(
+      await database.query('SELECT status FROM users WHERE id = $1', [
+        admin.id,
+      ]),
+    ).toMatchObject([{ status: 'ACTIVE' }])
+
+    await createSsoAdminSession(
+      `lifecycle-admin-2-${Date.now()}@example.test`,
+      organization.id as string,
+    )
+    const selfBlockWithAnotherAdmin = await fetch(
+      new URL(`/auth/users/${admin.id as string}/status`, await app.getUrl()),
+      {
+        method: 'PATCH',
+        headers: {
+          authorization: `Bearer ${adminSession.accessToken as string}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'BLOCKED',
+          expectedStatus: 'ACTIVE',
+          reason: 'Self-block attempt',
+        }),
+      },
+    )
+    expect(selfBlockWithAnotherAdmin.status).toBe(403)
+    expect(
+      await database.query(
+        `SELECT outcome, before, reason FROM audit_logs
+         WHERE "entityId" = $1 AND action = 'account.status.denied'
+           AND reason = $2`,
+        [admin.id, 'Self-block attempt'],
+      ),
+    ).toMatchObject([
+      {
+        outcome: 'denied',
+        before: { status: 'ACTIVE' },
+        reason: 'Self-block attempt',
+      },
+      {
+        outcome: 'denied',
+        before: { status: 'ACTIVE' },
+        reason: 'Self-block attempt',
+      },
     ])
   })
 
@@ -934,8 +1160,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .hash('testing password phrase')
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'ADMIN', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'ADMIN', 'ACTIVE', $4, now())`,
       ['SSO Invitation Admin', email, passwordHash, organizationId],
     )
 
@@ -1173,8 +1399,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     const passwordHash = await app.get(PasswordHasher).hash(password)
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'VISITOR', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'VISITOR', 'ACTIVE', $4, now())`,
       ['Existing GreenER Name', email, passwordHash, organizationId],
     )
     const inviteToken = await createSsoInvitation(email, 'Ignored Invite Name', 'ADMIN')
@@ -1206,8 +1432,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     const passwordHash = await app.get(PasswordHasher).hash(password)
     await database.query(
       `INSERT INTO users (
-        name, email, "passwordHash", role, "isActive", "organizationId", "emailVerifiedAt"
-      ) VALUES ($1, $2, $3, 'VISITOR', true, $4, now())`,
+        name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
+      ) VALUES ($1, $2, $3, 'VISITOR', 'ACTIVE', $4, now())`,
       ['Relinked User', email, passwordHash, organizationId],
     )
     const inviteToken = await createSsoInvitation(email, 'Ignored Name')

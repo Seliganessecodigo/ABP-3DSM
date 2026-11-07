@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
   Query,
@@ -18,6 +19,7 @@ import {
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiConflictResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -31,7 +33,9 @@ import { Request, Response } from 'express'
 import { AuthenticationService, AuthPrincipal } from './authentication.service'
 import {
   AcceptAdminInvitationDto,
+  AccountStatusResponseDto,
   AuthenticatedUserDto,
+  ChangeAccountStatusDto,
   ConfirmEmailDto,
   LoginDto,
   RefreshSessionDto,
@@ -52,8 +56,12 @@ import { CurrentPrincipal } from './current-principal.decorator'
 import { RequireRoles } from './roles.decorator'
 import { RolesGuard } from './roles.guard'
 import { PublicRoute } from './public-route.decorator'
-import { UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { SsoAuthenticationService } from './sso-authentication.service'
+import { AccountLifecycleService } from './account-lifecycle.service'
 import {
   CreateSsoInvitationDto,
   ExchangeSsoHandoffDto,
@@ -66,6 +74,7 @@ export class AuthenticationController {
   constructor(
     private readonly authentication: AuthenticationService,
     private readonly sso: SsoAuthenticationService,
+    private readonly accountLifecycle: AccountLifecycleService,
   ) {}
 
   @Post('sso/invitations')
@@ -101,6 +110,37 @@ export class AuthenticationController {
     @Param('userId', new ParseUUIDPipe()) userId: string,
   ): Promise<void> {
     await this.sso.revokeIdentity(principal, userId)
+  }
+
+  @Patch('users/:userId/status')
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @RequireRoles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Alterar o estado de uma conta da organização' })
+  @ApiOkResponse({ type: AccountStatusResponseDto })
+  @ApiBadRequestResponse({ description: 'Estado, pré-condição ou motivo inválido' })
+  @ApiForbiddenResponse({ description: 'Somente Admin ativo pode alterar contas' })
+  @ApiConflictResponse({ description: 'Estado desatualizado ou último Admin ativo' })
+  @ApiUnauthorizedResponse({ description: 'Sessão inválida' })
+  changeAccountStatus(
+    @CurrentPrincipal() principal: AuthPrincipal,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @Body() body: ChangeAccountStatusDto,
+  ) {
+    requireStrings(body, ['status', 'expectedStatus', 'reason'])
+    if (
+      !Object.values(UserAccountStatus).includes(body.status) ||
+      !Object.values(UserAccountStatus).includes(body.expectedStatus) ||
+      !body.reason.trim() ||
+      body.reason.length > 512
+    ) {
+      throw new BadRequestException('Estado ou motivo da conta inválido')
+    }
+    return this.accountLifecycle.changeStatus(principal, userId, {
+      status: body.status,
+      expectedStatus: body.expectedStatus,
+      reason: body.reason.trim(),
+    })
   }
 
   @PublicRoute()

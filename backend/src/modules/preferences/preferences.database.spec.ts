@@ -4,7 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { DataSource } from 'typeorm'
 import { randomUUID } from 'node:crypto'
 import { PreferencesModule } from './preferences.module'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { UserPreferenceEntity } from '../../database/entities/user-preference.entity'
@@ -38,7 +42,7 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
   }, 60000)
   beforeEach(async () => {
     organization = await database.getRepository(OrganizationEntity).save({ name: 'Preferences test', slug: `preferences-${randomUUID()}` })
-    user = await database.getRepository(UserEntity).save({ organizationId: organization.id, email: `${randomUUID()}@example.test`, name: 'Ana', role: UserRole.ANALYST, emailVerifiedAt: new Date(), isActive: true })
+    user = await database.getRepository(UserEntity).save({ organizationId: organization.id, email: `${randomUUID()}@example.test`, name: 'Ana', role: UserRole.ANALYST, emailVerifiedAt: new Date(), status: UserAccountStatus.ACTIVE })
     token = await session(user)
   })
   afterEach(async () => {
@@ -73,7 +77,7 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
     const response = await request('/energy', token, { expectedRevision: 0, value: energy })
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({ revision: 1, value: energy })
-    const other = await database.getRepository(UserEntity).save({ organizationId: organization.id, email: `${randomUUID()}@example.test`, name: 'Other', role, isActive: true, emailVerifiedAt: new Date() })
+    const other = await database.getRepository(UserEntity).save({ organizationId: organization.id, email: `${randomUUID()}@example.test`, name: 'Other', role, status: UserAccountStatus.ACTIVE, emailVerifiedAt: new Date() })
     expect(await (await request('', await session(other))).json()).toEqual({ energy: null, emissions: null, coverage: null, analysis: null })
     expect((await request('/energy', token, { expectedRevision: 1, value: energy, userId: other.id })).status).toBe(400)
   })
@@ -98,7 +102,7 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
   })
   it('recusa usuário inativo e não altera dados existentes', async () => {
     await request('/energy', token, { expectedRevision: 0, value: energy })
-    await database.getRepository(UserEntity).update(user.id, { isActive: false })
+    await database.getRepository(UserEntity).update(user.id, { status: UserAccountStatus.DEACTIVATED })
     expect((await request('/energy', token, { expectedRevision: 1, value: { ...energy, threshold: 1 } })).status).toBe(401)
     expect((await database.getRepository(UserPreferenceEntity).findOneByOrFail({ userId: user.id, tab: 'energy' })).revision).toBe(1)
   })

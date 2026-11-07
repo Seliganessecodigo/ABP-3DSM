@@ -2,7 +2,11 @@ import { EntityManager } from 'typeorm'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AuthTokenEntity, AuthTokenKind } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AuditWriter } from '../../shared/audit/audit-writer'
 import { AccessTokenService } from './access-token.service'
 import { AuthPrincipal } from './authentication.service'
@@ -20,7 +24,7 @@ describe('TotpAuthenticationService audit integration', () => {
     id: 'admin-1',
     organizationId: organization.id,
     role: UserRole.ADMIN,
-    isActive: true,
+    status: UserAccountStatus.ACTIVE,
     emailVerifiedAt: new Date(),
     email: 'admin@example.test',
     totpSecretCiphertext: 'ciphertext',

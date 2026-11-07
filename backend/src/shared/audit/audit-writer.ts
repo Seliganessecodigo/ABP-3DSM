@@ -21,6 +21,7 @@ export interface AuditEvent {
   before?: Record<string, unknown> | null
   after?: Record<string, unknown> | null
   allowedSnapshotFields?: readonly string[]
+  allowDeniedBeforeSnapshot?: boolean
   reason?: string | null
 }
 
@@ -61,7 +62,8 @@ export class AuditWriter {
       throw new BadRequestException('Invalid audit actor')
     }
     const before =
-      event.outcome === 'success'
+      event.outcome === 'success' ||
+      (event.outcome === 'denied' && event.allowDeniedBeforeSnapshot)
         ? sanitizeSnapshot(event.before, event.allowedSnapshotFields)
         : null
     const after =
