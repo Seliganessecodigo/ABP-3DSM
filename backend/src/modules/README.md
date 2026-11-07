@@ -10,6 +10,10 @@
 
 `DELETE /auth/sso/identities/{userId}` permite a Admin ativo revogar o vínculo de outra conta da mesma organização; o Admin não pode remover o próprio vínculo. Um novo convite permite vincular a identidade substituta. As variáveis `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` e `SSO_RETURN_URL` são configuradas fora do Git; a callback exata precisa ser cadastrada no Google Cloud Console. SMTP existente envia convites e o banco persiste somente o hash dos tokens.
 
+## Ciclo de vida de contas
+
+`PATCH /auth/users/{userId}/status` permite ao Admin ativo da organização bloquear, desativar ou reativar uma conta, com `status`, `expectedStatus` e `reason` obrigatórios. As contas usam os estados `ACTIVE`, `BLOCKED` e `DEACTIVATED`; uma repetição já satisfeita retorna sucesso com `changed: false`, e um estado esperado obsoleto retorna 409. Bloqueio e desativação revogam todas as sessões na mesma transação da alteração e da auditoria; reativação não restaura sessões antigas. A conta não pode ser bloqueada pelo Admin que atua sobre ela nem pode ser o último Admin ativo.
+
 Módulos NestJS organizados por domínio GreenER. Cada módulo reúne as rotas/controllers, serviços de aplicação, DTOs, regras de domínio e integrações próprias do domínio, mantendo dependências explícitas.
 
 ## Energia estimada — regra de domínio

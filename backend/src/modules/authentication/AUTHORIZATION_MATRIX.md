@@ -57,6 +57,9 @@ Estas rotas não exigem JWT prévio. Cada fluxo valida a credencial de seu contr
 | --- | --- |
 | POST /auth/sso/invitations | ADMIN autenticado |
 | DELETE /auth/sso/identities/{userId} | ADMIN autenticado; mantém restrição de organização e bloqueio de autorrevogação |
+| PATCH /auth/users/{userId}/status | ADMIN autenticado da mesma organização; motivo e estado esperado obrigatórios; transição e revogação atômicas |
 
-A validação de sessão reutiliza o comportamento atual para contas e sessões inválidas. As regras de
-transição de bloqueio, desativação, revogação e reativação seguem pendentes na issue #245.
+A conta pode estar ativa, bloqueada ou desativada. Bloqueio e desativação revogam todas as sessões;
+reativação exige novo login. O Admin não pode bloquear a própria conta nem o último Admin ativo.
+Estado esperado divergente retorna 409, exceto quando o estado desejado já foi alcançado, que é
+sucesso idempotente. Valores ou motivos inválidos retornam 400.

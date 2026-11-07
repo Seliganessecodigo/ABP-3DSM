@@ -3,7 +3,11 @@ import { createQualityFixture, QualityFixture } from '../../../test/quality-fixt
 import { CollectionEntity } from '../../database/entities/collection.entity'
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AccessTokenService } from '../authentication/access-token.service'
 import { MonitoringIncidentEntity, MonitoringIncidentStatus } from '../../database/entities/monitoring-incident.entity'
@@ -112,7 +116,9 @@ describeDatabase('RNF-06: real HTTP sources → application → PostgreSQL → p
     const organization = await organizations.save(organizations.create({ name: 'Quality', slug: randomBytes(8).toString('hex') }))
     const users = fixture.database.getRepository(UserEntity)
     const user = await users.save(users.create({ organizationId: organization.id, name: role,
-      email: `${randomBytes(8).toString('hex')}@example.test`, role, isActive: active, emailVerifiedAt: new Date(),
+      email: `${randomBytes(8).toString('hex')}@example.test`, role,
+      status: active ? UserAccountStatus.ACTIVE : UserAccountStatus.DEACTIVATED,
+      emailVerifiedAt: new Date(),
     }))
     const sessions = fixture.database.getRepository(AuthSessionEntity)
     const session = await sessions.save(sessions.create({ userId: user.id, organizationId: organization.id,
