@@ -1033,11 +1033,23 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     expect(selfBlockWithAnotherAdmin.status).toBe(403)
     expect(
       await database.query(
-        `SELECT before FROM audit_logs
-         WHERE "entityId" = $1 AND action = 'account.status.denied'`,
-        [admin.id],
+        `SELECT outcome, before, reason FROM audit_logs
+         WHERE "entityId" = $1 AND action = 'account.status.denied'
+           AND reason = $2`,
+        [admin.id, 'Self-block attempt'],
       ),
-    ).toMatchObject([{ before: { status: 'ACTIVE' } }])
+    ).toMatchObject([
+      {
+        outcome: 'denied',
+        before: { status: 'ACTIVE' },
+        reason: 'Self-block attempt',
+      },
+      {
+        outcome: 'denied',
+        before: { status: 'ACTIVE' },
+        reason: 'Self-block attempt',
+      },
+    ])
   })
 
   it('expira o access token após 15 minutos e a sessão após 12 horas sem atividade', async () => {
