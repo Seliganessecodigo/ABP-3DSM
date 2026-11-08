@@ -16,6 +16,12 @@ export enum UserRole {
   VISITOR = 'VISITOR',
 }
 
+export enum UserAccountStatus {
+  ACTIVE = 'ACTIVE',
+  BLOCKED = 'BLOCKED',
+  DEACTIVATED = 'DEACTIVATED',
+}
+
 @Entity({ name: 'users' })
 @Unique('uq_users_email', ['email'])
 export class UserEntity {
@@ -44,8 +50,13 @@ export class UserEntity {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.VISITOR })
   role!: UserRole
 
-  @Column({ type: 'boolean', default: true })
-  isActive!: boolean
+  @Column({
+    type: 'enum',
+    enum: UserAccountStatus,
+    enumName: 'users_status_enum',
+    default: UserAccountStatus.ACTIVE,
+  })
+  status!: UserAccountStatus
 
   @Column({ type: 'timestamptz', nullable: true })
   lastAccessAt!: Date | null

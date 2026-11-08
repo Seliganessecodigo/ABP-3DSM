@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserRole,
+} from '../../database/entities/user.entity'
 
 export class LoginDto {
   @ApiProperty({ example: 'admin@example.com' })
@@ -70,6 +73,28 @@ export class AuthenticatedUserDto {
 
   @ApiProperty({ enum: UserRole })
   role!: UserRole
+}
+
+export class ChangeAccountStatusDto {
+  @ApiProperty({ enum: UserAccountStatus, example: UserAccountStatus.BLOCKED })
+  status!: UserAccountStatus
+
+  @ApiProperty({ enum: UserAccountStatus, example: UserAccountStatus.ACTIVE })
+  expectedStatus!: UserAccountStatus
+
+  @ApiProperty({ maxLength: 512, example: 'Acesso temporariamente suspenso' })
+  reason!: string
+}
+
+export class AccountStatusResponseDto {
+  @ApiProperty()
+  userId!: string
+
+  @ApiProperty({ enum: UserAccountStatus })
+  status!: UserAccountStatus
+
+  @ApiProperty()
+  changed!: boolean
 }
 
 export class TotpSetupRequestDto {

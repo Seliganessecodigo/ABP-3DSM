@@ -5,7 +5,11 @@ import { NestFactory } from '@nestjs/core'
 import { DataSource } from 'typeorm'
 import { AppModule } from '../app.module'
 import { OrganizationEntity } from '../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../database/entities/user.entity'
 import { PasswordHasher } from '../modules/authentication/password-hasher.service'
 
 loadEnv({ path: resolve(__dirname, '../../../.env') })
@@ -52,7 +56,7 @@ async function main(): Promise<void> {
       passwordHash,
       emailVerifiedAt: now,
       role: UserRole.VISITOR,
-      isActive: true,
+      status: UserAccountStatus.ACTIVE,
     })
     await users.save(user)
 

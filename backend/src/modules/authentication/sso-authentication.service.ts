@@ -23,7 +23,11 @@ import { OrganizationEntity } from '../../database/entities/organization.entity'
 import { SsoHandoffEntity } from '../../database/entities/sso-handoff.entity'
 import { SsoInvitationEntity } from '../../database/entities/sso-invitation.entity'
 import { SsoTransactionEntity } from '../../database/entities/sso-transaction.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AUTH_CLOCK, AuthClock } from './clock'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AccessTokenService } from './access-token.service'
@@ -93,7 +97,7 @@ export class SsoAuthenticationService {
     if (
       existingAccount &&
       (existingAccount.organizationId !== principal.organizationId ||
-        !existingAccount.isActive)
+        existingAccount.status !== UserAccountStatus.ACTIVE)
     ) {
       throw new ConflictException({
         code: 'SSO_INVITATION_ACCOUNT_UNAVAILABLE',
@@ -346,7 +350,7 @@ export class SsoAuthenticationService {
         where: {
           id: handoff.userId,
           organizationId: handoff.organizationId,
-          isActive: true,
+          status: UserAccountStatus.ACTIVE,
         },
       })
       if (!account || !account.emailVerifiedAt) throw invalidSsoLogin()
@@ -368,7 +372,10 @@ export class SsoAuthenticationService {
           relations: { user: true },
         })
         if (existingIdentity) {
-          if (!existingIdentity.user.isActive || !existingIdentity.user.emailVerifiedAt) {
+          if (
+            existingIdentity.user.status !== UserAccountStatus.ACTIVE ||
+            !existingIdentity.user.emailVerifiedAt
+          ) {
             throw invalidSsoLogin()
           }
           if (invitationTokenHash) {
@@ -421,7 +428,9 @@ export class SsoAuthenticationService {
         if (user && user.organizationId !== invitation.organizationId) {
           throw invalidInvitation()
         }
-        if (user && !user.isActive) throw invalidInvitation()
+        if (user && user.status !== UserAccountStatus.ACTIVE) {
+          throw invalidInvitation()
+        }
         if (!user) {
           user = await users.save(
             users.create({
@@ -431,7 +440,7 @@ export class SsoAuthenticationService {
               passwordHash: null,
               emailVerifiedAt: now,
               role: invitation.role,
-              isActive: true,
+              status: UserAccountStatus.ACTIVE,
               lastAccessAt: null,
             }),
           )

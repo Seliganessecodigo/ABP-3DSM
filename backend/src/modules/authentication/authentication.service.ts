@@ -18,7 +18,11 @@ import {
   AuthTokenKind,
 } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AccessTokenService } from './access-token.service'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationPersistence } from './authentication.persistence'
@@ -77,7 +81,7 @@ export class AuthenticationService {
 
     if (
       !user ||
-      !user.isActive ||
+      user.status !== UserAccountStatus.ACTIVE ||
       !user.emailVerifiedAt ||
       !user.passwordHash
     ) {
@@ -159,7 +163,8 @@ export class AuthenticationService {
     ) {
       if (
         session &&
-        (!session.user?.isActive || !session.user?.emailVerifiedAt)
+        (session.user?.status !== UserAccountStatus.ACTIVE ||
+          !session.user?.emailVerifiedAt)
       ) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (
@@ -242,7 +247,7 @@ export class AuthenticationService {
       !this.sessionUsable(session, now) ||
       (session.user?.role === UserRole.ADMIN && !session.secondFactorVerifiedAt)
     ) {
-      if (session && !session.user?.isActive) {
+      if (session && session.user?.status !== UserAccountStatus.ACTIVE) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (session && !session.user?.emailVerifiedAt) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
@@ -275,7 +280,12 @@ export class AuthenticationService {
 
   async completeSsoLogin(user: UserEntity): Promise<AuthenticationLoginResponse> {
     this.accessTokens.assertConfigured()
-    if (!user.isActive || !user.emailVerifiedAt) throw invalidCredentials()
+    if (
+      user.status !== UserAccountStatus.ACTIVE ||
+      !user.emailVerifiedAt
+    ) {
+      throw invalidCredentials()
+    }
     if (user.role === UserRole.ADMIN) {
       await this.recordAudit(
         user.id,
@@ -353,7 +363,7 @@ export class AuthenticationService {
             email,
             passwordHash: null,
             role: UserRole.ADMIN,
-            isActive: true,
+            status: UserAccountStatus.ACTIVE,
             emailVerifiedAt: null,
             lastAccessAt: null,
           }),
@@ -615,7 +625,13 @@ export class AuthenticationService {
       organization && isEmail(email)
         ? await this.persistence.findUser(organization.id, email)
         : null
-    if (!user || !user.isActive || user.emailVerifiedAt) return generic
+    if (
+      !user ||
+      user.status !== UserAccountStatus.ACTIVE ||
+      user.emailVerifiedAt
+    ) {
+      return generic
+    }
 
     const now = this.clock.now()
     const rawToken = randomBytes(48).toString('base64url')
@@ -657,7 +673,7 @@ export class AuthenticationService {
   private sessionUsable(session: AuthSessionEntity, now: Date): boolean {
     return Boolean(
       !session.revokedAt &&
-      session.user?.isActive &&
+      session.user?.status === UserAccountStatus.ACTIVE &&
       session.user.emailVerifiedAt &&
       session.absoluteExpiresAt > now &&
       session.lastActivityAt.getTime() + IDLE_SESSION_MS > now.getTime(),

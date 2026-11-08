@@ -50,6 +50,19 @@ Vocabulário do produto para alinhar conceitos entre autenticação, organizaç�
 
 ## Autenticação
 
+**Conta ativa**:
+Conta GreenER que não está bloqueada nem desativada e pode iniciar autenticação conforme as demais políticas de acesso.
+
+**Bloqueio de conta**:
+Suspensão temporária do acesso à conta, por exemplo durante uma investigação de risco. Pode ser encerrada por uma reativação explícita.
+_Evitar_: desativação
+
+**Desativação de conta**:
+Estado atribuído quando a conta deixa de precisar de acesso. A conta é preservada e pode ser reativada explicitamente se voltar a precisar de acesso.
+
+**Reativação de conta**:
+Retorno explícito de uma conta bloqueada ou desativada ao estado ativo.
+
 **Administrador**:
 Pessoa usuária com papel `ADMIN` em uma organização GreenER.
 

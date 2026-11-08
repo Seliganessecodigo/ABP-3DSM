@@ -25,6 +25,7 @@ import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-t
 import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import { AuditModule } from '../../shared/audit/audit.module'
+import { AccountLifecycleService } from './account-lifecycle.service'
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AuditModule } from '../../shared/audit/audit.module'
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
+    AccountLifecycleService,
     TotpAuthenticationService,
     SsoAuthenticationService,
     GoogleOidcClient,
