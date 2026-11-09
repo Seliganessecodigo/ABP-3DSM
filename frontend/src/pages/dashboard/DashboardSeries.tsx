@@ -16,6 +16,23 @@ export function DashboardSeries({ series, locale }: Readonly<{ series: Environme
   const maximum = Math.max(...available.map((point) => point[metric].value ?? 0), 0)
   const width = 640
   const step = width / Math.max(series.points.length, 1)
+  const chart = available.length === 0 ? <p>{t('empty')}</p> : (
+      <svg className={styles.chart} viewBox="0 0 680 220" role="img" aria-label={`${t('trendTitle')}: ${t(metric)} (${series.points[0]?.[metric].unit ?? ''})`}>
+        <line x1="30" y1="180" x2="670" y2="180" className={styles.axis} />
+        {series.points.map((point, index) => {
+          const value = point[metric].value
+          const x = 30 + index * step
+          if (value === null) return <line key={point.bucketStart} x1={x + step / 2} x2={x + step / 2} y1="178" y2="184" className={styles.gap}><title>{date(point.period.from)}: {t('notAvailable')}</title></line>
+          const height = maximum === 0 ? 0 : value / maximum * 150
+          return <rect key={point.bucketStart} x={x + step * 0.15} y={180 - Math.max(height, 2)} width={Math.max(step * 0.7, 0.5)} height={Math.max(height, 2)} className={styles.bar}>
+            <title>{date(point.period.from)} → {date(point.period.to)}: {measure(point, metric)}</title>
+          </rect>
+        })}
+        <text x="30" y="16">{formatNumber(maximum, locale)} {series.points[0]?.[metric].unit}</text>
+        <text x="30" y="208">{series.points[0] ? date(series.points[0].period.from) : ''}</text>
+        <text x="670" y="208" textAnchor="end">{series.points.at(-1) ? date(series.points.at(-1)!.period.to) : ''}</text>
+      </svg>
+  )
   return <section className={styles.series} aria-label={t('trendTitle')}>
     <div className={styles.controls}>
       <div>
@@ -33,22 +50,6 @@ export function DashboardSeries({ series, locale }: Readonly<{ series: Environme
         <th scope="row">{date(point.period.from)} → {date(point.period.to)}</th>
         <td>{measure(point, 'energy')}</td><td>{measure(point, 'emissions')}</td>
       </tr>)}</tbody>
-    </table></div> : available.length === 0 ? <p>{t('empty')}</p> : <>
-      <svg className={styles.chart} viewBox="0 0 680 220" role="img" aria-label={`${t('trendTitle')}: ${t(metric)} (${series.points[0]?.[metric].unit ?? ''})`}>
-        <line x1="30" y1="180" x2="670" y2="180" className={styles.axis} />
-        {series.points.map((point, index) => {
-          const value = point[metric].value
-          const x = 30 + index * step
-          if (value === null) return <line key={point.bucketStart} x1={x + step / 2} x2={x + step / 2} y1="178" y2="184" className={styles.gap}><title>{date(point.period.from)}: {t('notAvailable')}</title></line>
-          const height = maximum === 0 ? 0 : value / maximum * 150
-          return <rect key={point.bucketStart} x={x + step * 0.15} y={180 - Math.max(height, 2)} width={Math.max(step * 0.7, 0.5)} height={Math.max(height, 2)} className={styles.bar}>
-            <title>{date(point.period.from)} → {date(point.period.to)}: {measure(point, metric)}</title>
-          </rect>
-        })}
-        <text x="30" y="16">{formatNumber(maximum, locale)} {series.points[0]?.[metric].unit}</text>
-        <text x="30" y="208">{series.points[0] ? date(series.points[0].period.from) : ''}</text>
-        <text x="670" y="208" textAnchor="end">{series.points.at(-1) ? date(series.points.at(-1)!.period.to) : ''}</text>
-      </svg>
-    </>}
+    </table></div> : chart}
   </section>
 }
