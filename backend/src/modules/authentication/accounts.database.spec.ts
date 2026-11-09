@@ -186,7 +186,7 @@ describeDatabase('US-20 #158: account administration with real JWT and isolated 
       expect(body.items).toHaveLength(size)
       const last = await (await request(`?name=List&pageSize=${size}&page=999`)).json()
       expect(last.pagination.page).toBe(Math.ceil(23 / size))
-      expect(last.items.length).toBe(23 % size)
+      expect(last.items).toHaveLength(23 % size)
       expect(last.pagination.hasNextPage).toBe(false)
     }
     const all = await (await request('?name=List&pageSize=all&page=999')).json()

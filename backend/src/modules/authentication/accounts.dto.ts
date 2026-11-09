@@ -103,8 +103,15 @@ function text(value: unknown, maximum: number): string {
 export function parseCreateAccount(value: unknown): CreateAccountDto {
   const input = record(value, ['name', 'email', 'role', 'reason'])
   const email = text(input.email, 320).toLowerCase()
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) invalid()
+  if (!validEmail(email)) invalid()
   return { name: text(input.name, 160), email, role: parseRole(input.role), reason: text(input.reason, 512) }
+}
+
+function validEmail(email: string): boolean {
+  const separator = email.indexOf('@')
+  const domain = email.slice(separator + 1)
+  const dot = domain.indexOf('.', 1)
+  return separator > 0 && separator === email.lastIndexOf('@') && dot > 0 && dot < domain.length - 1 && !/\s/.test(email)
 }
 
 export function parseChangeAccountRole(value: unknown): ChangeAccountRoleDto {
