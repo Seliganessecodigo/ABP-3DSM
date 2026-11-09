@@ -21,8 +21,6 @@ La interfaz informa horas del intento y de la respuesta válida. Un fallo poster
 
 En el detalle de la aplicación, elija una ventana móvil de 24 horas, 7, 30 o 90 días y una granularidad horaria, diaria, mensual o anual. La serie muestra energía y CO₂e de resultados persistidos. La superposición compara la ventana seleccionada con la inmediatamente anterior de igual duración. Es una comparación temporal de una aplicación, no un ranking ni una comparación entre aplicaciones.
 
-Use los filtros y el orden de la tabla para localizar intervalos. Inspeccione uno para ver las contribuciones incluidas y las exclusiones con sus motivos. La tabla pagina los resultados; la interfaz carga actualmente solo la primera página de contribuciones. Los huecos y las exclusiones no significan cero. Sin evidencia calculable, el resultado sigue sin estar disponible.
-
 ## Interpretar situaciones
 
 Para rastrear un indicador, abra **Ver metodología completa** en el detalle de la aplicación. También puede elegir **Metodología** en la navegación y seleccionar una aplicación. La página presenta el modelo, la fórmula, los parámetros y supuestos registrados, además de los datos del factor de carbono cuando están disponibles. El enlace del detalle usa la recopilación seleccionada; la navegación usa la recopilación válida más reciente. La página explica la evidencia guardada y no recalcula el resultado.
@@ -40,7 +38,7 @@ Para rastrear un indicador, abra **Ver metodología completa** en el detalle de 
 
 `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` y `REMOVED` son estados operativos. Frescura, motivo y calculabilidad son dimensiones distintas. Una aplicación disponible puede carecer de factor de carbono; una no disponible puede tener historial válido. El detalle muestra el estado, las métricas, los resultados ambientales, la serie histórica y las contribuciones consultables por período. Consulte la [referencia de la API](../reference/api) y la [metodología](../product/methodology) para distinguir ausencia, error y cero.
 
-El selector ofrece ocho idiomas y guarda la preferencia en este navegador. Cambiar idioma no cambia identidades ni instantes.
+El selector ofrece doce idiomas y guarda la preferencia en este navegador. Cambiar idioma no cambia identidades ni instantes.
 
 Al comunicar un problema, incluya entorno, ID, filtros, fecha/hora con zona, acción y resultado esperado/observado. Evite credenciales/datos privados en capturas y siga [Operación](../operations).
 
@@ -49,3 +47,17 @@ Al comunicar un problema, incluya entorno, ID, filtros, fecha/hora con zona, acc
 En las preferencias de navegación, use el interruptor **Modo oscuro**: desactivado aplica claro; activado aplica oscuro. En la primera visita, GreenER sigue la apariencia del sistema, incluidos sus cambios durante el uso, hasta que accione el interruptor. Después prevalece su elección explícita; esta interfaz no ofrece una acción para volver a seguir el sistema.
 
 La elección se aplica al catálogo, detalle y diseño global sin cambiar filtros ni datos. Se guarda en este navegador con la clave `greener-theme` para la próxima visita. Si el almacenamiento está bloqueado, la elección funciona durante la sesión, pero puede perderse al recargar.
+
+## Dashboard
+
+En `/dashboard`, elija 24 horas, 7, 30 o 90 días, estado y región. Consulte totales, cobertura, estados y composición de emisiones en barras o anillo. La tabla permite búsqueda, filtros, ordenación por energía/CO₂e y paginación; sus filtros no redefinen los totales. Abra una aplicación para investigar. Consume `GET /analysis/summary` con actualización periódica sin reload.
+
+## Guía de uso
+
+En `/history`, elija una aplicación. `applicationId`, período y granularidad conservan contexto en la URL. Ofrece serie persistida, filtros, zona horaria visual, eventos, páginas numeradas e inspección. Las contribuciones tienen paginación interactiva de 5, 10, 15, 20 o todos. Los buckets siguen en UTC; cambiar la zona visual no reagrupa datos. El detalle compara la misma aplicación con la ventana anterior equivalente.
+
+En `/administration/calculations`, compare original y vista previa por aplicación y fechas. El día final incluye todo el día UTC; la API recibe `[from,to)`. La operación pública aplica modelo actual y factores actuales a regiones históricas, sin guardar resultados. Límites: 30 días y 10.000 observaciones. Devuelve `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fallo del factor conserva energía y deja CO₂e indisponible. Porcentajes requieren unidades/coberturas iguales y referencia positiva.
+
+`/methodology` ofrece pestañas de energía, emisiones, cobertura y análisis con ejemplos y preferencias personales. Cualquier rol autenticado guarda solo sus propias pestañas, con revisión optimista y 409 ante conflicto. Los límites visuales no cambian cálculos, configuración global ni notificaciones externas. Período/granularidad guardados completan solo parámetros ausentes en URL. Evidencia histórica: `/services/:id/methodology`, con `collectionId` seleccionado.
+
+Consultas ambientales y dashboard son públicos. `/login` acepta correo/contraseña o Google habilitado. Admin configura/confirma TOTP de seis dígitos, también tras Google; Analyst y Visitor no obtienen permisos administrativos. Sesión en memoria del frontend: recargar exige login. Backend valida JWT, sesión, rol y estado actuales; 401 indica credencial ausente/inválida, 403 rol insuficiente. Nuevas rutas protegidas por defecto.

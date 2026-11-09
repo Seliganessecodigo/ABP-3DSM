@@ -43,3 +43,29 @@ Découverte manuelle répétable sans doublon d’identité. Scheduler après pr
 Staging depuis `develop`, avec CI requise et jobs séparés API (Azure App Service)/frontend (Static Web Apps). Smoke test après publication API. Enregistrer run, SHA, étape et diagnostic avant relance.
 
 Pages utilise VitePress et `DOCS_BASE=/ABP-3DSM/` ; build local ne prouve pas publication. Les workflows ne démontrent pas de restauration automatique de base. Avant rollback/migration destructive : compatibilité et sauvegarde récupérable. Rétention/essais de restauration sont [en attente](./product/decisions). `npm run dev:down` conserve le volume ; supprimer les volumes supprime la base locale.
+
+## Exploitation et diagnostic — JWT / Google / SMTP
+
+Node.js 24+, npm, Docker Compose v2. Copier `.env.example` vers `.env` ; lancer `npm run dev`. Compose applique les migrations et tente la découverte ; une panne de source n’empêche pas le démarrage. Configurer SMTP pour invitations/confirmations. Premier Admin : script `organizations:create-invitation` dans `backend/`, avec `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Aucun Admin universel de production.
+
+```text
+AUTH_JWT_SECRET
+AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
+AUTH_TOTP_ENCRYPTION_KEY_VERSION / AUTH_TOTP_ENCRYPTION_KEYS
+APP_BASE_URL
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/sso/google/callback
+SSO_RETURN_URL=http://localhost:5173/sso/callback
+VITE_GOOGLE_SSO_ENABLED=true
+SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
+SMTP_USER / SMTP_PASSWORD
+```
+
+Tableau de bord et consultations environnementales publics. `/login` accepte e-mail/mot de passe ou Google activé. Admin configure/confirme un TOTP à six chiffres, même après Google ; Analyst et Visitor n’obtiennent pas les droits administratifs. Session frontend en mémoire : rechargement exige une reconnexion. Backend vérifie JWT, session, rôle et état actuels : 401 pour identifiants absents/invalides, 403 pour rôle insuffisant. Nouvelles routes protégées par défaut.
+
+Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+
+
+Enregistrer dans Google Cloud l’URI exacte `GOOGLE_CALLBACK_URL`. `VITE_GOOGLE_SSO_ENABLED=true` active seulement le bouton, sans configurer le backend ni créer de compte : le lien exige une invitation. `GOOGLE_CLIENT_SECRET`, JWT, pepper et clés TOTP restent secrets côté backend ; utiliser des valeurs indépendantes et conserver les versions nécessaires. SMTP livre invitations/confirmations. Le support utilise `authentication:recover-admin-totp` après validation indépendante de l’autorité ; sessions révoquées et opération auditée.

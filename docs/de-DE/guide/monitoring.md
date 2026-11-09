@@ -40,7 +40,7 @@ Für die Nachverfolgung eines Indikators öffnen Sie im Anwendungsdetail **Volls
 
 `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` und `REMOVED` sind Betriebszustände. Aktualität, Grund und Berechenbarkeit sind eigenständig. Verfügbar kann ohne Kohlenstofffaktor sein; nicht verfügbar kann gültige Historie haben. Das Detail zeigt Betriebszustand, Metriken, Umweltergebnisse, Zeitreihe und Beiträge je Zeitraum. Siehe [API-Referenz](../reference/api) und [Methodik](../product/methodology), um fehlende Daten, Fehler und Nullwerte zu unterscheiden.
 
-Der Sprachwähler bietet acht Sprachen und speichert die Auswahl in diesem Browser. Sprache verändert weder Identität noch Beobachtungszeitpunkte.
+Der Sprachwähler bietet zwölf Sprachen und speichert die Auswahl in diesem Browser. Sprache verändert weder Identität noch Beobachtungszeitpunkte.
 
 Fehlerbericht: Umgebung, ID, Filter, Uhrzeit mit Zeitzone, Aktion, Soll-/Ist-Ergebnis. Screenshots ohne Geheimnisse/private Daten; siehe [Betrieb](../operations).
 
@@ -49,3 +49,17 @@ Fehlerbericht: Umgebung, ID, Filter, Uhrzeit mit Zeitzone, Aktion, Soll-/Ist-Erg
 Verwenden Sie in den Navigationseinstellungen den Schalter **Dunkelmodus**: ausgeschaltet für hell, eingeschaltet für dunkel. Beim ersten Besuch folgt GreenER dem Systemdesign und dessen Änderungen, bis Sie den Schalter betätigen. Danach hat Ihre ausdrückliche Auswahl Vorrang; diese Oberfläche bietet keine Aktion zur Rückkehr zum Systemdesign.
 
 Die Auswahl gilt für Katalog, Details und das globale Layout, ohne Filter oder Daten zu ändern. Sie wird in diesem Browser unter `greener-theme` für den nächsten Besuch gespeichert. Bei blockiertem Speicher gilt sie während der Sitzung, kann aber beim Neuladen verloren gehen.
+
+## Dashboard
+
+Unter `/dashboard` 24 Stunden, 7, 30 oder 90 Tage, Status und Region wählen. Summen, Abdeckung, Statusanzahl und Emissionsanteile als Balken/Ring anzeigen. Tabelle mit Suche, Spaltenfiltern, Energie-/CO₂e-Sortierung und Seiten; Tabellenfilter ändern die Summen nicht. Anwendung zur Untersuchung öffnen. `GET /analysis/summary` wird regelmäßig ohne Neuladen abgefragt.
+
+## Benutzerhandbuch
+
+Unter `/history` Anwendung wählen; `applicationId`, Zeitraum und Granularität bleiben in der URL. Gespeicherte Zeitreihe mit Filtern, Anzeigezeitzone, Ereignissen, nummerierten Seiten und Bucket-Inspektion. Beiträge haben interaktive Seiten mit 5, 10, 15, 20 oder allen Einträgen. Buckets bleiben UTC; Anzeigezeitzone gruppiert nicht neu. Die Detailüberlagerung vergleicht dieselbe Anwendung mit dem gleich langen Vorzeitraum.
+
+Unter `/administration/calculations` Anwendung/Datum wählen und Original/Vorschau vergleichen. Enddatum umfasst den ganzen UTC-Tag; API verwendet `[from,to)`. Öffentliche Vorschau mit aktuellem Modell und aktuellen Faktoren historischer Regionen, ohne Speicherung. Grenzen: 30 Tage, 10.000 Beobachtungen. Antwort: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Faktorfehler erhält berechenbare Energie; CO₂e bleibt nicht verfügbar. Prozente verlangen gleiche Einheiten/Abdeckung und positiven Referenzwert.
+
+`/methodology` bietet Energie, Emissionen, Abdeckung und Analyse mit Beispielen/persönlichen Einstellungen. Jede angemeldete Rolle speichert nur eigene Register mit optimistischer Revision; 409 bei Konflikt. Anzeigegrenzen ändern weder globale Parameter noch Berechnungen oder externe Benachrichtigungen. Gespeicherter Zeitraum/Granularität ergänzen nur fehlende URL-Werte. Historische Methodik: `/services/:id/methodology`, gegebenenfalls mit `collectionId`.
+
+Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.

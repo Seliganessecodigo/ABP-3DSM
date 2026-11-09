@@ -12,9 +12,9 @@
 | RNF-04 — Security | Secrets outside Git; protected operations check authorization in the backend. |
 | RNF-05 — Reproducibility | Documented environment, verifiable CI and evidence of deployment behavior. |
 | RNF-06 — Failure handling | Success, empty, error, absence and stale remain distinguishable. |
-| RNF-07 — Experience | Keyboard, focus, contrast, text/icons beyond color, responsiveness and eight languages. |
+| RNF-07 — Experience | Keyboard, focus, contrast, text/icons beyond color, responsiveness and twelve languages. |
 
-Access matrix, retention, disaster recovery and numerical availability/performance targets still need decisions. This page declares neither an SLA nor accessibility certification.
+Still outside delivery: dedicated comparison of at least two applications, regional simulation, general user/role management, self-service password recovery, global monitoring configuration/pause and CSV export. Dashboard sorting by impact is available. External quotas, retention, backup/restore and operational targets need decisions; no SLA is declared. TOTP recovery is a support operation, not a password reset.
 
 ## Essential demonstration scenarios
 
@@ -38,3 +38,9 @@ Completion requires demonstrated criteria, review, relevant failure tests, updat
 ## Engineering gate
 
 PRs to `develop` require applicable checks and SonarQube Cloud: new-code coverage ≥ 80%, duplication ≤ 3%, A ratings and 100% of security hotspots reviewed. Executable backend changes require tests and LCOV. See [complete CI rules](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) and [Contributing](../contributing). Passing CI does not replace functional acceptance or usability evaluation.
+
+## CI — c343698
+
+CI checks the documentation build, frontend lint/tests/build, backend lint/typecheck/PostgreSQL tests/coverage/build/migrations and a real integrated browser flow. `TEST_DATABASE_URL` must point to isolated PostgreSQL; without it, Jest database suites skip and the integrated browser suite fails. SonarQube Cloud remains mandatory for PRs to `develop`: new-code coverage ≥ 80%, duplication ≤ 3%, A ratings and 100% reviewed hotspots. Automated checks do not replace usability evaluation or product acceptance.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

@@ -29,3 +29,13 @@ Consulta i [contratti delle API esterne nel repository](https://github.com/Selig
 ## Letture correlate
 
 [Metodologia e dati](./product/methodology) · [Riferimento API](./reference/api) · [Operazione e diagnosi](./operations)
+
+## Architettura — c343698
+
+React 19/TypeScript/Vite presenta; NestJS/TypeORM/PostgreSQL 18 integra e persiste. Solo backend chiama fonti ausiliarie. Controller: trasporto; service: casi d’uso; adapter: validazione; repository: persistenza. Guard globali, eccezioni `PublicRoute`. Preferenze per utente; audit in `backend/src/shared/audit/`, transazionale al successo.
+
+Dashboard e consultazioni ambientali pubblici. `/login`: e-mail/password o Google abilitato. Admin configura/conferma TOTP di sei cifre anche dopo Google; Analyst/Visitor non ottengono permessi amministrativi. Sessione frontend in memoria: reload richiede login. Backend verifica JWT, sessione, ruolo/stato attuali; 401 per credenziali assenti/invalide, 403 per ruolo insufficiente. Nuove rotte protette per default.
+
+Admin della stessa organizzazione cambia conti tra `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` e motivo. Blocco/disattivazione revocano tutte le sessioni; riattivazione richiede login nuovo. Protetti proprio conto e ultimo Admin attivo. Conflitto atteso: 409; destinazione già raggiunta: successo idempotente. Audit condiviso: successo nella transazione e dinieghi fuori rollback, attore esplicito e nessun segreto. Non consegna gestione completa dei ruoli o recupero password.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

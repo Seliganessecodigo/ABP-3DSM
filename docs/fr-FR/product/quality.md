@@ -12,9 +12,9 @@
 | RNF-04 — Sécurité | Secrets hors Git et autorisation dans le backend. |
 | RNF-05 — Reproductibilité | Environnement documenté, CI vérifiable et publication validée. |
 | RNF-06 — Défaillances | Succès, vide, erreur, absence et stale distinguables. |
-| RNF-07 — Expérience | Clavier, focus, contraste, texte/icône au-delà de la couleur, responsive et huit langues. |
+| RNF-07 — Expérience | Clavier, focus, contraste, texte/icône au-delà de la couleur, responsive et douze langues. |
 
-Matrice d’accès, rétention, reprise et objectifs chiffrés de disponibilité/performance restent à définir. Aucun SLA ni certification d’accessibilité n’est déclaré.
+Restent à livrer : comparaison dédiée de deux applications, simulation régionale, gestion générale utilisateurs/rôles, récupération autonome du mot de passe, configuration globale/pause du suivi et CSV. Le tri par impact existe. Quotas externes, rétention, sauvegarde/restauration et objectifs opérationnels restent à définir ; aucun SLA. Récupérer TOTP par support ne réinitialise pas le mot de passe.
 
 ## Scénarios de démonstration
 
@@ -36,3 +36,9 @@ Avant de commencer : livraison, consommateurs, critères, contrat et dépendance
 Conclusion : critères démontrés, code revu, échecs testés, contrat/documentation et preuves actualisés. Ouvrir une PR ne termine pas l’issue. Planning, review et feedback relèvent de #134.
 
 PRs vers `develop` : vérifications pertinentes et SonarQube Cloud, couverture nouvelle ≥ 80%, duplication ≤ 3%, ratings A et 100% des hotspots revus. Backend exécutable : tests et LCOV. Voir [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) et [Contribuer](../contributing). La CI ne remplace ni acceptation fonctionnelle ni évaluation d’utilisabilité.
+
+## CI — c343698
+
+CI vérifie documentation, lint/tests/build frontend, lint/typecheck/tests PostgreSQL/couverture/build/migrations backend et flux navigateur intégré réel. `TEST_DATABASE_URL` exige PostgreSQL isolé ; sans cette variable, Jest ignore les suites de base et le navigateur intégré échoue. SonarQube obligatoire vers `develop` : couverture nouvelle ≥ 80 %, duplication ≤ 3 %, notes A, hotspots 100 % revus. Ne remplace ni utilisabilité ni acceptation produit.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

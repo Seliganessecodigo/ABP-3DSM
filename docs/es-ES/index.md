@@ -18,7 +18,7 @@ features:
   - title: Trazabilidad
     details: Las métricas, los periodos y las limitaciones aportan contexto a los indicadores.
   - title: Acceso multilingüe
-    details: La documentación y la interfaz están disponibles en ocho idiomas.
+    details: La documentación y la interfaz están disponibles en doce idiomas.
 ---
 
 ## Sobre el proyecto
@@ -27,7 +27,7 @@ GreenER es un proyecto académico del programa de Desarrollo de Software Multipl
 
 ## Estado y rutas de lectura
 
-La documentación distingue funciones disponibles, alcance planificado y decisiones pendientes. La interfaz ofrece catálogo, detalle operativo, evidencias métricas, preferencia de tema, análisis ambiental por aplicación y consulta de la metodología registrada para cada observación. La API también ofrece un resumen agregado sin pantalla propia; el ranking y la comparación siguen planificados.
+GreenER monitoriza aplicaciones y estima energía y CO₂e. Catálogo, dashboard, detalle, historial, vista previa de recálculo, metodología y login están disponibles. Interfaz y documentación ofrecen doce idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`; inglés es el fallback del frontend.
 
 - [Visión y alcance](./product/vision)
 - [Guía de uso](./guide/monitoring)

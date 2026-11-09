@@ -4,7 +4,7 @@
 
 A interface implementa o catálogo e a rota de detalhe `/services/:id`, consumindo
 `GET /applications` e `GET /applications/:id`. Busca, filtro por estado e
-paginação de 10 itens são aplicados no cliente, sem acrescentar parâmetros ao
+paginação com tamanho configurável (10 por padrão) são aplicados no cliente, sem acrescentar parâmetros ao
 contrato da API. `VITE_API_URL` define a origem da API; no desenvolvimento local,
 sem essa variável, Vite encaminha `/api` para `http://localhost:3000`.
 
@@ -16,11 +16,11 @@ demais parâmetros da URL.
 
 ## Internacionalização
 
-A interface usa `i18next` e `react-i18next` nos locales `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` e `zh-CN`. A preferência é guardada em `localStorage` na chave `greener:locale`; sem uma preferência válida, usamos primeiro um locale do navegador compatível e depois `pt-BR`. Inglês (`en-US`) é o fallback para chaves ausentes.
+A interface usa `i18next` e `react-i18next` nos locales `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. A preferência é guardada em `localStorage` na chave `greener:locale`; sem uma preferência válida, usamos primeiro um locale do navegador compatível e depois `pt-BR`. Inglês (`en-US`) é o fallback para chaves ausentes.
 
-As páginas ficam em `src/pages/<tela>/`, junto dos hooks e de `locales/<locale>.json`. O módulo `i18n.ts` de cada tela importa os oito idiomas; `src/i18n.ts` descobre esses módulos automaticamente e usa o nome da pasta da tela como namespace. Os textos compartilhados ficam em `src/i18n/locales/`, no namespace `common`.
+As páginas ficam em `src/pages/<tela>/`, junto dos hooks e de `locales/<locale>.json`. O módulo `i18n.ts` de cada tela importa os doze idiomas; `src/i18n.ts` descobre esses módulos automaticamente e usa o nome da pasta da tela como namespace. Os textos compartilhados ficam em `src/i18n/locales/`, no namespace `common`.
 
-Para adicionar texto, inclua a chave no `pt-BR.json` da tela e traduza-a nos outros sete arquivos. O mapa exportado pela tela usa `satisfies Record<Locale, typeof ptBR>` para exigir as chaves obrigatórias em todos os idiomas durante o build. Use `useTranslation('<tela>')` para textos específicos e `useTranslation('common')` para textos compartilhados. Passe valores dinâmicos por interpolação e formate datas e números com `Intl` e `i18n.resolvedLanguage`.
+Para adicionar texto, inclua a chave no `pt-BR.json` da tela e traduza-a nos outros onze arquivos. O mapa exportado pela tela usa `satisfies Record<Locale, typeof ptBR>` para exigir as chaves obrigatórias em todos os idiomas durante o build. Use `useTranslation('<tela>')` para textos específicos e `useTranslation('common')` para textos compartilhados. Passe valores dinâmicos por interpolação e formate datas e números com `Intl` e `i18n.resolvedLanguage`.
 
 Consulte [a organização do código](src/README.md) para adicionar uma página, registrar sua rota e integrar dados do backend.
 
@@ -76,9 +76,14 @@ texto de sucesso `#00875D` → `#006B49`, atenção `#9F6506` → `#895700`, err
 `#DC4C45` → `#B83233` e neutro `#607087` → `#56657B`. Borda de controle clara
 `#788C82` é separada da borda decorativa `#DCE8E3`. No escuro, a borda segue
 `#607F70`. Valide as combinações usadas com texto ≥ 4,5:1 e controles/foco ≥ 3:1.
-Gráficos futuros devem consumir cores semânticas e identificação textual; o PNG
-não fornece paleta de séries e não há gráfico executável nesta entrega.
+Os gráficos atuais de dashboard e histórico devem preservar identificação textual, unidades, cobertura e distinção entre lacunas e zero. Consulte `src/features/analysis/README.md` para os contratos.
 
 `npm run test:e2e -- theme.spec.ts` executa a suíte de temas no Chromium.
 Ela usa a interface pública e os mocks HTTP existentes. A revisão visual complementa
 os testes automatizados; não equivale à homologação do PO.
+
+## Telas disponíveis
+
+O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
+
+O roteiro de execução está no [README da raiz](../README.md); rotas e propriedade dos módulos estão em [src/README.md](src/README.md).

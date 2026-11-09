@@ -27,3 +27,11 @@ Il backlog GreenER è organizzato in sei epic di prodotto e un epic di fondament
 Ordine dipendenze senza date promesse: riconoscere/raccogliere → approvare modello/risultati versionati → riepilogo/storico → confronto/simulazione. Amministrazione/preferenze seguono autorizzazione/design. Sprint/capacità in Projects.
 
 [Visione e ambito](./product/vision) · [Qualità e accettazione](./product/quality) · [Decisioni e dipendenze](./product/decisions)
+
+## Visione e ambito — c343698
+
+GreenER monitora applicazioni e stima energia e CO₂e. Catalogo, dashboard, dettaglio, storico, anteprima di ricalcolo, metodologia e login sono disponibili. Interfaccia e documentazione offrono dodici lingue: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Fallback frontend in inglese.
+
+Restano: confronto dedicato tra due applicazioni, simulazione regionale, gestione generale utenti/ruoli, recupero password autonomo, configurazione globale/pausa monitoraggio e CSV. Ordinamento per impatto disponibile. Quote esterne, retention, backup/ripristino e obiettivi operativi da definire; nessun SLA. Recupero TOTP via supporto non è reset password.
+
+[Visione e ambito](./product/vision)

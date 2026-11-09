@@ -61,3 +61,9 @@ Pour relancer la découverte sans redémarrer l’API, exécutez `docker compose
 - Si un port est déjà utilisé, modifiez `FRONTEND_PORT`, `API_PORT` ou `POSTGRES_PORT` dans `.env`.
 - Si l’API n’est pas saine, consultez `npm run dev:logs`. Elle dépend de PostgreSQL et applique les migrations au démarrage.
 - Les valeurs de `.env.example` sont réservées au développement local. Ne partagez pas de véritables identifiants ni le fichier `.env`.
+
+## Démarrage — login
+
+Node.js 24+, npm, Docker Compose v2. Copier `.env.example` vers `.env` ; lancer `npm run dev`. Compose applique les migrations et tente la découverte ; une panne de source n’empêche pas le démarrage. Configurer SMTP pour invitations/confirmations. Premier Admin : script `organizations:create-invitation` dans `backend/`, avec `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Aucun Admin universel de production.
+
+[Exploitation et diagnostic](./operations) · [Guide d’utilisation](./guide/monitoring)

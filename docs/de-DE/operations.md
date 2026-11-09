@@ -43,3 +43,29 @@ Manuelle Erkennung ohne doppelte Identitäten wiederholbar. Scheduler nach erste
 Staging aus `develop` mit CI und separaten API-Jobs (Azure App Service)/Frontend-Jobs (Static Web Apps). Smoke-Test nach API-Deployment. Vor Wiederholung Run, SHA, Schritt, Diagnose festhalten.
 
 Pages nutzt VitePress und `DOCS_BASE=/ABP-3DSM/`; lokaler Build beweist kein Deployment. Automatische Datenbankwiederherstellung ist nicht nachgewiesen. Vor Rollback/destruktiver Migration Kompatibilität und wiederherstellbares Backup prüfen. Aufbewahrung/Restore-Übungen sind [offen](./product/decisions). `npm run dev:down` bewahrt Volumes; Löschen entfernt die lokale Datenbank.
+
+## Betrieb und Diagnose — JWT / Google / SMTP
+
+Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
+
+```text
+AUTH_JWT_SECRET
+AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
+AUTH_TOTP_ENCRYPTION_KEY_VERSION / AUTH_TOTP_ENCRYPTION_KEYS
+APP_BASE_URL
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/sso/google/callback
+SSO_RETURN_URL=http://localhost:5173/sso/callback
+VITE_GOOGLE_SSO_ENABLED=true
+SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
+SMTP_USER / SMTP_PASSWORD
+```
+
+Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.
+
+Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+
+
+In Google Cloud exakt `GOOGLE_CALLBACK_URL` registrieren. `VITE_GOOGLE_SSO_ENABLED=true` aktiviert nur den Knopf, konfiguriert weder Backend noch Konten; Verknüpfung verlangt Einladung. `GOOGLE_CLIENT_SECRET`, JWT, Pepper und TOTP-Schlüssel bleiben Backend-Geheimnisse; unabhängige Werte und nötige frühere Versionen verwenden. SMTP versendet Einladungen/Bestätigungen. Support nutzt `authentication:recover-admin-totp` nach unabhängiger Prüfung der Organisationsbefugnis; Sitzungen werden widerrufen, Vorgang auditiert.

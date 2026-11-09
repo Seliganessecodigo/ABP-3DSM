@@ -46,3 +46,11 @@ Ohne Faktor bleibt gültige Energie gültig; CO₂e kann unberechenbar sein. Nul
 | Regionale Simulation | Energie konstant, anderer Faktor, getrennt von offiziellen Ergebnissen. |
 
 Summen, Ranglisten und Vergleiche brauchen kompatible Zeiträume und Abdeckungen. Lücken werden nicht zu Null; Prozente erfordern einen gültigen Nenner. Die bestätigte Zeitsemantik steht oben. Persistiert werden Energie, Emissionen in Gramm und Faktor mit acht Dezimalstellen; Abdeckung als Anteil von null bis eins mit vier. Zwischenwerte werden nicht gerundet; JSON-Snapshots behalten ihre ursprüngliche Darstellung.
+
+## Methodik und Daten — simplified-energy v1
+
+Modell `simplified-energy`, Version `1`: CPU bei 100 % = 100 W; Speicher 0,375 W/GB; Festplatte 0,01 W/GB; Netzwerk 0,02 W/GB. Vereinfachte Parameter, keine Strommessung oder offiziellen Regionalfaktoren. Leistung = Summe; Energie = W × Stunden / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Snapshots erhalten Modell/Faktor; Vorschau nutzt aktuelle Faktoren ohne historische Änderung.
+
+Unter `/administration/calculations` Anwendung/Datum wählen und Original/Vorschau vergleichen. Enddatum umfasst den ganzen UTC-Tag; API verwendet `[from,to)`. Öffentliche Vorschau mit aktuellem Modell und aktuellen Faktoren historischer Regionen, ohne Speicherung. Grenzen: 30 Tage, 10.000 Beobachtungen. Antwort: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Faktorfehler erhält berechenbare Energie; CO₂e bleibt nicht verfügbar. Prozente verlangen gleiche Einheiten/Abdeckung und positiven Referenzwert.
+
+`/methodology` bietet Energie, Emissionen, Abdeckung und Analyse mit Beispielen/persönlichen Einstellungen. Jede angemeldete Rolle speichert nur eigene Register mit optimistischer Revision; 409 bei Konflikt. Anzeigegrenzen ändern weder globale Parameter noch Berechnungen oder externe Benachrichtigungen. Gespeicherter Zeitraum/Granularität ergänzen nur fehlende URL-Werte. Historische Methodik: `/services/:id/methodology`, gegebenenfalls mit `collectionId`.

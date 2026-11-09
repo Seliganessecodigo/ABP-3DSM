@@ -12,9 +12,9 @@ O [EP00](../backlog/ep00) organiza fundações técnicas e qualidade. Um RNF é 
 | RNF-04 — Segurança | Segredos fora do Git; operações protegidas verificam autorização no backend. |
 | RNF-05 — Reprodutibilidade | Ambiente documentado, CI verificável e publicação com evidência de funcionamento. |
 | RNF-06 — Falhas | Sucesso, vazio, erro, ausência e stale permanecem distinguíveis. |
-| RNF-07 — Experiência | Teclado, foco, contraste, texto/ícone além de cor, responsividade e oito idiomas. |
+| RNF-07 — Experiência | Teclado, foco, contraste, texto/ícone além de cor, responsividade e doze idiomas. |
 
-A matriz de acesso, retenção, recuperação de desastre e metas numéricas de disponibilidade/desempenho ainda precisam de definição. Não há SLA ou certificação de acessibilidade declarados por esta página.
+Permanecem fora da entrega: comparação dedicada entre pelo menos duas aplicações, simulação regional, gestão geral de usuários/papéis, recuperação de senha por autoatendimento, configuração global/pausa do monitoramento e exportação CSV. Ordenar o dashboard por impacto já é possível. Cotas externas, retenção, backup/restauração e metas operacionais precisam de definição; não há SLA declarado. Recuperação de TOTP é operação de suporte, não reset de senha.
 
 ## Cenários essenciais para demonstração
 
@@ -38,3 +38,9 @@ Para concluir: demonstrar critérios, revisar código, validar falhas relevantes
 ## Gate de engenharia
 
 PRs para `develop` devem cumprir as verificações pertinentes e o SonarQube Cloud: cobertura de código novo ≥ 80%, duplicação ≤ 3%, ratings A e 100% dos security hotspots revisados. Mudanças executáveis no backend exigem testes e LCOV. Consulte as [regras completas da CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) e [Contribuição](../contributing). Passar na CI não substitui aceite funcional nem avaliação de usabilidade.
+
+## CI — c343698
+
+A CI verifica o build da documentação, lint/testes/build do frontend, lint/typecheck/testes com PostgreSQL/cobertura/build/migrations do backend e fluxo integrado real no navegador. `TEST_DATABASE_URL` deve apontar para PostgreSQL isolado; sem ela, suítes Jest de banco são ignoradas e a suíte integrada do navegador falha. O gate SonarQube Cloud continua obrigatório em PRs para `develop`: cobertura nova ≥ 80%, duplicação ≤ 3%, ratings A e hotspots 100% revisados. Teste automatizado não substitui avaliação de usabilidade ou aceite do produto.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

@@ -45,3 +45,29 @@ O workflow de staging parte de `develop` e depende da CI. API e frontend possuem
 O site usa build VitePress e workflow de Pages com `DOCS_BASE=/ABP-3DSM/`. Um build local válido não prova que a publicação terminou.
 
 Não há restauração automática de banco demonstrada por esses workflows. Antes de rollback ou migration destrutiva, verificar compatibilidade e backup recuperável. Retenção e ensaio de restauração seguem como [dependências explícitas](./product/decisions). `npm run dev:down` preserva o volume; apagar volumes remove o banco local.
+
+## Operação e diagnóstico — JWT / Google / SMTP
+
+Node.js 24+, npm e Docker Compose v2 são necessários. Copie `.env.example` para `.env` e execute `npm run dev`. O Compose aplica migrations e tenta descoberta antes da API; falha da origem não impede a API de iniciar. Configure SMTP para enviar convites e confirmações. O primeiro Admin é provisionado pelo script `organizations:create-invitation` em `backend/`, com `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL`. Não há conta administrativa universal de produção.
+
+```text
+AUTH_JWT_SECRET
+AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
+AUTH_TOTP_ENCRYPTION_KEY_VERSION / AUTH_TOTP_ENCRYPTION_KEYS
+APP_BASE_URL
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/sso/google/callback
+SSO_RETURN_URL=http://localhost:5173/sso/callback
+VITE_GOOGLE_SSO_ENABLED=true
+SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
+SMTP_USER / SMTP_PASSWORD
+```
+
+O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
+
+A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+
+
+Cadastre no Google Cloud a callback exatamente igual a `GOOGLE_CALLBACK_URL`. Habilitar o botão com `VITE_GOOGLE_SSO_ENABLED=true` não configura o backend nem provisiona contas: o vínculo precisa de convite. `GOOGLE_CLIENT_SECRET`, JWT, pepper e chaves TOTP são segredos exclusivos do backend; use valores independentes fora do desenvolvimento e preserve versões antigas necessárias à leitura. Confirmação de e-mail e convite dependem de SMTP. Para recuperar TOTP, o suporte usa `authentication:recover-admin-totp` após validação independente da organização; essa operação revoga sessões e é auditada.

@@ -27,3 +27,11 @@ Le backlog GreenER comprend six épopées produit et une épopée de fondations 
 Ordre de dépendance, sans engagement de dates : reconnaître/collecter → approuver modèle/résultats versionnés → résumé/historique → comparaison/simulation. Administration/préférences suivent autorisation/design. Sprint et capacité dans Projects.
 
 [Vision et périmètre](./product/vision) · [Qualité et acceptation](./product/quality) · [Décisions et dépendances](./product/decisions)
+
+## Vision et périmètre — c343698
+
+GreenER surveille des applications et estime énergie et CO₂e. Catalogue, tableau de bord, détail, historique, aperçu de recalcul, méthodologie et connexion sont disponibles. Interface et documentation proposent douze langues : `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Le frontend utilise l’anglais en repli.
+
+Restent à livrer : comparaison dédiée de deux applications, simulation régionale, gestion générale utilisateurs/rôles, récupération autonome du mot de passe, configuration globale/pause du suivi et CSV. Le tri par impact existe. Quotas externes, rétention, sauvegarde/restauration et objectifs opérationnels restent à définir ; aucun SLA. Récupérer TOTP par support ne réinitialise pas le mot de passe.
+
+[Vision et périmètre](./product/vision)

@@ -21,8 +21,6 @@ D01 e a reorganização do EP00 foram confirmadas em 15/10/2026. As demais regra
 
 | Tema | O que falta resolver | Entregas afetadas |
 | --- | --- | --- |
-| Prévia de recálculo | Permissão, limite de volume/período e política de escolha do fator. | #91/#263/#264 |
-| Acesso e contas | Matriz de papéis, bootstrap, sessão e políticas de senha/recuperação. | #90/#91/#158/#160/#245 |
 | Fontes e operação | Cotas e limites de concorrência ainda precisam ser confirmados com os responsáveis pelas APIs. A política de timeout/retry/atraso do #243 está aprovada. | #155/#243 |
 | Continuidade | Retenção, backup/restauração, metas de disponibilidade e desempenho. | #110/#120/#125/#166 |
 | Extras do protótipo | CSV, colunas configuráveis e eficiência por transação. O detalhe já sobrepõe a série da aplicação com o período anterior equivalente; comparação entre aplicações e dashboard temporal seguem separados. | #61/#248/#252 |
@@ -43,3 +41,13 @@ Quando houver divergência, explicitar o conflito, decidir com o responsável ad
 ## Registrar uma mudança
 
 A issue ou PR deve explicar decisão, motivo, alternativas relevantes, impacto nas histórias, dados e compatibilidade, além das evidências de aceite. Decisões arquiteturais duradouras recebem ADR junto à implementação. Consulte o [backlog](../roadmap) e os [critérios de qualidade](./quality).
+
+## Decisões e dependências — c343698
+
+Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
+
+O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
+
+A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
+
+Permanecem fora da entrega: comparação dedicada entre pelo menos duas aplicações, simulação regional, gestão geral de usuários/papéis, recuperação de senha por autoatendimento, configuração global/pausa do monitoramento e exportação CSV. Ordenar o dashboard por impacto já é possível. Cotas externas, retenção, backup/restauração e metas operacionais precisam de definição; não há SLA declarado. Recuperação de TOTP é operação de suporte, não reset de senha.

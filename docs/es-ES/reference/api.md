@@ -1,6 +1,6 @@
 # Referencia de la API GreenER
 
-Rutas comprobadas en `develop` el 23/10/2026 (commit `1633ca2`). Swagger local: `http://localhost:3000/docs`; schema: `/openapi.json`. El OpenAPI del entorno integrado proporciona los DTOs completos.
+Referencia: `origin/develop`, commit `c343698`, verificado el 08/11/2026. Cada entorno puede ejecutar otra revisión; merge no demuestra despliegue. Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
 
 ## Lecturas existentes
 
@@ -43,7 +43,7 @@ Use códigos estructurados/status; mensajes no son contratos de traducción. No 
 
 ## Fronteras
 
-Solo backend accede a fuentes; [contratos versionados](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md). No se publican endpoints futuros de energía, autenticación o administración. JWT administrativo es requisito de [EP06](../backlog/ep06), no API disponible presupuesta. Consulte [Operación](../operations) para URL/CORS/diagnóstico y [Metodología](../product/methodology) para intervalos.
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
 
 ## Consultar análisis ambiental
 
@@ -55,8 +55,7 @@ Solo backend accede a fuentes; [contratos versionados](https://github.com/Seliga
 | 404 / APPLICATION_NOT_FOUND | Aplicación desconocida. |
 | 503 / APPLICATION_ANALYSIS_UNAVAILABLE | Error al consultar análisis o resultados persistidos. |
 
-El resumen y la serie por aplicación están integrados en el detalle. La consulta de contribuciones por bucket también se usa allí; actualmente el frontend solicita la primera página y la paginación interactiva sigue pendiente.
-
+En `/history`, elija una aplicación. `applicationId`, período y granularidad conservan contexto en la URL. Ofrece serie persistida, filtros, zona horaria visual, eventos, páginas numeradas e inspección. Las contribuciones tienen paginación interactiva de 5, 10, 15, 20 o todos. Los buckets siguen en UTC; cambiar la zona visual no reagrupa datos. El detalle compara la misma aplicación con la ventana anterior equivalente.
 
 ## Consultar serie ambiental
 
@@ -66,8 +65,73 @@ El resumen y la serie por aplicación están integrados en el detalle. La consul
 
 ## Consultar resumen agregado
 
-`GET /analysis/summary` requiere `from` y `to`. Los filtros repetibles opcionales son `states`, `regionCodes` y `applicationIds`. Devuelve totales, cobertura, recuento por estado, aplicaciones, `dataAsOf` y procedencia. El endpoint ya existe, pero aún no hay una pantalla de dashboard agregado en la interfaz.
+`GET /analysis/summary`: `from`, `to`; `states`, `regionCodes`, `applicationIds`; `totals`, `coverage`, `states`, `applications`, `dataAsOf`, `provenance`. En `/dashboard`, elija 24 horas, 7, 30 o 90 días, estado y región. Consulte totales, cobertura, estados y composición de emisiones en barras o anillo. La tabla permite búsqueda, filtros, ordenación por energía/CO₂e y paginación; sus filtros no redefinen los totales. Abra una aplicación para investigar. Consume `GET /analysis/summary` con actualización periódica sin reload.
 
 ## Consultar incidentes de monitorización
 
 `GET /monitoring/incidents` acepta `applicationId`, `source`, `integration`, `status`, `page` y `limit`. Los estados son `OPEN`, `RECOVERING` y `RESOLVED`; por defecto, página 1 y límite 20. La respuesta contiene `items`, `total`, `page` y `limit`. Consulta OpenAPI para límites y enumeraciones vigentes.
+
+## Referencia de la API — JWT
+
+| HTTP | URI | JWT / credential |
+| --- | --- | --- |
+| GET | `/health` | — |
+| GET | `/applications` | — |
+| GET | `/applications/{id}` | — |
+| GET | `/applications/{id}/collections/latest` | — |
+| GET | `/applications/{id}/collections/{collectionId}` | — |
+| GET | `/applications/{id}/analysis` | — |
+| GET | `/applications/{id}/analysis/series` | — |
+| GET | `/applications/{id}/analysis/series/contributions` | — |
+| GET | `/analysis/summary` | — |
+| GET | `/monitoring/incidents` | — |
+| GET | `/carbon/regions` | — |
+| GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/recalculation-preview` | — |
+| POST | `/auth/login` | email + password |
+| GET | `/auth/sso/google` | PKCE |
+| GET | `/auth/sso/google/callback` | state + cookie |
+| POST | `/auth/sso/handoff/exchange` | code + PKCE |
+| POST | `/auth/totp/setup` | setupToken |
+| POST | `/auth/totp/setup/confirm` | setupToken + TOTP |
+| POST | `/auth/totp/challenge` | challengeToken + TOTP |
+| POST | `/auth/sessions/refresh` | refreshToken |
+| POST | `/auth/invitations/accept` | token |
+| POST | `/auth/email/confirm` | token + password |
+| POST | `/auth/email/confirmation/resend` | organization + email |
+| GET | `/auth/me` | JWT |
+| POST | `/auth/sessions/logout` | JWT |
+| POST | `/auth/totp/replacement` | JWT + password + TOTP |
+| POST | `/auth/totp/replacement/confirm` | JWT + confirmationToken + TOTP |
+| GET | `/me/preferences` | JWT |
+| PUT | `/me/preferences/{tab}` | JWT |
+| POST | `/auth/sso/invitations` | JWT + ADMIN |
+| DELETE | `/auth/sso/identities/{userId}` | JWT + ADMIN |
+| PATCH | `/auth/users/{userId}/status` | JWT + ADMIN |
+
+Consultas ambientales y dashboard son públicos. `/login` acepta correo/contraseña o Google habilitado. Admin configura/confirma TOTP de seis dígitos, también tras Google; Analyst y Visitor no obtienen permisos administrativos. Sesión en memoria del frontend: recargar exige login. Backend valida JWT, sesión, rol y estado actuales; 401 indica credencial ausente/inválida, 403 rol insuficiente. Nuevas rutas protegidas por defecto.
+
+Admin de la misma organización cambia cuentas entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` y motivo. Bloqueo/desactivación revocan sesiones; reactivación exige login nuevo. Se protege la propia cuenta y el último Admin activo. Conflicto: 409; destino ya alcanzado: éxito idempotente. Auditoría compartida: éxito en la transacción y denegación fuera del rollback, con actor explícito y sin secretos. No entrega gestión completa de roles ni recuperación de contraseña.
+
+## Referencia de la API — POST /applications/{id}/analysis/recalculation-preview
+
+En `/administration/calculations`, compare original y vista previa por aplicación y fechas. El día final incluye todo el día UTC; la API recibe `[from,to)`. La operación pública aplica modelo actual y factores actuales a regiones históricas, sin guardar resultados. Límites: 30 días y 10.000 observaciones. Devuelve `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fallo del factor conserva energía y deja CO₂e indisponible. Porcentajes requieren unidades/coberturas iguales y referencia positiva.
+
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+## Referencia de la API — /me/preferences
+
+`/methodology` ofrece pestañas de energía, emisiones, cobertura y análisis con ejemplos y preferencias personales. Cualquier rol autenticado guarda solo sus propias pestañas, con revisión optimista y 409 ante conflicto. Los límites visuales no cambian cálculos, configuración global ni notificaciones externas. Período/granularidad guardados completan solo parámetros ausentes en URL. Evidencia histórica: `/services/:id/methodology`, con `collectionId` seleccionado.
+
+`GET /me/preferences`: `energy`, `emissions`, `coverage`, `analysis` → `null` / `{ value, revision, updatedAt }`. `PUT /me/preferences/{tab}`: `{ expectedRevision, value }`; `expectedRevision: 0` → create; `400 INVALID_PREFERENCE`, `409 PREFERENCE_CONFLICT`, `503 PREFERENCES_UNAVAILABLE`.
+
+
+```json
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example administrative action" }
+```
+
+`PATCH /auth/users/{userId}/status`: `400`, `401`, `403`, `404`, `409`.
+
+`POST /applications/{id}/analysis/recalculation-preview`: `400 RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED`, `400 RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED`, `503 APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE`.

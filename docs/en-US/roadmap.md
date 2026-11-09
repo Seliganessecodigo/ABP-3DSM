@@ -27,3 +27,11 @@ The GreenER backlog is organized into six product epics and one technical founda
 Dependency order without a date commitment: recognize applications and collect evidence → approve the model and persist versioned results → present summaries/history → compare and simulate. Administration and preferences follow their authorization/design dependencies. Sprint and capacity are managed in Projects; this page promises no calendar.
 
 [Vision and scope](./product/vision) · [Quality and acceptance](./product/quality) · [Decisions and dependencies](./product/decisions)
+
+## Vision and scope — c343698
+
+GreenER monitors applications and estimates energy and CO₂e. Catalog, dashboard, detail, history, recalculation preview, methodology and login are available. The interface and documentation offer twelve languages: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. The frontend falls back to English.
+
+Still outside delivery: dedicated comparison of at least two applications, regional simulation, general user/role management, self-service password recovery, global monitoring configuration/pause and CSV export. Dashboard sorting by impact is available. External quotas, retention, backup/restore and operational targets need decisions; no SLA is declared. TOTP recovery is a support operation, not a password reset.
+
+[Vision and scope](./product/vision)

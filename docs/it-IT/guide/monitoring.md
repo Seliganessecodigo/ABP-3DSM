@@ -21,8 +21,6 @@ La UI indica orari di tentativo e risposta valida. Un errore dopo successo conse
 
 Nel dettaglio dell’applicazione, scegli una finestra mobile di 24 ore, 7, 30 o 90 giorni e una granularità oraria, giornaliera, mensile o annuale. La serie mostra energia e CO₂e dei risultati persistiti. La sovrapposizione confronta la finestra selezionata con quella immediatamente precedente di pari durata. È un confronto temporale per una singola applicazione, non una classifica né un confronto tra applicazioni.
 
-Usa i filtri e l’ordinamento della tabella per trovare i bucket. Ispezionane uno per vedere i contributi inclusi e le esclusioni con le relative motivazioni. La tabella è paginata; l’interfaccia carica al momento solo la prima pagina dei contributi. Lacune ed esclusioni non significano zero. Senza evidenze calcolabili, il risultato resta non disponibile.
-
 ## Interpretare situazioni
 
 Per tracciare un indicatore, apri **Visualizza metodologia completa** nel dettaglio dell’applicazione. Puoi anche scegliere **Metodologia** nella navigazione e selezionare un’applicazione. La pagina mostra modello, formula, parametri e presupposti registrati, oltre ai dati del fattore carbonio quando disponibili. Il link dal dettaglio usa la raccolta selezionata; la navigazione usa l’ultima raccolta valida. La pagina spiega le evidenze salvate senza ricalcolare il risultato.
@@ -49,3 +47,17 @@ Segnalare ambiente, ID, filtri, data/ora con fuso, azione, atteso/osservato. Scr
 Nelle preferenze di navigazione, usa l’interruttore **Modalità scura**: disattivato applica il tema chiaro; attivato applica quello scuro. Alla prima visita, GreenER segue l’aspetto del sistema e i suoi cambiamenti finché non usi l’interruttore. Da quel momento prevale la scelta esplicita; questa interfaccia non offre un’azione per tornare a seguire il sistema.
 
 La scelta si applica a catalogo, dettagli e layout globale senza modificare filtri o dati. Viene salvata in questo browser con la chiave `greener-theme` per la visita successiva. Se l’archiviazione è bloccata, la scelta funziona durante la sessione ma può perdersi al ricaricamento.
+
+## Dashboard
+
+In `/dashboard`, scegliere 24 ore, 7, 30 o 90 giorni, stato e regione. Totali, copertura, conteggi per stato e composizione emissioni a barre/anello. Tabella con ricerca, filtri, ordinamento energia/CO₂e e paginazione; i filtri tabella non ridefiniscono i totali. Aprire un’applicazione per le evidenze. Aggiornamento periodico di `GET /analysis/summary`, senza reload.
+
+## Guida all’uso
+
+In `/history`, scegliere l’applicazione; `applicationId`, periodo e granularità conservano contesto URL. Serie persistita con filtri, fuso di visualizzazione, eventi, pagine numerate e ispezione dei bucket. Contributi con paginazione interattiva di 5, 10, 15, 20 o tutti. Bucket sempre UTC; il fuso visivo non raggruppa nuovamente. Il dettaglio sovrappone il periodo precedente equivalente della stessa applicazione.
+
+In `/administration/calculations`, confrontare originale/anteprima per applicazione e date. Data finale inclusiva dell’intero giorno UTC; API `[from,to)`. Anteprima pubblica con modello attuale e fattori attuali delle regioni storiche, senza salvare. Limiti: 30 giorni, 10.000 osservazioni. Campi `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fattore mancante conserva energia calcolabile e CO₂e indisponibile. Percentuali richiedono unità/coperture uguali e riferimento positivo.
+
+`/methodology` offre energia, emissioni, copertura, analisi con esempi e preferenze personali. Qualsiasi ruolo autenticato salva solo le proprie schede con revisione ottimistica; 409 per conflitto. Soglie visive non modificano configurazione globale, calcoli o notifiche esterne. Periodo/granularità salvati completano solo URL senza scelta. Metodologia storica: `/services/:id/methodology`, con `collectionId` selezionato.
+
+Dashboard e consultazioni ambientali pubblici. `/login`: e-mail/password o Google abilitato. Admin configura/conferma TOTP di sei cifre anche dopo Google; Analyst/Visitor non ottengono permessi amministrativi. Sessione frontend in memoria: reload richiede login. Backend verifica JWT, sessione, ruolo/stato attuali; 401 per credenziali assenti/invalide, 403 per ruolo insufficiente. Nuove rotte protette per default.

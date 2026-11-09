@@ -42,7 +42,14 @@ Sans facteur, une énergie valide reste valide mais CO₂e peut être non calcul
 | Résultat | Règle |
 | --- | --- |
 | Original | Conserver observations, configuration, méthodologie et facteur utilisés. |
-| Aperçu de recalcul | Configuration actuelle identifiée, sans enregistrement/remplacement ; permissions, limites et facteur à définir. |
 | Simulation régionale | Énergie constante, autre facteur, séparée des résultats officiels. |
 
 Totaux, classements et comparaisons exigent des périodes et couvertures compatibles. Les lacunes ne deviennent pas zéro et les pourcentages exigent un dénominateur valide. La sémantique approuvée est ci-dessus. En persistance, énergie, émissions en grammes et facteur ont huit décimales ; la couverture, fraction de zéro à un, en a quatre. Les calculs ne arrondissent pas les intermédiaires et les snapshots JSON gardent leur représentation d’origine.
+
+## Méthodologie et données — simplified-energy v1
+
+Modèle `simplified-energy`, version `1` : CPU à 100 % = 100 W ; mémoire 0,375 W/GB ; disque 0,01 W/GB ; réseau 0,02 W/GB. Paramètres simplifiés, sans prétendre à une mesure électrique ou à des facteurs régionaux officiels. Puissance = somme des composantes ; énergie = W × heures / 1000 ; CO₂e[g] = kWh × gCO₂e/kWh. Les snapshots conservent méthode et facteur ; l’aperçu utilise les facteurs actuels sans réécrire les originaux.
+
+Dans `/administration/calculations`, comparer original et aperçu par application et dates. Le dernier jour inclut la journée UTC entière ; l’API reçoit `[from,to)`. Aperçu public avec modèle actuel et facteurs actuels des régions historiques, sans sauvegarde. Limites : 30 jours et 10 000 observations. Réponse : `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Un facteur indisponible conserve l’énergie calculable. Les pourcentages exigent unités/couvertures égales et référence positive.
+
+`/methodology` propose énergie, émissions, couverture et analyse, avec exemples et préférences personnelles. Tout rôle connecté sauvegarde ses propres onglets avec révision optimiste ; 409 signale un conflit. Les seuils d’affichage ne modifient ni calcul, ni configuration globale, ni notifications externes. Période/granularité complètent uniquement les paramètres URL absents. Méthodologie historique : `/services/:id/methodology` avec `collectionId` sélectionné.

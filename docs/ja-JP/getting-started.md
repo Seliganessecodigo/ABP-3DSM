@@ -61,3 +61,9 @@ APIを再起動せず検出を再実行するには、`docker compose exec api n
 - ポートが使用中の場合は、`.env`の`FRONTEND_PORT`、`API_PORT`、`POSTGRES_PORT`を変更してください。
 - APIが正常にならない場合は`npm run dev:logs`を確認してください。APIはPostgreSQLに依存し、起動時にマイグレーションを実行します。
 - `.env.example`の値はローカル開発専用です。実際の認証情報や`.env`ファイルを共有・コミットしないでください。
+
+## はじめに — login
+
+Node.js 24以上、npm、Docker Compose v2を使用。`.env.example`を`.env`にコピーし`npm run dev`。Composeはmigrationと初期検出を実行し、情報源障害でもAPIを開始します。招待/確認にはSMTPを設定。初期Adminは`backend/`の`organizations:create-invitation`、変数`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`で用意します。共通の本番Adminはありません。
+
+[運用と診断](./operations) · [利用ガイド](./guide/monitoring)
