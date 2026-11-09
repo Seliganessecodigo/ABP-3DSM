@@ -17,6 +17,9 @@ export interface PersistedApplicationMetadataEvent {
   readonly details: Record<string, unknown> | null
 }
 
+// Event inserts share the caller's transaction and stay below PostgreSQL's parameter limit.
+const EVENT_INSERT_BATCH_SIZE = 1_000
+
 @Injectable()
 export class ApplicationEventsRepository {
   constructor(
@@ -45,6 +48,18 @@ export class ApplicationEventsRepository {
       ApplicationEventEntity,
       event as QueryDeepPartialEntity<ApplicationEventEntity>,
     )
+  }
+
+  async appendManyInTransaction(
+    manager: EntityManager,
+    events: readonly Partial<ApplicationEventEntity>[],
+  ): Promise<void> {
+    for (let offset = 0; offset < events.length; offset += EVENT_INSERT_BATCH_SIZE) {
+      await manager.insert(
+        ApplicationEventEntity,
+        events.slice(offset, offset + EVENT_INSERT_BATCH_SIZE) as QueryDeepPartialEntity<ApplicationEventEntity>[],
+      )
+    }
   }
 
   findAnalysisEventsByApplicationAndPeriod(

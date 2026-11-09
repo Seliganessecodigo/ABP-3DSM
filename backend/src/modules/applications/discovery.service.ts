@@ -22,9 +22,9 @@ export class DiscoveryService {
     const snapshot = services ?? (await this.adapter.fetchServices(signal));
     const observedAt = new Date();
     return this.dataSource.transaction(async (manager) => {
-      return snapshot.reduce<Promise<number>>(async (countPromise, service) => {
-        const count = await countPromise;
-        const inserted = await this.applications.insertIfAbsent(manager, {
+      const insertedIds = await this.applications.insertManyIfAbsent(
+        manager,
+        snapshot.map((service) => ({
           id: service.id,
           name: service.name,
           metricsPath: service.metricsPath,
@@ -39,18 +39,20 @@ export class DiscoveryService {
           firstSeenAt: observedAt,
           lastCheckedAt: observedAt,
           removedAt: null,
-        });
-        if (!inserted) return count;
-        await this.events.appendInTransaction(manager, {
-          applicationId: service.id,
+        })),
+      );
+      await this.events.appendManyInTransaction(
+        manager,
+        insertedIds.map((applicationId) => ({
+          applicationId,
           cycleId,
           kind: "discovered",
           actor: "system",
           occurredAt: observedAt,
           details: null,
-        });
-        return count + 1;
-      }, Promise.resolve(0));
+        })),
+      );
+      return insertedIds.length;
     });
   }
 }
