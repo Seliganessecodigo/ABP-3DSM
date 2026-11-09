@@ -20,6 +20,21 @@ Antes, `useDashboard` buscava o catálogo e o resumo ambiental no mesmo efeito. 
 
 O resumo ambiental mantém seu próprio ciclo e seus próprios filtros. Uma atualização manual do dashboard pode atualizar os dois recursos; alterações nos filtros da análise atualizam somente o resumo. Falhas continuam distinguindo ausência de dados, erro inicial e falha de atualização com dados anteriores.
 
+## Evidências de comportamento
+
+As contagens anteriores de SQL são derivadas do laço de persistência substituído. As contagens posteriores são observadas pelo logger do TypeORM em PostgreSQL 18 real, sem substituir o repository por mock. A contagem exclui abertura e encerramento da transação.
+
+| Cenário | Antes | Depois, observado em teste |
+| --- | --- | --- |
+| Descobrir 1.001 serviços novos | 2.002 comandos de inserção | 4 comandos: dois lotes de aplicações e dois de eventos |
+| Repetir o catálogo de 1.001 serviços conhecidos | 1.001 comandos de inserção | 2 comandos, sem evento novo |
+| Trocar período, estado ou região do dashboard | Nova consulta de catálogo por alteração | Nenhuma nova consulta de catálogo |
+| Solicitar atualização manual do dashboard | Consulta de catálogo e resumo | Uma nova consulta de catálogo, além do resumo, respeitando carregamento pendente |
+
+`backend/src/modules/applications/discovery-batch.database.spec.ts` também verifica catálogo vazio, primeiro duplicado, identidade já conhecida, concorrência com ordem invertida e rollback de todos os lotes após falha de evento. A corrida inclui IDs Unicode distintos com representação canonicamente equivalente, para que a ordenação de bloqueios não dependa do locale.
+
+`frontend/e2e/dashboard.spec.ts` verifica contagem de requisições, catálogo atualizando enquanto o resumo está pendente, interrupção após navegação e preservação de regiões durante falha de atualização. `automatic-refresh.spec.ts` cobre o ciclo de atualização existente e a preservação do snapshot. Não há estimativa de ganho percentual de latência baseada nessas contagens.
+
 ## Limites da entrega
 
 Outras oportunidades foram identificadas, mas precisam de uma investigação própria antes de alterar seu comportamento:
