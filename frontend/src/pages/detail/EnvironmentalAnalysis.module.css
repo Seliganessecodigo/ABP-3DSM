@@ -1,7 +1,7 @@
 .loadingLayout { min-width: 0; min-height: 0; }
 .analysisLayout { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(220px, 1fr); grid-template-rows: 132px 88px minmax(0, 1fr); gap: 12px; min-height: 0; }
 @media (min-width: 901px) {
-  .analysisLayout:not(.historyLayout) { grid-template-rows: minmax(148px, max-content) minmax(88px, max-content) minmax(180px, 1fr); overflow-y: auto; }
+  .analysisLayout:not(.historyLayout) { grid-template-rows: minmax(132px, max-content) minmax(88px, max-content) minmax(180px, 1fr); overflow-y: auto; }
 }
 .screenReaderOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; border: 0; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .section { min-width: 0; margin: 0; }
@@ -161,7 +161,7 @@
   .historyBucket dd { font-weight: 400; }
 }
 @media (min-width: 901px) and (max-height: 700px) {
-  .analysisLayout:not(.historyLayout) { grid-template-rows: minmax(148px, max-content) minmax(88px, max-content) minmax(180px, 1fr); row-gap: 12px; }
+  .analysisLayout:not(.historyLayout) { grid-template-rows: minmax(132px, max-content) minmax(88px, max-content) minmax(180px, 1fr); row-gap: 12px; }
   .analysisLayout:not(.historyLayout) .metric, .analysisLayout:not(.historyLayout) .coverage { height: auto; min-height: 112px; }
 }
 @media (min-width: 901px) and (max-height: 800px) {
@@ -183,12 +183,7 @@
   .historyLayout .metrics { gap: 8px; }
 }
 
-.factorSummary { margin-top: 8px; font-size: 12px; line-height: 1.5; }
-.factorSummary summary { min-height: 44px; display: flex; align-items: center; color: var(--accent-default); cursor: pointer; }
-.factorSummary dl { display: grid; gap: 8px; max-height: 180px; overflow: auto; }
-.factorSummary dt { font-weight: 600; }
-.factorSummary dd { margin: 0; overflow-wrap: anywhere; }
-.analysisLayout:not(.historyLayout) .metrics { align-items: start; }
+.analysisLayout:not(.historyLayout) .metrics { align-items: stretch; }
 @media (max-width: 900px) {
   .analysisLayout:not(.historyLayout) .metrics > :last-child { grid-column: 1 / -1; }
 }

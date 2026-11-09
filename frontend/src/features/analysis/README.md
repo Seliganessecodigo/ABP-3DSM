@@ -20,7 +20,7 @@ A resposta contém energia, emissões em `gCO2e`, coberturas temporais independe
 
 O dashboard solicita `granularity=hour` para 24 horas e `day` para os demais presets. `series.points` vem na mesma resposta dos totais, com o mesmo período, filtros e cancelamento. `DashboardSeries` apresenta barras por intervalo, alternância de energia/CO₂e e tabela acessível, sem somar aplicações no navegador nem interpolar lacunas. A comparação com período anterior continua dependendo de contrato próprio. Filtros locais, ordenação e paginação da tabela de aplicações não alteram a série.
 
-O resumo individual fornece `calculation.energyKwh` e `calculation.intensity`: energia com emissões calculadas e fator equivalente ponderado, calculados no backend sobre os mesmos segmentos. A fórmula usa essa energia correspondente, inclusive em cobertura parcial. Energia zero não gera divisão por zero nem fator inventado. Sem intensidade equivalente, fatores numéricos são exibidos como valor único ou faixa, sem média no cliente. O acesso aos fatores expande um resumo local por região, intensidade e fonte; a metodologia conserva a proveniência completa.
+O resumo individual fornece `calculation.energyKwh` e `calculation.intensity`: energia com emissões calculadas e fator equivalente ponderado, calculados no backend sobre os mesmos segmentos. A fórmula usa essa energia correspondente, inclusive em cobertura parcial. Energia zero não gera divisão por zero nem fator inventado. Sem intensidade equivalente, fatores numéricos são exibidos como valor único ou faixa, sem média no cliente. O card do fator mantém a mesma altura dos demais indicadores, sem expansão interna. A explicação e a proveniência completa ficam na metodologia.
 
 Validações direcionadas:
 

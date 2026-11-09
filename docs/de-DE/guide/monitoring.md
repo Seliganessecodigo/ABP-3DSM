@@ -16,7 +16,7 @@ Wechseln Sie in der Zeitreihe zwischen Energie und CO₂e oder öffnen Sie die I
 
 Öffnen Sie Details für Identität, Standort, Status und Aktualisierungszeiten. Prüfen Sie Metriken und Umweltergebnisse im selben Zeitraum. Die aufgezeichnete Methodik zeigt Modell, Parameter und CO₂-Faktor der Berechnung, ohne das Ergebnis zu ändern. Fehlt die Stadt, bleiben andere Ortsangaben nutzbar.
 
-Der äquivalente Faktor fasst die angewendeten regionalen Faktoren zusammen, gewichtet nach der Energie mit berechneten Emissionen. Die Erklärung verwendet diese Energie, die bei fehlenden Faktoren geringer als die Gesamtenergie sein kann. Öffnen Sie die Faktordetails, um Werte und Quellen je Region zu prüfen.
+Der äquivalente Faktor fasst die angewendeten regionalen Faktoren zusammen, gewichtet nach der Energie mit berechneten Emissionen. Die Erklärung verwendet diese Energie, die bei fehlenden Faktoren geringer als die Gesamtenergie sein kann. Prüfen Sie Werte und Quellen je Region in der Methodik. Die Faktorkarte bleibt gleich hoch wie die anderen Kennzahlen und wird nicht innerhalb der Karte erweitert.
 
 ## Verlauf erkunden {#history}
 

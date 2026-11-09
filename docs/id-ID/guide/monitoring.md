@@ -16,7 +16,7 @@ Pada deret waktu, beralihlah antara energi dan CO₂e atau buka tabel interval. 
 
 Buka detail untuk identitas, lokasi, status dan waktu pembaruan. Periksa metrik dan hasil lingkungan pada periode sama. Metodologi tercatat menunjukkan model, parameter dan faktor karbon yang digunakan tanpa mengubah hasil. Bila kota tidak tersedia, informasi lokasi lain tetap berguna.
 
-Faktor ekuivalen merangkum faktor regional yang diterapkan, dibobot menurut energi dengan emisi yang dihitung. Penjelasan menggunakan energi ini, yang dapat lebih kecil dari energi total jika faktor tidak tersedia pada sebagian periode. Buka detail faktor untuk memeriksa nilai dan sumber per wilayah.
+Faktor ekuivalen merangkum faktor regional yang diterapkan, dibobot menurut energi dengan emisi yang dihitung. Penjelasan menggunakan energi ini, yang dapat lebih kecil dari energi total jika faktor tidak tersedia pada sebagian periode. Lihat metodologi untuk memeriksa nilai dan sumber per wilayah. Kartu faktor mempertahankan tinggi yang sama dengan indikator lain, tanpa perluasan di dalam kartu.
 
 ## Jelajahi riwayat {#history}
 
