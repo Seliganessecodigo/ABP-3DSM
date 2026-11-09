@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { application, mockCatalog } from './support/catalog.ts'
+import { application, gate, mockApi, mockCatalog } from './support/catalog.ts'
 
 type SummaryApplication = {
   applicationId: string
@@ -78,6 +78,10 @@ test('dashboard presents real summary values, separate coverage and contribution
 })
 
 test('summary filter preserves the period and applies the historical region filter to the API', async ({ page }) => {
+  let catalogRequests = 0
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/applications') catalogRequests += 1
+  })
   await mockCatalog(page, [
     application({ id: 'svc-1', location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, latitude: -23, longitude: -46 } }),
     application({ id: 'svc-2', location: { regionCode: 'US-VA', country: 'United States', region: 'Virginia', city: null, latitude: 38, longitude: -77 } }),
@@ -96,13 +100,66 @@ test('summary filter preserves the period and applies the historical region filt
   })
 
   await page.goto('/dashboard?period=30d')
+  await expect(page.getByLabel('Região histórica')).toBeEnabled()
+  const initialCatalogRequests = catalogRequests
+  await page.getByRole('button', { name: '90 dias', exact: true }).click()
   await page.getByLabel('Estado atual').selectOption('UNAVAILABLE')
   await page.getByLabel('Região histórica').selectOption('US-VA')
 
   await expect.poll(() => requests.at(-1)?.searchParams.get('states')).toBe('UNAVAILABLE')
   await expect.poll(() => requests.at(-1)?.searchParams.get('regionCodes')).toBe('US-VA')
   await expect.poll(() => requests.at(-1)?.searchParams.get('from')).toBeTruthy()
-  await expect(page).toHaveURL(/dashboard\?.*period=30d.*regionCode=US-VA.*dashboardState=UNAVAILABLE/)
+  await expect(page).toHaveURL(/dashboard\?.*period=90d.*regionCode=US-VA.*dashboardState=UNAVAILABLE/)
+  expect(catalogRequests).toBe(initialCatalogRequests)
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect.poll(() => catalogRequests).toBe(initialCatalogRequests + 1)
+})
+
+test('dashboard catalog polling remains independent from a slow summary and stops after navigation', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-14T12:00:00.000Z') })
+  let catalogRequests = 0
+  const pendingSummary = gate()
+  await mockApi(page, async (route) => {
+    catalogRequests += 1
+    await route.fulfill({ json: [application()] })
+  })
+  await mockSummary(page, async (url) => {
+    await pendingSummary.wait
+    return { json: summaryResponse(url, []) }
+  })
+  await page.goto('/dashboard')
+  await expect(page.getByLabel('Região histórica')).toBeEnabled()
+  const initialCatalogRequests = catalogRequests
+  await page.clock.fastForward(60_000)
+  await expect.poll(() => catalogRequests).toBe(initialCatalogRequests + 1)
+  await page.getByRole('navigation').getByRole('link', { name: /metodologia/i }).click()
+  pendingSummary.release()
+  const requestsAfterNavigation = catalogRequests
+  await page.clock.fastForward(120_000)
+  expect(catalogRequests).toBe(requestsAfterNavigation)
+})
+
+test('dashboard preserves catalog regions after a failed refresh and retries independently', async ({ page }) => {
+  let failing = false
+  await mockApi(page, async (route) => {
+    await route.fulfill(failing
+      ? { status: 503, json: { code: 'CATALOG_UNAVAILABLE' } }
+      : { json: [application()] })
+  })
+  await mockSummary(page, (url) => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+  await page.goto('/dashboard')
+  const region = page.getByLabel('Região histórica')
+  await expect(region).toBeEnabled()
+  await expect(region.locator('option[value="BR-SP"]')).toHaveCount(1)
+  failing = true
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect(region).toBeDisabled()
+  await expect(region.locator('option[value="BR-SP"]')).toHaveCount(1)
+  await expect(page.getByRole('region', { name: 'Indicadores ambientais' })).toContainText('85 gCO2e')
+  failing = false
+  await expect(page.getByRole('button', { name: 'Atualizar dados' })).toHaveAttribute('aria-disabled', 'false')
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect(region).toBeEnabled()
 })
 
 test('failed refresh preserves the previous summary and retry recovers without reload', async ({ page }) => {

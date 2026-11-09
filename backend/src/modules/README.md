@@ -1,5 +1,13 @@
 # modules
 
+## Persistência da descoberta de aplicações
+
+`DiscoveryService` transforma o snapshot validado pelo adapter em registros e coordena uma única transação para aplicações e eventos de descoberta. `ApplicationsRepository.insertManyIfAbsent` deduplica identidades preservando o primeiro registro, ordena IDs para manter a mesma ordem de bloqueio em snapshots concorrentes e usa `ON CONFLICT DO NOTHING RETURNING id`. Apenas os IDs realmente inseridos geram eventos em `ApplicationEventsRepository.appendManyInTransaction`; registros já conhecidos mantêm seus metadados e histórico.
+
+Os repositories dividem inserções em lotes internos de até 1.000 registros, abaixo do limite de parâmetros do PostgreSQL. Esse tamanho é técnico: não limita nem trunca o catálogo. Todos os lotes usam a transação do caso de uso; falha em qualquer evento reverte também as aplicações dos lotes anteriores. Não há consulta HTTP dentro da transação nem consulta prévia para verificar existência.
+
+Para 1.001 identidades distintas, a descoberta executa duas inserções de aplicações e duas de eventos; a repetição do mesmo catálogo executa duas inserções de aplicações e nenhuma de eventos. O fluxo anterior fazia 1.001 inserções de aplicações em ambos os casos, além de uma inserção por evento novo. Essas contagens consideram os comandos de dados, sem incluir abertura/fechamento da transação. O teste `applications/discovery-batch.database.spec.ts` verifica as contagens SQL em PostgreSQL real, concorrência com ordem invertida, duplicação, catálogo vazio e rollback de múltiplos lotes. Execute com `TEST_DATABASE_URL` apontando para um PostgreSQL isolado; a fixture cria e remove um banco próprio.
+
 ## Preferências pessoais de Metodologia
 
 `GET /me/preferences` e `PUT /me/preferences/:tab` reutilizam a autenticação para consultar/salvar uma aba de preferências do próprio usuário, com revisão concorrente e auditoria transacional. Ausência retorna `null`, sem limites padrão. Veja [contrato, migration e testes](preferences/README.md).

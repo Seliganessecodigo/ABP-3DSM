@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -5,6 +6,9 @@ import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationState } from '../../database/entities/application-state'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import type { ClassifiedStatus } from './application-status-classifier'
+
+// Keep each INSERT below PostgreSQL's parameter limit without limiting the catalog.
+const DISCOVERY_INSERT_BATCH_SIZE = 1_000
 
 @Injectable()
 export class ApplicationsRepository {
@@ -30,19 +34,36 @@ export class ApplicationsRepository {
       .getOne()
   }
 
-  async insertIfAbsent(
+  async insertManyIfAbsent(
     manager: EntityManager,
-    values: Partial<ApplicationEntity>,
-  ): Promise<boolean> {
-    const result = await manager
-      .createQueryBuilder()
-      .insert()
-      .into(ApplicationEntity)
-      .values(values as QueryDeepPartialEntity<ApplicationEntity>)
-      .orIgnore()
-      .returning('id')
-      .execute()
-    return result.raw.length > 0
+    values: readonly (Partial<ApplicationEntity> & Pick<ApplicationEntity, 'id'>)[],
+  ): Promise<string[]> {
+    const unique = new Map<string, Partial<ApplicationEntity>>()
+    for (const value of values) {
+      if (!unique.has(value.id)) unique.set(value.id, value)
+    }
+    // Consistent lock order also applies when concurrent snapshots arrive reversed.
+    const ordered = [...unique.entries()]
+      .sort(([left], [right]) => {
+        if (left < right) return -1
+        if (left > right) return 1
+        return 0
+      })
+      .map(([, value]) => value)
+    const insertedIds: string[] = []
+    for (let offset = 0; offset < ordered.length; offset += DISCOVERY_INSERT_BATCH_SIZE) {
+      // eslint-disable-next-line no-await-in-loop -- One transactional connection; preserve lock order and stop after a failed batch.
+      const result = await manager
+        .createQueryBuilder()
+        .insert()
+        .into(ApplicationEntity)
+        .values(ordered.slice(offset, offset + DISCOVERY_INSERT_BATCH_SIZE) as QueryDeepPartialEntity<ApplicationEntity>[])
+        .orIgnore()
+        .returning('id')
+        .execute()
+      insertedIds.push(...(result.raw as { id: string }[]).map(({ id }) => id))
+    }
+    return insertedIds
   }
 
   async findMissingForUpdate(

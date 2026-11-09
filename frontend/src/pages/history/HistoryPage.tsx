@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
-import { useCatalog } from '../catalog/useCatalog.ts'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 import { ApplicationDetailPage } from '../detail/ApplicationDetailPage.tsx'
 import styles from './HistoryPage.module.css'
 
@@ -14,7 +14,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const { t: tCommon } = useTranslation('common')
   const { t: tCatalog } = useTranslation('catalog')
   const { t: tDetail } = useTranslation('detail')
-  const { applications, hasSnapshot, loading, error, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, error, retry } = useApplicationCatalog()
   const [selectedId, setSelectedId] = useState(applicationIdFromLocation)
 
   useEffect(() => {

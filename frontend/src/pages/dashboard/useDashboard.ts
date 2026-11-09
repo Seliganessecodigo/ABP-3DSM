@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getApplications, type Application } from '../../features/applications/api.ts'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 import { getEnvironmentalSummary, type EnvironmentalSummary, type EnvironmentalSummaryFilters } from '../../features/analysis/environmentalSummary.ts'
 import { APPLICATION_POLL_INTERVAL_MS } from '../../features/applications/polling.ts'
 
@@ -11,7 +11,6 @@ type SummaryState = Readonly<{
   lastAttemptAt: string | null
 }>
 type SuccessfulSummary = Readonly<{ key: string; data: EnvironmentalSummary }>
-type ApplicationsState = Readonly<{ items: readonly Application[]; loading: boolean; error: boolean }>
 
 function currentAnchor(): string {
   return new Date().toISOString()
@@ -26,7 +25,7 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
   const [summary, setSummary] = useState<SummaryState>({
     key, status: filters === null ? 'invalid-period' : 'loading', data: null, lastAttemptAt: null,
   })
-  const [applications, setApplications] = useState<ApplicationsState>({ items: [], loading: true, error: false })
+  const catalog = useApplicationCatalog()
   const [attempt, setAttempt] = useState(0)
   const successful = useRef<SuccessfulSummary | null>(null)
   const current = summary.key === key ? summary : {
@@ -42,25 +41,15 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
     const lastAttemptAt = new Date().toISOString()
     const requestFilters: EnvironmentalSummaryFilters = { period, anchor, state, regionCode }
     setSummary({ key, status: previous ? 'refreshing' : 'loading', data: previous?.data ?? null, lastAttemptAt })
-    setApplications((state) => ({ ...state, loading: state.items.length === 0, error: false }))
 
-    const summaryRequest = getEnvironmentalSummary(requestFilters, controller.signal).then((data) => {
+    void getEnvironmentalSummary(requestFilters, controller.signal).then((data) => {
       if (!active || controller.signal.aborted) return
       successful.current = { key, data }
       setSummary({ key, status: data.status, data, lastAttemptAt })
     }).catch(() => {
       if (!active || controller.signal.aborted) return
       setSummary({ key, status: 'error', data: previous?.data ?? null, lastAttemptAt })
-    })
-    const applicationsRequest = getApplications(controller.signal).then((items) => {
-      if (active && !controller.signal.aborted) setApplications({ items, loading: false, error: false })
-    }).catch(() => {
-      if (active && !controller.signal.aborted) {
-        setApplications((state) => ({ ...state, loading: false, error: true }))
-      }
-    })
-
-    void Promise.all([summaryRequest, applicationsRequest]).finally(() => {
+    }).finally(() => {
       if (active && !controller.signal.aborted) {
         timer = setTimeout(() => {
           setAnchor(currentAnchor())
@@ -79,5 +68,10 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
     setAnchor(currentAnchor())
     setAttempt((value) => value + 1)
   }, [])
-  return { ...current, applications, refresh, retry: refresh }
+  const refreshAll = () => {
+    refresh()
+    catalog.refresh()
+  }
+  return { ...current, applications: { items: catalog.applications, loading: catalog.loading, error: catalog.error },
+    refresh, refreshAll }
 }
