@@ -1,39 +1,56 @@
 # Panduan penggunaan
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+Mulai dari ringkasan lingkungan, cari aplikasi yang perlu perhatian dan buka detailnya. Gunakan riwayat untuk menelusuri periode dan metodologi untuk memahami estimasi. Pertimbangkan cakupan sebelum membandingkan hasil.
 
-Katalog/detail menyimpan identitas, lokasi, metrik dan waktu. Pencarian nama/ID/wilayah, status dan halaman disimpan di URL. Polling 60 detik setelah tiap percobaan independen dari pengumpulan backend. Kegagalan setelah sukses mempertahankan data/waktu lama. `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS`, `REMOVED` bukan konsumsi; hilang/error/stale bukan nol. Kota boleh null. Insiden pulih setelah tiga observasi valid berturut-turut; kegagalan sumber tidak mengonfirmasi penghapusan.
+## Temukan aplikasi {#catalog}
 
+Di katalog, cari nama, pengenal atau wilayah dan filter status aplikasi. Jelajahi halaman tabel dan buka aplikasi. Jika tidak ada hasil, periksa filter. Alamat halaman mempertahankan pencarian dan halaman agar dapat dibagikan atau dilanjutkan.
 
+## Baca dashboard {#dashboard}
 
-## Dashboard
+Di dashboard pilih 24 jam, 7, 30 atau 90 hari, wilayah dan status. Periksa energi, emisi, cakupan dan jumlah per status. Grafik menunjukkan bagian emisi sebagai batang atau donat. Pencarian, filter dan urutan dampak mengubah baris tabel; total ringkasan mempertahankan lingkup terpilih.
 
-Di `/dashboard`, pilih 24 jam, 7, 30 atau 90 hari, status dan wilayah. Tersedia total, cakupan, jumlah per status serta komposisi emisi batang/donat. Tabel mendukung pencarian, filter kolom, urutan energi/CO₂e dan halaman; filter tabel tidak mengubah total ringkasan. Buka aplikasi untuk menelusuri bukti. `GET /analysis/summary` diperbarui berkala tanpa reload.
+## Selidiki detail {#detail}
 
+Buka detail untuk identitas, lokasi, status dan waktu pembaruan. Periksa metrik dan hasil lingkungan pada periode sama. Metodologi tercatat menunjukkan model, parameter dan faktor karbon yang digunakan tanpa mengubah hasil. Bila kota tidak tersedia, informasi lokasi lain tetap berguna.
 
+## Jelajahi riwayat {#history}
 
-## Panduan penggunaan
+Di riwayat pilih aplikasi, periode dan pengelompokan jam, hari, bulan atau tahun. Filter dan halaman membantu mencari interval; buka komposisinya untuk observasi yang disertakan dan pengecualian. Zona waktu hanya mengubah tampilan tanggal; kelompok tetap UTC. Overlay detail membandingkan aplikasi yang sama dengan periode sebelumnya berdurasi sama.
 
-Di `/history`, pilih aplikasi; `applicationId`, periode dan granularitas menyimpan konteks URL. Tersedia deret tersimpan, filter, zona waktu tampilan, peristiwa, halaman bernomor dan pemeriksaan bucket. Kontribusi juga memiliki paginasi interaktif 5, 10, 15, 20 atau semua. Bucket backend tetap UTC; zona tampilan tidak mengelompokkan ulang. Overlay detail membandingkan aplikasi yang sama dengan jendela sebelumnya berdurasi sama.
+## Bandingkan dengan pratinjau hitung ulang {#preview}
 
-Di `/administration/calculations`, pilih aplikasi/tanggal untuk membandingkan asli/pratinjau. Tanggal akhir mencakup seluruh hari UTC; API menerima `[from,to)`. Pratinjau publik menggunakan model saat ini dan faktor saat ini untuk wilayah historis, tanpa menyimpan. Batas: 30 hari, 10.000 observasi. Respons: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Kegagalan faktor mempertahankan energi yang dapat dihitung, CO₂e tidak tersedia. Persentase memerlukan satuan/cakupan sama dan acuan positif.
+Di pratinjau hitung ulang pilih aplikasi dan tanggal untuk membandingkan hasil asli dengan model saat ini dan faktor karbon saat ini dari wilayah yang diamati. Hari terakhir dihitung penuh dalam UTC. Maksimum 30 hari dan 10.000 observasi. Pratinjau tidak disimpan dan tidak mengubah riwayat. Selisih persentase muncul jika satuan/cakupan sama dan nilai asli positif.
 
+## Personalisasi analisis {#preferences}
 
+Di Metodologi jelajahi energi, emisi, cakupan dan analisis. Demonstrasi memakai data contoh yang ditandai di layar. Masuk untuk menyimpan ambang tampilan dan periode/pengelompokan awal. Setiap orang hanya mengubah preferensi sendiri; perhitungan dan pengaturan global tetap. Jika penyimpanan konflik, muat ulang preferensi sebelum mencoba lagi. Pilihan dalam alamat analisis mengungguli preferensi tersimpan.
 
-## Metodologi dan data
+## Masuk {#access}
 
-`/methodology` memiliki tab energi, emisi, cakupan dan analisis dengan contoh/preferensi pribadi. Setiap peran terautentikasi hanya menyimpan tab sendiri, dengan revisi optimistis; konflik 409. Ambang tampilan tidak mengubah pengaturan global, hitungan atau notifikasi eksternal. Periode/granularitas tersimpan hanya mengisi parameter detail URL yang kosong. Metodologi historis tetap di `/services/:id/methodology`, dengan `collectionId` terpilih.
+Katalog, dashboard dan kueri lingkungan dapat diakses tanpa masuk. Untuk menyimpan preferensi gunakan email/kata sandi atau Google yang diaktifkan dengan akun tertaut melalui undangan. Admin juga mengonfirmasi kode enam digit dari aplikasi autentikator. Memuat ulang halaman mengakhiri sesi antarmuka sehingga perlu masuk lagi. Izin administrasi mengikuti peran akun.
 
+## Bahasa dan tampilan {#appearance}
 
+Pilih salah satu dari 12 bahasa; pilihan tersimpan di browser ini. Mode gelap mengubah tampilan, mengikuti sistem sebelum pilihan eksplisit. Penyimpanan diblokir dapat menghilangkan preferensi saat reload. Bahasa mengubah format tanggal/angka tanpa mengubah waktu observasi.
 
-## Login
+## Pahami data {#data}
 
-Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata sandi atau Google yang diaktifkan. Admin harus menyiapkan/mengonfirmasi TOTP enam digit, termasuk setelah Google; Analyst/Visitor tidak mendapat izin administratif. Sesi frontend hanya di memori; reload memerlukan login ulang. Backend memeriksa JWT, sesi, peran dan status terkini; 401 untuk kredensial hilang/tidak valid, 403 untuk peran tidak cukup. Rute baru terlindungi secara default.
+Nol berarti observasi valid mendukung nilai itu. Celah berarti data yang dapat dipakai tidak tersedia, bukan konsumsi nol. Bila pembaruan gagal, pembacaan valid terakhir dapat dipertahankan bersama waktu aslinya. Periksa pembaruan dan cakupan sebelum memutuskan. Layar meminta data 60 detik setelah setiap percobaan; pengukuran baru tidak dijamin setiap pembaruan.
 
+| Status | Makna |
+| --- | --- |
+| Tersedia | Aplikasi mengembalikan metrik yang dapat dipakai. |
+| Tidak tersedia | Percobaan saat ini gagal; riwayat valid mungkin ada. |
+| Tidak ada metrik | Aplikasi dikenal tetapi percobaan tidak memiliki metrik yang dapat dipakai. |
+| Dihapus | Ketiadaan dikonfirmasi katalog sumber; identitas dan riwayat tetap ada. |
 
+Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi memiliki cakupan terpisah: energi dapat diestimasi tanpa faktor untuk menghitung emisi. Bandingkan periode, satuan dan cakupan yang kompatibel. Cakupan rendah berarti analisis parsial, bukan bukti konsumsi berkurang.
 
-## Locale / Theme
+## Diagnosis {#support}
 
-Bahasa di `greener:locale`, tema di `greener-theme`; mengikuti sistem sebelum pilihan eksplisit. Penyimpanan diblokir dapat mencegah persistensi. Format lokal tidak mengubah waktu observasi.
+Saat melaporkan masalah, sebutkan aplikasi, periode, filter, waktu dengan zona dan tindakan. Jelaskan hasil harapan dan aktual. Tangkapan layar membantu jika tanpa kredensial atau data pribadi.
 
-[Visi dan cakupan](../product/vision) · [Panduan penggunaan](../guide/monitoring) · [Metodologi dan data](../product/methodology) · [Kualitas dan penerimaan](../product/quality) · [Keputusan dan dependensi](../product/decisions) · [Referensi API](../reference/api) · [Operasi dan diagnosis](../operations) · [Memulai](../getting-started) · [Arsitektur](../architecture) · [Kontribusi](../contributing) · [Backlog produk](../roadmap)
+## Bacaan terkait {#related}
+
+[Metodologi dan data](../product/methodology) · [Referensi API](../reference/api)

@@ -1,15 +1,29 @@
 # Kualitas dan penerimaan
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+Produk harus memungkinkan menemukan aplikasi, membedakan nol dari ketiadaan dan melacak indikator ke periode, satuan, cakupan dan metode. Kueri mempertahankan konteks navigasi dan menjelaskan pemuatan, kosong, kegagalan dan data lama. Evaluasi mencakup keyboard, fokus terlihat, teks selain warna, seluler dan 12 bahasa.
 
-CI memeriksa build dokumentasi, lint/test/build frontend, lint/typecheck/test PostgreSQL/cakupan/build/migration backend dan alur browser terintegrasi nyata. `TEST_DATABASE_URL` harus PostgreSQL terisolasi; tanpa variabel, Jest melewati suite database dan browser integrasi gagal. SonarQube wajib untuk PR ke `develop`: cakupan baru ≥80%, duplikasi ≤3%, rating A, seluruh hotspot ditinjau. Otomatisasi tidak mengganti evaluasi kegunaan/penerimaan produk.
+## Kriteria penerimaan {#acceptance}
 
-Katalog/detail menyimpan identitas, lokasi, metrik dan waktu. Pencarian nama/ID/wilayah, status dan halaman disimpan di URL. Polling 60 detik setelah tiap percobaan independen dari pengumpulan backend. Kegagalan setelah sukses mempertahankan data/waktu lama. `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS`, `REMOVED` bukan konsumsi; hilang/error/stale bukan nol. Kota boleh null. Insiden pulih setelah tiga observasi valid berturut-turut; kegagalan sumber tidak mengonfirmasi penghapusan.
+| Aturan | Makna |
+| --- | --- |
+| Riwayat terjaga | Preferensi dan pratinjau tidak mengganti hasil asli. |
+| Ketiadaan eksplisit | Kegagalan, metrik hilang dan data lama dibedakan dari nol. |
+| Kueri publik | Membaca indikator tidak perlu masuk; menyimpan preferensi dan mengelola akun memerlukan izin. |
 
-Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
+## Pahami data {#integrity}
 
-Belum tersedia: perbandingan khusus dua aplikasi, simulasi wilayah, pengelolaan umum pengguna/peran, pemulihan kata sandi mandiri, konfigurasi global/jeda pemantauan dan CSV. Urutan berdasarkan dampak tersedia. Kuota eksternal, retensi, backup/pemulihan dan target operasi perlu keputusan; tidak ada SLA. Pemulihan TOTP oleh dukungan bukan reset kata sandi.
+Nol berarti observasi valid mendukung nilai itu. Celah berarti data yang dapat dipakai tidak tersedia, bukan konsumsi nol. Bila pembaruan gagal, pembacaan valid terakhir dapat dipertahankan bersama waktu aslinya. Periksa pembaruan dan cakupan sebelum memutuskan. Layar meminta data 60 detik setelah setiap percobaan; pengukuran baru tidak dijamin setiap pembaruan.
 
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi memiliki cakupan terpisah: energi dapat diestimasi tanpa faktor untuk menghitung emisi. Bandingkan periode, satuan dan cakupan yang kompatibel. Cakupan rendah berarti analisis parsial, bukan bukti konsumsi berkurang.
 
-[Visi dan cakupan](../product/vision) · [Panduan penggunaan](../guide/monitoring) · [Metodologi dan data](../product/methodology) · [Kualitas dan penerimaan](../product/quality) · [Keputusan dan dependensi](../product/decisions) · [Referensi API](../reference/api) · [Operasi dan diagnosis](../operations) · [Memulai](../getting-started) · [Arsitektur](../architecture) · [Kontribusi](../contributing) · [Backlog produk](../roadmap)
+## Kriteria validasi {#assessment}
+
+Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
+
+## Pemeriksaan {#engineering}
+
+[Kontribusi](../contributing)
+
+## Bacaan terkait {#related}
+
+[Keputusan dan dependensi](../product/decisions) · [Kontribusi](../contributing)

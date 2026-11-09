@@ -1,44 +1,29 @@
-# 横断要件と受け入れ
+# 品質と受け入れ
 
-[EP00](../backlog/ep00)は基盤と品質を整理します。RNFは継続要件、タスクは有限の成果物です。DB構築完了で整合性要件が終わるわけではありません。
+アプリを見つけ、ゼロと欠損を区別し、指標から期間、単位、カバー率、方法論まで追跡できることが必要です。参照では移動時の条件を保持し、読み込み、空、失敗、古いデータを伝えます。評価にはキーボード、可視フォーカス、色以外の文字情報、モバイル、12言語を含めます。
 
-## 品質の証拠
+## 受け入れ基準 {#acceptance}
 
-| 要件 | 証拠 |
+| ルール | 意味 |
 | --- | --- |
-| RNF-01 — 技術 | React/TypeScript、NestJS/TypeScriptのビルド。 |
-| RNF-02 — 責務 | UIは表示、バックエンドは判断、アダプターは検証、リポジトリーは永続化。 |
-| RNF-03 — 履歴 | ID、整合性、バージョン保持のマイグレーションとテスト。 |
-| RNF-04 — セキュリティ | 秘密情報をGit外に置き、バックエンドで認可。 |
-| RNF-05 — 再現性 | 環境文書、検証可能なCI、公開結果の証拠。 |
-| RNF-06 — 障害 | 成功、空、エラー、不在、staleを区別。 |
-| RNF-07 — 利用体験 | キーボード、フォーカス、コントラスト、色以外の文字・アイコン、レスポンシブ、12言語。 |
+| 履歴の保持 | 設定変更やプレビューで原本を置き換えません。 |
+| 欠損の明示 | 失敗、メトリクス不足、古いデータはゼロと区別します。 |
+| 公開参照 | 指標の参照は公開です。設定保存とアカウント管理には権限が必要です。 |
 
-アクセス権、保存期間、災害復旧、可用性・性能の数値目標は未決です。SLAやアクセシビリティ認証を宣言するものではありません。
+## データを読み取る {#integrity}
 
-## 実証シナリオ
+ゼロは有効な観測がその値を裏付けることを意味します。欠損は利用できるデータがないことで、消費ゼロではありません。更新に失敗すると直前の有効値を元の時刻とともに保持する場合があります。判断前に更新時刻とカバー率を確認してください。画面は各試行後60秒で再照会しますが、毎回新しい測定があるとは限りません。
 
-| 前提・操作 | 期待結果 | 参照 |
-| --- | --- | --- |
-| 完全で有効な一覧に既知アプリがない | 削除を記録し、履歴を保持。 | US-02 |
-| 元の障害や不正な応答 | 削除確認やゼロ生成をしない。 | US-02/05 |
-| 有効観測後に試行失敗 | 観測を保持し、鮮度を区別。 | US-03/04 |
-| 有効エネルギーがあり係数なし | CO₂eを捏造せず、エネルギーを破棄しない。 | US-07/08 |
-| 再計算プレビュー要求 | 元データを変更せず、プレビューを保存しない。 | US-12 |
-| 権限のない管理操作 | バックエンドが拒否。 | US-18/19/20 |
+カバー率は有効な観測で裏付けられる期間の割合です。エネルギーと排出量は別々に計算され、炭素係数がなくてもエネルギー推定が得られる場合があります。期間、単位、カバー率が対応した結果を比較してください。低いカバー率は部分的な分析を示し、消費減少の証明にはなりません。
 
-計画機能は実装とテストの後に提供済みとして扱います。
+## 検証基準 {#assessment}
 
-## 着手、完了、ゲート
+範囲や利用ルールを変える際は、問題、期待結果、受け入れ基準を対象ストーリーに記録します。レビューと使いやすさ評価では困難、意見、改善を記録します。保存期間、バックアップ・復元、運用目標、外部サービスの割当量は決定が必要です。
 
-着手前に成果物、利用先、基準、契約、依存を識別します。未決の係数や権限を技術的仮定にしません。設計には状態、遷移、検証可能な引き継ぎが必要です。
+## 検証 {#engineering}
 
-完了には基準実証、レビュー、関連障害テスト、契約・文書・証拠の更新が必要です。PR作成だけではIssueは完了しません。Planning、review、feedbackは#134です。
+[コントリビューション](../contributing)
 
-`develop`向けPRは該当チェックとSonarQube Cloudが必要です。新規コードのカバレッジ≥80%、重複≤3%、評価A、hotspotレビュー100%。実行可能なバックエンド変更はテストとLCOVが必要です。[CI規則](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md)、[貢献](../contributing)を参照。CIは機能受け入れやユーザビリティ評価の代わりにはなりません。
+## 関連ページ {#related}
 
-## CI — c343698
-
-CIは文書build、frontendのlint/test/build、backendのlint/typecheck/PostgreSQLテスト/カバレッジ/build/migration、実backend利用のブラウザー統合フローを検証。`TEST_DATABASE_URL`は隔離DBを指定し、未設定時JestのDBスイートはスキップ、ブラウザー統合は失敗。`develop`向けSonarQubeは新規網羅率80%以上、重複3%以下、評価A、hotspot全件レビューが必須。自動テストは使いやすさ評価や製品受け入れを代替しません。
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+[決定と依存事項](../product/decisions) · [コントリビューション](../contributing)

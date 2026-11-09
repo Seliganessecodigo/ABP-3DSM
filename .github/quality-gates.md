@@ -2,7 +2,7 @@
 
 ## Pull request checks
 
-- Documentation site production build, with dead-link validation.
+- Documentation site production build, with dead-link validation and cross-locale content/contract checks.
 - Frontend lint, Playwright tests, and production build.
 - Backend lint, typecheck, unit/integration tests, production build, and database migrations against a temporary PostgreSQL service. This job also runs the browser flow against the real backend with local HTTP sources and a separate database created by real migrations (`frontend/npm run test:integration`; see `backend/test/README.md`).
 - SonarQube Cloud Quality Gate on pull requests to `develop`, with backend LCOV coverage, and main-branch analysis on pushes to `main`.

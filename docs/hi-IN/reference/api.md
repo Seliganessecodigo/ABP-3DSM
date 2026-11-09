@@ -1,10 +1,10 @@
 # API संदर्भ
 
-आधार: `origin/develop`, कमिट `c343698`, 08-11-2026 को जाँचा गया। वातावरण में अलग संस्करण हो सकता है; merge से deployment सिद्ध नहीं होता।
+GreenER API एकीकरण संदर्भ। पूर्ण प्रकार, वैकल्पिक fields और सीमाएँ `/openapi.json`, Swagger `/docs` में हैं। कैटलॉग/इतिहास सहेजे डेटा पढ़ते हैं; पूर्वावलोकन और carbon मार्ग intensity स्रोत पूछ सकते हैं।
 
-Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
+## सार्वजनिक प्रश्न {#public}
 
-| HTTP | URI | JWT / credential |
+| HTTP | URI | प्रवेश |
 | --- | --- | --- |
 | GET | `/health` | — |
 | GET | `/applications` | — |
@@ -19,51 +19,83 @@ Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
-| POST | `/auth/login` | email + password |
-| GET | `/auth/sso/google` | PKCE |
-| GET | `/auth/sso/google/callback` | state + cookie |
-| POST | `/auth/sso/handoff/exchange` | code + PKCE |
-| POST | `/auth/totp/setup` | setupToken |
-| POST | `/auth/totp/setup/confirm` | setupToken + TOTP |
-| POST | `/auth/totp/challenge` | challengeToken + TOTP |
-| POST | `/auth/sessions/refresh` | refreshToken |
-| POST | `/auth/invitations/accept` | token |
-| POST | `/auth/email/confirm` | token + password |
-| POST | `/auth/email/confirmation/resend` | organization + email |
-| GET | `/auth/me` | JWT |
-| POST | `/auth/sessions/logout` | JWT |
-| POST | `/auth/totp/replacement` | JWT + password + TOTP |
-| POST | `/auth/totp/replacement/confirm` | JWT + confirmationToken + TOTP |
-| GET | `/me/preferences` | JWT |
-| PUT | `/me/preferences/{tab}` | JWT |
-| POST | `/auth/sso/invitations` | JWT + ADMIN |
-| DELETE | `/auth/sso/identities/{userId}` | JWT + ADMIN |
-| PATCH | `/auth/users/{userId}/status` | JWT + ADMIN |
 
-प्रश्नों में स्पष्ट समय क्षेत्र वाले RFC 3339 `from`, `to` चाहिए; `[from,to)` UTC में बदलता है। समूह `hour`, `day`, `month`, `year`, अधिकतम 10,000 बिंदु। सहेजे मान overlap अनुपात से बँटते हैं, पुनर्गणना नहीं; नया `collectedAt` जीतता है, बराबरी पर ID शब्दक्रम। अमान्य विजेता की जगह पुराना नहीं लेते। ऊर्जा/CO₂e कवरेज अलग है। `null` अनुपस्थित, शून्य वैध हो सकता है। स्रोत metrics में मापन समय नहीं: प्राप्ति समय से `collection_interval_seconds` घटाकर अवधि बनती है। कारक अनुरोध समय वैधता नहीं सिद्ध करता। ऊर्जा/कारक/उत्सर्जन 8 दशमलव, कवरेज 4 में सहेजते हैं।
+## अवधि और इतिहास {#queries}
 
-`/administration/calculations` में ऐप और तारीख चुनकर मूल/पूर्वावलोकन तुलना करें। अंतिम तारीख में पूरा UTC दिन शामिल है; API `[from,to)` लेती है। सार्वजनिक पूर्वावलोकन वर्तमान मॉडल और ऐतिहासिक क्षेत्रों के वर्तमान कारक लेता है, परिणाम सहेजता नहीं। सीमा 30 दिन और 10,000 प्रेक्षण। उत्तर: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`)। कारक विफलता में गणनीय ऊर्जा बचती है, CO₂e अनुपलब्ध रहता है। प्रतिशत हेतु समान इकाई/कवरेज और धनात्मक संदर्भ चाहिए।
+`from`, `to` में स्पष्ट समय क्षेत्र सहित RFC 3339 चाहिए; `[from,to)` UTC में बदलता है। `hour`, `day`, `month`, `year`, अधिकतम 10,000 बिंदु; अतिरिक्त अस्वीकृत। सहेजे मान overlap से बाँटे जाते हैं। नया `collectedAt`, फिर ID शब्दक्रम जीतता है; विजेता metric नहीं दे सके तो पुराने प्रेक्षण पर नहीं लौटते।
 
-`/methodology` में ऊर्जा, उत्सर्जन, कवरेज और विश्लेषण टैब में उदाहरण/व्यक्तिगत प्राथमिकताएँ हैं। प्रत्येक प्रमाणित भूमिका केवल अपने टैब सहेजती है, optimistic revision संघर्ष पर 409। प्रदर्शन सीमाएँ वैश्विक सेटिंग, गणना या बाहरी सूचना नहीं बदलतीं। सहेजी अवधि/समूह केवल विवरण URL में अनुपस्थित विकल्प भरते हैं। ऐतिहासिक पद्धति `/services/:id/methodology` और चुने `collectionId` से उपलब्ध है।
+| URI | मानदंड |
+| --- | --- |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+स्रोत metrics में मापन समय नहीं; प्राप्ति से `collection_interval_seconds` घटाकर अंतराल है। factor query समय वैधता सिद्ध नहीं करता; अप्रकाशित स्रोत/वैधता अज्ञात हैं। ऊर्जा/factor/उत्सर्जन 8 दशमलव, कवरेज4; मध्य rounding नहीं। अलग कवरेज और मूल snapshots सुरक्षित हैं।
+
+## लॉगिन करें {#login}
+
+डैशबोर्ड और पर्यावरण प्रश्न सार्वजनिक हैं। `/login` में ईमेल/पासवर्ड या सक्रिय Google लें। Admin को Google के बाद भी छह अंकों का TOTP सेट/सत्यापित करना है; Analyst/Visitor को प्रशासन अधिकार नहीं मिलता। फ्रंटएंड सत्र केवल मेमोरी में है; reload पर फिर लॉगिन। बैकएंड JWT, सत्र, वर्तमान भूमिका/खाता स्थिति जाँचता है। गायब/अमान्य पहचान पर 401, अपर्याप्त भूमिका पर 403। नए मार्ग मूलतः संरक्षित हैं।
+
+| HTTP | URI | प्रवेश |
+| --- | --- | --- |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## संरक्षित कार्य {#protected}
+
+| HTTP | URI | प्रवेश |
+| --- | --- | --- |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
 
 उसी संगठन का Admin `expectedStatus` और कारण देकर `ACTIVE`, `BLOCKED`, `DEACTIVATED` में बदलाव करता है। ब्लॉक/निष्क्रियता सभी सत्र रद्द करते हैं; पुनर्सक्रियता में नया लॉगिन चाहिए। अपना खाता और अंतिम सक्रिय Admin सुरक्षित हैं। अपेक्षित स्थिति संघर्ष पर 409; लक्ष्य पहले प्राप्त हो तो idempotent सफलता। साझा audit सफलता को बदलाव के transaction में, अस्वीकृति को rollback से बाहर लिखता है; स्पष्ट कर्ता, कोई रहस्य नहीं। यह मार्ग पूर्ण भूमिका प्रबंधन या पासवर्ड पुनर्प्राप्ति नहीं देता।
 
-`GET /analysis/summary`: `from`, `to`; `states`, `regionCodes`, `applicationIds`. `/monitoring/incidents`: `applicationId`, `source`, `integration`, `status`, `page`, `limit` → `{items,total,page,limit}`. `series/contributions`: `bucketStart`, `page`, `pageSize` (5/10/15/20/all).
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
-
-[दृष्टि और दायरा](../product/vision) · [उपयोग मार्गदर्शिका](../guide/monitoring) · [पद्धति और डेटा](../product/methodology) · [गुणवत्ता और स्वीकृति](../product/quality) · [निर्णय और निर्भरताएँ](../product/decisions) · [API संदर्भ](../reference/api) · [संचालन और निदान](../operations) · [शुरुआत करें](../getting-started) · [आर्किटेक्चर](../architecture) · [योगदान](../contributing) · [उत्पाद बैकलॉग](../roadmap)
-
-
 ```json
-{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example administrative action" }
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
 
-`PATCH /auth/users/{userId}/status`: `400`, `401`, `403`, `404`, `409`.
+## पुनर्गणना पूर्वावलोकन से तुलना {#preview}
 
-`POST /applications/{id}/analysis/recalculation-preview`: `400 RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED`, `400 RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED`, `503 APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE`.
+`/administration/calculations` में ऐप और तारीख चुनकर मूल/पूर्वावलोकन तुलना करें। अंतिम तारीख में पूरा UTC दिन शामिल है; API `[from,to)` लेती है। सार्वजनिक पूर्वावलोकन वर्तमान मॉडल और ऐतिहासिक क्षेत्रों के वर्तमान कारक लेता है, परिणाम सहेजता नहीं। सीमा 30 दिन और 10,000 प्रेक्षण। उत्तर: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`)। कारक विफलता में गणनीय ऊर्जा बचती है, CO₂e अनुपलब्ध रहता है। प्रतिशत हेतु समान इकाई/कवरेज और धनात्मक संदर्भ चाहिए।
 
-`GET /me/preferences`: `energy`, `emissions`, `coverage`, `analysis` → `null` / `{ value, revision, updatedAt }`. `PUT /me/preferences/{tab}`: `{ expectedRevision, value }`. `expectedRevision: 0` → create. `400 INVALID_PREFERENCE`, `409 PREFERENCE_CONFLICT`, `503 PREFERENCES_UNAVAILABLE`.
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## विश्लेषण व्यक्तिगत बनाएँ {#preferences}
+
+`/methodology` में ऊर्जा, उत्सर्जन, कवरेज और विश्लेषण टैब में उदाहरण/व्यक्तिगत प्राथमिकताएँ हैं। प्रत्येक प्रमाणित भूमिका केवल अपने टैब सहेजती है, optimistic revision संघर्ष पर 409। प्रदर्शन सीमाएँ वैश्विक सेटिंग, गणना या बाहरी सूचना नहीं बदलतीं। सहेजी अवधि/समूह केवल विवरण URL में अनुपस्थित विकल्प भरते हैं। ऐतिहासिक पद्धति `/services/:id/methodology` और चुने `collectionId` से उपलब्ध है।
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
 
 | tab | value |
 | --- | --- |
@@ -71,3 +103,24 @@ Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
 | emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
 | coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
 | analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+
+## त्रुटि प्रबंधन {#errors}
+
+HTTP स्थिति और structured codes से त्रुटि सँभालें; संदेश अनुवाद अनुबंध नहीं। `null` अनुपस्थिति है, शून्य नहीं। खाली सूची वैध है, query failure नहीं। कार्य संदर्भ में codes समझें।
+
+| HTTP | कोड |
+| --- | --- |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
+
+## HTTP अनुबंध {#contracts}
+
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
+
+## संबंधित पठन {#related}
+
+[संचालन और निदान](../operations) · [पद्धति और डेटा](../product/methodology)

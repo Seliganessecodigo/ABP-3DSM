@@ -1,35 +1,18 @@
 # Contribuir
 
-## Flujo de trabajo
+Esta parte está destinada a desarrollo y operación. Presenta entorno local, contratos y comprobaciones. Para aprender a utilizar el producto, consulte la guía de uso.
 
-1. Lee la issue y los criterios de aceptación antes de modificar el código.
-2. Crea una rama basada en `develop` y limita el cambio al alcance de la tarea.
-3. Abre una pull request hacia `develop`, con un título Conventional Commit y referencias a las issues relacionadas.
-4. Describe decisiones, limitaciones, comprobaciones ejecutadas y evidencia visual para cambios de interfaz.
+## Criterios de validación {#workflow}
 
-## Comprobaciones
+Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
 
-La CI ejecuta lint, pruebas y builds de frontend y backend, seguidos del quality gate de SonarQube Cloud. Corrige los nuevos hallazgos antes de completar la pull request. Indica las comprobaciones que no ejecutaste localmente; no declares resultados que no hayas observado.
+```text
+develop → tipo/numero-descricao / tipo/descricao → PR develop
+Conventional Commits: tipo(escopo): descrição
+Refs #N
+```
 
-## Cambios de interfaz
-
-Mantén cada pantalla junto con sus estilos, hooks y traducciones. El frontend admite `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` y `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Los nuevos textos visibles deben estar completos en los doce idiomas; el inglés es el idioma alternativo.
-
-## Cambios de integración o dominio
-
-Confirma los contratos y las decisiones en las issues y los documentos técnicos. No inventes endpoints, esquemas, unidades, factores ambientales ni políticas de reintento. Los cambios del esquema persistente requieren una migración; los cambios de contrato deben actualizar OpenAPI y la documentación.
-
-## Documentación del sitio
-
-El contenido publicado se mantiene en Markdown en `docs/`. Actualiza la página equivalente en los doce idiomas y valida el sitio con `npm run docs:build`.
-
-## Git
-
-Branches: `tipo/numero-descripcion` con issue o `tipo/descripcion` sin ella, minúsculas y kebab-case sin acentos. Commits/títulos PR: `tipo(ambito): descripción`, con descripción en portugués, verbo inicial y sin punto final. Incluir `Refs #N`, decisiones/límites y checks observados. Véase [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
-
-[Calidad y aceptación](./product/quality) · [Decisiones y dependencias](./product/decisions)
-
-## CI
+## Comprobaciones {#quality}
 
 CI valida documentación, lint/test/build frontend, lint/typecheck/tests PostgreSQL/cobertura/build/migrations backend y flujo integrado real en navegador. `TEST_DATABASE_URL` requiere PostgreSQL aislado; sin ella, Jest omite suites de banco y el navegador integrado falla. SonarQube obligatorio en PR a `develop`: cobertura nueva ≥ 80%, duplicación ≤ 3%, ratings A y hotspots 100% revisados. No sustituye evaluación de usabilidad ni aceptación.
 
@@ -46,6 +29,19 @@ npm run typecheck --prefix backend
 npm test --prefix backend -- --runInBand
 npm run test:cov --prefix backend -- --runInBand
 npm run build --prefix backend
-# Isolated PostgreSQL: TEST_DATABASE_URL
 npm run test:integration --prefix frontend
 ```
+
+## Documentación técnica {#documentation}
+
+El producto debe permitir localizar una aplicación, distinguir cero de ausencia y rastrear un indicador hasta período, unidad, cobertura y metodología. Las consultas conservan contexto y comunican carga, vacío, fallo y datos antiguos. La evaluación incluye teclado, foco visible, texto además de color, móviles y los 12 idiomas.
+
+```sh
+npm ci --prefix docs
+npm run docs:check
+npm run docs:build
+```
+
+## Lecturas relacionadas {#related}
+
+[Calidad y aceptación](./product/quality) · [Backlog del producto](./roadmap)

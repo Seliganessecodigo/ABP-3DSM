@@ -1,50 +1,43 @@
-# Vision et périmètre du produit
+# Vision et périmètre
 
-GreenER répond à trois questions : quelles applications sont suivies, quelles preuves étayent leur consommation et comment interpréter énergie et émissions estimées. Découverte, métriques, contexte régional et historique facilitent investigation et priorisation.
+GreenER aide à suivre les applications et à comprendre leur consommation d’énergie estimée et leurs émissions équivalentes de dioxyde de carbone (CO₂e). Indicateurs, localisation et historique permettent d’étudier l’impact environnemental des services numériques.
 
-## Publics
+## Publics concernés {#readers}
 
 | Public | Besoin |
 | --- | --- |
-| Gestion d’infrastructure | Identifier les applications et les changements de l’environnement. |
-| Analyse opérationnelle et environnementale | Étudier des périodes, comparer des résultats compatibles et comprendre les lacunes. |
-| Développement et évaluation | Reproduire l’environnement et démontrer les critères d’acceptation. |
+| Gestion d’infrastructure | Identifier les applications et suivre les changements de l’environnement. |
+| Analyse environnementale et opérationnelle | Étudier consommation, émissions et qualité des données d’une période. |
+| Développement et évaluation | Vérifier le comportement du produit et reproduire ses résultats. |
 
-Tableau de bord et consultations environnementales publics. `/login` accepte e-mail/mot de passe ou Google activé. Admin configure/confirme un TOTP à six chiffres, même après Google ; Analyst et Visitor n’obtiennent pas les droits administratifs. Session frontend en mémoire : rechargement exige une reconnexion. Backend vérifie JWT, session, rôle et état actuels : 401 pour identifiants absents/invalides, 403 pour rôle insuffisant. Nouvelles routes protégées par défaut.
+## Fonctions disponibles {#features}
 
-## Périmètre et disponibilité
-
-Référence : `origin/develop`, commit `c343698`, vérifié le 08/11/2026. Un environnement peut exécuter une autre révision ; fusionner ne prouve pas le déploiement.
-
-| Capacité | Situation |
+| Fonction | Référence |
 | --- | --- |
-| Catalogue, recherche, filtres, pagination, navigation et douze langues | Implémentés dans l’interface. |
-| Découverte, cycle de vie, collecte périodique, incidents et persistance | Implémentés dans le backend. |
-| État opérationnel, métriques sources, preuves et méthode de collecte | Disponibles dans l’API et le détail ; une page explique le modèle, la formule, les paramètres et le facteur enregistrés sans recalcul. Erreurs, absences et données anciennes restent distinctes. |
-| Analyse environnementale, séries temporelles et inspection des contributions par application | Disponibles dans l’API et intégrées au détail de l’application. |
-| `/dashboard` · `GET /analysis/summary` | Dans `/dashboard`, choisir 24 heures, 7, 30 ou 90 jours, état et région. Consulter totaux, couverture, états et composition des émissions en barres ou anneau. Recherche, filtres de colonnes, tri énergie/CO₂e et pagination concernent la table ; ils ne redéfinissent pas les totaux. Ouvrir une application pour examiner les preuves. `GET /analysis/summary` est actualisé périodiquement sans rechargement. |
-| Thème clair/sombre | Disponible comme préférence de l’interface. |
+| Catalogue et recherche | [Trouver une application](../guide/monitoring#catalog) |
+| Surveillance automatique | [Interpréter les données](../guide/monitoring#data) |
+| Tableau de bord environnemental | [Lire le tableau de bord](../guide/monitoring#dashboard) |
+| Détail de l’application | [Examiner le détail](../guide/monitoring#detail) |
+| Historique et composition | [Explorer l’historique](../guide/monitoring#history) |
+| Aperçu de recalcul | [Comparer avec un aperçu de recalcul](../guide/monitoring#preview) |
+| Préférences personnelles | [Personnaliser l’analyse](../guide/monitoring#preferences) |
+| Connexion et second facteur | [Se connecter](../guide/monitoring#access) |
+| Tri par impact | [Lire le tableau de bord](../guide/monitoring#dashboard) |
 
-## Parcours et valeur
+## Parcours d’analyse {#journey}
 
-1. Trouver une application, ouvrir son détail et vérifier identité, localisation et état.
-2. Étudier un changement en distinguant dernière tentative, dernière observation valide et absence.
-3. Dans le détail, choisir période et granularité, interpréter série/couverture et examiner les contributions d’un bucket sans transformer les lacunes en zéro.
+Commencez par le résumé environnemental, repérez une application à examiner et ouvrez son détail. Utilisez l’historique pour étudier la période et la méthodologie pour comprendre les estimations. Tenez toujours compte de la couverture avant de comparer.
 
-Le [guide](../guide/monitoring) décrit l’existant ; les [épopées](../roadmap), le comportement attendu.
+## Limites d’utilisation {#limits}
 
-## Limites et évaluation
+L’énergie est estimée par un modèle simplifié utilisant CPU, mémoire, disque et réseau durant l’intervalle. La puissance estimée devient énergie selon la durée. Les émissions sont l’énergie multipliée par l’intensité carbone régionale. Les coefficients appartiennent au modèle académique ; ce ne sont ni des mesures électriques directes ni des facteurs régionaux officiels. Les résultats conservent méthode et facteur d’origine.
 
-Les estimations ne sont ni des mesures électriques directes ni une preuve d’économies causées par une action. L’efficacité par transaction exige des données de travail produit. La série du détail compare une application à la fenêtre immédiatement précédente de même durée ; cela ne fournit ni comparaison entre applications ni comparaison de périodes dans un tableau de bord. La carte est facultative.
+La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
 
-En review, vérifier la recherche d’applications, la distinction zéro/absence et la traçabilité vers période, unité et preuves. Enregistrer difficultés, retours et changements dans [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) et [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Les objectifs de durée, satisfaction et performance nécessitent une référence et une approbation.
+## Évolutions prévues {#planned}
 
-## Guide d’utilisation
+Sont prévus : comparaison dédiée entre applications, simulation dans une autre région, gestion complète utilisateurs/rôles, récupération autonome du mot de passe, contrôles globaux de surveillance. Le périmètre de l’export CSV reste à définir. Le tableau de bord trie déjà par énergie ou émissions. Les priorités sont dans le backlog ; aucune date n’est fixée ici.
 
-Dans `/history`, choisir une application. `applicationId`, période et granularité restent dans l’URL. Série persistée, filtres, fuseau d’affichage, événements, pages numérotées et inspection des buckets sont disponibles. Les contributions ont une pagination interactive de 5, 10, 15, 20 ou tous les éléments. Les buckets restent UTC ; changer l’affichage ne les regroupe pas. Le détail superpose la fenêtre précédente équivalente de la même application.
+## Lectures associées {#related}
 
-Dans `/administration/calculations`, comparer original et aperçu par application et dates. Le dernier jour inclut la journée UTC entière ; l’API reçoit `[from,to)`. Aperçu public avec modèle actuel et facteurs actuels des régions historiques, sans sauvegarde. Limites : 30 jours et 10 000 observations. Réponse : `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Un facteur indisponible conserve l’énergie calculable. Les pourcentages exigent unités/couvertures égales et référence positive.
-
-`/methodology` propose énergie, émissions, couverture et analyse, avec exemples et préférences personnelles. Tout rôle connecté sauvegarde ses propres onglets avec révision optimiste ; 409 signale un conflit. Les seuils d’affichage ne modifient ni calcul, ni configuration globale, ni notifications externes. Période/granularité complètent uniquement les paramètres URL absents. Méthodologie historique : `/services/:id/methodology` avec `collectionId` sélectionné.
-
-Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
+[Guide d’utilisation](../guide/monitoring) · [Méthodologie et données](../product/methodology) · [Backlog du produit](../roadmap)

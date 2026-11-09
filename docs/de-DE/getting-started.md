@@ -1,69 +1,47 @@
 # Erste Schritte
 
-## Voraussetzungen
+Dieser Teil richtet sich an Entwicklung und Betrieb und beschreibt lokale Umgebung, Verträge und Prüfungen. Zur Produktnutzung lesen Sie das Benutzerhandbuch.
 
-- Docker Desktop mit Docker Compose v2 unter dem Befehl `docker compose`.
-- Node.js 24 oder neuer und npm zum Ausführen der Root-Skripte.
+## Konfiguration {#requirements}
 
-## Umgebung starten
+Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
 
-Repository klonen und in das Projektverzeichnis wechseln:
+## Wo beginnen {#start}
 
 ```sh
 git clone https://github.com/Seliganessecodigo/ABP-3DSM.git
 cd ABP-3DSM
 ```
 
-Lokale Konfiguration aus der Beispieldatei erstellen:
-
 ```powershell
 Copy-Item .env.example .env
 ```
-
-Unter macOS oder Linux:
 
 ```sh
 cp .env.example .env
 ```
 
-Frontend, API und PostgreSQL starten:
-
 ```sh
 npm run dev
 ```
 
-Compose installiert die Abhängigkeiten in den Containern. Ausstehende Migrationen werden vor dem API-Start ausgeführt. Die API versucht beim Start, Anwendungen zu entdecken. Ist der Aggregator nicht erreichbar, protokolliert sie den Fehler und startet trotzdem.
-
-## Lokale Adressen
-
-| Dienst | Adresse |
+| Funktion | URI |
 | --- | --- |
 | Frontend | `http://localhost:5173` |
 | API | `http://localhost:3000` |
-| OpenAPI | `http://localhost:3000/docs` |
-| API-Healthcheck | `http://localhost:3000/health` |
-| PostgreSQL | localhost:5432 |
+| Swagger | `http://localhost:3000/docs` |
+| Health | `http://localhost:3000/health` |
+| PostgreSQL | `localhost:5432` |
 
-## Nützliche Befehle
+## Konfiguration {#commands}
 
-| Befehl | Aktion |
-| --- | --- |
-| `npm run dev:detached` | Dienste im Hintergrund starten |
-| `npm run dev:logs` | Dienstprotokolle verfolgen |
-| `npm run dev:down` | Container stoppen und Datenvolume behalten |
-| `docker compose up --build` | Images neu erstellen |
+```sh
+npm run dev:detached
+npm run dev:logs
+npm run dev:down
+docker compose exec api npm run applications:discover
+```
 
-Um die Erkennung ohne API-Neustart erneut auszuführen: `docker compose exec api npm run applications:discover`.
+## Weiterführende Seiten {#related}
 
-## Häufige Probleme
-
-- Wird Docker nicht gefunden, Docker Desktop starten und `docker compose version` prüfen.
-- Ist ein Port belegt, `FRONTEND_PORT`, `API_PORT` oder `POSTGRES_PORT` in `.env` ändern.
-- Wird die API nicht gesund, `npm run dev:logs` prüfen. Die API benötigt PostgreSQL und führt beim Start Migrationen aus.
-- Werte in `.env.example` sind nur für die lokale Entwicklung bestimmt. Echte Zugangsdaten und die Datei `.env` nicht einchecken.
-
-## Erste Schritte — login
-
-Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
-
-[Betrieb und Diagnose](./operations) · [Benutzerhandbuch](./guide/monitoring)
+[Benutzerhandbuch](./guide/monitoring) · [Betrieb und Diagnose](./operations)

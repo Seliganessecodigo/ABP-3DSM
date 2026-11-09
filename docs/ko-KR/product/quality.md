@@ -1,15 +1,29 @@
 # 품질과 인수 기준
 
-기준: `origin/develop`, 커밋 `c343698`, 2026-11-08 확인. 환경마다 버전이 다를 수 있으며 병합이 배포를 증명하지 않습니다.
+제품은 앱을 찾고 0과 누락을 구분하며 지표의 기간·단위·커버리지·방법론을 추적할 수 있어야 합니다. 조회는 탐색 맥락을 유지하고 로딩·빈 결과·오류·이전 데이터를 알려야 합니다. 평가에는 키보드, 보이는 포커스, 색상 외 텍스트, 모바일과 12개 언어를 포함합니다.
 
-CI는 문서 빌드, 프런트엔드 lint/테스트/빌드, 백엔드 lint/typecheck/PostgreSQL 테스트/커버리지/빌드/마이그레이션과 실제 브라우저 통합 흐름을 검사합니다. `TEST_DATABASE_URL`은 격리 PostgreSQL이어야 합니다. 미설정 시 Jest DB 테스트는 생략되고 브라우저 통합은 실패합니다. `develop` PR의 SonarQube는 신규 커버리지 ≥80%, 중복 ≤3%, 등급 A, hotspot 전체 검토를 요구합니다. 자동 검증은 사용성 평가/제품 인수를 대체하지 않습니다.
+## 인수 기준 {#acceptance}
 
-카탈로그/상세는 식별, 위치, 지표, 시간을 보존합니다. 이름/ID/지역 검색, 상태, 페이지는 URL에 유지합니다. 각 시도 종료 후 60초 폴링은 백엔드 수집과 독립입니다. 성공 후 실패하면 이전 데이터와 시간을 보존합니다. `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS`, `REMOVED`는 사용량이 아니며 누락/오류/stale은 0이 아닙니다. 도시는 null일 수 있습니다. 연속 3회 유효 관측으로 복구하며 출처 오류로 제거를 확정하지 않습니다.
+| 규칙 | 의미 |
+| --- | --- |
+| 이력 보존 | 설정 변경과 미리보기는 원본을 대체하지 않습니다. |
+| 명확한 누락 | 실패·지표 누락·이전 데이터는 0과 구분합니다. |
+| 공개 조회 | 지표 읽기는 공개이며 설정 저장과 계정 관리는 권한이 필요합니다. |
 
-같은 조직 Admin은 `expectedStatus`와 사유를 보내 계정을 `ACTIVE`, `BLOCKED`, `DEACTIVATED`로 변경합니다. 차단/비활성화는 모든 세션을 폐기하고 재활성화는 새 로그인을 요구합니다. 본인과 마지막 활성 Admin을 보호합니다. 기대 상태 충돌은 409, 이미 달성한 상태는 멱등 성공입니다. 공유 감사는 성공을 변경과 같은 트랜잭션에, 거부를 롤백 밖에 기록하며 행위자를 명시하고 비밀을 제외합니다. 전체 역할 관리/비밀번호 복구는 이 경로의 범위가 아닙니다.
+## 데이터 해석 {#integrity}
 
-미제공: 두 앱 전용 비교, 지역 시뮬레이션, 일반 사용자/역할 관리, 셀프 비밀번호 복구, 전역 모니터링 설정/일시정지, CSV. 영향도 정렬은 제공됩니다. 외부 할당량, 보존, 백업/복원과 운영 목표는 결정이 필요하며 SLA는 선언하지 않습니다. 지원팀 TOTP 복구는 비밀번호 초기화가 아닙니다.
+0은 유효 관측이 그 값을 뒷받침한다는 뜻입니다. 공백은 사용 가능한 데이터가 없다는 뜻이며 소비 0이 아닙니다. 업데이트 실패 시 마지막 유효값과 원래 시간을 유지할 수 있습니다. 의사결정 전 갱신 시각과 커버리지를 확인하세요. 각 시도 후 60초에 화면이 다시 조회하지만 매번 새 측정을 보장하지는 않습니다.
 
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+커버리지는 기간 중 유효 관측이 뒷받침하는 비율입니다. 에너지와 배출량은 별도로 계산하므로 배출 계산용 탄소 계수가 없어도 에너지 추정은 있을 수 있습니다. 호환되는 기간·단위·커버리지를 비교하세요. 낮은 커버리지는 부분 분석이며 소비 감소의 증거가 아닙니다.
 
-[비전과 범위](../product/vision) · [사용 안내](../guide/monitoring) · [방법론과 데이터](../product/methodology) · [품질과 인수 기준](../product/quality) · [결정과 의존성](../product/decisions) · [API 참조](../reference/api) · [운영과 진단](../operations) · [시작하기](../getting-started) · [아키텍처](../architecture) · [기여 안내](../contributing) · [제품 백로그](../roadmap)
+## 검증 기준 {#assessment}
+
+범위·규칙 변경은 관련 스토리에 문제, 기대 결과, 인수 기준을 기록합니다. 제품 리뷰와 사용성 평가는 어려움·피드백·개선을 남깁니다. 보존 정책, 백업·복구, 운영 목표와 외부 할당량은 결정이 필요합니다.
+
+## 검증 {#engineering}
+
+[기여 안내](../contributing)
+
+## 관련 문서 {#related}
+
+[결정과 의존성](../product/decisions) · [기여 안내](../contributing)

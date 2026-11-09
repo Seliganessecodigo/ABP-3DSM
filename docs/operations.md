@@ -1,52 +1,29 @@
 # Operação e diagnóstico
 
-Este guia descreve os mecanismos existentes, não um SLA de produção. Para instalar, use [Primeiros passos](./getting-started); para o contrato, use [Referência da API](./reference/api).
+Esta parte da documentação se destina a desenvolvimento e operação. Apresenta ambiente local, contratos e verificações. Para aprender a usar o produto, consulte o guia de uso.
 
-## Configuração por fronteira
+## Configuração {#environment}
 
-| Configuração | Onde atua |
-| --- | --- |
-| FRONTEND_PORT / API_PORT / POSTGRES_PORT | Portas publicadas pelo Compose. |
-| DATABASE_URL | Backend no host/nuvem; no Compose a URL interna usa o serviço `postgres`. |
-| METRICS_AGGREGATOR_URL / CARBON_INTENSITY_URL | Fontes consultadas exclusivamente pelo backend. |
-| CORS_ORIGIN | Origem autorizada do frontend; deve corresponder ao endereço utilizado. |
-| VITE_API_URL | URL da API incorporada ao build do frontend ou fornecida pelo ambiente de desenvolvimento. |
-| MONITORING_SCHEDULE_INTERVAL_SECONDS | Intervalo do scheduler do backend; padrão 60 segundos. |
-| MONITORING_METRICS_CONCURRENCY | Concorrência por processo; padrão inicial 2, não cota publicada pela origem. |
+```text
+FRONTEND_PORT=5173
+API_PORT=3000
+POSTGRES_PORT=5432
+DATABASE_URL
+METRICS_AGGREGATOR_URL
+CARBON_INTENSITY_URL
+CORS_ORIGIN
+VITE_API_URL
+MONITORING_SCHEDULE_INTERVAL_SECONDS=60
+MONITORING_METRICS_CONCURRENCY=2
+```
 
-Os dois parâmetros de monitoramento devem ser inteiros positivos. O Compose atual não encaminha automaticamente essas duas chaves do `.env` ao container; para sobrescrevê-las ali, é necessário mapeamento explícito de ambiente. O exemplo contém apenas credenciais locais, nunca credenciais de ambiente compartilhado.
+## Monitoramento automático {#monitoring}
 
-## Verificar o ambiente local
+O monitoramento inicia após o primeiro intervalo e impede ciclos sobrepostos por processo. Intervalo e concorrência devem ser inteiros positivos. O Compose não encaminha automaticamente `MONITORING_SCHEDULE_INTERVAL_SECONDS` e `MONITORING_METRICS_CONCURRENCY` do `.env` para a API; sobrescritas exigem mapeamento explícito. `/health` verifica resposta HTTP, mas não comprova descoberta ou cálculo. Confirme catálogo, evidências e logs. Falha de fonte não confirma remoção; incidentes recuperam após três observações válidas consecutivas.
 
-~~~sh
-docker compose ps
-docker compose logs --tail=100 api
-docker compose exec api npm run applications:discover
-~~~
+A primeira ausência em um snapshot completo e válido confirma remoção. Cada chamada externa tem prazo total de 30 segundos e no máximo três tentativas HTTP, contando a inicial; somente falhas temporárias são repetidas.
 
-A descoberta manual é repetível e não deve duplicar identidades. O scheduler começa após o primeiro intervalo; a proteção contra ciclos sobrepostos é por processo, não distribuída entre réplicas. Atualização da UI e coleta são relógios independentes.
-
-`/health` responder não comprova catálogo preenchido, origem acessível ou indicador ambiental calculável. Verifique também `/applications`, evidências disponíveis e logs do ciclo.
-
-## Diagnóstico orientado por sintoma
-
-| Sintoma | Verificação |
-| --- | --- |
-| Containers não iniciam | Docker ativo, portas livres, variáveis e logs de migrations. |
-| UI abre, mas catálogo falha | URL da API no build, CORS, resposta da API e acesso ao banco. |
-| Catálogo responde vazio | Resultado da descoberta inicial e acesso ao agregador; vazio não é erro HTTP. |
-| Dados antigos permanecem | Hora da observação, falha da tentativa atual e resumo do ciclo. |
-| Pipeline falha, mas API responde | Identificar se falhou qualidade, pacote, deploy ou smoke test; uma etapa pode ter publicado antes de outra falhar. |
-
-## Publicação e recuperação
-
-O workflow de staging parte de `develop` e depende da CI. API e frontend possuem jobs distintos: a API é empacotada para Azure App Service, o frontend para Static Web Apps; o smoke test verifica endpoints após publicar a API. Registrar run, SHA, etapa e diagnóstico antes de repetir.
-
-O site usa build VitePress e workflow de Pages com `DOCS_BASE=/ABP-3DSM/`. Um build local válido não prova que a publicação terminou.
-
-Não há restauração automática de banco demonstrada por esses workflows. Antes de rollback ou migration destrutiva, verificar compatibilidade e backup recuperável. Retenção e ensaio de restauração seguem como [dependências explícitas](./product/decisions). `npm run dev:down` preserva o volume; apagar volumes remove o banco local.
-
-## Operação e diagnóstico — JWT / Google / SMTP
+## Entrar na sua conta {#authentication}
 
 Node.js 24+, npm e Docker Compose v2 são necessários. Copie `.env.example` para `.env` e execute `npm run dev`. O Compose aplica migrations e tenta descoberta antes da API; falha da origem não impede a API de iniciar. Configure SMTP para enviar convites e confirmações. O primeiro Admin é provisionado pelo script `organizations:create-invitation` em `backend/`, com `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL`. Não há conta administrativa universal de produção.
 
@@ -63,11 +40,35 @@ SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
 SMTP_USER / SMTP_PASSWORD
 ```
 
-O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
-
-A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
-
-
 Cadastre no Google Cloud a callback exatamente igual a `GOOGLE_CALLBACK_URL`. Habilitar o botão com `VITE_GOOGLE_SSO_ENABLED=true` não configura o backend nem provisiona contas: o vínculo precisa de convite. `GOOGLE_CLIENT_SECRET`, JWT, pepper e chaves TOTP são segredos exclusivos do backend; use valores independentes fora do desenvolvimento e preserve versões antigas necessárias à leitura. Confirmação de e-mail e convite dependem de SMTP. Para recuperar TOTP, o suporte usa `authentication:recover-admin-totp` após validação independente da organização; essa operação revoga sessões e é auditada.
+
+```text
+ORGANIZATION_NAME
+ORGANIZATION_SLUG
+ORGANIZATION_REPRESENTATIVE_EMAIL
+ADMIN_EMAIL
+NEW_RECOVERY_REPRESENTATIVE_EMAIL
+SUPPORT_OPERATOR_ID
+SUPPORT_RECOVERY_REASON
+```
+
+```sh
+npm run organizations:create-invitation --prefix backend
+npm run authentication:recover-admin-totp --prefix backend
+```
+
+## Diagnóstico {#diagnosis}
+
+```sh
+docker compose ps
+docker compose logs --tail=100 api
+docker compose exec api npm run applications:discover
+```
+
+## Publicação e recuperação {#release}
+
+Staging é publicado a partir de `develop`, após a CI: API no Azure App Service e frontend no Static Web Apps, com verificação de endpoints após a API. A documentação é publicada no GitHub Pages com `DOCS_BASE=/ABP-3DSM/`. Antes de repetir uma publicação, identifique a etapa que falhou. Não há restauração automática de banco nesse fluxo. `npm run dev:down` preserva o volume; a remoção do volume apaga dados locais.
+
+## Leitura relacionada {#related}
+
+[Primeiros passos](./getting-started) · [Referência da API](./reference/api)

@@ -1,65 +1,56 @@
-# Katalog nutzen und Anwendungen untersuchen
+# Benutzerhandbuch
 
-Dieses Handbuch beschreibt Katalog, Betriebsdetail und die in der Oberfläche verfügbare Umweltanalyse je Anwendung.
+Beginnen Sie mit der Umweltübersicht, wählen Sie eine auffällige Anwendung und öffnen Sie ihre Details. Untersuchen Sie den Zeitraum im Verlauf und die Schätzung in der Methodik. Berücksichtigen Sie vor jedem Vergleich die Abdeckung.
 
-## Anwendung finden
+## Eine Anwendung finden {#catalog}
 
-1. Frontend öffnen; lokal nach [Erste Schritte](../getting-started) vorgehen.
-2. Nach Name, ID, Regionscode oder Region suchen und Zustandsfilter kombinieren.
-3. Seiten wechseln. Filter entfernen, bevor fehlende Treffer als leerer Katalog gelten.
-4. ID und Ort im Detail prüfen. Eine fehlende Stadt ist zulässig; unvollständige Altstandorte bleiben unbekannt.
+Suchen Sie im Katalog nach Name, Kennung oder Region und filtern Sie nach Status. Blättern Sie in der Tabelle und öffnen Sie eine Anwendung. Prüfen Sie die Filter, wenn keine Treffer erscheinen. Die Seitenadresse erhält Suche und Seitenauswahl zum Teilen oder Fortsetzen.
 
-`q`, `state` und `page` stehen in der URL. Den Link zur Wiederherstellung des Kontexts speichern. Die Filter werden derzeit im Frontend auf die API-Liste angewandt.
+## Dashboard lesen {#dashboard}
 
-## Aktualisierung
+Wählen Sie im Dashboard 24 Stunden, 7, 30 oder 90 Tage, Region und Status. Prüfen Sie Energie, Emissionen, Abdeckung und Anzahl nach Status. Das Diagramm zeigt Emissionsanteile als Balken oder Ring. Tabellenfilter, Suche und Impact-Sortierung ändern die sichtbaren Zeilen; die Gesamtsummen behalten den ausgewählten Umfang.
 
-Katalog und Detail rufen beim Öffnen ab und planen den nächsten Abruf 60 Sekunden nach Abschluss jedes Versuchs. UI-Polling, Backend-Erfassung und Aggregatorintervall sind unabhängig; ein Bildschirmabruf garantiert keine neue Beobachtung.
+## Details untersuchen {#detail}
 
-Die UI zeigt Versuchs- und gültige Antwortzeiten. Bei Fehler nach Erfolg bleiben frühere Daten erhalten, ohne als neue Beobachtung zu gelten. Manuelle Katalogaktualisierung erlaubt erneuten Versuch ohne Seitenreload. Verlassen bricht laufende Anfragen ab.
+Öffnen Sie Details für Identität, Standort, Status und Aktualisierungszeiten. Prüfen Sie Metriken und Umweltergebnisse im selben Zeitraum. Die aufgezeichnete Methodik zeigt Modell, Parameter und CO₂-Faktor der Berechnung, ohne das Ergebnis zu ändern. Fehlt die Stadt, bleiben andere Ortsangaben nutzbar.
 
-## Umweltergebnisse untersuchen
+## Verlauf erkunden {#history}
 
-Im Anwendungsdetail wählen Sie ein rollierendes Fenster von 24 Stunden, 7, 30 oder 90 Tagen sowie eine stündliche, tägliche, monatliche oder jährliche Granularität. Die Zeitreihe zeigt Energie und CO₂e aus gespeicherten Ergebnissen. Die Überlagerung vergleicht das gewählte Fenster mit dem unmittelbar vorherigen Fenster gleicher Dauer. Das ist ein Zeitvergleich für eine Anwendung, keine Rangliste und kein Vergleich zwischen Anwendungen.
+Wählen Sie im Verlauf Anwendung, Zeitraum und stündliche, tägliche, monatliche oder jährliche Gruppierung. Filter und Seiten helfen beim Finden von Intervallen; deren Zusammensetzung zeigt einbezogene Beobachtungen und Ausschlüsse. Die Zeitzone ändert die Datumsanzeige, die Gruppierung bleibt UTC. Die Detailüberlagerung vergleicht dieselbe Anwendung mit dem gleich langen Vorzeitraum.
 
-Mit Filtern und Sortierung der Tabelle finden Sie Buckets. Prüfen Sie einen Bucket auf enthaltene Beiträge und Ausschlüsse samt Gründen. Die Tabelle ist paginiert; die Oberfläche lädt derzeit nur die erste Beitragsseite. Lücken und Ausschlüsse bedeuten nicht null. Ohne berechenbare Belege bleibt das Ergebnis nicht verfügbar.
+## Mit einer Neuberechnungsvorschau vergleichen {#preview}
 
-## Situationen verstehen
+Wählen Sie in der Neuberechnungsvorschau Anwendung und Datum, um das Original mit aktuellem Modell und aktuellen CO₂-Faktoren der beobachteten Regionen zu vergleichen. Der letzte Tag wird vollständig in UTC einbezogen. Höchstens 30 Tage und 10.000 Beobachtungen sind erlaubt. Die Vorschau wird nicht gespeichert und ändert keinen Verlauf. Prozentdifferenzen erfordern gleiche Einheiten und Abdeckung sowie einen positiven Originalwert.
 
-Für die Nachverfolgung eines Indikators öffnen Sie im Anwendungsdetail **Vollständige Methodik ansehen**. Alternativ wählen Sie in der Navigation **Methodik** und danach eine Anwendung. Die Seite zeigt das gespeicherte Modell, die Formel, Parameter und Annahmen sowie verfügbare Angaben zum Kohlenstofffaktor. Der Link im Detail verwendet die ausgewählte Erfassung; die Navigation verwendet die letzte gültige Erfassung. Die Seite erklärt gespeicherte Belege und berechnet das Ergebnis nicht neu.
+## Analyse anpassen {#preferences}
 
-| Situation | Bedeutung / Aktion |
+Methodik bietet Energie, Emissionen, Abdeckung und Analyse. Beispiele sind auf dem Bildschirm gekennzeichnet. Melden Sie sich an, um Anzeigegrenzen sowie anfänglichen Zeitraum und Gruppierung zu speichern. Jede Person ändert nur eigene Einstellungen; Berechnungen und globale Konfiguration bleiben erhalten. Bei Speicherkonflikten laden Sie die Einstellung vor dem nächsten Versuch neu. Bereits in der Analyseadresse gewählte Optionen haben Vorrang.
+
+## Anmelden {#access}
+
+Katalog, Dashboard und Umweltabfragen sind öffentlich. Zum Speichern persönlicher Einstellungen nutzen Sie E-Mail/Passwort oder aktiviertes Google mit per Einladung verknüpftem Konto. Administratoren bestätigen zusätzlich einen sechsstelligen Code der Authenticator-App. Neuladen beendet die Sitzung der Oberfläche und verlangt erneute Anmeldung. Verwaltungsrechte hängen von der Kontorolle ab.
+
+## Sprache und Darstellung {#appearance}
+
+Wählen Sie im Menü zwischen 12 Sprachen; die Auswahl bleibt in diesem Browser. Der Dunkelmodus ändert die Darstellung; vor einer ausdrücklichen Auswahl folgt sie dem System. Gesperrter Browserspeicher kann Einstellungen beim Neuladen verlieren. Die Sprache formatiert Zahlen und Daten, ohne Beobachtungszeitpunkte zu ändern.
+
+## Daten verstehen {#data}
+
+Nullverbrauch bedeutet, dass eine gültige Beobachtung diesen Wert belegt. Eine Lücke bedeutet fehlende nutzbare Daten, keinen Nullverbrauch. Nach Aktualisierungsfehlern kann die letzte gültige Messung mit ursprünglichem Zeitpunkt erhalten bleiben. Prüfen Sie Aktualität und Abdeckung vor Entscheidungen. Die Anzeige fragt 60 Sekunden nach jedem Versuch erneut ab; eine neue Messung ist damit nicht garantiert.
+
+| Status | Bedeutung |
 | --- | --- |
-| Leerer Katalog | API liefert keine Anwendungen; Ersterkennung prüfen. |
-| Keine Filtertreffer | Filter anpassen; andere Anwendungen können existieren. |
-| Anfangsfehler | Keine gültigen Daten; erneut versuchen und Betrieb prüfen. |
-| Fehler nach Erfolg | Frühere Anzeige erhalten, Zeit beachten. |
-| Anwendung nicht gefunden | ID/Link prüfen; anders als bekannte entfernte Anwendung. |
-| Entfernte Anwendung | Identität und Historie bleiben; gültiger Snapshot bestätigte Abwesenheit. |
+| Verfügbar | Die Anwendung hat nutzbare Metriken geliefert. |
+| Nicht verfügbar | Der aktuelle Versuch schlug fehl; gültiger Verlauf kann vorhanden sein. |
+| Keine Metriken | Die Anwendung ist bekannt, im Versuch fehlen nutzbare Metriken. |
+| Entfernt | Das Fehlen wurde im Quellkatalog bestätigt; Identität und Verlauf bleiben erhalten. |
 
-## Zustand, Sprache und Support
+Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` und `REMOVED` sind Betriebszustände. Aktualität, Grund und Berechenbarkeit sind eigenständig. Verfügbar kann ohne Kohlenstofffaktor sein; nicht verfügbar kann gültige Historie haben. Das Detail zeigt Betriebszustand, Metriken, Umweltergebnisse, Zeitreihe und Beiträge je Zeitraum. Siehe [API-Referenz](../reference/api) und [Methodik](../product/methodology), um fehlende Daten, Fehler und Nullwerte zu unterscheiden.
+## Diagnose {#support}
 
-Der Sprachwähler bietet zwölf Sprachen und speichert die Auswahl in diesem Browser. Sprache verändert weder Identität noch Beobachtungszeitpunkte.
+Nennen Sie bei Problemen Anwendung, Zeitraum, Filter, Uhrzeit mit Zeitzone und Aktion. Beschreiben Sie erwartetes und beobachtetes Ergebnis. Screenshots helfen, sofern sie keine Zugangsdaten oder privaten Daten enthalten.
 
-Fehlerbericht: Umgebung, ID, Filter, Uhrzeit mit Zeitzone, Aktion, Soll-/Ist-Ergebnis. Screenshots ohne Geheimnisse/private Daten; siehe [Betrieb](../operations).
+## Weiterführende Seiten {#related}
 
-## Designpräferenz
-
-Verwenden Sie in den Navigationseinstellungen den Schalter **Dunkelmodus**: ausgeschaltet für hell, eingeschaltet für dunkel. Beim ersten Besuch folgt GreenER dem Systemdesign und dessen Änderungen, bis Sie den Schalter betätigen. Danach hat Ihre ausdrückliche Auswahl Vorrang; diese Oberfläche bietet keine Aktion zur Rückkehr zum Systemdesign.
-
-Die Auswahl gilt für Katalog, Details und das globale Layout, ohne Filter oder Daten zu ändern. Sie wird in diesem Browser unter `greener-theme` für den nächsten Besuch gespeichert. Bei blockiertem Speicher gilt sie während der Sitzung, kann aber beim Neuladen verloren gehen.
-
-## Dashboard
-
-Unter `/dashboard` 24 Stunden, 7, 30 oder 90 Tage, Status und Region wählen. Summen, Abdeckung, Statusanzahl und Emissionsanteile als Balken/Ring anzeigen. Tabelle mit Suche, Spaltenfiltern, Energie-/CO₂e-Sortierung und Seiten; Tabellenfilter ändern die Summen nicht. Anwendung zur Untersuchung öffnen. `GET /analysis/summary` wird regelmäßig ohne Neuladen abgefragt.
-
-## Benutzerhandbuch
-
-Unter `/history` Anwendung wählen; `applicationId`, Zeitraum und Granularität bleiben in der URL. Gespeicherte Zeitreihe mit Filtern, Anzeigezeitzone, Ereignissen, nummerierten Seiten und Bucket-Inspektion. Beiträge haben interaktive Seiten mit 5, 10, 15, 20 oder allen Einträgen. Buckets bleiben UTC; Anzeigezeitzone gruppiert nicht neu. Die Detailüberlagerung vergleicht dieselbe Anwendung mit dem gleich langen Vorzeitraum.
-
-Unter `/administration/calculations` Anwendung/Datum wählen und Original/Vorschau vergleichen. Enddatum umfasst den ganzen UTC-Tag; API verwendet `[from,to)`. Öffentliche Vorschau mit aktuellem Modell und aktuellen Faktoren historischer Regionen, ohne Speicherung. Grenzen: 30 Tage, 10.000 Beobachtungen. Antwort: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Faktorfehler erhält berechenbare Energie; CO₂e bleibt nicht verfügbar. Prozente verlangen gleiche Einheiten/Abdeckung und positiven Referenzwert.
-
-`/methodology` bietet Energie, Emissionen, Abdeckung und Analyse mit Beispielen/persönlichen Einstellungen. Jede angemeldete Rolle speichert nur eigene Register mit optimistischer Revision; 409 bei Konflikt. Anzeigegrenzen ändern weder globale Parameter noch Berechnungen oder externe Benachrichtigungen. Gespeicherter Zeitraum/Granularität ergänzen nur fehlende URL-Werte. Historische Methodik: `/services/:id/methodology`, gegebenenfalls mit `collectionId`.
-
-Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.
+[Methodik und Daten](../product/methodology) · [API-Referenz](../reference/api)

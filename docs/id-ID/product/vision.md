@@ -1,21 +1,43 @@
 # Visi dan cakupan
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+GreenER membantu memantau aplikasi dan memahami estimasi konsumsi energi serta emisi setara karbon dioksida (CO₂e). Indikator, lokasi dan riwayat mendukung analisis dampak lingkungan layanan digital.
 
-GreenER memantau aplikasi dan memperkirakan energi serta CO₂e. Katalog, dashboard, detail, riwayat, pratinjau hitung ulang, metodologi dan login tersedia. Antarmuka dan dokumentasi mendukung 12 bahasa: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Fallback frontend adalah bahasa Inggris.
+## Untuk siapa {#readers}
 
-Di `/dashboard`, pilih 24 jam, 7, 30 atau 90 hari, status dan wilayah. Tersedia total, cakupan, jumlah per status serta komposisi emisi batang/donat. Tabel mendukung pencarian, filter kolom, urutan energi/CO₂e dan halaman; filter tabel tidak mengubah total ringkasan. Buka aplikasi untuk menelusuri bukti. `GET /analysis/summary` diperbarui berkala tanpa reload.
+| Pengguna | Kebutuhan |
+| --- | --- |
+| Pengelolaan infrastruktur | Mengenali aplikasi dan mengikuti perubahan lingkungan. |
+| Analisis lingkungan dan operasi | Menyelidiki konsumsi, emisi dan kualitas data suatu periode. |
+| Pengembangan dan evaluasi | Memeriksa perilaku produk dan mereproduksi hasil. |
 
-Di `/history`, pilih aplikasi; `applicationId`, periode dan granularitas menyimpan konteks URL. Tersedia deret tersimpan, filter, zona waktu tampilan, peristiwa, halaman bernomor dan pemeriksaan bucket. Kontribusi juga memiliki paginasi interaktif 5, 10, 15, 20 atau semua. Bucket backend tetap UTC; zona tampilan tidak mengelompokkan ulang. Overlay detail membandingkan aplikasi yang sama dengan jendela sebelumnya berdurasi sama.
+## Fitur tersedia {#features}
 
-Di `/administration/calculations`, pilih aplikasi/tanggal untuk membandingkan asli/pratinjau. Tanggal akhir mencakup seluruh hari UTC; API menerima `[from,to)`. Pratinjau publik menggunakan model saat ini dan faktor saat ini untuk wilayah historis, tanpa menyimpan. Batas: 30 hari, 10.000 observasi. Respons: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Kegagalan faktor mempertahankan energi yang dapat dihitung, CO₂e tidak tersedia. Persentase memerlukan satuan/cakupan sama dan acuan positif.
+| Fitur | Referensi |
+| --- | --- |
+| Katalog dan pencarian | [Temukan aplikasi](../guide/monitoring#catalog) |
+| Pemantauan otomatis | [Pahami data](../guide/monitoring#data) |
+| Dashboard lingkungan | [Baca dashboard](../guide/monitoring#dashboard) |
+| Detail aplikasi | [Selidiki detail](../guide/monitoring#detail) |
+| Riwayat dan komposisi | [Jelajahi riwayat](../guide/monitoring#history) |
+| Pratinjau hitung ulang | [Bandingkan dengan pratinjau hitung ulang](../guide/monitoring#preview) |
+| Preferensi pribadi | [Personalisasi analisis](../guide/monitoring#preferences) |
+| Masuk dan faktor kedua | [Masuk](../guide/monitoring#access) |
+| Urutan berdasarkan dampak | [Baca dashboard](../guide/monitoring#dashboard) |
 
-Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata sandi atau Google yang diaktifkan. Admin harus menyiapkan/mengonfirmasi TOTP enam digit, termasuk setelah Google; Analyst/Visitor tidak mendapat izin administratif. Sesi frontend hanya di memori; reload memerlukan login ulang. Backend memeriksa JWT, sesi, peran dan status terkini; 401 untuk kredensial hilang/tidak valid, 403 untuk peran tidak cukup. Rute baru terlindungi secara default.
+## Alur analisis {#journey}
 
-`/methodology` memiliki tab energi, emisi, cakupan dan analisis dengan contoh/preferensi pribadi. Setiap peran terautentikasi hanya menyimpan tab sendiri, dengan revisi optimistis; konflik 409. Ambang tampilan tidak mengubah pengaturan global, hitungan atau notifikasi eksternal. Periode/granularitas tersimpan hanya mengisi parameter detail URL yang kosong. Metodologi historis tetap di `/services/:id/methodology`, dengan `collectionId` terpilih.
+Mulai dari ringkasan lingkungan, cari aplikasi yang perlu perhatian dan buka detailnya. Gunakan riwayat untuk menelusuri periode dan metodologi untuk memahami estimasi. Pertimbangkan cakupan sebelum membandingkan hasil.
 
-Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
+## Batas penggunaan {#limits}
 
-Belum tersedia: perbandingan khusus dua aplikasi, simulasi wilayah, pengelolaan umum pengguna/peran, pemulihan kata sandi mandiri, konfigurasi global/jeda pemantauan dan CSV. Urutan berdasarkan dampak tersedia. Kuota eksternal, retensi, backup/pemulihan dan target operasi perlu keputusan; tidak ada SLA. Pemulihan TOTP oleh dukungan bukan reset kata sandi.
+Model sederhana mengestimasi energi dari CPU, memori, disk dan jaringan selama interval observasi. Daya estimasi menjadi energi sesuai durasi. Emisi adalah energi dikalikan intensitas karbon wilayah. Koefisien milik model akademik, bukan pengukuran listrik langsung atau faktor wilayah resmi. Hasil mempertahankan metodologi dan faktor asalnya.
 
-[Visi dan cakupan](../product/vision) · [Panduan penggunaan](../guide/monitoring) · [Metodologi dan data](../product/methodology) · [Kualitas dan penerimaan](../product/quality) · [Keputusan dan dependensi](../product/decisions) · [Referensi API](../reference/api) · [Operasi dan diagnosis](../operations) · [Memulai](../getting-started) · [Arsitektur](../architecture) · [Kontribusi](../contributing) · [Backlog produk](../roadmap)
+Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi memiliki cakupan terpisah: energi dapat diestimasi tanpa faktor untuk menghitung emisi. Bandingkan periode, satuan dan cakupan yang kompatibel. Cakupan rendah berarti analisis parsial, bukan bukti konsumsi berkurang.
+
+## Pengembangan terencana {#planned}
+
+Direncanakan perbandingan khusus antaraplikasi, simulasi wilayah lain, pengelolaan lengkap pengguna/peran, pemulihan kata sandi mandiri, kontrol monitoring global. Cakupan ekspor CSV perlu diputuskan. Pengurutan energi atau emisi sudah tersedia. Prioritas ada di backlog; dokumentasi ini tidak menetapkan tanggal pengiriman.
+
+## Bacaan terkait {#related}
+
+[Panduan penggunaan](../guide/monitoring) · [Metodologi dan data](../product/methodology) · [Backlog produk](../roadmap)

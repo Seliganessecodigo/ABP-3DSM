@@ -1,55 +1,49 @@
-# Metodología y significado de los datos
+# Metodología y datos
 
-La evidencia conserva su significado: ausencia, error y datos obsoletos no equivalen a cero. La energía se estima con el modelo simplificado de parámetros versionados; no es una medición eléctrica real y sus parámetros no son un factor regional oficial. La relación de conversión a CO₂e está implementada en #49/#53.
+La energía se estima con un modelo simplificado de CPU, memoria, disco y red durante el intervalo observado. La potencia se convierte en energía según la duración. Las emisiones multiplican energía por intensidad de carbono regional. Los coeficientes pertenecen al modelo académico, no son mediciones eléctricas ni factores regionales oficiales. Los resultados conservan su metodología y factor originales.
 
-## Vocabulario y unidades
+## Interpretar los datos {#vocabulary}
 
 | Concepto | Significado |
 | --- | --- |
-| Aplicación | Identidad estable; nombre y ubicación pueden cambiar. |
-| Observación/recopilación | Métricas persistidas asociadas a aplicación e intervalo. |
-| Ciclo | Ejecución de descubrimiento, reconciliación y recopilación; no una medición individual. |
-| Energía | Cantidad acumulada en kWh; no equivale a potencia. |
-| Intensidad de carbono | Factor regional de la fuente en gCO₂e/kWh. |
-| CO₂e | Emisiones equivalentes con unidad y factor identificados. |
-| Cobertura | Parte del período solicitada respaldada por evidencia válida, calculada por separado para energía y CO₂e. |
-| Stale | Observación anterior válida conservada; no éxito del intento actual. |
+| Aplicación | Servicio con identidad estable en el catálogo. |
+| Observación | Conjunto de métricas asociado a un intervalo. |
+| Energía | Cantidad estimada del período, en kWh. |
+| Intensidad de carbono | Factor regional, en gCO₂e/kWh. |
+| Emisiones | Cantidad equivalente de CO₂ con unidad indicada. |
+| Cobertura | Parte del período sustentada por evidencia válida. |
 
-El agregador documenta CPU en %, memoria, disco y red en GB. No son kWh: la conversión exige modelo, coeficientes y supuestos documentados.
+## Modelo de estimación {#model}
 
-## Tiempo y procedencia
-
-La fuente no publica timestamp de medición. GreenER registra recepción y deriva `[receivedAt - collection_interval_seconds, receivedAt]`; no demuestra instantes exactos de medición de origen.
-
-Último intento, última observación válida y actualización del registro son distintos. La consulta de un factor tampoco demuestra vigencia oficial. El snapshot conserva valor, identidad interna, contrato y hora de consulta; bibliografía y vigencia no publicadas siguen desconocidas.
-
-## Reglas temporales ambientales
-
-Las consultas usan timestamps ISO con zona explícita normalizados a UTC e intervalo [from,to). Los buckets UTC por hora/día/mes/año cuentan solo la superposición, incluso en los extremos parciales. Los presets 24h/7d/30d/90d son ventanas móviles exactas con una referencia común para KPI y serie. Límite: 10.000 puntos; el exceso se rechaza sin truncar ni cambiar granularidad. La serie prorratea resultados guardados sin recalcular observaciones; en solapamientos elige collectedAt más reciente y luego el ID lexicográficamente menor, sin alternativa si no sustenta la métrica. Sin redondeo adicional; coberturas y snapshots originales se conservan separados.
-
-## Energía y emisiones
-
-La relación dimensional implementada es:
-
-    CO₂e [g] = energía [kWh] × intensidad [gCO₂e/kWh]
-
-Ejemplo didáctico: 2 kWh × 100 gCO₂e/kWh = 200 gCO₂e = 0,2 kgCO₂e. No son factores aprobados ni lecturas del producto. La relación no define cómo convertir CPU/memoria/disco/red en energía.
-
-Sin factor, la energía válida permanece válida, pero CO₂e puede no ser calculable. Cero requiere evidencia válida.
-
-## Historial y escenarios
-
-| Resultado | Regla |
+| Parámetro | Valor |
 | --- | --- |
-| Original | Conserva observaciones, configuración, metodología y factor usados. |
-| Simulación regional | Mantiene energía y evalúa otro factor, separada de resultados oficiales. |
+| CPU (100%) | 100 W |
+| Memoria | 0.375 W/GB |
+| Disco | 0.01 W/GB |
+| Red | 0.02 W/GB |
 
-Totales, ranking y comparación requieren períodos y coberturas compatibles. Los huecos no se convierten en cero y los porcentajes requieren denominador válido. La semántica temporal aprobada se describe arriba. En persistencia, energía, emisiones en gramos y factor usan ocho decimales; la cobertura, como fracción entre cero y uno, usa cuatro. No se redondean valores intermedios y los snapshots JSON conservan su representación original.
+```text
+P [W] = P_CPU + P_RAM + P_disk + P_network
+E [kWh] = P [W] × Δt [h] / 1000
+CO₂e [g] = E [kWh] × I [gCO₂e/kWh]
+```
 
-## Metodología y datos — simplified-energy v1
+## Entender la cobertura {#coverage}
 
-Modelo `simplified-energy`, versión `1`: CPU al 100% = 100 W; memoria 0,375 W/GB; disco 0,01 W/GB; red 0,02 W/GB. Parámetros simplificados, sin alegar medición eléctrica ni factores regionales oficiales. Potencia = suma de componentes; energía = W × horas / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Snapshots conservan método y factor originales; la vista previa consulta factores actuales sin reescribirlos.
+La cobertura es la proporción del período con observaciones válidas. Energía y emisiones tienen coberturas separadas: puede haber energía estimada sin factor de carbono para calcular emisiones. Compare períodos, unidades y coberturas compatibles. Una cobertura baja indica análisis parcial, no reducción demostrada del consumo.
 
-En `/administration/calculations`, compare original y vista previa por aplicación y fechas. El día final incluye todo el día UTC; la API recibe `[from,to)`. La operación pública aplica modelo actual y factores actuales a regiones históricas, sin guardar resultados. Límites: 30 días y 10.000 observaciones. Devuelve `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fallo del factor conserva energía y deja CO₂e indisponible. Porcentajes requieren unidades/coberturas iguales y referencia positiva.
+Cero significa que existe una observación válida con ese valor. Una laguna indica que faltan datos utilizables, no consumo cero. Tras un fallo de actualización puede conservarse la última lectura válida con su hora original. Compruebe actualización y cobertura antes de decidir. Las pantallas consultan datos 60 segundos después de cada intento; eso no garantiza una medición nueva en cada actualización.
 
-`/methodology` ofrece pestañas de energía, emisiones, cobertura y análisis con ejemplos y preferencias personales. Cualquier rol autenticado guarda solo sus propias pestañas, con revisión optimista y 409 ante conflicto. Los límites visuales no cambian cálculos, configuración global ni notificaciones externas. Período/granularidad guardados completan solo parámetros ausentes en URL. Evidencia histórica: `/services/:id/methodology`, con `collectionId` seleccionado.
+## Períodos e historial {#history}
+
+| Regla | Significado |
+| --- | --- |
+| Historial preservado | Cambiar preferencias o generar una vista previa no reemplaza originales. |
+| Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
+| Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
+
+En la vista previa de recálculo, elija aplicación y fechas para comparar el original con una estimación del modelo actual y los factores actuales de las regiones observadas. El último día se incluye completo, en UTC. Se admiten hasta 30 días y 10.000 observaciones. La vista previa no se guarda ni cambia el historial. Las diferencias porcentuales aparecen si coinciden unidad y cobertura y el original es positivo.
+
+## Lecturas relacionadas {#related}
+
+[Guía de uso](../guide/monitoring) · [Referencia de la API](../reference/api)
