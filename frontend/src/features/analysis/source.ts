@@ -376,6 +376,7 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
     assertRecord(summary.calculation, 'calculation')
     const valid = (value: unknown): value is number | null => value === null || typeof value === 'number' && Number.isFinite(value) && value >= 0
     if (!valid(summary.calculation.energyKwh) || !valid(summary.calculation.intensity)) throw new Error('Invalid equivalent factor')
+    if (summary.calculation.intensity !== null && (summary.calculation.energyKwh === null || summary.calculation.energyKwh <= 0)) throw new Error('Equivalent factor requires matching energy')
     calculation = { energyKwh: summary.calculation.energyKwh, intensity: summary.calculation.intensity }
   }
   const data: AnalysisViewModel = {

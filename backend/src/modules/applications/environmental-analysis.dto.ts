@@ -104,10 +104,10 @@ export class EnvironmentalAnalysisProvenanceDto {
 }
 
 export class EnvironmentalAnalysisCalculationDto {
-  @ApiProperty({ type: Number, nullable: true, description: 'Energia em kWh dos mesmos segmentos com emissoes validas.' })
+  @ApiProperty({ type: Number, nullable: true, description: 'Energia em kWh dos mesmos segmentos com emissões válidas.' })
   energyKwh!: number | null
 
-  @ApiProperty({ type: Number, nullable: true, description: 'Fator equivalente em gCO2e/kWh: emissoes persistidas divididas pela energia correspondente. Nulo para denominador zero ou ausente.' })
+  @ApiProperty({ type: Number, nullable: true, description: 'Fator equivalente em gCO2e/kWh: emissões persistidas divididas pela energia correspondente. Nulo para denominador zero ou ausente.' })
   intensity!: number | null
 }
 

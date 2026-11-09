@@ -50,7 +50,7 @@ export class EnvironmentalAnalysisSummaryController {
     required: false,
     enum: ['hour', 'day', 'month', 'year'],
     description:
-      'Inclui serie UTC no mesmo escopo; limite de 10000 intervalos.',
+      'Inclui série UTC no mesmo escopo; limite de 10.000 intervalos.',
   })
   @ApiOkResponse({ type: EnvironmentalAnalysisSummaryDto })
   @ApiBadRequestResponse({ description: 'Período ou filtros inválidos' })

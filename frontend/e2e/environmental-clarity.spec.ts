@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 import { application, mockCatalog } from './support/catalog.ts'
 
-for (const width of [1440, 390]) {
+for (const { width, height } of [{ width: 1440, height: 900 }, { width: 1280, height: 650 }, { width: 390, height: 900 }]) {
 for (const partial of [false, true]) {
   test(`shows the numeric equivalent factor with ${partial ? 'partial' : 'full'} emissions coverage at ${width}px`, async ({ page }, testInfo) => {
-    await page.setViewportSize({ width, height: 900 })
+    await page.setViewportSize({ width, height })
     await page.clock.install({ time: new Date('2026-10-08T12:00:00.000Z') })
     await mockCatalog(page, [application()])
     await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?\?/, async (route) => {
@@ -36,6 +36,9 @@ for (const partial of [false, true]) {
     await expect(card).toContainText('115 gCO2e/kWh')
     await expect(page.locator('#analysis-details')).not.toHaveAttribute('open', '')
     expect(await card.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true)
+    expect(await card.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true)
+    const coverage = page.getByRole('group', { name: 'Cobertura', exact: true })
+    expect(await coverage.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`factor-${partial ? 'partial' : 'full'}.png`) })
   })
 }
