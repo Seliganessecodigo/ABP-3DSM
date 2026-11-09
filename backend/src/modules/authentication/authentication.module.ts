@@ -29,6 +29,8 @@ import { AccountLifecycleService } from './account-lifecycle.service'
 import { AccountsController } from './accounts.controller'
 import { AccountsService } from './accounts.service'
 import { AccountsRepository } from './accounts.repository'
+import { PasswordRecoveryService } from './password-recovery.service'
+import { PasswordRecoveryOutboxEntity } from '../../database/entities/password-recovery-outbox.entity'
 
 @Module({
   imports: [
@@ -42,12 +44,14 @@ import { AccountsRepository } from './accounts.repository'
       SsoHandoffEntity,
       SsoInvitationEntity,
       SsoTransactionEntity,
+      PasswordRecoveryOutboxEntity,
     ]),
   ],
   controllers: [AuthenticationController, AccountsController],
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
+    PasswordRecoveryService,
     AccountLifecycleService,
     AccountsService,
     AccountsRepository,

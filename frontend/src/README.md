@@ -40,3 +40,5 @@ O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/history`,
 `app/analysisNavigation.ts` mantém o período ao abrir dashboard/histórico pela sidebar e leva a aplicação do detalhe para o histórico. Somente os parâmetros suportados pelo destino são propagados: filtros locais da tabela não se tornam filtros da análise. O fluxo completo contra backend e PostgreSQL reais é executado por `npm run test:integration`; preparação e isolamento estão em `backend/test/README.md`.
 
 A integridade dos catálogos de idioma é verificada em `tests/unit/locales.spec.ts`, incluindo todas as páginas registradas, interpolações e caracteres corrompidos. `e2e/translations.spec.ts` percorre as rotas, as quatro abas de preferências, os filtros do histórico e os fluxos de autenticação nos doze idiomas; também verifica a tradução de mensagens já abertas ao trocar o idioma.
+
+A rota /recover-password apresenta um placeholder estático traduzido nos doze idiomas. A página não lê tokens nem faz chamadas HTTP; a ação retorna para /login.

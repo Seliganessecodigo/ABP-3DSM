@@ -73,3 +73,11 @@ Mudança de papel revoga sessões e credenciais TOTP temporárias; o próximo lo
 atual e mantém TOTP obrigatório para Admin. Um Admin ainda sem e-mail confirmado não conta
 como substituto do último Admin com acesso, tanto na alteração de papel quanto de estado.
 O contrato de consultas, criação e auditoria está em [ACCOUNTS.md](ACCOUNTS.md).
+## Recuperação de senha
+
+| Método e rota | Acesso |
+| --- | --- |
+| POST /auth/password-recovery/request | Público; 202 genérico para conta elegível ou não; 429 após 20 solicitações por IP em 15 minutos |
+| POST /auth/password-recovery/complete | Público; token temporário de uso único; 204 no sucesso e 401 genérico para token inválido, expirado ou consumido |
+
+A solicitação só emite token para conta ativa, com e-mail verificado e senha local. Limite por conta: cinco emissões por janela de 15 minutos. A conclusão altera a senha e revoga refresh tokens, mantendo access JWTs existentes válidos pelo TTL atual.

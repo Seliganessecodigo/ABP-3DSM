@@ -119,6 +119,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <button className={styles.submit} type="submit" disabled={submitting}>{submitting ? t('submitting') : t('submit')}</button>
       </form>
+      <button className={styles.cancel} type="button" onClick={() => navigate('/recover-password')}>{t('forgotPassword')}</button>
       {ssoEnabled && <div className={styles.sso}>
         <div className={styles.divider}><span>{t('ssoDivider')}</span></div>
         <button className={styles.google} type="button" onClick={() => void handleGoogleSignIn()} disabled={submitting}>

@@ -22,6 +22,7 @@ import { ExternalIdentityEntity } from "./entities/external-identity.entity";
 import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
+import { PasswordRecoveryOutboxEntity } from "./entities/password-recovery-outbox.entity";
 
 @Global()
 @Module({
@@ -42,6 +43,7 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
       SsoHandoffEntity,
       SsoInvitationEntity,
       SsoTransactionEntity,
+      PasswordRecoveryOutboxEntity,
     ]),
   ],
   providers: [

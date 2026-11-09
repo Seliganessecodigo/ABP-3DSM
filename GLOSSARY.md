@@ -53,6 +53,12 @@ Vocabulário do produto para alinhar conceitos entre autenticação, organizaç�
 **Conta ativa**:
 Conta GreenER que não está bloqueada nem desativada e pode iniciar autenticação conforme as demais políticas de acesso.
 
+**Recuperação de senha**:
+Fluxo pelo qual a pessoa titular comprova a posse de um meio de contato cadastrado e define uma nova senha para sua conta.
+
+**Token de recuperação de senha**:
+Prova temporária e de uso único que autoriza definir uma nova senha sem revelar a senha atual.
+
 **Bloqueio de conta**:
 Suspensão temporária do acesso à conta, por exemplo durante uma investigação de risco. Pode ser encerrada por uma reativação explícita.
 _Evitar_: desativação

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -62,6 +63,7 @@ import {
 } from '../../database/entities/user.entity'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import { AccountLifecycleService } from './account-lifecycle.service'
+import { PasswordRecoveryService } from './password-recovery.service'
 import {
   CreateSsoInvitationDto,
   ExchangeSsoHandoffDto,
@@ -75,7 +77,38 @@ export class AuthenticationController {
     private readonly authentication: AuthenticationService,
     private readonly sso: SsoAuthenticationService,
     private readonly accountLifecycle: AccountLifecycleService,
+    private readonly passwordRecovery: PasswordRecoveryService,
   ) {}
+
+  @PublicRoute()
+  @Post('password-recovery/request')
+  @HttpCode(202)
+  @ApiOperation({ summary: 'Solicitar recuperação de senha por e-mail' })
+  @ApiResponse({ status: 202, description: 'Solicitação aceita sem revelar a existência da conta', schema: { example: { code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' } } })
+  @ApiBody({ schema: { type: 'object', required: ['organization', 'email'], properties: { organization: { type: 'string', maxLength: 80, description: 'Slug da organização' }, email: { type: 'string', format: 'email', maxLength: 320 } } } })
+  @ApiBadRequestResponse({ description: 'Organização ou e-mail inválido' })
+  @ApiTooManyRequestsResponse({ description: 'Limite por IP excedido' })
+  requestPasswordRecovery(@Body() body: { organization: string; email: string }, @Req() request: Request) {
+    requireStrings(body, ['organization', 'email'])
+    validateEmail(body.email)
+    if (body.organization.trim().length > 80) throw new BadRequestException('Organização inválida')
+    return this.passwordRecovery.request(body, request.ip || 'unknown')
+  }
+
+  @PublicRoute()
+  @Post('password-recovery/complete')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Definir nova senha com token temporário' })
+  @ApiBody({ schema: { type: 'object', required: ['token', 'password'], properties: { token: { type: 'string', description: 'Token opaco válido por uma hora e de uso único' }, password: { type: 'string', minLength: 8, maxLength: 1024 } } } })
+  @ApiNoContentResponse({ description: 'Senha alterada; sessões de renovação revogadas' })
+  @ApiBadRequestResponse({ description: 'Senha fora dos limites aceitos' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido, expirado, revogado ou já utilizado' })
+  async completePasswordRecovery(@Body() body: { token: string; password: string }): Promise<void> {
+    requireStrings(body, ['token', 'password'])
+    validateOpaqueCredential(body.token)
+    if (body.password.length < 8 || body.password.length > 1024) throw new BadRequestException('Senha fora do limite aceito')
+    await this.passwordRecovery.complete(body)
+  }
 
   @Post('sso/invitations')
   @UseGuards(AuthenticationGuard, RolesGuard)

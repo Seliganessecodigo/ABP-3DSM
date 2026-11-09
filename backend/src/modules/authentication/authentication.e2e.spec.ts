@@ -17,8 +17,10 @@ import { SsoAuthentication1791420000000 } from '../../database/migrations/179142
 import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
 import { UserAccountStatus1793400000000 } from '../../database/migrations/1793400000000-UserAccountStatus'
+import { PasswordRecovery1793500000000 } from '../../database/migrations/1793500000000-PasswordRecovery'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
+import { PasswordRecoveryService } from './password-recovery.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
 import { PasswordHasher } from './password-hasher.service'
 import {
@@ -38,13 +40,16 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
   let organizationId: string
   let otherOrganizationId: string
   let userId: string
+  let originalPasswordHash: string
   const previousEnvironment = new Map<string, string | undefined>()
   const createdOrganizationSlugs: string[] = []
   let testNow = new Date()
   const testClock: AuthClock = { now: () => new Date(testNow) }
   const sentEmails: Array<{ to: string; subject: string; text: string }> = []
+  let emailDeliveryFails = false
   const emailDelivery: EmailDelivery = {
     send: async (to, subject, text) => {
+      if (emailDeliveryFails) throw new Error('simulated delivery failure')
       sentEmails.push({ to, subject, text })
     },
   }
@@ -136,6 +141,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         UserPreferences1793200000000,
         AuditActorIdentity1793300000000,
         UserAccountStatus1793400000000,
+        PasswordRecovery1793500000000,
       ],
     })
     await database.initialize()
@@ -166,6 +172,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     const passwordHash = await app
       .get(PasswordHasher)
       .hash('testing password phrase')
+    originalPasswordHash = passwordHash
     const [user] = await database.query(
       `INSERT INTO users (
         name, email, "passwordHash", role, status, "organizationId", "emailVerifiedAt"
@@ -225,8 +232,15 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     }
   })
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    if (database?.isInitialized) {
+      await database.query('UPDATE users SET "passwordHash" = $1, status = $2 WHERE id = $3', [originalPasswordHash, 'ACTIVE', userId])
+      await database.query('DELETE FROM password_recovery_outbox')
+      await database.query('DELETE FROM auth_tokens WHERE kind = $1', ['PASSWORD_RECOVERY'])
+      await database.query('DELETE FROM password_recovery_ip_limits')
+    }
     sentEmails.splice(0, sentEmails.length)
+    emailDeliveryFails = false
     testNow = new Date()
     expectedGoogleNonce = ''
     googleIdentity = {
@@ -362,6 +376,173 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       ['Other Authentication Test', `other-auth-test-${Date.now()}`],
     )
     otherOrganizationId = otherOrganization.id as string
+  })
+
+  it('responde genericamente a pedido de recuperação para conta inexistente', async () => {
+    const response = await fetch(
+      new URL('/auth/password-recovery/request', await app.getUrl()),
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          organization: 'unknown-organization',
+          email: 'missing@example.test',
+        }),
+      },
+    )
+    expect(response.status).toBe(202)
+    expect(await response.json()).toEqual({
+      code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED',
+    })
+    expect(sentEmails).toHaveLength(0)
+  })
+
+  it('envia token cifrado pela outbox e permite redefinir a senha uma única vez', async () => {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    const originalLogin = await login()
+    expect(originalLogin.response.status).toBe(200)
+    const response = await fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+    })
+    expect(response.status).toBe(202)
+    expect(await response.json()).toEqual({ code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' })
+    expect(sentEmails).toHaveLength(0)
+    const [outbox] = await database.query('SELECT "encryptedPayload" FROM password_recovery_outbox')
+    expect(outbox.encryptedPayload).not.toContain('analyst@example.test')
+    await app.get(PasswordRecoveryService).processOutbox()
+    expect(sentEmails).toHaveLength(1)
+    const token = sentEmails[0].text.match(/#token=([^\s]+)/)?.[1]
+    expect(token).toBeTruthy()
+    const [persistedOutbox] = await database.query('SELECT "encryptedPayload", "keyVersion" FROM password_recovery_outbox')
+    expect(JSON.stringify(persistedOutbox)).not.toContain(token)
+    expect(JSON.stringify(persistedOutbox)).not.toContain('https://app.example.test/recover-password')
+    const [storedToken] = await database.query('SELECT "tokenHash" FROM auth_tokens WHERE kind = $1 AND "userId" = $2', ['PASSWORD_RECOVERY', userId])
+    expect(storedToken.tokenHash).toBe(createHash('sha256').update(token as string).digest('hex'))
+    const complete = await fetch(new URL('/auth/password-recovery/complete', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token, password: 'new testing password' }),
+    })
+    expect(complete.status).toBe(204)
+    const existingAccess = await fetch(new URL('/auth/me', await app.getUrl()), {
+      headers: { authorization: `Bearer ${originalLogin.body.accessToken as string}` },
+    })
+    expect(existingAccess.status).toBe(200)
+    const reuse = await fetch(new URL('/auth/password-recovery/complete', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token, password: 'another testing password' }),
+    })
+    expect(reuse.status).toBe(401)
+    const oldRefresh = await fetch(new URL('/auth/sessions/refresh', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ refreshToken: originalLogin.body.refreshToken }),
+    })
+    expect(oldRefresh.status).toBe(401)
+    const changedPasswordLogin = await fetch(new URL('/auth/login', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'analyst@example.test', password: 'new testing password' }),
+    })
+    expect(changedPasswordLogin.status).toBe(200)
+  })
+
+  it('responde genericamente para conta não elegível e expira o token após uma hora', async () => {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    for (const update of [
+      { status: 'BLOCKED', verified: true, password: true },
+      { status: 'DEACTIVATED', verified: true, password: true },
+      { status: 'ACTIVE', verified: false, password: true },
+      { status: 'ACTIVE', verified: true, password: false },
+    ]) {
+      await database.query('UPDATE users SET status = $1, "emailVerifiedAt" = $2, "passwordHash" = $3 WHERE id = $4', [
+        update.status, update.verified ? testNow : null, update.password ? originalPasswordHash : null, userId,
+      ])
+      const ineligible = await fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+      })
+      expect(ineligible.status).toBe(202)
+      expect(await ineligible.json()).toEqual({ code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' })
+    }
+    expect(sentEmails).toHaveLength(0)
+    expect(await database.query('SELECT id FROM auth_tokens WHERE kind = $1', ['PASSWORD_RECOVERY'])).toHaveLength(0)
+    await database.query('UPDATE users SET status = $1, "emailVerifiedAt" = $2, "passwordHash" = $3 WHERE id = $4', ['ACTIVE', testNow, originalPasswordHash, userId])
+
+    await fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+    })
+    await app.get(PasswordRecoveryService).processOutbox()
+    const token = sentEmails[0].text.match(/#token=([^\s]+)/)?.[1]
+    testNow = new Date(testNow.getTime() + 60 * 60 * 1000 + 1)
+    const expired = await fetch(new URL('/auth/password-recovery/complete', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token, password: 'new testing password' }),
+    })
+    expect(expired.status).toBe(401)
+    expect(await expired.json()).toEqual({ code: 'PASSWORD_RECOVERY_TOKEN_INVALID' })
+  })
+
+  it('invalida o link anterior ao emitir a recuperação mais recente', async () => {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    const requestRecovery = async () => fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+    })
+    await requestRecovery()
+    await app.get(PasswordRecoveryService).processOutbox()
+    const firstToken = sentEmails[0].text.match(/#token=([^\s]+)/)?.[1]
+    await requestRecovery()
+    await app.get(PasswordRecoveryService).processOutbox()
+    const secondToken = sentEmails[1].text.match(/#token=([^\s]+)/)?.[1]
+    const oldToken = await fetch(new URL('/auth/password-recovery/complete', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: firstToken, password: 'replaced testing password' }),
+    })
+    expect(oldToken.status).toBe(401)
+    const newestToken = await fetch(new URL('/auth/password-recovery/complete', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: secondToken, password: 'newest testing password' }),
+    })
+    expect(newestToken.status).toBe(204)
+  })
+
+  it('limita pedidos por conta sem alterar a resposta genérica e limita o IP no 21º pedido', async () => {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    const requestRecovery = async () => fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+    })
+    for (let count = 0; count < 6; count += 1) {
+      const response = await requestRecovery()
+      expect(response.status).toBe(202)
+      expect(await response.json()).toEqual({ code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' })
+    }
+    expect(await database.query('SELECT id FROM auth_tokens WHERE kind = $1 AND "userId" = $2', ['PASSWORD_RECOVERY', userId])).toHaveLength(5)
+    for (let count = 6; count < 20; count += 1) expect((await requestRecovery()).status).toBe(202)
+    const limited = await requestRecovery()
+    expect(limited.status).toBe(429)
+    expect(await limited.json()).toEqual({ code: 'PASSWORD_RECOVERY_RATE_LIMITED' })
+  })
+
+  it('retenta falha de entrega enquanto o token permanece válido', async () => {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    const response = await fetch(new URL('/auth/password-recovery/request', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ organization: organization.slug, email: 'analyst@example.test' }),
+    })
+    expect(response.status).toBe(202)
+    emailDeliveryFails = true
+    await app.get(PasswordRecoveryService).processOutbox()
+    const [failedAttempt] = await database.query('SELECT attempts, "status", "nextAttemptAt" FROM password_recovery_outbox')
+    expect(failedAttempt.attempts).toBe(1)
+    expect(failedAttempt.status).toBe('PENDING')
+    emailDeliveryFails = false
+    testNow = new Date(new Date(failedAttempt.nextAttemptAt).getTime() + 1)
+    await app.get(PasswordRecoveryService).processOutbox()
+    expect(sentEmails).toHaveLength(1)
+    const [delivered] = await database.query('SELECT "status" FROM password_recovery_outbox')
+    expect(delivered.status).toBe('SENT')
   })
 
   it('autentica e retorna somente os dados públicos da conta', async () => {

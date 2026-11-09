@@ -16,7 +16,7 @@ As respostas contêm somente `id`, `name`, `email`, `role`, `status`, `emailVeri
 
 ## Criação e acesso
 
-A criação não recebe senha e não confirma o e-mail automaticamente: `status=ACTIVE`, `emailVerifiedAt=null` e `passwordHash=null`. A conta permanece sem acesso até comprovar o e-mail. O titular usa o fluxo existente de `POST /auth/email/confirmation/resend` (`organization` é o slug, `email` é o endereço) e `POST /auth/email/confirm` (`token`, `password`). O segundo fluxo define a senha de 8–1024 caracteres usando o `PasswordHasher` existente (Argon2id e pepper), sem devolver a senha ou o hash. O novo endpoint de criação não envia e-mail automaticamente; o reenvio de confirmação e o convite Google mantêm seus contratos atuais. Não adiciona recuperação de senha (#160) nem interface administrativa (#161).
+A criação não recebe senha e não confirma o e-mail automaticamente: `status=ACTIVE`, `emailVerifiedAt=null` e `passwordHash=null`. A conta permanece sem acesso até comprovar o e-mail. O titular usa o fluxo existente de `POST /auth/email/confirmation/resend` (`organization` é o slug, `email` é o endereço) e `POST /auth/email/confirm` (`token`, `password`). O segundo fluxo define a senha de 8–1024 caracteres usando o `PasswordHasher` existente (Argon2id e pepper), sem devolver a senha ou o hash. O novo endpoint de criação não envia e-mail automaticamente; o reenvio de confirmação e o convite Google mantêm seus contratos atuais. A recuperação de senha está documentada na seção correspondente; interface administrativa (#161) não faz parte deste fluxo.
 
 ## Listagem
 
@@ -51,3 +51,7 @@ Sucesso é auditado na mesma transação. Falha ou negação é registrada fora 
 `accounts.dto.spec.ts` cobre validação e normalização. `accounts.database.spec.ts` usa JWT real, Nest completo e PostgreSQL isolado pelo fixture de qualidade: cobre criação/ativação, hash, autorização, isolamento entre organizações, duplicidade concorrente, busca/filtros, ordenação, todas as quantidades, `all`, ausência, concorrência, último Admin e rollback de conta/sessões/auditoria.
 
 Reprodução e credenciais demonstrativas de banco descartável estão em [test/README.md](../../../test/README.md). Execute `npm test -- --runInBand accounts account-lifecycle` e `npm run test:cov -- --runInBand`, com `TEST_DATABASE_URL` definido. O quality gate do SonarQube Cloud continua obrigatório antes do merge.
+
+## Recuperação de senha
+
+US-20 (#160) adiciona recuperação por e-mail para contas `ACTIVE`, verificadas e com senha local. Consulte o contrato e a outbox em [README](../README.md). Contas SSO sem senha, desativadas ou não verificadas recebem a mesma resposta pública sem novo token. Tokens duram uma hora, são de uso único e apenas seu hash fica em `auth_tokens`. A conclusão altera o hash existente e revoga sessões de refresh dentro da transação, sem remover TOTP nem invalidar JWTs já emitidos. O placeholder `/recover-password` não processa o token.

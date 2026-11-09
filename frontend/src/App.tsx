@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage.tsx'
 import { LoginPage } from './pages/login/LoginPage.tsx'
 import { SsoCallbackPage } from './pages/login/SsoCallbackPage.tsx'
 import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
+import { RecoverPasswordPage } from './pages/recoverPassword/RecoverPasswordPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
 
 function Application() {
   const { route, navigate } = useRoute()
-  const login = route.kind === 'login' || route.kind === 'sso-callback'
+  const login = route.kind === 'login' || route.kind === 'recover-password' || route.kind === 'sso-callback'
   let variant: 'default' | 'detail' | 'methodology' = 'default'
   if (route.kind === 'detail' || route.kind === 'history') variant = 'detail'
   if (route.kind === 'methodology' && !route.id) variant = 'methodology'
@@ -28,6 +29,7 @@ function Application() {
 function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) {
   switch (route.kind) {
     case 'login': return <LoginPage navigate={navigate} />
+    case 'recover-password': return <RecoverPasswordPage navigate={navigate} />
     case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
     case 'history': return <HistoryPage key="history" navigate={navigate} />

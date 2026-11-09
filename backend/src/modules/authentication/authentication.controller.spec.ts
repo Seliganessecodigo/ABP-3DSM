@@ -35,6 +35,7 @@ describe('AuthenticationController account status', () => {
         {} as unknown as AuthenticationService,
         {} as unknown as SsoAuthenticationService,
         accountLifecycle as unknown as AccountLifecycleService,
+        {} as never,
       ),
       accountLifecycle,
     }

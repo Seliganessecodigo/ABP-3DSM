@@ -158,6 +158,7 @@ export class AuthenticationService {
     const now = this.clock.now()
     if (
       !session ||
+      session.refreshRevokedAt ||
       !this.sessionUsable(session, now) ||
       (session.user?.role === UserRole.ADMIN && !session.secondFactorVerifiedAt)
     ) {
@@ -251,7 +252,7 @@ export class AuthenticationService {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (session && !session.user?.emailVerifiedAt) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
-      } else if (session && !session.revokedAt) {
+      } else if (session && !session.revokedAt && !session.refreshRevokedAt) {
         await this.persistence.revokeSession(session.id, now)
       }
       throw invalidCredentials()
