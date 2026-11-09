@@ -42,7 +42,14 @@ Se faltar fator, uma energia válida continua válida, mas CO₂e pode ficar nã
 | Resultado | Regra de produto |
 | --- | --- |
 | Original | Preserva observações, configuração, metodologia e fator utilizados. |
-| Prévia de recálculo | Usa configuração atual identificada, sem salvar nem substituir o original. Permissões, limites e política do fator continuam pendentes. |
 | Simulação regional | Mantém a energia e avalia outro fator regional, separada dos resultados oficiais. |
 
 Totais, ranking e comparação devem usar recortes e coberturas compatíveis. Lacunas não ganham zeros e percentuais exigem denominador válido. As regras temporais aprovadas estão acima. Na persistência, energia, emissão em gramas e fator usam oito casas decimais; cobertura, como fração entre zero e um, usa quatro. Cálculos não arredondam intermediários, e snapshots JSON preservam sua representação original.
+
+## Metodologia e dados — simplified-energy v1
+
+O modelo implementado é `simplified-energy`, versão `1`: CPU a 100% = 100 W; memória = 0,375 W/GB; disco = 0,01 W/GB; rede = 0,02 W/GB. São parâmetros do modelo simplificado, sem alegação de medição elétrica ou fator regional oficial. Potência soma as parcelas; energia = W × horas / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Os snapshots registram método e fator usados. A prévia consulta fatores atuais e não reescreve os snapshots originais.
+
+Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
+
+Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.

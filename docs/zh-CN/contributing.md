@@ -13,7 +13,7 @@ CI 会运行前端和后端的 lint、测试与构建，并执行 SonarQube Clou
 
 ## 界面变更
 
-每个页面应与自己的样式、hooks 和翻译放在一起。前端支持 `pt-BR`、`en-US`、`es-ES`、`fr-FR`、`de-DE`、`it-IT`、`ja-JP` 和 `zh-CN`。新增的用户可见文本必须提供完整的八种语言版本，英语为回退语言。
+每个页面应与自己的样式、hooks 和翻译放在一起。前端支持 `pt-BR`、`en-US`、`es-ES`、`fr-FR`、`de-DE`、`it-IT`、`ja-JP` 和 `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`。新增的用户可见文本必须提供完整的十二种语言版本，英语为回退语言。
 
 ## 集成或领域变更
 
@@ -21,10 +21,31 @@ CI 会运行前端和后端的 lint、测试与构建，并执行 SonarQube Clou
 
 ## 文档网站
 
-发布内容以 Markdown 形式保存在 `docs/`。请同步更新全部八种语言的对应页面，并运行 `npm run docs:build` 验证网站。
+发布内容以 Markdown 形式保存在 `docs/`。请同步更新全部十二种语言的对应页面，并运行 `npm run docs:build` 验证网站。
 
 ## Git
 
 分支有issue时为`type/number-description`，否则`type/description`，使用小写、无重音kebab-case。提交与PR标题为`type(scope): description`，描述用葡萄牙语、动词开头、无句号。包括`Refs #N`、决定/限制及实际检查结果。完整标准见[AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md)。
 
 [质量与验收](./product/quality) · [决策与依赖](./product/decisions)
+
+## CI
+
+CI验证文档构建、前端lint/测试/构建、后端lint/typecheck/PostgreSQL测试/覆盖率/构建/迁移及真实浏览器集成流程。`TEST_DATABASE_URL`须指向隔离PostgreSQL；缺失时Jest跳过数据库套件，浏览器集成失败。合入`develop`的SonarQube要求新增覆盖率≥80%、重复率≤3%、评级A、hotspot全部审查。自动测试不代替可用性评估或产品验收。
+
+```sh
+npm ci --prefix docs
+npm run docs:build
+npm ci --prefix frontend
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+npm ci --prefix backend
+npm run lint --prefix backend
+npm run typecheck --prefix backend
+npm test --prefix backend -- --runInBand
+npm run test:cov --prefix backend -- --runInBand
+npm run build --prefix backend
+# Isolated PostgreSQL: TEST_DATABASE_URL
+npm run test:integration --prefix frontend
+```

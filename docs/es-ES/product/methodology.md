@@ -42,7 +42,14 @@ Sin factor, la energía válida permanece válida, pero CO₂e puede no ser calc
 | Resultado | Regla |
 | --- | --- |
 | Original | Conserva observaciones, configuración, metodología y factor usados. |
-| Vista previa de recálculo | Configuración actual identificada, sin guardar ni sustituir original; permisos, límites y factor pendientes. |
 | Simulación regional | Mantiene energía y evalúa otro factor, separada de resultados oficiales. |
 
 Totales, ranking y comparación requieren períodos y coberturas compatibles. Los huecos no se convierten en cero y los porcentajes requieren denominador válido. La semántica temporal aprobada se describe arriba. En persistencia, energía, emisiones en gramos y factor usan ocho decimales; la cobertura, como fracción entre cero y uno, usa cuatro. No se redondean valores intermedios y los snapshots JSON conservan su representación original.
+
+## Metodología y datos — simplified-energy v1
+
+Modelo `simplified-energy`, versión `1`: CPU al 100% = 100 W; memoria 0,375 W/GB; disco 0,01 W/GB; red 0,02 W/GB. Parámetros simplificados, sin alegar medición eléctrica ni factores regionales oficiales. Potencia = suma de componentes; energía = W × horas / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Snapshots conservan método y factor originales; la vista previa consulta factores actuales sin reescribirlos.
+
+En `/administration/calculations`, compare original y vista previa por aplicación y fechas. El día final incluye todo el día UTC; la API recibe `[from,to)`. La operación pública aplica modelo actual y factores actuales a regiones históricas, sin guardar resultados. Límites: 30 días y 10.000 observaciones. Devuelve `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fallo del factor conserva energía y deja CO₂e indisponible. Porcentajes requieren unidades/coberturas iguales y referencia positiva.
+
+`/methodology` ofrece pestañas de energía, emisiones, cobertura y análisis con ejemplos y preferencias personales. Cualquier rol autenticado guarda solo sus propias pestañas, con revisión optimista y 409 ante conflicto. Los límites visuales no cambian cálculos, configuración global ni notificaciones externas. Período/granularidad guardados completan solo parámetros ausentes en URL. Evidencia histórica: `/services/:id/methodology`, con `collectionId` seleccionado.

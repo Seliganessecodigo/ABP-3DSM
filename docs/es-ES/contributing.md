@@ -13,7 +13,7 @@ La CI ejecuta lint, pruebas y builds de frontend y backend, seguidos del quality
 
 ## Cambios de interfaz
 
-Mantén cada pantalla junto con sus estilos, hooks y traducciones. El frontend admite `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` y `zh-CN`. Los nuevos textos visibles deben estar completos en los ocho idiomas; el inglés es el idioma alternativo.
+Mantén cada pantalla junto con sus estilos, hooks y traducciones. El frontend admite `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` y `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Los nuevos textos visibles deben estar completos en los doce idiomas; el inglés es el idioma alternativo.
 
 ## Cambios de integración o dominio
 
@@ -21,10 +21,31 @@ Confirma los contratos y las decisiones en las issues y los documentos técnicos
 
 ## Documentación del sitio
 
-El contenido publicado se mantiene en Markdown en `docs/`. Actualiza la página equivalente en los ocho idiomas y valida el sitio con `npm run docs:build`.
+El contenido publicado se mantiene en Markdown en `docs/`. Actualiza la página equivalente en los doce idiomas y valida el sitio con `npm run docs:build`.
 
 ## Git
 
 Branches: `tipo/numero-descripcion` con issue o `tipo/descripcion` sin ella, minúsculas y kebab-case sin acentos. Commits/títulos PR: `tipo(ambito): descripción`, con descripción en portugués, verbo inicial y sin punto final. Incluir `Refs #N`, decisiones/límites y checks observados. Véase [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
 
 [Calidad y aceptación](./product/quality) · [Decisiones y dependencias](./product/decisions)
+
+## CI
+
+CI valida documentación, lint/test/build frontend, lint/typecheck/tests PostgreSQL/cobertura/build/migrations backend y flujo integrado real en navegador. `TEST_DATABASE_URL` requiere PostgreSQL aislado; sin ella, Jest omite suites de banco y el navegador integrado falla. SonarQube obligatorio en PR a `develop`: cobertura nueva ≥ 80%, duplicación ≤ 3%, ratings A y hotspots 100% revisados. No sustituye evaluación de usabilidad ni aceptación.
+
+```sh
+npm ci --prefix docs
+npm run docs:build
+npm ci --prefix frontend
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+npm ci --prefix backend
+npm run lint --prefix backend
+npm run typecheck --prefix backend
+npm test --prefix backend -- --runInBand
+npm run test:cov --prefix backend -- --runInBand
+npm run build --prefix backend
+# Isolated PostgreSQL: TEST_DATABASE_URL
+npm run test:integration --prefix frontend
+```

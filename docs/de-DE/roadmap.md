@@ -27,3 +27,11 @@ Das GreenER-Backlog besteht aus sechs Produkt-Epics und einem Epic für technisc
 Abhängigkeiten ohne Terminversprechen: erkennen/sammeln → Modell freigeben/versionierte Ergebnisse → Übersicht/Historie → Vergleich/Simulation. Administration/Präferenzen folgen Autorisierung/Design. Sprint/Kapazität in Projects.
 
 [Vision und Umfang](./product/vision) · [Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)
+
+## Vision und Umfang — c343698
+
+GreenER überwacht Anwendungen und schätzt Energie und CO₂e. Katalog, Dashboard, Details, Verlauf, Neuberechnungsvorschau, Methodik und Anmeldung sind verfügbar. Oberfläche und Dokumentation bieten zwölf Sprachen: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Englisch ist der Frontend-Fallback.
+
+Offen: eigener Vergleich mehrerer Anwendungen, regionale Simulation, allgemeine Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungseinstellungen/Pause und CSV. Impact-Sortierung existiert. Externe Quoten, Aufbewahrung, Backup/Wiederherstellung und Betriebsziele brauchen Entscheidungen; kein SLA. TOTP-Wiederherstellung durch Support ist kein Passwortreset.
+
+[Vision und Umfang](./product/vision)

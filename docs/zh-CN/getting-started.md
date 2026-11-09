@@ -61,3 +61,9 @@ Compose 会在容器中安装依赖。API 启动前会运行待执行的迁移�
 - 如果端口已被占用，请修改 `.env` 中的 `FRONTEND_PORT`、`API_PORT` 或 `POSTGRES_PORT`。
 - 如果 API 未通过健康检查，请查看 `npm run dev:logs`。API 依赖 PostgreSQL，并在启动时运行迁移。
 - `.env.example` 中的值仅供本地开发使用。请勿共享真实凭据或提交 `.env` 文件。
+
+## 开始使用 — login
+
+使用Node.js 24+、npm、Docker Compose v2。复制`.env.example`为`.env`，运行`npm run dev`。Compose先迁移并尝试发现，来源故障不阻止API启动。邀请/确认需要SMTP。首位Admin通过`backend/`的`organizations:create-invitation`创建，设置`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`。没有通用生产Admin账户。
+
+[运维与诊断](./operations) · [使用指南](./guide/monitoring)

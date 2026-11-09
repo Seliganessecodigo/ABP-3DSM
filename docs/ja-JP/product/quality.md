@@ -12,7 +12,7 @@
 | RNF-04 — セキュリティ | 秘密情報をGit外に置き、バックエンドで認可。 |
 | RNF-05 — 再現性 | 環境文書、検証可能なCI、公開結果の証拠。 |
 | RNF-06 — 障害 | 成功、空、エラー、不在、staleを区別。 |
-| RNF-07 — 利用体験 | キーボード、フォーカス、コントラスト、色以外の文字・アイコン、レスポンシブ、8言語。 |
+| RNF-07 — 利用体験 | キーボード、フォーカス、コントラスト、色以外の文字・アイコン、レスポンシブ、12言語。 |
 
 アクセス権、保存期間、災害復旧、可用性・性能の数値目標は未決です。SLAやアクセシビリティ認証を宣言するものではありません。
 
@@ -36,3 +36,9 @@
 完了には基準実証、レビュー、関連障害テスト、契約・文書・証拠の更新が必要です。PR作成だけではIssueは完了しません。Planning、review、feedbackは#134です。
 
 `develop`向けPRは該当チェックとSonarQube Cloudが必要です。新規コードのカバレッジ≥80%、重複≤3%、評価A、hotspotレビュー100%。実行可能なバックエンド変更はテストとLCOVが必要です。[CI規則](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md)、[貢献](../contributing)を参照。CIは機能受け入れやユーザビリティ評価の代わりにはなりません。
+
+## CI — c343698
+
+CIは文書build、frontendのlint/test/build、backendのlint/typecheck/PostgreSQLテスト/カバレッジ/build/migration、実backend利用のブラウザー統合フローを検証。`TEST_DATABASE_URL`は隔離DBを指定し、未設定時JestのDBスイートはスキップ、ブラウザー統合は失敗。`develop`向けSonarQubeは新規網羅率80%以上、重複3%以下、評価A、hotspot全件レビューが必須。自動テストは使いやすさ評価や製品受け入れを代替しません。
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

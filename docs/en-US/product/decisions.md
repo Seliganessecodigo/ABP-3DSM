@@ -21,8 +21,6 @@ D01 and the EP00 restructuring were confirmed on 2026-10-15. Other rules are rec
 
 | Topic | Unresolved question | Affected deliverables |
 | --- | --- | --- |
-| Recalculation preview | Permission, volume/period limits and factor-selection policy. | #91/#263/#264 |
-| Access and accounts | Role matrix, bootstrap, sessions, password/recovery policies. | #90/#91/#158/#160/#245 |
 | Sources and operations | Quotas and concurrency limits still require confirmation with API owners. The #243 timeout/retry/delay policy is approved. | #155/#243 |
 | Continuity | Retention, backup/restore and availability/performance targets. | #110/#120/#125/#166 |
 | Prototype extras | CSV, configurable columns and efficiency per transaction. Application detail already overlays the series with the equivalent previous period; cross-application comparison and a period dashboard remain separate scope. | #61/#248/#252 |
@@ -43,3 +41,13 @@ When sources conflict, identify the disagreement, obtain the appropriate decisio
 ## Recording changes
 
 The issue or PR should explain the decision, reason, relevant alternatives, effects on stories/data/compatibility and acceptance evidence. Durable architectural decisions receive an ADR near their implementation. See the [backlog](../roadmap) and [quality criteria](./quality).
+
+## Decisions and dependencies — c343698
+
+At `/administration/calculations`, select an application and dates to compare original and preview. The UI end date includes the whole UTC day; the API receives `[from,to)`. Preview is public, uses the current model and current factors for historical regions, and saves or replaces no results. Limits: 30 days and 10,000 observations. Response fields are `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Factor failure preserves calculable energy while CO₂e remains unavailable. Percentages require matching units/coverage and a positive reference.
+
+Dashboard and environmental queries are public. At `/login`, use email/password or Google when enabled. Admin must set up or confirm a six-digit TOTP before a session, including after Google. Analyst and Visitor receive no administrative authorization. The frontend holds sessions in memory; reloading requires login again. The backend checks JWT, session, current role and account status; missing/invalid credentials return 401, insufficient role 403. New routes are protected by default.
+
+An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets. This route does not deliver full role management or password recovery.
+
+Still outside delivery: dedicated comparison of at least two applications, regional simulation, general user/role management, self-service password recovery, global monitoring configuration/pause and CSV export. Dashboard sorting by impact is available. External quotas, retention, backup/restore and operational targets need decisions; no SLA is declared. TOTP recovery is a support operation, not a password reset.

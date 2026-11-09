@@ -13,7 +13,7 @@ Die CI führt Linting, Tests und Builds für Frontend und Backend sowie das Sona
 
 ## Änderungen an der Oberfläche
 
-Jede Seite bleibt mit ihren Styles, Hooks und Übersetzungen zusammen. Das Frontend unterstützt `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` und `zh-CN`. Neue sichtbare Texte müssen in allen acht Sprachen vollständig sein; Englisch ist die Fallback-Sprache.
+Jede Seite bleibt mit ihren Styles, Hooks und Übersetzungen zusammen. Das Frontend unterstützt `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` und `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Neue sichtbare Texte müssen in allen zwölf Sprachen vollständig sein; Englisch ist die Fallback-Sprache.
 
 ## Änderungen an Integration oder Domäne
 
@@ -21,10 +21,31 @@ Verträge und Entscheidungen in Issues und technischen Dokumenten prüfen. Keine
 
 ## Website-Dokumentation
 
-Veröffentlichte Inhalte werden als Markdown in `docs/` gepflegt. Die entsprechende Seite in allen acht Sprachen aktualisieren und die Website mit `npm run docs:build` prüfen.
+Veröffentlichte Inhalte werden als Markdown in `docs/` gepflegt. Die entsprechende Seite in allen zwölf Sprachen aktualisieren und die Website mit `npm run docs:build` prüfen.
 
 ## Git
 
 Branches: `typ/nummer-beschreibung` mit Issue, sonst `typ/beschreibung`; kleingeschriebenes kebab-case ohne Akzente. Commits/PR-Titel: `typ(bereich): beschreibung`, Beschreibung portugiesisch, mit Verb und ohne Schlusspunkt. `Refs #N`, Entscheidungen/Grenzen, beobachtete Checks angeben. Vollständiger Standard in [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
 
 [Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)
+
+## CI
+
+CI prüft Dokumentation, Frontend-Lint/Tests/Build, Backend-Lint/Typecheck/PostgreSQL-Tests/Abdeckung/Build/Migrationen und echten integrierten Browserablauf. `TEST_DATABASE_URL` verlangt isoliertes PostgreSQL; ohne Variable überspringt Jest Datenbanksuiten, Browserintegration schlägt fehl. SonarQube für PRs nach `develop`: neue Abdeckung ≥ 80 %, Duplikation ≤ 3 %, Bewertungen A, Hotspots vollständig geprüft. Kein Ersatz für Usability/Produktabnahme.
+
+```sh
+npm ci --prefix docs
+npm run docs:build
+npm ci --prefix frontend
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+npm ci --prefix backend
+npm run lint --prefix backend
+npm run typecheck --prefix backend
+npm test --prefix backend -- --runInBand
+npm run test:cov --prefix backend -- --runInBand
+npm run build --prefix backend
+# Isolated PostgreSQL: TEST_DATABASE_URL
+npm run test:integration --prefix frontend
+```

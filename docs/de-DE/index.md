@@ -18,7 +18,7 @@ features:
   - title: Nachvollziehbarkeit
     details: Messwerte, Zeiträume und Einschränkungen geben Indikatoren den nötigen Kontext.
   - title: Mehrsprachiger Zugang
-    details: Dokumentation und Benutzeroberfläche sind in acht Sprachen verfügbar.
+    details: Dokumentation und Benutzeroberfläche sind in zwölf Sprachen verfügbar.
 ---
 
 ## Über das Projekt
@@ -27,7 +27,7 @@ GreenER ist ein akademisches Projekt im Studiengang Multiplatform Software Devel
 
 ## Stand und Lesepfade
 
-Die Dokumentation unterscheidet vorhandenes Verhalten, geplanten Umfang und offene Entscheidungen. Die Oberfläche bietet Katalog, Betriebsdetail, Metrikbelege, Theme-Einstellung, Umweltanalyse je Anwendung und Zugriff auf die gespeicherte Methodik jeder Beobachtung. Die API bietet außerdem eine aggregierte Übersicht ohne eigene Oberfläche; Rangliste und Vergleich bleiben geplant.
+GreenER überwacht Anwendungen und schätzt Energie und CO₂e. Katalog, Dashboard, Details, Verlauf, Neuberechnungsvorschau, Methodik und Anmeldung sind verfügbar. Oberfläche und Dokumentation bieten zwölf Sprachen: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Englisch ist der Frontend-Fallback.
 
 - [Vision und Umfang](./product/vision)
 - [Benutzerhandbuch](./guide/monitoring)

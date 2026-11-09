@@ -29,3 +29,13 @@ Consultez les [contrats des API externes dans le dépôt](https://github.com/Sel
 ## Lectures associées
 
 [Méthodologie et données](./product/methodology) · [Référence de l’API](./reference/api) · [Exploitation et diagnostic](./operations)
+
+## Architecture — c343698
+
+React 19/TypeScript/Vite présente ; NestJS/TypeORM/PostgreSQL 18 intègre et persiste. Seul le backend appelle les sources auxiliaires. Controllers : transport ; services : cas d’usage ; adapters : validation ; repositories : persistance. Guards globaux et exceptions `PublicRoute`. Préférences par utilisateur ; audit partagé dans `backend/src/shared/audit/`, transactionnel en cas de succès.
+
+Tableau de bord et consultations environnementales publics. `/login` accepte e-mail/mot de passe ou Google activé. Admin configure/confirme un TOTP à six chiffres, même après Google ; Analyst et Visitor n’obtiennent pas les droits administratifs. Session frontend en mémoire : rechargement exige une reconnexion. Backend vérifie JWT, session, rôle et état actuels : 401 pour identifiants absents/invalides, 403 pour rôle insuffisant. Nouvelles routes protégées par défaut.
+
+Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

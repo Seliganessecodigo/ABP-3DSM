@@ -61,3 +61,9 @@ Um die Erkennung ohne API-Neustart erneut auszuführen: `docker compose exec api
 - Ist ein Port belegt, `FRONTEND_PORT`, `API_PORT` oder `POSTGRES_PORT` in `.env` ändern.
 - Wird die API nicht gesund, `npm run dev:logs` prüfen. Die API benötigt PostgreSQL und führt beim Start Migrationen aus.
 - Werte in `.env.example` sind nur für die lokale Entwicklung bestimmt. Echte Zugangsdaten und die Datei `.env` nicht einchecken.
+
+## Erste Schritte — login
+
+Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
+
+[Betrieb und Diagnose](./operations) · [Benutzerhandbuch](./guide/monitoring)

@@ -12,9 +12,9 @@
 | RNF-04 — 安全 | 凭据在Git外，后端验证授权。 |
 | RNF-05 — 可重现 | 环境文档、可验证CI、发布行为证据。 |
 | RNF-06 — 故障 | 区分成功、空、错误、缺失、stale。 |
-| RNF-07 — 体验 | 键盘、焦点、对比度、文字/图标而非仅颜色、响应式、八种语言。 |
+| RNF-07 — 体验 | 键盘、焦点、对比度、文字/图标而非仅颜色、响应式、十二种语言。 |
 
-权限矩阵、保留期、灾难恢复及可用性/性能数值目标待定。此页不声明SLA或无障碍认证。
+尚未交付：多应用专门比较、地区模拟、通用用户/角色管理、自助密码恢复、监控全局配置/暂停和CSV。按影响排序已提供。外部配额、保留策略、备份/恢复及运维指标需决策，无SLA承诺。支持人员恢复TOTP不等于重置密码。
 
 ## 演示场景
 
@@ -36,3 +36,9 @@
 完成要求演示标准、审查代码、测试相关故障、更新契约/文档及证据。创建PR不代表issue完成。Planning、review和feedback归#134。
 
 `develop`的PR需相关检查及SonarQube Cloud：新代码覆盖率≥80%、重复≤3%、评级A、hotspot审查100%。后端可执行行为变更需要测试与LCOV。参见[CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md)及[参与贡献](../contributing)。CI不能代替功能验收或可用性评估。
+
+## CI — c343698
+
+CI验证文档构建、前端lint/测试/构建、后端lint/typecheck/PostgreSQL测试/覆盖率/构建/迁移及真实浏览器集成流程。`TEST_DATABASE_URL`须指向隔离PostgreSQL；缺失时Jest跳过数据库套件，浏览器集成失败。合入`develop`的SonarQube要求新增覆盖率≥80%、重复率≤3%、评级A、hotspot全部审查。自动测试不代替可用性评估或产品验收。
+
+[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)

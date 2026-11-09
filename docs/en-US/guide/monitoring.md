@@ -21,8 +21,6 @@ The interface shows attempt and valid-response times. A failure following succes
 
 In application detail, choose a rolling window of 24 hours, 7, 30 or 90 days and an hourly, daily, monthly or yearly granularity. The series shows energy and CO₂e from persisted results. Its overlay compares the selected window with the immediately preceding window of equal duration. This is a time comparison for one application, not a ranking or a comparison across applications.
 
-Use table filters and sorting to locate buckets. Inspect a bucket to see included contributions and exclusions with their reasons. The table is paginated; the interface currently loads only the first contribution page. Gaps and exclusions do not mean zero. Without calculable evidence, the result remains unavailable.
-
 ## Interpret outcomes
 
 To trace an indicator, open **View full methodology** from application detail. You can also choose **Methodology** in navigation and select an application. The page presents the recorded model, formula, parameters and assumptions, plus carbon-factor details when available. The detail link uses the selected collection; navigation uses the latest valid collection. The page explains saved evidence and does not recalculate the result.
@@ -44,7 +42,7 @@ The detail screen shows operational status, source metrics, environmental result
 
 ## Language and reporting problems
 
-The selector offers eight languages and stores the preference in this browser. Changing language does not create another application or change observation instants.
+The selector offers twelve languages and stores the preference in this browser. Changing language does not create another application or change observation instants.
 
 Report environment, application ID, filters, time with timezone, action and expected/observed result. Attach screenshots without credentials or private data. For environment failures, follow [Operations and diagnosis](../operations).
 
@@ -53,3 +51,17 @@ Report environment, application ID, filters, time with timezone, action and expe
 In the navigation preferences, use the **Dark mode** switch: off applies light; on applies dark. On the first visit, GreenER follows the system appearance, including changes while the app is open, until you use the switch. Your explicit choice then takes precedence; this interface has no action to restore system tracking.
 
 The choice applies to the catalog, details and global layout without changing filters or data. It is saved in this browser under `greener-theme` for the next visit. If storage is blocked, the choice still works during the session but may not survive a reload.
+
+## Dashboard
+
+At `/dashboard`, select 24 hours, 7, 30 or 90 days, state and region. The summary shows totals, coverage, state counts and emissions composition as bars or a donut. The table supports search, column filters, energy/CO₂e sorting and pagination. Table filters restrict rows without redefining summary totals. Open an application to investigate evidence. The dashboard calls `GET /analysis/summary` and refreshes periodically without reloading.
+
+## User guide
+
+At `/history`, select an application; `applicationId`, period and granularity retain URL context. The screen reuses the persisted detail series with filters, display timezone, events, numbered pages and bucket inspection. Contributions also support interactive pagination of 5, 10, 15, 20 or all items. Backend buckets remain UTC; changing display timezone does not regroup the series. The detail overlay compares the same application with the preceding equivalent window.
+
+At `/administration/calculations`, select an application and dates to compare original and preview. The UI end date includes the whole UTC day; the API receives `[from,to)`. Preview is public, uses the current model and current factors for historical regions, and saves or replaces no results. Limits: 30 days and 10,000 observations. Response fields are `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Factor failure preserves calculable energy while CO₂e remains unavailable. Percentages require matching units/coverage and a positive reference.
+
+At `/methodology`, energy, emissions, coverage and analysis tabs provide examples and personal preferences. Any authenticated role can save its own tab using optimistic revisions; 409 means conflict. Thresholds affect presentation, not global settings, calculations or external notifications. Saved period/granularity only fill missing detail URL options. Recorded methodology remains at `/services/:id/methodology`, with `collectionId` when selected.
+
+Dashboard and environmental queries are public. At `/login`, use email/password or Google when enabled. Admin must set up or confirm a six-digit TOTP before a session, including after Google. Analyst and Visitor receive no administrative authorization. The frontend holds sessions in memory; reloading requires login again. The backend checks JWT, session, current role and account status; missing/invalid credentials return 401, insufficient role 403. New routes are protected by default.

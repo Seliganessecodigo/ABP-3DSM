@@ -46,3 +46,11 @@ Senza fattore, energia valida rimane valida ma CO₂e può essere non calcolabil
 | Simulazione regionale | Energia costante, altro fattore, separata dai risultati ufficiali. |
 
 Totali, classifiche e confronti richiedono periodi e coperture compatibili. Le lacune non diventano zero e le percentuali richiedono un denominatore valido. La semantica approvata è descritta sopra. In persistenza, energia, emissioni in grammi e fattore usano otto decimali; la copertura, frazione tra zero e uno, ne usa quattro. Nessun arrotondamento intermedio; gli snapshot JSON mantengono la rappresentazione originale.
+
+## Metodologia e dati — simplified-energy v1
+
+Modello `simplified-energy`, versione `1`: CPU al 100% = 100 W; memoria 0,375 W/GB; disco 0,01 W/GB; rete 0,02 W/GB. Parametri semplificati, senza dichiarare misurazione elettrica o fattori regionali ufficiali. Potenza = somma; energia = W × ore / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Snapshot conservano metodo/fattore; anteprima usa fattori attuali senza riscrivere originali.
+
+In `/administration/calculations`, confrontare originale/anteprima per applicazione e date. Data finale inclusiva dell’intero giorno UTC; API `[from,to)`. Anteprima pubblica con modello attuale e fattori attuali delle regioni storiche, senza salvare. Limiti: 30 giorni, 10.000 osservazioni. Campi `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fattore mancante conserva energia calcolabile e CO₂e indisponibile. Percentuali richiedono unità/coperture uguali e riferimento positivo.
+
+`/methodology` offre energia, emissioni, copertura, analisi con esempi e preferenze personali. Qualsiasi ruolo autenticato salva solo le proprie schede con revisione ottimistica; 409 per conflitto. Soglie visive non modificano configurazione globale, calcoli o notifiche esterne. Periodo/granularità salvati completano solo URL senza scelta. Metodologia storica: `/services/:id/methodology`, con `collectionId` selezionato.

@@ -61,3 +61,9 @@ Per ripetere l'individuazione senza riavviare l'API, esegui `docker compose exec
 - Se una porta è occupata, modifica `FRONTEND_PORT`, `API_PORT` o `POSTGRES_PORT` in `.env`.
 - Se l'API non diventa disponibile, consulta `npm run dev:logs`. Dipende da PostgreSQL ed esegue le migrazioni all'avvio.
 - I valori di `.env.example` sono solo per lo sviluppo locale. Non condividere credenziali reali né il file `.env`.
+
+## Per iniziare — login
+
+Node.js 24+, npm, Docker Compose v2. Copiare `.env.example` in `.env`; eseguire `npm run dev`. Compose applica migration e tenta scoperta; errore origine non impedisce avvio API. SMTP per inviti/conferme. Primo Admin: `organizations:create-invitation` in `backend/`, con `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Nessun Admin universale di produzione.
+
+[Operazione e diagnosi](./operations) · [Guida all’uso](./guide/monitoring)

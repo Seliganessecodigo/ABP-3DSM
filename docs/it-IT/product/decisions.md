@@ -21,8 +21,6 @@ D01 e EP00 confermati il 15/10/2026; altre regole in backlog/contratti versionat
 
 | Tema | Da risolvere | Consegne |
 | --- | --- | --- |
-| Ricalcolo | Permessi, limiti volume/periodo, fattore. | #91/#263/#264 |
-| Accessi/conti | Ruoli, bootstrap, sessioni, password/recupero. | #90/#91/#158/#160/#245 |
 | Fonti/operazione | Confermare quote e limiti di concorrenza con i responsabili delle API. La policy di timeout/retry/ritardi di #243 è approvata. | #155/#243 |
 | Continuità | Conservazione, backup/ripristino, disponibilità/prestazioni. | #110/#120/#125/#166 |
 | Extra Figma | CSV, colonne ed efficienza per transazione. Il dettaglio sovrappone già la serie al periodo precedente equivalente; confronto tra applicazioni e dashboard temporale restano fuori da questo ambito. | #61/#248/#252 |
@@ -34,3 +32,13 @@ PO e responsabili tecnici decidono ambito/comportamento; fornitori confermano co
 Markdown: visione/regole. Issue: criteri, task, dipendenze, discussione. Projects: priorità, stato, Sprint, date e PR; non prova implementazione. Figma: intento visivo/handoff, numeri illustrativi non contratto. OpenAPI/codice: revisione esposta. Contratti esterni: schema/unità con versione/data.
 
 Conflitto: esplicitare, decidere col responsabile, sincronizzare fonti. Figma non autorizza endpoint inventati. Issue/PR documenta decisione, motivo, alternative rilevanti, impatti su storie/dati/compatibilità ed evidenze. Decisioni architetturali durature con ADR. Vedere [backlog](../roadmap) e [qualità](./quality).
+
+## Decisioni e dipendenze — c343698
+
+In `/administration/calculations`, confrontare originale/anteprima per applicazione e date. Data finale inclusiva dell’intero giorno UTC; API `[from,to)`. Anteprima pubblica con modello attuale e fattori attuali delle regioni storiche, senza salvare. Limiti: 30 giorni, 10.000 osservazioni. Campi `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fattore mancante conserva energia calcolabile e CO₂e indisponibile. Percentuali richiedono unità/coperture uguali e riferimento positivo.
+
+Dashboard e consultazioni ambientali pubblici. `/login`: e-mail/password o Google abilitato. Admin configura/conferma TOTP di sei cifre anche dopo Google; Analyst/Visitor non ottengono permessi amministrativi. Sessione frontend in memoria: reload richiede login. Backend verifica JWT, sessione, ruolo/stato attuali; 401 per credenziali assenti/invalide, 403 per ruolo insufficiente. Nuove rotte protette per default.
+
+Admin della stessa organizzazione cambia conti tra `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` e motivo. Blocco/disattivazione revocano tutte le sessioni; riattivazione richiede login nuovo. Protetti proprio conto e ultimo Admin attivo. Conflitto atteso: 409; destinazione già raggiunta: successo idempotente. Audit condiviso: successo nella transazione e dinieghi fuori rollback, attore esplicito e nessun segreto. Non consegna gestione completa dei ruoli o recupero password.
+
+Restano: confronto dedicato tra due applicazioni, simulazione regionale, gestione generale utenti/ruoli, recupero password autonomo, configurazione globale/pausa monitoraggio e CSV. Ordinamento per impatto disponibile. Quote esterne, retention, backup/ripristino e obiettivi operativi da definire; nessun SLA. Recupero TOTP via supporto non è reset password.
