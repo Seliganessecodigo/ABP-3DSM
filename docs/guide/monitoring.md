@@ -1,67 +1,56 @@
-# Usar o catálogo e investigar uma aplicação
+# Guia de uso
 
-Este guia cobre catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login, disponíveis na interface.
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-## Encontrar uma aplicação
+## Encontrar uma aplicação {#catalog}
 
-1. Abra o frontend do ambiente; localmente, siga [Primeiros passos](../getting-started).
-2. Pesquise por nome, ID, código regional ou região. Combine a busca com o filtro de estado.
-3. Use a paginação quando houver mais resultados. Se a busca não retornar itens, limpe os filtros antes de concluir que o catálogo está vazio.
-4. Abra a aplicação e confirme ID e localização. Cidade nula não invalida o cadastro; localização legada incompleta deve ser apresentada como desconhecida.
+No catálogo, pesquise por nome, identificador ou região e filtre pelo estado da aplicação. Navegue pelas páginas da tabela e abra uma aplicação para consultar seus dados. Se a busca não retornar resultados, revise os filtros. O endereço da página conserva a busca e a paginação para compartilhar ou retomar a consulta.
 
-Busca, filtro e página ficam na URL (`q`, `state` e `page`). Preserve o link para recuperar esse contexto. Atualmente esses filtros são aplicados no frontend, sobre a lista retornada pela API.
+## Consultar o dashboard {#dashboard}
 
-## Acompanhar atualizações
+No dashboard, selecione um período de 24 horas, 7, 30 ou 90 dias, uma região e um estado. Consulte energia, emissões, cobertura e distribuição das aplicações por estado. O gráfico mostra a participação nas emissões em barras ou rosca. A tabela permite buscar, filtrar e ordenar por impacto; seus filtros alteram as linhas exibidas, mantendo os totais do resumo no recorte selecionado.
 
-Catálogo e detalhe consultam a API ao abrir e agendam nova consulta 60 segundos após cada tentativa terminar. Esse polling é independente do intervalo de coleta do backend e do intervalo informado pelo agregador. Não há garantia de dado novo a cada atualização de tela.
+## Investigar o detalhe {#detail}
 
-A interface informa horários da tentativa e da resposta válida. Uma falha após sucesso mantém os dados anteriores; eles não devem ser lidos como uma nova observação. A atualização manual do catálogo permite tentar novamente sem recarregar a página. Ao sair da tela, consultas pendentes são canceladas.
+Abra o detalhe para conferir identidade, localização, estado e horários de atualização. Examine as métricas e os resultados ambientais no mesmo período. A consulta da metodologia apresenta o modelo, os parâmetros e o fator de carbono registrados no cálculo, sem modificar o resultado. Quando a cidade não estiver disponível, as demais informações de localização continuam úteis.
 
-## Analisar resultados ambientais
+## Explorar o histórico {#history}
 
-No detalhe, escolha uma janela móvel de 24 horas, 7, 30 ou 90 dias e a granularidade de hora, dia, mês ou ano. A série mostra energia e CO₂e dos resultados persistidos; a sobreposição compara a janela selecionada com a janela imediatamente anterior, de mesma duração. Essa é uma comparação temporal da mesma aplicação, não um ranking nem uma comparação entre aplicações.
+No histórico, escolha uma aplicação, um período e o agrupamento por hora, dia, mês ou ano. Use os filtros e a paginação para localizar intervalos e abra a composição de um intervalo para consultar observações incluídas e exclusões. O fuso altera a apresentação das datas; o agrupamento permanece em UTC. No detalhe, a sobreposição permite comparar a aplicação com o período anterior de mesma duração.
 
-## Interpretar o que aconteceu
+## Comparar com uma prévia de recálculo {#preview}
 
-Para rastrear um indicador, abra **Ver metodologia completa** no detalhe da aplicação; também é possível escolher **Metodologia** na navegação e selecionar uma aplicação. A página apresenta o modelo, a fórmula, os parâmetros e pressupostos registrados, além dos dados do fator de carbono quando disponíveis. Pelo detalhe, ela usa a coleta selecionada; pela navegação, usa a coleta válida mais recente. A página explica a evidência salva e não recalcula o resultado.
+Na prévia de recálculo, selecione a aplicação e as datas para comparar o resultado original com uma estimativa pelo modelo atual e pelos fatores de carbono atuais das regiões observadas. O último dia selecionado é incluído por completo, em UTC. A consulta aceita até 30 dias e 10.000 observações. A prévia não é salva e não altera o histórico. Diferenças percentuais aparecem quando unidade e cobertura coincidem e o valor original é positivo.
 
-| Situação | Leitura e próxima ação |
+## Personalizar a análise {#preferences}
+
+Em Metodologia, explore as abas de energia, emissões, cobertura e análise. As demonstrações usam dados de exemplo, identificados na tela. Entre na sua conta para salvar limites de apresentação e opções iniciais de período e agrupamento. Cada pessoa altera apenas suas preferências; os cálculos e a configuração geral permanecem preservados. Se houver conflito ao salvar, recarregue a preferência antes de tentar novamente. Opções já escolhidas no endereço da análise têm prioridade sobre as preferências salvas.
+
+## Entrar na sua conta {#access}
+
+O catálogo, o dashboard e as consultas ambientais podem ser acessados sem login. Para salvar preferências, entre com e-mail e senha ou com Google, quando essa opção estiver habilitada e sua conta estiver vinculada por convite. Administradores também precisam confirmar um código de seis dígitos do aplicativo autenticador. Recarregar a página encerra a sessão da interface e exige novo login. As permissões de administração dependem do papel da conta.
+
+## Idioma e aparência {#appearance}
+
+Use o seletor para escolher entre os 12 idiomas. A escolha fica neste navegador. O interruptor de modo escuro permite alternar a aparência; antes de uma escolha explícita, a interface acompanha o sistema. Se o navegador bloquear o armazenamento, essas preferências podem ser perdidas ao recarregar. Trocar o idioma muda a apresentação das datas e números, preservando os instantes observados.
+
+## Interpretar os dados {#data}
+
+Zero significa que existe uma observação válida com esse valor. Uma lacuna indica que faltam dados utilizáveis; ela não deve ser interpretada como consumo zero. Se uma atualização falhar, o sistema pode manter a última leitura válida com seu horário original. Confira a atualização e a cobertura antes de usar o indicador em uma decisão. As telas consultam novas informações a cada 60 segundos após cada tentativa; isso não garante uma nova medição a cada atualização.
+
+| Estado | Significado |
 | --- | --- |
-| Catálogo vazio | A API respondeu sem aplicações; verificar descoberta inicial. |
-| Nenhum resultado filtrado | Ajustar busca/filtro; o ambiente pode conter outras aplicações. |
-| Falha inicial | Não há dados válidos para mostrar; tentar novamente e consultar operação. |
-| Falha depois de sucesso | Preservar a leitura anterior e observar seu horário. |
-| Aplicação não encontrada | Conferir o ID/link; difere de aplicação conhecida removida. |
-| Aplicação removida | A identidade e o histórico continuam conhecidos; ausência foi confirmada por snapshot válido. |
+| Disponível | A aplicação respondeu com métricas utilizáveis. |
+| Indisponível | A tentativa atual falhou; pode existir histórico válido. |
+| Sem métricas | A aplicação é conhecida, mas não há métricas utilizáveis na tentativa. |
+| Removida | A ausência foi confirmada no catálogo de origem; a identidade e o histórico permanecem. |
 
-## Estado não é consumo
+Cobertura é a proporção do período sustentada por observações válidas. Energia e emissões têm coberturas separadas: pode existir energia estimada mesmo quando falta um fator de carbono para calcular emissões. Compare períodos, unidades e coberturas compatíveis. Um percentual de cobertura baixo sinaliza uma análise parcial, não uma redução comprovada de consumo.
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` e `REMOVED` descrevem o estado operacional. Frescor, motivo da tentativa e possibilidade de calcular indicadores são dimensões adicionais. Uma aplicação disponível pode não ter fator de carbono; uma indisponível pode possuir histórico válido.
+## Diagnóstico {#support}
 
-A tela de detalhe apresenta estado operacional, métricas, resultados ambientais, série histórica e contribuições consultáveis por período. Consulte a [referência da API](../reference/api) e a [metodologia](../product/methodology) para interpretar os dados sem confundir ausência, falha e zero.
+Ao comunicar um problema, informe a aplicação, o período, os filtros, a hora com fuso e a ação realizada. Descreva o resultado esperado e o observado. Capturas de tela ajudam quando não contêm credenciais ou dados privados.
 
-## Idioma e comunicação de problemas
+## Leitura relacionada {#related}
 
-O seletor oferece doze idiomas e guarda a preferência neste navegador. Alterar idioma não cria outra aplicação nem muda os instantes das observações.
-
-Ao relatar um problema, informe ambiente, ID, filtros, horário com fuso, ação executada e resultado esperado/observado. Inclua captura sem credenciais ou dados privados. Para falha de ambiente, siga [Operação e diagnóstico](../operations).
-
-## Preferência de tema
-
-Nas preferências da navegação, use o interruptor **Modo escuro**: desligado aplica claro; ligado aplica escuro. No primeiro acesso, o GreenER acompanha a aparência do sistema, inclusive suas mudanças durante o uso, até você acionar o interruptor. A partir daí, vale a escolha explícita; esta interface não oferece uma ação para voltar a seguir o sistema.
-
-A escolha vale para o catálogo, detalhe e layout global, sem alterar filtros ou dados. Ela fica neste navegador, na chave local `greener-theme`, e é recuperada no próximo acesso. Se o navegador bloquear o armazenamento, a escolha continua válida durante a sessão, mas poderá não sobreviver à recarga.
-
-## Dashboard
-
-Em `/dashboard`, selecione 24 horas, 7, 30 ou 90 dias, estado e região. O resumo apresenta totais, cobertura, contagens por estado e composição de emissões em barras ou rosca. A tabela permite busca, filtros por coluna, ordenação por energia/CO₂e e paginação. Os filtros da tabela recortam as linhas, sem redefinir os totais do resumo. Abra uma aplicação para investigar sua evidência. O dashboard consulta `GET /analysis/summary` e atualiza periodicamente sem reload.
-
-## Guia de uso
-
-Em `/history`, escolha uma aplicação; `applicationId`, período e granularidade preservam contexto na URL. A tela reutiliza a série persistida do detalhe, com filtros, fuso de apresentação, eventos, paginação numerada e inspeção de buckets. As contribuições também possuem paginação interativa de 5, 10, 15, 20 ou todos os itens. Buckets do backend continuam em UTC; mudar o fuso de apresentação não reagrupa a série. A sobreposição do detalhe compara a mesma aplicação com a janela anterior equivalente.
-
-Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
-
-Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
-
-O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
+[Metodologia e dados](../product/methodology) · [Referência da API](../reference/api)

@@ -1,37 +1,35 @@
 # Backlog do produto
 
-O backlog do GreenER está organizado em seis épicos de produto e um épico de fundações técnicas e qualidade. Cada página resume o escopo e leva às issues nativas do GitHub, onde ficam os critérios de aceite, as tasks, dependências e estado atual.
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-| Épico | Escopo |
+## Backlog do produto {#epics}
+
+| Recurso | Referência |
 | --- | --- |
-| [EP00 — Fundações técnicas, qualidade e processo de entrega](./backlog/ep00) | Agrupa requisitos transversais de tecnologia, arquitetura, dados, segurança, operação, falhas e acessibilidade. As tasks filhas representam entregas técnicas verificáveis; a qualidade continua valendo em cada mudança posterior. |
-| [EP01 — Catálogo de aplicações](./backlog/ep01) | Permite localizar e navegar pelas aplicações que o GreenER acompanha. |
-| [EP02 — Monitoramento de aplicações](./backlog/ep02) | Cobre descoberta e ciclo de vida, atualização periódica, estados e falhas por aplicação. |
-| [EP03 — Cálculo de impacto ambiental](./backlog/ep03) | Apresenta cálculos sustentáveis por evidências, unidades, metodologia e limitações explícitas. |
-| [EP04 — Dashboard ambiental](./backlog/ep04) | Consolida indicadores e oferece investigação do detalhe e do histórico. |
-| [EP05 — Análise e simulação](./backlog/ep05) | Ajuda a priorizar, comparar aplicações e explorar um cenário regional sem alterar os resultados oficiais. |
-| [EP06 — Configuração e administração](./backlog/ep06) | Cobre idiomas, temas, autorização e administração do monitoramento e das contas. |
+| EP00 — Fundações e qualidade | [EP00](./backlog/ep00) |
+| EP01 — Catálogo de aplicações | [EP01](./backlog/ep01) |
+| EP02 — Monitoramento | [EP02](./backlog/ep02) |
+| EP03 — Cálculo ambiental | [EP03](./backlog/ep03) |
+| EP04 — Dashboard ambiental | [EP04](./backlog/ep04) |
+| EP05 — Análise e simulação | [EP05](./backlog/ep05) |
+| EP06 — Configuração e administração | [EP06](./backlog/ep06) |
 
-## Princípios do produto
+## Princípios {#principles}
 
-- Ausência, erro ou dado desatualizado não se convertem em consumo zero.
-- Energia e CO₂e preservam unidade, período, cobertura e contexto.
-- Mudanças de configuração ou método não reescrevem o histórico original.
-- A prévia de recálculo não é salva e não altera resultados oficiais.
-- Consultas públicas e alterações administrativas têm regras de acesso diferentes; a autorização ocorre no backend.
+| Regra | Significado |
+| --- | --- |
+| Histórico preservado | Alterar preferências ou gerar uma prévia não substitui resultados originais. |
+| Ausência explícita | Falhas, falta de métricas e dados antigos permanecem distintos de zero. |
+| Consulta pública | Ler indicadores não exige login; salvar preferências e administrar contas exige acesso autorizado. |
 
-[Abrir no backlog do GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+## Evoluções planejadas {#planned}
 
-## Dependências e limites
+Estão planejados a comparação dedicada entre aplicações, a simulação em outra região, a gestão completa de usuários e papéis, a recuperação de senha por autoatendimento, os controles globais de monitoramento. A exportação CSV depende de definição de escopo. O dashboard já permite ordenar aplicações por energia ou emissões. As prioridades são mantidas no backlog; esta documentação não estabelece datas para essas evoluções.
 
-Ordem de dependência, sem compromisso de data: reconhecer aplicações e coletar evidências → aprovar o modelo e persistir resultados versionados → apresentar resumo e histórico → comparar e simular. Administração e preferências seguem suas próprias dependências de autorização e design. A Sprint e a capacidade são definidas no Projects; esta página não promete calendário.
+## Critérios de aceite {#acceptance}
 
-[Visão e escopo](./product/vision) · [Qualidade e aceite](./product/quality) · [Decisões e dependências](./product/decisions)
+Mudanças de escopo e regras de uso devem registrar o problema, o resultado esperado e os critérios de aceite nas histórias correspondentes. Revisões do produto e avaliações de usabilidade registram dificuldades observadas, feedback e melhorias. Retenção de dados, backup e recuperação, metas operacionais e cotas das fontes externas ainda exigem definição.
 
-## Visão e escopo — c343698
+## Leitura relacionada {#related}
 
-O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
-
-Permanecem fora da entrega: comparação dedicada entre pelo menos duas aplicações, simulação regional, gestão geral de usuários/papéis, recuperação de senha por autoatendimento, configuração global/pausa do monitoramento e exportação CSV. Ordenar o dashboard por impacto já é possível. Cotas externas, retenção, backup/restauração e metas operacionais precisam de definição; não há SLA declarado. Recuperação de TOTP é operação de suporte, não reset de senha.
-
-[Visão e escopo](./product/vision)
+[Visão e escopo](./product/vision) · [Qualidade e aceite](./product/quality)

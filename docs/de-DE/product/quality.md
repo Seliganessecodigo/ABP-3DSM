@@ -1,44 +1,29 @@
-# Übergreifende Anforderungen und Abnahme
+# Qualität und Abnahme
 
-[EP00](../backlog/ep00) organisiert Grundlagen und Qualität. Ein RNF gilt dauerhaft; sein Task liefert ein endliches Artefakt. Datenbankeinrichtung beendet nicht die Integritätspflicht.
+Das Produkt muss Anwendungen auffindbar machen, Null von fehlenden Daten unterscheiden und Kennzahlen auf Zeitraum, Einheit, Abdeckung und Methodik zurückführen. Abfragen erhalten Navigationskontext und kennzeichnen Laden, Leere, Fehler und ältere Daten. Bewertet werden Tastatur, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte und alle 12 Sprachen.
 
-## Qualitätsnachweise
+## Abnahmekriterien {#acceptance}
 
-| Anforderung | Nachweis |
+| Regel | Bedeutung |
 | --- | --- |
-| RNF-01 — Technologien | Buildfähiges React/TypeScript und NestJS/TypeScript. |
-| RNF-02 — Verantwortung | UI zeigt; Backend entscheidet; Adapter validieren; Repositories speichern. |
-| RNF-03 — Historie | Migrationen/Tests für Identität, Integrität, Versionsbewahrung. |
-| RNF-04 — Sicherheit | Geheimnisse außerhalb Git, Autorisierung im Backend. |
-| RNF-05 — Reproduzierbarkeit | Dokumentierte Umgebung, prüfbare CI, validierte Veröffentlichung. |
-| RNF-06 — Fehler | Erfolg, leer, Fehler, fehlend, stale unterscheidbar. |
-| RNF-07 — Nutzung | Tastatur, Fokus, Kontrast, Text/Icons statt nur Farbe, responsive, zwölf Sprachen. |
+| Erhaltener Verlauf | Einstellungen und Vorschauen ersetzen keine Originalergebnisse. |
+| Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
+| Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-Offen: eigener Vergleich mehrerer Anwendungen, regionale Simulation, allgemeine Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungseinstellungen/Pause und CSV. Impact-Sortierung existiert. Externe Quoten, Aufbewahrung, Backup/Wiederherstellung und Betriebsziele brauchen Entscheidungen; kein SLA. TOTP-Wiederherstellung durch Support ist kein Passwortreset.
+## Daten verstehen {#integrity}
 
-## Abnahmeszenarien
+Nullverbrauch bedeutet, dass eine gültige Beobachtung diesen Wert belegt. Eine Lücke bedeutet fehlende nutzbare Daten, keinen Nullverbrauch. Nach Aktualisierungsfehlern kann die letzte gültige Messung mit ursprünglichem Zeitpunkt erhalten bleiben. Prüfen Sie Aktualität und Abdeckung vor Entscheidungen. Die Anzeige fragt 60 Sekunden nach jedem Versuch erneut ab; eine neue Messung ist damit nicht garantiert.
 
-| Ausgangslage / Aktion | Erwartung | Referenz |
-| --- | --- | --- |
-| Bekannte Anwendung fehlt im vollständigen gültigen Snapshot | Entfernung erfassen, Historie bewahren. | US-02 |
-| Quellfehler oder ungültige Nutzlast | Keine Entfernung bestätigen, keine Null erfinden. | US-02/05 |
-| Gültige Beobachtung, nächster Versuch schlägt fehl | Beobachtung bewahren, Aktualität unterscheiden. | US-03/04 |
-| Gültige Energie, kein Faktor | CO₂e nicht erfinden, Energie nicht verwerfen. | US-07/08 |
-| Neuberechnungsvorschau | Original unverändert, Vorschau nicht gespeichert. | US-12 |
-| Administrative Aktion ohne Recht | Backend verweigert Änderung. | US-18/19/20 |
+Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-Geplante Funktionen brauchen Implementierung und Tests vor Lieferankündigung.
+## Validierungskriterien {#assessment}
 
-## Bereitschaft, Abschluss und Gate
+Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
 
-Vor Beginn: Ergebnis, Verbraucher, Kriterien, Vertrag und echte Abhängigkeiten benennen. Offene Koeffizienten/Rechte werden nicht zu technischen Annahmen. Design braucht Zustände, Navigation und überprüfbare Übergabe.
+## Prüfungen {#engineering}
 
-Abschluss: Kriterien demonstrieren, Code prüfen, relevante Fehler testen, Vertrag/Dokumentation und Belege aktualisieren. Offene PR beendet kein Issue. Planning/Review/Feedback gehören zu #134.
+[Mitwirken](../contributing)
 
-PRs nach `develop`: passende Checks und SonarQube Cloud, neue Abdeckung ≥ 80%, Duplikation ≤ 3%, A-Ratings, 100% Hotspots geprüft. Ausführbares Backend: Tests/LCOV. Siehe [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) und [Mitwirken](../contributing). CI ersetzt weder funktionale Abnahme noch Nutzbarkeitstest.
+## Weiterführende Seiten {#related}
 
-## CI — c343698
-
-CI prüft Dokumentation, Frontend-Lint/Tests/Build, Backend-Lint/Typecheck/PostgreSQL-Tests/Abdeckung/Build/Migrationen und echten integrierten Browserablauf. `TEST_DATABASE_URL` verlangt isoliertes PostgreSQL; ohne Variable überspringt Jest Datenbanksuiten, Browserintegration schlägt fehl. SonarQube für PRs nach `develop`: neue Abdeckung ≥ 80 %, Duplikation ≤ 3 %, Bewertungen A, Hotspots vollständig geprüft. Kein Ersatz für Usability/Produktabnahme.
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+[Entscheidungen und Abhängigkeiten](../product/decisions) · [Mitwirken](../contributing)

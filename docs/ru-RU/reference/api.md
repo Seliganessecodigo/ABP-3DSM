@@ -1,10 +1,10 @@
 # Справочник API
 
-Основа: `origin/develop`, коммит `c343698`, проверено 08.11.2026. Среда может использовать другую ревизию; слияние не доказывает развёртывание.
+Справочник интеграции GreenER API. Полные типы, необязательные поля и лимиты в `/openapi.json`, Swagger в `/docs`. Каталог/история читают сохранённые данные. Предпросмотр и углеродные маршруты могут запрашивать источник интенсивности.
 
-Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
+## Публичные запросы {#public}
 
-| HTTP | URI | JWT / credential |
+| HTTP | URI | Доступ |
 | --- | --- | --- |
 | GET | `/health` | — |
 | GET | `/applications` | — |
@@ -19,51 +19,83 @@ Swagger: `http://localhost:3000/docs`; schema: `/openapi.json`.
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
-| POST | `/auth/login` | email + password |
-| GET | `/auth/sso/google` | PKCE |
-| GET | `/auth/sso/google/callback` | state + cookie |
-| POST | `/auth/sso/handoff/exchange` | code + PKCE |
-| POST | `/auth/totp/setup` | setupToken |
-| POST | `/auth/totp/setup/confirm` | setupToken + TOTP |
-| POST | `/auth/totp/challenge` | challengeToken + TOTP |
-| POST | `/auth/sessions/refresh` | refreshToken |
-| POST | `/auth/invitations/accept` | token |
-| POST | `/auth/email/confirm` | token + password |
-| POST | `/auth/email/confirmation/resend` | organization + email |
-| GET | `/auth/me` | JWT |
-| POST | `/auth/sessions/logout` | JWT |
-| POST | `/auth/totp/replacement` | JWT + password + TOTP |
-| POST | `/auth/totp/replacement/confirm` | JWT + confirmationToken + TOTP |
-| GET | `/me/preferences` | JWT |
-| PUT | `/me/preferences/{tab}` | JWT |
-| POST | `/auth/sso/invitations` | JWT + ADMIN |
-| DELETE | `/auth/sso/identities/{userId}` | JWT + ADMIN |
-| PATCH | `/auth/users/{userId}/status` | JWT + ADMIN |
 
-Нужны `from`, `to` RFC 3339 с явным поясом; `[from,to)` нормализуется в UTC. Гранулярность: `hour`, `day`, `month`, `year`, до 10 000 точек. Сохранённые значения распределяются по пересечению без пересчёта: побеждает новейший `collectedAt`, при равенстве — ID по возрастанию. Неверный победитель не заменяется прежним. Покрытие энергии/CO₂e раздельное. `null` — отсутствие, ноль может быть корректным. У источника метрик нет времени измерения: интервал получен из времени приёма минус `collection_interval_seconds`. Время запроса фактора не доказывает срок действия. Энергия/фактор/выбросы хранят 8 знаков, покрытие 4.
+## Периоды и история {#queries}
 
-В `/administration/calculations` выберите приложение и даты, сравните оригинал/предпросмотр. Конечная дата включает весь день UTC; API принимает `[from,to)`. Публичный предпросмотр использует текущую модель и текущие коэффициенты исторических регионов, ничего не сохраняет. Лимиты: 30 дней, 10 000 наблюдений. Ответ: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Ошибка коэффициента сохраняет вычислимую энергию, CO₂e недоступен. Проценты требуют равных единиц/покрытия и положительной базы.
+`from`, `to` требуют RFC 3339 с явным поясом; `[from,to)` нормализуется UTC. `hour`, `day`, `month`, `year`, до 10 000 точек, превышение отклоняется. Сохранённые значения распределяются по пересечению. Побеждает новейший `collectedAt`, затем ID по возрастанию; без возврата к прежним данным, если победитель не поддерживает метрику.
 
-`/methodology` содержит вкладки энергии, выбросов, покрытия и анализа с примерами/личными настройками. Любая авторизованная роль сохраняет только свои вкладки с оптимистической ревизией; конфликт — 409. Пороги отображения не меняют общие настройки, расчёты или внешние уведомления. Период/детализация подставляются лишь при отсутствии параметров URL. Историческая методология: `/services/:id/methodology`, с выбранным `collectionId`.
+| URI | Параметр |
+| --- | --- |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+Источник метрик не даёт время измерения; интервал — приём минус `collection_interval_seconds`. Время запроса фактора не определяет срок действия; неопубликованные источник/валидность неизвестны. Энергия/фактор/выбросы: 8 десятичных знаков, покрытие 4, без промежуточного округления. Сохраняются раздельные покрытия и исходные снимки.
+
+## Войти {#login}
+
+Панель и экологические запросы публичны. `/login`: почта/пароль или включённый Google. Admin настраивает/подтверждает шестизначный TOTP, включая вход Google; Analyst/Visitor не получают права администратора. Сессия frontend только в памяти; перезагрузка требует входа. Backend проверяет JWT, сессию, актуальные роль и состояние: 401 для отсутствующих/неверных учётных данных, 403 для недостаточных прав. Новые маршруты защищены по умолчанию.
+
+| HTTP | URI | Доступ |
+| --- | --- | --- |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## Защищённые операции {#protected}
+
+| HTTP | URI | Доступ |
+| --- | --- | --- |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
 
 Admin той же организации меняет состояние между `ACTIVE`, `BLOCKED`, `DEACTIVATED`, передавая `expectedStatus` и причину. Блокировка/деактивация отзывают все сессии; активация требует нового входа. Защищены собственная запись и последний активный Admin. Конфликт ожидания — 409; уже достигнутая цель — идемпотентный успех. Общий аудит пишет успех в транзакции изменения, отказы вне отката, явно указывает субъекта и исключает секреты. Полное управление ролями и восстановление пароля этим маршрутом не предоставляются.
 
-`GET /analysis/summary`: `from`, `to`; `states`, `regionCodes`, `applicationIds`. `/monitoring/incidents`: `applicationId`, `source`, `integration`, `status`, `page`, `limit` → `{items,total,page,limit}`. `series/contributions`: `bucketStart`, `page`, `pageSize` (5/10/15/20/all).
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
-
-[Видение и границы](../product/vision) · [Руководство пользователя](../guide/monitoring) · [Методология и данные](../product/methodology) · [Качество и приёмка](../product/quality) · [Решения и зависимости](../product/decisions) · [Справочник API](../reference/api) · [Эксплуатация и диагностика](../operations) · [Начало работы](../getting-started) · [Архитектура](../architecture) · [Участие в разработке](../contributing) · [Бэклог продукта](../roadmap)
-
-
 ```json
-{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example administrative action" }
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
 
-`PATCH /auth/users/{userId}/status`: `400`, `401`, `403`, `404`, `409`.
+## Сравнить с предпросмотром пересчёта {#preview}
 
-`POST /applications/{id}/analysis/recalculation-preview`: `400 RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED`, `400 RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED`, `503 APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE`.
+В `/administration/calculations` выберите приложение и даты, сравните оригинал/предпросмотр. Конечная дата включает весь день UTC; API принимает `[from,to)`. Публичный предпросмотр использует текущую модель и текущие коэффициенты исторических регионов, ничего не сохраняет. Лимиты: 30 дней, 10 000 наблюдений. Ответ: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Ошибка коэффициента сохраняет вычислимую энергию, CO₂e недоступен. Проценты требуют равных единиц/покрытия и положительной базы.
 
-`GET /me/preferences`: `energy`, `emissions`, `coverage`, `analysis` → `null` / `{ value, revision, updatedAt }`. `PUT /me/preferences/{tab}`: `{ expectedRevision, value }`. `expectedRevision: 0` → create. `400 INVALID_PREFERENCE`, `409 PREFERENCE_CONFLICT`, `503 PREFERENCES_UNAVAILABLE`.
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## Настроить анализ {#preferences}
+
+`/methodology` содержит вкладки энергии, выбросов, покрытия и анализа с примерами/личными настройками. Любая авторизованная роль сохраняет только свои вкладки с оптимистической ревизией; конфликт — 409. Пороги отображения не меняют общие настройки, расчёты или внешние уведомления. Период/детализация подставляются лишь при отсутствии параметров URL. Историческая методология: `/services/:id/methodology`, с выбранным `collectionId`.
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
 
 | tab | value |
 | --- | --- |
@@ -71,3 +103,24 @@ Admin той же организации меняет состояние меж�
 | emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
 | coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
 | analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+
+## Обработка ошибок {#errors}
+
+Обрабатывайте HTTP-статус и структурированные коды, не используйте текст как контракт перевода. `null` — отсутствие, не ноль. Пустой список допустим и отличается от ошибки. Коды рассматриваются в контексте операции.
+
+| HTTP | Код |
+| --- | --- |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
+
+## Контракт HTTP {#contracts}
+
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
+
+## Связанные страницы {#related}
+
+[Эксплуатация и диагностика](../operations) · [Методология и данные](../product/methodology)

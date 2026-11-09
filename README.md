@@ -10,7 +10,7 @@ O GreenER reúne métricas de aplicações e apresenta indicadores com período,
 
 O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
 
-A revisão da documentação parte da `develop` no commit `c343698` (08/11/2026). Consulte a [visão do produto](docs/product/vision.md) para disponibilidade por camada e as [decisões e dependências](docs/product/decisions.md) para o escopo restante.
+Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
 
 ## Épicos
 
@@ -51,6 +51,8 @@ npm run docs:dev
 ```
 
 Acesse http://localhost:4174. Para gerar e visualizar os arquivos HTML de produção, use `npm run docs:build` e `npm run docs:preview`.
+
+O build verifica a equivalência de seções, tabelas, links e exemplos nos doze idiomas. Execute `npm run docs:check` para fazer essa conferência isoladamente.
 
 A publicação do HTML no GitHub Pages está configurada no workflow. Na primeira publicação, o repositório precisa usar **GitHub Actions** como origem em **Settings → Pages**. O Markdown continua versionado e acessível pelos links acima.
 

@@ -1,6 +1,29 @@
 # Эксплуатация и диагностика
 
-Основа: `origin/develop`, коммит `c343698`, проверено 08.11.2026. Среда может использовать другую ревизию; слияние не доказывает развёртывание.
+Эта часть для разработки и эксплуатации: локальная среда, контракты и проверки. Для использования продукта читайте руководство пользователя.
+
+## Настройка {#environment}
+
+```text
+FRONTEND_PORT=5173
+API_PORT=3000
+POSTGRES_PORT=5432
+DATABASE_URL
+METRICS_AGGREGATOR_URL
+CARBON_INTENSITY_URL
+CORS_ORIGIN
+VITE_API_URL
+MONITORING_SCHEDULE_INTERVAL_SECONDS=60
+MONITORING_METRICS_CONCURRENCY=2
+```
+
+## Автоматический мониторинг {#monitoring}
+
+Мониторинг после первого интервала, без перекрытия на процесс. Интервал/параллелизм — положительные целые. Compose не передаёт автоматически `MONITORING_SCHEDULE_INTERVAL_SECONDS`, `MONITORING_METRICS_CONCURRENCY` из `.env`, нужно явное сопоставление. `/health` проверяет HTTP, не обнаружение/расчёт. Проверьте каталог, данные, логи. Сбой источника не подтверждает удаление; восстановление после трёх корректных наблюдений подряд.
+
+Первое отсутствие в полном корректном снимке подтверждает удаление. Каждый внешний вызов имеет общий предел 30 секунд и максимум три HTTP-попытки, включая первую; повторяются только временные ошибки.
+
+## Войти {#authentication}
 
 Нужны Node.js 24+, npm, Docker Compose v2. Скопируйте `.env.example` в `.env`, выполните `npm run dev`. Compose применяет миграции и пробует обнаружение; сбой источника не мешает запуску API. SMTP нужен для приглашений/подтверждений. Первый Admin: `organizations:create-invitation` в `backend/`, переменные `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Универсальной производственной записи Admin нет.
 
@@ -17,11 +40,24 @@ SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
 SMTP_USER / SMTP_PASSWORD
 ```
 
-Панель и экологические запросы публичны. `/login`: почта/пароль или включённый Google. Admin настраивает/подтверждает шестизначный TOTP, включая вход Google; Analyst/Visitor не получают права администратора. Сессия frontend только в памяти; перезагрузка требует входа. Backend проверяет JWT, сессию, актуальные роль и состояние: 401 для отсутствующих/неверных учётных данных, 403 для недостаточных прав. Новые маршруты защищены по умолчанию.
+Зарегистрируйте в Google Cloud точный URI `GOOGLE_CALLBACK_URL`. `VITE_GOOGLE_SSO_ENABLED=true` лишь включает кнопку, не настраивает backend и не создаёт аккаунты: привязка требует приглашения. `GOOGLE_CLIENT_SECRET`, JWT, pepper, ключи TOTP — секреты backend; используйте независимые значения и храните нужные старые версии. SMTP доставляет приглашения/подтверждения. Поддержка запускает `authentication:recover-admin-totp` после независимой проверки полномочий организации; сессии отзываются, операция аудируется.
 
-Admin той же организации меняет состояние между `ACTIVE`, `BLOCKED`, `DEACTIVATED`, передавая `expectedStatus` и причину. Блокировка/деактивация отзывают все сессии; активация требует нового входа. Защищены собственная запись и последний активный Admin. Конфликт ожидания — 409; уже достигнутая цель — идемпотентный успех. Общий аудит пишет успех в транзакции изменения, отказы вне отката, явно указывает субъекта и исключает секреты. Полное управление ролями и восстановление пароля этим маршрутом не предоставляются.
+```text
+ORGANIZATION_NAME
+ORGANIZATION_SLUG
+ORGANIZATION_REPRESENTATIVE_EMAIL
+ADMIN_EMAIL
+NEW_RECOVERY_REPRESENTATIVE_EMAIL
+SUPPORT_OPERATOR_ID
+SUPPORT_RECOVERY_REASON
+```
 
-`MONITORING_SCHEDULE_INTERVAL_SECONDS=60`, `MONITORING_METRICS_CONCURRENCY=2`.
+```sh
+npm run organizations:create-invitation --prefix backend
+npm run authentication:recover-admin-totp --prefix backend
+```
+
+## Диагностика {#diagnosis}
 
 ```sh
 docker compose ps
@@ -29,11 +65,10 @@ docker compose logs --tail=100 api
 docker compose exec api npm run applications:discover
 ```
 
-Ещё не поставлены: отдельное сравнение двух приложений, региональная симуляция, общее управление пользователями/ролями, самостоятельное восстановление пароля, глобальная настройка/пауза мониторинга и CSV. Сортировка по воздействию доступна. Квоты источников, хранение, backup/restore и эксплуатационные цели требуют решений; SLA не заявлен. Восстановление TOTP поддержкой не является сбросом пароля.
+## Публикация и восстановление {#release}
 
-[Видение и границы](./product/vision) · [Руководство пользователя](./guide/monitoring) · [Методология и данные](./product/methodology) · [Качество и приёмка](./product/quality) · [Решения и зависимости](./product/decisions) · [Справочник API](./reference/api) · [Эксплуатация и диагностика](./operations) · [Начало работы](./getting-started) · [Архитектура](./architecture) · [Участие в разработке](./contributing) · [Бэклог продукта](./roadmap)
+Staging из `develop` после CI: API в Azure App Service, frontend в Static Web Apps, проверка endpoint после API. Документация: GitHub Pages, `DOCS_BASE=/ABP-3DSM/`. Перед повтором определите сбойный этап. Автовосстановления БД нет. `npm run dev:down` сохраняет том, удаление тома стирает локальные данные.
 
+## Связанные страницы {#related}
 
-Зарегистрируйте в Google Cloud точный URI `GOOGLE_CALLBACK_URL`. `VITE_GOOGLE_SSO_ENABLED=true` лишь включает кнопку, не настраивает backend и не создаёт аккаунты: привязка требует приглашения. `GOOGLE_CLIENT_SECRET`, JWT, pepper, ключи TOTP — секреты backend; используйте независимые значения и храните нужные старые версии. SMTP доставляет приглашения/подтверждения. Поддержка запускает `authentication:recover-admin-totp` после независимой проверки полномочий организации; сессии отзываются, операция аудируется.
-
-Параметры мониторинга — положительные целые; текущий Compose не передаёт эти два значения из `.env` в контейнер API автоматически: нужен environment mapping. Защита от перекрытия действует на процесс, не является распределённой блокировкой реплик. `/health` не доказывает доступность источников или вычислимость. Staging из `develop` после CI публикует API в Azure App Service, frontend в Static Web Apps и выполняет smoke test. Документация — GitHub Pages. Автовосстановления БД нет; `dev:down` сохраняет том.
+[Начало работы](./getting-started) · [Справочник API](./reference/api)

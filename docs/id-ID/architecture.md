@@ -1,13 +1,32 @@
 # Arsitektur
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+Bagian ini untuk pengembangan dan operasi: lingkungan lokal, kontrak dan pemeriksaan. Untuk penggunaan produk, baca panduan penggunaan.
+
+## Dokumentasi teknis {#components}
 
 React 19/TypeScript/Vite menyajikan data; NestJS/TypeORM/PostgreSQL 18 mengintegrasikan/menyimpan. Hanya backend mengakses sumber tambahan. Controller: transport; service: kasus penggunaan; adapter: validasi; repository: persistensi. Guard global dan pengecualian `PublicRoute`. Preferensi per pengguna; audit di `backend/src/shared/audit/`, ikut transaksi mutasi sukses.
 
-Katalog/detail menyimpan identitas, lokasi, metrik dan waktu. Pencarian nama/ID/wilayah, status dan halaman disimpan di URL. Polling 60 detik setelah tiap percobaan independen dari pengumpulan backend. Kegagalan setelah sukses mempertahankan data/waktu lama. `AVAILABLE`, `UNAVAILABLE`, `NO_METRICS`, `REMOVED` bukan konsumsi; hilang/error/stale bukan nol. Kota boleh null. Insiden pulih setelah tiga observasi valid berturut-turut; kegagalan sumber tidak mengonfirmasi penghapusan.
+```text
+frontend/  React 19 · TypeScript · Vite
+backend/   NestJS · TypeScript · TypeORM
+PostgreSQL 18
+frontend → GreenER API → auxiliary APIs
+```
 
-Model `simplified-energy`, versi `1`: CPU 100% = 100 W, memori 0,375 W/GB, disk 0,01 W/GB, jaringan 0,02 W/GB. Parameter sederhana, bukan pengukuran listrik atau faktor wilayah resmi. Daya dijumlahkan; energi = W × jam / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Snapshot menyimpan metode/faktor; pratinjau faktor saat ini tidak menulis ulang aslinya.
+## Masuk {#security}
 
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata sandi atau Google yang diaktifkan. Admin harus menyiapkan/mengonfirmasi TOTP enam digit, termasuk setelah Google; Analyst/Visitor tidak mendapat izin administratif. Sesi frontend hanya di memori; reload memerlukan login ulang. Backend memeriksa JWT, sesi, peran dan status terkini; 401 untuk kredensial hilang/tidak valid, 403 untuk peran tidak cukup. Rute baru terlindungi secara default.
 
-[Visi dan cakupan](./product/vision) · [Panduan penggunaan](./guide/monitoring) · [Metodologi dan data](./product/methodology) · [Kualitas dan penerimaan](./product/quality) · [Keputusan dan dependensi](./product/decisions) · [Referensi API](./reference/api) · [Operasi dan diagnosis](./operations) · [Memulai](./getting-started) · [Arsitektur](./architecture) · [Kontribusi](./contributing) · [Backlog produk](./roadmap)
+Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
+
+## Periode dan riwayat {#data}
+
+`from`, `to` memerlukan RFC 3339 dengan zona eksplisit; `[from,to)` dinormalisasi UTC. `hour`, `day`, `month`, `year`, maksimum 10.000 titik; kelebihan ditolak. Nilai tersimpan dibagi sesuai irisan. `collectedAt` terbaru menang, lalu ID leksikal naik; tanpa kembali ke observasi lama jika pemenang tidak mendukung metrik.
+
+Metrik sumber tidak memiliki waktu pengukuran; interval dari penerimaan dikurangi `collection_interval_seconds`. Waktu kueri faktor bukan masa berlaku; sumber/validitas tidak diterbitkan tetap tak diketahui. Energi/faktor/emisi 8 desimal, cakupan4; tanpa pembulatan antara. Cakupan terpisah dan snapshot asli dipertahankan.
+
+## Bacaan terkait {#related}
+
+[Referensi API](./reference/api) · [Memulai](./getting-started)
+
+[ADR](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/adr) · [Design](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/design) · [Specs](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/specs)

@@ -1,12 +1,18 @@
 # Kontribusi
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+Bagian ini untuk pengembangan dan operasi: lingkungan lokal, kontrak dan pemeriksaan. Untuk penggunaan produk, baca panduan penggunaan.
 
-Issue: penerimaan/dependensi; Projects: prioritas/Sprint; Figma: maksud visual; kode/OpenAPI: kontrak nyata. Keputusan jangka panjang dicatat sebagai ADR. PR terbuka tidak menutup issue; pastikan merge/cakupan. ADR historis dipertahankan.
+## Kriteria validasi {#workflow}
 
-`develop` → `tipo/numero-descricao` / `tipo/descricao` → PR `develop`. Conventional Commits: `tipo(escopo): descrição`; `Refs #N`.
+Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
 
-GreenER memantau aplikasi dan memperkirakan energi serta CO₂e. Katalog, dashboard, detail, riwayat, pratinjau hitung ulang, metodologi dan login tersedia. Antarmuka dan dokumentasi mendukung 12 bahasa: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Fallback frontend adalah bahasa Inggris.
+```text
+develop → tipo/numero-descricao / tipo/descricao → PR develop
+Conventional Commits: tipo(escopo): descrição
+Refs #N
+```
+
+## Pemeriksaan {#quality}
 
 CI memeriksa build dokumentasi, lint/test/build frontend, lint/typecheck/test PostgreSQL/cakupan/build/migration backend dan alur browser terintegrasi nyata. `TEST_DATABASE_URL` harus PostgreSQL terisolasi; tanpa variabel, Jest melewati suite database dan browser integrasi gagal. SonarQube wajib untuk PR ke `develop`: cakupan baru ≥80%, duplikasi ≤3%, rating A, seluruh hotspot ditinjau. Otomatisasi tidak mengganti evaluasi kegunaan/penerimaan produk.
 
@@ -23,8 +29,19 @@ npm run typecheck --prefix backend
 npm test --prefix backend -- --runInBand
 npm run test:cov --prefix backend -- --runInBand
 npm run build --prefix backend
-# Isolated PostgreSQL: TEST_DATABASE_URL
 npm run test:integration --prefix frontend
 ```
 
-[Visi dan cakupan](./product/vision) · [Panduan penggunaan](./guide/monitoring) · [Metodologi dan data](./product/methodology) · [Kualitas dan penerimaan](./product/quality) · [Keputusan dan dependensi](./product/decisions) · [Referensi API](./reference/api) · [Operasi dan diagnosis](./operations) · [Memulai](./getting-started) · [Arsitektur](./architecture) · [Kontribusi](./contributing) · [Backlog produk](./roadmap)
+## Dokumentasi teknis {#documentation}
+
+Produk harus memungkinkan menemukan aplikasi, membedakan nol dari ketiadaan dan melacak indikator ke periode, satuan, cakupan dan metode. Kueri mempertahankan konteks navigasi dan menjelaskan pemuatan, kosong, kegagalan dan data lama. Evaluasi mencakup keyboard, fokus terlihat, teks selain warna, seluler dan 12 bahasa.
+
+```sh
+npm ci --prefix docs
+npm run docs:check
+npm run docs:build
+```
+
+## Bacaan terkait {#related}
+
+[Kualitas dan penerimaan](./product/quality) · [Backlog produk](./roadmap)

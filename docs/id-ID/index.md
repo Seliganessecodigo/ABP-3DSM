@@ -1,7 +1,23 @@
-# Tentang proyek
+# GreenER
 
-Acuan: `origin/develop`, commit `c343698`, diperiksa 08-11-2026. Lingkungan dapat memakai revisi berbeda; merge tidak membuktikan deployment.
+GreenER membantu memantau aplikasi dan memahami estimasi konsumsi energi serta emisi setara karbon dioksida (CO₂e). Indikator, lokasi dan riwayat mendukung analisis dampak lingkungan layanan digital.
 
-GreenER memantau aplikasi dan memperkirakan energi serta CO₂e. Katalog, dashboard, detail, riwayat, pratinjau hitung ulang, metodologi dan login tersedia. Antarmuka dan dokumentasi mendukung 12 bahasa: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN`, `id-ID`. Fallback frontend adalah bahasa Inggris.
+## Mulai dari sini {#start}
 
-[Visi dan cakupan](./product/vision) · [Panduan penggunaan](./guide/monitoring) · [Metodologi dan data](./product/methodology) · [Kualitas dan penerimaan](./product/quality) · [Keputusan dan dependensi](./product/decisions) · [Referensi API](./reference/api) · [Operasi dan diagnosis](./operations) · [Memulai](./getting-started) · [Arsitektur](./architecture) · [Kontribusi](./contributing) · [Backlog produk](./roadmap)
+Mulai dari ringkasan lingkungan, cari aplikasi yang perlu perhatian dan buka detailnya. Gunakan riwayat untuk menelusuri periode dan metodologi untuk memahami estimasi. Pertimbangkan cakupan sebelum membandingkan hasil.
+
+## Untuk siapa {#readers}
+
+| Pengguna | Kebutuhan |
+| --- | --- |
+| Pengelolaan infrastruktur | Mengenali aplikasi dan mengikuti perubahan lingkungan. |
+| Analisis lingkungan dan operasi | Menyelidiki konsumsi, emisi dan kualitas data suatu periode. |
+| Pengembangan dan evaluasi | Memeriksa perilaku produk dan mereproduksi hasil. |
+
+## Bahasa dan tampilan {#languages}
+
+Pilih salah satu dari 12 bahasa; pilihan tersimpan di browser ini. Mode gelap mengubah tampilan, mengikuti sistem sebelum pilihan eksplisit. Penyimpanan diblokir dapat menghilangkan preferensi saat reload. Bahasa mengubah format tanggal/angka tanpa mengubah waktu observasi.
+
+## Bacaan terkait {#related}
+
+[Visi dan cakupan](./product/vision) · [Panduan penggunaan](./guide/monitoring) · [Metodologi dan data](./product/methodology)

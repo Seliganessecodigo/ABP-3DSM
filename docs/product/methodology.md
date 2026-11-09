@@ -1,55 +1,49 @@
-# Metodologia e significado dos dados
+# Metodologia e dados
 
-O princípio central é preservar o significado da evidência: ausência, erro e dado desatualizado não equivalem a zero. A energia é estimada pelo modelo simplificado com parâmetros versionados; não é medição elétrica real e seus parâmetros não são fator regional oficial. A relação de conversão para CO₂e está implementada em #49/#53.
+A energia é uma estimativa de um modelo simplificado, calculada a partir de CPU, memória, disco e rede durante o intervalo observado. A potência estimada é convertida em energia conforme a duração. As emissões resultam da energia multiplicada pela intensidade de carbono da região. Os coeficientes pertencem ao modelo acadêmico; não representam medição elétrica direta nem fatores regionais oficiais. Os resultados preservam a metodologia e o fator usados em sua origem.
 
-## Vocabulário e unidades
+## Interpretar os dados {#vocabulary}
 
 | Conceito | Significado |
 | --- | --- |
-| Aplicação | Identidade estável reconhecida no catálogo; nome ou localização podem mudar. |
-| Observação/coleta | Métricas persistidas associadas à aplicação e a um intervalo. |
-| Ciclo | Execução de descoberta, reconciliação e coleta; não é uma medição individual. |
-| Energia | Quantidade acumulada no período, em kWh. Potência e energia não são intercambiáveis. |
-| Intensidade de carbono | Fator regional em gCO₂e/kWh recebido da fonte. |
-| CO₂e | Emissões equivalentes, com unidade e fator identificados. |
-| Cobertura | Fração do período sustentada por evidência válida, calculada separadamente para energia e CO₂e. |
-| Stale | Observação válida anterior preservada, sem representar sucesso da tentativa atual. |
+| Aplicação | Serviço com identidade estável no catálogo. |
+| Observação | Conjunto de métricas associado a um intervalo. |
+| Energia | Quantidade estimada no período, expressa em kWh. |
+| Intensidade de carbono | Fator regional, expresso em gCO₂e/kWh. |
+| Emissões | Quantidade equivalente de CO₂, com unidade informada. |
+| Cobertura | Parcela do período sustentada por evidência válida. |
 
-O agregador documentado fornece CPU em %, memória, disco e rede em GB. Essas métricas não são diretamente kWh; conversão requer modelo, coeficientes e pressupostos documentados.
+## Modelo de estimativa {#model}
 
-## Tempo e origem
-
-A origem de métricas não publica timestamp da medição. O GreenER registra o recebimento e deriva o intervalo como `[receivedAt - collection_interval_seconds, receivedAt]`. Isso não comprova que a origem mediu exatamente nesses instantes.
-
-Última tentativa, última observação válida e atualização de cadastro têm significados diferentes. O instante da consulta de um fator de carbono também não comprova sua vigência oficial. O snapshot preserva valor, identidade interna, contrato e horário da consulta; fonte bibliográfica e vigência não publicadas continuam desconhecidas.
-
-## Regras temporais ambientais
-
-Consultas usam timestamps ISO com fuso explícito, normalizados para UTC, no intervalo [from,to). Buckets UTC por hora/dia/mês/ano contam apenas a sobreposição com o período, inclusive buckets parciais. Presets 24h/7d/30d/90d são janelas móveis exatas com âncora única para KPIs e série. Limite: 10.000 pontos; excesso é rejeitado, sem truncar ou trocar granularidade. Séries rateiam resultados salvos por sobreposição, sem recalcular observações; desempate por collectedAt mais recente e ID lexical crescente, sem fallback se a vencedora não sustenta a métrica. Sem arredondamento adicional; coberturas e snapshots originais permanecem separados e preservados.
-
-## Relação entre energia e emissão
-
-A relação dimensional implementada é:
-
-    CO₂e [g] = energia [kWh] × intensidade [gCO₂e/kWh]
-
-Exemplo exclusivamente didático: 2 kWh × 100 gCO₂e/kWh = 200 gCO₂e = 0,2 kgCO₂e. Os números não são fatores aprovados nem leituras do GreenER. Essa relação não define como estimar energia a partir de CPU, memória, disco e rede.
-
-Se faltar fator, uma energia válida continua válida, mas CO₂e pode ficar não calculável. Zero só é aceito quando deriva de evidência válida.
-
-## Histórico, recálculo e simulação
-
-| Resultado | Regra de produto |
+| Parâmetro | Valor |
 | --- | --- |
-| Original | Preserva observações, configuração, metodologia e fator utilizados. |
-| Simulação regional | Mantém a energia e avalia outro fator regional, separada dos resultados oficiais. |
+| CPU (100%) | 100 W |
+| Memória | 0.375 W/GB |
+| Disco | 0.01 W/GB |
+| Rede | 0.02 W/GB |
 
-Totais, ranking e comparação devem usar recortes e coberturas compatíveis. Lacunas não ganham zeros e percentuais exigem denominador válido. As regras temporais aprovadas estão acima. Na persistência, energia, emissão em gramas e fator usam oito casas decimais; cobertura, como fração entre zero e um, usa quatro. Cálculos não arredondam intermediários, e snapshots JSON preservam sua representação original.
+```text
+P [W] = P_CPU + P_RAM + P_disk + P_network
+E [kWh] = P [W] × Δt [h] / 1000
+CO₂e [g] = E [kWh] × I [gCO₂e/kWh]
+```
 
-## Metodologia e dados — simplified-energy v1
+## Entender a cobertura {#coverage}
 
-O modelo implementado é `simplified-energy`, versão `1`: CPU a 100% = 100 W; memória = 0,375 W/GB; disco = 0,01 W/GB; rede = 0,02 W/GB. São parâmetros do modelo simplificado, sem alegação de medição elétrica ou fator regional oficial. Potência soma as parcelas; energia = W × horas / 1000; CO₂e[g] = kWh × gCO₂e/kWh. Os snapshots registram método e fator usados. A prévia consulta fatores atuais e não reescreve os snapshots originais.
+Cobertura é a proporção do período sustentada por observações válidas. Energia e emissões têm coberturas separadas: pode existir energia estimada mesmo quando falta um fator de carbono para calcular emissões. Compare períodos, unidades e coberturas compatíveis. Um percentual de cobertura baixo sinaliza uma análise parcial, não uma redução comprovada de consumo.
 
-Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
+Zero significa que existe uma observação válida com esse valor. Uma lacuna indica que faltam dados utilizáveis; ela não deve ser interpretada como consumo zero. Se uma atualização falhar, o sistema pode manter a última leitura válida com seu horário original. Confira a atualização e a cobertura antes de usar o indicador em uma decisão. As telas consultam novas informações a cada 60 segundos após cada tentativa; isso não garante uma nova medição a cada atualização.
 
-Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
+## Períodos e histórico {#history}
+
+| Regra | Significado |
+| --- | --- |
+| Histórico preservado | Alterar preferências ou gerar uma prévia não substitui resultados originais. |
+| Ausência explícita | Falhas, falta de métricas e dados antigos permanecem distintos de zero. |
+| Consulta pública | Ler indicadores não exige login; salvar preferências e administrar contas exige acesso autorizado. |
+
+Na prévia de recálculo, selecione a aplicação e as datas para comparar o resultado original com uma estimativa pelo modelo atual e pelos fatores de carbono atuais das regiões observadas. O último dia selecionado é incluído por completo, em UTC. A consulta aceita até 30 dias e 10.000 observações. A prévia não é salva e não altera o histórico. Diferenças percentuais aparecem quando unidade e cobertura coincidem e o valor original é positivo.
+
+## Leitura relacionada {#related}
+
+[Guia de uso](../guide/monitoring) · [Referência da API](../reference/api)

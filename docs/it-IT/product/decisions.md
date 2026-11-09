@@ -1,44 +1,27 @@
-# Decisioni, dipendenze e fonti
+# Decisioni e dipendenze
 
-Il registro esplicita scelte senza approvare funzioni per omissione. PDF v1.1 è riferimento storico; Markdown evolve tramite PR e resta allineato alle issue.
+Modifiche a perimetro e regole registrano problema, risultato atteso e criteri di accettazione nelle storie pertinenti. Review e valutazioni di usabilità raccolgono difficoltà, feedback e migliorie. Retention, backup/ripristino, obiettivi operativi e quote esterne richiedono ancora decisioni.
 
-## Confermate
+## Regole del prodotto {#rules}
 
-| ID | Decisione | Conseguenza |
-| --- | --- | --- |
-| D01 | Ricalcolo come anteprima senza salvare. | Originale preservato, anteprima esclusa da totali/storico. US-12, #263/#264. |
-| D02 | Prima assenza da snapshot completo valido conferma rimozione. | Errore fonte/404 metriche non rimuove. US-02, #171. |
-| D03 | Ricezione GreenER non è timestamp origine. | Identificare intervalli derivati, non inventare validità. #154/#155. |
-| D04 | RNF trasversali, fondamenti/qualità in EP00. | Task finite non esonerano qualità futura. |
-| D05 | Simulazione regionale a energia costante. | Scenario non cambia misure/risultati ufficiali. US-15. |
-| D06 | I guasti di monitoraggio hanno un incidente per identità e recuperano dopo tre osservazioni valide consecutive. | Limite totale di 30 s per chiamata esterna, massimo tre tentativi HTTP inclusa la chiamata iniziale e retry solo per errori temporanei; i cicli non si sovrappongono e le osservazioni valide vengono conservate. #243. |
-| D07 | Query con fuso esplicito normalizzati in UTC, [from,to), bucket UTC orari/giornalieri/mensili/annuali, riferimento unico e rifiuto oltre 10.000 punti. | #174/#235. |
-| D08 | Serie su risultati salvati ripartiti per sovrapposizione, senza ricalcolo storico; conflitti per raccolta recente/ID crescente; preservare lacune e snapshot. | #164/#174/#235. |
+| Regola | Significato |
+| --- | --- |
+| Storico conservato | Preferenze e anteprime non sostituiscono originali. |
+| Assenza esplicita | Errori, metriche mancanti e dati precedenti restano distinti da zero. |
+| Consultazione pubblica | Leggere indicatori è pubblico; salvare preferenze e amministrare account richiede autorizzazione. |
 
-D01 e EP00 confermati il 15/10/2026; altre regole in backlog/contratti versionati.
+## Evoluzioni previste {#planned}
 
-## Pendenti
+Sono previsti confronto dedicato tra applicazioni, simulazione in altra regione, gestione completa utenti/ruoli, recupero password autonomo, controlli globali del monitoraggio. L’ambito dell’esportazione CSV resta da definire. La dashboard già ordina per energia o emissioni. Le priorità restano nel backlog; qui non sono definite date di consegna.
 
-| Tema | Da risolvere | Consegne |
-| --- | --- | --- |
-| Fonti/operazione | Confermare quote e limiti di concorrenza con i responsabili delle API. La policy di timeout/retry/ritardi di #243 è approvata. | #155/#243 |
-| Continuità | Conservazione, backup/ripristino, disponibilità/prestazioni. | #110/#120/#125/#166 |
-| Extra Figma | CSV, colonne ed efficienza per transazione. Il dettaglio sovrappone già la serie al periodo precedente equivalente; confronto tra applicazioni e dashboard temporale restano fuori da questo ambito. | #61/#248/#252 |
+## Modello di stima {#method}
 
-PO e responsabili tecnici decidono ambito/comportamento; fornitori confermano contratti. Nessuna data o persona assegnata per ipotesi.
+Un modello semplificato stima energia da CPU, memoria, disco e rete nell’intervallo osservato. La potenza stimata diventa energia secondo la durata. Le emissioni moltiplicano energia per intensità di carbonio regionale. I coefficienti appartengono al modello accademico, non sono misurazioni elettriche dirette o fattori regionali ufficiali. I risultati conservano metodo e fattore originali.
 
-## Fonti e modifiche
+## Criteri di accettazione {#acceptance}
 
-Markdown: visione/regole. Issue: criteri, task, dipendenze, discussione. Projects: priorità, stato, Sprint, date e PR; non prova implementazione. Figma: intento visivo/handoff, numeri illustrativi non contratto. OpenAPI/codice: revisione esposta. Contratti esterni: schema/unità con versione/data.
+Il prodotto deve permettere di trovare un’applicazione, distinguere zero da assenza e risalire da un indicatore a periodo, unità, copertura e metodo. Le consultazioni conservano contesto e comunicano caricamento, vuoto, errore e dati precedenti. Si valutano tastiera, focus visibile, testo oltre al colore, dispositivi mobili e 12 lingue.
 
-Conflitto: esplicitare, decidere col responsabile, sincronizzare fonti. Figma non autorizza endpoint inventati. Issue/PR documenta decisione, motivo, alternative rilevanti, impatti su storie/dati/compatibilità ed evidenze. Decisioni architetturali durature con ADR. Vedere [backlog](../roadmap) e [qualità](./quality).
+## Letture correlate {#related}
 
-## Decisioni e dipendenze — c343698
-
-In `/administration/calculations`, confrontare originale/anteprima per applicazione e date. Data finale inclusiva dell’intero giorno UTC; API `[from,to)`. Anteprima pubblica con modello attuale e fattori attuali delle regioni storiche, senza salvare. Limiti: 30 giorni, 10.000 osservazioni. Campi `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Fattore mancante conserva energia calcolabile e CO₂e indisponibile. Percentuali richiedono unità/coperture uguali e riferimento positivo.
-
-Dashboard e consultazioni ambientali pubblici. `/login`: e-mail/password o Google abilitato. Admin configura/conferma TOTP di sei cifre anche dopo Google; Analyst/Visitor non ottengono permessi amministrativi. Sessione frontend in memoria: reload richiede login. Backend verifica JWT, sessione, ruolo/stato attuali; 401 per credenziali assenti/invalide, 403 per ruolo insufficiente. Nuove rotte protette per default.
-
-Admin della stessa organizzazione cambia conti tra `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` e motivo. Blocco/disattivazione revocano tutte le sessioni; riattivazione richiede login nuovo. Protetti proprio conto e ultimo Admin attivo. Conflitto atteso: 409; destinazione già raggiunta: successo idempotente. Audit condiviso: successo nella transazione e dinieghi fuori rollback, attore esplicito e nessun segreto. Non consegna gestione completa dei ruoli o recupero password.
-
-Restano: confronto dedicato tra due applicazioni, simulazione regionale, gestione generale utenti/ruoli, recupero password autonomo, configurazione globale/pausa monitoraggio e CSV. Ordinamento per impatto disponibile. Quote esterne, retention, backup/ripristino e obiettivi operativi da definire; nessun SLA. Recupero TOTP via supporto non è reset password.
+[Backlog del prodotto](../roadmap) · [Metodologia e dati](../product/methodology)

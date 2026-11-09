@@ -1,50 +1,29 @@
 # Betrieb und Diagnose
 
-Vorhandene Mechanismen, kein Produktions-SLA. Installation: [Erste Schritte](./getting-started); Vertrag: [API](./reference/api).
+Dieser Teil richtet sich an Entwicklung und Betrieb und beschreibt lokale Umgebung, Verträge und Prüfungen. Zur Produktnutzung lesen Sie das Benutzerhandbuch.
 
-## Konfiguration
+## Konfiguration {#environment}
 
-| Einstellung | Zweck |
-| --- | --- |
-| FRONTEND_PORT / API_PORT / POSTGRES_PORT | Von Compose veröffentlichte Ports. |
-| DATABASE_URL | Host-/Cloud-Backend; Compose nutzt intern `postgres`. |
-| METRICS_AGGREGATOR_URL / CARBON_INTENSITY_URL | Nur vom Backend genutzte Quellen. |
-| CORS_ORIGIN | Erlaubter tatsächlicher Frontend-Ursprung. |
-| VITE_API_URL | API-URL im Frontend-Build oder Entwicklungsumgebung. |
-| MONITORING_SCHEDULE_INTERVAL_SECONDS | Backend-Scheduler, Standard 60 Sekunden. |
-| MONITORING_METRICS_CONCURRENCY | Pro Prozess, initial 2; keine Quellquote. |
+```text
+FRONTEND_PORT=5173
+API_PORT=3000
+POSTGRES_PORT=5432
+DATABASE_URL
+METRICS_AGGREGATOR_URL
+CARBON_INTENSITY_URL
+CORS_ORIGIN
+VITE_API_URL
+MONITORING_SCHEDULE_INTERVAL_SECONDS=60
+MONITORING_METRICS_CONCURRENCY=2
+```
 
-Monitoringwerte müssen positive Ganzzahlen sein. Compose reicht diese zwei `.env`-Schlüssel nicht automatisch weiter; Überschreiben braucht explizite Umgebungszuordnung. Beispielzugänge nur lokal.
+## Automatische Überwachung {#monitoring}
 
-## Umgebung prüfen
+Überwachung startet nach dem ersten Intervall, ohne überlappende Zyklen je Prozess. Intervall/Parallelität sind positive Ganzzahlen. Compose übergibt `MONITORING_SCHEDULE_INTERVAL_SECONDS` und `MONITORING_METRICS_CONCURRENCY` nicht automatisch aus `.env`; explizite Zuordnung ist nötig. `/health` prüft HTTP, nicht Erkennung/Berechnung. Katalog, Nachweise und Logs prüfen. Quellfehler bestätigt keine Entfernung; Erholung nach drei gültigen Beobachtungen in Folge.
 
-~~~sh
-docker compose ps
-docker compose logs --tail=100 api
-docker compose exec api npm run applications:discover
-~~~
+Das erste Fehlen in einem vollständigen gültigen Snapshot bestätigt die Entfernung. Jeder externe Aufruf hat insgesamt 30 Sekunden und höchstens drei HTTP-Versuche einschließlich des ersten; nur vorübergehende Fehler werden wiederholt.
 
-Manuelle Erkennung ohne doppelte Identitäten wiederholbar. Scheduler nach erstem Intervall; Überschneidungsschutz nur pro Prozess, nicht zwischen Replikas. UI-Polling und Sammlung unabhängig.
-
-`/health` beweist weder gefüllten Katalog noch erreichbare Quelle oder berechenbaren Indikator. `/applications`, Belege und Zykluslogs prüfen.
-
-## Diagnose
-
-| Symptom | Prüfung |
-| --- | --- |
-| Container starten nicht | Docker, Ports, Variablen, Migrationen. |
-| UI erreichbar, Katalog fehlerhaft | Build-URL, CORS, API, Datenbank. |
-| Leerer Katalog | Ersterkennung/Aggregator; leer ist kein HTTP-Fehler. |
-| Alte Daten | Beobachtungszeit, aktueller Fehler, Zyklusübersicht. |
-| Pipeline fehlerhaft, API erreichbar | Qualität, Paket, Deployment, Smoke-Test unterscheiden; Deployment kann späterem Fehler vorausgehen. |
-
-## Veröffentlichung und Wiederherstellung
-
-Staging aus `develop` mit CI und separaten API-Jobs (Azure App Service)/Frontend-Jobs (Static Web Apps). Smoke-Test nach API-Deployment. Vor Wiederholung Run, SHA, Schritt, Diagnose festhalten.
-
-Pages nutzt VitePress und `DOCS_BASE=/ABP-3DSM/`; lokaler Build beweist kein Deployment. Automatische Datenbankwiederherstellung ist nicht nachgewiesen. Vor Rollback/destruktiver Migration Kompatibilität und wiederherstellbares Backup prüfen. Aufbewahrung/Restore-Übungen sind [offen](./product/decisions). `npm run dev:down` bewahrt Volumes; Löschen entfernt die lokale Datenbank.
-
-## Betrieb und Diagnose — JWT / Google / SMTP
+## Anmelden {#authentication}
 
 Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
 
@@ -61,11 +40,35 @@ SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
 SMTP_USER / SMTP_PASSWORD
 ```
 
-Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.
-
-Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
-
-
 In Google Cloud exakt `GOOGLE_CALLBACK_URL` registrieren. `VITE_GOOGLE_SSO_ENABLED=true` aktiviert nur den Knopf, konfiguriert weder Backend noch Konten; Verknüpfung verlangt Einladung. `GOOGLE_CLIENT_SECRET`, JWT, Pepper und TOTP-Schlüssel bleiben Backend-Geheimnisse; unabhängige Werte und nötige frühere Versionen verwenden. SMTP versendet Einladungen/Bestätigungen. Support nutzt `authentication:recover-admin-totp` nach unabhängiger Prüfung der Organisationsbefugnis; Sitzungen werden widerrufen, Vorgang auditiert.
+
+```text
+ORGANIZATION_NAME
+ORGANIZATION_SLUG
+ORGANIZATION_REPRESENTATIVE_EMAIL
+ADMIN_EMAIL
+NEW_RECOVERY_REPRESENTATIVE_EMAIL
+SUPPORT_OPERATOR_ID
+SUPPORT_RECOVERY_REASON
+```
+
+```sh
+npm run organizations:create-invitation --prefix backend
+npm run authentication:recover-admin-totp --prefix backend
+```
+
+## Diagnose {#diagnosis}
+
+```sh
+docker compose ps
+docker compose logs --tail=100 api
+docker compose exec api npm run applications:discover
+```
+
+## Bereitstellung und Wiederherstellung {#release}
+
+Staging folgt `develop` nach CI: API in Azure App Service, Frontend in Static Web Apps, Endpoint-Prüfung nach API. Dokumentation: GitHub Pages mit `DOCS_BASE=/ABP-3DSM/`. Fehlgeschlagenen Schritt vor Wiederholung ermitteln. Keine automatische DB-Wiederherstellung. `npm run dev:down` erhält das Volume; Entfernen löscht lokale Daten.
+
+## Weiterführende Seiten {#related}
+
+[Erste Schritte](./getting-started) · [API-Referenz](./reference/api)

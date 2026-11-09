@@ -1,35 +1,18 @@
 # Contribuição
 
-## Fluxo de trabalho
+Esta parte da documentação se destina a desenvolvimento e operação. Apresenta ambiente local, contratos e verificações. Para aprender a usar o produto, consulte o guia de uso.
 
-1. Consulte a issue e os critérios de aceite antes de alterar o código.
-2. Crie uma branch baseada em `develop` e mantenha a mudança no escopo da tarefa.
-3. Abra uma pull request para `develop` com título Conventional Commit e referência às issues relacionadas.
-4. Descreva decisões, limitações, verificações executadas e evidência visual para mudanças de interface.
+## Critérios de validação {#workflow}
 
-## Verificações
+Mudanças de escopo e regras de uso devem registrar o problema, o resultado esperado e os critérios de aceite nas histórias correspondentes. Revisões do produto e avaliações de usabilidade registram dificuldades observadas, feedback e melhorias. Retenção de dados, backup e recuperação, metas operacionais e cotas das fontes externas ainda exigem definição.
 
-A CI executa lint, testes e build do frontend e backend, além do gate SonarQube Cloud. Corrija os apontamentos novos antes da conclusão da PR. Informe no texto da PR tudo o que não foi executado localmente; não declare verificações sem resultado observado.
+```text
+develop → tipo/numero-descricao / tipo/descricao → PR develop
+Conventional Commits: tipo(escopo): descrição
+Refs #N
+```
 
-## Mudanças de interface
-
-Mantenha cada tela e seus estilos, hooks e traduções próximos. O frontend suporta `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. Textos novos precisam estar completos nos doze idiomas, com inglês como fallback.
-
-## Mudanças de integração ou domínio
-
-Confirme contratos e decisões nas issues e nos documentos técnicos. Não invente endpoints, schemas, unidades, fatores ambientais ou políticas de retry. Mudanças de schema persistente precisam de migration; mudanças de contrato devem atualizar OpenAPI e documentação.
-
-## Documentação do site
-
-O conteúdo publicado é mantido em Markdown em `docs/`. Atualize a página equivalente nos doze locales e valide o site com `npm run docs:build`.
-
-## Git
-
-Branches: `tipo/numero-descricao` quando houver issue, ou `tipo/descricao` sem issue; minúsculas e kebab-case sem acentos. Commits e títulos de PR: `tipo(escopo): descrição`, em português, com verbo e sem ponto final. Inclua `Refs #N`, decisões/limitações e verificações observadas. O padrão completo e os tipos permitidos estão no [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
-
-[Qualidade e aceite](./product/quality) · [Decisões e dependências](./product/decisions)
-
-## CI
+## Verificações {#quality}
 
 A CI verifica o build da documentação, lint/testes/build do frontend, lint/typecheck/testes com PostgreSQL/cobertura/build/migrations do backend e fluxo integrado real no navegador. `TEST_DATABASE_URL` deve apontar para PostgreSQL isolado; sem ela, suítes Jest de banco são ignoradas e a suíte integrada do navegador falha. O gate SonarQube Cloud continua obrigatório em PRs para `develop`: cobertura nova ≥ 80%, duplicação ≤ 3%, ratings A e hotspots 100% revisados. Teste automatizado não substitui avaliação de usabilidade ou aceite do produto.
 
@@ -46,6 +29,19 @@ npm run typecheck --prefix backend
 npm test --prefix backend -- --runInBand
 npm run test:cov --prefix backend -- --runInBand
 npm run build --prefix backend
-# Isolated PostgreSQL: TEST_DATABASE_URL
 npm run test:integration --prefix frontend
 ```
+
+## Documentação técnica {#documentation}
+
+O produto deve permitir localizar uma aplicação, distinguir zero de ausência e rastrear um indicador até seu período, unidade, cobertura e metodologia. As consultas precisam preservar o contexto de navegação e comunicar carregamento, vazio, falha e dados antigos. A avaliação inclui teclado, foco visível, leitura por texto além de cor, dispositivos móveis e os 12 idiomas.
+
+```sh
+npm ci --prefix docs
+npm run docs:check
+npm run docs:build
+```
+
+## Leitura relacionada {#related}
+
+[Qualidade e aceite](./product/quality) · [Backlog do produto](./roadmap)

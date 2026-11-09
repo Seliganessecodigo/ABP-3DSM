@@ -1,44 +1,29 @@
-# Requisiti trasversali e accettazione
+# Qualità e accettazione
 
-[EP00](../backlog/ep00) organizza fondamenti e qualità. RNF permanente, task con artefatto finito: completare database non termina l’obbligo di integrità.
+Il prodotto deve permettere di trovare un’applicazione, distinguere zero da assenza e risalire da un indicatore a periodo, unità, copertura e metodo. Le consultazioni conservano contesto e comunicano caricamento, vuoto, errore e dati precedenti. Si valutano tastiera, focus visibile, testo oltre al colore, dispositivi mobili e 12 lingue.
 
-## Evidenze di qualità
+## Criteri di accettazione {#acceptance}
 
-| Requisito | Evidenza |
+| Regola | Significato |
 | --- | --- |
-| RNF-01 — Tecnologie | React/TypeScript e NestJS/TypeScript compilabili. |
-| RNF-02 — Responsabilità | UI presenta; backend decide; adapter validano; repository persistono. |
-| RNF-03 — Storico | Migration/test di identità, integrità e versioni conservate. |
-| RNF-04 — Sicurezza | Segreti fuori Git; autorizzazione nel backend. |
-| RNF-05 — Riproducibilità | Ambiente documentato, CI verificabile, pubblicazione validata. |
-| RNF-06 — Errori | Successo, vuoto, errore, assenza, stale distinguibili. |
-| RNF-07 — Esperienza | Tastiera, focus, contrasto, testo/icone oltre colore, responsive, dodici lingue. |
+| Storico conservato | Preferenze e anteprime non sostituiscono originali. |
+| Assenza esplicita | Errori, metriche mancanti e dati precedenti restano distinti da zero. |
+| Consultazione pubblica | Leggere indicatori è pubblico; salvare preferenze e amministrare account richiede autorizzazione. |
 
-Restano: confronto dedicato tra due applicazioni, simulazione regionale, gestione generale utenti/ruoli, recupero password autonomo, configurazione globale/pausa monitoraggio e CSV. Ordinamento per impatto disponibile. Quote esterne, retention, backup/ripristino e obiettivi operativi da definire; nessun SLA. Recupero TOTP via supporto non è reset password.
+## Interpretare i dati {#integrity}
 
-## Scenari di dimostrazione
+Zero significa che un’osservazione valida sostiene quel valore. Una lacuna indica dati utilizzabili mancanti, non consumo nullo. Dopo un errore può restare l’ultima lettura valida con il suo orario originale. Verificate aggiornamento e copertura prima di decidere. Le schermate richiedono informazioni 60 secondi dopo ogni tentativo; non garantisce una nuova misura a ogni aggiornamento.
 
-| Dato / quando | Risultato | Riferimento |
-| --- | --- | --- |
-| Applicazione conosciuta assente da snapshot completo valido | Registrare rimozione, mantenere storico. | US-02 |
-| Fonte in errore o payload invalido | Non confermare rimozione né inventare zero. | US-02/05 |
-| Osservazione valida e tentativo seguente fallito | Conservare osservazione, distinguere freschezza. | US-03/04 |
-| Energia valida senza fattore | Non inventare CO₂e né scartare energia. | US-07/08 |
-| Richiesta anteprima ricalcolo | Originale intatto, anteprima non persistita. | US-12 |
-| Operazione amministrativa senza permesso | Backend nega modifica. | US-18/19/20 |
+La copertura è la proporzione del periodo con osservazioni valide. Energia ed emissioni hanno coperture separate: può esserci energia stimata senza fattore per calcolare emissioni. Confrontate periodi, unità e coperture compatibili. Copertura bassa indica analisi parziale, non una riduzione dimostrata dei consumi.
 
-Funzioni pianificate necessitano implementazione/test prima di dichiararle consegnate.
+## Criteri di validazione {#assessment}
 
-## Prontezza, conclusione e gate
+Modifiche a perimetro e regole registrano problema, risultato atteso e criteri di accettazione nelle storie pertinenti. Review e valutazioni di usabilità raccolgono difficoltà, feedback e migliorie. Retention, backup/ripristino, obiettivi operativi e quote esterne richiedono ancora decisioni.
 
-Prima di iniziare: consegna, consumatori, criteri, contratto, dipendenze reali. Coefficienti/permessi pendenti non diventano ipotesi tecniche. Design con stati, navigazione e handoff verificabili.
+## Verifiche {#engineering}
 
-Conclusione: criteri dimostrati, review, test di errori rilevanti, contratto/documentazione e prove aggiornati. PR aperta non conclude issue. Planning/review/feedback in #134.
+[Contribuire](../contributing)
 
-PR verso `develop`: check pertinenti e SonarQube Cloud, copertura nuova ≥ 80%, duplicazione ≤ 3%, rating A, 100% hotspot revisionati. Backend eseguibile richiede test/LCOV. Vedere [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) e [Contribuire](../contributing). CI non sostituisce accettazione funzionale o valutazione usabilità.
+## Letture correlate {#related}
 
-## CI — c343698
-
-CI verifica documentazione, lint/test/build frontend, lint/typecheck/test PostgreSQL/copertura/build/migration backend e flusso browser integrato reale. `TEST_DATABASE_URL` deve usare PostgreSQL isolato; senza variabile Jest salta suite database e browser integrato fallisce. SonarQube obbligatorio verso `develop`: copertura nuova ≥ 80%, duplicazione ≤ 3%, rating A e hotspot tutti revisionati. Non sostituisce usabilità/accettazione.
-
-[OpenAPI / HTTP](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [Preferences](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md) · [Integration tests](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/test/README.md) · [External API contracts](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)
+[Decisioni e dipendenze](../product/decisions) · [Contribuire](../contributing)

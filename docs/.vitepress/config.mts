@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { localeUi, localeDescriptions, searchLocales } from './ui.ts'
 
 const github = 'https://github.com/Seliganessecodigo/ABP-3DSM'
 
@@ -38,9 +39,11 @@ function localeConfig(text: (typeof labels)[keyof typeof labels], lang: keyof ty
   return {
     label: text.language,
     lang,
+    description: localeDescriptions[lang],
     themeConfig: {
+      ...localeUi(lang),
       nav: [
-        { text: text.start, link: link('/getting-started') },
+        { text: content.usage, link: link('/guide/monitoring') },
         { text: text.productSection, link: link('/product/vision') },
         { text: text.roadmap, link: link('/roadmap') },
         { text: text.contributing, link: link('/contributing') },
@@ -50,7 +53,6 @@ function localeConfig(text: (typeof labels)[keyof typeof labels], lang: keyof ty
           text: text.guide,
           items: [
             { text: text.product, link: link('/') },
-            { text: text.start, link: link('/getting-started') },
             { text: content.usage, link: link('/guide/monitoring') },
           ],
         },
@@ -75,6 +77,7 @@ function localeConfig(text: (typeof labels)[keyof typeof labels], lang: keyof ty
         {
           text: text.technical,
           items: [
+            { text: text.start, link: link('/getting-started') },
             { text: text.architecture, link: link('/architecture') },
             { text: content.api, link: link('/reference/api') },
             { text: content.operations, link: link('/operations') },
@@ -92,7 +95,7 @@ export default defineConfig({
   base: process.env.DOCS_BASE ?? '/',
   title: 'GreenER',
   description: 'Acompanhe aplicações e entenda estimativas de energia e CO₂e.',
-  srcExclude: ['**/README.md', 'frontend-i18n.md', 'evidence/**'],
+  srcExclude: ['**/README.md', 'frontend-i18n.md', 'evidence/**', 'adr/**', 'design/**', 'specs/**'],
   lastUpdated: true,
   locales: {
     'ko-KR': localeConfig(labels.koKR, 'ko-KR'),
@@ -109,7 +112,7 @@ export default defineConfig({
     'zh-CN': localeConfig(labels.zhCN, 'zh-CN'),
   },
   themeConfig: {
-    search: { provider: 'local' },
+    search: { provider: 'local', options: { locales: searchLocales } },
     socialLinks: [{ icon: 'github', link: github }],
   },
 })

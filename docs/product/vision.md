@@ -1,52 +1,43 @@
-# Visão e escopo do produto
+# Visão e escopo
 
-O GreenER ajuda a responder três perguntas: quais aplicações estão sendo acompanhadas, que evidências existem sobre seu consumo e como interpretar sua energia e emissões estimadas. O produto reúne descoberta, métricas, contexto regional e histórico para apoiar investigação e priorização.
+O GreenER ajuda a acompanhar aplicações e compreender seu consumo estimado de energia e suas emissões equivalentes de dióxido de carbono (CO₂e). Reúne indicadores, localização e histórico para apoiar a análise do impacto ambiental de serviços digitais.
 
-## Para quem
+## Para quem {#readers}
 
 | Público | Necessidade |
 | --- | --- |
-| Gestão de infraestrutura | Reconhecer aplicações e acompanhar mudanças do ambiente. |
-| Análise operacional e ambiental | Investigar períodos, comparar resultados compatíveis e entender lacunas. |
-| Equipe de desenvolvimento e avaliação | Reproduzir o ambiente e demonstrar critérios de aceite. |
+| Gestão de infraestrutura | Identificar aplicações e acompanhar mudanças no ambiente. |
+| Análise ambiental e operacional | Investigar consumo, emissões e qualidade dos dados de um período. |
+| Desenvolvimento e avaliação | Verificar o comportamento do produto e reproduzir seus resultados. |
 
-O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
+## Recursos disponíveis {#features}
 
-## Escopo e disponibilidade
-
-Referência: `origin/develop`, commit `c343698`, conferido em 08/11/2026. Cada ambiente pode executar outra revisão; merge não comprova publicação.
-
-| Capacidade | Situação documentada |
+| Recurso | Referência |
 | --- | --- |
-| Catálogo, busca, filtros, paginação, navegação e doze idiomas | Implementados na interface. |
-| Descoberta, eventos de ciclo de vida, coleta periódica, incidentes e persistência | Implementados no backend. |
-| Estado operacional, métricas de origem, evidências e metodologia da coleta | API e detalhe da aplicação disponíveis; uma página expõe modelo, fórmula, parâmetros e fator registrados sem recalcular. Falhas, ausência e dados antigos permanecem distintos. |
-| Análise ambiental por aplicação, série temporal e inspeção de contribuições | Disponíveis na API e integradas ao detalhe da aplicação. |
-| `/dashboard` · `GET /analysis/summary` | Em `/dashboard`, selecione 24 horas, 7, 30 ou 90 dias, estado e região. O resumo apresenta totais, cobertura, contagens por estado e composição de emissões em barras ou rosca. A tabela permite busca, filtros por coluna, ordenação por energia/CO₂e e paginação. Os filtros da tabela recortam as linhas, sem redefinir os totais do resumo. Abra uma aplicação para investigar sua evidência. O dashboard consulta `GET /analysis/summary` e atualiza periodicamente sem reload. |
-| Tema claro/escuro | Preferência disponível na interface. |
+| Catálogo e busca | [Encontrar uma aplicação](../guide/monitoring#catalog) |
+| Monitoramento automático | [Interpretar os dados](../guide/monitoring#data) |
+| Dashboard ambiental | [Consultar o dashboard](../guide/monitoring#dashboard) |
+| Detalhe da aplicação | [Investigar o detalhe](../guide/monitoring#detail) |
+| Histórico e composição | [Explorar o histórico](../guide/monitoring#history) |
+| Prévia de recálculo | [Comparar com uma prévia de recálculo](../guide/monitoring#preview) |
+| Preferências pessoais | [Personalizar a análise](../guide/monitoring#preferences) |
+| Login e segundo fator | [Entrar na sua conta](../guide/monitoring#access) |
+| Ordenação por impacto | [Consultar o dashboard](../guide/monitoring#dashboard) |
 
-## Jornadas e valor
+## Jornada de análise {#journey}
 
-1. Localizar uma aplicação no catálogo e abrir seu detalhe: confirmar identidade, localização e estado.
-2. Investigar uma mudança: distinguir última tentativa, última observação válida e ausência de dados.
-3. No detalhe, selecionar período e granularidade, interpretar série/cobertura e investigar as contribuições de um bucket sem transformar lacunas em zero.
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-O [guia de uso](../guide/monitoring) descreve a experiência existente; os [épicos](../roadmap) detalham o comportamento esperado.
+## Limites de uso {#limits}
 
-## Limites do produto
+A energia é uma estimativa de um modelo simplificado, calculada a partir de CPU, memória, disco e rede durante o intervalo observado. A potência estimada é convertida em energia conforme a duração. As emissões resultam da energia multiplicada pela intensidade de carbono da região. Os coeficientes pertencem ao modelo acadêmico; não representam medição elétrica direta nem fatores regionais oficiais. Os resultados preservam a metodologia e o fator usados em sua origem.
 
-Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. A série do detalhe compara uma aplicação com a janela imediatamente anterior de mesma duração; isso não representa comparação entre aplicações ou dashboard de períodos. Mapa é opcional.
+Cobertura é a proporção do período sustentada por observações válidas. Energia e emissões têm coberturas separadas: pode existir energia estimada mesmo quando falta um fator de carbono para calcular emissões. Compare períodos, unidades e coberturas compatíveis. Um percentual de cobertura baixo sinaliza uma análise parcial, não uma redução comprovada de consumo.
 
-## Como avaliar o resultado
+## Evoluções planejadas {#planned}
 
-Nas reviews, verificar se as pessoas encontram a aplicação, distinguem zero de ausência e rastreiam um resultado até período, unidade e evidências. Registrar tarefas avaliadas, dificuldades, feedback e mudanças em [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) e [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Metas de tempo, satisfação e desempenho exigem baseline e aprovação; esta documentação não estabelece números arbitrários.
+Estão planejados a comparação dedicada entre aplicações, a simulação em outra região, a gestão completa de usuários e papéis, a recuperação de senha por autoatendimento, os controles globais de monitoramento. A exportação CSV depende de definição de escopo. O dashboard já permite ordenar aplicações por energia ou emissões. As prioridades são mantidas no backlog; esta documentação não estabelece datas para essas evoluções.
 
-## Guia de uso
+## Leitura relacionada {#related}
 
-Em `/history`, escolha uma aplicação; `applicationId`, período e granularidade preservam contexto na URL. A tela reutiliza a série persistida do detalhe, com filtros, fuso de apresentação, eventos, paginação numerada e inspeção de buckets. As contribuições também possuem paginação interativa de 5, 10, 15, 20 ou todos os itens. Buckets do backend continuam em UTC; mudar o fuso de apresentação não reagrupa a série. A sobreposição do detalhe compara a mesma aplicação com a janela anterior equivalente.
-
-Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
-
-Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
-
-A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
+[Guia de uso](../guide/monitoring) · [Metodologia e dados](../product/methodology) · [Backlog do produto](../roadmap)
