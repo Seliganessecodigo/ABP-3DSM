@@ -34,7 +34,7 @@
 .historyMode .tableScroll { overflow: visible; border: 0; background: transparent; }
 .historyMode .filters { grid-template-columns: minmax(0, 1fr) auto; align-items: end; border: 0; padding: 0; margin-bottom: 8px; }
 .historyMode .historyMode .searchFilter { position: relative; font-size: 0; }
-.historyMode .filters input, .historyMode .filters select { font: inherit; font-size: 13px; }
+
 .historyMode .columnFilters > summary { display: flex; border-color: var(--accent-default); background: var(--surface-card); }
 .historyMode .columnFilters[open] { grid-column: 1 / -1; }
 .historyMode .columnFilters[open] > summary { width: fit-content; margin-bottom: 12px; }
@@ -47,7 +47,7 @@
 .historyMode .pagination { position: relative; justify-content: space-between; padding: 4px 0 16px; font-size: 11px; }
 .historyMode .pagination > output:first-child { margin-right: auto; }
 .historyMode .pagination label { position: absolute; left: 50%; transform: translateX(-50%); }
-.historyMode .pagination select { min-height: 36px; padding: 4px 8px; font-size: 11px; }
+
 .pageControls { display: flex; align-items: center; gap: 6px; }
 .pageNumber, .currentPage, .pageButton { width: 36px; height: 36px; min-height: 36px; display: inline-grid; place-items: center; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; color: var(--text-primary); background: var(--surface-card); font: inherit; font-size: 12px; cursor: pointer; }
 .currentPage { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 700; }
@@ -64,7 +64,7 @@
 .filterDialogHeader > button { width: 40px; height: 40px; border: 1px solid var(--border-default); border-radius: 6px; color: var(--text-secondary); background: var(--surface-card); font-size: 24px; cursor: pointer; }
 .filterDialogGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .filterDialogGrid label { display: grid; min-width: 0; gap: 6px; color: var(--text-secondary); font-size: 13px; }
-.filterDialogGrid input, .filterDialogGrid select { width: 100%; min-width: 0; min-height: 44px; box-sizing: border-box; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; }
+.filterDialogGrid input, .filterDialogGrid select { width: 100%; min-width: 0; }
 .filterDialogFooter { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
 .filterDialogFooter button { min-height: 44px; border: 1px solid var(--accent-default); border-radius: 6px; padding: 8px 14px; color: var(--accent-default); background: var(--surface-card); font: inherit; font-weight: 650; cursor: pointer; }
 .filterDialogFooter button:last-child { color: var(--accent-on-accent); background: var(--accent-default); }
@@ -148,7 +148,7 @@
 .columnFilters > summary::-webkit-details-marker { display: none; }
 .filterFields { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; }
 .filterFields > button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--accent-default); background: var(--surface-card); cursor: pointer; }
-.filters input, .filters select { min-width: 0; min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
+.filters input, .filters select { min-width: 0; }
 .timeZone { margin: 0 0 8px; color: var(--text-secondary); font-size: 11px; }
 .invalidRange { margin: 8px 12px; color: var(--error-foreground); }
 .table { width: 100%; border-collapse: collapse; color: var(--text-primary); }
@@ -163,7 +163,7 @@
 .table tbody tr:last-child td { border-bottom: 0; }
 .pagination { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px; color: var(--text-secondary); }
 .pagination label { display: inline-flex; align-items: center; gap: 8px; }
-.pagination select, .pagination button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
+.pagination button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); }
 .pagination button { cursor: pointer; transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease; }
 .pagination button:disabled { opacity: .55; cursor: not-allowed; }
 .historyMode .pagination .currentPage { min-width: 44px; border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); opacity: 1; font-weight: 700; }

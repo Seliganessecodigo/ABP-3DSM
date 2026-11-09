@@ -108,7 +108,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
-          className={styles.codeInput}
+          className={`form-control form-control--large ${styles.codeInput}`}
           value={code}
           onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
           aria-describedby={error ? 'totp-error' : undefined}

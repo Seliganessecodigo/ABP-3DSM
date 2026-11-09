@@ -168,12 +168,12 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
         {applicationsState === 'error' && <p role="alert">{t('applicationsFailed')}</p>}
         {applicationsState === 'ready' && applications.length === 0 && <p role="status">{t('noApplications')}</p>}
         <form onSubmit={(event) => { event.preventDefault(); void generatePreview() }}>
-          <label>{t('application')}<select value={applicationId} onChange={(event) => { clearPreviousRequest(); setApplicationId(event.target.value) }}>
+          <label>{t('application')}<select className="form-control" value={applicationId} onChange={(event) => { clearPreviousRequest(); setApplicationId(event.target.value) }}>
             <option value="">{t('selectApplication')}</option>{applications.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
           </select></label>
           <div className={styles.dateFields}>
-            <label>{t('from')}<input type="date" value={from} max={to || undefined} onChange={(event) => { clearPreviousRequest(); setFrom(event.target.value) }} /></label>
-            <label>{t('to')}<input type="date" value={to} min={from || undefined} onChange={(event) => { clearPreviousRequest(); setTo(event.target.value) }} /></label>
+            <label>{t('from')}<input className="form-control" type="date" value={from} max={to || undefined} onChange={(event) => { clearPreviousRequest(); setFrom(event.target.value) }} /></label>
+            <label>{t('to')}<input className="form-control" type="date" value={to} min={from || undefined} onChange={(event) => { clearPreviousRequest(); setTo(event.target.value) }} /></label>
           </div>
           {requestError && <p role="alert">{t(requestError)}</p>}
           <p className={styles.note}>{t('noSave')}</p>

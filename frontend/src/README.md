@@ -15,6 +15,7 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 - `features/applications/useApplicationCatalog.ts` concentra o recurso de catálogo usado por catálogo, histórico e dashboard: snapshot validado, polling após a resposta, cancelamento e preservação dos últimos dados válidos. O resumo do dashboard tem ciclo independente; mudanças de período, estado ou região consultam somente o resumo. A ação de atualização solicita ambos os recursos, respeitando uma consulta de catálogo já pendente.
 - `utils/`: funções independentes de React, como formatação de datas.
 - `styles/shared.css`: estilos visuais usados por várias páginas, como botões, cabeçalhos e mensagens. `index.css` contém reset, base e tokens globais; cada componente compartilhado importa seu próprio CSS.
+- Campos de texto, datas, números e selects usam `form-control`, com fonte herdada, borda, seta de seleção, foco, erro e estado desabilitado compartilhados. A densidade padrão tem 44 px; `form-control--compact` tem 36 px em paginação no desktop e 44 px em telas pequenas/toque; `form-control--large` tem 50 px nos formulários de login e preferências. CSS da página mantém largura e composição; não redefine a aparência básica desses campos. Campos numéricos de destaque e buscas com ícone mantêm suas composições específicas.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
 
 ## Limites de propriedade

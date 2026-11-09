@@ -511,7 +511,7 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
     closeFilters()
   }
   return <div className={styles.filters}>
-    <label className={styles.searchFilter}>{labels.search}<input type="search" value={query.search} placeholder={historyMode ? t('historySearchPlaceholder') : labels.searchPlaceholder}
+    <label className={styles.searchFilter}>{labels.search}<input className="form-control" type="search" value={query.search} placeholder={historyMode ? t('historySearchPlaceholder') : labels.searchPlaceholder}
       onChange={event => onQueryChange({ ...query, search: event.target.value })} /></label>
     {isHistory ? <button ref={filterButton} type="button" className={styles.filterTrigger} aria-expanded={filtersOpen}
       aria-controls="history-column-filters" onClick={() => {
@@ -520,33 +520,33 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
       <summary>{labels.columnFilters}</summary>
       <div className={styles.filterFields}>
         <button type="button" onClick={onClear}>{labels.clearFilters}</button>
-        <label>{labels.from}<input type="datetime-local" value={fromDraft} onChange={event => onUpdateDate('from', event.target.value)} /></label>
-        <label>{labels.to}<input type="datetime-local" value={toDraft} onChange={event => onUpdateDate('to', event.target.value)} /></label>
-        <label>{labels.energyStatus}<select value={query.energyStatus} onChange={event => onQueryChange({ ...query, energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+        <label>{labels.from}<input className="form-control" type="datetime-local" value={fromDraft} onChange={event => onUpdateDate('from', event.target.value)} /></label>
+        <label>{labels.to}<input className="form-control" type="datetime-local" value={toDraft} onChange={event => onUpdateDate('to', event.target.value)} /></label>
+        <label>{labels.energyStatus}<select className="form-control" value={query.energyStatus} onChange={event => onQueryChange({ ...query, energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
           <option value="">{labels.allStatuses}</option>
           <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
           <option value="not-calculable">{labels.notCalculableStatus}</option>
         </select></label>
-        <label>{labels.emissionsStatus}<select value={query.emissionsStatus} onChange={event => onQueryChange({ ...query, emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+        <label>{labels.emissionsStatus}<select className="form-control" value={query.emissionsStatus} onChange={event => onQueryChange({ ...query, emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
           <option value="">{labels.allStatuses}</option>
           <option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option>
           <option value="not-calculable">{labels.notCalculableStatus}</option>
         </select></label>
-        <label>{labels.energyUnit}<select value={energyUnit} onChange={event => onQueryChange({ ...query, energyUnit: event.target.value })}>
+        <label>{labels.energyUnit}<select className="form-control" value={energyUnit} onChange={event => onQueryChange({ ...query, energyUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>
           {energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>
-        <label>{labels.energyMin}<input type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMin}<input className="form-control" type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMin: event.target.value })} /></label>
-        <label>{labels.energyMax}<input type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMax}<input className="form-control" type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMax: event.target.value })} /></label>
-        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select value={emissionsUnit} onChange={event => onQueryChange({ ...query, emissionsUnit: event.target.value })}>
+        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select className="form-control" value={emissionsUnit} onChange={event => onQueryChange({ ...query, emissionsUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>
           {emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>}
-        <label>{labels.emissionsMin}<input type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMin}<input className="form-control" type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMin: event.target.value })} /></label>
-        <label>{labels.emissionsMax}<input type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMax}<input className="form-control" type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMax: event.target.value })} /></label>
       </div>
     </details>}
@@ -557,27 +557,27 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
       <header className={styles.filterDialogHeader}><div><h2 id="history-filter-title">{labels.columnFilters}</h2><p>{labels.searchPlaceholder}</p></div>
         <button type="button" aria-label={labels.closeFilters} onClick={closeFilters}>×</button></header>
       <div className={styles.filterDialogGrid}>
-        <label>{labels.from}<input type="datetime-local" value={draftFrom} onChange={event => setDraftFrom(event.target.value)} /></label>
-        <label>{labels.to}<input type="datetime-local" value={draftTo} onChange={event => setDraftTo(event.target.value)} /></label>
-        <label>{labels.energyStatus}<select value={draftQuery.energyStatus} onChange={event => updateDraft({ energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+        <label>{labels.from}<input className="form-control" type="datetime-local" value={draftFrom} onChange={event => setDraftFrom(event.target.value)} /></label>
+        <label>{labels.to}<input className="form-control" type="datetime-local" value={draftTo} onChange={event => setDraftTo(event.target.value)} /></label>
+        <label>{labels.energyStatus}<select className="form-control" value={draftQuery.energyStatus} onChange={event => updateDraft({ energyStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
           <option value="">{labels.allStatuses}</option><option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option><option value="not-calculable">{labels.notCalculableStatus}</option>
         </select></label>
-        <label>{labels.emissionsStatus}<select value={draftQuery.emissionsStatus} onChange={event => updateDraft({ emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
+        <label>{labels.emissionsStatus}<select className="form-control" value={draftQuery.emissionsStatus} onChange={event => updateDraft({ emissionsStatus: parseAnalysisSeriesReadingStatus(event.target.value) })}>
           <option value="">{labels.allStatuses}</option><option value="available">{labels.availableStatus}</option><option value="unavailable">{labels.unavailableStatus}</option><option value="not-calculable">{labels.notCalculableStatus}</option>
         </select></label>
-        <label>{labels.energyUnit}<select value={draftQuery.energyUnit} onChange={event => updateDraft({ energyUnit: event.target.value })}>
+        <label>{labels.energyUnit}<select className="form-control" value={draftQuery.energyUnit} onChange={event => updateDraft({ energyUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>{energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>
-        <label>{labels.energyMin}<input type="number" step="any" value={draftQuery.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMin}<input className="form-control" type="number" step="any" value={draftQuery.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMin: event.target.value })} /></label>
-        <label>{labels.energyMax}<input type="number" step="any" value={draftQuery.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMax}<input className="form-control" type="number" step="any" value={draftQuery.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMax: event.target.value })} /></label>
-        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select value={draftQuery.emissionsUnit} onChange={event => updateDraft({ emissionsUnit: event.target.value })}>
+        {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select className="form-control" value={draftQuery.emissionsUnit} onChange={event => updateDraft({ emissionsUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>{emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>}
-        <label>{labels.emissionsMin}<input type="number" step="any" value={draftQuery.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMin}<input className="form-control" type="number" step="any" value={draftQuery.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMin: event.target.value })} /></label>
-        <label>{labels.emissionsMax}<input type="number" step="any" value={draftQuery.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMax}<input className="form-control" type="number" step="any" value={draftQuery.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMax: event.target.value })} /></label>
       </div>
       <footer className={styles.filterDialogFooter}><button type="button" onClick={() => { onClear(); closeFilters() }}>{labels.clearFilters}</button>
@@ -672,7 +672,7 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
     </table>
     <div className={styles.pagination}>
       <output aria-live="polite">{historyMode ? t('historyRange', { start: firstRow, end: lastRow, count: filteredPoints.length }) : labels.rangeStatus(firstRow, lastRow, filteredPoints.length)}</output>
-      <label>{labels.pageSize}<select value={pageSize} onChange={event => onPaginationChange(1, parseAnalysisSeriesPageSize(event.target.value))}>
+      <label>{labels.pageSize}<select className="form-control form-control--compact" value={pageSize} onChange={event => onPaginationChange(1, parseAnalysisSeriesPageSize(event.target.value))}>
         {[5, 10, 15, 20].map(size => <option key={size} value={size}>{size}</option>)}
         <option value="all">{labels.allRows}</option>
       </select></label>
