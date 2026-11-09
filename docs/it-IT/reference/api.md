@@ -65,12 +65,23 @@ Dashboard e consultazioni ambientali pubblici. `/login`: e-mail/password o Googl
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 Admin della stessa organizzazione cambia conti tra `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` e motivo. Blocco/disattivazione revocano tutte le sessioni; riattivazione richiede login nuovo. Protetti proprio conto e ultimo Admin attivo. Conflitto atteso: 409; destinazione già raggiunta: successo idempotente. Audit condiviso: successo nella transazione e dinieghi fuori rollback, attore esplicito e nessun segreto. Non consegna gestione completa dei ruoli o recupero password.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Amministrare gli account tramite API {#accounts}
+
+Solo un Admin attivo della stessa organizzazione può elencare e creare account o cambiare ruoli. La creazione riceve `name`, `email`, `role` e `reason`, senza password né conferma automatica dell’e-mail. Il titolare imposta la password nel flusso di conferma esistente; l’invio della conferma viene richiesto separatamente. La schermata di gestione e il recupero della password restano consegne distinte.
+
+La lista applica ricerca e filtri prima di ordinamento e paginazione. Il valore predefinito è 10 elementi, con opzioni 5, 10, 15, 20 e `all` per l’intero insieme filtrato. Le etichette tradotte vanno convertite in codici enum e le date locali in RFC 3339 con fuso orario. I valori assenti restano in fondo in entrambe le direzioni; le parità si risolvono con l’identificatore.
+
+Cambiare ruolo richiede `expectedRole` e `reason`. La modifica revoca sessioni e credenziali TOTP temporanee, conserva l’audit e impedisce di rimuovere il proprio accesso o l’ultimo Admin attivo con e-mail confermata. Gli account non confermati non sostituiscono tale amministratore. L’assegnazione di Admin mantiene il requisito TOTP.
 
 ## Confrontare con un’anteprima di ricalcolo {#preview}
 

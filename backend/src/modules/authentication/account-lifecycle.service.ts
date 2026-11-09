@@ -1,5 +1,5 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { DataSource, IsNull } from 'typeorm'
+import { DataSource, IsNull, Not } from 'typeorm'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
 import { UserAccountStatus, UserEntity, UserRole } from '../../database/entities/user.entity'
@@ -105,12 +105,14 @@ export class AccountLifecycleService {
       if (
         target.role === UserRole.ADMIN &&
         target.status === UserAccountStatus.ACTIVE &&
+        target.emailVerifiedAt &&
         input.status !== UserAccountStatus.ACTIVE &&
         (await users.count({
           where: {
             organizationId: target.organizationId,
             role: UserRole.ADMIN,
             status: UserAccountStatus.ACTIVE,
+            emailVerifiedAt: Not(IsNull()),
           },
         })) <= 1
       ) {

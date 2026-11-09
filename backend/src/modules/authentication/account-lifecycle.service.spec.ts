@@ -61,6 +61,7 @@ describe('AccountLifecycleService', () => {
     }
     const target = {
       id: 'target-id',
+      emailVerifiedAt: now,
       organizationId: principal.organizationId,
       role: UserRole.ANALYST,
       status: UserAccountStatus.ACTIVE,

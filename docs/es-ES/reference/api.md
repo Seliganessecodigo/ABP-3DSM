@@ -65,12 +65,23 @@ Consultas ambientales y dashboard son públicos. `/login` acepta correo/contrase
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 Admin de la misma organización cambia cuentas entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` y motivo. Bloqueo/desactivación revocan sesiones; reactivación exige login nuevo. Se protege la propia cuenta y el último Admin activo. Conflicto: 409; destino ya alcanzado: éxito idempotente. Auditoría compartida: éxito en la transacción y denegación fuera del rollback, con actor explícito y sin secretos. No entrega gestión completa de roles ni recuperación de contraseña.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Administrar cuentas mediante la API {#accounts}
+
+Solo un Admin activo de la misma organización puede listar y crear cuentas o cambiar roles. La creación recibe `name`, `email`, `role` y `reason`, sin contraseña ni confirmación automática del correo. El titular define su contraseña mediante el flujo de confirmación existente; el envío de la confirmación se solicita por separado. La pantalla de gestión y la recuperación de contraseña siguen siendo entregas independientes.
+
+La consulta aplica búsqueda y filtros antes de ordenar y paginar. El valor predeterminado es 10 elementos, con opciones 5, 10, 15, 20 y `all` para el conjunto filtrado completo. Las etiquetas traducidas deben convertirse en códigos de enumeración y las fechas locales en RFC 3339 con zona horaria. Los valores ausentes quedan al final en ambas direcciones; los empates se resuelven por identificador.
+
+Cambiar un rol exige `expectedRole` y `reason`. El cambio revoca sesiones y credenciales TOTP temporales, conserva la auditoría e impide retirar el propio acceso o el último Admin activo con correo confirmado. Las cuentas sin confirmar no sustituyen a ese administrador. La asignación de Admin mantiene el requisito de TOTP.
 
 ## Comparar con una vista previa de recálculo {#preview}
 

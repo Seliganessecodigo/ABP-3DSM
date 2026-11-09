@@ -65,12 +65,23 @@ Tableau de bord et consultations environnementales publics. `/login` accepte e-m
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Administrer les comptes par l’API {#accounts}
+
+Seul un Admin actif de la même organisation peut consulter et créer des comptes ou modifier les rôles. La création reçoit `name`, `email`, `role` et `reason`, sans mot de passe ni confirmation automatique de l’adresse e-mail. Le titulaire définit son mot de passe dans le parcours de confirmation existant ; l’envoi de la confirmation est demandé séparément. L’écran de gestion et la récupération du mot de passe restent des livraisons distinctes.
+
+La liste applique la recherche et les filtres avant le tri et la pagination. La valeur par défaut est de 10 éléments, avec les options 5, 10, 15, 20 et `all` pour tout le jeu filtré. Les libellés traduits doivent être convertis en codes d’énumération et les dates locales en RFC 3339 avec décalage horaire. Les valeurs absentes restent à la fin dans les deux sens ; les égalités sont départagées par identifiant.
+
+Modifier un rôle exige `expectedRole` et `reason`. Le changement révoque les sessions et les justificatifs TOTP temporaires, préserve l’audit et empêche de retirer son propre accès ou le dernier Admin actif dont l’e-mail est confirmé. Les comptes non confirmés ne remplacent pas cet administrateur. L’attribution du rôle Admin conserve l’exigence TOTP.
 
 ## Comparer avec un aperçu de recalcul {#preview}
 

@@ -65,12 +65,23 @@
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 同组织Admin可提交`expectedStatus`及原因，将账户改为`ACTIVE`、`BLOCKED`或`DEACTIVATED`。封禁/停用撤销所有会话；重新激活必须重新登录。保护自身账户及最后一位活跃Admin。预期状态冲突409，已达目标为幂等成功。共享审计将成功与变更同事务写入，拒绝在回滚事务之外写入，明确操作者且不含秘密。该路由不提供完整角色管理或密码恢复。
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## 通过 API 管理账户 {#accounts}
+
+只有同一组织中处于有效状态的 Admin 可以查询、创建账户或更改角色。创建时提交 `name`、`email`、`role` 和 `reason`，不接收密码，也不自动验证邮箱。账户持有人通过现有邮箱确认流程设置密码，确认邮件需另行请求发送。管理界面和密码找回仍属于独立交付项。
+
+列表先应用搜索和筛选，再排序和分页。默认每页10条，可选5、10、15、20条，以及返回全部筛选结果的 `all`。翻译后的标签应转换为枚举代码，本地日期应转换为带时区偏移的 RFC 3339。缺失值在升序和降序中均排在最后，相同值按标识符排序。
+
+更改角色需要 `expectedRole` 和 `reason`。更改会撤销会话和临时 TOTP 凭据，保留审计记录，并禁止移除自己的访问权限或最后一个邮箱已确认的有效 Admin。未确认邮箱的账户不能替代该管理员。赋予 Admin 角色后仍须完成 TOTP 验证。
 
 ## 比较重算预览 {#preview}
 

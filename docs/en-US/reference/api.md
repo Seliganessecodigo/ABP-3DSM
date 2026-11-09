@@ -65,12 +65,23 @@ Dashboard and environmental queries are public. At `/login`, use email/password 
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets. This route does not deliver full role management or password recovery.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Administer accounts through the API {#accounts}
+
+Only an active Admin in the same organization can list and create accounts or change roles. Creation accepts `name`, `email`, `role` and `reason`, without a password or automatic email verification. The account holder sets a password through the existing confirmation flow; confirmation delivery is requested separately. The management screen and password recovery remain separate deliveries.
+
+Listing applies search and filters before sorting and pagination. The default is 10 items, with options 5, 10, 15, 20 and `all` for the complete filtered set. Translated labels must be mapped to enum codes and local dates to RFC 3339 with an offset. Missing values sort last in both directions; ties use the identifier.
+
+Role changes require `expectedRole` and `reason`. A change revokes sessions and temporary TOTP credentials, preserves audit records and prevents removing your own access or the last active Admin with a confirmed email. Unconfirmed accounts do not replace that administrator. Assigning Admin retains the TOTP requirement.
 
 ## Compare with a recalculation preview {#preview}
 
