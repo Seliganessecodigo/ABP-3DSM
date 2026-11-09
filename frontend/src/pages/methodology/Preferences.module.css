@@ -38,7 +38,7 @@
 .card form { display: grid; gap: 16px; }
 .formFields { display: grid; gap: 16px; min-width: 0; margin: 0; padding: 0; border: 0; }
 .card label { display: grid; min-width: 0; gap: 9px; color: var(--text-secondary); font-size: 15px; font-weight: 700; }
-.card select, .card input[type='number'] { display: block; width: 100%; min-width: 0; height: 50px; border: 1px solid var(--border-control); border-radius: 9px; padding: 10px 15px; color: var(--text-primary); background: var(--control-background); font: 400 17px/1.4 GreenERInter, Inter, sans-serif; }
+.card select, .card input[type='number'] { display: block; width: 100%; min-width: 0; }
 .card input[type='number'] { border-color: var(--accent-default); font-size: 23px; font-weight: 700; }
 .fields { display: grid; grid-template-columns: 1.07fr 1fr; gap: 19px; }
 .card .toggle { position: relative; display: flex; align-items: center; gap: 14px; min-height: 44px; margin-top: 6px; color: var(--text-primary); font-size: 16px; cursor: pointer; }

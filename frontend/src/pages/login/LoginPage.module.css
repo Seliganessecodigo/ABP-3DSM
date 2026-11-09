@@ -9,7 +9,7 @@
 .card > p { margin-bottom: 32px; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
 .card form { display: grid; gap: 21px; }
 .card label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
-.card input { width: 100%; height: 49px; border: 1px solid var(--border-control); border-radius: 9px; padding: 0 13px; color: var(--text-primary); background: var(--control-background); font: inherit; font-size: 14px; }
+.card input { width: 100%; }
 .card input::placeholder { color: var(--text-secondary); opacity: .8; }
 .submit { height: 53px; margin-top: 8px; border: 0; border-radius: 9px; color: var(--accent-on-accent); background: var(--accent-default); text-align: center; padding: 0 12px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .submit:disabled { opacity: .65; cursor: wait; }

@@ -1,3 +1,14 @@
+.form-control { box-sizing: border-box; height: var(--control-height); min-height: var(--control-height); max-width: 100%; border: 1px solid var(--border-control); border-radius: var(--control-radius); padding: 0 12px; color: var(--text-primary); background-color: var(--control-background); font: inherit; font-size: var(--control-font-size); font-weight: 400; line-height: 20px; }
+select.form-control { appearance: none; padding-inline-end: 36px; background-image: var(--control-select-icon); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 12px; }
+.form-control--compact { height: var(--control-height-compact); min-height: var(--control-height-compact); font-size: 12px; }
+.form-control--large { height: var(--control-height-large); min-height: var(--control-height-large); font-size: 17px; }
+.form-control:hover:not(:disabled) { border-color: var(--accent-default); }
+.form-control:disabled { color: var(--text-disabled); background-color: var(--control-disabled); cursor: not-allowed; }
+.form-control:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.form-control[aria-invalid='true'] { border-color: var(--error-foreground); }
+@media (max-width: 640px), (pointer: coarse) {
+  .form-control--compact { height: var(--control-height); min-height: var(--control-height); }
+}
 .content { width: 100%; min-width: 0; margin: 0 auto; padding: 32px 48px 40px; }
 .page-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
 .eyebrow { margin: 0 0 4px; color: var(--accent-default); font-size: 10px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }

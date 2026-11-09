@@ -200,7 +200,7 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
       </section>}
       <div className={styles.pagination}>
         <output aria-live="polite">{labels.pageStatus(data.pagination.page, data.pagination.totalPages)}</output>
-        <label>{labels.pageSize}<select value={data.pagination.pageSize} disabled={!onPaginationChange}
+        <label>{labels.pageSize}<select className="form-control form-control--compact" value={data.pagination.pageSize} disabled={!onPaginationChange}
           onChange={(event) => onPaginationChange?.(1, event.target.value === 'all' ? 'all' : Number(event.target.value))}>
           {[5, 10, 15, 20].map((size) => <option key={size} value={size}>{size}</option>)}
           <option value="all">{labels.allRows}</option>

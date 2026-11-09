@@ -16,7 +16,7 @@
 .card p, .resultPage p { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
 .card form { display: grid; gap: 12px; margin-top: 8px; }
 .card label { display: grid; gap: 6px; color: var(--text-primary); font-size: 12px; font-weight: 650; }
-.card input, .card select { width: 100%; min-height: 42px; border: 1px solid var(--border-default); border-radius: 7px; padding: 8px 10px; color: var(--text-primary); background: var(--surface-card); font: inherit; }
+.card input, .card select { width: 100%; }
 .card input:focus-visible, .card select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .dateFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }

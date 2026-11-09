@@ -43,7 +43,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const selectedApplication = applications.find(({ id }) => id === selectedId)
   const applicationSelector = <label className={styles.applicationFilter}>
     {tCatalog('app')}
-    <select value={selectedId} onChange={(event) => selectApplication(event.target.value)}>
+    <select className="form-control" value={selectedId} onChange={(event) => selectApplication(event.target.value)}>
       <option value="">{tCatalog('app')}</option>
       {applications.map((application) => <option key={application.id} value={application.id}>
         {application.name} · {application.id}

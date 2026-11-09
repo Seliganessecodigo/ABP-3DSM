@@ -114,8 +114,8 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       <h2 id="login-heading">{t('submit')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
-        <label>{t('email')}<input name="email" type="email" autoComplete="username" required /></label>
-        <label>{t('password')}<input name="password" type="password" autoComplete="current-password" required /></label>
+        <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
+        <label>{t('password')}<input className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <button className={styles.submit} type="submit" disabled={submitting}>{submitting ? t('submitting') : t('submit')}</button>
       </form>
