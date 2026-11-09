@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -51,6 +52,7 @@ export class ApplicationsRepository {
       .map(([, value]) => value)
     const insertedIds: string[] = []
     for (let offset = 0; offset < ordered.length; offset += DISCOVERY_INSERT_BATCH_SIZE) {
+      // eslint-disable-next-line no-await-in-loop -- One transactional connection; preserve lock order and stop after a failed batch.
       const result = await manager
         .createQueryBuilder()
         .insert()

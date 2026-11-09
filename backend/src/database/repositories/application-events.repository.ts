@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -55,6 +56,7 @@ export class ApplicationEventsRepository {
     events: readonly Partial<ApplicationEventEntity>[],
   ): Promise<void> {
     for (let offset = 0; offset < events.length; offset += EVENT_INSERT_BATCH_SIZE) {
+      // eslint-disable-next-line no-await-in-loop -- Submit the next batch only after success on the same transactional connection.
       await manager.insert(
         ApplicationEventEntity,
         events.slice(offset, offset + EVENT_INSERT_BATCH_SIZE) as QueryDeepPartialEntity<ApplicationEventEntity>[],

@@ -12,6 +12,8 @@ A persistência passa a receber conjuntos de aplicações e devolver somente os 
 
 O lote técnico não limita o catálogo: conjuntos maiores são divididos internamente, mantendo a atomicidade da operação completa. Conflitos de ID preservam os registros existentes; uma falha na gravação dos eventos deve reverter as aplicações inseridas em todos os lotes. Não há consulta prévia de existência que introduza uma corrida entre leitura e escrita.
 
+Os lotes usam execução sequencial na mesma conexão transacional: o próximo comando só é submetido após o sucesso do anterior, preservando a ordem de aquisição dos bloqueios. Os dois repositories verificam `no-await-in-loop` localmente e documentam uma exceção específica nesses laços; a regra continua verificando os demais casos. Paralelizar os comandos não oferece conexões adicionais dentro dessa transação e alteraria o protocolo de ordenação e falha.
+
 ## Frontend: catálogo independente dos filtros de análise
 
 Antes, `useDashboard` buscava o catálogo e o resumo ambiental no mesmo efeito. Mudar período, estado ou região provocava uma nova consulta ao catálogo, embora o endpoint de catálogo não receba esses filtros. O histórico também importava o hook diretamente da página de catálogo.
