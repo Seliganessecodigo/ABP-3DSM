@@ -31,6 +31,6 @@ As imagens usam respostas controladas, sem credenciais ou dados de produção. O
 - [Dashboard depois, desktop](../../.github/evidencias/consistencia-controles/dashboard-depois-desktop.png)
 - [Dashboard depois, celular](../../.github/evidencias/consistencia-controles/dashboard-depois-mobile.png)
 
-`frontend/e2e/control-consistency.spec.ts` verifica dimensões e tipografia renderizadas nas páginas, densidade de paginação, foco e ausência de overflow no login; cobre desktop/celular e temas claro/escuro. Um cenário adicional verifica a geometria dos filtros do dashboard nos doze idiomas. Os testes funcionais existentes verificam filtros, navegação, preferências e autenticação.
+`frontend/e2e/control-consistency.spec.ts` verifica dimensões e tipografia renderizadas nas páginas, densidade de paginação, foco e ausência de overflow no login; cobre desktop/celular e temas claro/escuro. Há um cenário independente por idioma para verificar a geometria dos filtros do dashboard nos doze idiomas. Os testes funcionais existentes verificam filtros, navegação, preferências e autenticação.
 
 Esta entrega padroniza os controles de formulário. A composição dos gráficos, os tamanhos de títulos e as densidades específicas de tabelas continuam pertencendo às telas, sem uma reformulação geral de layout.

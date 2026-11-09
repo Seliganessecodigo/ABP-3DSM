@@ -13,7 +13,7 @@
 .compact .dates { gap: 8px; margin: 8px 0; }
 .compact .filters { gap: 8px; margin: 8px 0; }
 .compact .search, .compact .filter { flex-basis: 140px; min-width: min(100%, 140px); gap: 4px; font-size: 10px; }
-.compact .clearFilters { min-height: 32px; padding-inline: 8px; }
+.compact .clearFilters { min-height: var(--control-height-compact); padding-inline: 8px; }
 .compact .filteredCount { margin-bottom: 4px; font-size: 10px; }
 .compact .table { font-size: 11px; }
 .compact .table th, .compact .table td { padding: 6px 4px; }
@@ -58,4 +58,7 @@
   .filter { min-width: 0; }
   .clearFilters { justify-self: start; }
   .table th, .table td { padding: 12px 8px; }
+}
+@media (max-width: 640px), (pointer: coarse) {
+  .compact .clearFilters { min-height: var(--control-height); }
 }

@@ -66,16 +66,15 @@ for (const width of [1440, 390]) {
   }
 }
 
-test('dashboard controls retain their geometry in all twelve languages', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  await mockDashboard(page)
-  await page.goto('/dashboard')
-  for (const locale of supportedLocales) {
-    await page.evaluate((value) => localStorage.setItem('greener:locale', value), locale)
-    await page.reload()
+for (const locale of supportedLocales) {
+  test(`dashboard controls retain their geometry in ${locale}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.addInitScript((value) => localStorage.setItem('greener:locale', value), locale)
+    await mockDashboard(page)
+    await page.goto('/dashboard')
     await expect(page.locator('html')).toHaveAttribute('lang', locale)
     const summaryFilters = page.locator('main select[aria-label]')
     await expectFields(summaryFilters, 44)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), locale).toBe(true)
-  }
-})
+  })
+}
