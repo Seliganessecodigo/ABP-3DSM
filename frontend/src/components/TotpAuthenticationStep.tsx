@@ -48,7 +48,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
     event.preventDefault()
     setError('')
     if (!/^\d{6}$/.test(code)) {
-      setError(t('totpInvalidFormat'))
+      setError('totpInvalidFormat')
       codeRef.current?.focus()
       return
     }
@@ -60,7 +60,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
         onExpired()
       } else {
         if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CODE') setCode('')
-        setError(t(getTotpErrorKey(cause, isSetup)))
+        setError(getTotpErrorKey(cause, isSetup))
         codeRef.current?.focus()
       }
     } finally {
@@ -71,9 +71,9 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   async function copyManualSecret() {
     try {
       await navigator.clipboard.writeText(manualSecret)
-      setCopyMessage(t('totpCopied'))
+      setCopyMessage('totpCopied')
     } catch {
-      setCopyMessage(t('totpCopyFailed'))
+      setCopyMessage('totpCopyFailed')
     }
   }
 
@@ -95,7 +95,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           <p>{t('totpManualWarning')}</p>
           <code>{manualSecret}</code>
           <button className="button secondary" type="button" onClick={() => void copyManualSecret()}>{t('totpCopySecret')}</button>
-          {copyMessage && <output className={styles.copyMessage}>{copyMessage}</output>}
+          {copyMessage && <output className={styles.copyMessage}>{t(copyMessage)}</output>}
         </details>
       </div>}
       <form className={styles.form} onSubmit={(event) => void handleSubmit(event)} noValidate>
@@ -113,7 +113,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
           onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
           aria-describedby={error ? 'totp-error' : undefined}
         />
-        {error && <p className={loginStyles.error} id="totp-error" role="alert">{error}</p>}
+        {error && <p className={loginStyles.error} id="totp-error" role="alert">{t(error)}</p>}
         <button className="button" type="submit" disabled={submitting}>
           {getSubmitLabel(t, submitting, isSetup)}
         </button>

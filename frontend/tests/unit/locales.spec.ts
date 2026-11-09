@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { createInstance } from 'i18next'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { supportedLocales } from '../../src/i18n/types.ts'
 import { getTimeZoneForLocale } from '../../src/utils/timeZone.ts'
 
@@ -13,19 +13,44 @@ function readTranslations(root: string, locale: string): Record<string, string> 
   }))
 }
 
-for (const root of ['i18n', 'pages/catalog', 'pages/detail', 'pages/dashboard', 'pages/methodology']) {
+const pageRoots = readdirSync(new URL('../../src/pages/', import.meta.url))
+  .filter(page => existsSync(new URL(`../../src/pages/${page}/i18n.ts`, import.meta.url)))
+  .map(page => `pages/${page}`)
+
+for (const root of ['i18n', ...pageRoots]) {
   test(`${root} has nonempty translations and preserves interpolation in all locales`, () => {
     const placeholders = (text: string) => [...text.matchAll(/{{\s*([^{}]+?)\s*}}/g)].map(match => match[1]).sort()
     for (const locale of supportedLocales) {
       const resources = readTranslations(root, locale)
       for (const [key, value] of Object.entries(readTranslations(root, 'en-US'))) {
         const translated = resources[key]
-        expect(translated, `${root}.${locale}.${key}`).toBeTruthy()
+        expect(translated?.trim(), `${root}.${locale}.${key}`).toBeTruthy()
         expect(placeholders(translated), `${root}.${locale}.${key}`).toEqual(placeholders(value))
+        expect(translated, `${root}.${locale}.${key}`).not.toMatch(/\?{2,}|\p{L}\?\p{L}|\uFFFD/u)
       }
     }
   })
 }
+
+test('authentication and history controls are translated without copied English or romanized Japanese', () => {
+  for (const locale of supportedLocales.filter(locale => locale !== 'en-US')) {
+    for (const root of ['pages/login', 'pages/detail']) {
+      const english = readTranslations(root, 'en-US')
+      const translated = readTranslations(root, locale)
+      const keys = root === 'pages/login' ? Object.keys(english) : [
+        'analysisSeriesFrom', 'analysisSeriesTo', 'analysisSeriesTimeZone', 'analysisSeriesInvalidDateRange',
+        'analysisSeriesApply', 'analysisSeriesCloseFilters', 'historyNoFilters', 'historyActiveFilters',
+      ]
+      for (const key of keys) {
+        // “Password” is also the conventional Italian label.
+        if (!(root === 'pages/login' && locale === 'it-IT' && key === 'password')) {
+          expect(translated[key], `${root}.${locale}.${key}`).not.toBe(english[key])
+        }
+        expect(translated[key], `${root}.${locale}.${key}`).not.toMatch(/US-\d+|Shuukei/)
+      }
+    }
+  }
+})
 
 test('new locales use their configured time zone and valid Intl formatting', () => {
   for (const [locale, zone] of [['ko-KR', 'Asia/Seoul'], ['ru-RU', 'Europe/Moscow'], ['hi-IN', 'Asia/Kolkata'], ['id-ID', 'Asia/Jakarta']]) {
