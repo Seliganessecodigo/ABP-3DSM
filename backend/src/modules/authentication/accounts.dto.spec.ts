@@ -12,6 +12,9 @@ describe('account input boundaries', () => {
   it.each([null, [], {}, { ...create, role: 'ROOT' }, { ...create, email: 'invalid' }, { ...create, name: ' ' }, { ...create, name: 'a'.repeat(161) }, { ...create, reason: 'x'.repeat(513) }, { ...create, password: 'must-not-be-accepted' }, { ...create, organizationId: 'another' }])('rejects invalid account creation %j', input => {
     expect(() => parseCreateAccount(input)).toThrow(BadRequestException)
   })
+  it.each(['@example.test', 'ana@@example.test', 'ana@localhost', 'ana@.test', 'ana@example.', 'ana b@example.test', 'ana@example. test'])('rejects malformed email %s without ambiguous backtracking', email => {
+    expect(() => parseCreateAccount({ ...create, email })).toThrow(BadRequestException)
+  })
   it.each([{}, { role: 'ADMIN', expectedRole: 'INVALID', reason: 'Reason' }, { role: 'ADMIN', expectedRole: 'ANALYST', reason: '' }, { role: 'ADMIN', expectedRole: 'ANALYST', reason: 'Reason', status: 'ACTIVE' }])('rejects invalid role changes %j', input => {
     expect(() => parseChangeAccountRole(input)).toThrow(BadRequestException)
   })

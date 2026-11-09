@@ -11,12 +11,14 @@ function searchable(expression: string): string {
 }
 
 function pattern(value: string): string {
-  return `%${value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[\\%_]/g, '\\$&')}%`
+  const escaped = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[\\%_]/g, String.raw`\$&`)
+  return `%${escaped}%`
 }
 
 function applyColumnFilters(query: SelectQueryBuilder<UserEntity>, input: AccountsQuery): void {
   for (const column of ['id', 'name', 'email'] as const) {
-    if (input[column]) query.andWhere(`${searchable(`CAST(account."${column}" AS text)`)} LIKE :${column}`, { [column]: pattern(input[column]) })
+    const expression = searchable(`CAST(account."${column}" AS text)`)
+    if (input[column]) query.andWhere(`${expression} LIKE :${column}`, { [column]: pattern(input[column]) })
   }
   for (const column of ['role', 'status'] as const) {
     if (input[column]) query.andWhere(`account.${column} = :${column}`, { [column]: input[column] })
@@ -75,12 +77,14 @@ export class AccountsRepository {
       const columns = accountColumns.map(column => accountDateColumns.includes(column as typeof accountDateColumns[number])
         ? `to_char(account."${column}" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`
         : `CAST(account."${column}" AS text)`)
-      query.andWhere(`(${columns.map(column => `${searchable(column)} LIKE :search`).join(' OR ')})`, { search: pattern(input.search) })
+      const conditions = columns.map(column => `${searchable(column)} LIKE :search`).join(' OR ')
+      query.andWhere(`(${conditions})`, { search: pattern(input.search) })
     }
     applyColumnFilters(query, input)
     applyDateFilters(query, input)
     const totalItems = await query.getCount()
-    const totalPages = totalItems === 0 ? 0 : input.pageSize === 'all' ? 1 : Math.ceil(totalItems / input.pageSize)
+    const countPerPage = input.pageSize === 'all' ? Math.max(1, totalItems) : input.pageSize
+    const totalPages = Math.ceil(totalItems / countPerPage)
     const page = Math.min(input.pageSize === 'all' ? 1 : input.page, Math.max(1, totalPages))
     // Every identifier comes from the DTO allowlist. Text follows the database collation; dates and enums keep their native types.
     query.orderBy(`account.${input.sortBy}`, input.sortDirection === 'asc' ? 'ASC' : 'DESC', 'NULLS LAST')

@@ -80,7 +80,7 @@ export class AccountsService {
       return await this.database.transaction(async manager => {
         // Same organization-first lock order as account lifecycle, including concurrent demotions and status transitions.
         const organization = await this.accounts.lockOrganization(manager, principal.organizationId)
-        const actor = organization && await this.accounts.findLocked(manager, principal.organizationId, principal.userId)
+        const actor = organization?.id ? await this.accounts.findLocked(manager, principal.organizationId, principal.userId) : null
         if (!actor || actor.status !== UserAccountStatus.ACTIVE || actor.role !== UserRole.ADMIN) {
           throw new ForbiddenException({ code: 'ACTIVE_ADMIN_REQUIRED', message: 'Somente Admin ativo pode administrar contas' })
         }
