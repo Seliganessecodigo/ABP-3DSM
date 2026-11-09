@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { supportedLocales } from '../src/i18n/types.ts'
 import { application, mockCatalog } from './support/catalog.ts'
@@ -6,6 +6,13 @@ import { collectionResponse } from './support/collection.ts'
 
 function translations(page: string, locale: string): Record<string, string> {
   return JSON.parse(readFileSync(new URL(`../src/pages/${page}/locales/${locale}.json`, import.meta.url), 'utf8'))
+}
+
+async function navigate(page: Page, path: string) {
+  await page.evaluate(path => {
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }, path)
 }
 
 for (const locale of supportedLocales) {
@@ -30,25 +37,25 @@ for (const locale of supportedLocales) {
     await page.getByRole('button', { name: catalog.columnFilters, exact: true }).click()
     await expect(page.getByRole('dialog').locator('legend')).toContainText(common['date.lastCheck'])
     await page.getByRole('button', { name: catalog.closeFilters, exact: true }).click()
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/dashboard')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(translations('dashboard', locale).title)
     await expect(page.getByRole('main')).toContainText(translations('dashboard', locale).error)
-    await page.goto('/history', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/history')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(detail.historyTitle)
-    await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/services/svc-0142')
     await expect(page.getByRole('main')).toContainText(detail.analysisError)
-    await page.goto('/services/svc-0142/methodology', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/services/svc-0142/methodology')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(methodology.title)
     await expect(page.getByRole('main')).toContainText(methodology.estimateNotice)
-    await page.goto('/methodology', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/methodology')
     for (const tab of ['energy', 'emissions', 'coverage', 'analysis']) {
       await page.getByRole('tab', { name: methodology[`preferences.tabs.${tab}`], exact: true }).click()
       await expect(page.getByRole('tabpanel')).toContainText(methodology[`preferences.${tab}.title`])
     }
-    await page.goto('/administration/calculations', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/administration/calculations')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(recalculation.title)
     await expect(page.getByRole('button', { name: recalculation.generate, exact: true })).toBeVisible()
-    await page.goto('/login', { waitUntil: 'domcontentloaded' })
+    await navigate(page, '/login')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(login.heading)
     if (locale === 'ko-KR') await page.screenshot({ path: test.info().outputPath('login-ko-KR.png'), fullPage: true })
     await page.getByLabel(login.email, { exact: true }).fill('review@example.com')
@@ -57,7 +64,8 @@ for (const locale of supportedLocales) {
     await expect(page.getByRole('alert')).toHaveText(login.invalidCredentials)
     await page.getByRole('combobox').selectOption(locale === 'en-US' ? 'pt-BR' : 'en-US')
     await expect(page.getByRole('alert')).toHaveText(translations('login', locale === 'en-US' ? 'pt-BR' : 'en-US').invalidCredentials)
-    await page.goto('/sso/callback?error=denied', { waitUntil: 'domcontentloaded' })
+    await page.getByRole('combobox').selectOption(locale)
+    await navigate(page, '/sso/callback?error=denied')
     await expect(page.getByRole('alert')).toHaveText(login.ssoFailed)
     await expect(page.locator('html')).toHaveAttribute('lang', locale)
     await expect(page.getByRole('main')).not.toContainText(/\?{2,}|\p{L}\?\p{L}|\uFFFD|US-18/u)
