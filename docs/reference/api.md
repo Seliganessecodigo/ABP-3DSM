@@ -29,10 +29,16 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 As métricas não incluem horário de medição na origem. O intervalo é derivado do recebimento menos `collection_interval_seconds`. O horário de consulta do fator não comprova vigência; fonte e validade não publicadas permanecem desconhecidas. Energia, fator e emissões persistem oito casas decimais; cobertura, quatro. Não há arredondamento intermediário. Energia e emissões preservam coberturas separadas e snapshots originais.
+
+## Série e explicação do cálculo {#environmental-presentation}
+
+Em `/analysis/summary`, o parâmetro opcional `granularity` inclui `series.points` no mesmo período e filtros dos totais. Cada intervalo soma os resultados persistidos das aplicações e mantém coberturas independentes. Valores ausentes permanecem `null`.
+
+Em `/applications/{id}/analysis`, `calculation.energyKwh` informa a energia dos segmentos com emissões calculadas; `calculation.intensity` é o fator equivalente em gCO₂e/kWh, obtido dividindo essas emissões pela energia correspondente. Com energia zero ou ausente, o fator permanece nulo. Os resultados e fatores históricos são preservados.
 
 ## Entrar na sua conta {#login}
 

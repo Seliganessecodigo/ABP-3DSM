@@ -10,9 +10,13 @@ In the catalog, search by name, identifier or region and filter by application s
 
 On the dashboard, select 24 hours, 7, 30 or 90 days, a region and a state. Review energy, emissions, coverage and application counts by state. The chart shows emissions shares as bars or a donut. Search, filter and sort the table by impact; table filters change the displayed rows while summary totals retain the selected scope.
 
+In the time series, switch between energy and CO₂e or open the interval table. The 24-hour window uses hourly grouping; other windows use daily grouping. Intervals follow UTC and use the same filters as the indicators. Gaps remain without values.
+
 ## Investigate application details {#detail}
 
 Open application details to check identity, location, state and update times. Examine metrics and environmental results for the same period. Recorded methodology shows the model, parameters and carbon factor used in the calculation without changing the result. If the city is unavailable, the other location details remain useful.
+
+The equivalent factor summarizes the applied regional factors, weighted by energy with calculated emissions. The calculation explanation uses this energy, which may be lower than total energy when factors are missing for part of the period. Open factor details to check values and sources by region.
 
 ## Explore history {#history}
 

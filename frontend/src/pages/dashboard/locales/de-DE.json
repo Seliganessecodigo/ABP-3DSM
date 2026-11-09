@@ -31,7 +31,7 @@
   "dataAsOf": "Daten erfasst bis {{date}}",
   "dataAsOfUnavailable": "Für diese Übersicht ist kein Erfassungszeitpunkt verfügbar.",
   "trendTitle": "Zeitreihe",
-  "trendUnavailable": "Eine aggregierte historische Zeitreihe ist noch nicht Teil des API-Vertrags. Es werden keine Beispielwerte angezeigt.",
+  "trendUnavailable": "Die Zeitreihe konnte nicht geladen werden.",
   "compositionTitle": "CO₂e-Anteil nach Anwendung",
   "donut": "Ringdiagramm",
   "bars": "Balken",
@@ -82,5 +82,9 @@
   "filters.clearAll": "Alle löschen",
   "filters.cancel": "Abbrechen",
   "filters.apply": "Filter anwenden",
-  "filters.invalidRange": "Geben Sie gültige, nicht negative Zahlen ein; das Minimum darf das Maximum nicht überschreiten."
+  "filters.invalidRange": "Geben Sie gültige, nicht negative Zahlen ein; das Minimum darf das Maximum nicht überschreiten.",
+  "trend.graph": "Diagramm",
+  "trend.table": "Tabelle",
+  "trend.interval": "Intervall (UTC)",
+  "trend.note": "Werte je UTC-Intervall. Lücken bedeuten fehlende Daten, nicht null."
 }

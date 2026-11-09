@@ -31,7 +31,7 @@
   "dataAsOf": "数据收集截至 {{date}}",
   "dataAsOfUnavailable": "此摘要没有可用的收集时间。",
   "trendTitle": "时间序列",
-  "trendUnavailable": "API 契约尚未提供聚合历史序列，因此不会显示示例值。",
+  "trendUnavailable": "无法加载时间序列。",
   "compositionTitle": "按应用划分的 CO₂e 构成",
   "donut": "查看环形图",
   "bars": "查看条形图",
@@ -82,5 +82,9 @@
   "filters.clearAll": "清除全部",
   "filters.cancel": "取消",
   "filters.apply": "应用筛选",
-  "filters.invalidRange": "请输入有效的非负数值，并确保最小值不大于最大值。"
+  "filters.invalidRange": "请输入有效的非负数值，并确保最小值不大于最大值。",
+  "trend.graph": "图表",
+  "trend.table": "表格",
+  "trend.interval": "时段（UTC）",
+  "trend.note": "按UTC时段显示数值。空缺表示数据缺失，而非零。"
 }

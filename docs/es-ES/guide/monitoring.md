@@ -10,9 +10,13 @@ En el catálogo, busque por nombre, identificador o región y filtre por estado.
 
 En el dashboard, seleccione 24 horas, 7, 30 o 90 días, una región y un estado. Consulte energía, emisiones, cobertura y aplicaciones por estado. El gráfico muestra las proporciones de emisiones con barras o anillo. La tabla permite buscar, filtrar y ordenar por impacto; sus filtros cambian las filas, mientras los totales conservan el alcance seleccionado.
 
+En la serie temporal, alterne entre energía y CO₂e o consulte la tabla de intervalos. La ventana de 24 horas se agrupa por hora; las demás, por día. Los intervalos siguen UTC y usan los mismos filtros que los indicadores. Los huecos permanecen sin valor.
+
 ## Investigar el detalle {#detail}
 
 Abra el detalle para comprobar identidad, ubicación, estado y horas de actualización. Examine métricas y resultados ambientales del mismo período. La metodología registrada muestra el modelo, los parámetros y el factor de carbono utilizados sin modificar el resultado. Si falta la ciudad, el resto de la ubicación sigue siendo útil.
+
+El factor equivalente resume los factores regionales aplicados, ponderados por la energía con emisiones calculadas. La explicación usa esa energía, que puede ser menor que el total si faltan factores en parte del período. Abra los detalles para consultar valores y fuentes por región.
 
 ## Explorar el historial {#history}
 

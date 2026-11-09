@@ -29,10 +29,16 @@ This reference supports GreenER API integrations. The environment publishes comp
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 Source metrics have no measurement timestamp. The interval derives from receipt minus `collection_interval_seconds`. Factor query time does not establish validity; unpublished source and validity remain unknown. Energy, factor and emissions persist eight decimal places; coverage four. No intermediate rounding occurs. Energy and emissions retain separate coverage and original snapshots.
+
+## Series and calculation explanation {#environmental-presentation}
+
+In `/analysis/summary`, the optional `granularity` parameter includes `series.points` with the same period and filters as the totals. Each interval sums persisted application results and keeps independent coverage. Missing values remain `null`.
+
+In `/applications/{id}/analysis`, `calculation.energyKwh` is the energy of segments with calculated emissions; `calculation.intensity` is the equivalent factor in gCO₂e/kWh, obtained by dividing those emissions by the corresponding energy. For zero or missing energy, the factor remains null. Historical results and factors are preserved.
 
 ## Sign in {#login}
 

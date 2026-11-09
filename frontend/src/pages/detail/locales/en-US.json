@@ -230,5 +230,8 @@
   "historyMethodology": "Methodology",
   "historyAction": "Action",
   "historyReturnNote": "Returning restores the history criteria and page, focusing the interval that opened this inspection.",
-  "historyRecalculationPreview": "Recalculation preview"
+  "historyRecalculationPreview": "Recalculation preview",
+  "analysisEquivalentFactor": "Equivalent factor",
+  "analysisFactorExplanation": "Emissions are the sum of each interval’s calculations. The equivalent factor summarizes the applied factors, weighted by energy with calculated CO₂e.",
+  "analysisEnergyWithEmissions": "Energy with calculated CO₂e"
 }

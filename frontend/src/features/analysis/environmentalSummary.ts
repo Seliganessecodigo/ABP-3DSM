@@ -14,11 +14,18 @@ export type EnvironmentalSummaryApplication = Readonly<{
 export type EnvironmentalSummary = Readonly<{
   status: 'available' | 'empty'
   period: Readonly<{ from: string; to: string }>
+  series?: Readonly<{ granularity: string; points: readonly EnvironmentalSummaryPoint[] }>
   dataAsOf: string | null
   totals: Readonly<{ energy: EnvironmentalSummaryMeasure; emissions: EnvironmentalSummaryMeasure }>
   coverage: Readonly<{ energy: number; emissions: number }>
   states: Readonly<Record<EnvironmentalSummaryState, number>>
   applications: readonly EnvironmentalSummaryApplication[]
+}>
+
+export type EnvironmentalSummaryPoint = Readonly<{
+  bucketStart: string; bucketEnd: string; period: Readonly<{ from: string; to: string }>
+  energy: EnvironmentalSummaryMeasure; emissions: EnvironmentalSummaryMeasure
+  coverage: Readonly<{ energy: number; emissions: number }>
 }>
 
 export type EnvironmentalSummaryFilters = Readonly<{
@@ -100,6 +107,7 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
   })
 
   return {
+    series: readSeries(value.series, expectedPeriod),
     status: value.status,
     period: expectedPeriod,
     dataAsOf: value.dataAsOf,
@@ -116,9 +124,38 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
   }
 }
 
+function readSeries(value: unknown, expectedPeriod: Readonly<{ from: string; to: string }>): EnvironmentalSummary['series'] {
+  if (value === undefined) return undefined
+  if (!isRecord(value) || !['hour', 'day', 'month', 'year'].includes(String(value.granularity)) || !Array.isArray(value.points)) throw new Error('Invalid summary series')
+  const points = value.points.map((point) => readSeriesPoint(point, expectedPeriod))
+  if (points.some((point, index) => index > 0 && Date.parse(point.period.from) < Date.parse(points[index - 1].period.to))) throw new Error('Unordered summary intervals')
+  return { granularity: String(value.granularity), points }
+}
+
+function readSeriesPoint(point: unknown, expectedPeriod: Readonly<{ from: string; to: string }>): EnvironmentalSummaryPoint {
+  const timestamp = (value: unknown): string => {
+    if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) throw new Error('Invalid summary timestamp')
+    return value
+  }
+  if (!isRecord(point) || !isRecord(point.period) || !isRecord(point.coverage)) throw new Error('Invalid summary point')
+  const result = {
+    bucketStart: timestamp(point.bucketStart), bucketEnd: timestamp(point.bucketEnd),
+    period: { from: timestamp(point.period.from), to: timestamp(point.period.to) },
+    energy: readMeasure(point.energy, 'series energy'), emissions: readMeasure(point.emissions, 'series emissions'),
+    coverage: { energy: readCoverage(point.coverage.energy, 'series energy'), emissions: readCoverage(point.coverage.emissions, 'series emissions') },
+  }
+  const from = Date.parse(result.period.from)
+  const to = Date.parse(result.period.to)
+  if (from < Date.parse(expectedPeriod.from) || to > Date.parse(expectedPeriod.to) || to <= from ||
+    Date.parse(result.bucketStart) > from || Date.parse(result.bucketEnd) < to) throw new Error('Invalid summary interval')
+  if (result.energy.unit !== 'kWh' || result.emissions.unit !== 'gCO2e' ||
+    (result.energy.value !== null && result.energy.value < 0) || (result.emissions.value !== null && result.emissions.value < 0)) throw new Error('Invalid summary units or values')
+  return result
+}
+
 export async function getEnvironmentalSummary(filters: EnvironmentalSummaryFilters, signal: AbortSignal): Promise<EnvironmentalSummary> {
   const range = analysisRangeFor(filters.period, new Date(filters.anchor))
-  const params = new URLSearchParams(range)
+  const params = new URLSearchParams({ ...range, granularity: filters.period === '24h' ? 'hour' : 'day' })
   if (filters.state) params.append('states', filters.state)
   if (filters.regionCode) params.append('regionCodes', filters.regionCode)
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')

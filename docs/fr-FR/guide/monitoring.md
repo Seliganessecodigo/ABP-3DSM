@@ -10,9 +10,13 @@ Dans le catalogue, recherchez par nom, identifiant ou région et filtrez par ét
 
 Dans le tableau de bord, choisissez 24 heures, 7, 30 ou 90 jours, une région et un état. Consultez énergie, émissions, couverture et répartition par état. Le graphique présente les parts d’émissions en barres ou anneau. Recherche, filtres et tri par impact concernent les lignes du tableau ; les totaux conservent le périmètre sélectionné.
 
+Dans la série temporelle, alternez entre énergie et CO₂e ou consultez le tableau des intervalles. La fenêtre de 24 heures utilise un regroupement horaire ; les autres, un regroupement quotidien. Les intervalles suivent UTC et les mêmes filtres que les indicateurs. Les lacunes restent sans valeur.
+
 ## Examiner le détail {#detail}
 
 Ouvrez le détail pour vérifier identité, localisation, état et horaires de mise à jour. Examinez métriques et résultats environnementaux sur la même période. La méthodologie enregistrée présente modèle, paramètres et facteur de carbone utilisés sans modifier le résultat. Sans ville disponible, les autres informations géographiques restent utiles.
+
+Le facteur équivalent résume les facteurs régionaux appliqués, pondérés par l’énergie avec des émissions calculées. L’explication utilise cette énergie, qui peut être inférieure au total si des facteurs manquent sur une partie de la période. Ouvrez les détails pour consulter les valeurs et les sources par région.
 
 ## Explorer l’historique {#history}
 

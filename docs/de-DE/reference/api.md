@@ -29,10 +29,16 @@ Referenz zur GreenER-API-Integration. Vollständige Typen, optionale Felder und 
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 Quellmetriken haben keinen Messzeitpunkt. Intervall: Empfang minus `collection_interval_seconds`. Faktorabfrage beweist keine Gültigkeit; unveröffentlichte Quelle/Gültigkeit bleiben unbekannt. Energie/Faktor/Emissionen speichern acht Dezimalstellen, Abdeckung vier. Keine Zwischenrundung. Getrennte Abdeckungen und ursprüngliche Snapshots bleiben erhalten.
+
+## Zeitreihe und Berechnungserklärung {#environmental-presentation}
+
+Bei `/analysis/summary` ergänzt der optionale Parameter `granularity` die Antwort um `series.points` mit demselben Zeitraum und denselben Filtern wie die Gesamtsummen. Jedes Intervall summiert gespeicherte Anwendungsergebnisse und behält getrennte Abdeckungen bei. Fehlende Werte bleiben `null`.
+
+Bei `/applications/{id}/analysis` bezeichnet `calculation.energyKwh` die Energie der Segmente mit berechneten Emissionen; `calculation.intensity` ist der äquivalente Faktor in gCO₂e/kWh, berechnet aus diesen Emissionen geteilt durch die zugehörige Energie. Bei fehlender Energie oder einem Energiewert von null bleibt der Faktor undefiniert. Historische Ergebnisse und Faktoren bleiben erhalten.
 
 ## Anmelden {#login}
 

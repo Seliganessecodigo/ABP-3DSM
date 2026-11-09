@@ -13,6 +13,7 @@ import {
   type DashboardSortColumn,
   type DashboardTableFilters,
 } from './query.ts'
+import { DashboardSeries } from './DashboardSeries.tsx'
 import { useDashboard } from './useDashboard.ts'
 import styles from './DashboardPage.module.css'
 
@@ -295,10 +296,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <section className={styles.visualizations}>
         <article className={styles.card}>
           <h2>{t('trendTitle')}</h2>
-          <div className={styles.seriesPlaceholder} role="note">
-            <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M7 7v34h34M13 30l8-9 7 5 11-13" /></svg>
-            <p>{t('trendUnavailable')}</p>
-          </div>
+          <DashboardSeries series={data.data.series} locale={locale} />
         </article>
         <article className={styles.card}>
           <div className={styles.sectionHeading}>

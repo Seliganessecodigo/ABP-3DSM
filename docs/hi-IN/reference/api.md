@@ -29,10 +29,16 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 स्रोत metrics में मापन समय नहीं; प्राप्ति से `collection_interval_seconds` घटाकर अंतराल है। factor query समय वैधता सिद्ध नहीं करता; अप्रकाशित स्रोत/वैधता अज्ञात हैं। ऊर्जा/factor/उत्सर्जन 8 दशमलव, कवरेज4; मध्य rounding नहीं। अलग कवरेज और मूल snapshots सुरक्षित हैं।
+
+## समय श्रृंखला और गणना की व्याख्या {#environmental-presentation}
+
+`/analysis/summary` में वैकल्पिक `granularity` पैरामीटर कुल योग के समान अवधि और फ़िल्टर वाले `series.points` जोड़ता है। प्रत्येक अंतराल अनुप्रयोगों के सहेजे गए परिणामों को जोड़ता है और स्वतंत्र कवरेज बनाए रखता है। अनुपलब्ध मान `null` रहते हैं।
+
+`/applications/{id}/analysis` में `calculation.energyKwh` उन खंडों की ऊर्जा है जिनके उत्सर्जन की गणना हुई है; `calculation.intensity` उन उत्सर्जनों को संबंधित ऊर्जा से भाग देकर प्राप्त समतुल्य कारक (gCO₂e/kWh) है। ऊर्जा शून्य या अनुपलब्ध होने पर कारक अपरिभाषित रहता है। ऐतिहासिक परिणाम और कारक सुरक्षित रहते हैं।
 
 ## लॉगिन करें {#login}
 

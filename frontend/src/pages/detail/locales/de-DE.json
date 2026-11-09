@@ -230,5 +230,8 @@
   "historyMethodology": "Methodik",
   "historyAction": "Aktion",
   "historyReturnNote": "Zurück stellt Kriterien und Seite des Verlaufs wieder her und fokussiert das untersuchte Intervall.",
-  "historyRecalculationPreview": "Neuberechnungsvorschau"
+  "historyRecalculationPreview": "Neuberechnungsvorschau",
+  "analysisEquivalentFactor": "Äquivalenter Faktor",
+  "analysisFactorExplanation": "Die Emissionen ergeben sich aus der Summe der Berechnungen je Intervall. Der äquivalente Faktor fasst die verwendeten Faktoren zusammen, gewichtet nach der Energie mit berechnetem CO₂e.",
+  "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e"
 }

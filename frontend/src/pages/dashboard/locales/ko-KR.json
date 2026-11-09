@@ -31,7 +31,7 @@
   "dataAsOf": "{{date}}까지 수집된 데이터",
   "dataAsOfUnavailable": "이 요약에는 수집 시각이 없습니다.",
   "trendTitle": "시계열",
-  "trendUnavailable": "집계된 과거 시계열은 아직 API 계약에 포함되지 않습니다. 예시 값은 표시하지 않습니다.",
+  "trendUnavailable": "시계열을 불러올 수 없습니다.",
   "compositionTitle": "애플리케이션별 CO₂e 구성",
   "donut": "도넛 차트 보기",
   "bars": "막대 차트 보기",
@@ -82,5 +82,9 @@
   "filters.clearAll": "모두 초기화",
   "filters.cancel": "취소",
   "filters.apply": "필터 적용",
-  "filters.invalidRange": "최솟값이 최댓값 이하인 유효한 0 이상의 범위를 입력하세요."
+  "filters.invalidRange": "최솟값이 최댓값 이하인 유효한 0 이상의 범위를 입력하세요.",
+  "trend.graph": "차트",
+  "trend.table": "표",
+  "trend.interval": "구간 (UTC)",
+  "trend.note": "UTC 구간별 값입니다. 공백은 데이터 누락을 의미하며 0이 아닙니다."
 }

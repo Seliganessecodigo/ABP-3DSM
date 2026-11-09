@@ -10,6 +10,7 @@ import type { EnvironmentalFreshnessLabels } from './EnvironmentalFreshness.tsx'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useId, useState, type ReactNode, type SyntheticEvent } from 'react'
 import styles from './EnvironmentalAnalysis.module.css'
+import { factorPresentation } from './factorPresentation.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { formatIntervalBoundary } from '../../utils/formatDate.ts'
 
@@ -122,6 +123,9 @@ type Labels = Readonly<{
   version: string
   queriedAt: string
   snapshot: string
+  equivalentFactor: string
+  factorExplanation: string
+  energyWithEmissions: string
   multipleFactors: string
   notCalculable: string
   metricUnavailable: string
@@ -235,19 +239,13 @@ function Sparkline({ points, metric }: Readonly<{ points: readonly AnalysisSerie
   return <svg data-metric-sparkline="true" className={styles.sparkline} viewBox="0 0 64 20" aria-hidden="true"><polyline points={coordinates} /></svg>
 }
 
-function FactorCard({ factor, locale, labels, onViewDetails }: Readonly<{ factor: AnalysisFactorResult | null; locale: string; labels: Labels; onViewDetails?: () => void }>) {
-  let value: string | null = null
-  if (factor?.status === 'available') {
-    if (factor.factors.length > 1) value = labels.multipleFactors
-    else if (factor.factors.length === 1 && factor.factors[0].intensity !== null && factor.factors[0].unit !== null) {
-      value = `${typeof factor.factors[0].intensity === 'number'
-        ? formatNumber(factor.factors[0].intensity, locale)
-        : formatFactorIntensity(factor.factors[0].intensity, locale)} ${factor.factors[0].unit}`
-    }
-  }
+function FactorCard({ factor, calculation, locale, labels, showDetails = false }: Readonly<{ factor: AnalysisFactorResult | null; calculation?: AnalysisViewModel['calculation']; locale: string; labels: Labels; showDetails?: boolean }>) {
+  const intensity = calculation?.intensity
+  const equivalent = typeof intensity === 'number'
+  const value = equivalent ? `${formatNumber(intensity, locale)} gCO2e/kWh` : factorPresentation(factor, locale)
 
   let content: ReactNode
-  if (factor?.status === 'unavailable') {
+  if (factor?.status === 'unavailable' && !equivalent) {
     content = <div className={styles.unavailable}><p className={styles.value}>{labels.metricUnavailable}</p><p>{labels.reasons[factor.reason]}</p></div>
   } else if (value === null) {
     content = <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
@@ -256,12 +254,20 @@ function FactorCard({ factor, locale, labels, onViewDetails }: Readonly<{ factor
   }
 
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
-    <h3 id="analysis-factor-heading">{labels.factor}</h3>
+    <h3 id="analysis-factor-heading">{equivalent ? labels.equivalentFactor : labels.factor}</h3>
     {content}
     {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
       {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
     </p>}
-    {factor?.status === 'available' && onViewDetails && <button type="button" className={styles.factorDetailsLink} onClick={onViewDetails}>{labels.viewFactorDetails} →</button>}
+    {factor?.status === 'available' && showDetails && <details className={styles.factorSummary}>
+      <summary>{labels.viewFactorDetails}</summary>
+      <p>{labels.factorExplanation}</p>
+      <dl>{[...new Map(factor.factors.map((entry) => [JSON.stringify([entry.regionCode || entry.region, entry.intensity, entry.unit, entry.source]), entry])).values()].map((entry) =>
+        <div key={JSON.stringify([entry.regionCode || entry.region, entry.intensity, entry.unit, entry.source])}>
+          <dt>{entry.regionCode || entry.region}</dt>
+          <dd>{factorPresentation({ status: 'available', factors: [entry] }, locale) ?? labels.metricUnavailable}{entry.source ? ` · ${entry.source}` : ''}</dd>
+        </div>)}</dl>
+    </details>}
   </fieldset>
 }
 
@@ -279,11 +285,6 @@ function ContextCard({ data, locale, labels }: Readonly<{ data: AnalysisViewMode
     <h3 id="analysis-context-heading">{labels.historyContextHeading}</h3>
     <p className={value === null ? styles.unavailableValue : styles.value}>{value ?? labels.metricUnavailable}</p>
   </fieldset>
-}
-
-function formatFactorIntensity(value: string, locale: string) {
-  const numericValue = Number(value)
-  return Number.isFinite(numericValue) ? formatNumber(numericValue, locale) : value
 }
 
 function CoverageCard({ data, locale, labels, empty = false, compact = false }: Readonly<{
@@ -344,14 +345,15 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
   onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
   onClose: () => void
 }>) {
-  const factor = data?.factor.status === 'available' && data.factor.factors.length === 1 ? data.factor.factors[0] : null
-  const factorValue = factor?.intensity !== null && factor?.unit !== null && factor
-    ? `${factor.intensity} ${factor.unit}`
-    : data?.factor.status === 'available' && data.factor.factors.length > 1
-      ? labels.multipleFactors
-      : data?.factor.status === 'unavailable'
-        ? `${labels.metricUnavailable}: ${labels.reasons[data.factor.reason]}`
-        : labels.metricUnavailable
+  const equivalent = data?.calculation?.intensity
+  const hasEquivalent = typeof equivalent === 'number'
+  const factorValue = hasEquivalent
+    ? `${formatNumber(equivalent, locale)} gCO2e/kWh`
+    : factorPresentation(data?.factor ?? null, locale) ?? labels.metricUnavailable
+  const matchingEnergy = data?.calculation?.energyKwh
+  const energyValue = hasEquivalent && typeof matchingEnergy === 'number'
+    ? `${formatNumber(matchingEnergy, locale)} kWh`
+    : calculationValue(data?.energy ?? null, locale, labels)
 
   return <section className={styles.calculation} aria-label={labels.calculationHeading}>
     <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
@@ -360,13 +362,13 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
       <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
       <div className={styles.contextColumn}>{children}</div>
     </details></header>
-    <div className={styles.formula}>
-      <div><span>{labels.energy}</span><strong>{calculationValue(data?.energy ?? null, locale, labels)}</strong></div>
+    {hasEquivalent ? <div className={styles.formula}>
+      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
       <span aria-hidden="true" className={styles.operator}>×</span>
-      <div><span>{labels.factor}</span><strong>{factorValue}</strong></div>
+      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
       <span aria-hidden="true" className={styles.operator}>=</span>
       <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
-    </div>
+    </div> : <p>{labels.factorExplanation}</p>}
   </section>
 }
 
@@ -592,7 +594,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
             <CoverageCard data={data} locale={locale} labels={labels} compact />
             <ContextCard data={data} locale={locale} labels={labels} />
           </>
-          : <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />}
+          : <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} showDetails />}
       </div>}
     </section>
     <aside className={styles.coverageColumn} aria-label={labels.coverage}>

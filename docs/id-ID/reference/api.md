@@ -29,10 +29,16 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 Metrik sumber tidak memiliki waktu pengukuran; interval dari penerimaan dikurangi `collection_interval_seconds`. Waktu kueri faktor bukan masa berlaku; sumber/validitas tidak diterbitkan tetap tak diketahui. Energi/faktor/emisi 8 desimal, cakupan4; tanpa pembulatan antara. Cakupan terpisah dan snapshot asli dipertahankan.
+
+## Deret waktu dan penjelasan perhitungan {#environmental-presentation}
+
+Pada `/analysis/summary`, parameter opsional `granularity` menyertakan `series.points` dengan periode dan filter yang sama dengan total. Setiap interval menjumlahkan hasil aplikasi yang tersimpan dan mempertahankan cakupan independen. Nilai yang tidak tersedia tetap `null`.
+
+Pada `/applications/{id}/analysis`, `calculation.energyKwh` adalah energi segmen dengan emisi yang dihitung; `calculation.intensity` adalah faktor ekuivalen dalam gCO₂e/kWh, diperoleh dengan membagi emisi tersebut dengan energi yang sesuai. Jika energi nol atau tidak tersedia, faktor tetap null. Hasil dan faktor historis dipertahankan.
 
 ## Masuk {#login}
 

@@ -6,6 +6,7 @@ export type AnalysisReading =
   | Readonly<{ status: 'unavailable' | 'not-calculable'; reason: AnalysisPresentationReason }>
 
 export type AnalysisViewModel = Readonly<{
+  calculation?: Readonly<{ energyKwh: number | null; intensity: number | null }>
   energy: AnalysisReading
   emissions: AnalysisReading
   energyCoverage: AnalysisReading
@@ -370,7 +371,16 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
     return [{ model: value.key, version: value.version,
       parameters: Object.fromEntries(Object.entries(value.parameters).map(([key, parameter]) => [key, parameter as number])) }]
   })
+  let calculation: AnalysisViewModel['calculation']
+  if (summary.calculation !== undefined) {
+    assertRecord(summary.calculation, 'calculation')
+    const valid = (value: unknown): value is number | null => value === null || typeof value === 'number' && Number.isFinite(value) && value >= 0
+    if (!valid(summary.calculation.energyKwh) || !valid(summary.calculation.intensity)) throw new Error('Invalid equivalent factor')
+    if (summary.calculation.intensity !== null && (summary.calculation.energyKwh === null || summary.calculation.energyKwh <= 0)) throw new Error('Equivalent factor requires matching energy')
+    calculation = { energyKwh: summary.calculation.energyKwh, intensity: summary.calculation.intensity }
+  }
   const data: AnalysisViewModel = {
+    calculation,
     energy: readMeasure(summary.energy, summary.status === 'empty'), emissions: readMeasure(summary.emissions, summary.status === 'empty'),
     energyCoverage: { status: 'available', value: readCoverage(summary.coverage.energy), unit: 'fraction' },
     emissionsCoverage: { status: 'available', value: readCoverage(summary.coverage.emissions), unit: 'fraction' },

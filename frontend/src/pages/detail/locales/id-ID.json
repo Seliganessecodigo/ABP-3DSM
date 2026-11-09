@@ -230,5 +230,8 @@
   "historyMethodology": "Metodologi",
   "historyAction": "Aksi",
   "historyReturnNote": "Kembali memulihkan kriteria dan halaman riwayat, dengan fokus pada interval yang diperiksa.",
-  "historyRecalculationPreview": "Pratinjau penghitungan ulang"
+  "historyRecalculationPreview": "Pratinjau penghitungan ulang",
+  "analysisEquivalentFactor": "Faktor ekuivalen",
+  "analysisFactorExplanation": "Emisi merupakan jumlah perhitungan setiap interval. Faktor ekuivalen merangkum faktor yang diterapkan, dibobot menurut energi dengan CO₂e yang dihitung.",
+  "analysisEnergyWithEmissions": "Energi dengan CO₂e yang dihitung"
 }

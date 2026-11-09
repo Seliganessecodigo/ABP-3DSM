@@ -29,10 +29,16 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 元の測定時刻はなく、受信時刻から`collection_interval_seconds`を引いて区間を導出します。係数照会時刻は有効期間ではなく、未公開の出典・有効性は不明です。エネルギー・係数・排出は小数8桁、カバー率4桁で保存し、中間丸めは行いません。別々のカバー率と原本snapshotを保持します。
+
+## 時系列と計算の説明 {#environmental-presentation}
+
+`/analysis/summary` の任意パラメーター `granularity` を指定すると、合計と同じ期間・フィルターの `series.points` が含まれます。各期間はアプリケーションの保存済み結果を合計し、指標別のカバレッジを維持します。欠損値は `null` のままです。
+
+`/applications/{id}/analysis` の `calculation.energyKwh` は排出量を計算できた区間のエネルギーです。`calculation.intensity` は、その排出量を対応するエネルギーで割った等価排出係数（gCO₂e/kWh）です。エネルギーがゼロまたは欠損の場合、係数は未定義です。過去の結果と係数は保持されます。
 
 ## ログインする {#login}
 

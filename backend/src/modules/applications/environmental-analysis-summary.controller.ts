@@ -45,6 +45,13 @@ export class EnvironmentalAnalysisSummaryController {
     style: 'form',
     explode: true,
   })
+  @ApiQuery({
+    name: 'granularity',
+    required: false,
+    enum: ['hour', 'day', 'month', 'year'],
+    description:
+      'Inclui série UTC no mesmo escopo; limite de 10.000 intervalos.',
+  })
   @ApiOkResponse({ type: EnvironmentalAnalysisSummaryDto })
   @ApiBadRequestResponse({ description: 'Período ou filtros inválidos' })
   @ApiServiceUnavailableResponse({
@@ -54,6 +61,10 @@ export class EnvironmentalAnalysisSummaryController {
     @Query() query: Record<string, string | string[] | undefined>,
   ): Promise<EnvironmentalAnalysisSummaryDto> {
     return this.summary.getSummary({
+      granularity:
+        query.granularity === undefined
+          ? undefined
+          : (scalar(query.granularity) ?? 'invalid'),
       from: scalar(query.from),
       to: scalar(query.to),
       states: query.states,

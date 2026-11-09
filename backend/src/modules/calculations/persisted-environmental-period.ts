@@ -94,6 +94,7 @@ export interface EnvironmentalProvenance {
 
 export type PersistedEnvironmentalSummary = Omit<PersistedEnvironmentalPeriodResult, 'contributions' | 'exclusions'> & {
   readonly provenance: EnvironmentalProvenance
+  readonly calculation: { readonly energyKwh: number | null; readonly intensity: number | null }
 }
 
 interface ClippedInterval {
@@ -159,6 +160,9 @@ interface FactorSummary {
 }
 
 interface SummaryTotals {
+  emissionsEnergyKwh: number
+  hasEmissionsEnergy: boolean
+  hasUnmatchedEmissions: boolean
   energyTotal: number
   emissionsTotal: number
   energyCovered: bigint
@@ -412,6 +416,9 @@ function createTotals(): AggregateTotals {
 
 function createSummaryTotals(): SummaryTotals {
   return {
+    emissionsEnergyKwh: 0,
+    hasEmissionsEnergy: false,
+    hasUnmatchedEmissions: false,
     energyTotal: 0,
     emissionsTotal: 0,
     energyCovered: 0n,
@@ -493,6 +500,10 @@ function addSummarySegment(segment: ResolvedSegment, totals: SummaryTotals): voi
   if (projection.emissions.value === null) totals.emissionsReasons.push(...projection.emissions.reasons)
   else {
     totals.emissionsTotal += projection.emissions.value
+    if (projection.energy.value !== null) {
+      totals.emissionsEnergyKwh += projection.energy.value
+      totals.hasEmissionsEnergy = true
+    } else totals.hasUnmatchedEmissions = true
     totals.emissionsCovered += duration
     addSummaryFactor(projection, totals)
   }
@@ -543,6 +554,10 @@ function finishSummary(start: bigint, end: bigint, totals: SummaryTotals): Persi
   return {
     status: 'available',
     ...periodMeasures(start, end, totals),
+    calculation: {
+      energyKwh: totals.hasEmissionsEnergy && !totals.hasUnmatchedEmissions ? totals.emissionsEnergyKwh : null,
+      intensity: totals.emissionsEnergyKwh > 0 && !totals.hasUnmatchedEmissions ? totals.emissionsTotal / totals.emissionsEnergyKwh : null,
+    },
     provenance: {
       methodologies: [...totals.methodologies.values()],
       factors: [...totals.factors.values()].map(toFactorProvenance),
@@ -673,6 +688,7 @@ export function summarizePersistedEnvironmentalPeriod(
       energy: empty.energy,
       emissions: empty.emissions,
       coverage: empty.coverage,
+      calculation: { energyKwh: null, intensity: null },
       provenance: { methodologies: [], factors: [], reasons: [] },
     }
   }
