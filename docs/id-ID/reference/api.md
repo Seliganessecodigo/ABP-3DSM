@@ -65,12 +65,23 @@ Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata san
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Mengelola akun melalui API {#accounts}
+
+Hanya Admin aktif dalam organisasi yang sama yang dapat melihat dan membuat akun atau mengubah peran. Pembuatan menerima `name`, `email`, `role`, dan `reason`, tanpa kata sandi atau verifikasi email otomatis. Pemilik akun menetapkan kata sandi melalui alur konfirmasi yang sudah ada; pengiriman konfirmasi diminta secara terpisah. Layar pengelolaan dan pemulihan kata sandi tetap menjadi pekerjaan tersendiri.
+
+Daftar menerapkan pencarian dan filter sebelum pengurutan dan paginasi. Nilai bawaan adalah 10 item, dengan pilihan 5, 10, 15, 20, serta `all` untuk seluruh hasil filter. Label terjemahan harus dipetakan ke kode enum dan tanggal lokal ke RFC 3339 dengan offset zona waktu. Nilai yang tidak ada berada di akhir pada kedua arah pengurutan; nilai yang sama diurutkan berdasarkan pengenal.
+
+Perubahan peran memerlukan `expectedRole` dan `reason`. Perubahan mencabut sesi dan kredensial TOTP sementara, mempertahankan audit, serta mencegah penghapusan akses sendiri atau Admin aktif terakhir dengan email terkonfirmasi. Akun yang belum dikonfirmasi tidak menggantikan administrator tersebut. Pemberian peran Admin tetap mewajibkan TOTP.
 
 ## Bandingkan dengan pratinjau hitung ulang {#preview}
 

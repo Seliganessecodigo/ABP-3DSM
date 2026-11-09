@@ -65,12 +65,23 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Administrar contas pela API {#accounts}
+
+Somente Admin ativo da mesma organização pode listar e criar contas ou alterar papéis. A criação recebe `name`, `email`, `role` e `reason`, sem senha nem confirmação automática de e-mail. O titular define a senha no fluxo existente de confirmação; o envio da confirmação é solicitado separadamente. A tela de gestão e a recuperação de senha continuam em entregas próprias.
+
+A listagem aplica busca e filtros antes de ordenar e paginar. O padrão é 10 itens, com opções 5, 10, 15, 20 e `all` para o conjunto filtrado completo. Rótulos traduzidos devem ser convertidos em códigos de enum e datas locais em RFC 3339 com fuso. Valores ausentes ficam ao final da ordenação em ambas as direções; empates usam o identificador.
+
+Alterar papel exige `expectedRole` e `reason`. A mudança revoga sessões e credenciais TOTP temporárias, preserva a auditoria e impede retirar o próprio acesso ou o último Admin ativo com e-mail confirmado. Contas ainda não confirmadas não substituem esse administrador. A atribuição de Admin mantém a exigência de TOTP.
 
 ## Comparar com uma prévia de recálculo {#preview}
 

@@ -65,12 +65,23 @@ Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder ak
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## Konten über die API verwalten {#accounts}
+
+Nur ein aktiver Admin derselben Organisation darf Konten auflisten, erstellen oder Rollen ändern. Die Erstellung nimmt `name`, `email`, `role` und `reason` entgegen, ohne Passwort oder automatische E-Mail-Bestätigung. Der Kontoinhaber legt das Passwort im bestehenden Bestätigungsablauf fest; der Versand der Bestätigung wird separat angefordert. Verwaltungsoberfläche und Passwortwiederherstellung bleiben eigene Lieferungen.
+
+Suche und Filter werden vor Sortierung und Seiteneinteilung angewendet. Standard sind 10 Einträge; verfügbar sind 5, 10, 15, 20 und `all` für die vollständige gefilterte Menge. Übersetzte Bezeichnungen müssen in Enum-Codes und lokale Datumsangaben in RFC 3339 mit Zeitzonenoffset umgewandelt werden. Fehlende Werte stehen in beiden Richtungen am Ende; Gleichstände entscheidet die Kennung.
+
+Rollenänderungen erfordern `expectedRole` und `reason`. Die Änderung widerruft Sitzungen und temporäre TOTP-Zugangsdaten, erhält das Audit und verhindert den Entzug des eigenen Zugriffs oder des letzten aktiven Admins mit bestätigter E-Mail. Unbestätigte Konten ersetzen diesen Administrator nicht. Die Zuweisung von Admin behält die TOTP-Pflicht bei.
 
 ## Mit einer Neuberechnungsvorschau vergleichen {#preview}
 

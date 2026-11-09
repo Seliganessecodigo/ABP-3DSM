@@ -65,12 +65,23 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。役割管理全体やパスワード復旧はこのAPIの範囲外です。
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## API でアカウントを管理する {#accounts}
+
+同じ組織の有効な Admin のみが、アカウントの一覧表示、作成、ロール変更を行えます。作成時は `name`、`email`、`role`、`reason` を指定し、パスワードの設定やメールの自動確認は行いません。本人が既存のメール確認フローでパスワードを設定します。確認メールの送信は別途要求します。管理画面とパスワード回復は別の開発項目です。
+
+一覧では検索とフィルターを適用してから並べ替えとページ分割を行います。初期値は10件で、5、10、15、20件、および絞り込み後の全件を返す `all` を選べます。翻訳済みラベルは列挙コードに、現地日時はオフセット付き RFC 3339 に変換してください。欠損値は昇順・降順とも末尾に配置し、同値の場合は識別子で順序を決めます。
+
+ロール変更には `expectedRole` と `reason` が必要です。変更時はセッションと一時 TOTP 資格情報を失効させ、監査を保持し、自分自身のアクセスやメール確認済みの最後の有効な Admin を失う変更を防ぎます。メール未確認のアカウントはその管理者の代わりにはなりません。Admin を割り当てても TOTP は必須です。
 
 ## 再計算プレビューと比較する {#preview}
 

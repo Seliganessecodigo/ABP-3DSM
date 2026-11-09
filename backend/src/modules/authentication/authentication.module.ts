@@ -26,6 +26,9 @@ import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import { AuditModule } from '../../shared/audit/audit.module'
 import { AccountLifecycleService } from './account-lifecycle.service'
+import { AccountsController } from './accounts.controller'
+import { AccountsService } from './accounts.service'
+import { AccountsRepository } from './accounts.repository'
 
 @Module({
   imports: [
@@ -41,11 +44,13 @@ import { AccountLifecycleService } from './account-lifecycle.service'
       SsoTransactionEntity,
     ]),
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthenticationController, AccountsController],
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
     AccountLifecycleService,
+    AccountsService,
+    AccountsRepository,
     TotpAuthenticationService,
     SsoAuthenticationService,
     GoogleOidcClient,

@@ -65,12 +65,23 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | POST | `/auth/sso/invitations` | `JWT + ADMIN` |
 | DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
 
 같은 조직 Admin은 `expectedStatus`와 사유를 보내 계정을 `ACTIVE`, `BLOCKED`, `DEACTIVATED`로 변경합니다. 차단/비활성화는 모든 세션을 폐기하고 재활성화는 새 로그인을 요구합니다. 본인과 마지막 활성 Admin을 보호합니다. 기대 상태 충돌은 409, 이미 달성한 상태는 멱등 성공입니다. 공유 감사는 성공을 변경과 같은 트랜잭션에, 거부를 롤백 밖에 기록하며 행위자를 명시하고 비밀을 제외합니다. 전체 역할 관리/비밀번호 복구는 이 경로의 범위가 아닙니다.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
 ```
+
+## API로 계정 관리 {#accounts}
+
+동일 조직의 활성 Admin만 계정 조회, 생성, 역할 변경을 수행할 수 있습니다. 생성 시 `name`, `email`, `role`, `reason`을 받으며 비밀번호를 받거나 이메일을 자동 확인하지 않습니다. 계정 소유자가 기존 이메일 확인 절차에서 비밀번호를 설정하며, 확인 메일 발송은 별도로 요청합니다. 관리 화면과 비밀번호 복구는 별도 개발 항목입니다.
+
+목록은 검색과 필터를 적용한 후 정렬하고 페이지를 나눕니다. 기본값은 10개이며 5, 10, 15, 20개 또는 필터링된 전체 목록을 반환하는 `all`을 선택할 수 있습니다. 번역된 레이블은 열거형 코드로, 현지 날짜는 시간대 오프셋이 있는 RFC 3339로 변환해야 합니다. 누락된 값은 양방향 정렬에서 마지막에 배치하고 동일한 값은 식별자로 순서를 정합니다.
+
+역할 변경에는 `expectedRole`과 `reason`이 필요합니다. 변경 시 세션과 임시 TOTP 자격 증명을 폐기하고 감사 기록을 보존하며, 본인의 접근 권한이나 이메일이 확인된 마지막 활성 Admin을 제거하지 못하게 합니다. 이메일 미확인 계정은 해당 관리자를 대신할 수 없습니다. Admin을 부여해도 TOTP 인증은 필수입니다.
 
 ## 재계산 미리보기와 비교하기 {#preview}
 
