@@ -89,7 +89,8 @@ export class AccountsService {
     } catch (cause) {
       const error = action === 'account.created' && isDuplicateEmail(cause)
         ? new ConflictException({ code: 'EMAIL_ALREADY_IN_USE', message: 'Não foi possível criar a conta com os dados informados' }) : cause
-      await this.audit.record({ actor: { type: 'user', userId: principal.userId }, action, entityType: 'user', entityId,
+      await this.audit.record({ actor: { type: 'user', userId: principal.userId }, action,
+        entityType: action === 'account.list' ? 'organization' : 'user', entityId,
         outcome: error instanceof HttpException && error.getStatus() < 500 ? 'denied' : 'failed', reason })
       throw error
     }

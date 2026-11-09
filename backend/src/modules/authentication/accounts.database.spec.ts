@@ -86,6 +86,7 @@ describeDatabase('US-20 #158: account administration with real JWT and isolated 
     expect(await fixture.database.getRepository(UserEntity).countBy({ organizationId: organization.id })).toBe(before + 1)
     expect((await fixture.database.getRepository(UserEntity).findOneByOrFail({ id: target.id })).role).toBe(UserRole.ANALYST)
     expect(await fixture.database.getRepository(AuditLogEntity).countBy({ actorUserId: target.id, outcome: 'denied' })).toBe(3)
+    expect(await fixture.database.getRepository(AuditLogEntity).findOneBy({ actorUserId: target.id, action: 'account.list' })).toMatchObject({ entityType: 'organization', entityId: organization.id })
   })
 
   it.each([UserAccountStatus.BLOCKED, UserAccountStatus.DEACTIVATED])('refuses %s Admin without listing or mutations', async status => {
