@@ -185,7 +185,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   }
   const retry = () => {
     if (pending) return
-    refresh()
+    data.refreshAll()
   }
   const detailsLink = (id: string, name: string) => <a
     data-dashboard-application-id={id}

@@ -8,7 +8,7 @@ import { selectCatalog, type ApplicationState as State, type CatalogQuery, type 
 import { reasonLabel, stateLabel, stateIcons } from '../../features/applications/presentation.ts'
 import { formatDate } from '../../utils/formatDate.ts'
 import { readQuery, makeUrl, states } from './query.ts'
-import { useCatalog } from './useCatalog.ts'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 
 const catalogReturnKey = 'greener:catalog-return'
 const columns: Array<{ key: CatalogSortColumn; label: string; commonLabel?: boolean }> = [
@@ -41,7 +41,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const [draftFilters, setDraftFilters] = useState(initial.filters ?? {})
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const filterDialogRef = useRef<HTMLElement>(null)
-  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useApplicationCatalog()
   const presentation = useMemo(() => ({
     locale: i18n.resolvedLanguage ?? 'pt-BR', timeZone: query.timeZone,
     stateLabels: Object.fromEntries(states.filter(({ value }) => value !== 'ALL').map(({ value }) => [value, stateLabel(value, tCommon)])) as Record<State, string>,
