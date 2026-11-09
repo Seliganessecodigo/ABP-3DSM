@@ -31,7 +31,7 @@
   "dataAsOf": "Datos recopilados hasta {{date}}",
   "dataAsOfUnavailable": "Este resumen no tiene una hora de recopilación disponible.",
   "trendTitle": "Serie temporal",
-  "trendUnavailable": "La serie histórica agregada aún no forma parte del contrato de la API. No se muestran valores ilustrativos.",
+  "trendUnavailable": "No se pudo consultar la serie temporal.",
   "compositionTitle": "Composición de CO₂e por aplicación",
   "donut": "Ver anillo",
   "bars": "Ver barras",
@@ -82,5 +82,9 @@
   "filters.clearAll": "Limpiar todos",
   "filters.cancel": "Cancelar",
   "filters.apply": "Aplicar filtros",
-  "filters.invalidRange": "Introduce límites numéricos válidos y no negativos, con el mínimo menor o igual que el máximo."
+  "filters.invalidRange": "Introduce límites numéricos válidos y no negativos, con el mínimo menor o igual que el máximo.",
+  "trend.graph": "Gráfico",
+  "trend.table": "Tabla",
+  "trend.interval": "Intervalo (UTC)",
+  "trend.note": "Valores por intervalo UTC. Los huecos indican datos ausentes, no cero."
 }

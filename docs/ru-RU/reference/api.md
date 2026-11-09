@@ -29,10 +29,16 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 Источник метрик не даёт время измерения; интервал — приём минус `collection_interval_seconds`. Время запроса фактора не определяет срок действия; неопубликованные источник/валидность неизвестны. Энергия/фактор/выбросы: 8 десятичных знаков, покрытие 4, без промежуточного округления. Сохраняются раздельные покрытия и исходные снимки.
+
+## Временной ряд и объяснение расчёта {#environmental-presentation}
+
+В `/analysis/summary` необязательный параметр `granularity` добавляет `series.points` с теми же периодом и фильтрами, что и итоги. Каждый интервал суммирует сохранённые результаты приложений и сохраняет независимое покрытие. Отсутствующие значения остаются `null`.
+
+В `/applications/{id}/analysis` поле `calculation.energyKwh` содержит энергию сегментов с рассчитанными выбросами; `calculation.intensity` — эквивалентный коэффициент в gCO₂e/kWh, полученный делением этих выбросов на соответствующую энергию. При нулевой или отсутствующей энергии коэффициент остаётся неопределённым. Исторические результаты и коэффициенты сохраняются.
 
 ## Войти {#login}
 

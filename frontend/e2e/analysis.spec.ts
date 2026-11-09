@@ -122,7 +122,7 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=provenance')
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const factorCard = analysis.getByRole('group', { name: 'Fator regional', exact: true })
-  await expect(factorCard).toContainText('Múltiplos fatores')
+  await expect(factorCard).toContainText('0,18–0,42 kg CO₂e/kWh')
   await expect(factorCard).not.toContainText('v-alpha-original')
   await expect(factorCard).not.toContainText('v-beta-original')
   await page.locator('#analysis-details summary').click()

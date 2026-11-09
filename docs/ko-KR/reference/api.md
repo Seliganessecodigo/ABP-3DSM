@@ -29,10 +29,16 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 원본 측정 시각이 없으므로 수신 시각에서 `collection_interval_seconds`를 빼 구간을 구합니다. 계수 조회 시각은 유효기간이 아니며 비공개 출처·유효성은 미상입니다. 에너지/계수/배출은 소수8자리, 커버리지4자리로 저장하고 중간 반올림은 없습니다. 별도 커버리지와 원본 snapshot을 보존합니다.
+
+## 시계열 및 계산 설명 {#environmental-presentation}
+
+`/analysis/summary`의 선택 매개변수 `granularity`는 합계와 같은 기간 및 필터를 사용하는 `series.points`를 포함합니다. 각 구간은 애플리케이션의 저장된 결과를 합산하고 독립적인 커버리지를 유지합니다. 누락된 값은 `null`로 유지됩니다.
+
+`/applications/{id}/analysis`의 `calculation.energyKwh`는 배출량을 계산한 구간의 에너지입니다. `calculation.intensity`는 해당 배출량을 대응하는 에너지로 나눈 등가 계수(gCO₂e/kWh)입니다. 에너지가 0이거나 누락되면 계수는 정의되지 않습니다. 과거 결과와 계수는 보존됩니다.
 
 ## 로그인 {#login}
 

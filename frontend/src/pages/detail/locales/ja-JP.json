@@ -230,5 +230,8 @@
   "historyMethodology": "\u65b9\u6cd5\u8ad6",
   "historyAction": "\u64cd\u4f5c",
   "historyReturnNote": "戻ると履歴の条件とページを復元し、検査した区間にフォーカスします。",
-  "historyRecalculationPreview": "再計算プレビュー"
+  "historyRecalculationPreview": "再計算プレビュー",
+  "analysisEquivalentFactor": "等価排出係数",
+  "analysisFactorExplanation": "排出量は各期間の計算結果の合計です。等価排出係数は、CO₂eを計算できたエネルギー量で重み付けした適用係数の要約です。",
+  "analysisEnergyWithEmissions": "CO₂eを計算できたエネルギー"
 }

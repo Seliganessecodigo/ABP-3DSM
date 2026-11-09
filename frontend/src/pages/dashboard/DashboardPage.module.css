@@ -132,9 +132,6 @@
 .compositionBars .barRow { grid-template-columns: minmax(90px, 1fr) minmax(50px, 1.5fr) auto auto; font-size: 11px; }
 .barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); }
 .barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; }
-.seriesPlaceholder { display: grid; min-height: 222px; place-content: center; justify-items: center; gap: 12px; margin-top: 8px; border: 1px dashed var(--border-control); border-radius: 8px; padding: 16px; background: linear-gradient(var(--surface-card), var(--background-page)); text-align: center; }
-.seriesPlaceholder svg { width: 38px; height: 38px; fill: none; stroke: var(--text-secondary); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
-.seriesPlaceholder p { max-width: 360px; margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .tableCard { margin-top: 10px; padding: 14px; }
 .tableHeading { align-items: center; margin-bottom: 8px; }
 .tableHeading p { max-width: 680px; }
@@ -191,7 +188,6 @@
   .coverageList { width: 100%; gap: 2px; font-size: 9px; }
   .visualizations { grid-template-columns: 1fr; gap: 8px; }
   .visualizations > .card { min-height: 0; }
-  .seriesPlaceholder { min-height: 190px; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }
   .compositionLegend ul { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }

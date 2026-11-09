@@ -192,3 +192,10 @@ Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem 
 Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de preferências](preferences/README.md) e as [decisões de arquitetura](../../../docs/product/decisions.md).
 
 `authentication/AccountsController` publica listagem/criação de contas e alteração de papéis em `/auth/users`. O caso de uso revalida o Admin e a organização sob bloqueio; os repositories concentram persistência e consulta. Criação reutiliza a confirmação de e-mail e definição de senha; alteração de papel revoga sessões, preserva autoria e impede retirar o último Admin com acesso. Consulte [ACCOUNTS.md](authentication/ACCOUNTS.md) para o contrato, os limites e os testes de PostgreSQL isolado.
+
+
+### Dashboard: série e fator equivalente
+
+`GET /analysis/summary` aceita `granularity=hour|day|month|year` opcional. Quando presente, inclui `series: { granularity, points }`, com o contrato de ponto da série individual. Usa o mesmo período UTC semiaberto e os mesmos filtros de estado atual, região histórica e aplicação dos totais. Cada aplicação resolve suas sobreposições antes da soma entre aplicações; lacunas permanecem nulas e a cobertura é a média temporal das aplicações do escopo. O limite existente de 10.000 intervalos também se aplica aqui (400 `ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED`); granularidade inválida retorna 400 `INVALID_ANALYSIS_GRANULARITY`. Sem o parâmetro, a resposta anterior permanece compatível. As consultas de persistência são em lote, sem consultas HTTP por aplicação ou novas chamadas externas.
+
+O resumo individual inclui `calculation: { energyKwh, intensity }`. A energia corresponde somente aos segmentos que sustentam emissões válidas. A intensidade equivalente em gCO2e/kWh é a soma das emissões persistidas dividida por essa energia, sem média aritmética dos snapshots e sem alterar resultados salvos. Denominador zero/ausente resulta em intensidade nula. Emissões sem energia correspondente também impedem apresentar um fator equivalente. O frontend apresenta esse resultado e preserva os snapshots históricos para inspeção.

@@ -29,10 +29,16 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
 来源指标没有测量时间；区间由接收时间减`collection_interval_seconds`得出。因子查询时间不证明有效期，未发布来源和有效性保持未知。能源、因子、排放存8位小数，覆盖率4位，无中间舍入。保留独立覆盖率及原始快照。
+
+## 时间序列与计算说明 {#environmental-presentation}
+
+在 `/analysis/summary` 中，可选参数 `granularity` 返回与总计使用相同时段和筛选条件的 `series.points`。每个时段汇总各应用的持久化结果，并保留独立覆盖率。缺失值保持为 `null`。
+
+在 `/applications/{id}/analysis` 中，`calculation.energyKwh` 表示已计算排放量的区间能耗；`calculation.intensity` 为对应排放量除以能耗得到的等效因子，单位为gCO₂e/kWh。能耗为零或缺失时，因子为空。历史结果和因子保持不变。
 
 ## 登录账户 {#login}
 

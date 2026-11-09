@@ -10,9 +10,13 @@ Di katalog, cari nama, pengenal atau wilayah dan filter status aplikasi. Jelajah
 
 Di dashboard pilih 24 jam, 7, 30 atau 90 hari, wilayah dan status. Periksa energi, emisi, cakupan dan jumlah per status. Grafik menunjukkan bagian emisi sebagai batang atau donat. Pencarian, filter dan urutan dampak mengubah baris tabel; total ringkasan mempertahankan lingkup terpilih.
 
+Pada deret waktu, beralihlah antara energi dan CO₂e atau buka tabel interval. Jendela 24 jam dikelompokkan per jam; jendela lainnya per hari. Interval mengikuti UTC dan filter yang sama dengan indikator. Celah tetap tanpa nilai.
+
 ## Selidiki detail {#detail}
 
 Buka detail untuk identitas, lokasi, status dan waktu pembaruan. Periksa metrik dan hasil lingkungan pada periode sama. Metodologi tercatat menunjukkan model, parameter dan faktor karbon yang digunakan tanpa mengubah hasil. Bila kota tidak tersedia, informasi lokasi lain tetap berguna.
+
+Faktor ekuivalen merangkum faktor regional yang diterapkan, dibobot menurut energi dengan emisi yang dihitung. Penjelasan menggunakan energi ini, yang dapat lebih kecil dari energi total jika faktor tidak tersedia pada sebagian periode. Buka detail faktor untuk memeriksa nilai dan sumber per wilayah.
 
 ## Jelajahi riwayat {#history}
 

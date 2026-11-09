@@ -230,5 +230,8 @@
   "historyMethodology": "\u041c\u0435\u0442\u043e\u0434\u043e\u043b\u043e\u0433\u0438\u044f",
   "historyAction": "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435",
   "historyReturnNote": "Возврат восстанавливает условия и страницу истории с фокусом на проверенном интервале.",
-  "historyRecalculationPreview": "Предпросмотр пересчёта"
+  "historyRecalculationPreview": "Предпросмотр пересчёта",
+  "analysisEquivalentFactor": "Эквивалентный коэффициент",
+  "analysisFactorExplanation": "Выбросы равны сумме расчётов по интервалам. Эквивалентный коэффициент обобщает применённые коэффициенты, взвешенные по энергии с рассчитанным CO₂e.",
+  "analysisEnergyWithEmissions": "Энергия с рассчитанным CO₂e"
 }

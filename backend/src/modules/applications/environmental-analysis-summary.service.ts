@@ -15,9 +15,16 @@ import {
   formatUtcTimestamp,
   summarizePersistedEnvironmentalPeriod,
 } from '../calculations/persisted-environmental-period'
+import { aggregateEnvironmentalScopeSeries } from '../calculations/environmental-scope-series'
+import {
+  countEnvironmentalSeriesBuckets,
+  type EnvironmentalSeriesGranularity,
+} from '../calculations/persisted-environmental-series'
+import type { PersistedEnvironmentalInterval } from '../calculations/persisted-environmental-period'
 import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 
 export interface EnvironmentalAnalysisSummaryFilters {
+  readonly granularity?: string
   readonly from?: string
   readonly to?: string
   readonly states?: string | readonly string[]
@@ -49,6 +56,25 @@ export class EnvironmentalAnalysisSummaryService {
       throw new BadRequestException({ code: 'INVALID_ANALYSIS_PERIOD' })
     }
 
+    const granularity = filters.granularity
+    if (
+      granularity !== undefined &&
+      !['hour', 'day', 'month', 'year'].includes(granularity)
+    ) {
+      throw new BadRequestException({ code: 'INVALID_ANALYSIS_GRANULARITY' })
+    }
+    if (
+      granularity &&
+      countEnvironmentalSeriesBuckets(
+        filters.from!,
+        filters.to!,
+        granularity as EnvironmentalSeriesGranularity,
+      ) > 10_000
+    ) {
+      throw new BadRequestException({
+        code: 'ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED',
+      })
+    }
     const states = parseValues(filters.states, 'INVALID_ANALYSIS_STATE_FILTER')
     const regionCodes = parseValues(
       filters.regionCodes,
@@ -143,6 +169,8 @@ export class EnvironmentalAnalysisSummaryService {
         EnvironmentalAnalysisSummaryDto['provenance']['factors'][number]
       >()
 
+      const scopedObservations: (readonly PersistedEnvironmentalInterval[])[] =
+        []
       for (const application of filteredApplications) {
         statesCount[application.state] += 1
         const observations = (
@@ -159,6 +187,7 @@ export class EnvironmentalAnalysisSummaryService {
             regionCodes.includes(regionAtCollection)
           )
         })
+        if (granularity) scopedObservations.push(observations)
         for (const row of observations) {
           const collectedAt = parseZonedTimestampNanoseconds(row.collectedAt)
           if (
@@ -244,6 +273,19 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopeDuration = duration * filteredApplications.length
       return {
+        ...(granularity
+          ? {
+              series: {
+                granularity: granularity as EnvironmentalSeriesGranularity,
+                points: aggregateEnvironmentalScopeSeries(
+                  periodFrom,
+                  periodTo,
+                  granularity as EnvironmentalSeriesGranularity,
+                  scopedObservations,
+                ),
+              },
+            }
+          : {}),
         status: hasEnergy || hasEmissions ? 'available' : 'empty',
         period: { from: periodFrom, to: periodTo },
         dataAsOf:

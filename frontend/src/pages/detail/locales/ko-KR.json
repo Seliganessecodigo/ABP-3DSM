@@ -230,5 +230,8 @@
   "historyMethodology": "\ubc29\ubc95\ub860",
   "historyAction": "\uc791\uc5c5",
   "historyReturnNote": "돌아가면 기록 조건과 페이지가 복원되고 검사한 구간에 초점이 맞춰집니다.",
-  "historyRecalculationPreview": "재계산 미리보기"
+  "historyRecalculationPreview": "재계산 미리보기",
+  "analysisEquivalentFactor": "등가 배출 계수",
+  "analysisFactorExplanation": "배출량은 각 구간의 계산 결과를 합한 값입니다. 등가 계수는 CO₂e를 계산한 에너지로 가중한 적용 계수의 요약입니다.",
+  "analysisEnergyWithEmissions": "CO₂e를 계산한 에너지"
 }

@@ -1,3 +1,4 @@
+import { EnvironmentalAnalysisSeriesPointDto } from './environmental-analysis-series.dto'
 import { ApiProperty } from '@nestjs/swagger'
 import {
   EnvironmentalAnalysisCoverageDto,
@@ -48,7 +49,18 @@ export class EnvironmentalAnalysisSummaryStatesDto {
   REMOVED!: number
 }
 
+export class EnvironmentalAnalysisSummarySeriesDto {
+  @ApiProperty({ enum: ['hour', 'day', 'month', 'year'] })
+  granularity!: 'hour' | 'day' | 'month' | 'year'
+
+  @ApiProperty({ type: EnvironmentalAnalysisSeriesPointDto, isArray: true })
+  points!: readonly EnvironmentalAnalysisSeriesPointDto[]
+}
+
 export class EnvironmentalAnalysisSummaryDto {
+  @ApiProperty({ type: EnvironmentalAnalysisSummarySeriesDto, required: false })
+  series?: EnvironmentalAnalysisSummarySeriesDto
+
   @ApiProperty({ enum: ['available', 'empty'] })
   status!: 'available' | 'empty'
 

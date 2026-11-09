@@ -1,5 +1,6 @@
 import {
   aggregatePersistedEnvironmentalPeriod,
+  summarizePersistedEnvironmentalPeriod,
   PersistedEnvironmentalInterval,
   projectPersistedEnvironmentalInterval,
 } from './persisted-environmental-period'
@@ -7,6 +8,36 @@ import {
 const firstBoundary = '2026-10-01T00:00:00.000Z'
 const middleBoundary = '2026-10-01T01:00:00.000Z'
 const lastBoundary = '2026-10-01T02:00:00.000Z'
+
+describe('equivalent factor presentation', () => {
+  it('excludes energy without emissions from the equivalent factor', () => {
+    const result = summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, [
+      savedInterval({ intervalEnd: middleBoundary, energyKwh: '2', carbonGrams: '170' }),
+      savedInterval({ id: 'no-factor', intervalStart: middleBoundary, energyKwh: '8', carbonGrams: null }),
+    ])
+    expect(result.energy.value).toBe(10)
+    expect(result.calculation).toEqual({ energyKwh: 2, intensity: 85 })
+  })
+  it('weights factors by matched energy rather than counting snapshots', () => {
+    const result = summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, [
+      savedInterval({ intervalEnd: middleBoundary, energyKwh: '1', carbonGrams: '85' }),
+      savedInterval({ id: 'second', intervalStart: middleBoundary, energyKwh: '3', carbonGrams: '345' }),
+    ])
+    expect(result.calculation).toEqual({ energyKwh: 4, intensity: 107.5 })
+  })
+  it('preserves missing data and an undefined factor for zero energy', () => {
+    expect(summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, []).calculation).toEqual({ energyKwh: null, intensity: null })
+    expect(summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, [savedInterval({ energyKwh: '0', carbonGrams: '0' })]).calculation).toEqual({ energyKwh: 0, intensity: null })
+  })
+  it('does not derive a misleading factor when persisted emissions have no corresponding energy', () => {
+    const result = summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, [
+      savedInterval({ intervalEnd: middleBoundary, energyKwh: '1', carbonGrams: '85' }),
+      savedInterval({ id: 'missing-energy', intervalStart: middleBoundary, energyKwh: null, carbonGrams: '100' }),
+    ])
+    expect(result.emissions.value).toBe(185)
+    expect(result.calculation).toEqual({ energyKwh: null, intensity: null })
+  })
+})
 
 function savedInterval(
   overrides: Partial<PersistedEnvironmentalInterval> = {},

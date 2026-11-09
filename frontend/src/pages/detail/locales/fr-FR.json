@@ -230,5 +230,8 @@
   "historyMethodology": "M\u00e9thodologie",
   "historyAction": "Action",
   "historyReturnNote": "Le retour restaure les critères et la page de l’historique, avec le focus sur l’intervalle inspecté.",
-  "historyRecalculationPreview": "Aperçu du recalcul"
+  "historyRecalculationPreview": "Aperçu du recalcul",
+  "analysisEquivalentFactor": "Facteur équivalent",
+  "analysisFactorExplanation": "Les émissions sont la somme des calculs de chaque intervalle. Le facteur équivalent résume les facteurs appliqués, pondérés par l’énergie dont le CO₂e a été calculé.",
+  "analysisEnergyWithEmissions": "Énergie avec CO₂e calculé"
 }
