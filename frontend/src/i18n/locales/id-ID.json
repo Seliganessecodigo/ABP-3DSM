@@ -57,5 +57,6 @@
   "auth.signOut": "Keluar",
   "auth.role.ADMIN": "Administrator",
   "auth.role.ANALYST": "Analis",
-  "auth.role.VISITOR": "Pengunjung"
+  "auth.role.VISITOR": "Pengunjung",
+  "nav.users": "Pengguna"
 }

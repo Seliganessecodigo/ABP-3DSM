@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "已确认移除",
   "loading.description": "请等待查询完成。尚未显示任何数值。",
   "loading.processing": "正在处理…",
-  "auth.login": "登录"
+  "auth.login": "登录",
+  "nav.users": "用户"
 }

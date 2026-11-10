@@ -57,5 +57,6 @@
   "auth.signOut": "Выйти",
   "auth.role.ADMIN": "Администратор",
   "auth.role.ANALYST": "Аналитик",
-  "auth.role.VISITOR": "Посетитель"
+  "auth.role.VISITOR": "Посетитель",
+  "nav.users": "Пользователи"
 }
