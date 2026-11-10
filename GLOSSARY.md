@@ -28,6 +28,21 @@ Previously valid data that remains available but is older than the latest monito
 The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
 _Avoid_: Application coverage, data share
 
+**Environmental ranking**:
+An ordering of applications by absolute energy consumption or CO₂e for a shared period and domain-filtered scope. It identifies contribution magnitude and does not measure efficiency.
+
+**Ranked application**:
+An application with a usable value for the selected ranking measure in the requested period. A valid value of zero is rankable.
+
+**Unranked application**:
+An application without a usable value for the selected ranking measure in the requested period. It remains visible with a reason, but has no numerical position or participation.
+
+**Ranking position**:
+The application's ordinal place in the environmental ranking. Applications with equal measure values share a competitive position; presentation choices do not redefine the position.
+
+**Environmental participation**:
+The share of the calculable total for the selected measure contributed by an application, calculated against available values in the full domain-filtered scope. It is undefined when the aggregate denominator is absent or zero.
+
 **Recalculation preview**:
 An unsaved estimate that applies the current calculation configuration to preserved observations for a selected application and period, presented separately from the original result. It does not replace or contribute to official history, charts, or totals.
 _Avoid_: Recalculated history, saved preview

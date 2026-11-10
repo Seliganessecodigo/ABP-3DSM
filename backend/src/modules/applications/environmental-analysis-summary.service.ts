@@ -44,6 +44,19 @@ export class EnvironmentalAnalysisSummaryService {
   async getSummary(
     filters: EnvironmentalAnalysisSummaryFilters,
   ): Promise<EnvironmentalAnalysisSummaryDto> {
+    return this.buildSummary(filters, false)
+  }
+
+  async getSummaryForRanking(
+    filters: EnvironmentalAnalysisSummaryFilters,
+  ): Promise<EnvironmentalAnalysisSummaryDto> {
+    return this.buildSummary(filters, true)
+  }
+
+  private async buildSummary(
+    filters: EnvironmentalAnalysisSummaryFilters,
+    includeUnrankedApplications: boolean,
+  ): Promise<EnvironmentalAnalysisSummaryDto> {
     const start =
       typeof filters.from === 'string'
         ? parseZonedTimestampNanoseconds(filters.from)
@@ -259,7 +272,11 @@ export class EnvironmentalAnalysisSummaryService {
               : factor,
           )
         }
-        if (energy.value !== null || emissions.value !== null) {
+        if (
+          includeUnrankedApplications ||
+          energy.value !== null ||
+          emissions.value !== null
+        ) {
           applications.push({
             applicationId: application.id,
             name: application.name,

@@ -222,6 +222,209 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
     }
   })
 
+  it('serves a public ranking from persisted data with ties, missing observations and presentation filters', async () => {
+    const ids = [
+      `ranking-a-${randomUUID()}`,
+      `ranking-b-${randomUUID()}`,
+      `ranking-c-${randomUUID()}`,
+      `ranking-historical-${randomUUID()}`,
+    ]
+    await insertApplication(database, ids[0], 'AVAILABLE', 'br-sudeste')
+    await insertApplication(database, ids[1], 'AVAILABLE', 'br-sudeste')
+    await insertApplication(database, ids[2], 'NO_METRICS', 'br-sudeste')
+    await insertApplication(database, ids[3], 'AVAILABLE', 'br-norte')
+    await database.query('UPDATE applications SET name = $2 WHERE id = $1', [ids[0], 'Aplicação Árvore'])
+    await insertObservation(database, ids[0], to, 4, 40, factorSnapshot)
+    await insertObservation(database, ids[1], to, 4, 20, factorSnapshot)
+    await database.query(
+      `INSERT INTO application_events ("applicationId", kind, "occurredAt", actor, details)
+       VALUES ($1, 'registration_changed', $2, 'system', $3)`,
+      [
+        ids[3],
+        '2026-10-01T03:02:00.000Z',
+        {
+          before: { location: { regionCode: 'br-sudeste' } },
+          after: { location: { regionCode: 'br-norte' } },
+        },
+      ],
+    )
+    await insertObservation(database, ids[3], '2026-10-01T03:00:40.000Z', 2, 15, factorSnapshot)
+    try {
+      const query = new URLSearchParams({
+        from,
+        to,
+        metric: 'energy',
+        direction: 'desc',
+        pageSize: 'all',
+      })
+      ids.slice(0, 3).forEach((id) => query.append('applicationIds', id))
+      const response = await fetch(new URL(`/analysis/ranking?${query}`, await app.getUrl()))
+      expect(response.status).toBe(200)
+      const body = await response.json() as {
+        readonly status: string
+        readonly scope: { readonly applicationCount: number; readonly rankedCount: number; readonly unrankedCount: number; readonly energy: { value: number | null } }
+        readonly pagination: { readonly page: number; readonly pageSize: number | string; readonly totalItems: number }
+        readonly items: readonly {
+          applicationId: string
+          rankability: string
+          position: number | null
+          participation: number | null
+          energy: { value: number | null }
+          stateReason: string | null
+        }[]
+      }
+      expect(body).toMatchObject({
+        status: 'available',
+        scope: { applicationCount: 3, rankedCount: 2, unrankedCount: 1, energy: { value: 8 } },
+        pagination: { page: 1, pageSize: 'all', totalItems: 3 },
+      })
+      expect(body.items.slice(0, 2)).toEqual([
+        expect.objectContaining({ rankability: 'ranked', position: 1, participation: 0.5, energy: expect.objectContaining({ value: 4 }) }),
+        expect.objectContaining({ rankability: 'ranked', position: 1, participation: 0.5, energy: expect.objectContaining({ value: 4 }) }),
+      ])
+      expect(body.items[2]).toMatchObject({
+        applicationId: ids[2], rankability: 'unranked', position: null, participation: null,
+        energy: { value: null, reasons: [{ code: 'NO_OBSERVATION' }] },
+      })
+
+      query.delete('applicationIds')
+      query.set('search', 'arvore')
+      query.set('pageSize', '5')
+      const searched = await fetch(new URL(`/analysis/ranking?${query}`, await app.getUrl()))
+      expect(searched.status).toBe(200)
+      expect(await searched.json()).toMatchObject({
+        scope: { applicationCount: 4, energy: { value: 10 } },
+        presentation: { rankedCount: 1, unrankedCount: 0 },
+        pagination: { totalItems: 1 },
+        items: [expect.objectContaining({ applicationId: ids[0], position: 1 })],
+      })
+
+      query.delete('search')
+      query.set('regionCodes', 'br-sudeste')
+      query.append('applicationIds', ids[3])
+      const historical = await fetch(new URL(`/analysis/ranking?${query}`, await app.getUrl()))
+      expect(historical.status).toBe(200)
+      expect(await historical.json()).toMatchObject({
+        scope: { applicationCount: 1, energy: { value: 2 } },
+        items: [expect.objectContaining({ applicationId: ids[3], location: expect.objectContaining({ regionCode: 'br-norte' }) })],
+      })
+
+      const broadQuery = new URLSearchParams({ from, to, metric: 'energy', direction: 'desc' })
+      for (const sortBy of [
+        'applicationId', 'name', 'state', 'stateReason', 'regionCode', 'country',
+        'region', 'city', 'energy', 'emissions', 'energyCoverage',
+        'emissionsCoverage', 'rankability', 'position', 'participation',
+      ]) {
+        broadQuery.set('sortBy', sortBy)
+        broadQuery.set('sortDirection', 'asc')
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+      }
+      broadQuery.delete('sortBy')
+      broadQuery.delete('sortDirection')
+
+      for (const [name, value] of [
+        ['filterApplicationId', 'ranking-a'], ['filterName', 'arvore'],
+        ['filterState', 'AVAILABLE'], ['filterStateReason', 'NO_OBSERVATION'],
+        ['filterEnergyReason', 'NO_OBSERVATION'], ['filterEmissionsReason', 'NO_OBSERVATION'],
+        ['filterRegionCode', 'br-sudeste'], ['filterCountry', 'brazil'],
+        ['filterRegion', 'norte'], ['filterCity', 'inexistente'],
+        ['filterRankability', 'unranked'],
+      ]) {
+        broadQuery.set(name, value)
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+        broadQuery.delete(name)
+      }
+      for (const field of ['energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'position', 'participation']) {
+        broadQuery.set(`${field}Min`, field === 'position' ? '1' : '0')
+        broadQuery.set(`${field}Max`, field === 'position' ? '4' : '1')
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+        broadQuery.delete(`${field}Min`)
+        broadQuery.delete(`${field}Max`)
+        broadQuery.set(`${field}Missing`, 'true')
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+        broadQuery.set(`${field}Missing`, 'false')
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+        broadQuery.delete(`${field}Missing`)
+      }
+
+      broadQuery.set('pageSize', '5')
+      broadQuery.set('page', '99')
+      expect(await (await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).json()).toMatchObject({ pagination: { page: 1, totalItems: 4 } })
+      broadQuery.set('filterName', 'sem-resultados')
+      expect(await (await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).json()).toMatchObject({ pagination: { page: 1, totalItems: 0, totalPages: 0 } })
+      broadQuery.delete('filterName')
+      broadQuery.set('metric', 'emissions')
+      broadQuery.set('applicationIds', ids[2])
+      const emptyMetric = await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))
+      expect(await emptyMetric.json()).toMatchObject({ status: 'empty', scope: { applicationCount: 1, rankedCount: 0, unrankedCount: 1 }, items: [expect.objectContaining({ rankability: 'unranked' })] })
+      broadQuery.delete('applicationIds')
+      broadQuery.delete('page')
+      broadQuery.delete('pageSize')
+      for (const pageSize of ['5', '10', '15', '20', 'all']) {
+        broadQuery.set('pageSize', pageSize)
+        expect((await fetch(new URL(`/analysis/ranking?${broadQuery}`, await app.getUrl()))).status).toBe(200)
+      }
+      broadQuery.delete('pageSize')
+
+      query.delete('regionCodes')
+      query.set('pageSize', 'all')
+      query.set('page', '2')
+      const invalidAllPage = await fetch(new URL(`/analysis/ranking?${query}`, await app.getUrl()))
+      expect(invalidAllPage.status).toBe(400)
+      query.set('page', '1')
+      query.set('metric', 'unknown')
+      const invalidMetric = await fetch(new URL(`/analysis/ranking?${query}`, await app.getUrl()))
+      expect(invalidMetric.status).toBe(400)
+
+      const invalidQueries = [
+        { from: 'not-a-timestamp' },
+        { states: 'ONLINE' },
+        { regionCodes: '' },
+        { sortBy: 'unsupported', sortDirection: 'asc' },
+        { sortBy: 'name' },
+        { sortDirection: 'asc' },
+        { sortBy: 'name', sortDirection: 'sideways' },
+        { filterState: 'ONLINE' },
+        { filterStateReason: 'UNKNOWN_REASON' },
+        { filterRankability: 'missing' },
+        { energyMin: '-1' },
+        { energyCoverageMax: '1.1' },
+        { positionMin: '1.5' },
+        { energyMin: '2', energyMax: '1' },
+        { energyMissing: 'maybe' },
+        { energyMissing: 'true', energyMin: '0' },
+        { page: '0' },
+        { pageSize: '7' },
+      ]
+      for (const invalid of invalidQueries) {
+        const invalidQuery = new URLSearchParams({ from, to, metric: 'energy', direction: 'desc' })
+        Object.entries(invalid).forEach(([key, value]) => invalidQuery.set(key, value))
+        expect((await fetch(new URL(`/analysis/ranking?${invalidQuery}`, await app.getUrl()))).status).toBe(400)
+      }
+      const repeatedSearch = new URLSearchParams({ from, to, metric: 'energy', direction: 'desc' })
+      repeatedSearch.append('search', 'one')
+      repeatedSearch.append('search', 'two')
+      expect((await fetch(new URL(`/analysis/ranking?${repeatedSearch}`, await app.getUrl()))).status).toBe(400)
+      const missingMetric = new URLSearchParams({ from, to, direction: 'desc' })
+      expect((await fetch(new URL(`/analysis/ranking?${missingMetric}`, await app.getUrl()))).status).toBe(400)
+
+      const openapiResponse = await fetch(new URL('/openapi.json', await app.getUrl()))
+      const openapi = await openapiResponse.json() as {
+        paths: Record<string, { get: { parameters: Array<{ name: string; required?: boolean }> } }>
+      }
+      expect(openapi.paths['/analysis/ranking'].get.parameters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'metric', required: true }),
+          expect.objectContaining({ name: 'direction', required: true }),
+          expect.objectContaining({ name: 'pageSize' }),
+          expect.objectContaining({ name: 'search' }),
+        ]),
+      )
+    } finally {
+      await removeApplications(database, ids)
+    }
+  })
+
   it('aggregates filters and uses each collection historical region, including removed history and valid zero', async () => {
     const historicalId = `summary-history-${randomUUID()}`
     const currentId = `summary-current-${randomUUID()}`
@@ -457,6 +660,14 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
       expect(response.status).toBe(503)
       expect(await response.json()).toMatchObject({
         code: 'ANALYSIS_SUMMARY_UNAVAILABLE',
+      })
+      const rankingQuery = new URLSearchParams({ from, to, metric: 'energy', direction: 'desc', applicationIds: id })
+      const rankingResponse = await fetch(
+        new URL(`/analysis/ranking?${rankingQuery}`, await app.getUrl()),
+      )
+      expect(rankingResponse.status).toBe(503)
+      expect(await rankingResponse.json()).toMatchObject({
+        code: 'ANALYSIS_RANKING_UNAVAILABLE',
       })
     } finally {
       await database.query(`ALTER TABLE "${renamed}" RENAME TO collections`)

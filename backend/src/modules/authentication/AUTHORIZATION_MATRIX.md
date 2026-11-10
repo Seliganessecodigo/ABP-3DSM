@@ -14,6 +14,7 @@ Para rotas protegidas, ausência ou invalidade da sessão resulta em 401; papel 
 | GET /applications/{id}/collections/latest | Nenhuma | Observação mais recente |
 | GET /applications/{id}/collections/{collectionId} | Nenhuma | Observação armazenada |
 | GET /analysis/summary | Nenhuma | Resumo ambiental agregado |
+| GET /analysis/ranking | Nenhuma | Ranking ambiental agregado |
 | GET /applications/{id}/analysis | Nenhuma | Resultado ambiental por período |
 | GET /applications/{id}/analysis/series | Nenhuma | Série ambiental persistida |
 | GET /applications/{id}/analysis/series/contributions | Nenhuma | Contribuições persistidas |
