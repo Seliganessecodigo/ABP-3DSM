@@ -27,6 +27,8 @@ Das erste Fehlen in einem vollständigen gültigen Snapshot bestätigt die Entfe
 
 Node.js 24+, npm, Docker Compose v2. `.env.example` nach `.env` kopieren; `npm run dev`. Compose migriert und versucht Erkennung; Quellfehler verhindert API-Start nicht. SMTP für Einladungen/Bestätigungen konfigurieren. Erster Admin: `organizations:create-invitation` in `backend/`, mit `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Kein universelles Produktionskonto.
 
+Der erste Zugang erfolgt in zwei Schritten: Einladung unter `/setup-admin` öffnen, Name und E-Mail eingeben und anschließend die Bestätigung unter `/confirm-email` öffnen, um das Passwort zu erstellen. Danach anmelden und den verpflichtenden Admin-Authenticator einrichten. Ungültige, abgelaufene oder verwendete Links erklären die Anforderung eines Ersatzes; Tokens werden aus der URL entfernt und nur im Seitenspeicher gehalten. Nach dem Neuladen den ursprünglichen E-Mail-Link erneut öffnen. SMTP muss an ein echtes Postfach zustellen; `.test`-Adressen sind Beispiele. Auf Azure erstellt der Betreiber die erste Einladung in der konfigurierten Backend-Konsole mit `npm run organizations:create-invitation:prod`; die eingeladene Person schließt die Registrierung auf der Website ab. `APP_BASE_URL` muss auf das veröffentlichte Frontend zeigen. `frontend/public/staticwebapp.config.json` ermöglicht den direkten Zugriff auf gehostete Routen.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

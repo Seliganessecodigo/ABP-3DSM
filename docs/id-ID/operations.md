@@ -27,6 +27,8 @@ Ketiadaan pertama pada snapshot lengkap dan valid mengonfirmasi penghapusan. Tia
 
 Gunakan Node.js 24+, npm dan Docker Compose v2. Salin `.env.example` ke `.env`, jalankan `npm run dev`. Compose menerapkan migration dan mencoba penemuan; kegagalan sumber tidak menghalangi API mulai. SMTP diperlukan untuk undangan/konfirmasi. Admin pertama: `organizations:create-invitation` di `backend/`, dengan `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Tidak ada Admin produksi universal.
 
+Akses pertama di situs memiliki dua langkah: buka undangan di `/setup-admin`, masukkan nama dan email, lalu buka konfirmasi di `/confirm-email` untuk membuat kata sandi. Setelah itu, masuk dan siapkan autentikator wajib Admin. Tautan tidak valid, kedaluwarsa, atau sudah digunakan menjelaskan cara meminta pengganti; token dihapus dari URL dan hanya disimpan dalam memori halaman. Setelah memuat ulang, buka kembali tautan email asli. SMTP harus mengirim ke kotak masuk nyata; alamat `.test` hanya contoh. Di Azure, operator menerbitkan undangan pertama dari konsol backend yang dikonfigurasi dengan `npm run organizations:create-invitation:prod`; orang yang diundang menyelesaikan pendaftaran di situs. `APP_BASE_URL` harus mengarah ke frontend yang diterbitkan. `frontend/public/staticwebapp.config.json` memungkinkan akses langsung ke rute yang dihosting.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

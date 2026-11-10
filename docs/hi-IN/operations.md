@@ -27,6 +27,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 Node.js 24+, npm, Docker Compose v2 चाहिए। `.env.example` को `.env` में कॉपी करके `npm run dev` चलाएँ। Compose migration और खोज करता है; स्रोत विफलता API आरंभ नहीं रोकती। निमंत्रण/पुष्टि हेतु SMTP सेट करें। पहला Admin: `backend/` में `organizations:create-invitation`, चर `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`। सार्वभौमिक production Admin नहीं है।
 
+साइट पर पहली पहुँच के दो चरण हैं: `/setup-admin` पर आमंत्रण खोलें, नाम और ईमेल दर्ज करें, फिर `/confirm-email` पर पुष्टि खोलकर पासवर्ड बनाएँ। इसके बाद प्रवेश करके व्यवस्थापक के लिए अनिवार्य ऑथेंटिकेटर ऐप सेट करें। अमान्य, समाप्त या इस्तेमाल किए गए लिंक पर नया लिंक माँगने का निर्देश मिलता है; टोकन URL से हटकर केवल पृष्ठ की मेमोरी में रहते हैं। पृष्ठ दोबारा लोड करने पर मूल ईमेल लिंक फिर खोलें। SMTP को वास्तविक मेलबॉक्स में संदेश पहुँचाने चाहिए; `.test` पते केवल उदाहरण हैं। Azure में ऑपरेटर कॉन्फ़िगर किए गए बैकएंड कंसोल से `npm run organizations:create-invitation:prod` चलाकर पहला आमंत्रण भेजता है; आमंत्रित व्यक्ति साइट पर पंजीकरण पूरा करता है। `APP_BASE_URL` प्रकाशित फ्रंटएंड का पता होना चाहिए। `frontend/public/staticwebapp.config.json` होस्ट किए गए मार्गों को सीधे खोलने देता है।
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

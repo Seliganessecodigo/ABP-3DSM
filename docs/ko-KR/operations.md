@@ -27,6 +27,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 Node.js 24+, npm, Docker Compose v2가 필요합니다. `.env.example`을 `.env`로 복사하고 `npm run dev`를 실행합니다. Compose는 마이그레이션/초기 탐색을 수행하고 출처 장애에도 API를 시작합니다. 초대/확인용 SMTP를 설정합니다. 첫 Admin은 `backend/`의 `organizations:create-invitation`과 `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`로 준비합니다. 공통 운영 Admin 계정은 없습니다.
 
+사이트의 첫 접속은 두 단계입니다. `/setup-admin`의 초대를 열어 이름과 이메일을 입력한 뒤 `/confirm-email`의 확인 링크를 열어 비밀번호를 만듭니다. 이후 로그인하여 관리자에게 필수인 인증 앱을 설정합니다. 유효하지 않거나 만료되었거나 사용된 링크에는 새 링크 요청 안내가 표시됩니다. 토큰은 URL에서 제거되고 페이지 메모리에만 유지됩니다. 새로고침 후에는 원래 이메일 링크를 다시 여세요. SMTP는 실제 메일함으로 배달해야 하며 `.test` 주소는 예시입니다. Azure에서는 운영자가 구성된 백엔드 콘솔에서 `npm run organizations:create-invitation:prod`로 첫 초대를 발급하고, 초대받은 사람이 사이트에서 가입을 완료합니다. `APP_BASE_URL`은 게시된 프런트엔드를 가리켜야 합니다. `frontend/public/staticwebapp.config.json`은 호스팅된 경로에 직접 접근할 수 있게 합니다.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

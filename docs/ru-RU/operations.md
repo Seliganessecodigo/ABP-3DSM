@@ -27,6 +27,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 Нужны Node.js 24+, npm, Docker Compose v2. Скопируйте `.env.example` в `.env`, выполните `npm run dev`. Compose применяет миграции и пробует обнаружение; сбой источника не мешает запуску API. SMTP нужен для приглашений/подтверждений. Первый Admin: `organizations:create-invitation` в `backend/`, переменные `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Универсальной производственной записи Admin нет.
 
+Первый доступ на сайте состоит из двух этапов: открыть приглашение по `/setup-admin`, указать имя и почту, затем открыть подтверждение по `/confirm-email` и создать пароль. После этого войдите и настройте обязательный аутентификатор администратора. Для недействительных, просроченных или использованных ссылок показано, как запросить новую; токены удаляются из URL и остаются только в памяти страницы. После перезагрузки откройте исходную ссылку из письма. SMTP должен доставлять сообщения в настоящий почтовый ящик; адреса `.test` приведены для примера. В Azure оператор выдаёт первое приглашение из настроенной консоли backend командой `npm run organizations:create-invitation:prod`; приглашённый завершает регистрацию на сайте. `APP_BASE_URL` должен указывать на опубликованный frontend. `frontend/public/staticwebapp.config.json` обеспечивает прямой доступ к размещённым маршрутам.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
