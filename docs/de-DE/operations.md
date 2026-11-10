@@ -76,3 +76,7 @@ Staging folgt `develop` nach CI: API in Azure App Service, Frontend in Static We
 ## Weiterführende Seiten {#related}
 
 [Erste Schritte](./getting-started) · [API-Referenz](./reference/api)
+
+## Langsame Antworten untersuchen {#response-performance}
+
+Vergleichen Sie die Zeit bis zum ersten Byte, die Antwortgröße und den Ausführungsplan, bevor Sie die Datenbank als Ursache betrachten. Das Dashboard fragt `/analysis/summary` mit `includeProvenance=false` ab: Werte, Abdeckung und Zeitreihe bleiben erhalten; die Antwort meldet `provenanceIncluded=false` und enthält keine Herkunftslisten. Die vollständige Abfrage bleibt Standard. Die kompakte Projektion überträgt keine Faktoren jeder Erfassung; die Berechnung sortiert Intervalle und vermeidet eine zweite Datenbanksortierung.

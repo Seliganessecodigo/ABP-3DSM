@@ -24,6 +24,7 @@ import type { PersistedEnvironmentalInterval } from '../calculations/persisted-e
 import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 
 export interface EnvironmentalAnalysisSummaryFilters {
+  readonly includeProvenance?: string
   readonly granularity?: string
   readonly from?: string
   readonly to?: string
@@ -43,7 +44,12 @@ export class EnvironmentalAnalysisSummaryService {
 
   async getSummary(
     filters: EnvironmentalAnalysisSummaryFilters,
+    options: { includeMissingApplications?: boolean } = {},
   ): Promise<EnvironmentalAnalysisSummaryDto> {
+    if (filters.includeProvenance !== undefined && !['true', 'false'].includes(filters.includeProvenance)) {
+      throw new BadRequestException({ code: 'INVALID_ANALYSIS_PROVENANCE_FILTER' })
+    }
+    const includeProvenance = filters.includeProvenance !== 'false'
     const start =
       typeof filters.from === 'string'
         ? parseZonedTimestampNanoseconds(filters.from)
@@ -105,6 +111,7 @@ export class EnvironmentalAnalysisSummaryService {
           ids,
           start,
           end,
+          { includeProvenance },
         ),
         this.applicationEvents.findMetadataHistory(ids),
       ])
@@ -201,6 +208,7 @@ export class EnvironmentalAnalysisSummaryService {
           periodFrom,
           periodTo,
           observations,
+          { includeProvenance },
         )
         const { energy, emissions, coverage } = summary
         if (energy.value !== null) {
@@ -259,7 +267,7 @@ export class EnvironmentalAnalysisSummaryService {
               : factor,
           )
         }
-        if (energy.value !== null || emissions.value !== null) {
+        if (options.includeMissingApplications || energy.value !== null || emissions.value !== null) {
           applications.push({
             applicationId: application.id,
             name: application.name,
@@ -273,6 +281,7 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopeDuration = duration * filteredApplications.length
       return {
+        ...(!includeProvenance ? { provenanceIncluded: false } : {}),
         ...(granularity
           ? {
               series: {

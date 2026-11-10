@@ -3,6 +3,7 @@ import {
   summarizePersistedEnvironmentalPeriod,
   PersistedEnvironmentalInterval,
   projectPersistedEnvironmentalInterval,
+  measurePersistedEnvironmentalDuration,
 } from './persisted-environmental-period'
 
 const firstBoundary = '2026-10-01T00:00:00.000Z'
@@ -10,6 +11,15 @@ const middleBoundary = '2026-10-01T01:00:00.000Z'
 const lastBoundary = '2026-10-01T02:00:00.000Z'
 
 describe('equivalent factor presentation', () => {
+  it('projects compact measures with the same values and reasons as detailed evidence', () => {
+    for (const observation of [savedInterval(), savedInterval({ energyKwh: null, carbonGrams: null }), savedInterval({ energyKwh: '0', carbonGrams: '0' })]) {
+      const full = projectPersistedEnvironmentalInterval(observation, firstBoundary, middleBoundary)
+      expect(measurePersistedEnvironmentalDuration(observation, 3_600_000_000_000n)).toEqual({ energy: full.energy, emissions: full.emissions })
+    }
+    for (const duration of [0n, -1n, 7_200_000_000_001n]) expect(() => measurePersistedEnvironmentalDuration(savedInterval(), duration)).toThrow('INVALID_ANALYSIS_SEGMENT')
+    expect(() => measurePersistedEnvironmentalDuration(savedInterval({ intervalStart: 'invalid' }), 1n)).toThrow()
+    expect(() => measurePersistedEnvironmentalDuration(savedInterval({ intervalEnd: firstBoundary }), 1n)).toThrow()
+  })
   it('excludes energy without emissions from the equivalent factor', () => {
     const result = summarizePersistedEnvironmentalPeriod(firstBoundary, lastBoundary, [
       savedInterval({ intervalEnd: middleBoundary, energyKwh: '2', carbonGrams: '170' }),

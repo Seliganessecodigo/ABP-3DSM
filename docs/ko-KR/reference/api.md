@@ -103,7 +103,7 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 
 ## 분석 개인화 {#preferences}
 
-`/methodology`는 에너지, 배출량, 커버리지, 분석 탭과 예제/개인 설정을 제공합니다. 로그인한 모든 역할이 자신의 탭만 저장하며 낙관적 버전 충돌은 409입니다. 표시 임계값은 전역 설정·계산·외부 알림을 바꾸지 않습니다. 저장된 기간/집계 단위는 상세 URL에 값이 없을 때만 적용합니다. 기록된 방법론은 `/services/:id/methodology`와 선택한 `collectionId`로 조회합니다.
+`/methodology`에서 애플리케이션별 에너지·배출량 한도, 커버리지 기준과 분석 기본값을 설정합니다. 최근 24시간, 7일, 30일, 90일, UTC 기준 이번 달 또는 시작을 포함하고 끝을 제외하는 사용자 지정 기간을 선택할 수 있습니다. 미리보기는 저장 없이 실제 데이터를 읽고 애플리케이션 및 대시보드와 같은 경고 패널을 사용합니다. 저장에는 로그인이 필요하며 자신의 계정에만 적용됩니다. 계산, 이력, 운영 상태는 바뀌지 않습니다. 경고는 화면 필터와 독립적으로 각 한도의 기간을 사용합니다. 분석 기본값은 대시보드와 상세 화면의 URL에 없는 옵션만 채웁니다. 일부 데이터가 한도보다 낮아도 준수를 입증하지는 않습니다. 누락은 절대 0이 아닙니다.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -116,10 +116,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## 오류 처리 {#errors}
 

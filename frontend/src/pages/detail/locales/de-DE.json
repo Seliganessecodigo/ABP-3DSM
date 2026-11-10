@@ -233,5 +233,7 @@
   "historyRecalculationPreview": "Neuberechnungsvorschau",
   "analysisEquivalentFactor": "Äquivalenter Faktor",
   "analysisFactorExplanation": "Die Emissionen ergeben sich aus der Summe der Berechnungen je Intervall. Der äquivalente Faktor fasst die verwendeten Faktoren zusammen, gewichtet nach der Energie mit berechnetem CO₂e.",
-  "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e"
+  "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e",
+  "periods.month": "Aktueller Monat (UTC)",
+  "periods.custom": "Benutzerdefiniertes Intervall"
 }

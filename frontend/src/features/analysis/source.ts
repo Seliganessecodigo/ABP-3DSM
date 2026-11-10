@@ -126,7 +126,7 @@ export type AnalysisMethodologyResult =
   | Readonly<{ status: 'available'; entries: readonly AnalysisMethodology[] }>
   | Readonly<{ status: 'unavailable'; reason: AnalysisPresentationReason }>
 
-export type AnalysisContext = Readonly<{ period: string; granularity?: string; anchor?: string }>
+export type AnalysisContext = Readonly<{ period: string; granularity?: string; anchor?: string; range?: Readonly<{ from: string; to: string }> }>
 
 export type AnalysisSourceResult =
   | Readonly<{ status: 'available'; data: AnalysisViewModel }>
@@ -201,7 +201,12 @@ function readSeries(value: unknown, applicationId: string) {
   return { points, events }
 }
 
-export function analysisRangeFor(period: string, now: Date) {
+export function analysisRangeFor(period: string, now: Date, range?: Readonly<{ from: string; to: string }>) {
+  if (period === 'custom') {
+    if (!range || !Number.isFinite(Date.parse(range.from)) || !Number.isFinite(Date.parse(range.to)) || Date.parse(range.to) <= Date.parse(range.from)) throw new Error('Invalid custom analysis period')
+    return { from: range.from, to: range.to }
+  }
+  if (period === 'month') return { from: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString(), to: now.toISOString() }
   const duration = ({ '24h': 24, '7d': 168, '30d': 720, '90d': 2160 } as const)[period as '24h' | '7d' | '30d' | '90d']
   if (duration === undefined) throw new Error('Invalid analysis period')
   const to = now.toISOString()
@@ -245,7 +250,7 @@ function readContributionMeasure(value: unknown, name: string) {
 
 async function loadContributions(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
   pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage> {
-  const range = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
+  const range = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date(), context.range)
   const query = new URLSearchParams({ ...range, granularity: context.granularity ?? 'hour', bucketStart,
     page: String(page), pageSize: String(pageSize) })
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')
@@ -324,8 +329,9 @@ async function getJson(url: string, signal: AbortSignal): Promise<unknown> {
   return response.json() as Promise<unknown>
 }
 
-async function loadEnvironmentalAnalysis(applicationId: string, period: string, granularity: string | null, anchor: string | undefined, signal: AbortSignal): Promise<AnalysisSourceResult> {
-  const range = analysisRangeFor(period, anchor ? new Date(anchor) : new Date())
+async function loadEnvironmentalAnalysis(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisSourceResult> {
+  const { period, granularity, anchor } = context
+  const range = analysisRangeFor(period, anchor ? new Date(anchor) : new Date(), context.range)
   const selectedGranularity = granularity ?? 'hour'
   const [summary, series] = await Promise.all([
     getJson(endpoint(applicationId, '', range), signal),
@@ -394,14 +400,14 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
 }
 
 async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]> {
-  const currentRange = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
-  const previousRange = analysisRangeFor(context.period, new Date(currentRange.from))
+  const currentRange = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date(), context.range)
+  const previousRange = { from: new Date(Date.parse(currentRange.from) - (Date.parse(currentRange.to) - Date.parse(currentRange.from))).toISOString(), to: currentRange.from }
   const response = await getJson(endpoint(applicationId, '/series', previousRange, context.granularity ?? 'hour'), signal)
   return readSeries(response, applicationId).points
 }
 
 export const environmentalAnalysisSource: AnalysisSource = {
-  load: (applicationId, context, signal) => loadEnvironmentalAnalysis(applicationId, context.period, context.granularity ?? null, context.anchor, signal),
+  load: loadEnvironmentalAnalysis,
   loadComparisonSeries,
   loadContributions,
 }

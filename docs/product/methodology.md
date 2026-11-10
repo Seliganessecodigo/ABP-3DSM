@@ -47,3 +47,7 @@ Na prévia de recálculo, selecione a aplicação e as datas para comparar o res
 ## Leitura relacionada {#related}
 
 [Guia de uso](../guide/monitoring) · [Referência da API](../reference/api)
+
+## Preferências aplicadas aos dados reais {#personal-preferences}
+
+Em `/methodology`, configure seus limites de energia e emissões por aplicação, a referência de cobertura e os padrões de análise. Escolha últimas 24 horas, 7, 30 ou 90 dias, mês atual em UTC ou intervalo personalizado com início incluído e fim excluído. A prévia consulta dados reais sem salvar e usa o mesmo painel de avisos das aplicações e do Dashboard. Salvar exige login e afeta apenas sua conta; não altera cálculos, histórico ou estados operacionais. Os avisos usam o período de cada limite, independentemente dos filtros da tela. Padrões de análise preenchem somente opções ausentes na URL do Dashboard e do detalhe. Dados parciais abaixo do limite não comprovam que ele foi respeitado; ausência nunca equivale a zero.

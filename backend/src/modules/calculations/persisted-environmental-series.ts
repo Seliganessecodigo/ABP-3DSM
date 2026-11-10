@@ -2,6 +2,7 @@ import { parseZonedTimestampNanoseconds } from './energy-calculation'
 import {
   formatUtcTimestamp,
   projectPersistedEnvironmentalInterval,
+  measurePersistedEnvironmentalDuration,
   resolvePersistedEnvironmentalSegments,
   type PersistedEnvironmentalSegmentProjection,
   type PersistedEnvironmentalInterval,
@@ -196,12 +197,11 @@ function addObservationSegment(
   includeDetails: boolean,
   values: BucketAccumulator,
 ): void {
-  const projection = projectPersistedEnvironmentalInterval(
-    observation,
-    formatUtcTimestamp(overlapStart),
-    formatUtcTimestamp(overlapEnd),
-  )
-  if (includeDetails) addProjectionDetails(projection, observation, values.contributions, values.exclusions)
+  const detailed = includeDetails ? projectPersistedEnvironmentalInterval(
+    observation, formatUtcTimestamp(overlapStart), formatUtcTimestamp(overlapEnd),
+  ) : null
+  if (detailed) addProjectionDetails(detailed, observation, values.contributions, values.exclusions)
+  const projection = detailed ?? measurePersistedEnvironmentalDuration(observation, overlapEnd - overlapStart)
   if (projection.energy.value === null) values.energyReasons.push(...projection.energy.reasons)
   else {
     values.energy += projection.energy.value

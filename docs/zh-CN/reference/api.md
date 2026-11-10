@@ -103,7 +103,7 @@
 
 ## 个性化分析 {#preferences}
 
-`/methodology`有能源、排放、覆盖率和分析四个标签页，包含示例和个人偏好。任何已登录角色只能保存自身标签页；乐观版本冲突返回409。显示阈值不更改全局配置、计算或外部通知。保存期间/粒度仅填充详情URL中缺失的选项。历史方法保留在`/services/:id/methodology`，可带选中的`collectionId`。
+在 `/methodology` 中设置每个应用的能耗和排放上限、覆盖率参考值以及分析默认值。可选择最近24小时、7天、30天、90天、UTC当月或自定义起止时间，包含开始时刻但不包含结束时刻。预览读取真实数据而不保存，并使用与应用页面及仪表板相同的警告面板。保存需要登录且仅影响自己的账户，不改变计算、历史记录或运行状态。警告独立于页面筛选条件，使用各上限自己的时间范围。分析默认值仅补充仪表板和详情页面URL中缺少的选项。部分数据低于上限不能证明符合要求；缺失数据绝不代表零。
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -116,10 +116,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## 错误处理 {#errors}
 

@@ -76,3 +76,7 @@ Staging deploys from `develop` after CI: API to Azure App Service and frontend t
 ## Related reading {#related}
 
 [Getting started](./getting-started) · [API reference](./reference/api)
+
+## Diagnosing slow responses {#response-performance}
+
+Compare time to first byte, response size and the execution plan before blaming the database. The Dashboard requests `/analysis/summary` with `includeProvenance=false`: readings, coverage and series remain intact, while the response reports `provenanceIncluded=false` and excludes provenance lists. Full queries remain the default. The compact projection does not transfer each collection’s factors; the summary sorts intervals during calculation and avoids a second database sort.

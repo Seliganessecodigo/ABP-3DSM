@@ -76,3 +76,7 @@ stagingは`develop`からCI後にAPIをAzure App Service、frontendをStatic Web
 ## 関連ページ {#related}
 
 [はじめに](./getting-started) · [APIリファレンス](./reference/api)
+
+## 応答の遅延を調べる {#response-performance}
+
+データベースが原因と判断する前に、最初のバイトまでの時間、応答サイズ、実行計画を比較してください。ダッシュボードは `includeProvenance=false` を指定して `/analysis/summary` を取得します。値、カバレッジ、時系列は維持され、応答は `provenanceIncluded=false` を示して出典一覧を除外します。既定の完全な問い合わせは引き続き利用できます。軽量な投影は各収集の係数を転送せず、計算側で期間を並べるためデータベース側の重複した並べ替えを省きます。

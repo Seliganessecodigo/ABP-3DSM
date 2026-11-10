@@ -76,3 +76,7 @@ Staging é publicado a partir de `develop`, após a CI: API no Azure App Service
 ## Leitura relacionada {#related}
 
 [Primeiros passos](./getting-started) · [Referência da API](./reference/api)
+
+## Diagnosticar lentidão {#response-performance}
+
+Compare o tempo até o primeiro byte, o tamanho da resposta e o plano de execução antes de atribuir lentidão ao banco. O Dashboard consulta `/analysis/summary` com `includeProvenance=false`: os valores, a cobertura e a série são preservados, mas a resposta indica `provenanceIncluded=false` e não inclui as listas de rastreabilidade. A consulta completa continua disponível por padrão. A projeção enxuta não transfere os fatores de cada coleta; o resumo ordena os intervalos no cálculo e dispensa uma segunda ordenação no banco.

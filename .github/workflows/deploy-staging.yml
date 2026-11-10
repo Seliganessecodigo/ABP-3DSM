@@ -111,7 +111,7 @@ jobs:
     name: Deploy frontend to Static Web Apps
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-    needs: quality
+    needs: [quality, deploy-api]
     environment: staging
     steps:
       - name: Checkout repository

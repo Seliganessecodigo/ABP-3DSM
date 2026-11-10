@@ -24,13 +24,14 @@ function emptyState(key: string): State {
   return { key, status: 'loading', data: null, lastAttemptAt: null, lastSuccessAt: null, lastSuccessStatus: null }
 }
 
-function contextKey(applicationId: string, period: string, granularity: string | null) {
-  return JSON.stringify([applicationId, period, granularity])
+function contextKey(applicationId: string, period: string, granularity: string | null, range?: Readonly<{ from: string; to: string }>) {
+  return JSON.stringify([applicationId, period, granularity, range?.from, range?.to])
 }
 
 export function useEnvironmentalAnalysis(applicationId: string, period: string, granularity: string | null, source: AnalysisSource,
-  enabled: boolean, refreshCycle: number, anchor: string) {
-  const key = contextKey(applicationId, period, granularity)
+  enabled: boolean, refreshCycle: number, anchor: string, range?: Readonly<{ from: string; to: string }>) {
+  const key = contextKey(applicationId, period, granularity, range)
+  const rangeFrom = range?.from, rangeTo = range?.to
   const [state, setState] = useState<State>(() => emptyState(key))
   const [attempt, setAttempt] = useState(0)
   const lastSuccessful = useRef<SuccessfulResult | null>(null)
@@ -51,11 +52,11 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
     setState({ key, status: previous ? 'refreshing' : 'loading', data: previous?.data ?? null,
       lastAttemptAt, lastSuccessAt: previous?.at ?? null, lastSuccessStatus: previous?.status ?? null })
 
-    void source.load(applicationId, { period, anchor, ...(granularity === null ? {} : { granularity }) }, controller.signal).then((result: AnalysisSourceResult) => {
+    void source.load(applicationId, { period, anchor, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}), ...(granularity === null ? {} : { granularity }) }, controller.signal).then((result: AnalysisSourceResult) => {
       if (!active || controller.signal.aborted) return
       const data = result.status === 'unavailable' ? null : result.data ?? null
       if (result.status === 'available' && data?.series.status === 'available' && source.loadComparisonSeries) {
-        void source.loadComparisonSeries(applicationId, { period, anchor, ...(granularity === null ? {} : { granularity }) }, controller.signal)
+        void source.loadComparisonSeries(applicationId, { period, anchor, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}), ...(granularity === null ? {} : { granularity }) }, controller.signal)
           .then((points) => {
             if (active && !controller.signal.aborted) setComparisonState({ key, points })
           }).catch(() => undefined)
@@ -83,7 +84,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
       controller.abort()
       contributionController.current?.abort()
     }
-  }, [applicationId, period, granularity, key, attempt, source, enabled, refreshCycle, anchor])
+  }, [applicationId, period, granularity, key, attempt, source, enabled, refreshCycle, anchor, rangeFrom, rangeTo])
 
   const loadContributions = (bucketStart: string, page = 1, pageSize: number | 'all' = 10) => {
     if (!source.loadContributions) return
@@ -92,7 +93,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
     contributionController.current = controller
     const previous = contributionState?.context === contributionContext && contributionState.bucketStart === bucketStart ? contributionState.data : null
     setContributionState({ context: contributionContext, bucketStart, loading: true, error: false, data: previous })
-    void source.loadContributions(applicationId, { period, anchor, ...(granularity === null ? {} : { granularity }) },
+    void source.loadContributions(applicationId, { period, anchor, ...(range ? { range } : {}), ...(granularity === null ? {} : { granularity }) },
       bucketStart, page, pageSize, controller.signal).then((data) => {
       if (!controller.signal.aborted) setContributionState({ context: contributionContext, bucketStart, loading: false, error: false, data })
     }).catch(() => {

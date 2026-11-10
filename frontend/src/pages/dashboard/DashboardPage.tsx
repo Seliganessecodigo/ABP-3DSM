@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -13,9 +13,12 @@ import {
   type DashboardSortColumn,
   type DashboardTableFilters,
 } from './query.ts'
-import { DashboardSeries } from './DashboardSeries.tsx'
+import { EnvironmentalSeries } from '../../components/EnvironmentalSeries.tsx'
 import { useDashboard } from './useDashboard.ts'
 import styles from './DashboardPage.module.css'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel, PersonalAlertBadges } from '../../components/PersonalAlerts.tsx'
+import { useAnalysisDefaults } from '../../features/preferences/useAnalysisDefaults.ts'
 
 const tableColumns: ReadonlyArray<Readonly<{ key: DashboardSortColumn; label: string }>> = [
   { key: 'name', label: 'table.application' },
@@ -67,10 +70,12 @@ function normalizeNumberInput(value: string): string {
   return value.trim()
 }
 
-function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode'>) {
+function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode' | 'range' | 'granularity'>) {
   if (query.period === null) return null
   return {
     period: query.period,
+    range: query.range,
+    granularity: query.granularity,
     state: query.state === 'ALL' ? null : query.state,
     regionCode: query.regionCode,
   }
@@ -85,10 +90,15 @@ function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: nu
 }
 
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+  const personalAlerts = usePersonalAlerts()
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: detailText } = useTranslation('detail')
+  const { t: preferencesText } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
   const [query, setQuery] = useState<DashboardQuery>(() => readDashboardQuery(window.location.search))
+  const applyDefaults = useCallback(() => { setQuery(readDashboardQuery(window.location.search)) }, [])
+  useAnalysisDefaults(applyDefaults)
   const [draftFilters, setDraftFilters] = useState<DashboardTableFilters>(query.filters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
@@ -177,7 +187,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   })
   const changePeriod = (next: typeof periodPresets[number]) => {
     if (pending && period === next) return
-    update({ period: next })
+    update({ period: next, explicitPeriod: true, range: undefined })
     refresh()
   }
   const changePageSize = (value: string) => {
@@ -223,6 +233,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
+      {(period === 'custom' || period === 'month') && <p>{preferencesText(`evaluationPeriod.${period}`)}{query.range && ` · ${dateRangeLabel(query.range.from, query.range.to, locale)} UTC`}</p>}
+      <label>{preferencesText('granularityEditing')}<select className="form-control" aria-label={preferencesText('granularityEditing')} value={query.granularity ?? (period === '24h' ? 'hour' : 'day')} onChange={event => {
+        const granularity = (['hour', 'day', 'month', 'year'] as const).find(value => value === event.target.value)
+        if (granularity) update({ granularity })
+      }}><option value="hour">{preferencesText('hour')}</option><option value="day">{preferencesText('day')}</option><option value="month">{detailText('analysisGranularityMonth')}</option><option value="year">{detailText('analysisGranularityYear')}</option></select></label>
       <label>{t('region')}
         <select className="form-control" aria-label={t('region')} value={query.regionCode} disabled={data.applications.loading || data.applications.error}
           onChange={(event) => update({ regionCode: event.target.value })}>
@@ -242,6 +257,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
     </section>
 
+    <PersonalAlertsPanel state={personalAlerts} />
     {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
       <p>{data.data ? t('refreshError') : t('error')}</p>
@@ -296,7 +312,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <section className={styles.visualizations}>
         <article className={styles.card}>
           <h2>{t('trendTitle')}</h2>
-          <DashboardSeries series={data.data.series} locale={locale} />
+          <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
         <article className={styles.card}>
           <div className={styles.sectionHeading}>
@@ -412,7 +428,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                 <button type="button" onClick={() => toggleSort(key)}>{t(label)}</button>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
-                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}</th>
+                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === row.applicationId)} /></th>
                 <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${row.state}`]}`}>{labels[row.state]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>

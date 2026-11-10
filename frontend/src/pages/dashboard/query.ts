@@ -1,4 +1,4 @@
-import { readPeriodSelection, type PeriodPreset } from '../../features/analysis/periodContext.ts'
+import { readPeriodSelection, readCustomAnalysisRange, type PeriodPreset } from '../../features/analysis/periodContext.ts'
 import type { EnvironmentalSummaryState } from '../../features/analysis/environmentalSummary.ts'
 
 export const dashboardSortColumns = ['name', 'state', 'region', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage'] as const
@@ -22,6 +22,9 @@ export type DashboardTableFilters = Readonly<{
 }>
 export type DashboardQuery = Readonly<{
   period: PeriodPreset | null
+  explicitPeriod?: boolean
+  granularity?: 'hour' | 'day' | 'month' | 'year'
+  range?: Readonly<{ from: string; to: string }>
   regionCode: string
   state: EnvironmentalSummaryState | 'ALL'
   search: string
@@ -35,7 +38,7 @@ const defaultSort: DashboardSort = { column: 'emissions', direction: 'desc' }
 const pageSizes: readonly (string | number)[] = [5, 10, 15, 20, 'all']
 const states: readonly (EnvironmentalSummaryState | 'ALL')[] = ['ALL', 'AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
 const managedParameters = [
-  'period', 'regionCode', 'dashboardState', 'q', 'page', 'size', 'sort', 'direction',
+  'period', 'granularity', 'from', 'to', 'regionCode', 'dashboardState', 'q', 'page', 'size', 'sort', 'direction',
   'tableName', 'tableState', 'tableRegion', 'energyMin', 'energyMax', 'energyMissing',
   'emissionsMin', 'emissionsMax', 'emissionsMissing', 'energyCoverageMin', 'energyCoverageMax',
   'emissionsCoverageMin', 'emissionsCoverageMax',
@@ -74,6 +77,9 @@ export function readDashboardQuery(search: string): DashboardQuery {
   const size = params.get('size') ?? '10'
   return {
     period,
+    explicitPeriod: params.has('period'),
+    granularity: (['hour', 'day', 'month', 'year'] as const).find(value => value === params.get('granularity')),
+    range: readCustomAnalysisRange(search),
     regionCode: params.get('regionCode') ?? '',
     state: states.includes(state ?? 'ALL') ? state ?? 'ALL' : 'ALL',
     search: params.get('q') ?? '',
@@ -89,7 +95,9 @@ export function readDashboardQuery(search: string): DashboardQuery {
 export function dashboardQueryUrl(query: DashboardQuery): string {
   const params = new URLSearchParams(window.location.search)
   for (const key of managedParameters) params.delete(key)
-  if (query.period && query.period !== '7d') params.set('period', query.period)
+  if (query.period && (query.period !== '7d' || query.explicitPeriod)) params.set('period', query.period)
+  if (query.granularity) params.set('granularity', query.granularity)
+  if (query.period === 'custom' && query.range) { params.set('from', query.range.from); params.set('to', query.range.to) }
   if (query.regionCode) params.set('regionCode', query.regionCode)
   if (query.state !== 'ALL') params.set('dashboardState', query.state)
   if (query.search) params.set('q', query.search)

@@ -183,6 +183,15 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
       expect(body.series?.points[0]).toMatchObject({ energy: { value: 3 }, emissions: { value: 85 } })
       expect(body.series?.points[1]).toMatchObject({ energy: { value: null }, emissions: { value: null } })
       expect(body.series?.points.reduce((sum, point) => sum + (point.energy.value ?? 0), 0)).toBe(body.totals.energy.value)
+      query.set('includeProvenance', 'false')
+      const compactResponse = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      const compact = await compactResponse.json() as EnvironmentalAnalysisSummaryDto
+      const { provenance: fullProvenance, ...readings } = body
+      expect(fullProvenance.factors).toHaveLength(1)
+      expect(compact).toEqual({ ...readings, provenanceIncluded: false, provenance: { methodologies: [], factors: [], reasons: [] } })
+      query.set('includeProvenance', 'invalid')
+      expect((await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))).status).toBe(400)
+      query.delete('includeProvenance')
       query.set('states', 'REMOVED')
       const empty = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
       expect(await empty.json()).toMatchObject({ status: 'empty', series: { points: [{ energy: { value: null } }, { energy: { value: null } }] } })

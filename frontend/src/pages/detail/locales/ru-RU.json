@@ -233,5 +233,7 @@
   "historyRecalculationPreview": "Предпросмотр пересчёта",
   "analysisEquivalentFactor": "Эквивалентный коэффициент",
   "analysisFactorExplanation": "Выбросы равны сумме расчётов по интервалам. Эквивалентный коэффициент обобщает применённые коэффициенты, взвешенные по энергии с рассчитанным CO₂e.",
-  "analysisEnergyWithEmissions": "Энергия с рассчитанным CO₂e"
+  "analysisEnergyWithEmissions": "Энергия с рассчитанным CO₂e",
+  "periods.month": "Текущий месяц (UTC)",
+  "periods.custom": "Произвольный интервал"
 }

@@ -47,3 +47,7 @@ Wählen Sie in der Neuberechnungsvorschau Anwendung und Datum, um das Original m
 ## Weiterführende Seiten {#related}
 
 [Benutzerhandbuch](../guide/monitoring) · [API-Referenz](../reference/api)
+
+## Einstellungen für echte Daten {#personal-preferences}
+
+Unter `/methodology` konfigurieren Sie Energie- und Emissionsgrenzen je Anwendung, den Abdeckungsrichtwert und Analysevorgaben. Wählen Sie die letzten 24 Stunden, 7, 30 oder 90 Tage, den aktuellen UTC-Monat oder ein eigenes Intervall mit eingeschlossenem Anfang und ausgeschlossenem Ende. Die Vorschau liest echte Daten ohne Speicherung und verwendet dasselbe Warnfeld wie Anwendungen und Dashboard. Speichern erfordert eine Anmeldung und betrifft nur Ihr Konto; Berechnungen, Verlauf und Betriebszustände bleiben erhalten. Warnungen verwenden den Zeitraum der jeweiligen Grenze unabhängig von Seitenfiltern. Analysevorgaben ergänzen nur fehlende URL-Optionen im Dashboard und in der Detailansicht. Teilweise Daten unterhalb der Grenze beweisen keine Einhaltung; fehlende Daten bedeuten niemals null.

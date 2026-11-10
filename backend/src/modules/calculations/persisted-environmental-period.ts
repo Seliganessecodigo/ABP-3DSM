@@ -328,11 +328,7 @@ function missingReasons(reasons: readonly EnvironmentalReason[], metric: 'energy
   return [{ code: 'ENVIRONMENTAL_RESULT_NOT_PERSISTED', metric }]
 }
 
-function projectObservation(
-  observation: PersistedEnvironmentalInterval,
-  window: EnvironmentalProjectionWindow,
-): PersistedEnvironmentalSegmentProjection {
-  const ratio = Number(window.end - window.start) / Number(window.originalEnd - window.originalStart)
+function projectMeasures(observation: PersistedEnvironmentalInterval, ratio: number) {
   const energyValue = numericValue(observation.energyKwh, ratio)
   const emissionsValue = numericValue(observation.carbonGrams, ratio)
   const energyReasons = energyValue === null
@@ -342,12 +338,29 @@ function projectObservation(
     ? missingReasons(observation.calculationEvidence?.carbon.reasons ?? [], 'emissions')
     : []
   return {
+    energy: { value: energyValue, unit: 'kWh' as const, reasons: energyReasons },
+    emissions: { value: emissionsValue, unit: 'gCO2e' as const, reasons: emissionsReasons },
+  }
+}
+
+export function measurePersistedEnvironmentalDuration(observation: PersistedEnvironmentalInterval, duration: bigint) {
+  const start = parseZonedTimestampNanoseconds(observation.intervalStart)
+  const end = parseZonedTimestampNanoseconds(observation.intervalEnd)
+  if (start === null || end === null || end <= start || duration <= 0n || duration > end - start) throw new Error('INVALID_ANALYSIS_SEGMENT')
+  return projectMeasures(observation, Number(duration) / Number(end - start))
+}
+
+function projectObservation(
+  observation: PersistedEnvironmentalInterval,
+  window: EnvironmentalProjectionWindow,
+): PersistedEnvironmentalSegmentProjection {
+  const ratio = Number(window.end - window.start) / Number(window.originalEnd - window.originalStart)
+  return {
     interval: { from: window.from, to: window.to },
     collectionId: observation.id,
     originalInterval: { from: formatUtcTimestamp(window.originalStart), to: formatUtcTimestamp(window.originalEnd) },
     collectedAt: window.collectedAt,
-    energy: { value: energyValue, unit: 'kWh', reasons: energyReasons },
-    emissions: { value: emissionsValue, unit: 'gCO2e', reasons: emissionsReasons },
+    ...projectMeasures(observation, ratio),
     methodology: observation.calculationEvidence ? {
       key: observation.calculationEvidence.energy.modelKey,
       version: observation.calculationEvidence.energy.modelVersion,
@@ -482,30 +495,32 @@ function addSummaryFactor(projection: PersistedEnvironmentalSegmentProjection, t
   totals.factors.set(identity, { factor, queriedFrom: queryTime, queriedTo: queryTime })
 }
 
-function addSummarySegment(segment: ResolvedSegment, totals: SummaryTotals): void {
+function addSummarySegment(segment: ResolvedSegment, totals: SummaryTotals, includeProvenance: boolean): void {
   if (!segment.winner) {
     const missing = [{ code: 'NO_OBSERVATION' }]
     totals.energyReasons.push(...missing)
     totals.emissionsReasons.push(...missing)
     return
   }
-  const projection = projectObservationSegment(segment)
+  const projection = includeProvenance ? projectObservationSegment(segment) : null
+  const winner = segment.winner
+  const measures = projection ?? projectMeasures(winner.observation, Number(segment.end - segment.start) / Number(winner.originalEnd - winner.originalStart))
   const duration = segment.end - segment.start
-  if (projection.energy.value === null) totals.energyReasons.push(...projection.energy.reasons)
+  if (measures.energy.value === null) totals.energyReasons.push(...measures.energy.reasons)
   else {
-    totals.energyTotal += projection.energy.value
+    totals.energyTotal += measures.energy.value
     totals.energyCovered += duration
-    addSummaryMethodology(projection, totals)
+    if (projection) addSummaryMethodology(projection, totals)
   }
-  if (projection.emissions.value === null) totals.emissionsReasons.push(...projection.emissions.reasons)
+  if (measures.emissions.value === null) totals.emissionsReasons.push(...measures.emissions.reasons)
   else {
-    totals.emissionsTotal += projection.emissions.value
-    if (projection.energy.value !== null) {
-      totals.emissionsEnergyKwh += projection.energy.value
+    totals.emissionsTotal += measures.emissions.value
+    if (measures.energy.value !== null) {
+      totals.emissionsEnergyKwh += measures.energy.value
       totals.hasEmissionsEnergy = true
     } else totals.hasUnmatchedEmissions = true
     totals.emissionsCovered += duration
-    addSummaryFactor(projection, totals)
+    if (projection) addSummaryFactor(projection, totals)
   }
 }
 
@@ -677,6 +692,7 @@ export function summarizePersistedEnvironmentalPeriod(
   periodStart: string,
   periodEnd: string,
   observations: readonly PersistedEnvironmentalInterval[],
+  options: { includeProvenance?: boolean } = {},
 ): PersistedEnvironmentalSummary {
   const { start, end } = parsePeriod(periodStart, periodEnd)
   const intervals = prepareIntervals(start, end, observations)
@@ -693,7 +709,7 @@ export function summarizePersistedEnvironmentalPeriod(
     }
   }
   const totals = createSummaryTotals()
-  for (const segment of resolvePreparedSegments(start, end, intervals)) addSummarySegment(segment, totals)
+  for (const segment of resolvePreparedSegments(start, end, intervals)) addSummarySegment(segment, totals, options.includeProvenance !== false)
   return finishSummary(start, end, totals)
 }
 

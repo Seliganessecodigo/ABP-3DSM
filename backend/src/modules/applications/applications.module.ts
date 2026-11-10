@@ -2,13 +2,12 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApplicationEntity } from "../../database/entities/application.entity";
 import { ApplicationsController } from "./applications.controller";
-import { ApplicationsRepository } from "./applications.repository";
 import { ApplicationsService } from "./applications.service";
 import { CollectionEvidenceService } from "./collection-evidence.service";
 import { EnvironmentalAnalysisController } from "./environmental-analysis.controller";
 import { EnvironmentalAnalysisService } from "./environmental-analysis.service";
 import { EnvironmentalAnalysisSummaryController } from "./environmental-analysis-summary.controller";
-import { EnvironmentalAnalysisSummaryService } from "./environmental-analysis-summary.service";
+import { EnvironmentalAnalysisSummaryModule } from "./environmental-analysis-summary.module";
 import { IntegrationsModule } from "../../integrations/integrations.module";
 import { DiscoveryService } from "./discovery.service";
 import { RemovalService } from "./removal.service";
@@ -41,6 +40,7 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
   imports: [
     TypeOrmModule.forFeature([ApplicationEntity, MonitoringIncidentEntity]),
     IntegrationsModule,
+    EnvironmentalAnalysisSummaryModule,
   ],
   controllers: [
     ApplicationsController,
@@ -49,11 +49,9 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     MonitoringIncidentsController,
   ],
   providers: [
-    ApplicationsRepository,
     ApplicationsService,
     CollectionEvidenceService,
     EnvironmentalAnalysisService,
-    EnvironmentalAnalysisSummaryService,
     DiscoveryService,
     RemovalService,
     MetadataSyncService,
