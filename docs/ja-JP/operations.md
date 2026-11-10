@@ -29,6 +29,8 @@ Node.js 24以上、npm、Docker Compose v2を使用。`.env.example`を`.env`に
 
 サイトでの初回アクセスは2段階です。`/setup-admin` の招待を開いて氏名とメールアドレスを入力し、続いて `/confirm-email` の確認を開いてパスワードを作成します。その後ログインし、管理者に必須の認証アプリを設定します。無効、期限切れ、使用済みリンクには再発行の案内が表示されます。トークンはURLから削除され、ページのメモリにのみ保持されます。再読み込み後は元のメールのリンクを開き直してください。SMTPは実際のメールボックスに配信する必要があります。`.test` アドレスは例です。Azureでは、運用担当者が設定済みバックエンドのコンソールで `npm run organizations:create-invitation:prod` を実行して最初の招待を発行し、招待された人がサイトで登録を完了します。`APP_BASE_URL` は公開フロントエンドを指す必要があります。`frontend/public/staticwebapp.config.json` により公開ルートに直接アクセスできます。
 
+**ユーザー** (`/administration/users`) で管理者は組織のアカウントを確認し、Googleの招待を送信できます。**自分のGoogleアカウントを連携**で自分の情報を入力し、送信を確認してから、同じメールアドレスのGoogleアカウントでメールのリンクを開きます。メールアドレスの一致だけで自動連携は行いません。新規アカウントは承諾後に表示され、未承諾の招待は含まれません。再送すると以前の招待は無効になります。既存の名前、役割、パスワードは維持され、管理者のTOTPは引き続き必須です。ステージングはGitHub変数の `VITE_GOOGLE_SSO_ENABLED` を読み取ります。バックエンドの認証情報とURLを設定してから `true` にしてください。`GOOGLE_CALLBACK_URL` は公開APIのURLに `/auth/sso/google/callback` を、`SSO_RETURN_URL` は公開フロントエンドのURLに `/sso/callback` を付けます。
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

@@ -10,6 +10,7 @@ import { SsoCallbackPage } from './pages/login/SsoCallbackPage.tsx'
 import { AccountSetupPage } from './pages/login/AccountSetupPage.tsx'
 import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
+import { AccountsPage } from './pages/accounts/AccountsPage.tsx'
 
 function App() {
   return <AuthenticationProvider><Application /></AuthenticationProvider>
@@ -28,6 +29,7 @@ function Application() {
 
 function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) {
   switch (route.kind) {
+    case 'accounts': return <AccountsPage navigate={navigate} />
     case 'setup-admin': return <AccountSetupPage key="invitation" kind="invitation" navigate={navigate} />
     case 'confirm-email': return <AccountSetupPage key="confirmation" kind="confirmation" navigate={navigate} />
     case 'login': return <LoginPage navigate={navigate} />

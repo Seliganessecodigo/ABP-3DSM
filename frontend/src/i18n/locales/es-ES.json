@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "Eliminación confirmada",
   "loading.description": "Espera a que termine la consulta. Todavía no se muestran valores.",
   "loading.processing": "Procesando…",
-  "auth.login": "Iniciar sesión"
+  "auth.login": "Iniciar sesión",
+  "nav.users": "Usuarios"
 }

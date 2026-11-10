@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'history' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
+type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'history' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'accounts' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
 function routeFromLocation(): Route {
+  if (window.location.pathname === '/administration/users' || window.location.pathname === '/administration/users/') return { kind: 'accounts' }
   if (window.location.pathname === '/setup-admin') return { kind: 'setup-admin' }
   if (window.location.pathname === '/confirm-email') return { kind: 'confirm-email' }
   if (window.location.pathname === '/sso/callback') return { kind: 'sso-callback' }

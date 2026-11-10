@@ -29,6 +29,8 @@ Node.js 24+, npm, Docker Compose v2가 필요합니다. `.env.example`을 `.env`
 
 사이트의 첫 접속은 두 단계입니다. `/setup-admin`의 초대를 열어 이름과 이메일을 입력한 뒤 `/confirm-email`의 확인 링크를 열어 비밀번호를 만듭니다. 이후 로그인하여 관리자에게 필수인 인증 앱을 설정합니다. 유효하지 않거나 만료되었거나 사용된 링크에는 새 링크 요청 안내가 표시됩니다. 토큰은 URL에서 제거되고 페이지 메모리에만 유지됩니다. 새로고침 후에는 원래 이메일 링크를 다시 여세요. SMTP는 실제 메일함으로 배달해야 하며 `.test` 주소는 예시입니다. Azure에서는 운영자가 구성된 백엔드 콘솔에서 `npm run organizations:create-invitation:prod`로 첫 초대를 발급하고, 초대받은 사람이 사이트에서 가입을 완료합니다. `APP_BASE_URL`은 게시된 프런트엔드를 가리켜야 합니다. `frontend/public/staticwebapp.config.json`은 호스팅된 경로에 직접 접근할 수 있게 합니다.
 
+관리자는 **사용자** (`/administration/users`)에서 조직 계정을 확인하고 Google 초대를 보낼 수 있습니다. **내 Google 계정 연결**로 본인 정보를 입력한 후 전송을 확인하고, 같은 이메일의 Google 계정으로 이메일 링크를 여세요. 이메일이 같다는 이유만으로 자동 연결되지 않습니다. 새 계정은 수락 후 표시되며 대기 중인 초대는 계정 목록에 포함되지 않습니다. 다시 보내면 이전 초대가 취소됩니다. 기존 이름, 역할, 비밀번호는 유지되며 관리자는 계속 TOTP가 필요합니다. 테스트 배포는 GitHub 변수 `VITE_GOOGLE_SSO_ENABLED`를 읽습니다. 백엔드 자격 증명과 URL을 설정한 뒤에만 `true`로 지정하세요. `GOOGLE_CALLBACK_URL`은 공개 API 주소에 `/auth/sso/google/callback`을, `SSO_RETURN_URL`은 공개 프런트엔드 주소에 `/sso/callback`을 붙인 값입니다.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

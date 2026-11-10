@@ -29,6 +29,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 首次在网站访问分为两步：打开 `/setup-admin` 邀请，输入姓名和邮箱，然后打开 `/confirm-email` 确认链接以创建密码。接着登录并设置管理员必需的身份验证应用。无效、过期或已使用的链接会提示如何申请新链接；令牌会从 URL 中移除，仅保留在页面内存中。刷新页面后，请重新打开原始邮件链接。SMTP 必须投递到真实邮箱；`.test` 地址仅为示例。在 Azure 上，运维人员在已配置的后端控制台运行 `npm run organizations:create-invitation:prod` 发出首次邀请，受邀者在网站完成注册。`APP_BASE_URL` 必须指向已发布的前端。`frontend/public/staticwebapp.config.json` 支持直接访问托管路由。
 
+管理员可在**用户** (`/administration/users`) 中查看组织账号并发送Google邀请。点击**关联我的Google账号**可填入自己的信息，确认发送后，使用相同邮箱的Google账号打开邮件链接。仅邮箱相同不会自动关联身份。新账号在接受邀请后显示，待处理邀请不计入账号列表。重新发送会撤销先前的邀请。现有账号保留姓名、角色和密码，管理员仍需TOTP。测试部署从GitHub变量读取 `VITE_GOOGLE_SSO_ENABLED`，仅在配置后端凭据和URL后才设置为 `true`。`GOOGLE_CALLBACK_URL` 为公开API地址加 `/auth/sso/google/callback`，`SSO_RETURN_URL` 为公开前端地址加 `/sso/callback`。
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

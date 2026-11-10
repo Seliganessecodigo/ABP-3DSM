@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "削除を確認しました",
   "loading.description": "照会が完了するまでお待ちください。値はまだ表示されていません。",
   "loading.processing": "処理中…",
-  "auth.login": "ログイン"
+  "auth.login": "ログイン",
+  "nav.users": "ユーザー"
 }
