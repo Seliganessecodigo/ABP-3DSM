@@ -40,5 +40,5 @@
   "status.ACTIVE": "有効",
   "status.BLOCKED": "ブロック中",
   "status.DEACTIVATED": "無効",
-  "emailColumn": "???????"
+  "emailColumn": "メールアドレス"
 }

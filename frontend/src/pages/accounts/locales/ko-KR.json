@@ -40,5 +40,5 @@
   "status.ACTIVE": "활성",
   "status.BLOCKED": "차단됨",
   "status.DEACTIVATED": "비활성",
-  "emailColumn": "???"
+  "emailColumn": "이메일"
 }

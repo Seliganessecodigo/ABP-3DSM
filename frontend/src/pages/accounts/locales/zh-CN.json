@@ -40,5 +40,5 @@
   "status.ACTIVE": "正常",
   "status.BLOCKED": "已封锁",
   "status.DEACTIVATED": "已停用",
-  "emailColumn": "??"
+  "emailColumn": "邮箱"
 }

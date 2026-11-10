@@ -18,7 +18,8 @@ export class AccountError extends Error {
   readonly status: number
   constructor(status: number) { super(`Accounts HTTP ${status}`); this.status = status }
 }
-const base = ((import.meta.env.VITE_API_URL as string | undefined) ?? '/api').replace(/\/+$/, '')
+let base = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+while (base.endsWith('/')) base = base.slice(0, -1)
 function record(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 export function isAccountRole(value: unknown): value is AccountRole { return value === 'ADMIN' || value === 'ANALYST' || value === 'VISITOR' }
 function parseAccount(value: unknown): Account {
