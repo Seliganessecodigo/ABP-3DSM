@@ -27,6 +27,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 Node.js 24以上、npm、Docker Compose v2を使用。`.env.example`を`.env`にコピーし`npm run dev`。Composeはmigrationと初期検出を実行し、情報源障害でもAPIを開始します。招待/確認にはSMTPを設定。初期Adminは`backend/`の`organizations:create-invitation`、変数`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`で用意します。共通の本番Adminはありません。
 
+サイトでの初回アクセスは2段階です。`/setup-admin` の招待を開いて氏名とメールアドレスを入力し、続いて `/confirm-email` の確認を開いてパスワードを作成します。その後ログインし、管理者に必須の認証アプリを設定します。無効、期限切れ、使用済みリンクには再発行の案内が表示されます。トークンはURLから削除され、ページのメモリにのみ保持されます。再読み込み後は元のメールのリンクを開き直してください。SMTPは実際のメールボックスに配信する必要があります。`.test` アドレスは例です。Azureでは、運用担当者が設定済みバックエンドのコンソールで `npm run organizations:create-invitation:prod` を実行して最初の招待を発行し、招待された人がサイトで登録を完了します。`APP_BASE_URL` は公開フロントエンドを指す必要があります。`frontend/public/staticwebapp.config.json` により公開ルートに直接アクセスできます。
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

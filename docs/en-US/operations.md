@@ -27,6 +27,8 @@ The first absence in a complete valid snapshot confirms removal. Each external c
 
 Use Node.js 24+, npm and Docker Compose v2. Copy `.env.example` to `.env` and run `npm run dev`. Compose applies migrations and attempts discovery before API startup; source failure does not prevent startup. Configure SMTP for invitations and confirmations. Provision the first Admin with `organizations:create-invitation` in `backend/`, setting `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. There is no universal production Admin account.
 
+First access on the website has two steps: open the invitation at `/setup-admin`, enter your name and email, then open the confirmation at `/confirm-email` to create your password. Next, sign in and set up the required Admin authenticator. Invalid, expired or used links explain how to request a replacement; tokens are removed from the URL and remain only in page memory. After a page reload, reopen the original email link. SMTP must deliver to a real mailbox; `.test` addresses are illustrative only. On Azure, the operator issues the first invitation from the configured backend console with `npm run organizations:create-invitation:prod`; the invited person completes registration on the website. `APP_BASE_URL` must point to the published frontend. `frontend/public/staticwebapp.config.json` enables direct access to hosted routes.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

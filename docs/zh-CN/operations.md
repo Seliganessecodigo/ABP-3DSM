@@ -27,6 +27,8 @@ MONITORING_METRICS_CONCURRENCY=2
 
 使用Node.js 24+、npm、Docker Compose v2。复制`.env.example`为`.env`，运行`npm run dev`。Compose先迁移并尝试发现，来源故障不阻止API启动。邀请/确认需要SMTP。首位Admin通过`backend/`的`organizations:create-invitation`创建，设置`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`。没有通用生产Admin账户。
 
+首次在网站访问分为两步：打开 `/setup-admin` 邀请，输入姓名和邮箱，然后打开 `/confirm-email` 确认链接以创建密码。接着登录并设置管理员必需的身份验证应用。无效、过期或已使用的链接会提示如何申请新链接；令牌会从 URL 中移除，仅保留在页面内存中。刷新页面后，请重新打开原始邮件链接。SMTP 必须投递到真实邮箱；`.test` 地址仅为示例。在 Azure 上，运维人员在已配置的后端控制台运行 `npm run organizations:create-invitation:prod` 发出首次邀请，受邀者在网站完成注册。`APP_BASE_URL` 必须指向已发布的前端。`frontend/public/staticwebapp.config.json` 支持直接访问托管路由。
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

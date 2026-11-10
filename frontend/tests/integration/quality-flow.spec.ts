@@ -32,10 +32,11 @@ test('dashboard → detail → history → back reconciles real persisted data a
   await expect(page.getByRole('heading', { name: 'Quality api', exact: true })).toBeVisible()
 
   const seriesResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/applications/quality-api/analysis/series')
+    .then(response => response.json())
   await page.getByRole('link', { name: 'Histórico', exact: true }).click()
   await expect(page).toHaveURL(/\/history\?.*period=24h/)
   await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('quality-api')
-  const series = await (await seriesResponse).json()
+  const series = await seriesResponse
   expect(series.period).toEqual(summary.period)
   expect(series.totals.energy).toEqual(detail.energy)
   expect(series.totals.emissions).toEqual(detail.emissions)

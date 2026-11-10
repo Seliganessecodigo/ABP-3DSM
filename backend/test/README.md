@@ -32,3 +32,5 @@ A credencial acima é demonstrativa, exclusiva do container de teste. A conexão
 As demais suítes de banco continuam sendo executadas pelos comandos existentes, com `TEST_DATABASE_URL` apontando para PostgreSQL descartável. Sem essa variável, os testes de banco do Jest são ignorados; a suíte do navegador falha explicitamente em vez de usar o banco da aplicação.
 
 Convite e auditoria são persistidos na mesma transação antes do envio do e-mail. Este teste não define política de entrega de e-mail nem adiciona outbox ou compensação para falhas do provedor de e-mail.
+
+`frontend/tests/integration/account-setup.spec.ts` percorre as telas de aceite de convite e criação de senha com os e-mails capturados da API real. Valida acesso ao cadastro TOTP e rejeição de link de confirmação reutilizado. O processo `quality-flow.server.ts` reserva também `127.0.0.1:4302` para consultar essa caixa de teste em memória; ela não faz parte da API de produção. As chaves demonstrativas do processo são exclusivas do banco descartável. Nenhuma mensagem é enviada a destinatários reais.

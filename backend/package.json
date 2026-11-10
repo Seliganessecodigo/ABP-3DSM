@@ -24,6 +24,7 @@
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
     "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts",
     "organizations:create-invitation": "ts-node src/scripts/create-organization-invitation.ts",
+    "organizations:create-invitation:prod": "node dist/scripts/create-organization-invitation.js",
     "auth:create-test-login": "ts-node src/scripts/create-test-login.ts",
     "authentication:recover-admin-totp": "ts-node src/scripts/recover-admin-totp.ts",
     "test:quality:server": "ts-node test/quality-flow.server.ts"

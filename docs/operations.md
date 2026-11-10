@@ -27,6 +27,8 @@ A primeira ausência em um snapshot completo e válido confirma remoção. Cada 
 
 Node.js 24+, npm e Docker Compose v2 são necessários. Copie `.env.example` para `.env` e execute `npm run dev`. O Compose aplica migrations e tenta descoberta antes da API; falha da origem não impede a API de iniciar. Configure SMTP para enviar convites e confirmações. O primeiro Admin é provisionado pelo script `organizations:create-invitation` em `backend/`, com `ORGANIZATION_NAME`, `ORGANIZATION_SLUG` e `ORGANIZATION_REPRESENTATIVE_EMAIL`. Não há conta administrativa universal de produção.
 
+O primeiro acesso pelo site segue duas etapas: abrir o convite em `/setup-admin`, informar nome e e-mail e, depois, abrir a confirmação em `/confirm-email` para criar a senha. Em seguida, entre pelo login e configure o autenticador obrigatório do Admin. Links inválidos, expirados ou utilizados exibem orientação para solicitar um novo; os tokens são retirados da URL e ficam apenas na memória da página. Ao atualizar a página, reabra o link original do e-mail. O SMTP precisa entregar mensagens a uma caixa real; endereços `.test` são apenas demonstrativos. Na Azure, o operador emite o primeiro convite no console do backend já configurado com `npm run organizations:create-invitation:prod`; a pessoa convidada conclui o cadastro pelo site. `APP_BASE_URL` deve apontar para o frontend publicado. O arquivo `frontend/public/staticwebapp.config.json` garante acesso direto às rotas na hospedagem.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS

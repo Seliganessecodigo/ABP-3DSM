@@ -27,6 +27,8 @@ La prima assenza in uno snapshot completo e valido conferma la rimozione. Ogni c
 
 Node.js 24+, npm, Docker Compose v2. Copiare `.env.example` in `.env`; eseguire `npm run dev`. Compose applica migration e tenta scoperta; errore origine non impedisce avvio API. SMTP per inviti/conferme. Primo Admin: `organizations:create-invitation` in `backend/`, con `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Nessun Admin universale di produzione.
 
+Il primo accesso al sito ha due passaggi: aprire l’invito su `/setup-admin`, inserire nome ed e-mail e poi aprire la conferma su `/confirm-email` per creare la password. Accedere quindi e configurare l’autenticatore obbligatorio dell’Admin. I link non validi, scaduti o usati spiegano come richiederne uno nuovo; i token vengono rimossi dall’URL e restano solo nella memoria della pagina. Dopo un ricaricamento, riaprire il link originale dell’e-mail. SMTP deve recapitare a una casella reale; gli indirizzi `.test` sono esempi. Su Azure, l’operatore emette il primo invito dalla console del backend configurato con `npm run organizations:create-invitation:prod`; la persona invitata completa la registrazione sul sito. `APP_BASE_URL` deve puntare al frontend pubblicato. `frontend/public/staticwebapp.config.json` consente l’accesso diretto alle rotte ospitate.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
