@@ -10,7 +10,7 @@ export function MethodologyPreview({ tab, drafts, savedTabs }: Readonly<{ tab: P
   return <section className={`${styles.card} ${styles.preview}`} aria-labelledby="preview-title">
     <p className={styles.step}>{t('stepPreview')}</p>
     <div className={styles.previewHeading}><h2 id="preview-title">{t(tab === 'analysis' ? 'analysisPreview' : 'warningsPreview')}</h2><span className={styles.badge}>{t('realData')}</span></div>
-    <p className={styles.previewDescription}>{t('realPreview')}</p>
+    {tab === 'analysis' && <p className={styles.previewDescription}>{t('analysis.previewNotice')}</p>}
     {tab === 'analysis' ? <AnalysisPreview draft={drafts.analysis} /> : <AlertPreview drafts={drafts} includedTabs={[...savedTabs, tab]} />}
     <p className={styles.previewFoot}>{t('previewReadOnly')}</p>
   </section>
