@@ -16,7 +16,7 @@ Na série temporal, alterne entre energia e CO₂e ou consulte a tabela de inter
 
 Abra o detalhe para conferir identidade, localização, estado e horários de atualização. Examine as métricas e os resultados ambientais no mesmo período. A consulta da metodologia apresenta o modelo, os parâmetros e o fator de carbono registrados no cálculo, sem modificar o resultado. Quando a cidade não estiver disponível, as demais informações de localização continuam úteis.
 
-O fator equivalente resume os fatores regionais aplicados, ponderados pela energia com emissões calculadas. A explicação do cálculo usa essa energia, que pode ser menor que a energia total quando faltam fatores em parte do período. Abra os detalhes do fator para conferir valores e fontes por região.
+O fator equivalente resume os fatores regionais aplicados, ponderados pela energia com emissões calculadas. A explicação do cálculo usa essa energia, que pode ser menor que a energia total quando faltam fatores em parte do período. Consulte a metodologia para conferir valores e fontes por região. O card do fator mantém a mesma altura dos demais indicadores, sem expansão interna.
 
 ## Explorar o histórico {#history}
 

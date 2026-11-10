@@ -8,8 +8,8 @@ O quadro do Dashboard apresentava um aviso permanente, sem consultar ou desenhar
 - O backend resolve sobreposições dentro de cada aplicação antes de somar aplicações. Preserva valores nulos, zero legítimo, coberturas independentes, versões e resultados persistidos. Não consulta fatores atuais na leitura.
 - O fator equivalente divide as emissões persistidas pela energia dos mesmos segmentos calculáveis. Por exemplo, 1 kWh com 85 gCO₂e e 3 kWh com 345 gCO₂e resultam em 430 gCO₂e e fator equivalente de 107,5 gCO₂e/kWh. Não é uma nova fonte regional nem uma média aritmética de snapshots.
 - Quando há energia sem fator, ela continua no total de energia, mas não entra no denominador do fator equivalente. A fórmula identifica a energia com CO₂e calculado. Energia zero, ausência de energia ou emissões sem energia correspondente não produzem intensidade inventada.
-- O card apresenta o número e expande apenas a explicação, os valores regionais e as fontes. A metodologia conserva a proveniência completa. Sem intensidade equivalente, o card exibe o valor uniforme ou uma faixa numérica, sem calcular médias no navegador.
-- A altura dos cards acompanha o conteúdo para evitar sobreposição de controles. No celular, o fator ocupa a largura disponível.
+- O card apresenta o número, com a mesma altura dos demais indicadores e sem expansão interna. A explicação, os valores regionais, as fontes e a proveniência completa ficam na metodologia. Sem intensidade equivalente, o card exibe o valor uniforme ou uma faixa numérica, sem calcular médias no navegador.
+- Os indicadores da mesma linha mantêm alturas iguais. No celular, o fator ocupa a largura disponível.
 
 ## Verificação e limites
 

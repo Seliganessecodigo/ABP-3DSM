@@ -16,7 +16,7 @@ En la serie temporal, alterne entre energía y CO₂e o consulte la tabla de int
 
 Abra el detalle para comprobar identidad, ubicación, estado y horas de actualización. Examine métricas y resultados ambientales del mismo período. La metodología registrada muestra el modelo, los parámetros y el factor de carbono utilizados sin modificar el resultado. Si falta la ciudad, el resto de la ubicación sigue siendo útil.
 
-El factor equivalente resume los factores regionales aplicados, ponderados por la energía con emisiones calculadas. La explicación usa esa energía, que puede ser menor que el total si faltan factores en parte del período. Abra los detalles para consultar valores y fuentes por región.
+El factor equivalente resume los factores regionales aplicados, ponderados por la energía con emisiones calculadas. La explicación usa esa energía, que puede ser menor que el total si faltan factores en parte del período. Consulte la metodología para consultar valores y fuentes por región. La tarjeta del factor mantiene la misma altura que los demás indicadores, sin expansión interna.
 
 ## Explorar el historial {#history}
 

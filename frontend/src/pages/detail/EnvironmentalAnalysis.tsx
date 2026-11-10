@@ -138,7 +138,6 @@ type Labels = Readonly<{
   previousPreserved: string
   retry: string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
-  viewFactorDetails: string
   validDataInPeriod: string
 }>
 
@@ -239,7 +238,7 @@ function Sparkline({ points, metric }: Readonly<{ points: readonly AnalysisSerie
   return <svg data-metric-sparkline="true" className={styles.sparkline} viewBox="0 0 64 20" aria-hidden="true"><polyline points={coordinates} /></svg>
 }
 
-function FactorCard({ factor, calculation, locale, labels, showDetails = false }: Readonly<{ factor: AnalysisFactorResult | null; calculation?: AnalysisViewModel['calculation']; locale: string; labels: Labels; showDetails?: boolean }>) {
+function FactorCard({ factor, calculation, locale, labels }: Readonly<{ factor: AnalysisFactorResult | null; calculation?: AnalysisViewModel['calculation']; locale: string; labels: Labels }>) {
   const intensity = calculation?.intensity
   const equivalent = typeof intensity === 'number'
   const value = equivalent ? `${formatNumber(intensity, locale)} gCO2e/kWh` : factorPresentation(factor, locale)
@@ -259,15 +258,7 @@ function FactorCard({ factor, calculation, locale, labels, showDetails = false }
     {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
       {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
     </p>}
-    {factor?.status === 'available' && showDetails && <details className={styles.factorSummary}>
-      <summary>{labels.viewFactorDetails}</summary>
-      <p>{labels.factorExplanation}</p>
-      <dl>{[...new Map(factor.factors.map((entry) => [JSON.stringify([entry.regionCode || entry.region, entry.intensity, entry.unit, entry.source]), entry])).values()].map((entry) =>
-        <div key={JSON.stringify([entry.regionCode || entry.region, entry.intensity, entry.unit, entry.source])}>
-          <dt>{entry.regionCode || entry.region}</dt>
-          <dd>{factorPresentation({ status: 'available', factors: [entry] }, locale) ?? labels.metricUnavailable}{entry.source ? ` · ${entry.source}` : ''}</dd>
-        </div>)}</dl>
-    </details>}
+
   </fieldset>
 }
 
@@ -396,6 +387,7 @@ function FactorProvenance({ factors, formatDate, labels }: Readonly<{
   if (factors.length === 0) return null
   return <section className={styles.provenance} aria-labelledby="analysis-factors-heading">
     <h2 id="analysis-factors-heading">{labels.factorsHeading}</h2>
+    <p>{labels.factorExplanation}</p>
     <div className={styles.factorList}>
       {factors.map((factor) => <FactorEntry key={`${factor.version}-${factor.region}-${typeof factor.queriedAt === 'string' ? factor.queriedAt : `${factor.queriedAt.from}-${factor.queriedAt.to}`}`}
         factor={factor} formatDate={formatDate} labels={labels} />)}
@@ -594,7 +586,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
             <CoverageCard data={data} locale={locale} labels={labels} compact />
             <ContextCard data={data} locale={locale} labels={labels} />
           </>
-          : <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} showDetails />}
+          : <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
       </div>}
     </section>
     <aside className={styles.coverageColumn} aria-label={labels.coverage}>

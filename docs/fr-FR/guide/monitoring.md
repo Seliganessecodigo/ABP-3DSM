@@ -16,7 +16,7 @@ Dans la série temporelle, alternez entre énergie et CO₂e ou consultez le tab
 
 Ouvrez le détail pour vérifier identité, localisation, état et horaires de mise à jour. Examinez métriques et résultats environnementaux sur la même période. La méthodologie enregistrée présente modèle, paramètres et facteur de carbone utilisés sans modifier le résultat. Sans ville disponible, les autres informations géographiques restent utiles.
 
-Le facteur équivalent résume les facteurs régionaux appliqués, pondérés par l’énergie avec des émissions calculées. L’explication utilise cette énergie, qui peut être inférieure au total si des facteurs manquent sur une partie de la période. Ouvrez les détails pour consulter les valeurs et les sources par région.
+Le facteur équivalent résume les facteurs régionaux appliqués, pondérés par l’énergie avec des émissions calculées. L’explication utilise cette énergie, qui peut être inférieure au total si des facteurs manquent sur une partie de la période. Consultez la méthodologie pour vérifier les valeurs et les sources par région. La carte du facteur conserve la même hauteur que les autres indicateurs, sans extension interne.
 
 ## Explorer l’historique {#history}
 

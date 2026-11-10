@@ -16,7 +16,7 @@ In the time series, switch between energy and CO₂e or open the interval table.
 
 Open application details to check identity, location, state and update times. Examine metrics and environmental results for the same period. Recorded methodology shows the model, parameters and carbon factor used in the calculation without changing the result. If the city is unavailable, the other location details remain useful.
 
-The equivalent factor summarizes the applied regional factors, weighted by energy with calculated emissions. The calculation explanation uses this energy, which may be lower than total energy when factors are missing for part of the period. Open factor details to check values and sources by region.
+The equivalent factor summarizes the applied regional factors, weighted by energy with calculated emissions. The calculation explanation uses this energy, which may be lower than total energy when factors are missing for part of the period. Consult the methodology to check values and sources by region. The factor card keeps the same height as the other indicators, without expanding inside the card.
 
 ## Explore history {#history}
 
