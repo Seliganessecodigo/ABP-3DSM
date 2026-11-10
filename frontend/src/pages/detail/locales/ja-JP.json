@@ -233,5 +233,7 @@
   "historyRecalculationPreview": "再計算プレビュー",
   "analysisEquivalentFactor": "等価排出係数",
   "analysisFactorExplanation": "排出量は各期間の計算結果の合計です。等価排出係数は、CO₂eを計算できたエネルギー量で重み付けした適用係数の要約です。",
-  "analysisEnergyWithEmissions": "CO₂eを計算できたエネルギー"
+  "analysisEnergyWithEmissions": "CO₂eを計算できたエネルギー",
+  "periods.month": "今月（UTC）",
+  "periods.custom": "期間を指定"
 }

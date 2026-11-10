@@ -68,6 +68,20 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
     expect((await fetch(`${origin}/me/preferences`)).status).toBe(401)
     expect((await request('', 'invalid')).status).toBe(401)
     expect((await request('/energy', 'invalid', { expectedRevision: 0, value: energy })).status).toBe(401)
+    expect((await fetch(`${origin}/me/preferences/alerts`)).status).toBe(401)
+  })
+  it('avalia apenas limites próprios e permite prévia pública sem gravar preferências', async () => {
+    const period = { kind: 'custom', from: '2026-10-01T00:00:00.000Z', to: '2026-10-02T00:00:00.000Z' }
+    const modern = { threshold: 0, alertsEnabled: true, scope: 'application', unit: 'kWh', period }
+    const before = await database.getRepository(UserPreferenceEntity).countBy({ userId: user.id })
+    const preview = await fetch(`${origin}/me/preferences/alerts/preview`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ energy: modern, emissions: null, coverage: null }) })
+    expect(preview.status).toBe(200)
+    expect(await preview.json()).toMatchObject({ configured: true })
+    expect(await database.getRepository(UserPreferenceEntity).countBy({ userId: user.id })).toBe(before)
+    expect((await request('/energy', token, { expectedRevision: 0, value: modern })).status).toBe(200)
+    expect(await (await request('/alerts?userId=another-user')).json()).toMatchObject({ configured: true })
+    const other = await database.getRepository(UserEntity).save({ organizationId: organization.id, email: `${randomUUID()}@example.test`, name: 'Other', role: UserRole.ANALYST, emailVerifiedAt: new Date() })
+    expect(await (await request('/alerts', await session(other))).json()).toMatchObject({ configured: false, applications: [] })
   })
   it.each([UserRole.ADMIN, UserRole.ANALYST, UserRole.VISITOR])('permite ao %s salvar apenas suas preferências', async (role) => {
     user.role = role

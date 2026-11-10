@@ -76,3 +76,7 @@ staging从`develop`通过CI后将API发布Azure App Service，frontend发布Stat
 ## 相关阅读 {#related}
 
 [开始使用](./getting-started) · [API参考](./reference/api)
+
+## 诊断响应缓慢 {#response-performance}
+
+在认定数据库是原因之前，请比较首字节时间、响应大小和执行计划。仪表板以 `includeProvenance=false` 查询 `/analysis/summary`，保留数值、覆盖率和时间序列，并返回 `provenanceIncluded=false`，不包含来源列表。完整查询仍为默认方式。精简投影不传输每次采集的因子；计算过程已排序时间区间，因此省去数据库的重复排序。

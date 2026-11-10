@@ -18,6 +18,8 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 - Campos de texto, datas, números e selects usam `form-control`, com fonte herdada, borda, seta de seleção, foco, erro e estado desabilitado compartilhados. A densidade padrão tem 44 px; `form-control--compact` tem 36 px em paginação no desktop e 44 px em telas pequenas/toque; `form-control--large` tem 50 px nos formulários de login e preferências. CSS da página mantém largura e composição; não redefine a aparência básica desses campos. Campos numéricos de destaque e buscas com ícone mantêm suas composições específicas.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
 
+`features/preferences/` concentra contratos HTTP, períodos, avisos e padrões pessoais. `components/PersonalAlerts` é compartilhado entre prévia, catálogo, Dashboard e detalhe; a avaliação permanece no backend. `components/EnvironmentalSeries` apresenta a série no Dashboard e na prévia real. `pages/methodology/useRealPreviews` coordena cancelamento e espera curta durante a edição, sem persistir rascunhos. Períodos personalizados preservam início, fim e granularidade na URL.
+
 ## Limites de propriedade
 
 - Cada tela é dona do seu fluxo, estado, textos e estilos. Não adicione conteúdo de tela ao `App.tsx`, ao CSS global ou ao namespace de tradução compartilhado.

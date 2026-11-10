@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { EnvironmentalSummary } from '../../features/analysis/environmentalSummary.ts'
-import { formatNumber } from '../../utils/formatNumber.ts'
-import styles from './DashboardSeries.module.css'
+import type { EnvironmentalSummary } from '../features/analysis/environmentalSummary.ts'
+import { formatNumber } from '../utils/formatNumber.ts'
+import styles from './EnvironmentalSeries.module.css'
 
-export function DashboardSeries({ series, locale }: Readonly<{ series: EnvironmentalSummary['series']; locale: string }>) {
+export function EnvironmentalSeries({ series, locale }: Readonly<{ series: EnvironmentalSummary['series']; locale: string }>) {
   const { t } = useTranslation('dashboard')
   const [mode, setMode] = useState<'graph' | 'table'>('graph')
   const [metric, setMetric] = useState<'energy' | 'emissions'>('emissions')

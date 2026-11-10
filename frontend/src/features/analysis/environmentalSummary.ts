@@ -30,6 +30,8 @@ export type EnvironmentalSummaryPoint = Readonly<{
 
 export type EnvironmentalSummaryFilters = Readonly<{
   period: PeriodPreset
+  granularity?: 'hour' | 'day' | 'month' | 'year'
+  range?: Readonly<{ from: string; to: string }>
   anchor: string
   state: EnvironmentalSummaryState | null
   regionCode: string
@@ -65,7 +67,9 @@ function readState(value: unknown): EnvironmentalSummaryState {
 
 export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readonly<{ from: string; to: string }>): EnvironmentalSummary {
   if (!isRecord(value) || (value.status !== 'available' && value.status !== 'empty') ||
-    !isRecord(value.period) || value.period.from !== expectedPeriod.from || value.period.to !== expectedPeriod.to ||
+    !isRecord(value.period) || typeof value.period.from !== 'string' || typeof value.period.to !== 'string' ||
+    !Number.isFinite(Date.parse(expectedPeriod.from)) || !Number.isFinite(Date.parse(expectedPeriod.to)) ||
+    Date.parse(value.period.from) !== Date.parse(expectedPeriod.from) || Date.parse(value.period.to) !== Date.parse(expectedPeriod.to) ||
     !(value.dataAsOf === null || typeof value.dataAsOf === 'string' && Number.isFinite(Date.parse(value.dataAsOf))) ||
     !isRecord(value.totals) || !isRecord(value.coverage) || !isRecord(value.states) ||
     !Array.isArray(value.applications) || !isRecord(value.provenance) ||
@@ -154,8 +158,8 @@ function readSeriesPoint(point: unknown, expectedPeriod: Readonly<{ from: string
 }
 
 export async function getEnvironmentalSummary(filters: EnvironmentalSummaryFilters, signal: AbortSignal): Promise<EnvironmentalSummary> {
-  const range = analysisRangeFor(filters.period, new Date(filters.anchor))
-  const params = new URLSearchParams({ ...range, granularity: filters.period === '24h' ? 'hour' : 'day' })
+  const range = analysisRangeFor(filters.period, new Date(filters.anchor), filters.range)
+  const params = new URLSearchParams({ ...range, includeProvenance: 'false', granularity: filters.granularity ?? (filters.period === '24h' ? 'hour' : 'day') })
   if (filters.state) params.append('states', filters.state)
   if (filters.regionCode) params.append('regionCodes', filters.regionCode)
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')

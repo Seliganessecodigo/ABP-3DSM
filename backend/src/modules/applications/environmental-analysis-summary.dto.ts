@@ -58,6 +58,9 @@ export class EnvironmentalAnalysisSummarySeriesDto {
 }
 
 export class EnvironmentalAnalysisSummaryDto {
+  @ApiProperty({ type: Boolean, required: false, description: 'False when provenance was explicitly excluded from this response.' })
+  provenanceIncluded?: boolean
+
   @ApiProperty({ type: EnvironmentalAnalysisSummarySeriesDto, required: false })
   series?: EnvironmentalAnalysisSummarySeriesDto
 

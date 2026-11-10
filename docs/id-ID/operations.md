@@ -76,3 +76,7 @@ Staging dari `develop` setelah CI: API ke Azure App Service, frontend ke Static 
 ## Bacaan terkait {#related}
 
 [Memulai](./getting-started) · [Referensi API](./reference/api)
+
+## Mendiagnosis respons lambat {#response-performance}
+
+Bandingkan waktu hingga byte pertama, ukuran respons dan rencana eksekusi sebelum menyalahkan basis data. Dashboard meminta `/analysis/summary` dengan `includeProvenance=false`: nilai, cakupan dan deret waktu dipertahankan; respons menunjukkan `provenanceIncluded=false` tanpa daftar asal data. Kueri lengkap tetap menjadi bawaan. Proyeksi ringkas tidak mengirim faktor setiap pengumpulan; perhitungan sudah mengurutkan interval sehingga pengurutan kedua dalam basis data tidak diperlukan.

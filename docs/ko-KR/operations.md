@@ -76,3 +76,7 @@ staging은 `develop`에서 CI 후 API를 Azure App Service, frontend를 Static W
 ## 관련 문서 {#related}
 
 [시작하기](./getting-started) · [API 참조](./reference/api)
+
+## 느린 응답 진단 {#response-performance}
+
+데이터베이스를 원인으로 판단하기 전에 첫 바이트까지의 시간, 응답 크기와 실행 계획을 비교하세요. 대시보드는 `includeProvenance=false`로 `/analysis/summary`를 조회합니다. 값, 커버리지와 시계열은 유지하며 응답에 `provenanceIncluded=false`를 표시하고 출처 목록은 제외합니다. 전체 조회는 계속 기본값입니다. 간소화된 투영은 수집마다 저장된 계수를 전송하지 않으며, 계산에서 구간을 정렬하므로 데이터베이스의 중복 정렬을 생략합니다.

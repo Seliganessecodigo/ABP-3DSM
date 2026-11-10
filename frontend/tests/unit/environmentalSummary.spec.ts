@@ -63,6 +63,11 @@ test('summary rejects a mismatched interval, invalid coverage and duplicate iden
   expect(() => parseEnvironmentalSummary(summary({ applications: [...summary().applications, ...summary().applications] }), period)).toThrow()
 })
 
+test('custom periods accept equivalent server timestamps with a different UTC offset', () => {
+  const expected = { from: '2026-09-30T21:00:00-03:00', to: '2026-10-07T21:00:00-03:00' }
+  expect(parseEnvironmentalSummary(summary(), expected).period).toEqual(expected)
+})
+
 const seriesPeriod = { from: '2026-10-08T10:00:00.000Z', to: '2026-10-08T11:00:00.000Z' }
 const measure = { value: null, unit: 'kWh', reasons: [] }
 function seriesResponse() {

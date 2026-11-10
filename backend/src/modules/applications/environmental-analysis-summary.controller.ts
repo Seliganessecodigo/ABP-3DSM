@@ -53,6 +53,7 @@ export class EnvironmentalAnalysisSummaryController {
       'Inclui série UTC no mesmo escopo; limite de 10.000 intervalos.',
   })
   @ApiOkResponse({ type: EnvironmentalAnalysisSummaryDto })
+  @ApiQuery({ name: 'includeProvenance', required: false, enum: ['true', 'false'], description: 'Defaults to true. Use false for dashboards that only consume totals and series; provenanceIncluded is then false and provenance arrays are empty.' })
   @ApiBadRequestResponse({ description: 'Período ou filtros inválidos' })
   @ApiServiceUnavailableResponse({
     description: 'Resumo ambiental indisponível',
@@ -61,6 +62,7 @@ export class EnvironmentalAnalysisSummaryController {
     @Query() query: Record<string, string | string[] | undefined>,
   ): Promise<EnvironmentalAnalysisSummaryDto> {
     return this.summary.getSummary({
+      includeProvenance: query.includeProvenance === undefined ? undefined : (scalar(query.includeProvenance) ?? 'invalid'),
       granularity:
         query.granularity === undefined
           ? undefined

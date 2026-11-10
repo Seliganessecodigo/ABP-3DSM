@@ -1,6 +1,7 @@
 ﻿import { useEffect, useRef, useState } from 'react'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { emptyPreferences, getPreferences, PreferenceError, savePreference, type PreferenceDraft, type Preferences, type PreferenceTab } from '../../features/preferences/api.ts'
+import { validPreferencePeriod } from '../../features/preferences/period.ts'
 export { preferenceTabs, type PreferenceTab, type PreferenceDraft } from '../../features/preferences/api.ts'
 
 // Examples only seed the preview; they are never active preferences.
@@ -36,7 +37,7 @@ export function usePreferenceDraft() {
   const draft = drafts[tab]
   const dirty = JSON.stringify(draft) !== JSON.stringify(active[tab]?.draft ?? examples[tab])
   const numericValue = draft.value.trim() === '' ? null : Number(draft.value)
-  const valid = tab === 'analysis' || numericValue !== null && Number.isFinite(numericValue) && numericValue >= 0 && (tab !== 'coverage' || numericValue <= 100)
+  const valid = (!draft.evaluationPeriod || validPreferencePeriod(draft.evaluationPeriod)) && (tab === 'analysis' || numericValue !== null && Number.isFinite(numericValue) && numericValue >= 0 && (tab !== 'coverage' || numericValue <= 100))
   const currentUser = user?.id ?? null
 
   useEffect(() => {

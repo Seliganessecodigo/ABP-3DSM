@@ -103,7 +103,7 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 
 ## विश्लेषण व्यक्तिगत बनाएँ {#preferences}
 
-`/methodology` में ऊर्जा, उत्सर्जन, कवरेज और विश्लेषण टैब में उदाहरण/व्यक्तिगत प्राथमिकताएँ हैं। प्रत्येक प्रमाणित भूमिका केवल अपने टैब सहेजती है, optimistic revision संघर्ष पर 409। प्रदर्शन सीमाएँ वैश्विक सेटिंग, गणना या बाहरी सूचना नहीं बदलतीं। सहेजी अवधि/समूह केवल विवरण URL में अनुपस्थित विकल्प भरते हैं। ऐतिहासिक पद्धति `/services/:id/methodology` और चुने `collectionId` से उपलब्ध है।
+`/methodology` में हर अनुप्रयोग के लिए ऊर्जा और उत्सर्जन सीमा, कवरेज संदर्भ तथा विश्लेषण के शुरुआती विकल्प तय करें। पिछले 24 घंटे, 7, 30 या 90 दिन, UTC का वर्तमान महीना या अपनी समय सीमा चुनें; शुरुआत शामिल है और अंत शामिल नहीं है। पूर्वावलोकन बिना सहेजे वास्तविक डेटा पढ़ता है और अनुप्रयोग तथा डैशबोर्ड वाला ही चेतावनी पैनल दिखाता है। सहेजने के लिए लॉगिन ज़रूरी है और बदलाव केवल आपके खाते पर लागू होता है; गणना, इतिहास और परिचालन स्थिति नहीं बदलती। चेतावनियाँ पृष्ठ के फ़िल्टर से अलग हर सीमा की अवधि का उपयोग करती हैं। विश्लेषण के शुरुआती विकल्प डैशबोर्ड और विवरण के URL में अनुपस्थित विकल्प ही भरते हैं। सीमा से कम आंशिक डेटा अनुपालन सिद्ध नहीं करता; अनुपस्थित डेटा कभी शून्य नहीं है।
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -116,10 +116,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## त्रुटि प्रबंधन {#errors}
 

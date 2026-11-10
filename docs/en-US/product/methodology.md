@@ -47,3 +47,7 @@ In recalculation preview, select an application and dates to compare the origina
 ## Related reading {#related}
 
 [User guide](../guide/monitoring) · [API reference](../reference/api)
+
+## Preferences applied to real data {#personal-preferences}
+
+In `/methodology`, configure per-application energy and emissions limits, coverage thresholds and analysis defaults. Choose the last 24 hours, 7, 30 or 90 days, the current UTC month or a custom interval with an inclusive start and exclusive end. The preview reads real data without saving and uses the same warning panel as applications and the Dashboard. Saving requires login and affects only your account; calculations, history and operational states remain intact. Warnings use each limit’s period independently of page filters. Analysis defaults fill only missing URL options on the Dashboard and detail pages. Partial data below a limit does not prove compliance; missing data never means zero.

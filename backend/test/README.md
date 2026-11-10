@@ -34,3 +34,7 @@ As demais suítes de banco continuam sendo executadas pelos comandos existentes,
 Convite e auditoria são persistidos na mesma transação antes do envio do e-mail. Este teste não define política de entrega de e-mail nem adiciona outbox ou compensação para falhas do provedor de e-mail.
 
 `frontend/tests/integration/account-setup.spec.ts` percorre as telas de aceite de convite e criação de senha com os e-mails capturados da API real. Valida acesso ao cadastro TOTP e rejeição de link de confirmação reutilizado. O processo `quality-flow.server.ts` reserva também `127.0.0.1:4302` para consultar essa caixa de teste em memória; ela não faz parte da API de produção. As chaves demonstrativas do processo são exclusivas do banco descartável. Nenhuma mensagem é enviada a destinatários reais.
+
+## Preferências e dados reais
+
+`frontend/tests/integration/preference-effects.spec.ts` salva limites e período personalizado, compara prévia e avisos do Dashboard e confirma que os totais públicos não mudam. O servidor cria somente no banco isolado um Analyst `preferences@example.test`, com senha demonstrativa de fixture. Não cria contas ou convites em ambientes publicados.

@@ -76,3 +76,7 @@ Staging part de `develop` après CI : API dans Azure App Service, frontend dans 
 ## Lectures associées {#related}
 
 [Démarrage](./getting-started) · [Référence de l’API](./reference/api)
+
+## Diagnostiquer les lenteurs {#response-performance}
+
+Comparez le délai du premier octet, la taille de la réponse et le plan d’exécution avant d’incriminer la base. Le Dashboard consulte `/analysis/summary` avec `includeProvenance=false` : valeurs, couverture et série sont conservées ; la réponse indique `provenanceIncluded=false` et exclut les listes de traçabilité. La requête complète reste disponible par défaut. La projection compacte ne transfère pas les facteurs de chaque collecte ; le calcul trie les intervalles et évite un second tri dans la base.

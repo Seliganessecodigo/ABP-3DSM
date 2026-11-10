@@ -103,7 +103,7 @@ En `/administration/calculations`, compare original y vista previa por aplicaci�
 
 ## Personalizar el análisis {#preferences}
 
-`/methodology` ofrece pestañas de energía, emisiones, cobertura y análisis con ejemplos y preferencias personales. Cualquier rol autenticado guarda solo sus propias pestañas, con revisión optimista y 409 ante conflicto. Los límites visuales no cambian cálculos, configuración global ni notificaciones externas. Período/granularidad guardados completan solo parámetros ausentes en URL. Evidencia histórica: `/services/:id/methodology`, con `collectionId` seleccionado.
+En `/methodology`, configura límites de energía y emisiones por aplicación, la referencia de cobertura y los valores iniciales del análisis. Elige las últimas 24 horas, 7, 30 o 90 días, el mes actual en UTC o un intervalo personalizado con inicio incluido y fin excluido. La vista previa consulta datos reales sin guardar y utiliza el mismo panel de avisos que las aplicaciones y el Dashboard. Guardar exige iniciar sesión y afecta solo a tu cuenta; no modifica cálculos, historial ni estados operativos. Los avisos usan el período de cada límite independientemente de los filtros. Los valores iniciales solo completan opciones ausentes en la URL del Dashboard y del detalle. Los datos parciales inferiores al límite no demuestran su cumplimiento; la ausencia nunca equivale a cero.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -116,10 +116,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## Tratamiento de errores {#errors}
 

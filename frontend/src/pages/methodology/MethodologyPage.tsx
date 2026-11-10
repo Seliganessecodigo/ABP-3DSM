@@ -46,6 +46,13 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   const unit = tab === 'energy' ? 'kWh' : 'kg CO₂e'
   const number = (value: string) => new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR', { maximumFractionDigits: 6 }).format(Number(value))
   function preferenceText(value: typeof draft) {
+    if (value.evaluationPeriod) {
+      const period = value.evaluationPeriod
+      const date = (instant: string) => new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(instant))
+      const label = period.kind === 'custom' ? period.from && period.to ? `${date(period.from)} → ${date(period.to)} UTC` : t('invalidValue') : t(`evaluationPeriod.${period.kind}`)
+      if (tab === 'analysis') return `${label} · ${t(value.granularity)}`
+      return `${number(value.value)} ${tab === 'coverage' ? '%' : unit} · ${label}`
+    }
     if (tab === 'analysis') return `${t('days', { count: Number(value.period) })} • ${t(value.granularity)}`
     if (tab === 'coverage') return t('activeCoverage', { value: number(value.value), status: t(value.enabled ? 'enabled' : 'disabled') })
     return t('activeLimit', { value: number(value.value), unit })
@@ -87,7 +94,7 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
           {!valid && <p className={styles.saveError} role="alert">{t('invalidValue')}</p>}
         </form>
       </section>
-      <MethodologyPreview tab={tab} drafts={state.drafts} />
+      <MethodologyPreview tab={tab} drafts={state.drafts} savedTabs={preferenceTabs.filter(item => Boolean(state.active[item]))} />
     </div>
     <footer className={styles.footer}><div><strong>{t(`tabs.${tab}`)} • {t(statusKey)}</strong><p>{t('saveNote')}</p></div><div className={styles.actions}><ActionButton appearance="secondary" onClick={state.cancel} disabled={!dirty || saving}>{t('cancel')}</ActionButton><ActionButton onClick={save} pending={saving} disabled={!valid || state.loadState !== 'ready' || !!active && !dirty}>{t(saving ? 'saving' : 'save')}</ActionButton></div></footer>
     {saveError && !pendingTab && savingUnavailable}

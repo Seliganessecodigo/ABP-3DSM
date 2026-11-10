@@ -2,7 +2,7 @@
 export function analysisNavigationUrl(destination: '/dashboard' | '/history', location: Pick<Location, 'pathname' | 'search'>): string {
   const current = new URLSearchParams(location.search)
   const next = new URLSearchParams()
-  const keys = destination === '/history' ? ['period', 'granularity', 'seriesTimeZone'] : ['period']
+  const keys = destination === '/history' ? ['period', 'granularity', 'from', 'to', 'seriesTimeZone'] : ['period', 'granularity', 'from', 'to']
   for (const key of keys) {
     const value = current.get(key)
     if (value !== null) next.set(key, value)

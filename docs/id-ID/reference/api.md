@@ -103,7 +103,7 @@ Di `/administration/calculations`, pilih aplikasi/tanggal untuk membandingkan as
 
 ## Personalisasi analisis {#preferences}
 
-`/methodology` memiliki tab energi, emisi, cakupan dan analisis dengan contoh/preferensi pribadi. Setiap peran terautentikasi hanya menyimpan tab sendiri, dengan revisi optimistis; konflik 409. Ambang tampilan tidak mengubah pengaturan global, hitungan atau notifikasi eksternal. Periode/granularitas tersimpan hanya mengisi parameter detail URL yang kosong. Metodologi historis tetap di `/services/:id/methodology`, dengan `collectionId` terpilih.
+Di `/methodology`, atur batas energi dan emisi per aplikasi, acuan cakupan serta nilai awal analisis. Pilih 24 jam, 7, 30 atau 90 hari terakhir, bulan berjalan dalam UTC atau rentang khusus dengan awal disertakan dan akhir dikecualikan. Pratinjau membaca data nyata tanpa menyimpan dan memakai panel peringatan yang sama dengan aplikasi dan Dashboard. Penyimpanan memerlukan login dan hanya memengaruhi akun Anda; perhitungan, riwayat dan status operasional tetap utuh. Peringatan menggunakan periode setiap batas terlepas dari filter halaman. Nilai awal analisis hanya mengisi opsi yang tidak ada di URL Dashboard dan detail. Data parsial di bawah batas tidak membuktikan kepatuhan; data yang hilang tidak pernah berarti nol.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -116,10 +116,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## Penanganan kesalahan {#errors}
 

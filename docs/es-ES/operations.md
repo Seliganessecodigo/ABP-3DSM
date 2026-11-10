@@ -76,3 +76,7 @@ Staging parte de `develop` tras CI: API en Azure App Service, frontend en Static
 ## Lecturas relacionadas {#related}
 
 [Primeros pasos](./getting-started) · [Referencia de la API](./reference/api)
+
+## Diagnosticar respuestas lentas {#response-performance}
+
+Compara el tiempo hasta el primer byte, el tamaño de respuesta y el plan de ejecución antes de atribuir la lentitud a la base de datos. El Dashboard consulta `/analysis/summary` con `includeProvenance=false`: conserva valores, cobertura y serie, e indica `provenanceIncluded=false` sin listas de trazabilidad. La consulta completa sigue siendo la predeterminada. La proyección compacta no transfiere factores de cada recogida; el cálculo ordena los intervalos y evita otra ordenación en la base de datos.

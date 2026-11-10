@@ -233,5 +233,7 @@
   "historyRecalculationPreview": "पुनर्गणना पूर्वावलोकन",
   "analysisEquivalentFactor": "समतुल्य कारक",
   "analysisFactorExplanation": "उत्सर्जन प्रत्येक अंतराल की गणनाओं का योग है। समतुल्य कारक लागू कारकों का सार है, जिसे गणना किए गए CO₂e वाली ऊर्जा से भारित किया जाता है।",
-  "analysisEnergyWithEmissions": "गणना किए गए CO₂e वाली ऊर्जा"
+  "analysisEnergyWithEmissions": "गणना किए गए CO₂e वाली ऊर्जा",
+  "periods.month": "वर्तमान महीना (UTC)",
+  "periods.custom": "कस्टम अंतराल"
 }

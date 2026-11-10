@@ -18,10 +18,13 @@ function currentAnchor(): string {
 
 export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'> | null) {
   const period = filters?.period ?? null
+  const granularity = filters?.granularity
+  const rangeFrom = filters?.range?.from
+  const rangeTo = filters?.range?.to
   const state = filters?.state ?? null
   const regionCode = filters?.regionCode ?? ''
   const [anchor, setAnchor] = useState(currentAnchor)
-  const key = period === null ? 'invalid-period' : JSON.stringify([period, state, regionCode])
+  const key = period === null ? 'invalid-period' : JSON.stringify([period, state, regionCode, granularity, rangeFrom, rangeTo])
   const [summary, setSummary] = useState<SummaryState>({
     key, status: filters === null ? 'invalid-period' : 'loading', data: null, lastAttemptAt: null,
   })
@@ -39,7 +42,7 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
     let timer: ReturnType<typeof setTimeout> | undefined
     const previous = successful.current?.key === key ? successful.current : null
     const lastAttemptAt = new Date().toISOString()
-    const requestFilters: EnvironmentalSummaryFilters = { period, anchor, state, regionCode }
+    const requestFilters: EnvironmentalSummaryFilters = { period, anchor, state, regionCode, granularity, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}) }
     setSummary({ key, status: previous ? 'refreshing' : 'loading', data: previous?.data ?? null, lastAttemptAt })
 
     void getEnvironmentalSummary(requestFilters, controller.signal).then((data) => {
@@ -62,7 +65,7 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
       if (timer !== undefined) clearTimeout(timer)
       controller.abort()
     }
-  }, [anchor, attempt, key, period, regionCode, state])
+  }, [anchor, attempt, key, period, regionCode, state, granularity, rangeFrom, rangeTo])
 
   const refresh = useCallback(() => {
     setAnchor(currentAnchor())
