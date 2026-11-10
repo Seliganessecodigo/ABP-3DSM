@@ -24,7 +24,7 @@ export function AccountSetupPage({ kind, navigate }: Readonly<{ kind: AccountSet
     <section className={`${styles.card} ${styles.setupCard}`} aria-labelledby="account-setup-heading" aria-busy={state === 'pending'}>
       <h2 id="account-setup-heading" ref={heading} tabIndex={-1}>{t(title)}</h2>
       {invalid && <p role="alert">{t('setupInvalidLink')}</p>}
-      {complete && <p role="status">{t(invitation ? 'setupEmailSent' : 'setupReadyDescription')}</p>}
+      {complete && <p><output>{t(invitation ? 'setupEmailSent' : 'setupReadyDescription')}</output></p>}
       {token && !complete && <>
         <p>{t(invitation ? 'setupInvitationDescription' : 'setupConfirmationDescription')}</p>
         <form key={token} onSubmit={(event) => { event.preventDefault(); void submit(event.currentTarget) }}>

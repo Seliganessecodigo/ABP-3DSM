@@ -3,6 +3,11 @@ import { acceptAdminInvitation, AuthenticationError, confirmAdminEmail } from '.
 
 export type AccountSetupKind = 'invitation' | 'confirmation'
 
+function textField(data: FormData, name: string): string {
+  const value = data.get(name)
+  return typeof value === 'string' ? value : ''
+}
+
 function errorKey(cause: unknown) {
   if (cause instanceof AuthenticationError) {
     if (cause.status === 401) return 'setupInvalidLink'
@@ -39,9 +44,9 @@ export function useAccountSetup(kind: AccountSetupKind) {
   async function submit(form: HTMLFormElement) {
     if (!token || pending.current) return
     const data = new FormData(form)
-    const password = String(data.get('password') ?? '')
+    const password = textField(data, 'password')
     setError('')
-    if (kind === 'confirmation' && password !== data.get('confirmation')) {
+    if (kind === 'confirmation' && password !== textField(data, 'confirmation')) {
       setError('setupPasswordMismatch')
       return
     }
@@ -50,7 +55,7 @@ export function useAccountSetup(kind: AccountSetupKind) {
     setState('pending')
     try {
       if (kind === 'invitation') {
-        await acceptAdminInvitation({ token, name: String(data.get('name') ?? '').trim(), email: String(data.get('email') ?? '').trim() }, controller.signal)
+        await acceptAdminInvitation({ token, name: textField(data, 'name').trim(), email: textField(data, 'email').trim() }, controller.signal)
       } else {
         await confirmAdminEmail({ token, password }, controller.signal)
       }
