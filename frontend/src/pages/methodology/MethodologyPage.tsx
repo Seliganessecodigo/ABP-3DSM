@@ -69,7 +69,7 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   if (active) statusKey = 'upToDate'
   if (state.saved) statusKey = 'saved'
   if (dirty) statusKey = 'unsaved'
-  const activeSummary = active && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
+  const activeSummary = active && !active.draft.evaluationPeriod && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
   const savingUnavailable = <p className={styles.saveError} role="alert">{saveError ? t(saveError) : ''}</p>
   const save = () => { if (form.current?.reportValidity()) void state.save() }
   return <main className={styles.page} tabIndex={-1}>
