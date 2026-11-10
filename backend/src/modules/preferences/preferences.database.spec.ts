@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { DatabaseModule } from '../../database/database.module'
 import { DataSource } from 'typeorm'
 import { randomUUID } from 'node:crypto'
 import { PreferencesModule } from './preferences.module'
@@ -35,7 +35,7 @@ describeDatabase('preferências por HTTP, JWT real e PostgreSQL', () => {
     database = source
     await database.initialize()
     await database.runMigrations()
-    const module = await Test.createTestingModule({ imports: [TypeOrmModule.forRoot(database.options), PreferencesModule] }).compile()
+    const module = await Test.createTestingModule({ imports: [DatabaseModule, PreferencesModule] }).compile()
     app = module.createNestApplication()
     await app.listen(0, '127.0.0.1')
     origin = await app.getUrl()
