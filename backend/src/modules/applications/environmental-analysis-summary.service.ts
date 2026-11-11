@@ -35,6 +35,12 @@ export interface EnvironmentalAnalysisSummaryFilters {
 }
 
 const stateValues = Object.values(ApplicationState)
+
+// Schedule one projection at a time, leaving room for lightweight HTTP requests.
+async function* scheduledApplications<T>(applications: readonly T[]) {
+  for (const application of applications) yield setImmediate(application)
+}
+
 @Injectable()
 export class EnvironmentalAnalysisSummaryService {
   constructor(
@@ -179,7 +185,7 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopedObservations: (readonly PersistedEnvironmentalInterval[])[] =
         []
-      for (const application of filteredApplications) {
+      for await (const application of scheduledApplications(filteredApplications)) {
         statesCount[application.state] += 1
         const observations = (
           rowsByApplication.get(application.id) ?? []
@@ -278,8 +284,6 @@ export class EnvironmentalAnalysisSummaryService {
             coverage,
           })
         }
-        // Let lightweight HTTP requests proceed between application projections.
-        await setImmediate()
       }
 
       const scopeDuration = duration * filteredApplications.length
