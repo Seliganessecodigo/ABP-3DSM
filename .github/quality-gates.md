@@ -34,4 +34,6 @@ Also block force pushes and branch deletion. Apply an equivalent ruleset to `mai
 
 ## Backend tests
 
+The browser installation steps use the official Ubuntu archive over HTTPS when the hosted image points to the Azure HTTP mirror. This preserves the selected packages and signed package verification while avoiding the repeated font-download timeouts observed on the Ubuntu 26.04 runner. Browser, frontend, backend and integrated tests remain mandatory.
+
 The backend uses Jest with `ts-jest`. Run `npm test` from `backend`, use `npm run test:watch` while developing, or generate a coverage report with `npm run test:cov`. CI generates and uploads `backend/coverage/lcov.info` before Sonar analysis. Unit tests are stored beside their source files as `*.spec.ts`; add tests for new backend behavior with each feature. Frontend source is currently excluded from Sonar line coverage; Playwright tests run in CI but do not produce the LCOV used by Sonar. Declarative database entity/configuration files are also excluded; database migrations are excluded because CI applies them against PostgreSQL. Migration SQL is also excluded from duplication checks because repeated DDL structure is expected.

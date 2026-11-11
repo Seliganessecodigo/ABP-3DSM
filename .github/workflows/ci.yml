@@ -63,7 +63,13 @@ jobs:
 
       - name: Install Playwright browser
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: |
+          for apt_source in /etc/apt/apt-mirrors.txt /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$apt_source" ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$apt_source"
+            fi
+          done
+          npx playwright install --with-deps chromium
 
       - name: Frontend tests
         working-directory: frontend
@@ -143,7 +149,13 @@ jobs:
 
       - name: Install browser for integrated flow
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: |
+          for apt_source in /etc/apt/apt-mirrors.txt /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$apt_source" ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$apt_source"
+            fi
+          done
+          npx playwright install --with-deps chromium
 
       - name: Test UI against real backend and isolated PostgreSQL
         working-directory: frontend
