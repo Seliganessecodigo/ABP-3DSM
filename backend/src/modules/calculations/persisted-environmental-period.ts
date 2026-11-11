@@ -107,8 +107,9 @@ interface ClippedInterval {
 }
 
 export interface PersistedEnvironmentalSegment {
-  readonly from: string
-  readonly to: string
+  readonly start: bigint
+  readonly end: bigint
+  readonly originalDuration: bigint | null
   readonly observation: PersistedEnvironmentalInterval | null
 }
 
@@ -127,8 +128,6 @@ export interface PersistedEnvironmentalSegmentProjection {
 }
 
 interface ResolvedSegment extends PersistedEnvironmentalSegment {
-  readonly start: bigint
-  readonly end: bigint
   readonly winner: ClippedInterval | null
 }
 
@@ -294,9 +293,8 @@ function resolvePreparedSegments(start: bigint, end: bigint, intervals: readonly
     while (active.length > 0 && active[0].end <= segmentStart) popHeap(active)
     const winner = active[0] ?? null
     segments.push({
-      from: formatUtcTimestamp(segmentStart),
-      to: formatUtcTimestamp(segmentEnd),
       observation: winner?.observation ?? null,
+      originalDuration: winner ? winner.originalEnd - winner.originalStart : null,
       start: segmentStart,
       end: segmentEnd,
       winner,
@@ -343,11 +341,16 @@ function projectMeasures(observation: PersistedEnvironmentalInterval, ratio: num
   }
 }
 
-export function measurePersistedEnvironmentalDuration(observation: PersistedEnvironmentalInterval, duration: bigint) {
-  const start = parseZonedTimestampNanoseconds(observation.intervalStart)
-  const end = parseZonedTimestampNanoseconds(observation.intervalEnd)
-  if (start === null || end === null || end <= start || duration <= 0n || duration > end - start) throw new Error('INVALID_ANALYSIS_SEGMENT')
-  return projectMeasures(observation, Number(duration) / Number(end - start))
+export function measurePersistedEnvironmentalDuration(observation: PersistedEnvironmentalInterval, duration: bigint, originalDuration?: bigint) {
+  // Resolved segments already contain the validated original duration in nanoseconds.
+  if (originalDuration === undefined) {
+    const start = parseZonedTimestampNanoseconds(observation.intervalStart)
+    const end = parseZonedTimestampNanoseconds(observation.intervalEnd)
+    if (start === null || end === null) throw new Error('INVALID_ANALYSIS_SEGMENT')
+    originalDuration = end - start
+  }
+  if (originalDuration <= 0n || duration <= 0n || duration > originalDuration) throw new Error('INVALID_ANALYSIS_SEGMENT')
+  return projectMeasures(observation, Number(duration) / Number(originalDuration))
 }
 
 function projectObservation(
@@ -587,7 +590,7 @@ function addGap(segment: ResolvedSegment, totals: AggregateTotals): void {
   totals.emissionsReasons.push(...noObservation)
   totals.exclusions.push({
     collectionId: null,
-    interval: { from: segment.from, to: segment.to },
+    interval: { from: formatUtcTimestamp(segment.start), to: formatUtcTimestamp(segment.end) },
     energyReasons: noObservation,
     emissionsReasons: noObservation,
   })
@@ -614,8 +617,8 @@ function projectObservationSegment(segment: ResolvedSegment): PersistedEnvironme
   return projectObservation(
     winner.observation,
     {
-      from: segment.from,
-      to: segment.to,
+      from: formatUtcTimestamp(segment.start),
+      to: formatUtcTimestamp(segment.end),
       start: segment.start,
       end: segment.end,
       originalStart: winner.originalStart,
@@ -720,5 +723,5 @@ export function resolvePersistedEnvironmentalSegments(
 ): PersistedEnvironmentalSegment[] {
   const { start, end } = parsePeriod(periodStart, periodEnd)
   const intervals = prepareIntervals(start, end, observations)
-  return resolvePreparedSegments(start, end, intervals).map(({ from, to, observation }) => ({ from, to, observation }))
+  return resolvePreparedSegments(start, end, intervals).map(({ start, end, originalDuration, observation }) => ({ start, end, originalDuration, observation }))
 }

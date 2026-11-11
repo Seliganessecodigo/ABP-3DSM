@@ -3,6 +3,7 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common'
+import { setImmediate } from 'node:timers/promises'
 import { ApplicationsRepository } from './applications.repository'
 import { CollectionsRepository } from '../../database/repositories/collections.repository'
 import {
@@ -277,6 +278,8 @@ export class EnvironmentalAnalysisSummaryService {
             coverage,
           })
         }
+        // Let lightweight HTTP requests proceed between application projections.
+        await setImmediate()
       }
 
       const scopeDuration = duration * filteredApplications.length
