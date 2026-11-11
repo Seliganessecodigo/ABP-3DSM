@@ -17,6 +17,8 @@ describe('equivalent factor presentation', () => {
       expect(measurePersistedEnvironmentalDuration(observation, 3_600_000_000_000n)).toEqual({ energy: full.energy, emissions: full.emissions })
     }
     for (const duration of [0n, -1n, 7_200_000_000_001n]) expect(() => measurePersistedEnvironmentalDuration(savedInterval(), duration)).toThrow('INVALID_ANALYSIS_SEGMENT')
+    expect(measurePersistedEnvironmentalDuration(savedInterval(), 1n, 2n).energy.value).toBe(50)
+    for (const original of [0n, -1n]) expect(() => measurePersistedEnvironmentalDuration(savedInterval(), 1n, original)).toThrow('INVALID_ANALYSIS_SEGMENT')
     expect(() => measurePersistedEnvironmentalDuration(savedInterval({ intervalStart: 'invalid' }), 1n)).toThrow()
     expect(() => measurePersistedEnvironmentalDuration(savedInterval({ intervalEnd: firstBoundary }), 1n)).toThrow()
   })

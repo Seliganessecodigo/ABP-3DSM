@@ -134,16 +134,12 @@ export class CollectionsRepository {
         to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
         "energyKwh", "carbonGrams",
         ${options.includeProvenance === false
-          ? `CASE WHEN "calculationEvidence" IS NULL THEN NULL ELSE jsonb_build_object(
-              'energy', jsonb_build_object(
-                'modelKey', "calculationEvidence" #> '{energy,modelKey}',
-                'modelVersion', "calculationEvidence" #> '{energy,modelVersion}',
-                'modelParameters', "calculationEvidence" #> '{energy,modelParameters}',
-                'reasons', "calculationEvidence" #> '{energy,reasons}'),
-              'carbon', jsonb_build_object(
-                'factorSnapshot', NULL,
-                'reasons', "calculationEvidence" #> '{carbon,reasons}')) END`
-          : '"calculationEvidence"'} AS "calculationEvidence"
+          ? `NULL::jsonb AS "calculationEvidence",
+            CASE WHEN "energyKwh" IS NOT NULL AND "energyKwh" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{energy,reasons}' END AS "energyReasons",
+            CASE WHEN "carbonGrams" IS NOT NULL AND "carbonGrams" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{carbon,reasons}' END AS "emissionsReasons"`
+          : '"calculationEvidence"'}
       FROM collections
       WHERE "applicationId" = ANY($1::text[])
         AND "intervalStart" < $3::timestamptz

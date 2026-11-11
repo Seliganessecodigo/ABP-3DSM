@@ -168,11 +168,14 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
   })
 
   it('returns a public series with the same scope, totals and missing intervals', async () => {
-    const ids = [`scope-one-${randomUUID()}`, `scope-two-${randomUUID()}`]
+    const ids = [`scope-one-${randomUUID()}`, `scope-two-${randomUUID()}`, `scope-invalid-${randomUUID()}`]
     await insertApplication(database, ids[0], 'AVAILABLE')
     await insertApplication(database, ids[1], 'AVAILABLE')
+    await insertApplication(database, ids[2], 'AVAILABLE')
     await insertObservation(database, ids[0], to, 1, 85, factorSnapshot)
-    await insertObservation(database, ids[1], to, 2, null, null)
+    await insertObservation(database, ids[1], to, 2, null, null, [{ code: 'CARBON_FACTOR_UNAVAILABLE' }])
+    await insertObservation(database, ids[2], to, Number.NaN, null, null)
+    await database.query(`UPDATE collections SET "calculationEvidence" = jsonb_set("calculationEvidence", '{energy,reasons}', '[{"code":"METRIC_MISSING","metric":"cpuPercent"}]'::jsonb) WHERE "applicationId" = $1`, [ids[2]])
     try {
       const query = new URLSearchParams({ from, to: '2026-10-01T05:00:00.000Z', granularity: 'hour' })
       ids.forEach((id) => query.append('applicationIds', id))

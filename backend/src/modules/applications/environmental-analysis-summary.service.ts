@@ -3,6 +3,7 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common'
+import { setImmediate } from 'node:timers/promises'
 import { ApplicationsRepository } from './applications.repository'
 import { CollectionsRepository } from '../../database/repositories/collections.repository'
 import {
@@ -34,6 +35,17 @@ export interface EnvironmentalAnalysisSummaryFilters {
 }
 
 const stateValues = Object.values(ApplicationState)
+
+// Schedule one projection at a time, leaving room for lightweight HTTP requests.
+function scheduledApplications<T>(applications: readonly T[]): AsyncIterable<T> {
+  return {
+    [Symbol.asyncIterator]() {
+      const iterator = applications[Symbol.iterator]()
+      return { next: () => setImmediate(iterator.next()) }
+    },
+  }
+}
+
 @Injectable()
 export class EnvironmentalAnalysisSummaryService {
   constructor(
@@ -178,7 +190,7 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopedObservations: (readonly PersistedEnvironmentalInterval[])[] =
         []
-      for (const application of filteredApplications) {
+      for await (const application of scheduledApplications(filteredApplications)) {
         statesCount[application.state] += 1
         const observations = (
           rowsByApplication.get(application.id) ?? []
