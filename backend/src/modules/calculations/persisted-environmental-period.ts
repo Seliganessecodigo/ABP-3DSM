@@ -8,6 +8,8 @@ export interface PersistedEnvironmentalInterval {
   readonly collectedAt: string
   readonly energyKwh: string | null
   readonly carbonGrams: string | null
+  readonly energyReasons?: readonly { readonly code: string; readonly metric?: string }[] | null
+  readonly emissionsReasons?: readonly { readonly code: string }[] | null
   readonly calculationEvidence: {
     readonly energy: {
       readonly modelKey: string
@@ -330,10 +332,10 @@ function projectMeasures(observation: PersistedEnvironmentalInterval, ratio: num
   const energyValue = numericValue(observation.energyKwh, ratio)
   const emissionsValue = numericValue(observation.carbonGrams, ratio)
   const energyReasons = energyValue === null
-    ? missingReasons(observation.calculationEvidence?.energy.reasons ?? [], 'energy')
+    ? missingReasons(observation.energyReasons ?? observation.calculationEvidence?.energy.reasons ?? [], 'energy')
     : []
   const emissionsReasons = emissionsValue === null
-    ? missingReasons(observation.calculationEvidence?.carbon.reasons ?? [], 'emissions')
+    ? missingReasons(observation.emissionsReasons ?? observation.calculationEvidence?.carbon.reasons ?? [], 'emissions')
     : []
   return {
     energy: { value: energyValue, unit: 'kWh' as const, reasons: energyReasons },
