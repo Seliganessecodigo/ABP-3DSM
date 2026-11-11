@@ -37,7 +37,7 @@ export interface EnvironmentalAnalysisSummaryFilters {
 const stateValues = Object.values(ApplicationState)
 
 // Schedule one projection at a time, leaving room for lightweight HTTP requests.
-async function* scheduledApplications<T>(applications: readonly T[]) {
+function* scheduledApplications<T>(applications: readonly T[]) {
   for (const application of applications) yield setImmediate(application)
 }
 
