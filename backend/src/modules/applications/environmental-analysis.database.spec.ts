@@ -347,6 +347,44 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
     }
   })
 
+  it('prorates regional simulation energy across clipped observations and uncovered segments', async () => {
+    const factorRequest = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+      .mockResolvedValue({
+        regionCode: 'br-destination',
+        country: 'Brazil',
+        region: 'Destination',
+        city: null,
+        intensity: 100,
+        unit: 'gCO2e/kWh',
+        renewableSharePercent: 50,
+        queriedAt: new Date('2026-10-22T03:01:00Z'),
+      })
+    try {
+      const response = await postRegionalSimulation(
+        app,
+        applicationId,
+        'br-destination',
+        '2026-10-01T03:00:30.000Z',
+        '2026-10-01T03:02:00.000Z',
+      )
+      const body = await response.json()
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'partial',
+        period: { from: '2026-10-01T03:00:30.000Z', to: '2026-10-01T03:02:00.000Z' },
+        coverage: { energy: 1 / 3, reference: 1 / 3, destination: 1 / 3 },
+      })
+      expect(body.energy.value).toBeCloseTo(energyKwh / 2, 14)
+      expect(body.reference.value).toBeCloseTo(emissionsGrams / 2, 14)
+      expect(body.destination.value).toBeCloseTo(energyKwh / 2 * 100, 14)
+      expect(body.energy.reasons).toContainEqual({ code: 'NO_OBSERVATION' })
+      expect(factorRequest).toHaveBeenCalledTimes(1)
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
   it('keeps the reference on destination failure and retries with a fresh current-factor request', async () => {
     const factorRequest = jest
       .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')

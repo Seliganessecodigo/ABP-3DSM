@@ -242,14 +242,16 @@ export class EnvironmentalAnalysisService {
       }
 
       const segments = resolvePersistedEnvironmentalSegments(from, to, observations).map((segment) => {
+        const segmentFrom = formatUtcTimestamp(segment.start)
+        const segmentTo = formatUtcTimestamp(segment.end)
         if (segment.observation === null) {
           return {
-            interval: { from: segment.from, to: segment.to },
+            interval: { from: segmentFrom, to: segmentTo },
             energy: { value: null, reasons: [{ code: 'NO_OBSERVATION' }] },
             factorSnapshot: null,
           }
         }
-        const projected = projectPersistedEnvironmentalInterval(segment.observation, segment.from, segment.to)
+        const projected = projectPersistedEnvironmentalInterval(segment.observation, segmentFrom, segmentTo)
         return {
           interval: projected.interval,
           energy: projected.energy,
