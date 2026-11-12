@@ -1,0 +1,90 @@
+{
+  "info": {
+    "_postman_id": "1e330086-86a0-4860-9a6b-000000000086",
+    "name": "Task 86 - Simulação regional de energia constante",
+    "description": "Demonstração somente leitura da simulação regional. Rode as requisições em ordem ou use Run collection. A coleção seleciona uma aplicação com coleta, escolhe uma região diferente e verifica que a análise oficial permanece igual após a simulação.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Listar aplicações",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/applications" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('retorna aplicações', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });",
+        "const applications = pm.response.json();",
+        "const application = applications.find((item) => item.isCalculable && item.lastObservationAt);",
+        "pm.test('existe aplicação com observação calculável', function () { pm.expect(application, 'precisa haver pelo menos uma aplicação com coleta').to.exist; });",
+        "if (application) { pm.collectionVariables.set('applicationId', application.id); pm.collectionVariables.set('referenceRegionCode', application.location?.regionCode || ''); }"
+      ] } }]
+    },
+    {
+      "name": "02 - Consultar última coleta",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/applications/{{applicationId}}/collections/latest" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('retorna intervalo de uma coleta persistida', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('intervalStart'); pm.expect(pm.response.json()).to.have.property('intervalEnd'); });",
+        "const collection = pm.response.json();",
+        "pm.collectionVariables.set('from', collection.intervalStart);",
+        "pm.collectionVariables.set('to', collection.intervalEnd);"
+      ] } }]
+    },
+    {
+      "name": "03 - Listar regiões de destino",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/carbon/regions" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('retorna catálogo de regiões e fatores atuais', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('regions').that.is.an('array'); });",
+        "const regions = pm.response.json().regions;",
+        "pm.test('há ao menos um destino para simular', function () { pm.expect(regions.length).to.be.greaterThan(0); });",
+        "const destination = regions.find((region) => region.code !== pm.collectionVariables.get('referenceRegionCode'));",
+        "pm.test('existe destino diferente da região de referência', function () { pm.expect(destination, 'a demonstração precisa comparar regiões distintas').to.exist; });",
+        "if (destination) pm.collectionVariables.set('destinationRegionCode', destination.code);"
+      ] } }]
+    },
+    {
+      "name": "04 - Análise oficial antes",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/applications/{{applicationId}}/analysis?from={{from}}&to={{to}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('consulta análise oficial do período', function () { pm.response.to.have.status(200); });",
+        "pm.collectionVariables.set('task86OriginalAnalysis', pm.response.text());"
+      ] } }]
+    },
+    {
+      "name": "05 - Simular em outra região",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"from\": \"{{from}}\",\n  \"to\": \"{{to}}\",\n  \"destinationRegionCode\": \"{{destinationRegionCode}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/applications/{{applicationId}}/analysis/regional-simulation"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('simulação responde com resultado estruturado', function () {",
+        "  pm.response.to.have.status(200); const result = pm.response.json();",
+        "  pm.expect(result.status).to.be.oneOf(['available', 'partial', 'empty']);",
+        "  ['period', 'energy', 'reference', 'destination', 'coverage', 'difference'].forEach((key) => pm.expect(result).to.have.property(key));",
+        "  pm.expect(result.referenceFactors).to.be.an('array');",
+        "  pm.expect(result.energy.unit).to.eql('kWh'); pm.expect(result.reference.unit).to.eql('gCO2e'); pm.expect(result.destination.unit).to.eql('gCO2e');",
+        "  pm.expect(result.destinationFactor.regionCode).to.eql(pm.collectionVariables.get('destinationRegionCode'));",
+        "});",
+        "pm.test('diferenças correspondem às emissões comparadas', function () {",
+        "  const result = pm.response.json();",
+        "  if (result.reference.value !== null && result.destination.value !== null) { const expected = result.destination.value - result.reference.value; pm.expect(result.difference.absolute.value).to.be.closeTo(expected, 14); if (result.reference.value > 0) pm.expect(result.difference.percent.value).to.be.closeTo(expected / result.reference.value, 12); }",
+        "});",
+        "const result = pm.response.json(); console.log('Task 86 simulation:', JSON.stringify({ status: result.status, energy: result.energy, reference: result.reference, destinationFactor: result.destinationFactor, destination: result.destination, coverage: result.coverage, difference: result.difference }, null, 2));"
+      ] } }]
+    },
+    {
+      "name": "06 - Análise oficial depois",
+      "request": { "method": "GET", "header": [], "url": "{{base_url}}/applications/{{applicationId}}/analysis?from={{from}}&to={{to}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('simulação não alterou a análise oficial persistida', function () { pm.response.to.have.status(200); pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('task86OriginalAnalysis')); });"
+      ] } }]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+    { "key": "applicationId", "value": "", "type": "string" },
+    { "key": "referenceRegionCode", "value": "", "type": "string" },
+    { "key": "from", "value": "", "type": "string" },
+    { "key": "to", "value": "", "type": "string" },
+    { "key": "destinationRegionCode", "value": "", "type": "string" }
+  ]
+}

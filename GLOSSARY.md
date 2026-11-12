@@ -32,6 +32,14 @@ _Avoid_: Application coverage, data share
 An unsaved estimate that applies the current calculation configuration to preserved observations for a selected application and period, presented separately from the original result. It does not replace or contribute to official history, charts, or totals.
 _Avoid_: Recalculated history, saved preview
 
+**Regional simulation**:
+An unsaved estimate that keeps observed energy constant while applying a current destination carbon factor, compared with emissions calculated from the factor snapshots preserved by the collections. It does not change official results or establish migration feasibility.
+_Avoid_: Regional forecast, migration result
+
+**Destination carbon factor**:
+The carbon intensity returned for the selected destination region by a current GreenER query. Its query time records when GreenER asked the source and does not establish official validity.
+_Avoid_: Historical destination factor, effective destination factor
+
 ## SSO
 
 **Login SSO**:

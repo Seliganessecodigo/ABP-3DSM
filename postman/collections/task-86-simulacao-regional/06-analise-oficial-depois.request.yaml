@@ -1,0 +1,18 @@
+$kind: http-request
+name: Análise oficial depois
+order: 6000
+method: GET
+url: '{{base_url}}/applications/{{applicationId}}/analysis?from={{from}}&to={{to}}'
+queryParams:
+  - key: from
+    value: '{{from}}'
+  - key: to
+    value: '{{to}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('simulação não alterou a análise oficial persistida', function () {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.text()).to.eql(pm.collectionVariables.get('task86OriginalAnalysis'));
+      });

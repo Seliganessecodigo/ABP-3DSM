@@ -1,0 +1,26 @@
+$kind: collection
+name: Task 86 — Simulação regional de energia constante
+description: >-
+  Demonstração somente leitura da simulação regional. A coleção escolhe uma
+  aplicação com observação calculável, define o período pela última coleta,
+  escolhe um destino atual e verifica se a análise oficial permanece igual
+  antes e depois da simulação.
+variables:
+  - key: base_url
+    value: http://localhost:3000
+    description: URL local da API GreenER.
+  - key: applicationId
+    value: ''
+    description: Preenchido pela requisição Listar aplicações.
+  - key: from
+    value: ''
+    description: Preenchido pela requisição Consultar última coleta.
+  - key: to
+    value: ''
+    description: Preenchido pela requisição Consultar última coleta.
+  - key: destinationRegionCode
+    value: ''
+    description: Preenchido por uma região atual diferente da região de referência.
+  - key: referenceRegionCode
+    value: ''
+    description: Região preservada na aplicação usada como referência.
