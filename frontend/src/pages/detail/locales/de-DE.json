@@ -219,7 +219,7 @@
   "historyViewCollection": "Erfassung und Metriken ansehen",
   "historyTableNote": "Suche, Filter und Seitennavigation ändern weder Diagramm noch Summen.",
   "analysisSeriesApply": "Filter anwenden",
-  "analysisSeriesCloseFilters": "Spaltenfilter schlie?en",
+  "analysisSeriesCloseFilters": "Spaltenfilter schließen",
   "historyIntervalsUnit": "Intervalle",
   "historyNoFilters": "Keine aktiven Filter",
   "historySearchPlaceholder": "Alle Spalten durchsuchen...",
@@ -230,5 +230,10 @@
   "historyMethodology": "Methodik",
   "historyAction": "Aktion",
   "historyReturnNote": "Zurück stellt Kriterien und Seite des Verlaufs wieder her und fokussiert das untersuchte Intervall.",
-  "historyRecalculationPreview": "Neuberechnungsvorschau"
+  "historyRecalculationPreview": "Neuberechnungsvorschau",
+  "analysisEquivalentFactor": "Äquivalenter Faktor",
+  "analysisFactorExplanation": "Die Emissionen ergeben sich aus der Summe der Berechnungen je Intervall. Der äquivalente Faktor fasst die verwendeten Faktoren zusammen, gewichtet nach der Energie mit berechnetem CO₂e.",
+  "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e",
+  "periods.month": "Aktueller Monat (UTC)",
+  "periods.custom": "Benutzerdefiniertes Intervall"
 }

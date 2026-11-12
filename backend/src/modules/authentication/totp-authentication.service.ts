@@ -13,7 +13,11 @@ import {
   AuthTokenKind,
 } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AccessTokenService } from './access-token.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
 import { PasswordHasher } from './password-hasher.service'
@@ -577,7 +581,11 @@ export class TotpAuthenticationService {
 }
 
 function isEligibleAdmin(user: UserEntity | null): user is UserEntity {
-  return Boolean(user?.isActive && user.emailVerifiedAt && user.role === UserRole.ADMIN)
+  return Boolean(
+    user?.status === UserAccountStatus.ACTIVE &&
+      user.emailVerifiedAt &&
+      user.role === UserRole.ADMIN,
+  )
 }
 
 function clearPendingTotp(user: UserEntity): void {

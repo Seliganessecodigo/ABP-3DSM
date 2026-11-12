@@ -1,40 +1,29 @@
-# Requisitos transversais e aceite
+# Qualidade e aceite
 
-O [EP00](../backlog/ep00) organiza fundações técnicas e qualidade. Um RNF é uma condição permanente do produto; uma task ligada a ele entrega um artefato finito. Concluir a task de banco, por exemplo, não encerra a obrigação de preservar integridade nas próximas funcionalidades.
+O produto deve permitir localizar uma aplicação, distinguir zero de ausência e rastrear um indicador até seu período, unidade, cobertura e metodologia. As consultas precisam preservar o contexto de navegação e comunicar carregamento, vazio, falha e dados antigos. A avaliação inclui teclado, foco visível, leitura por texto além de cor, dispositivos móveis e os 12 idiomas.
 
-## Qualidade observável
+## Critérios de aceite {#acceptance}
 
-| Requisito | Evidência esperada |
+| Regra | Significado |
 | --- | --- |
-| RNF-01 — Tecnologias | Frontend React/TypeScript e backend NestJS/TypeScript compiláveis. |
-| RNF-02 — Responsabilidades | UI apresenta; backend decide; adapters validam; repositories persistem. |
-| RNF-03 — Histórico | Migrations e testes demonstram identidade, integridade e preservação das versões. |
-| RNF-04 — Segurança | Segredos fora do Git; operações protegidas verificam autorização no backend. |
-| RNF-05 — Reprodutibilidade | Ambiente documentado, CI verificável e publicação com evidência de funcionamento. |
-| RNF-06 — Falhas | Sucesso, vazio, erro, ausência e stale permanecem distinguíveis. |
-| RNF-07 — Experiência | Teclado, foco, contraste, texto/ícone além de cor, responsividade e oito idiomas. |
+| Histórico preservado | Alterar preferências ou gerar uma prévia não substitui resultados originais. |
+| Ausência explícita | Falhas, falta de métricas e dados antigos permanecem distintos de zero. |
+| Consulta pública | Ler indicadores não exige login; salvar preferências e administrar contas exige acesso autorizado. |
 
-A matriz de acesso, retenção, recuperação de desastre e metas numéricas de disponibilidade/desempenho ainda precisam de definição. Não há SLA ou certificação de acessibilidade declarados por esta página.
+## Interpretar os dados {#integrity}
 
-## Cenários essenciais para demonstração
+Zero significa que existe uma observação válida com esse valor. Uma lacuna indica que faltam dados utilizáveis; ela não deve ser interpretada como consumo zero. Se uma atualização falhar, o sistema pode manter a última leitura válida com seu horário original. Confira a atualização e a cobertura antes de usar o indicador em uma decisão. As telas consultam novas informações a cada 60 segundos após cada tentativa; isso não garante uma nova medição a cada atualização.
 
-| Dado / quando | Resultado esperado | Referência |
-| --- | --- | --- |
-| Aplicação conhecida; snapshot completo e válido não a contém | Registrar remoção e preservar histórico. | US-02 |
-| A fonte falha ou retorna payload inválido | Não confirmar remoção nem transformar dados em zero. | US-02/05 |
-| Há observação válida; próxima tentativa falha | Manter observação e distinguir o frescor. | US-03/04 |
-| Há energia válida; fator não está disponível | Não fabricar CO₂e nem descartar energia. | US-07/08 |
-| Usuário solicita prévia de recálculo | Original permanece intacto e a prévia não é persistida. | US-12 |
-| Operação administrativa sem permissão | Backend nega a alteração. | US-18/19/20 |
+Cobertura é a proporção do período sustentada por observações válidas. Energia e emissões têm coberturas separadas: pode existir energia estimada mesmo quando falta um fator de carbono para calcular emissões. Compare períodos, unidades e coberturas compatíveis. Um percentual de cobertura baixo sinaliza uma análise parcial, não uma redução comprovada de consumo.
 
-São critérios do produto; cada capacidade planejada precisa da implementação e dos testes antes de ser anunciada como entregue.
+## Critérios de validação {#assessment}
 
-## Prontidão e conclusão
+Mudanças de escopo e regras de uso devem registrar o problema, o resultado esperado e os critérios de aceite nas histórias correspondentes. Revisões do produto e avaliações de usabilidade registram dificuldades observadas, feedback e melhorias. Retenção de dados, backup e recuperação, metas operacionais e cotas das fontes externas ainda exigem definição.
 
-Antes de iniciar uma task, identificar entrega, consumidores, critérios, contrato e dependências reais. Coeficiente ou permissão pendente não vira decisão técnica por conveniência. Design precisa de estados, navegação e handoff verificáveis.
+## Verificações {#engineering}
 
-Para concluir: demonstrar critérios, revisar código, validar falhas relevantes, atualizar contrato/documentação e registrar evidências. PR aberta não equivale a issue concluída. Planning, review e feedback ficam na entrega de processo #134.
+[Contribuição](../contributing)
 
-## Gate de engenharia
+## Leitura relacionada {#related}
 
-PRs para `develop` devem cumprir as verificações pertinentes e o SonarQube Cloud: cobertura de código novo ≥ 80%, duplicação ≤ 3%, ratings A e 100% dos security hotspots revisados. Mudanças executáveis no backend exigem testes e LCOV. Consulte as [regras completas da CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) e [Contribuição](../contributing). Passar na CI não substitui aceite funcional nem avaliação de usabilidade.
+[Decisões e dependências](../product/decisions) · [Contribuição](../contributing)

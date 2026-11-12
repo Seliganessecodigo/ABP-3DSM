@@ -28,13 +28,13 @@ function clearPassword(formElement: HTMLFormElement) {
 }
 
 function authenticationErrorKey(cause: unknown) {
-  if (!(cause instanceof AuthenticationError)) return 'totpGenericError'
+  if (!(cause instanceof AuthenticationError)) return 'signInFailed'
   if (cause.code === 'INVALID_TOTP_CHALLENGE') return 'totpExpired'
   if (cause.code === 'TOTP_CHALLENGE_RATE_LIMITED') return 'totpRateLimited'
   if (cause.code === 'TOTP_CHALLENGE_DELAYED') return 'totpDelayed'
   if (cause.status === 401) return 'invalidCredentials'
   if (cause.status === 403) return 'forbidden'
-  return 'totpGenericError'
+  return 'signInFailed'
 }
 
 function googleButtonLabel(t: (key: string) => string, submitting: boolean, invitation: string) {
@@ -79,7 +79,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
         navigate('/')
       }
     } catch (cause) {
-      setError(t(authenticationErrorKey(cause)))
+      setError(authenticationErrorKey(cause))
       clearPassword(formElement)
     } finally {
       setSubmitting(false)
@@ -89,7 +89,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     setError('')
     setSubmitting(true)
     try { await redirectToGoogleSso(invitation || undefined) }
-    catch { setError(t('ssoFailed')); setSubmitting(false) }
+    catch { setError('ssoFailed'); setSubmitting(false) }
   }
   async function submitTotpCode(code: string) {
     if (!totpState) return
@@ -104,7 +104,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       provisioningUri={totpState.kind === 'setup' ? totpState.provisioning.provisioningUri : undefined}
       onSubmitCode={submitTotpCode}
       onCancel={() => { setTotpState(null); setError('') }}
-      onExpired={() => { setTotpState(null); setError(t('totpExpired')) }}
+      onExpired={() => { setTotpState(null); setError('totpExpired') }}
     />
   }
   return <main className={styles.page}>
@@ -114,9 +114,9 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       <h2 id="login-heading">{t('submit')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
-        <label>{t('email')}<input name="email" type="email" autoComplete="username" required /></label>
-        <label>{t('password')}<input name="password" type="password" autoComplete="current-password" required /></label>
-        {error && <p className={styles.error} role="alert">{error}</p>}
+        <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
+        <label>{t('password')}<input className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>
+        {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <button className={styles.submit} type="submit" disabled={submitting}>{submitting ? t('submitting') : t('submit')}</button>
       </form>
       {ssoEnabled && <div className={styles.sso}>

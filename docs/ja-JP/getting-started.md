@@ -1,63 +1,47 @@
 # はじめに
 
-## 必要条件
+ここからは開発・運用向けの文書です。ローカル環境、契約、検証を説明します。製品の使い方は利用ガイドを参照してください。
 
-- Docker Desktopと、`docker compose`コマンドで利用できるDocker Compose v2。
-- ルートのスクリプトを実行するためのNode.js 24以降とnpm。
+## 設定 {#requirements}
 
-## 環境を起動する
+Node.js 24以上、npm、Docker Compose v2を使用。`.env.example`を`.env`にコピーし`npm run dev`。Composeはmigrationと初期検出を実行し、情報源障害でもAPIを開始します。招待/確認にはSMTPを設定。初期Adminは`backend/`の`organizations:create-invitation`、変数`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`で用意します。共通の本番Adminはありません。
 
-リポジトリをクローンして、プロジェクトのディレクトリに移動します。
+## 最初に読むページ {#start}
 
 ```sh
 git clone https://github.com/Seliganessecodigo/ABP-3DSM.git
 cd ABP-3DSM
 ```
 
-サンプルからローカル設定を作成します。
-
 ```powershell
 Copy-Item .env.example .env
 ```
-
-macOSまたはLinuxの場合:
 
 ```sh
 cp .env.example .env
 ```
 
-フロントエンド、API、PostgreSQLを起動します。
-
 ```sh
 npm run dev
 ```
 
-Composeがコンテナ内に依存関係をインストールします。未適用のマイグレーションはAPI起動前に実行されます。APIは起動時にアプリケーションの検出を試みます。Aggregatorが利用できない場合はエラーをログに記録して起動を続けます。
-
-## ローカルアドレス
-
-| サービス | アドレス |
+| 機能 | URI |
 | --- | --- |
-| フロントエンド | `http://localhost:5173` |
+| Frontend | `http://localhost:5173` |
 | API | `http://localhost:3000` |
-| OpenAPI | `http://localhost:3000/docs` |
-| APIヘルスチェック | `http://localhost:3000/health` |
-| PostgreSQL | localhost:5432 |
+| Swagger | `http://localhost:3000/docs` |
+| Health | `http://localhost:3000/health` |
+| PostgreSQL | `localhost:5432` |
 
-## よく使うコマンド
+## 設定 {#commands}
 
-| コマンド | 操作 |
-| --- | --- |
-| `npm run dev:detached` | サービスをバックグラウンドで起動 |
-| `npm run dev:logs` | サービスログを表示 |
-| `npm run dev:down` | データボリュームを残してコンテナを停止 |
-| `docker compose up --build` | イメージを再ビルド |
+```sh
+npm run dev:detached
+npm run dev:logs
+npm run dev:down
+docker compose exec api npm run applications:discover
+```
 
-APIを再起動せず検出を再実行するには、`docker compose exec api npm run applications:discover`を実行します。
+## 関連ページ {#related}
 
-## よくある問題
-
-- Dockerが見つからない場合はDocker Desktopを起動し、`docker compose version`を確認してください。
-- ポートが使用中の場合は、`.env`の`FRONTEND_PORT`、`API_PORT`、`POSTGRES_PORT`を変更してください。
-- APIが正常にならない場合は`npm run dev:logs`を確認してください。APIはPostgreSQLに依存し、起動時にマイグレーションを実行します。
-- `.env.example`の値はローカル開発専用です。実際の認証情報や`.env`ファイルを共有・コミットしないでください。
+[利用ガイド](./guide/monitoring) · [運用と診断](./operations)

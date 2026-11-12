@@ -1,38 +1,23 @@
----
-layout: home
-isHome: false
-hero:
-  name: GreenER
-  text: Energia e impacto ambiental, com contexto
-  tagline: Acompanhe aplicações e entenda as estimativas de energia e CO₂e.
-  actions:
-    - theme: brand
-      text: Primeiros passos
-      link: /getting-started
-    - theme: alt
-      text: Explorar os épicos
-      link: /roadmap
-features:
-  - title: Acompanhamento
-    details: Descoberta e monitoramento de aplicações com estados claros.
-  - title: Rastreabilidade
-    details: Métricas, períodos e limitações fazem parte da leitura dos indicadores.
-  - title: Acesso multilíngue
-    details: Documentação e interface disponíveis em oito idiomas.
----
+# GreenER
 
-## Sobre o projeto
+O GreenER ajuda a acompanhar aplicações e compreender seu consumo estimado de energia e suas emissões equivalentes de dióxido de carbono (CO₂e). Reúne indicadores, localização e histórico para apoiar a análise do impacto ambiental de serviços digitais.
 
-GreenER é um projeto acadêmico de Desenvolvimento de Software Multiplataforma da Fatec Jacareí. Seu objetivo é ajudar a acompanhar aplicações, estimar o consumo de energia e apresentar emissões equivalentes de CO₂ (CO₂e).
+## Por onde começar {#start}
 
-## Estado e caminhos de leitura
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-A documentação distingue comportamento disponível, escopo planejado e decisões pendentes. Catálogo, detalhe operacional, evidências métricas, tema, análise ambiental por aplicação e consulta da metodologia registrada estão disponíveis na interface. A API também fornece um resumo agregado, ainda sem uma tela própria; ranking e comparação permanecem planejados.
+## Para quem {#readers}
 
-- [Visão e escopo](./product/vision)
-- [Guia de uso](./guide/monitoring)
-- [Metodologia e dados](./product/methodology)
-- [Qualidade e aceite](./product/quality)
-- [Decisões e dependências](./product/decisions)
-- [Referência da API](./reference/api)
-- [Operação e diagnóstico](./operations)
+| Público | Necessidade |
+| --- | --- |
+| Gestão de infraestrutura | Identificar aplicações e acompanhar mudanças no ambiente. |
+| Análise ambiental e operacional | Investigar consumo, emissões e qualidade dos dados de um período. |
+| Desenvolvimento e avaliação | Verificar o comportamento do produto e reproduzir seus resultados. |
+
+## Idioma e aparência {#languages}
+
+Use o seletor para escolher entre os 12 idiomas. A escolha fica neste navegador. O interruptor de modo escuro permite alternar a aparência; antes de uma escolha explícita, a interface acompanha o sistema. Se o navegador bloquear o armazenamento, essas preferências podem ser perdidas ao recarregar. Trocar o idioma muda a apresentação das datas e números, preservando os instantes observados.
+
+## Leitura relacionada {#related}
+
+[Visão e escopo](./product/vision) · [Guia de uso](./guide/monitoring) · [Metodologia e dados](./product/methodology)

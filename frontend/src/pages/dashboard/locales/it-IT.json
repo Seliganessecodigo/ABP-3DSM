@@ -31,7 +31,7 @@
   "dataAsOf": "Dati raccolti fino al {{date}}",
   "dataAsOfUnavailable": "Per questo riepilogo non è disponibile l'ora di raccolta.",
   "trendTitle": "Serie temporale",
-  "trendUnavailable": "La serie storica aggregata non fa ancora parte del contratto API. Non vengono mostrati valori dimostrativi.",
+  "trendUnavailable": "Impossibile caricare la serie temporale.",
   "compositionTitle": "Composizione CO₂e per applicazione",
   "donut": "Mostra anello",
   "bars": "Mostra barre",
@@ -82,5 +82,9 @@
   "filters.clearAll": "Cancella tutti",
   "filters.cancel": "Annulla",
   "filters.apply": "Applica filtri",
-  "filters.invalidRange": "Inserisci limiti numerici validi e non negativi, con il minimo minore o uguale al massimo."
+  "filters.invalidRange": "Inserisci limiti numerici validi e non negativi, con il minimo minore o uguale al massimo.",
+  "trend.graph": "Grafico",
+  "trend.table": "Tabella",
+  "trend.interval": "Intervallo (UTC)",
+  "trend.note": "Valori per intervallo UTC. Le lacune indicano dati mancanti, non zero."
 }

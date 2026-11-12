@@ -1,72 +1,154 @@
-# GreenER API参考
+# API参考
 
-路由已与2026年10月23日`develop`代码核对（commit `1633ca2`）。本地Swagger：`http://localhost:3000/docs`，schema：`/openapi.json`。完整DTO请查看目标环境OpenAPI。
+本参考用于GreenER API集成。完整类型、可选字段及限制位于环境`/openapi.json`，Swagger在`/docs`。目录和历史读取持久化数据，预览和碳路由可能查询碳强度来源。
 
-## 已有读取路由
+## 公开查询 {#public}
 
-| 方法与路由 | 结果 |
+| HTTP | URI | 访问 |
+| --- | --- | --- |
+| GET | `/health` | — |
+| GET | `/applications` | — |
+| GET | `/applications/{id}` | — |
+| GET | `/applications/{id}/collections/latest` | — |
+| GET | `/applications/{id}/collections/{collectionId}` | — |
+| GET | `/applications/{id}/analysis` | — |
+| GET | `/applications/{id}/analysis/series` | — |
+| GET | `/applications/{id}/analysis/series/contributions` | — |
+| GET | `/analysis/summary` | — |
+| GET | `/monitoring/incidents` | — |
+| GET | `/carbon/regions` | — |
+| GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/recalculation-preview` | — |
+
+## 期间与历史 {#queries}
+
+`from`、`to`要求带明确时区的RFC 3339。`[from,to)`规范为UTC。序列支持`hour`、`day`、`month`、`year`，上限10,000点，超出拒绝。保存值按重叠比例分摊；最新`collectedAt`优先，再按ID字典升序，获胜观测不支持指标时不回退旧值。
+
+| URI | 参数 |
 | --- | --- |
-| GET /health | 服务HTTP健康响应。 |
-| GET /applications | 持久化目录数组；`[]`有效。 |
-| GET /applications/{id} | 应用、状态、时间及位置。 |
-| GET /applications/{id}/collections/latest | 最近有效观测及运行上下文。 |
-| GET /applications/{id}/collections/{collectionId} | 指定应用的观测，collectionId为UUID。 |
-| GET /applications/{id}/analysis?from=…&to=… | 查询应用在指定时间段内已持久化的环境结果。 |
-| GET /applications/{id}/analysis/series?from=…&to=…&granularity=… | 查询应用环境时间序列。 |
-| GET /applications/{id}/analysis/series/contributions?… | 查询序列bucket的贡献与排除项，支持分页。 |
-| GET /analysis/summary?from=…&to=… | 查询可按条件筛选的聚合环境摘要。 |
-| GET /monitoring/incidents | 查询带筛选和分页的集成事故记录。 |
-| GET /openapi.json | 机器可读契约。 |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
-读取使用已持久化数据；环境查询聚合已保存结果，不重算历史。序列使用UTC粒度，并保留缺口和事件。目录搜索和分页由前端执行。
+来源指标没有测量时间；区间由接收时间减`collection_interval_seconds`得出。因子查询时间不证明有效期，未发布来源和有效性保持未知。能源、因子、排放存8位小数，覆盖率4位，无中间舍入。保留独立覆盖率及原始快照。
 
-## 本地查询
+## 时间序列与计算说明 {#environmental-presentation}
 
-~~~sh
-curl --fail-with-body http://localhost:3000/health
-curl --fail-with-body http://localhost:3000/applications
-~~~
+在 `/analysis/summary` 中，可选参数 `granularity` 返回与总计使用相同时段和筛选条件的 `series.points`。每个时段汇总各应用的持久化结果，并保留独立覆盖率。缺失值保持为 `null`。
 
-使用目录返回的ID并对路径段URL编码，不假设连续ID或应用ID为UUID。DTO包含`id`、`name`、`state`、`reason`、`lastObservationAt`、`isStale`、`isCalculable`、`firstSeenAt`、`lastCheckedAt`、`removedAt`、`updatedAt`和`location`。详情页使用运行字段说明状态、新鲜度和可计算性；字段类型与可空性请查看OpenAPI。城市可以null；旧记录位置不完整时可为`location: null`。
+在 `/applications/{id}/analysis` 中，`calculation.energyKwh` 表示已计算排放量的区间能耗；`calculation.intensity` 为对应排放量除以能耗得到的等效因子，单位为gCO₂e/kWh。能耗为零或缺失时，因子为空。历史结果和因子保持不变。
 
-## 错误
+## 登录账户 {#login}
 
-| HTTP / 代码 | 含义 |
+仪表板和环境查询公开。`/login`使用邮箱/密码或已启用的Google。Admin包括Google登录后均需设置/确认六位TOTP；Analyst/Visitor不因此获得管理权限。前端会话仅在内存中，刷新后需重登。后端校验JWT、会话、当前角色与账户状态；认证缺失/无效为401，角色不足为403。新路由默认保护。
+
+| HTTP | URI | 访问 |
+| --- | --- | --- |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## 受保护操作 {#protected}
+
+| HTTP | URI | 访问 |
+| --- | --- | --- |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+
+同组织Admin可提交`expectedStatus`及原因，将账户改为`ACTIVE`、`BLOCKED`或`DEACTIVATED`。封禁/停用撤销所有会话；重新激活必须重新登录。保护自身账户及最后一位活跃Admin。预期状态冲突409，已达目标为幂等成功。共享审计将成功与变更同事务写入，拒绝在回滚事务之外写入，明确操作者且不含秘密。该路由不提供完整角色管理或密码恢复。
+
+```json
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
+```
+
+## 通过 API 管理账户 {#accounts}
+
+只有同一组织中处于有效状态的 Admin 可以查询、创建账户或更改角色。创建时提交 `name`、`email`、`role` 和 `reason`，不接收密码，也不自动验证邮箱。账户持有人通过现有邮箱确认流程设置密码，确认邮件需另行请求发送。管理界面和密码找回仍属于独立交付项。
+
+列表先应用搜索和筛选，再排序和分页。默认每页10条，可选5、10、15、20条，以及返回全部筛选结果的 `all`。翻译后的标签应转换为枚举代码，本地日期应转换为带时区偏移的 RFC 3339。缺失值在升序和降序中均排在最后，相同值按标识符排序。
+
+更改角色需要 `expectedRole` 和 `reason`。更改会撤销会话和临时 TOTP 凭据，保留审计记录，并禁止移除自己的访问权限或最后一个邮箱已确认的有效 Admin。未确认邮箱的账户不能替代该管理员。赋予 Admin 角色后仍须完成 TOTP 验证。
+
+## 比较重算预览 {#preview}
+
+在`/administration/calculations`选择应用和日期，比较原始值与预览。结束日期包含完整UTC日；API接收`[from,to)`。公开预览使用当前模型及历史地区的当前因子，不保存结果。上限30天、10,000条观测。响应有`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。因子故障保留可算能源，CO₂e不可用。百分比要求单位/覆盖率一致且参考值为正。
+
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## 个性化分析 {#preferences}
+
+在 `/methodology` 中设置每个应用的能耗和排放上限、覆盖率参考值以及分析默认值。可选择最近24小时、7天、30天、90天、UTC当月或自定义起止时间，包含开始时刻但不包含结束时刻。预览读取真实数据而不保存，并使用与应用页面及仪表板相同的警告面板。保存需要登录且仅影响自己的账户，不改变计算、历史记录或运行状态。警告独立于页面筛选条件，使用各上限自己的时间范围。分析默认值仅补充仪表板和详情页面URL中缺少的选项。部分数据低于上限不能证明符合要求；缺失数据绝不代表零。
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
+
+| tab | value |
 | --- | --- |
-| 400 / INVALID_APPLICATION_ID | 按路由规则为空或无效的ID；采集UUID无效也返回400。 |
-| 404 / APPLICATION_NOT_FOUND | 应用未知。 |
-| 404 / COLLECTION_NOT_FOUND | 该应用没有指定观测。 |
-| 503 / CATALOG_UNAVAILABLE | 目录读取失败。 |
-| 503 / APPLICATION_EVIDENCE_UNAVAILABLE | 证据读取失败。 |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
 
-按结构化代码和HTTP处理，错误文案不是翻译契约。不要将失败替换为空数组或零指标。
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
 
-## 集成边界
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
-仅后端调用辅助来源，参见[版本化契约](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)。此页不发布未来能源、认证或管理endpoint。JWT管理是[EP06](../backlog/ep06)要求，并非假设已经可用。URL、CORS与诊断见[运维](../operations)，区间解释见[方法](../product/methodology)。
+## 错误处理 {#errors}
 
-## 查询环境分析
+按HTTP状态和结构化代码处理错误，不将消息作为翻译契约。`null`是缺失而非零。空列表是有效响应，不是查询失败。请结合操作理解代码。
 
-`GET /applications/{id}/analysis`要求`from`和`to`为带有明确时区的RFC 3339时间戳。开始时间包含在范围内，结束时间不包含在内，两者都会转换为UTC。响应包含`status`（`available`或`empty`）、时间段、能源、排放、分别计算的覆盖率以及来源信息（方法、查询过的因子和原因）。`null`表示没有可用结果；0是有效数值。
-
-| HTTP / code | 含义 |
+| HTTP | 代码 |
 | --- | --- |
-| 400 / INVALID_ANALYSIS_PERIOD | 时间戳无效或缺少时区，或`to`小于等于`from`。 |
-| 404 / APPLICATION_NOT_FOUND | 未识别该应用。 |
-| 503 / APPLICATION_ANALYSIS_UNAVAILABLE | 读取分析或持久化结果失败。 |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
 
-按应用的摘要和序列已集成在详情页。页面也会查询bucket贡献；当前前端只请求第一页，交互分页仍待交付。
+## HTTP契约 {#contracts}
 
-## 查询环境序列
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
 
-`GET /applications/{id}/analysis/series`要求`from`、`to`和`granularity`（`hour`、`day`、`month`或`year`）。响应包含`points`、`events`、总量和覆盖率。bucket按UTC日历计算，只计入与查询范围重叠的部分，因此可以是不完整bucket。超过10,000个点的请求会被拒绝；服务端不会截断或自动更改粒度。
+## 相关阅读 {#related}
 
-`GET /applications/{id}/analysis/series/contributions`还要求`bucketStart`；`page`默认1，`pageSize`默认10。允许`5`、`10`、`15`、`20`和`all`；`all`仅在第一页有效。响应包含贡献、排除项及保存的方法和因子快照。
-
-## 查询聚合摘要
-
-`GET /analysis/summary`要求`from`和`to`。可重复的可选筛选项为`states`、`regionCodes`和`applicationIds`。响应包含总量、覆盖率、按状态统计、应用列表、`dataAsOf`和来源信息。API已提供该接口，但界面尚无独立的聚合仪表板。
-
-## 查询监控事故
-
-`GET /monitoring/incidents`接受`applicationId`、`source`、`integration`、`status`、`page`和`limit`。status可为`OPEN`、`RECOVERING`或`RESOLVED`；默认页码为1、每页20条。响应包含`items`、`total`、`page`和`limit`。当前限制和枚举值请查看OpenAPI。
+[运维与诊断](../operations) · [方法与数据](../product/methodology)

@@ -31,7 +31,7 @@
   "dataAsOf": "Data collected through {{date}}",
   "dataAsOfUnavailable": "No collection timestamp is available for this summary.",
   "trendTitle": "Time series",
-  "trendUnavailable": "An aggregated historical series is not part of the API contract yet. No illustrative values are shown.",
+  "trendUnavailable": "Could not load the time series.",
   "compositionTitle": "CO₂e composition by application",
   "donut": "View donut",
   "bars": "View bars",
@@ -82,5 +82,9 @@
   "filters.clearAll": "Clear all",
   "filters.cancel": "Cancel",
   "filters.apply": "Apply filters",
-  "filters.invalidRange": "Enter valid non-negative numeric limits with minimum less than or equal to maximum."
+  "filters.invalidRange": "Enter valid non-negative numeric limits with minimum less than or equal to maximum.",
+  "trend.graph": "Chart",
+  "trend.table": "Table",
+  "trend.interval": "Interval (UTC)",
+  "trend.note": "Values per UTC interval. Gaps mean missing data, not zero."
 }

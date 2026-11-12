@@ -1,31 +1,32 @@
 # Architektur
 
-## Komponenten
+Dieser Teil richtet sich an Entwicklung und Betrieb und beschreibt lokale Umgebung, Verträge und Prüfungen. Zur Produktnutzung lesen Sie das Benutzerhandbuch.
 
-Die lokale Umgebung verwendet Docker Compose für drei Dienste: Frontend, API und PostgreSQL.
+## Technische Dokumentation {#components}
 
-| Bereich | Verantwortung | Technologien |
-| --- | --- | --- |
-| `frontend/` | Benutzeroberfläche, Navigation und Darstellung | React 19, TypeScript, Vite, i18next |
-| `backend/` | API, Anwendungsfälle und externe Integrationen | NestJS, TypeScript, TypeORM |
-| PostgreSQL | Speicherung von Anwendungen und Domänendaten | PostgreSQL 18 |
+React 19/TypeScript/Vite zeigt Daten; NestJS/TypeORM/PostgreSQL 18 integriert und speichert. Nur Backend ruft Hilfsquellen ab. Controller: Transport; Services: Anwendungsfälle; Adapter: Validierung; Repositories: Speicherung. Globale Guards und `PublicRoute`-Ausnahmen. Einstellungen pro Benutzer; Audit in `backend/src/shared/audit/`, bei Erfolg transaktional.
 
-Das Frontend ruft ausschließlich die GreenER-API auf. Nur das Backend verbindet sich mit dem Metrics Aggregator und dem Carbon Intensity Service.
+```text
+frontend/  React 19 · TypeScript · Vite
+backend/   NestJS · TypeScript · TypeORM
+PostgreSQL 18
+frontend → GreenER API → auxiliary APIs
+```
 
-## Codeorganisation
+## Anmelden {#security}
 
-- `frontend/src/pages/` enthält jede Seite zusammen mit Hooks, Übersetzungen und CSS Modules.
-- `frontend/src/features/` verantwortet Domänenverträge, Validierung, HTTP-Zugriff, Cache und reine Regeln.
-- `backend/src/modules/` gruppiert Endpunkte und Anwendungsfälle nach Domäne.
-- `backend/src/integrations/` passt Antworten der Hilfs-APIs an und validiert sie.
-- `backend/src/database/` enthält Entitäten, Migrationen und Repositories.
+Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.
 
-## Daten und Zuverlässigkeit
+Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
 
-Das Backend integriert Datenquellen und speichert deren Daten. Es hält dokumentierte Verträge, Schemas und Einheiten ein. Fehler, fehlende Werte, ungültige Antworten, veraltete Daten und gültige Nullwerte sind unterschiedliche Zustände; die Benutzeroberfläche muss diese Unterscheidung erhalten.
+## Zeiträume und Verlauf {#data}
 
-Details stehen in den [Verträgen der externen APIs im Repository](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) und im [Leitfaden zur Frontend-Organisation](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md).
+`from` und `to` benötigen RFC 3339 mit expliziter Zeitzone. `[from,to)` wird UTC-normalisiert. Zeitreihe: `hour`, `day`, `month`, `year`, höchstens 10.000 Punkte; Überschreitung wird abgelehnt. Gespeicherte Werte werden nach Überlappung verteilt. Neuester `collectedAt` gewinnt, dann aufsteigende lexikalische ID; kein Rückgriff auf ältere Beobachtungen bei ungeeignetem Gewinner.
 
-## Weiterführende Seiten
+Quellmetriken haben keinen Messzeitpunkt. Intervall: Empfang minus `collection_interval_seconds`. Faktorabfrage beweist keine Gültigkeit; unveröffentlichte Quelle/Gültigkeit bleiben unbekannt. Energie/Faktor/Emissionen speichern acht Dezimalstellen, Abdeckung vier. Keine Zwischenrundung. Getrennte Abdeckungen und ursprüngliche Snapshots bleiben erhalten.
 
-[Methodik und Daten](./product/methodology) · [API-Referenz](./reference/api) · [Betrieb und Diagnose](./operations)
+## Weiterführende Seiten {#related}
+
+[API-Referenz](./reference/api) · [Erste Schritte](./getting-started)
+
+[ADR](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/adr) · [Design](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/design) · [Specs](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/specs)

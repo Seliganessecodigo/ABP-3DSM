@@ -57,6 +57,19 @@ Estas rotas não exigem JWT prévio. Cada fluxo valida a credencial de seu contr
 | --- | --- |
 | POST /auth/sso/invitations | ADMIN autenticado |
 | DELETE /auth/sso/identities/{userId} | ADMIN autenticado; mantém restrição de organização e bloqueio de autorrevogação |
+| PATCH /auth/users/{userId}/status | ADMIN autenticado da mesma organização; motivo e estado esperado obrigatórios; transição e revogação atômicas |
+| GET /auth/users | ADMIN ativo da mesma organização; busca, filtros, ordenação e paginação; sem credenciais |
+| POST /auth/users | ADMIN ativo da mesma organização; cria conta pendente de confirmação, sem receber senha |
+| PATCH /auth/users/{userId}/role | ADMIN ativo da mesma organização; papel esperado, motivo e revogação atômica de sessões |
 
-A validação de sessão reutiliza o comportamento atual para contas e sessões inválidas. As regras de
-transição de bloqueio, desativação, revogação e reativação seguem pendentes na issue #245.
+A conta pode estar ativa, bloqueada ou desativada. Bloqueio e desativação revogam todas as sessões;
+reativação exige novo login. O Admin não pode bloquear a própria conta nem o último Admin ativo.
+Estado esperado divergente retorna 409, exceto quando o estado desejado já foi alcançado, que é
+sucesso idempotente. Valores ou motivos inválidos retornam 400.
+
+As novas rotas de contas usam o guard global de sessão e conferem o papel persistido no
+caso de uso, dentro da transação, para também auditar as negações de usuários autenticados.
+Mudança de papel revoga sessões e credenciais TOTP temporárias; o próximo login usa o papel
+atual e mantém TOTP obrigatório para Admin. Um Admin ainda sem e-mail confirmado não conta
+como substituto do último Admin com acesso, tanto na alteração de papel quanto de estado.
+O contrato de consultas, criação e auditoria está em [ACCOUNTS.md](ACCOUNTS.md).

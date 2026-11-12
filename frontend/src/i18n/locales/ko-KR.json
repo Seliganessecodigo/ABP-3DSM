@@ -57,5 +57,6 @@
   "auth.signOut": "로그아웃",
   "auth.role.ADMIN": "관리자",
   "auth.role.ANALYST": "분석가",
-  "auth.role.VISITOR": "방문자"
+  "auth.role.VISITOR": "방문자",
+  "nav.users": "사용자"
 }

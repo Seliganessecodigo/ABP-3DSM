@@ -8,7 +8,9 @@ Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia 
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend oferece catálogo, dashboard ambiental, detalhe operacional, evidências de métricas, análise ambiental por aplicação e Metodologia com quatro abas e preferências pessoais, preservando a consulta da metodologia registrada por coleta. O backend disponibiliza descoberta, coleta periódica, incidentes, consultas ambientais e resumo agregado. As preferências reutilizam a autenticação existente e têm [contrato e operação documentados em Markdown](backend/src/modules/preferences/README.md). A [visão do produto](docs/product/vision.md) registra o estado por camada e a data de referência.
+O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
+
+Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
 
 ## Épicos
 
@@ -22,9 +24,9 @@ O frontend oferece catálogo, dashboard ambiental, detalhe operacional, evidênc
 
 ## Documentação multilíngue
 
-O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês e chinês simplificado.
+O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês, chinês simplificado, coreano, russo, hindi e indonésio.
 
-Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos oito idiomas.
+Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos doze idiomas.
 
 | Idioma | Fonte Markdown |
 | --- | --- |
@@ -36,6 +38,10 @@ Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), 
 | [Italiano](docs/it-IT/index.md) | [Per iniziare](docs/it-IT/getting-started.md) · [Architettura](docs/it-IT/architecture.md) · [Epic](docs/it-IT/roadmap.md) · [Contribuire](docs/it-IT/contributing.md) |
 | [日本語](docs/ja-JP/index.md) | [はじめに](docs/ja-JP/getting-started.md) · [アーキテクチャ](docs/ja-JP/architecture.md) · [エピック](docs/ja-JP/roadmap.md) · [コントリビューション](docs/ja-JP/contributing.md) |
 | [简体中文](docs/zh-CN/index.md) | [开始使用](docs/zh-CN/getting-started.md) · [架构](docs/zh-CN/architecture.md) · [史诗任务](docs/zh-CN/roadmap.md) · [参与贡献](docs/zh-CN/contributing.md) |
+| [한국어](docs/ko-KR/index.md) | [시작하기](docs/ko-KR/getting-started.md) · [아키텍처](docs/ko-KR/architecture.md) · [제품 백로그](docs/ko-KR/roadmap.md) |
+| [Русский](docs/ru-RU/index.md) | [Начало работы](docs/ru-RU/getting-started.md) · [Архитектура](docs/ru-RU/architecture.md) · [Бэклог продукта](docs/ru-RU/roadmap.md) |
+| [हिन्दी](docs/hi-IN/index.md) | [शुरुआत करें](docs/hi-IN/getting-started.md) · [आर्किटेक्चर](docs/hi-IN/architecture.md) · [उत्पाद बैकलॉग](docs/hi-IN/roadmap.md) |
+| [Bahasa Indonesia](docs/id-ID/index.md) | [Memulai](docs/id-ID/getting-started.md) · [Arsitektur](docs/id-ID/architecture.md) · [Backlog produk](docs/id-ID/roadmap.md) |
 
 Para abrir o site localmente, instale as dependências da documentação e inicie o servidor:
 
@@ -45,6 +51,8 @@ npm run docs:dev
 ```
 
 Acesse http://localhost:4174. Para gerar e visualizar os arquivos HTML de produção, use `npm run docs:build` e `npm run docs:preview`.
+
+O build verifica a equivalência de seções, tabelas, links e exemplos nos doze idiomas. Execute `npm run docs:check` para fazer essa conferência isoladamente.
 
 A publicação do HTML no GitHub Pages está configurada no workflow. Na primeira publicação, o repositório precisa usar **GitHub Actions** como origem em **Settings → Pages**. O Markdown continua versionado e acessível pelos links acima.
 

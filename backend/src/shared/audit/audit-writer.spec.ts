@@ -77,6 +77,30 @@ describe('AuditWriter', () => {
     expect(users.findOne).not.toHaveBeenCalled()
   })
 
+  it('can persist an allowlisted before snapshot for an audited denial', async () => {
+    await writer.record({
+      actor: { type: 'user', userId: user.id },
+      action: 'account.status.denied',
+      entityType: 'user',
+      entityId: user.id,
+      outcome: 'denied',
+      before: { status: 'ACTIVE' },
+      allowedSnapshotFields: ['status'],
+      allowDeniedBeforeSnapshot: true,
+      reason: 'Self-block attempt',
+    })
+
+    expect(auditLogs.append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        before: { status: 'ACTIVE' },
+        after: null,
+        outcome: 'denied',
+        reason: 'Self-block attempt',
+      }),
+      undefined,
+    )
+  })
+
   it('preserves the external operator identity for privileged recovery', async () => {
     await writer.record({
       actor: { type: 'operator', operatorId: 'support-42' },

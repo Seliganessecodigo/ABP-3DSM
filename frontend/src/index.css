@@ -11,6 +11,11 @@
   -moz-osx-font-smoothing: grayscale;
 
   font-optical-sizing: auto;
+  --control-height: 44px;
+  --control-height-compact: 36px;
+  --control-height-large: 50px;
+  --control-radius: 8px;
+  --control-font-size: 13px;
 }
 
 * {
@@ -24,6 +29,9 @@ body {
 }
 
 button,
+input,
+select,
+textarea,
 a {
   font: inherit;
 }

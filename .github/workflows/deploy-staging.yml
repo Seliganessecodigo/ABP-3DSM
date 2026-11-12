@@ -111,7 +111,7 @@ jobs:
     name: Deploy frontend to Static Web Apps
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-    needs: quality
+    needs: [quality, deploy-api]
     environment: staging
     steps:
       - name: Checkout repository
@@ -130,6 +130,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL || 'https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net' }}
+          VITE_GOOGLE_SSO_ENABLED: ${{ vars.VITE_GOOGLE_SSO_ENABLED || 'false' }}
         run: |
           npm ci
           npm run build

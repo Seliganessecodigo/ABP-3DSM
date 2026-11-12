@@ -1,31 +1,32 @@
 # Architecture
 
-## Components
+This part of the documentation is for development and operations. It covers the local environment, contracts and checks. To learn how to use the product, read the user guide.
 
-The local environment uses Docker Compose to run three services: the frontend, API, and PostgreSQL.
+## Technical documentation {#components}
 
-| Area | Responsibility | Technologies |
-| --- | --- | --- |
-| `frontend/` | User interface, navigation, and presentation | React 19, TypeScript, Vite, i18next |
-| `backend/` | API, use cases, and external integrations | NestJS, TypeScript, TypeORM |
-| PostgreSQL | Application and domain data persistence | PostgreSQL 18 |
+React 19/TypeScript/Vite presents data; NestJS/TypeORM/PostgreSQL 18 integrates and persists it. Only the backend contacts auxiliary sources. Controllers handle transport, services coordinate use cases, adapters validate sources and repositories persist data. Global authentication/role guards protect routes; `PublicRoute` marks public exceptions. Preferences belong to the authenticated user; shared audit lives in `backend/src/shared/audit/` and joins successful mutation transactions.
 
-The frontend calls only the GreenER API. Only the backend connects to the Metrics Aggregator and Carbon Intensity Service.
+```text
+frontend/  React 19 · TypeScript · Vite
+backend/   NestJS · TypeScript · TypeORM
+PostgreSQL 18
+frontend → GreenER API → auxiliary APIs
+```
 
-## Code organization
+## Sign in {#security}
 
-- `frontend/src/pages/` keeps each screen with its hooks, translations, and CSS Modules.
-- `frontend/src/features/` owns domain contracts, validation, HTTP access, cache, and pure rules.
-- `backend/src/modules/` groups endpoints and use cases by domain.
-- `backend/src/integrations/` adapts and validates responses from auxiliary APIs.
-- `backend/src/database/` contains entities, migrations, and repositories.
+Dashboard and environmental queries are public. At `/login`, use email/password or Google when enabled. Admin must set up or confirm a six-digit TOTP before a session, including after Google. Analyst and Visitor receive no administrative authorization. The frontend holds sessions in memory; reloading requires login again. The backend checks JWT, session, current role and account status; missing/invalid credentials return 401, insufficient role 403. New routes are protected by default.
 
-## Data and reliability
+An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets. This route does not deliver full role management or password recovery.
 
-The backend integrates with data sources and persists their data. It follows documented contracts, schemas, and units. Errors, missing values, invalid responses, stale data, and valid zero values are distinct states; screens must preserve that distinction.
+## Periods and history {#data}
 
-See the [external API contracts in the repository](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) and the [frontend organization guide](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) for implementation details.
+`from` and `to` require RFC 3339 with an explicit timezone. `[from,to)` is normalized to UTC. Series accept `hour`, `day`, `month`, `year`, with up to 10,000 points; excess is rejected. Saved results are prorated by overlap. Conflicts use the latest `collectedAt`, then ascending lexical ID, without falling back to an earlier observation if the winner cannot support a metric.
 
-## Further reading
+Source metrics have no measurement timestamp. The interval derives from receipt minus `collection_interval_seconds`. Factor query time does not establish validity; unpublished source and validity remain unknown. Energy, factor and emissions persist eight decimal places; coverage four. No intermediate rounding occurs. Energy and emissions retain separate coverage and original snapshots.
 
-[Methodology and data](./product/methodology) · [API reference](./reference/api) · [Operations and diagnosis](./operations)
+## Related reading {#related}
+
+[API reference](./reference/api) · [Getting started](./getting-started)
+
+[ADR](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/adr) · [Design](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/design) · [Specs](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/specs)

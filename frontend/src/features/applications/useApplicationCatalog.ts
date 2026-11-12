@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getApplications, type Application } from '../../features/applications/api.ts'
-import { readCachedCatalog, cacheCatalog } from '../../features/applications/cache.ts'
-import { APPLICATION_POLL_INTERVAL_MS } from '../../features/applications/polling.ts'
+import { getApplications, type Application } from './api.ts'
+import { readCachedCatalog, cacheCatalog } from './cache.ts'
+import { APPLICATION_POLL_INTERVAL_MS } from './polling.ts'
 
-export function useCatalog() {
+export function useApplicationCatalog() {
   const [snapshot] = useState(readCachedCatalog)
   const [applications, setApplications] = useState<Application[]>(snapshot ?? [])
   const [hasSnapshot, setHasSnapshot] = useState(snapshot !== null)

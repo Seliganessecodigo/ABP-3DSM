@@ -10,14 +10,16 @@ import { formatDate, formatDateRangeBoundary } from '../../utils/formatDate.ts'
 import { reasonLabel, stateLabel } from '../../features/applications/presentation.ts'
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
-import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
+import { periodPresets, readPeriodSelection, readCustomAnalysisRange, urlWithPeriod, type PeriodPreset } from '../../features/analysis/periodContext.ts'
 import { analysisRangeFor, environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSeriesEvent, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
-import { useAnalysisDefaults } from './useAnalysisDefaults.ts'
+import { useAnalysisDefaults } from '../../features/preferences/useAnalysisDefaults.ts'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel } from '../../components/PersonalAlerts.tsx'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
 
@@ -60,6 +62,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   historyApplicationSelector?: ReactNode
 }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
+  const personalAlerts = usePersonalAlerts()
   const { t: tCommon } = useTranslation('common')
   const analysisDefaultsReady = useAnalysisDefaults()
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
@@ -97,11 +100,12 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   }, [historyOnly])
   const selectedPeriod = readPeriodSelection(window.location.search)
   const analysisPeriod = searchParams.get('period') ?? '7d'
+  const customRange = readCustomAnalysisRange(window.location.search)
   const analysisGranularity = searchParams.get('granularity')
   const { application, loading, refreshing, notFound, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refreshCycle, retry,
     collection, collectionLoading, collectionNotFound, collectionError } = useApplicationDetail(id, selectedCollectionId)
   const environmentalAnalysis = useEnvironmentalAnalysis(id, analysisPeriod, analysisGranularity, analysisSource,
-    application !== null && selectedPeriod !== null && analysisDefaultsReady, refreshCycle, analysisAnchor)
+    application !== null && selectedPeriod !== null && analysisDefaultsReady, refreshCycle, analysisAnchor, customRange)
   const { loadContributions } = environmentalAnalysis
   const inspectionRequestKey = JSON.stringify([id, analysisPeriod, analysisGranularity, analysisAnchor, inspectionBucket])
   useEffect(() => {
@@ -133,7 +137,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const methodologyQuery = methodologyParams.size ? `?${methodologyParams.toString()}` : ''
   const methodologyUrl = `/services/${encodeURIComponent(id)}/methodology${methodologyQuery}`
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
-  const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor))
+  const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor), customRange)
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)
   const backUrl = `/${window.location.search}`
@@ -187,7 +191,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
     <a className="button secondary" href={methodologyUrl} onClick={(event) => { event.preventDefault(); navigate(methodologyUrl) }}>{tDetail('methodologyFullPage')}</a>
   </>
-  const selectPeriod = (period: typeof periodPresets[number]) => {
+  const selectPeriod = (period: PeriodPreset) => {
     setAnalysisAnchor(analysisNow())
     const next = new URL(urlWithPeriod(window.location.pathname, window.location.search, period), window.location.origin)
     next.searchParams.delete('seriesPage')
@@ -195,7 +199,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   }
   const periodSelector = <PeriodSelector compact select={historyOnly} className={styles.periodSelector}
     title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')} busy={analysisPending}
-    options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} onSelect={selectPeriod} />
+    options={[...periodPresets, ...(selectedPeriod === 'custom' || selectedPeriod === 'month' ? [selectedPeriod] : [])].map((value) => ({ value, label: tDetail(`periods.${value}`) }))} onSelect={selectPeriod} />
   const granularityContent = <AnalysisGranularity compact select={historyOnly}
     capabilities={granularityCapabilities} requestedValue={analysisGranularity}
     onChange={(value) => {
@@ -258,6 +262,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         {periodSelector}
       </div>}
+      <PersonalAlertsPanel state={personalAlerts} applicationId={id} />
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
         historyRegionFallback={application?.location?.regionCode ?? null}
@@ -307,7 +312,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           historyContributionOpen: tDetail('historyContributionOpen'),
           historyNoContributions: tDetail('historyNoContributions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
-          viewFactorDetails: tDetail('analysisViewFactorDetails'), validDataInPeriod: tDetail('analysisValidDataInPeriod'),
+          equivalentFactor: tDetail('analysisEquivalentFactor'), factorExplanation: tDetail('analysisFactorExplanation'), energyWithEmissions: tDetail('analysisEnergyWithEmissions'),
+          validDataInPeriod: tDetail('analysisValidDataInPeriod'),
           energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {

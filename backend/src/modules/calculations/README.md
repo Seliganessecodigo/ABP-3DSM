@@ -1,12 +1,14 @@
 # Cálculo de CO₂e
 
-## Simulação regional — #86
+## Desempenho das projeções
 
-`calculateRegionalSimulation` calcula um cenário sem persistir resultado. A energia e os intervalos vêm das coletas ambientais persistidas, com recorte, desempate de sobreposições e lacunas resolvidos por `resolvePersistedEnvironmentalSegments`. O destino usa um único fator atual consultado para a região escolhida; a referência usa o snapshot guardado em cada coleta e pode combinar fatores preservados diferentes.
+Os segmentos internos mantêm início, fim e duração original em nanossegundos (`bigint`). A preparação valida cada timestamp uma vez; a série usa esses valores sem converter cada segmento para texto e depois interpretá-lo novamente. A formatação UTC ocorre na produção de pontos ou evidências HTTP. Rateio, sobreposição, desempate, cobertura, ausência e precisão permanecem iguais.
 
-A função retorna energia, emissões de referência e destino, coberturas independentes, snapshots/horários de consulta e diferenças assinada e percentual. Diferença absoluta é destino menos referência em `gCO2e`; percentual usa a referência como base, só quando a cobertura é compatível e a referência é positiva. Com referência zero, a diferença absoluta continua disponível e o percentual recebe `ZERO_REFERENCE`. Fator ausente nunca é preenchido pelo snapshot mais recente. Cobertura de referência menor deixa diferenças indisponíveis com `INCOMPATIBLE_COVERAGE`; erro do destino mantém a referência e retorna a razão de integração.
+O resumo agregado libera o event loop entre aplicações para permitir que requisições leves avancem durante uma análise. Não há cache, alteração de schema ou mudança de contrato HTTP.
 
-O endpoint reutiliza fatores somente em memória para aquela resposta. Cada nova chamada consulta o fator atual novamente; falha não grava tentativa, fator ou resultado. `queriedAt` é o horário da consulta GreenER, nunca vigência oficial.
+Na projeção sem rastreabilidade, o repository lê valores e limites temporais. Os motivos de energia ou emissões são carregados somente quando o valor é nulo ou `NaN`; os metadados completos não são transferidos nem reconstruídos. `energyReasons` e `emissionsReasons` são campos internos opcionais dessa projeção. Consultas completas mantêm a evidência original. A equivalência é verificada em PostgreSQL, incluindo fator indisponível e valor não finito com motivo de ausência.
+
+Execute `npm run benchmark:analysis` em `backend/` para medir resumo e série sobre 80.640 coletas sintéticas, com oito aplicações e sete dias. O comando não usa banco, rede ou credenciais e verifica a equivalência entre totais e pontos. Compare execuções com a mesma máquina/carga; os tempos de CPU não representam a latência publicada. O teste de regressão da série também limita o número de interpretações de timestamps; o teste do serviço verifica que outras tarefas do servidor avançam durante a projeção.
 
 `calculateCarbonEmission` é uma função pura: recebe energia em kWh e o snapshot explícito do fator, sem consultar HTTP, banco ou relógio.
 

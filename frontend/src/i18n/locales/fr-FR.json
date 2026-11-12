@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "Suppression confirmée",
   "loading.description": "Veuillez patienter pendant la requête. Aucune valeur n’est encore affichée.",
   "loading.processing": "Traitement…",
-  "auth.login": "Se connecter"
+  "auth.login": "Se connecter",
+  "nav.users": "Utilisateurs"
 }

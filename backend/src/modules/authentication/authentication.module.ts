@@ -25,6 +25,10 @@ import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-t
 import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import { AuditModule } from '../../shared/audit/audit.module'
+import { AccountLifecycleService } from './account-lifecycle.service'
+import { AccountsController } from './accounts.controller'
+import { AccountsService } from './accounts.service'
+import { AccountsRepository } from './accounts.repository'
 
 @Module({
   imports: [
@@ -40,10 +44,13 @@ import { AuditModule } from '../../shared/audit/audit.module'
       SsoTransactionEntity,
     ]),
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthenticationController, AccountsController],
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
+    AccountLifecycleService,
+    AccountsService,
+    AccountsRepository,
     TotpAuthenticationService,
     SsoAuthenticationService,
     GoogleOidcClient,

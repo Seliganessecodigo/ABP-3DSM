@@ -57,5 +57,6 @@
   "auth.signOut": "साइन आउट",
   "auth.role.ADMIN": "व्यवस्थापक",
   "auth.role.ANALYST": "विश्लेषक",
-  "auth.role.VISITOR": "आगंतुक"
+  "auth.role.VISITOR": "आगंतुक",
+  "nav.users": "उपयोगकर्ता"
 }

@@ -230,5 +230,10 @@
   "historyMethodology": "Metodologia",
   "historyAction": "A\u00e7\u00e3o",
   "historyReturnNote": "Voltar restaura os critérios e a página do histórico, com foco no intervalo que abriu esta inspeção.",
-  "historyRecalculationPreview": "Prévia de recálculo"
+  "historyRecalculationPreview": "Prévia de recálculo",
+  "analysisEquivalentFactor": "Fator equivalente",
+  "analysisFactorExplanation": "As emissões somam os cálculos de cada intervalo. O fator equivalente resume os fatores aplicados, ponderados pela energia com CO₂e calculado.",
+  "analysisEnergyWithEmissions": "Energia com CO₂e calculado",
+  "periods.month": "Mês atual (UTC)",
+  "periods.custom": "Intervalo personalizado"
 }

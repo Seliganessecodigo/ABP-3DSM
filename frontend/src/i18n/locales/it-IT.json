@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "Rimozione confermata",
   "loading.description": "Attendi il completamento della richiesta. Nessun valore è ancora visualizzato.",
   "loading.processing": "Elaborazione…",
-  "auth.login": "Accedi"
+  "auth.login": "Accedi",
+  "nav.users": "Utenti"
 }

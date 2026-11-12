@@ -142,3 +142,16 @@ export async function refreshSession(refreshToken: string): Promise<SessionToken
 export async function logout(accessToken: string): Promise<void> {
   await requestJson(endpoint('sessions/logout'), { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` } })
 }
+
+async function submitAccountSetup(path: string, body: Record<string, string>, signal: AbortSignal): Promise<void> {
+  const value = await requestJson(endpoint(path), { method: 'POST', body: JSON.stringify(body), signal })
+  if (!isRecord(value) || typeof value.message !== 'string') throw new Error('Invalid account setup response')
+}
+
+export function acceptAdminInvitation(input: { token: string; name: string; email: string }, signal: AbortSignal): Promise<void> {
+  return submitAccountSetup('invitations/accept', input, signal)
+}
+
+export function confirmAdminEmail(input: { token: string; password: string }, signal: AbortSignal): Promise<void> {
+  return submitAccountSetup('email/confirm', input, signal)
+}

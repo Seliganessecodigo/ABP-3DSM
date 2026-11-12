@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -16,6 +17,9 @@ export interface PersistedApplicationMetadataEvent {
   readonly occurredAt: string
   readonly details: Record<string, unknown> | null
 }
+
+// Event inserts share the caller's transaction and stay below PostgreSQL's parameter limit.
+const EVENT_INSERT_BATCH_SIZE = 1_000
 
 @Injectable()
 export class ApplicationEventsRepository {
@@ -45,6 +49,19 @@ export class ApplicationEventsRepository {
       ApplicationEventEntity,
       event as QueryDeepPartialEntity<ApplicationEventEntity>,
     )
+  }
+
+  async appendManyInTransaction(
+    manager: EntityManager,
+    events: readonly Partial<ApplicationEventEntity>[],
+  ): Promise<void> {
+    for (let offset = 0; offset < events.length; offset += EVENT_INSERT_BATCH_SIZE) {
+      // eslint-disable-next-line no-await-in-loop -- Submit the next batch only after success on the same transactional connection.
+      await manager.insert(
+        ApplicationEventEntity,
+        events.slice(offset, offset + EVENT_INSERT_BATCH_SIZE) as QueryDeepPartialEntity<ApplicationEventEntity>[],
+      )
+    }
   }
 
   findAnalysisEventsByApplicationAndPeriod(

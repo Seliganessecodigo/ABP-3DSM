@@ -1,4 +1,8 @@
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AuditWriter } from '../../shared/audit/audit-writer'
 import { AuthenticationPersistence } from './authentication.persistence'
 import { AuthenticationService } from './authentication.service'
@@ -56,7 +60,7 @@ describe('AuthenticationService audit integration', () => {
   it('records an authenticated actor when SSO requires admin TOTP', async () => {
     const user = {
       id: 'user-1',
-      isActive: true,
+      status: UserAccountStatus.ACTIVE,
       emailVerifiedAt: new Date(),
       role: UserRole.ADMIN,
     } as UserEntity

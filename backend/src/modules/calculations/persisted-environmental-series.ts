@@ -2,6 +2,7 @@ import { parseZonedTimestampNanoseconds } from './energy-calculation'
 import {
   formatUtcTimestamp,
   projectPersistedEnvironmentalInterval,
+  measurePersistedEnvironmentalDuration,
   resolvePersistedEnvironmentalSegments,
   type PersistedEnvironmentalSegmentProjection,
   type PersistedEnvironmentalInterval,
@@ -191,17 +192,17 @@ function addGapSegment(
 
 function addObservationSegment(
   observation: PersistedEnvironmentalInterval,
+  originalDuration: bigint,
   overlapStart: bigint,
   overlapEnd: bigint,
   includeDetails: boolean,
   values: BucketAccumulator,
 ): void {
-  const projection = projectPersistedEnvironmentalInterval(
-    observation,
-    formatUtcTimestamp(overlapStart),
-    formatUtcTimestamp(overlapEnd),
-  )
-  if (includeDetails) addProjectionDetails(projection, observation, values.contributions, values.exclusions)
+  const detailed = includeDetails ? projectPersistedEnvironmentalInterval(
+    observation, formatUtcTimestamp(overlapStart), formatUtcTimestamp(overlapEnd),
+  ) : null
+  if (detailed) addProjectionDetails(detailed, observation, values.contributions, values.exclusions)
+  const projection = detailed ?? measurePersistedEnvironmentalDuration(observation, overlapEnd - overlapStart, originalDuration)
   if (projection.energy.value === null) values.energyReasons.push(...projection.energy.reasons)
   else {
     values.energy += projection.energy.value
@@ -234,8 +235,8 @@ function readBucket(
 
   while (segmentIndex < segments.length) {
     const segment = segments[segmentIndex]
-    const segmentStart = parseZonedTimestampNanoseconds(segment.from)!
-    const segmentEnd = parseZonedTimestampNanoseconds(segment.to)!
+    const segmentStart = segment.start
+    const segmentEnd = segment.end
     if (segmentStart >= to) break
     if (segmentEnd <= from) {
       segmentIndex += 1
@@ -244,7 +245,7 @@ function readBucket(
     const overlapStart = segmentStart > from ? segmentStart : from
     const overlapEnd = segmentEnd < to ? segmentEnd : to
     if (segment.observation) {
-      addObservationSegment(segment.observation, overlapStart, overlapEnd, includeDetails, values)
+      addObservationSegment(segment.observation, segment.originalDuration!, overlapStart, overlapEnd, includeDetails, values)
     } else {
       addGapSegment(segmentStart, segmentEnd, from, to, includeDetails, values)
     }

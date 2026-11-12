@@ -31,7 +31,7 @@
   "dataAsOf": "{{date}} までの収集データ",
   "dataAsOfUnavailable": "このサマリーには収集時刻がありません。",
   "trendTitle": "時系列",
-  "trendUnavailable": "集約された履歴時系列はまだ API 契約に含まれていません。サンプル値は表示しません。",
+  "trendUnavailable": "時系列データを取得できませんでした。",
   "compositionTitle": "アプリケーション別 CO₂e 構成",
   "donut": "ドーナツを表示",
   "bars": "棒グラフを表示",
@@ -82,5 +82,9 @@
   "filters.clearAll": "すべてクリア",
   "filters.cancel": "キャンセル",
   "filters.apply": "フィルターを適用",
-  "filters.invalidRange": "0 以上の有効な数値を入力してください。最小値は最大値以下にしてください。"
+  "filters.invalidRange": "0 以上の有効な数値を入力してください。最小値は最大値以下にしてください。",
+  "trend.graph": "グラフ",
+  "trend.table": "表",
+  "trend.interval": "期間（UTC）",
+  "trend.note": "UTCの期間ごとの値です。空白はデータ欠損を示し、ゼロではありません。"
 }

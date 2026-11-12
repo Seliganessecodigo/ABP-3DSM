@@ -1,30 +1,47 @@
 # Mitwirken
 
-## Arbeitsablauf
+Dieser Teil richtet sich an Entwicklung und Betrieb und beschreibt lokale Umgebung, Verträge und Prüfungen. Zur Produktnutzung lesen Sie das Benutzerhandbuch.
 
-1. Issue und Akzeptanzkriterien lesen, bevor der Code geändert wird.
-2. Einen Branch auf Basis von `develop` erstellen und den Umfang der Aufgabe einhalten.
-3. Einen Pull Request nach `develop` mit Conventional-Commit-Titel und Referenzen auf zugehörige Issues öffnen.
-4. Entscheidungen, Einschränkungen, tatsächlich ausgeführte Prüfungen und visuelle Nachweise für Änderungen an der Oberfläche beschreiben.
+## Validierungskriterien {#workflow}
 
-## Prüfungen
+Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
 
-Die CI führt Linting, Tests und Builds für Frontend und Backend sowie das SonarQube-Cloud-Quality-Gate aus. Neue Befunde vor Abschluss des Pull Requests beheben. Nicht lokal ausgeführte Prüfungen angeben; keine nicht beobachteten Ergebnisse behaupten.
+```text
+develop → tipo/numero-descricao / tipo/descricao → PR develop
+Conventional Commits: tipo(escopo): descrição
+Refs #N
+```
 
-## Änderungen an der Oberfläche
+## Prüfungen {#quality}
 
-Jede Seite bleibt mit ihren Styles, Hooks und Übersetzungen zusammen. Das Frontend unterstützt `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP` und `zh-CN`. Neue sichtbare Texte müssen in allen acht Sprachen vollständig sein; Englisch ist die Fallback-Sprache.
+CI prüft Dokumentation, Frontend-Lint/Tests/Build, Backend-Lint/Typecheck/PostgreSQL-Tests/Abdeckung/Build/Migrationen und echten integrierten Browserablauf. `TEST_DATABASE_URL` verlangt isoliertes PostgreSQL; ohne Variable überspringt Jest Datenbanksuiten, Browserintegration schlägt fehl. SonarQube für PRs nach `develop`: neue Abdeckung ≥ 80 %, Duplikation ≤ 3 %, Bewertungen A, Hotspots vollständig geprüft. Kein Ersatz für Usability/Produktabnahme.
 
-## Änderungen an Integration oder Domäne
+```sh
+npm ci --prefix docs
+npm run docs:build
+npm ci --prefix frontend
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+npm ci --prefix backend
+npm run lint --prefix backend
+npm run typecheck --prefix backend
+npm test --prefix backend -- --runInBand
+npm run test:cov --prefix backend -- --runInBand
+npm run build --prefix backend
+npm run test:integration --prefix frontend
+```
 
-Verträge und Entscheidungen in Issues und technischen Dokumenten prüfen. Keine Endpunkte, Schemas, Einheiten, Umweltfaktoren oder Retry-Richtlinien erfinden. Änderungen am persistenten Schema benötigen eine Migration; Vertragsänderungen müssen OpenAPI und Dokumentation aktualisieren.
+## Technische Dokumentation {#documentation}
 
-## Website-Dokumentation
+Das Produkt muss Anwendungen auffindbar machen, Null von fehlenden Daten unterscheiden und Kennzahlen auf Zeitraum, Einheit, Abdeckung und Methodik zurückführen. Abfragen erhalten Navigationskontext und kennzeichnen Laden, Leere, Fehler und ältere Daten. Bewertet werden Tastatur, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte und alle 12 Sprachen.
 
-Veröffentlichte Inhalte werden als Markdown in `docs/` gepflegt. Die entsprechende Seite in allen acht Sprachen aktualisieren und die Website mit `npm run docs:build` prüfen.
+```sh
+npm ci --prefix docs
+npm run docs:check
+npm run docs:build
+```
 
-## Git
+## Weiterführende Seiten {#related}
 
-Branches: `typ/nummer-beschreibung` mit Issue, sonst `typ/beschreibung`; kleingeschriebenes kebab-case ohne Akzente. Commits/PR-Titel: `typ(bereich): beschreibung`, Beschreibung portugiesisch, mit Verb und ohne Schlusspunkt. `Refs #N`, Entscheidungen/Grenzen, beobachtete Checks angeben. Vollständiger Standard in [AGENTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/AGENTS.md).
-
-[Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)
+[Qualität und Abnahme](./product/quality) · [Produkt-Backlog](./roadmap)

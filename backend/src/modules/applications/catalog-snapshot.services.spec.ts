@@ -32,12 +32,12 @@ describe.each([true, false])(
         ),
       }
       const applications = {
-        insertIfAbsent: jest.fn().mockResolvedValue(false),
+        insertManyIfAbsent: jest.fn().mockResolvedValue([]),
         findByIdsForUpdate: jest.fn().mockResolvedValue([]),
         findMissingForUpdate: jest.fn().mockResolvedValue([]),
         findReturnedForUpdate: jest.fn().mockResolvedValue([]),
       }
-      const events = { appendInTransaction: jest.fn() }
+      const events = { appendInTransaction: jest.fn(), appendManyInTransaction: jest.fn() }
       const argument = supplySnapshot ? snapshot : undefined
 
       const discovery = new DiscoveryService(

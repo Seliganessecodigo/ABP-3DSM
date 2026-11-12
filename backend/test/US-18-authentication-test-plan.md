@@ -74,7 +74,7 @@ Executar cada caso como um ciclo vertical: escrever um teste no seam HTTP, confi
 
 ## Limites conhecidos
 
-- Rotas específicas de administração de usuários e configurações ainda não existem; os papéis e guards são disponibilizados para os módulos que as implementarem. Os cenários de autorização por endpoint de negócio devem ser adicionados quando esses endpoints entrarem no escopo.
+- A revisão atual já testa allowlist pública, guards globais, convites/revogação SSO e estados de conta. Consulte `src/modules/authentication/AUTHORIZATION_MATRIX.md` e as suítes HTTP/de banco correspondentes. Gestão completa de usuários/papéis e configuração global continuam fora desta entrega.
 - O adapter de produção usa SMTP configurável; os testes HTTP substituem a entrega por uma caixa de saída em memória.
 - O representante informa o nome e e-mail do Admin; o Admin define a própria senha ao confirmar o endereço.
 - Os links apontam para as páginas `setup-admin` e `confirm-email` em `APP_BASE_URL`; essas páginas de interface dependem de uma entrega frontend.

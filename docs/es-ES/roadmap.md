@@ -1,29 +1,35 @@
 # Backlog del producto
 
-El backlog de GreenER se organiza en seis épicas de producto y una épica de fundamentos técnicos y calidad. Cada página resume su alcance y enlaza con las issues nativas de GitHub, donde se mantienen criterios de aceptación, tareas, dependencias y estado actual.
+Empiece por el resumen ambiental, identifique una aplicación que requiera atención y abra su detalle. Use el historial para investigar el período y la metodología para entender las estimaciones. Considere siempre la cobertura antes de comparar resultados.
 
-| Épica | Alcance |
+## Backlog del producto {#epics}
+
+| Función | Referencia |
 | --- | --- |
-| [EP00 — Fundamentos técnicos, calidad y proceso de entrega](./backlog/ep00) | Reúne requisitos transversales de tecnología, arquitectura, datos, seguridad, operación, fallos y accesibilidad. Las tareas hijas son entregas técnicas verificables; la calidad sigue aplicándose a los cambios futuros. |
-| [EP01 — Catálogo de aplicaciones](./backlog/ep01) | Permite encontrar y recorrer las aplicaciones monitorizadas por GreenER. |
-| [EP02 — Monitorización de aplicaciones](./backlog/ep02) | Cubre descubrimiento y ciclo de vida, actualización periódica, estados y fallos por aplicación. |
-| [EP03 — Cálculo del impacto ambiental](./backlog/ep03) | Presenta cálculos con evidencias, unidades, metodología y limitaciones trazables. |
-| [EP04 — Dashboard ambiental](./backlog/ep04) | Agrega indicadores y permite investigar detalles e historial. |
-| [EP05 — Análisis y simulación](./backlog/ep05) | Ayuda a priorizar y comparar aplicaciones y previsualizar escenarios regionales sin cambiar los resultados oficiales. |
-| [EP06 — Configuración y administración](./backlog/ep06) | Cubre idiomas, temas, autorización y administración del monitoreo y de las cuentas. |
+| EP00 — Fundamentos y calidad | [EP00](./backlog/ep00) |
+| EP01 — Catálogo de aplicaciones | [EP01](./backlog/ep01) |
+| EP02 — Monitorización | [EP02](./backlog/ep02) |
+| EP03 — Cálculo ambiental | [EP03](./backlog/ep03) |
+| EP04 — Dashboard ambiental | [EP04](./backlog/ep04) |
+| EP05 — Análisis y simulación | [EP05](./backlog/ep05) |
+| EP06 — Configuración y administración | [EP06](./backlog/ep06) |
 
-## Principios del producto
+## Principios {#principles}
 
-- La ausencia, el error o los datos obsoletos no se convierten en consumo cero.
-- Energía y CO₂e conservan unidad, período, cobertura y contexto.
-- Los cambios de configuración o método no reescriben el historial original.
-- La vista previa de recálculo no se guarda ni modifica resultados oficiales.
-- Las consultas públicas y los cambios administrativos tienen reglas de acceso distintas; el backend aplica la autorización.
+| Regla | Significado |
+| --- | --- |
+| Historial preservado | Cambiar preferencias o generar una vista previa no reemplaza originales. |
+| Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
+| Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
 
-[Abrir en el backlog de GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+## Mejoras previstas {#planned}
 
-## Dependencias y límites
+Se prevén comparación dedicada entre aplicaciones, simulación en otra región, gestión completa de usuarios y roles, recuperación autónoma de contraseña, controles globales de monitorización. La exportación CSV requiere definir su alcance. El dashboard ya ordena por energía o emisiones. El backlog mantiene las prioridades; esta documentación no fija fechas para estas mejoras.
 
-Orden de dependencia, sin compromiso de fechas: reconocer aplicaciones/recopilar → aprobar modelo/resultados versionados → resumen/historial → comparación/simulación. Administración y preferencias siguen autorización/diseño. Sprint y capacidad se definen en Projects.
+## Criterios de aceptación {#acceptance}
 
-[Visión y alcance](./product/vision) · [Calidad y aceptación](./product/quality) · [Decisiones y dependencias](./product/decisions)
+Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
+
+## Lecturas relacionadas {#related}
+
+[Visión y alcance](./product/vision) · [Calidad y aceptación](./product/quality)

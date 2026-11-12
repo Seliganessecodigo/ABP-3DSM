@@ -1,48 +1,53 @@
-# Methodology and data meaning
+# Methodology and data
 
-Evidence must retain its meaning: missing, failed and stale data are not zero. Energy is estimated by the simplified model with versioned parameters; it is not a real electrical measurement, and its parameters are not an official regional factor. The CO₂e conversion relationship is implemented under #49/#53.
+Energy is estimated by a simplified model using CPU, memory, disk and network during the observation interval. Estimated power becomes energy according to duration. Emissions equal energy multiplied by regional carbon intensity. Coefficients belong to the academic model; they are neither direct electricity measurements nor official regional factors. Results retain the methodology and factor used at their origin.
 
-## Vocabulary and units
+## Interpret the data {#vocabulary}
 
 | Concept | Meaning |
 | --- | --- |
-| Application | Stable catalog identity; name and location can change. |
-| Observation/collection | Persisted metrics tied to an application and interval. |
-| Cycle | Discovery, reconciliation and collection execution; not one measurement. |
-| Energy | Quantity accumulated over a period, in kWh. Power and energy are different quantities. |
-| Carbon intensity | Regional factor in gCO₂e/kWh supplied by the source. |
-| CO₂e | Equivalent emissions with an identified unit and factor. |
-| Coverage | Portion of the requested period supported by valid evidence, calculated separately for energy and CO₂e. |
-| Stale | A preserved earlier valid observation, not success of the current attempt. |
+| Application | A service with a stable catalog identity. |
+| Observation | A set of metrics associated with an interval. |
+| Energy | Estimated quantity for a period, expressed in kWh. |
+| Carbon intensity | A regional factor, expressed in gCO₂e/kWh. |
+| Emissions | Equivalent CO₂ quantity, with a stated unit. |
+| Coverage | The share of a period supported by valid evidence. |
 
-The documented aggregator provides CPU in %, and memory, disk and network in GB. These metrics are not kWh; conversion needs a documented model, coefficients and assumptions.
+## Estimation model {#model}
 
-## Time and provenance
-
-The metrics source publishes no measurement timestamp. GreenER records receipt time and derives `[receivedAt - collection_interval_seconds, receivedAt]`. This does not establish the source's exact measurement instants.
-
-Latest attempt, last valid observation and registration update are different timestamps. A carbon-factor lookup time does not establish official validity. Snapshots preserve the received value, internal identity, contract and lookup time; unpublished bibliography and validity remain unknown.
-
-## Environmental time rules
-
-Queries use ISO timestamps with explicit offsets normalized to UTC and interval [from,to). UTC hourly/daily/monthly/yearly buckets count only overlap, including partial edge buckets. Presets 24h/7d/30d/90d are exact moving windows with one anchor for KPIs and series. Limit: 10,000 points; excess requests are rejected without truncation or granularity changes. Series prorate saved results by overlap without recalculating observations; overlaps choose latest collectedAt then ascending lexical ID, with no fallback when the winner lacks a usable measure. No extra rounding; coverage and original snapshots remain separate and preserved.
-
-## Energy and emissions
-
-The implemented dimensional relationship is:
-
-    CO₂e [g] = energy [kWh] × intensity [gCO₂e/kWh]
-
-Illustrative only: 2 kWh × 100 gCO₂e/kWh = 200 gCO₂e = 0.2 kgCO₂e. These numbers are neither approved factors nor GreenER readings. This relationship does not define energy estimation from CPU, memory, disk and network.
-
-When a factor is missing, valid energy remains valid, while CO₂e can be non-calculable. Zero requires valid evidence.
-
-## History, recalculation and simulation
-
-| Result | Product rule |
+| Parameter | Value |
 | --- | --- |
-| Original | Preserve observations, configuration, methodology and factor used. |
-| Recalculation preview | Use identified current configuration without saving or replacing the original. Permissions, limits and factor policy remain pending. |
-| Regional simulation | Keep energy constant and evaluate another regional factor separately from official results. |
+| CPU (100%) | 100 W |
+| Memory | 0.375 W/GB |
+| Disk | 0.01 W/GB |
+| Network | 0.02 W/GB |
 
-Totals, rankings and comparisons need compatible periods and coverage. Gaps do not receive zeros; percentages require a valid denominator. Approved temporal semantics are described above. In persistence, energy, emissions in grams and factor use eight decimal places; coverage, as a fraction from zero to one, uses four. Calculations do not round intermediate values, and JSON snapshots preserve their original representation.
+```text
+P [W] = P_CPU + P_RAM + P_disk + P_network
+E [kWh] = P [W] × Δt [h] / 1000
+CO₂e [g] = E [kWh] × I [gCO₂e/kWh]
+```
+
+## Understand coverage {#coverage}
+
+Coverage is the proportion of a period supported by valid observations. Energy and emissions have separate coverage: estimated energy may exist even when a carbon factor is missing for emissions. Compare compatible periods, units and coverage. Low coverage signals partial analysis, not proven lower consumption.
+
+Zero means a valid observation supports that value. A gap means usable data is missing; it must not be read as zero consumption. When an update fails, the system may retain the last valid reading with its original timestamp. Check freshness and coverage before using an indicator for a decision. Screens request new information 60 seconds after each attempt; this does not guarantee a new measurement on every update.
+
+## Periods and history {#history}
+
+| Rule | Meaning |
+| --- | --- |
+| Preserved history | Changing preferences or generating a preview never replaces original results. |
+| Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
+| Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
+
+In recalculation preview, select an application and dates to compare the original result with an estimate using the current model and current carbon factors for the observed regions. The last selected day is included in full, in UTC. Queries accept up to 30 days and 10,000 observations. The preview is not saved and never changes history. Percentage differences appear when units and coverage match and the original value is positive.
+
+## Related reading {#related}
+
+[User guide](../guide/monitoring) · [API reference](../reference/api)
+
+## Preferences applied to real data {#personal-preferences}
+
+In `/methodology`, configure per-application energy and emissions limits, coverage thresholds and analysis defaults. Choose the last 24 hours, 7, 30 or 90 days, the current UTC month or a custom interval with an inclusive start and exclusive end. The preview reads real data without saving and uses the same warning panel as applications and the Dashboard. Saving requires login and affects only your account; calculations, history and operational states remain intact. Warnings use each limit’s period independently of page filters. Analysis defaults fill only missing URL options on the Dashboard and detail pages. Partial data below a limit does not prove compliance; missing data never means zero.

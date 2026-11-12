@@ -1,29 +1,35 @@
 # Product backlog
 
-The GreenER backlog is organized into six product epics and one technical foundations and quality epic. Each page summarizes scope and links to native GitHub issues, which hold acceptance criteria, tasks, dependencies, and current status.
+Start with the environmental summary, identify an application that needs attention and open its details. Use history to investigate the period and methodology to understand how values were estimated. Always consider coverage before comparing results.
 
-| Epic | Scope |
+## Product backlog {#epics}
+
+| Feature | Reference |
 | --- | --- |
-| [EP00 — Technical foundations, quality, and delivery process](./backlog/ep00) | Groups cross-cutting technology, architecture, data, security, operations, failure handling, and accessibility requirements. Child tasks are verifiable technical deliveries; quality remains applicable to every later change. |
-| [EP01 — Application catalog](./backlog/ep01) | Lets people find and navigate the applications monitored by GreenER. |
-| [EP02 — Application monitoring](./backlog/ep02) | Covers discovery and lifecycle, periodic refresh, states, and application-level failures. |
-| [EP03 — Environmental impact calculation](./backlog/ep03) | Presents calculations with traceable evidence, units, methodology, and limitations. |
-| [EP04 — Environmental dashboard](./backlog/ep04) | Aggregates indicators and supports detail and history investigation. |
-| [EP05 — Analysis and simulation](./backlog/ep05) | Helps prioritize and compare applications and preview a regional scenario without changing official results. |
-| [EP06 — Configuration and administration](./backlog/ep06) | Covers languages, themes, authorization, and monitoring and account administration. |
+| EP00 — Foundations and quality | [EP00](./backlog/ep00) |
+| EP01 — Application catalog | [EP01](./backlog/ep01) |
+| EP02 — Monitoring | [EP02](./backlog/ep02) |
+| EP03 — Environmental calculation | [EP03](./backlog/ep03) |
+| EP04 — Environmental dashboard | [EP04](./backlog/ep04) |
+| EP05 — Analysis and simulation | [EP05](./backlog/ep05) |
+| EP06 — Configuration and administration | [EP06](./backlog/ep06) |
 
-## Product principles
+## Principles {#principles}
 
-- Missing, failed, or stale observations never become zero consumption.
-- Energy and CO₂e retain units, period, coverage, and context.
-- Configuration or methodology changes do not rewrite original history.
-- Recalculation preview is not saved and does not change official results.
-- Public queries and administrative changes have different access rules; authorization is enforced by the backend.
+| Rule | Meaning |
+| --- | --- |
+| Preserved history | Changing preferences or generating a preview never replaces original results. |
+| Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
+| Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-[Open in GitHub backlog](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+## Planned improvements {#planned}
 
-## Dependencies and boundaries
+Planned improvements include dedicated cross-application comparison, simulation in another region, complete user and role management, self-service password recovery, global monitoring controls. CSV export requires a scope decision. The dashboard already sorts applications by energy or emissions. Priorities are maintained in the backlog; this documentation sets no delivery dates for these improvements.
 
-Dependency order without a date commitment: recognize applications and collect evidence → approve the model and persist versioned results → present summaries/history → compare and simulate. Administration and preferences follow their authorization/design dependencies. Sprint and capacity are managed in Projects; this page promises no calendar.
+## Acceptance criteria {#acceptance}
 
-[Vision and scope](./product/vision) · [Quality and acceptance](./product/quality) · [Decisions and dependencies](./product/decisions)
+Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
+
+## Related reading {#related}
+
+[Vision and scope](./product/vision) · [Quality and acceptance](./product/quality)

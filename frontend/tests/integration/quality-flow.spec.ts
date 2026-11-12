@@ -5,7 +5,9 @@ test('dashboard → detail → history → back reconciles real persisted data a
   await page.clock.setFixedTime(new Date())
   const summaryResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/analysis/summary')
   await page.goto('/dashboard?period=24h')
-  const summary = await (await summaryResponse).json()
+  const summaryResult = await summaryResponse
+  expect(new URL(summaryResult.url()).searchParams.get('granularity')).toBe('hour')
+  const summary = await summaryResult.json()
   expect(summary.status).toBe('available')
   expect(summary.applications).toHaveLength(2)
   const application = summary.applications.find((item: { applicationId: string }) => item.applicationId === 'quality-api')
@@ -13,6 +15,11 @@ test('dashboard → detail → history → back reconciles real persisted data a
   const kpis = page.getByRole('region', { name: 'Indicadores ambientais' })
   await expect(kpis).toContainText(`${formatNumber(summary.totals.energy.value, 'pt-BR')} kWh`)
   await expect(kpis).toContainText(`${formatNumber(summary.totals.emissions.value, 'pt-BR')} gCO2e`)
+  expect(summary.series.points.length).toBeGreaterThan(0)
+  expect(summary.series.points.some((point: { emissions: { value: number | null } }) => point.emissions.value !== null)).toBe(true)
+  const dashboardSeries = page.getByRole('region', { name: 'Série temporal', exact: true })
+  await expect(dashboardSeries.getByRole('img')).toBeVisible()
+  expect(await dashboardSeries.locator('svg rect').count()).toBeGreaterThan(0)
 
   const detailResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/applications/quality-api/analysis')
   await page.getByRole('link', { name: 'Ver detalhes: Quality api', exact: true }).click()
@@ -25,10 +32,11 @@ test('dashboard → detail → history → back reconciles real persisted data a
   await expect(page.getByRole('heading', { name: 'Quality api', exact: true })).toBeVisible()
 
   const seriesResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/applications/quality-api/analysis/series')
+    .then(response => response.json())
   await page.getByRole('link', { name: 'Histórico', exact: true }).click()
   await expect(page).toHaveURL(/\/history\?.*period=24h/)
   await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('quality-api')
-  const series = await (await seriesResponse).json()
+  const series = await seriesResponse
   expect(series.period).toEqual(summary.period)
   expect(series.totals.energy).toEqual(detail.energy)
   expect(series.totals.emissions).toEqual(detail.emissions)

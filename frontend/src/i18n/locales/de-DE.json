@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "Entfernung bestätigt",
   "loading.description": "Bitte warten Sie auf die Abfrage. Es werden noch keine Werte angezeigt.",
   "loading.processing": "Wird verarbeitet…",
-  "auth.login": "Anmelden"
+  "auth.login": "Anmelden",
+  "nav.users": "Benutzer"
 }

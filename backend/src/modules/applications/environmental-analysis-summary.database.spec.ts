@@ -1,3 +1,4 @@
+import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 import { randomUUID } from 'node:crypto'
 import { INestApplication } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
@@ -164,6 +165,48 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
     if (database?.isInitialized) await database.destroy()
     if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL
     else process.env.DATABASE_URL = previousDatabaseUrl
+  })
+
+  it('returns a public series with the same scope, totals and missing intervals', async () => {
+    const ids = [`scope-one-${randomUUID()}`, `scope-two-${randomUUID()}`, `scope-invalid-${randomUUID()}`]
+    await insertApplication(database, ids[0], 'AVAILABLE')
+    await insertApplication(database, ids[1], 'AVAILABLE')
+    await insertApplication(database, ids[2], 'AVAILABLE')
+    await insertObservation(database, ids[0], to, 1, 85, factorSnapshot)
+    await insertObservation(database, ids[1], to, 2, null, null, [{ code: 'CARBON_FACTOR_UNAVAILABLE' }])
+    await insertObservation(database, ids[2], to, Number.NaN, null, null)
+    await database.query(`UPDATE collections SET "calculationEvidence" = jsonb_set("calculationEvidence", '{energy,reasons}', '[{"code":"METRIC_MISSING","metric":"cpuPercent"}]'::jsonb) WHERE "applicationId" = $1`, [ids[2]])
+    try {
+      const query = new URLSearchParams({ from, to: '2026-10-01T05:00:00.000Z', granularity: 'hour' })
+      ids.forEach((id) => query.append('applicationIds', id))
+      const response = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      expect(response.status).toBe(200)
+      const body = await response.json() as EnvironmentalAnalysisSummaryDto
+      expect(body.series?.points).toHaveLength(2)
+      expect(body.series?.points[0]).toMatchObject({ energy: { value: 3 }, emissions: { value: 85 } })
+      expect(body.series?.points[1]).toMatchObject({ energy: { value: null }, emissions: { value: null } })
+      expect(body.series?.points.reduce((sum, point) => sum + (point.energy.value ?? 0), 0)).toBe(body.totals.energy.value)
+      query.set('includeProvenance', 'false')
+      const compactResponse = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      const compact = await compactResponse.json() as EnvironmentalAnalysisSummaryDto
+      const { provenance: fullProvenance, ...readings } = body
+      expect(fullProvenance.factors).toHaveLength(1)
+      expect(compact).toEqual({ ...readings, provenanceIncluded: false, provenance: { methodologies: [], factors: [], reasons: [] } })
+      query.set('includeProvenance', 'invalid')
+      expect((await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))).status).toBe(400)
+      query.delete('includeProvenance')
+      query.set('states', 'REMOVED')
+      const empty = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      expect(await empty.json()).toMatchObject({ status: 'empty', series: { points: [{ energy: { value: null } }, { energy: { value: null } }] } })
+      query.set('granularity', 'minute')
+      const invalid = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      expect(invalid.status).toBe(400)
+      query.set('granularity', 'hour')
+      query.set('to', '2030-10-01T05:00:00.000Z')
+      expect((await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))).status).toBe(400)
+    } finally {
+      await removeApplications(database, ids)
+    }
   })
 
   it('returns empty totals and zero coverage while counting the current application state', async () => {

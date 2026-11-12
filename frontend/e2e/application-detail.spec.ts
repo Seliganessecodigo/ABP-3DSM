@@ -154,7 +154,7 @@ test('detail reference viewport keeps the sidebar fixed without page scrolling',
   expect(afterScroll.layoutPosition).toBe('fixed')
   expect(afterScroll.sidebarTop).toBe(before.sidebarTop)
   await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-light-figma-alinhado.png' })
-  await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
+  await page.locator('#analysis-details > summary').click()
   await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
   await expect(page.locator('#analysis-details')).toContainText('2026.1')
   await page.getByRole('button', { name: 'Fechar detalhes' }).click({ timeout: 10_000 })

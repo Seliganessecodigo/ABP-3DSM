@@ -1,40 +1,43 @@
-# Visione e ambito del prodotto
+# Visione e ambito
 
-GreenER risponde a tre domande: quali applicazioni sono monitorate, quali evidenze ne supportano il consumo e come interpretare energia ed emissioni stimate. Scoperta, metriche, contesto regionale e storico aiutano analisi e priorità.
+GreenER aiuta a monitorare applicazioni e comprendere consumi energetici stimati ed emissioni equivalenti di anidride carbonica (CO₂e). Riunisce indicatori, posizione e storico per analizzare l’impatto ambientale dei servizi digitali.
 
-## Destinatari
+## Destinatari {#readers}
 
 | Pubblico | Esigenza |
 | --- | --- |
-| Gestione infrastruttura | Identificare applicazioni e cambiamenti dell’ambiente. |
-| Analisi operativa e ambientale | Studiare periodi, confrontare risultati compatibili, comprendere lacune. |
-| Sviluppo e valutazione | Riprodurre l’ambiente e dimostrare criteri di accettazione. |
+| Gestione infrastruttura | Identificare applicazioni e seguire cambiamenti dell’ambiente. |
+| Analisi ambientale e operativa | Esaminare consumi, emissioni e qualità dei dati di un periodo. |
+| Sviluppo e valutazione | Verificare il comportamento del prodotto e riprodurne i risultati. |
 
-Sono esigenze, non la matrice definitiva di permessi, ancora [da definire](./decisions).
+## Funzioni disponibili {#features}
 
-## Ambito e disponibilità
-
-Riferimento: codice `develop` del 23/10/2026 (commit `1633ca2`). Gli ambienti possono eseguire revisioni diverse; issue chiusa non prova disponibilità in produzione.
-
-| Capacità | Situazione |
+| Funzione | Riferimento |
 | --- | --- |
-| Catalogo, ricerca, filtri, paginazione, navigazione e otto lingue | Implementati nell’interfaccia. |
-| Scoperta, ciclo di vita, raccolta periodica, incidenti e persistenza | Implementati nel backend. |
-| Stato operativo, metriche di origine, evidenze e metodologia delle raccolte | Disponibili nell’API e nel dettaglio; una pagina dedicata spiega modello, formula, parametri e fattore registrati senza ricalcolo. Errori, assenze e dati obsoleti restano distinti. |
-| Analisi ambientale, serie temporali e verifica dei contributi per applicazione | Disponibili nell’API e integrate nel dettaglio. |
-| Riepilogo ambientale aggregato | Endpoint disponibile (`GET /analysis/summary`); dashboard aggregata non ancora presente nell’interfaccia. |
-| Tema chiaro/scuro | Disponibile come preferenza dell’interfaccia. |
+| Catalogo e ricerca | [Trovare un’applicazione](../guide/monitoring#catalog) |
+| Monitoraggio automatico | [Interpretare i dati](../guide/monitoring#data) |
+| Dashboard ambientale | [Leggere la dashboard](../guide/monitoring#dashboard) |
+| Dettaglio applicazione | [Esaminare il dettaglio](../guide/monitoring#detail) |
+| Storico e composizione | [Esplorare lo storico](../guide/monitoring#history) |
+| Anteprima di ricalcolo | [Confrontare con un’anteprima di ricalcolo](../guide/monitoring#preview) |
+| Preferenze personali | [Personalizzare l’analisi](../guide/monitoring#preferences) |
+| Accesso e secondo fattore | [Accedere](../guide/monitoring#access) |
+| Ordinamento per impatto | [Leggere la dashboard](../guide/monitoring#dashboard) |
 
-## Percorsi e valore
+## Percorso di analisi {#journey}
 
-1. Trovare un’applicazione e aprire dettaglio per confermare identità, posizione e stato.
-2. Analizzare un cambiamento distinguendo ultimo tentativo, ultima osservazione valida e assenza.
-3. Nel dettaglio, selezionare periodo e granularità, interpretare serie/copertura e ispezionare i contributi di un bucket senza trasformare lacune in zero.
+Partite dal riepilogo ambientale, individuate un’applicazione da approfondire e apritene il dettaglio. Usate storico e metodologia per capire periodo e stime. Considerate sempre la copertura prima di confrontare risultati.
 
-La [guida](../guide/monitoring) descrive l’esistente; gli [epic](../roadmap), il comportamento atteso.
+## Limiti d’uso {#limits}
 
-## Limiti e valutazione
+Un modello semplificato stima energia da CPU, memoria, disco e rete nell’intervallo osservato. La potenza stimata diventa energia secondo la durata. Le emissioni moltiplicano energia per intensità di carbonio regionale. I coefficienti appartengono al modello accademico, non sono misurazioni elettriche dirette o fattori regionali ufficiali. I risultati conservano metodo e fattore originali.
 
-Le stime non sono misurazioni elettriche dirette né prova di risparmio causato da un’azione. Efficienza per transazione richiede dati del lavoro prodotto. La serie nel dettaglio confronta una singola applicazione con la finestra immediatamente precedente di pari durata; non offre confronti tra applicazioni o periodi a livello di dashboard. Mappa facoltativa.
+La copertura è la proporzione del periodo con osservazioni valide. Energia ed emissioni hanno coperture separate: può esserci energia stimata senza fattore per calcolare emissioni. Confrontate periodi, unità e coperture compatibili. Copertura bassa indica analisi parziale, non una riduzione dimostrata dei consumi.
 
-Nelle review verificare ricerca, distinzione zero/assenza e tracciabilità fino a periodo, unità ed evidenze. Registrare difficoltà, feedback e cambiamenti in [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133)/[#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Obiettivi di tempo, soddisfazione e prestazioni richiedono baseline e approvazione.
+## Evoluzioni previste {#planned}
+
+Sono previsti confronto dedicato tra applicazioni, simulazione in altra regione, gestione completa utenti/ruoli, recupero password autonomo, controlli globali del monitoraggio. L’ambito dell’esportazione CSV resta da definire. La dashboard già ordina per energia o emissioni. Le priorità restano nel backlog; qui non sono definite date di consegna.
+
+## Letture correlate {#related}
+
+[Guida all’uso](../guide/monitoring) · [Metodologia e dati](../product/methodology) · [Backlog del prodotto](../roadmap)

@@ -1,29 +1,35 @@
-# Backlog produit
+# Backlog du produit
 
-Le backlog GreenER comprend six épopées produit et une épopée de fondations techniques et qualité. Chaque page résume le périmètre et renvoie aux issues GitHub, source des critères d’acceptation, tâches, dépendances et statuts.
+Commencez par le résumé environnemental, repérez une application à examiner et ouvrez son détail. Utilisez l’historique pour étudier la période et la méthodologie pour comprendre les estimations. Tenez toujours compte de la couverture avant de comparer.
 
-| Épopée | Périmètre |
+## Backlog du produit {#epics}
+
+| Fonction | Référence |
 | --- | --- |
-| [EP00 — Fondations techniques, qualité et processus de livraison](./backlog/ep00) | Regroupe les exigences transversales de technologie, architecture, données, sécurité, exploitation, défaillances et accessibilité. Les tâches associées sont des livraisons techniques vérifiables; la qualité reste applicable aux changements futurs. |
-| [EP01 — Catalogue des applications](./backlog/ep01) | Permet de trouver et parcourir les applications suivies par GreenER. |
-| [EP02 — Surveillance des applications](./backlog/ep02) | Couvre la découverte et le cycle de vie, l’actualisation périodique, les états et les défaillances. |
-| [EP03 — Calcul de l’impact environnemental](./backlog/ep03) | Présente les calculs avec des preuves, unités, méthodes et limites traçables. |
-| [EP04 — Tableau de bord environnemental](./backlog/ep04) | Agrège les indicateurs et permet d’examiner détail et historique. |
-| [EP05 — Analyse et simulation](./backlog/ep05) | Aide à prioriser et comparer les applications et à prévisualiser un scénario régional sans modifier les résultats officiels. |
-| [EP06 — Configuration et administration](./backlog/ep06) | Couvre les langues, thèmes, autorisations et l’administration du suivi et des comptes. |
+| EP00 — Fondations et qualité | [EP00](./backlog/ep00) |
+| EP01 — Catalogue des applications | [EP01](./backlog/ep01) |
+| EP02 — Surveillance | [EP02](./backlog/ep02) |
+| EP03 — Calcul environnemental | [EP03](./backlog/ep03) |
+| EP04 — Tableau de bord | [EP04](./backlog/ep04) |
+| EP05 — Analyse et simulation | [EP05](./backlog/ep05) |
+| EP06 — Configuration et administration | [EP06](./backlog/ep06) |
 
-## Principes produit
+## Principes {#principles}
 
-- Une observation absente, en erreur ou périmée ne devient jamais une consommation nulle.
-- L’énergie et le CO₂e conservent unité, période, couverture et contexte.
-- Les changements de configuration ou de méthode ne réécrivent pas l’historique original.
-- L’aperçu du recalcul n’est pas enregistré et ne modifie pas les résultats officiels.
-- Les consultations publiques et les changements administratifs ont des règles d’accès différentes; le backend applique l’autorisation.
+| Règle | Signification |
+| --- | --- |
+| Historique conservé | Modifier les préférences ou générer un aperçu ne remplace pas les originaux. |
+| Absence explicite | Pannes, métriques manquantes et données anciennes se distinguent de zéro. |
+| Consultation publique | Lire les indicateurs est public ; sauvegarder des préférences et administrer des comptes exige une autorisation. |
 
-[Ouvrir dans le backlog GitHub](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+## Évolutions prévues {#planned}
 
-## Dépendances et limites
+Sont prévus : comparaison dédiée entre applications, simulation dans une autre région, gestion complète utilisateurs/rôles, récupération autonome du mot de passe, contrôles globaux de surveillance. Le périmètre de l’export CSV reste à définir. Le tableau de bord trie déjà par énergie ou émissions. Les priorités sont dans le backlog ; aucune date n’est fixée ici.
 
-Ordre de dépendance, sans engagement de dates : reconnaître/collecter → approuver modèle/résultats versionnés → résumé/historique → comparaison/simulation. Administration/préférences suivent autorisation/design. Sprint et capacité dans Projects.
+## Critères d’acceptation {#acceptance}
 
-[Vision et périmètre](./product/vision) · [Qualité et acceptation](./product/quality) · [Décisions et dépendances](./product/decisions)
+Les changements de périmètre et de règles consignent problème, résultat attendu et critères d’acceptation dans les récits concernés. Revues et évaluations d’utilisabilité enregistrent difficultés, retours et améliorations. Rétention, sauvegarde/reprise, objectifs opérationnels et quotas externes restent à définir.
+
+## Lectures associées {#related}
+
+[Vision et périmètre](./product/vision) · [Qualité et acceptation](./product/quality)

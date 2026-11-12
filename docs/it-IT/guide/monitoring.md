@@ -1,51 +1,60 @@
-# Usare il catalogo e analizzare un’applicazione
+# Guida all’uso
 
-Guida al catalogo, al dettaglio operativo e all’analisi ambientale per applicazione disponibile nell’interfaccia.
+Partite dal riepilogo ambientale, individuate un’applicazione da approfondire e apritene il dettaglio. Usate storico e metodologia per capire periodo e stime. Considerate sempre la copertura prima di confrontare risultati.
 
-## Trovare un’applicazione
+## Trovare un’applicazione {#catalog}
 
-1. Aprire il frontend; in locale seguire [Per iniziare](../getting-started).
-2. Cercare nome, ID, codice regionale o regione e combinare filtro stato.
-3. Usare paginazione. Eliminare filtri prima di interpretare nessuna corrispondenza come catalogo vuoto.
-4. Confermare ID e posizione nel dettaglio. Città nulla valida; posizione storica incompleta sconosciuta.
+Nel catalogo cercate per nome, identificatore o regione e filtrate per stato. Scorrete le pagine e aprite un’applicazione. Senza corrispondenze, rivedete i filtri. L’indirizzo conserva ricerca e pagina per condividere o riprendere la consultazione.
 
-URL con `q`, `state`, `page` conserva il contesto. I filtri attuali si applicano nel frontend alla lista dell’API.
+## Leggere la dashboard {#dashboard}
 
-## Aggiornamento
+Nella dashboard scegliete 24 ore, 7, 30 o 90 giorni, regione e stato. Consultate energia, emissioni, copertura e conteggi per stato. Il grafico mostra quote di emissioni a barre o anello. Ricerca, filtri e ordinamento per impatto modificano le righe della tabella; i totali mantengono il perimetro selezionato.
 
-Catalogo/dettaglio interrogano all’apertura e pianificano la successiva richiesta 60 secondi dopo la fine di ogni tentativo. Polling UI, raccolta backend e intervallo aggregatore sono indipendenti; aggiornare lo schermo non garantisce nuove osservazioni.
+Nella serie temporale, alterna tra energia e CO₂e o consulta la tabella degli intervalli. La finestra di 24 ore usa un raggruppamento orario; le altre, giornaliero. Gli intervalli seguono UTC e gli stessi filtri degli indicatori. Le lacune restano senza valore.
 
-La UI indica orari di tentativo e risposta valida. Un errore dopo successo conserva dati precedenti, senza farli passare per nuova osservazione. Aggiornamento manuale del catalogo senza reload; uscendo si annullano richieste pendenti.
+## Esaminare il dettaglio {#detail}
 
-## Analizzare i risultati ambientali
+Aprite il dettaglio per identità, posizione, stato e orari di aggiornamento. Esaminate metriche e risultati ambientali nello stesso periodo. La metodologia registrata mostra modello, parametri e fattore di carbonio usati senza cambiare il risultato. Se manca la città, le altre informazioni geografiche restano utili.
 
-Nel dettaglio dell’applicazione, scegli una finestra mobile di 24 ore, 7, 30 o 90 giorni e una granularità oraria, giornaliera, mensile o annuale. La serie mostra energia e CO₂e dei risultati persistiti. La sovrapposizione confronta la finestra selezionata con quella immediatamente precedente di pari durata. È un confronto temporale per una singola applicazione, non una classifica né un confronto tra applicazioni.
+Il fattore equivalente riassume i fattori regionali applicati, ponderati per l’energia con emissioni calcolate. La spiegazione usa questa energia, che può essere inferiore al totale quando mancano fattori in parte del periodo. Consulta la metodologia per verificare valori e fonti per regione. La scheda del fattore mantiene la stessa altezza degli altri indicatori, senza espansione interna.
 
-Usa i filtri e l’ordinamento della tabella per trovare i bucket. Ispezionane uno per vedere i contributi inclusi e le esclusioni con le relative motivazioni. La tabella è paginata; l’interfaccia carica al momento solo la prima pagina dei contributi. Lacune ed esclusioni non significano zero. Senza evidenze calcolabili, il risultato resta non disponibile.
+## Esplorare lo storico {#history}
 
-## Interpretare situazioni
+Nello storico scegliete applicazione, periodo e raggruppamento per ora, giorno, mese o anno. Filtri e paginazione individuano intervalli; la composizione mostra osservazioni incluse ed esclusioni. Il fuso cambia la visualizzazione delle date, ma il raggruppamento resta UTC. La sovrapposizione del dettaglio confronta la stessa applicazione con il periodo precedente di pari durata.
 
-Per tracciare un indicatore, apri **Visualizza metodologia completa** nel dettaglio dell’applicazione. Puoi anche scegliere **Metodologia** nella navigazione e selezionare un’applicazione. La pagina mostra modello, formula, parametri e presupposti registrati, oltre ai dati del fattore carbonio quando disponibili. Il link dal dettaglio usa la raccolta selezionata; la navigazione usa l’ultima raccolta valida. La pagina spiega le evidenze salvate senza ricalcolare il risultato.
+## Confrontare con un’anteprima di ricalcolo {#preview}
 
-| Situazione | Significato / azione |
+Nell’anteprima di ricalcolo scegliete applicazione e date per confrontare l’originale con modello attuale e fattori attuali delle regioni osservate. L’ultimo giorno è incluso interamente in UTC. Limiti: 30 giorni e 10.000 osservazioni. L’anteprima non viene salvata e non cambia lo storico. Le differenze percentuali richiedono unità/coperture uguali e originale positivo.
+
+## Personalizzare l’analisi {#preferences}
+
+In Metodologia esplorate energia, emissioni, copertura e analisi. Le dimostrazioni usano esempi segnalati sullo schermo. Accedete per salvare soglie di presentazione e opzioni iniziali di periodo e raggruppamento. Ogni persona cambia solo le proprie preferenze; calcoli e configurazione globale restano invariati. In caso di conflitto ricaricate la preferenza prima di riprovare. Le opzioni già presenti nell’indirizzo dell’analisi hanno priorità.
+
+## Accedere {#access}
+
+Catalogo, dashboard e consultazioni ambientali sono pubblici. Per salvare preferenze usate e-mail/password o Google se abilitato e con account collegato tramite invito. Gli amministratori confermano anche un codice di sei cifre dell’autenticatore. Ricaricare termina la sessione dell’interfaccia e richiede nuovo accesso. I permessi amministrativi dipendono dal ruolo.
+
+## Lingua e aspetto {#appearance}
+
+Il selettore offre 12 lingue; la scelta resta nel browser. Il modo scuro cambia l’aspetto, che segue il sistema prima di una scelta esplicita. Con archiviazione bloccata le preferenze possono perdersi al reload. La lingua formatta date e numeri senza cambiare gli istanti osservati.
+
+## Interpretare i dati {#data}
+
+Zero significa che un’osservazione valida sostiene quel valore. Una lacuna indica dati utilizzabili mancanti, non consumo nullo. Dopo un errore può restare l’ultima lettura valida con il suo orario originale. Verificate aggiornamento e copertura prima di decidere. Le schermate richiedono informazioni 60 secondi dopo ogni tentativo; non garantisce una nuova misura a ogni aggiornamento.
+
+| Stato | Significato |
 | --- | --- |
-| Catalogo vuoto | API senza applicazioni; verificare scoperta iniziale. |
-| Nessuna corrispondenza | Modificare filtri; possono esistere altre applicazioni. |
-| Errore iniziale | Nessun dato valido; riprovare e verificare operazione. |
-| Errore dopo successo | Conservare lettura precedente e controllarne l’ora. |
-| Applicazione non trovata | Verificare ID/link; diversa da applicazione conosciuta rimossa. |
-| Applicazione rimossa | Identità/storico conservati; assenza confermata da snapshot valido. |
+| Disponibile | L’applicazione ha restituito metriche utilizzabili. |
+| Non disponibile | Il tentativo attuale è fallito; può esistere storico valido. |
+| Senza metriche | L’applicazione è nota, ma il tentativo non ha metriche utilizzabili. |
+| Rimossa | L’assenza è confermata nel catalogo di origine; identità e storico restano. |
 
-## Stato, lingua e assistenza
+La copertura è la proporzione del periodo con osservazioni valide. Energia ed emissioni hanno coperture separate: può esserci energia stimata senza fattore per calcolare emissioni. Confrontate periodi, unità e coperture compatibili. Copertura bassa indica analisi parziale, non una riduzione dimostrata dei consumi.
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS`, `REMOVED` sono stati operativi. Freschezza, motivo e calcolabilità sono distinti. Un’applicazione disponibile può non avere un fattore carbonio; una non disponibile può avere uno storico valido. Il dettaglio mostra stato, metriche, risultati ambientali, serie storica e contributi consultabili per periodo. Consulta [Riferimento API](../reference/api) e [Metodologia](../product/methodology) per distinguere assenza, errore e zero.
+## Diagnosi {#support}
 
-Otto lingue, preferenza nel browser. Cambiare lingua non cambia identità o istanti.
+Segnalate applicazione, periodo, filtri, ora con fuso e azione eseguita. Descrivete esito atteso e osservato. Le catture aiutano se prive di credenziali e dati privati.
 
-Segnalare ambiente, ID, filtri, data/ora con fuso, azione, atteso/osservato. Screenshot senza credenziali/dati privati; vedere [Operazione](../operations).
+## Letture correlate {#related}
 
-## Preferenza del tema
-
-Nelle preferenze di navigazione, usa l’interruttore **Modalità scura**: disattivato applica il tema chiaro; attivato applica quello scuro. Alla prima visita, GreenER segue l’aspetto del sistema e i suoi cambiamenti finché non usi l’interruttore. Da quel momento prevale la scelta esplicita; questa interfaccia non offre un’azione per tornare a seguire il sistema.
-
-La scelta si applica a catalogo, dettagli e layout globale senza modificare filtri o dati. Viene salvata in questo browser con la chiave `greener-theme` per la visita successiva. Se l’archiviazione è bloccata, la scelta funziona durante la sessione ma può perdersi al ricaricamento.
+[Metodologia e dati](../product/methodology) · [Riferimento API](../reference/api)
