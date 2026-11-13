@@ -3,7 +3,7 @@ import { application, gate, largeCatalog, mockApi, mockCatalog, row, search, una
 
 const environmentalAbsent = { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null }
 
-test('detail reference viewport keeps the sidebar fixed without page scrolling', async ({ page }) => {
+test('detail prioritizes operational evidence and links to historical investigation', async ({ page }) => {
   test.setTimeout(60_000)
   const to = '2026-10-17T20:00:00.000Z'
   const from = '2026-10-10T20:00:00.000Z'
@@ -53,143 +53,16 @@ test('detail reference viewport keeps the sidebar fixed without page scrolling',
   })
   await page.goto('/services/svc-0142')
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
-  await expect(page.getByRole('figure', { name: /Evolução de CO₂e/ })).toBeVisible()
-  await expect(page.getByRole('table')).toContainText('40,96 %')
-  await expect(page.getByRole('table')).toContainText('3,63 GB')
+  await expect(page.getByRole('heading', { name: 'Situação da aplicação', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: /evidências operacionais/i })).toContainText('40,96 %')
   await expect(page.getByRole('main')).toContainText('0,6 kWh')
   await expect(page.getByRole('main')).toContainText('278,41 gCO2e')
-  await expect(page.getByRole('main')).not.toContainText('0,59873637')
-
-  const before = await page.evaluate(() => {
-    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
-    return {
-      documentHeight: document.documentElement.scrollHeight,
-      viewportHeight: window.innerHeight,
-      sidebarHeight: sidebar.clientHeight,
-      sidebarContentHeight: sidebar.scrollHeight,
-      sidebarWidth: sidebar.clientWidth,
-      sidebarContentWidth: sidebar.scrollWidth,
-      sidebarTop: sidebar.getBoundingClientRect().top,
-      sidebarLeft: sidebar.getBoundingClientRect().left,
-      sidebarRight: sidebar.getBoundingClientRect().right,
-      regions: (() => {
-        const main = document.querySelector<HTMLElement>('main')!
-        const analysis = main.children[2] as HTMLElement
-        const noticeHeight = (analysis.children[0].children[1] as HTMLElement).getBoundingClientRect().height
-        const metricCards = analysis.children[0].querySelectorAll<HTMLElement>(':scope > div')[1]
-        return [metricCards.firstElementChild as HTMLElement, analysis.children[1].firstElementChild as HTMLElement, analysis.children[2], analysis.children[3].firstElementChild as HTMLElement, analysis.children[4], analysis.children[5]].map(element => {
-          const rect = element.getBoundingClientRect()
-          return { className: (element as HTMLElement).className, x: rect.x, y: rect.y, width: rect.width, height: rect.height, noticeHeight }
-        })
-      })(),
-    }
-  })
-  expect.soft(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight + 1)
-  expect.soft(before.sidebarContentHeight).toBeLessThanOrEqual(before.sidebarHeight + 1)
-  expect.soft(before.sidebarContentWidth).toBeLessThanOrEqual(before.sidebarWidth + 1)
-  expect.soft(before.sidebarLeft).toBe(0)
-  expect.soft(before.sidebarTop).toBe(0)
-  expect.soft(before.sidebarRight).toBeGreaterThan(160)
-  const [metrics, coverage, calculation, freshness, series, evidence] = before.regions
-  expect.soft(metrics.noticeHeight).toBe(16)
-  expect.soft(metrics.x).toBeLessThan(coverage.x)
-  expect.soft(Math.abs(metrics.y - coverage.y)).toBeLessThanOrEqual(2)
-  expect.soft(Math.abs(metrics.height - coverage.height)).toBeLessThanOrEqual(2)
-  expect.soft(calculation.x).toBe(metrics.x)
-  expect.soft(calculation.y - (metrics.y + metrics.height)).toBeGreaterThanOrEqual(10)
-  expect.soft(freshness.x).toBe(coverage.x)
-  expect.soft(Math.abs(calculation.y - freshness.y)).toBeLessThanOrEqual(2)
-  expect.soft(Math.abs(calculation.height - freshness.height)).toBeLessThanOrEqual(2)
-  expect.soft(series.x).toBe(metrics.x)
-  expect.soft(evidence.x).toBe(coverage.x)
-  expect.soft(Math.abs(series.y - evidence.y)).toBeLessThanOrEqual(2)
-  expect.soft(series.width).toBeGreaterThan(evidence.width)
-  const headingAlignment = await page.evaluate(() => {
-    const title = document.querySelector('main h1')!
-    const titleText = document.createRange()
-    titleText.selectNodeContents(title)
-    const titleTextRect = titleText.getBoundingClientRect()
-    const badge = document.querySelector('main .state-badge')!.getBoundingClientRect()
-    return { gap: badge.left - titleTextRect.right, verticalOffset: badge.top - title.getBoundingClientRect().top }
-  })
-  expect(headingAlignment.gap).toBeGreaterThanOrEqual(0)
-  expect(headingAlignment.gap).toBeLessThanOrEqual(8)
-  expect(Math.abs(headingAlignment.verticalOffset)).toBeLessThanOrEqual(4)
-  await expect(page.locator('.events')).toHaveCount(0)
-  await expect.poll(() => page.locator('[data-series-event-marker]').count()).toBeLessThanOrEqual(25)
-  expect(await page.locator('[data-series-event-marker]').evaluateAll(markers => markers.reduce((total, marker) => total + Number(marker.getAttribute('data-event-count')), 0))).toBe(2323)
-  await expect(page.getByRole('group', { name: 'Métrica' }).getByRole('button', { name: 'CO₂e' })).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.locator('.eventSummary')).toHaveCount(0)
-  await expect(page.getByText(/2323 · Eventos do período/)).toBeVisible()
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBe(148)
-  await expect(page.locator('[data-metric-sparkline]')).toHaveCount(2)
-  await expect(page.locator('[data-coverage-ring]')).toHaveCount(1)
-  await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões • 7 dias' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Hora', exact: true })).toBeVisible()
-  const refreshButton = page.getByRole('region', { name: /evidências operacionais/i }).getByRole('button', { name: 'Atualizar dados' })
-  const refreshAlignment = await refreshButton.evaluate((button) => {
-    const buttonRect = button.getBoundingClientRect()
-    const headingRect = button.parentElement!.querySelector('h2')!.getBoundingClientRect()
-    return { width: buttonRect.width, height: buttonRect.height, centerOffset: Math.abs(buttonRect.top + buttonRect.height / 2 - (headingRect.top + headingRect.height / 2)) }
-  })
-  expect(refreshAlignment.width).toBe(32)
-  expect(refreshAlignment.height).toBe(32)
-  expect(refreshAlignment.centerOffset).toBeLessThanOrEqual(2)
-  await expect(page.getByRole('figure', { name: /Evolução de CO₂e \(kgCO2e\)/ })).toBeVisible()
-  const chartPoint = page.getByRole('button', { name: /16\/10\/2026/ }).first()
-  await chartPoint.hover()
-  await expect(page.getByRole('status')).toContainText('Atual:')
-  await expect(page.getByRole('status')).toContainText('Anterior:')
-  await chartPoint.focus()
-  await expect(page.getByRole('status')).toBeVisible()
-
-  const afterScroll = await page.evaluate(() => {
-    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
-    const layout = document.querySelector<HTMLElement>('.detail-layout')!
-    window.scrollTo(0, 1000)
-    return { sidebarTop: sidebar.getBoundingClientRect().top, windowScrollY: window.scrollY,
-      layoutPosition: getComputedStyle(layout).position }
-  })
-  expect(afterScroll.windowScrollY).toBe(0)
-  expect(afterScroll.layoutPosition).toBe('fixed')
-  expect(afterScroll.sidebarTop).toBe(before.sidebarTop)
-  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-light-figma-alinhado.png' })
-  await page.getByRole('button', { name: 'Ver detalhes' }).click({ timeout: 10_000 })
-  await expect(page.locator('#analysis-details')).toHaveAttribute('open', '')
-  await expect(page.locator('#analysis-details')).toContainText('2026.1')
-  await page.getByRole('button', { name: 'Fechar detalhes' }).click({ timeout: 10_000 })
-
-  await page.setViewportSize({ width: 1888, height: 1000 })
-  const wideViewport = await page.evaluate(() => {
-    const workspace = document.querySelector<HTMLElement>('.workspace')!
-    const sidebar = document.querySelector<HTMLElement>('.sidebar')!
-    return { workspaceHeight: workspace.clientHeight, workspaceContentHeight: workspace.scrollHeight,
-      sidebarHeight: sidebar.clientHeight, sidebarContentHeight: sidebar.scrollHeight }
-  })
-  expect.soft(wideViewport.workspaceContentHeight).toBeLessThanOrEqual(wideViewport.workspaceHeight + 1)
-  expect.soft(wideViewport.sidebarContentHeight).toBeLessThanOrEqual(wideViewport.sidebarHeight + 1)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.getBoundingClientRect().height)).toBeGreaterThan(1000 / 3)
-  await expect.poll(() => page.getByRole('figure', { name: /Evolução de CO₂e/ }).evaluate(chart => chart.closest('section')!.getBoundingClientRect().height)).toBeGreaterThan(500)
-  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-desktop-wide-diagnostic.png' })
-
-  await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.locator('.sidebar')).not.toHaveClass(/sidebar-open/)
-  await expect.poll(() => page.locator('.sidebar').evaluate((sidebar) => sidebar.getBoundingClientRect().right)).toBeLessThanOrEqual(0)
-  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
-  await page.screenshot({ path: '../.github/evidencias/65-integracao-ambiental/detail-mobile-light-figma-alinhado.png' })
-  await page.getByRole('button', { name: 'Abrir menu' }).click()
-  const mobileSidebar = page.locator('.sidebar')
-  await expect.poll(() => mobileSidebar.evaluate((sidebar) => sidebar.scrollHeight <= sidebar.clientHeight)).toBe(true)
-
-  await page.setViewportSize({ width: 996, height: 619 })
-  const periodButton = page.getByRole('button', { name: '30 dias', exact: true })
-  await periodButton.hover()
-  await expect.poll(() => periodButton.evaluate((button) => getComputedStyle(button).backgroundColor), { timeout: 1_000 })
-    .not.toBe('rgb(255, 255, 255)')
-  await page.mouse.down()
-  const pressedTransform = await periodButton.evaluate((button) => getComputedStyle(button).transform)
-  await page.mouse.up()
-  expect(pressedTransform).not.toBe('none')
+  await expect(page.getByRole('figure')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Condição operacional', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Localização', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Explorar histórico' })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.screenshot({ path: test.info().outputPath('detail-operational.png') })
 })
 
 test('navegação mantém Aplicações ativa no detalhe', async ({ page }) => {
@@ -274,7 +147,6 @@ test('aplicação removida continua consultável com horário de remoção', asy
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   await expect(page.getByRole('main')).toContainText('Removida')
   await expect(page.getByRole('main')).toContainText('15:00')
-  await page.locator('#analysis-details summary').click()
   await expect(page.getByText(/não se aplica.*observação|observação.*não se aplica/i)).toBeVisible()
   await expect(page.getByRole('main')).not.toContainText(/observação atual/i)
 })
@@ -348,7 +220,7 @@ test('retorno do detalhe restaura posição e foco no serviço selecionado', asy
   expect(returnState).not.toBeNull()
   await page.getByRole('link', { name: /voltar ao catálogo/i }).click()
   await expect(row(page, 'svc-011').getByRole('link', { name: /ver detalhes/i })).toBeFocused()
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(row(page, 'svc-011').getByRole('link', { name: /ver detalhes/i })).toBeInViewport()
 })
 
 test('detalhe exibe evidência atual, valores parciais e intervalo selecionado', async ({ page }) => {

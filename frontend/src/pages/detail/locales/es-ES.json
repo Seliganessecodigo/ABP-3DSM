@@ -209,5 +209,10 @@
   "evidenceNoMatches": "Ninguna evidencia coincide con estos filtros.",
   "evidenceFilteredCount": "{{count}} de {{total}} métricas",
   "analysisCloseDetails": "Cerrar detalles",
-  "methodologyFullPage": "Ver metodología completa"
+  "methodologyFullPage": "Ver metodología completa",
+  "exploreHistory": "Explorar historial",
+  "viewApplicationDetails": "Ver detalles de la aplicación",
+  "operationalOverview": "Situación de la aplicación",
+  "operationalDescription": "Consulta el estado actual, la ubicación y las evidencias operativas recibidas.",
+  "environmentalSummaryNote": "La energía y el CO₂e resumen el período seleccionado. Explora su evolución en el historial."
 }

@@ -209,5 +209,10 @@
   "evidenceNoMatches": "इन फ़िल्टर से कोई साक्ष्य मेल नहीं खाता।",
   "evidenceFilteredCount": "{{total}} में से {{count}} मेट्रिक",
   "analysisCloseDetails": "विवरण बंद करें",
-  "methodologyFullPage": "पूरी गणना पद्धति देखें"
+  "methodologyFullPage": "पूरी गणना पद्धति देखें",
+  "exploreHistory": "इतिहास देखें",
+  "viewApplicationDetails": "एप्लिकेशन का विवरण देखें",
+  "operationalOverview": "एप्लिकेशन की स्थिति",
+  "operationalDescription": "वर्तमान स्थिति, स्थान और प्राप्त परिचालन डेटा देखें।",
+  "environmentalSummaryNote": "ऊर्जा और CO₂e चयनित अवधि का सारांश हैं। उनके बदलाव की जाँच के लिए इतिहास देखें।"
 }

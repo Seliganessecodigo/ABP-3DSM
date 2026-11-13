@@ -1,0 +1,12 @@
+{
+  "eyebrow": "Zeitraum untersuchen",
+  "startTitle": "Welche Anwendung möchten Sie analysieren?",
+  "startDescription": "Untersuchen Sie Energie und Emissionen im Zeitverlauf sowie die Erfassungen hinter jedem Ergebnis.",
+  "selectApplication": "Anwendung auswählen",
+  "evolution": "Entwicklung von Energie und CO₂e",
+  "events": "Ereignisse im Zeitraum",
+  "evidence": "Erfassungen und ursprüngliche Methodik",
+  "applicationsTitle": "Wählen Sie eine Anwendung aus",
+  "openHistory": "Verlauf anzeigen",
+  "currentState": "Aktueller Status: {{state}}"
+}

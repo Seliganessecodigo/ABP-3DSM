@@ -74,6 +74,11 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const [storedSeriesQuery, setSeriesQuery] = useState<AnalysisSeriesQuery>(() => readAnalysisSeriesQuery(searchParams))
   const seriesQuery = storedSeriesQuery
   const displayTimeZone = seriesQuery.timeZone
+  const linkedParams = new URLSearchParams(window.location.search)
+  for (const key of ['applicationId', 'collectionId', 'inspectionBucket', 'seriesPage']) linkedParams.delete(key)
+  const detailUrl = `/services/${encodeURIComponent(id)}?${linkedParams.toString()}`
+  linkedParams.set('applicationId', id)
+  const historyUrl = `/history?${linkedParams.toString()}`
   useEffect(() => {
     const syncQueries = () => {
       const params = new URLSearchParams(window.location.search)
@@ -213,6 +218,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
           <h1>{tDetail('historyTitle')}</h1>
           <p>{tDetail('historyDescription')}</p>
+          <a className="button secondary" href={detailUrl} onClick={(event) => { event.preventDefault(); navigate(detailUrl) }}>{tDetail('viewApplicationDetails')}</a>
         </div>
         <div className={styles.historyFilters}>
           {historyApplicationSelector}
@@ -239,10 +245,17 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <>{!historyOnly && <div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div>}{!historyOnly && <div className={styles.detailTop}>
       <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
-        {periodSelector}
+        <div className={styles.detailActions}>{periodSelector}
+          <a className="button secondary" href={historyUrl} onClick={(event) => { event.preventDefault(); navigate(historyUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
+        </div>
       </div>}
+      {!historyOnly && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
+        <div><h2>{tDetail('operationalOverview')}</h2><p>{tDetail('operationalDescription')}</p></div>
+        <p>{tDetail('environmentalSummaryNote')}</p>
+      </section>}
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
+        operationalOverview={!historyOnly}
         applicationName={application?.name ?? id}
         inspectionBucket={historyOnly ? inspectionBucket : null}
         status={analysisState}

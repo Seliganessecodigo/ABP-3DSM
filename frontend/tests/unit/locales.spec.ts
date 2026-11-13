@@ -13,7 +13,7 @@ function readTranslations(root: string, locale: string): Record<string, string> 
   }))
 }
 
-for (const root of ['i18n', 'pages/catalog', 'pages/detail', 'pages/dashboard', 'pages/methodology']) {
+for (const root of ['i18n', 'pages/catalog', 'pages/detail', 'pages/history', 'pages/dashboard', 'pages/methodology']) {
   test(`${root} has nonempty translations and preserves interpolation in all locales`, () => {
     const placeholders = (text: string) => [...text.matchAll(/{{\s*([^{}]+?)\s*}}/g)].map(match => match[1]).sort()
     for (const locale of supportedLocales) {

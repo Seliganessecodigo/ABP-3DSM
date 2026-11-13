@@ -209,5 +209,10 @@
   "evidenceNoMatches": "필터 조건에 맞는 근거가 없습니다.",
   "evidenceFilteredCount": "지표 {{total}}개 중 {{count}}개",
   "analysisCloseDetails": "상세 정보 닫기",
-  "methodologyFullPage": "전체 산정 방법 보기"
+  "methodologyFullPage": "전체 산정 방법 보기",
+  "exploreHistory": "이력 살펴보기",
+  "viewApplicationDetails": "애플리케이션 상세 보기",
+  "operationalOverview": "애플리케이션 상태",
+  "operationalDescription": "현재 상태, 위치 및 수신된 운영 데이터를 확인합니다.",
+  "environmentalSummaryNote": "에너지와 CO₂e는 선택한 기간의 요약입니다. 변화 추이는 이력에서 확인하세요."
 }

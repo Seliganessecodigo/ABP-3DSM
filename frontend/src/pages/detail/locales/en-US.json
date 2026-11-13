@@ -209,5 +209,10 @@
   "evidenceNoMatches": "No evidence matches these filters.",
   "evidenceFilteredCount": "{{count}} of {{total}} metrics",
   "analysisCloseDetails": "Close details",
-  "methodologyFullPage": "View full methodology"
+  "methodologyFullPage": "View full methodology",
+  "exploreHistory": "Explore history",
+  "viewApplicationDetails": "View application details",
+  "operationalOverview": "Application status",
+  "operationalDescription": "Check the current status, location and operational evidence received.",
+  "environmentalSummaryNote": "Energy and CO₂e summarize the selected period. Explore history to investigate their evolution."
 }

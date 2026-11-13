@@ -209,5 +209,10 @@
   "evidenceNoMatches": "Tidak ada bukti yang cocok dengan filter ini.",
   "evidenceFilteredCount": "{{count}} dari {{total}} metrik",
   "analysisCloseDetails": "Tutup detail",
-  "methodologyFullPage": "Lihat metodologi lengkap"
+  "methodologyFullPage": "Lihat metodologi lengkap",
+  "exploreHistory": "Jelajahi riwayat",
+  "viewApplicationDetails": "Lihat detail aplikasi",
+  "operationalOverview": "Status aplikasi",
+  "operationalDescription": "Periksa status saat ini, lokasi, dan bukti operasional yang diterima.",
+  "environmentalSummaryNote": "Energi dan CO₂e merangkum periode yang dipilih. Jelajahi riwayat untuk menyelidiki perubahannya."
 }

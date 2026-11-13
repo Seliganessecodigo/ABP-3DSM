@@ -209,5 +209,10 @@
   "evidenceNoMatches": "没有证据符合这些筛选条件。",
   "evidenceFilteredCount": "{{total}}项指标中有{{count}}项",
   "analysisCloseDetails": "\u5173\u95ed\u8be6\u60c5",
-  "methodologyFullPage": "查看完整方法说明"
+  "methodologyFullPage": "查看完整方法说明",
+  "exploreHistory": "探索历史",
+  "viewApplicationDetails": "查看应用详情",
+  "operationalOverview": "应用状态",
+  "operationalDescription": "查看当前状态、位置和已接收的运行数据。",
+  "environmentalSummaryNote": "能源和CO₂e概括了所选时段。请在历史中查看其变化。"
 }
