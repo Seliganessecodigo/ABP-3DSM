@@ -57,5 +57,6 @@
   "reason.REMOVAL_CONFIRMED": "Removal confirmed",
   "loading.description": "Please wait while the request completes. No values are shown yet.",
   "loading.processing": "Processing…",
-  "auth.login": "Sign in"
+  "auth.login": "Sign in",
+  "nav.users": "Users"
 }

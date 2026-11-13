@@ -31,7 +31,7 @@
   "dataAsOf": "Data dikumpulkan hingga {{date}}",
   "dataAsOfUnavailable": "Waktu pengumpulan tidak tersedia untuk ringkasan ini.",
   "trendTitle": "Deret waktu",
-  "trendUnavailable": "Deret historis agregat belum termasuk dalam kontrak API. Tidak ada nilai ilustratif yang ditampilkan.",
+  "trendUnavailable": "Deret waktu tidak dapat dimuat.",
   "compositionTitle": "Komposisi CO₂e per aplikasi",
   "donut": "Lihat diagram donat",
   "bars": "Lihat diagram batang",
@@ -82,5 +82,9 @@
   "filters.clearAll": "Hapus semua",
   "filters.cancel": "Batal",
   "filters.apply": "Terapkan filter",
-  "filters.invalidRange": "Masukkan batas angka nonnegatif yang valid dengan minimum kurang dari atau sama dengan maksimum."
+  "filters.invalidRange": "Masukkan batas angka nonnegatif yang valid dengan minimum kurang dari atau sama dengan maksimum.",
+  "trend.graph": "Grafik",
+  "trend.table": "Tabel",
+  "trend.interval": "Interval (UTC)",
+  "trend.note": "Nilai per interval UTC. Celah berarti data tidak tersedia, bukan nol."
 }

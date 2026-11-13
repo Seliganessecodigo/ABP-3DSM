@@ -116,10 +116,38 @@ export class CollectionsRepository {
       .getMany();
   }
 
+  async findForRegionalSimulation(
+    applicationId: string,
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<PersistedEnvironmentalInterval[]> {
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<EnvironmentalCollectionRow[]>(
+      `SELECT id,
+        to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
+        to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
+        to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+        "energyKwh", "carbonGrams", "calculationEvidence"
+      FROM collections
+      WHERE "applicationId" = $1
+        AND "intervalStart" < $3::timestamptz
+        AND "intervalEnd" > $2::timestamptz
+      ORDER BY "intervalStart" ASC, id ASC
+      LIMIT 10001`,
+      [
+        applicationId,
+        formatUtcTimestamp(startBound),
+        formatUtcTimestamp(endBound),
+      ],
+    )
+  }
+
   async findEnvironmentalByApplicationsAndPeriod(
     applicationIds: readonly string[],
     periodStartNanoseconds: bigint,
     periodEndNanoseconds: bigint,
+    options: { includeProvenance?: boolean } = {},
   ): Promise<
     (PersistedEnvironmentalInterval & { readonly applicationId: string })[]
   > {
@@ -131,12 +159,18 @@ export class CollectionsRepository {
         to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
         to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
         to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
-        "energyKwh", "carbonGrams", "calculationEvidence"
+        "energyKwh", "carbonGrams",
+        ${options.includeProvenance === false
+          ? `NULL::jsonb AS "calculationEvidence",
+            CASE WHEN "energyKwh" IS NOT NULL AND "energyKwh" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{energy,reasons}' END AS "energyReasons",
+            CASE WHEN "carbonGrams" IS NOT NULL AND "carbonGrams" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{carbon,reasons}' END AS "emissionsReasons"`
+          : '"calculationEvidence"'}
       FROM collections
       WHERE "applicationId" = ANY($1::text[])
         AND "intervalStart" < $3::timestamptz
-        AND "intervalEnd" > $2::timestamptz
-      ORDER BY "applicationId" ASC, "intervalStart" ASC, id ASC`,
+        AND "intervalEnd" > $2::timestamptz`,
       [
         applicationIds,
         formatUtcTimestamp(startBound),

@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core'
 import { DataSource } from 'typeorm'
 import { AppModule } from '../../app.module'
 import { CarbonIntensityAdapter } from '../../integrations/carbon-intensity.adapter'
+import { IntegrationError } from '../../integrations/integration-error'
 import { InitialSchema1791240000000 } from '../../database/migrations/1791240000000-InitialSchema'
 import { CompleteMonitoringPersistence1791250000000 } from '../../database/migrations/1791250000000-CompleteMonitoringPersistence'
 import { AddApplicationLocation1791260000000 } from '../../database/migrations/1791260000000-AddApplicationLocation'
@@ -136,6 +137,23 @@ async function postPreview(
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ from: requestFrom, to: requestTo }),
+    },
+  )
+}
+
+async function postRegionalSimulation(
+  app: INestApplication,
+  id: string,
+  destinationRegionCode = 'br-destination',
+  requestFrom = from,
+  requestTo = to,
+): Promise<Response> {
+  return fetch(
+    new URL(`/applications/${id}/analysis/regional-simulation`, await app.getUrl()),
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ from: requestFrom, to: requestTo, destinationRegionCode }),
     },
   )
 }
@@ -284,6 +302,194 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       expect(await (await fetch(analysisUrl)).json()).toEqual(originalBefore)
     } finally {
       factorRequest.mockRestore()
+    }
+  })
+
+  it('simulates the current destination factor without changing the official analysis', async () => {
+    const query = new URLSearchParams({ from, to })
+    const analysisUrl = new URL(`/applications/${applicationId}/analysis?${query}`, await app.getUrl())
+    const before = await (await fetch(analysisUrl)).json()
+    const factorRequest = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+      .mockResolvedValue({
+        regionCode: 'br-destination',
+        country: 'Brazil',
+        region: 'Destination',
+        city: null,
+        intensity: 100,
+        unit: 'gCO2e/kWh',
+        renewableSharePercent: 50,
+        queriedAt: new Date('2026-10-22T03:01:00Z'),
+      })
+    try {
+      const response = await postRegionalSimulation(app, applicationId)
+      const body = await response.json()
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'available',
+        applicationId,
+        destinationFactor: {
+          regionCode: 'br-destination',
+          intensity: 100,
+          queriedAt: '2026-10-22T03:01:00.000Z',
+        },
+        coverage: { energy: 1, reference: 1, destination: 1 },
+      })
+      expect(body.energy.value).toBe(energyKwh)
+      expect(body.reference.value).toBeCloseTo(emissionsGrams, 14)
+      expect(body.destination.value).toBe(energyKwh * 100)
+      expect(body.difference.absolute.value).toBeCloseTo(energyKwh * 100 - emissionsGrams, 14)
+      expect(factorRequest).toHaveBeenCalledTimes(1)
+      expect(factorRequest).toHaveBeenCalledWith('br-destination')
+      expect(await (await fetch(analysisUrl)).json()).toEqual(before)
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
+  it('prorates regional simulation energy across clipped observations and uncovered segments', async () => {
+    const factorRequest = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+      .mockResolvedValue({
+        regionCode: 'br-destination',
+        country: 'Brazil',
+        region: 'Destination',
+        city: null,
+        intensity: 100,
+        unit: 'gCO2e/kWh',
+        renewableSharePercent: 50,
+        queriedAt: new Date('2026-10-22T03:01:00Z'),
+      })
+    try {
+      const response = await postRegionalSimulation(
+        app,
+        applicationId,
+        'br-destination',
+        '2026-10-01T03:00:30.000Z',
+        '2026-10-01T03:02:00.000Z',
+      )
+      const body = await response.json()
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        status: 'partial',
+        period: { from: '2026-10-01T03:00:30.000Z', to: '2026-10-01T03:02:00.000Z' },
+        coverage: { energy: 1 / 3, reference: 1 / 3, destination: 1 / 3 },
+      })
+      expect(body.energy.value).toBeCloseTo(energyKwh / 2, 14)
+      expect(body.reference.value).toBeCloseTo(emissionsGrams / 2, 14)
+      expect(body.destination.value).toBeCloseTo(energyKwh / 2 * 100, 14)
+      expect(body.energy.reasons).toContainEqual({ code: 'NO_OBSERVATION' })
+      expect(factorRequest).toHaveBeenCalledTimes(1)
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
+  it('keeps the reference on destination failure and retries with a fresh current-factor request', async () => {
+    const factorRequest = jest
+      .spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+      .mockRejectedValueOnce(new IntegrationError('UPSTREAM_TIMEOUT'))
+      .mockResolvedValueOnce({
+        regionCode: 'br-destination',
+        country: 'Brazil',
+        region: 'Destination',
+        city: null,
+        intensity: 100,
+        unit: 'gCO2e/kWh',
+        renewableSharePercent: 50,
+        queriedAt: new Date('2026-10-22T03:02:00Z'),
+      })
+    try {
+      const failedResponse = await postRegionalSimulation(app, applicationId)
+      const failed = await failedResponse.json()
+      expect(failedResponse.status).toBe(200)
+      expect(failed).toMatchObject({
+        status: 'partial',
+        destination: {
+          value: null,
+          reasons: [{ code: 'DESTINATION_FACTOR_UNAVAILABLE' }],
+        },
+        difference: { absolute: { value: null } },
+      })
+      expect(failed.reference.value).toBeCloseTo(emissionsGrams, 14)
+
+      const retriedResponse = await postRegionalSimulation(app, applicationId)
+      const retried = await retriedResponse.json()
+      expect(retriedResponse.status).toBe(200)
+      expect(retried.destination.value).toBe(energyKwh * 100)
+      expect(retried.destinationFactor.queriedAt).toBe('2026-10-22T03:02:00.000Z')
+      expect(factorRequest).toHaveBeenCalledTimes(2)
+      expect(factorRequest).toHaveBeenNthCalledWith(1, 'br-destination')
+      expect(factorRequest).toHaveBeenNthCalledWith(2, 'br-destination')
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
+  it('rejects a period longer than 30 days without querying the destination factor', async () => {
+    const factorRequest = jest.spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+    try {
+      const response = await postRegionalSimulation(
+        app,
+        applicationId,
+        'br-destination',
+        '2026-10-01T00:00:00Z',
+        '2026-11-01T00:00:00Z',
+      )
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({ code: 'REGIONAL_SIMULATION_PERIOD_LIMIT_EXCEEDED' })
+      expect(factorRequest).not.toHaveBeenCalled()
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
+  it('rejects a blank destination region before reading or querying anything', async () => {
+    const factorRequest = jest.spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+    try {
+      const response = await postRegionalSimulation(app, applicationId, '   ')
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({ code: 'INVALID_DESTINATION_REGION' })
+      expect(factorRequest).not.toHaveBeenCalled()
+    } finally {
+      factorRequest.mockRestore()
+    }
+  })
+
+  it('rejects more than 10,000 intersecting collections without requesting a factor', async () => {
+    const largeApplicationId = `regional-simulation-limit-${randomUUID()}`
+    await database.query(
+      'INSERT INTO applications (id, name) VALUES ($1, $2)',
+      [largeApplicationId, 'Regional simulation limit'],
+    )
+    await database.query(
+      `INSERT INTO collections (
+        "applicationId", "intervalStart", "intervalEnd", metrics, state
+      )
+      SELECT $1,
+        TIMESTAMPTZ '2026-10-01T03:00:00Z' + sample * INTERVAL '1 second',
+        TIMESTAMPTZ '2026-10-01T03:00:00Z' + (sample + 1) * INTERVAL '1 second',
+        '{}'::jsonb,
+        'AVAILABLE'
+      FROM generate_series(0, 10000) AS sample`,
+      [largeApplicationId],
+    )
+    const factorRequest = jest.spyOn(CarbonIntensityAdapter.prototype, 'fetchIntensity')
+    try {
+      const response = await postRegionalSimulation(
+        app,
+        largeApplicationId,
+        'br-destination',
+        '2026-10-01T03:00:00Z',
+        '2026-10-01T06:00:00Z',
+      )
+      expect(response.status).toBe(400)
+      expect(await response.json()).toMatchObject({ code: 'REGIONAL_SIMULATION_OBSERVATION_LIMIT_EXCEEDED' })
+      expect(factorRequest).not.toHaveBeenCalled()
+    } finally {
+      factorRequest.mockRestore()
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [largeApplicationId])
+      await database.query('DELETE FROM applications WHERE id = $1', [largeApplicationId])
     }
   })
 
@@ -1490,6 +1696,11 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
     const provenanceSchema = document.components.schemas.EnvironmentalAnalysisProvenanceDto
     const factorSchema = document.components.schemas.EnvironmentalAnalysisFactorProvenanceDto
     const measureSchema = document.components.schemas.EnvironmentalAnalysisMeasureDto
+    const regionalOperation = (
+      document.paths['/applications/{id}/analysis/regional-simulation'] as unknown as {
+        post?: { responses: Record<string, unknown>; requestBody?: unknown }
+      }
+    ).post
 
     expect(response.status).toBe(200)
     expect(operation.parameters).toEqual(expect.arrayContaining([
@@ -1534,6 +1745,13 @@ describeWithDatabase('GET /applications/:id/analysis com PostgreSQL', () => {
       reasons: { type: 'array' },
     })
     expect(factorSchema.properties.queriedAt).toMatchObject({ $ref: '#/components/schemas/EnvironmentalAnalysisQueryRangeDto' })
+    expect(regionalOperation?.responses).toMatchObject({ '200': {}, '400': {}, '404': {}, '503': {} })
+    expect(regionalOperation?.requestBody).toBeDefined()
+    expect(document.components.schemas.RegionalSimulationResultDto.properties).toMatchObject({
+      status: { type: 'string' },
+      energy: { $ref: '#/components/schemas/RegionalSimulationMeasureDto' },
+      difference: { $ref: '#/components/schemas/RegionalSimulationDifferenceDto' },
+    })
   })
   it('returns a generic service-unavailable response when persisted analysis cannot be read', async () => {
     const unavailableTable = `collections_qa_${randomUUID().replaceAll('-', '')}`

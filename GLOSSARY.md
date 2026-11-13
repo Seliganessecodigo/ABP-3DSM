@@ -28,6 +28,18 @@ Previously valid data that remains available but is older than the latest monito
 The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
 _Avoid_: Application coverage, data share
 
+**Recalculation preview**:
+An unsaved estimate that applies the current calculation configuration to preserved observations for a selected application and period, presented separately from the original result. It does not replace or contribute to official history, charts, or totals.
+_Avoid_: Recalculated history, saved preview
+
+**Regional simulation**:
+An unsaved estimate that keeps observed energy constant while applying a current destination carbon factor, compared with emissions calculated from the factor snapshots preserved by the collections. It does not change official results or establish migration feasibility.
+_Avoid_: Regional forecast, migration result
+
+**Destination carbon factor**:
+The carbon intensity returned for the selected destination region by a current GreenER query. Its query time records when GreenER asked the source and does not establish official validity.
+_Avoid_: Historical destination factor, effective destination factor
+
 ## SSO
 
 **Login SSO**:
@@ -46,6 +58,19 @@ Vocabulário do produto para alinhar conceitos entre autenticação, organizaç�
 
 ## Autenticação
 
+**Conta ativa**:
+Conta GreenER que não está bloqueada nem desativada e pode iniciar autenticação conforme as demais políticas de acesso.
+
+**Bloqueio de conta**:
+Suspensão temporária do acesso à conta, por exemplo durante uma investigação de risco. Pode ser encerrada por uma reativação explícita.
+_Evitar_: desativação
+
+**Desativação de conta**:
+Estado atribuído quando a conta deixa de precisar de acesso. A conta é preservada e pode ser reativada explicitamente se voltar a precisar de acesso.
+
+**Reativação de conta**:
+Retorno explícito de uma conta bloqueada ou desativada ao estado ativo.
+
 **Administrador**:
 Pessoa usuária com papel `ADMIN` em uma organização GreenER.
 
@@ -63,3 +88,12 @@ Etapa temporária após o primeiro fator de autenticação, na qual a pessoa com
 
 **Representante da organização**:
 Contato autorizado pela organização para receber o convite inicial do primeiro Administrador e validar recuperações de autenticador. Essa indicação não cria uma conta GreenER e pode ser substituída pelo suporte após validação independente da nova autoridade e registro de auditoria.
+
+**Operador externo**:
+Pessoa identificada fora das contas GreenER que executa uma recuperação privilegiada, como a recuperação do autenticador TOTP de um Administrador.
+
+## Auditoria
+
+**Evento de auditoria**:
+Registro histórico de uma ação relevante, com autoria, instante, alvo e resultado, usado para explicar mudanças e tentativas sem expor credenciais ou segredos.
+_Avoid_: Log de auditoria, histórico de alterações

@@ -7,7 +7,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import {
   randomBytes,
   timingSafeEqual,
@@ -18,20 +17,23 @@ import {
   LessThanOrEqual,
   MoreThan,
   QueryFailedError,
-  Repository,
 } from 'typeorm'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { ExternalIdentityEntity } from '../../database/entities/external-identity.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
 import { SsoHandoffEntity } from '../../database/entities/sso-handoff.entity'
 import { SsoInvitationEntity } from '../../database/entities/sso-invitation.entity'
 import { SsoTransactionEntity } from '../../database/entities/sso-transaction.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AUTH_CLOCK, AuthClock } from './clock'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AccessTokenService } from './access-token.service'
 import { AuthPrincipal, AuthenticationService } from './authentication.service'
 import { GoogleIdentity, GoogleOidcClient, googlePkceChallenge } from './google-oidc-client'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 
 const INVITATION_TTL_MS = 24 * 60 * 60 * 1000
 const OIDC_TRANSACTION_TTL_MS = 10 * 60 * 1000
@@ -46,12 +48,7 @@ export class SsoAuthenticationService {
     private readonly authentication: AuthenticationService,
     @Inject(AUTH_CLOCK) private readonly clock: AuthClock,
     @Inject(EMAIL_DELIVERY) private readonly emailDelivery: EmailDelivery,
-    @InjectRepository(AuditLogEntity)
-    private readonly auditLogs: Repository<AuditLogEntity>,
-    @InjectRepository(ExternalIdentityEntity)
-    private readonly identities: Repository<ExternalIdentityEntity>,
-    @InjectRepository(SsoInvitationEntity)
-    private readonly invitations: Repository<SsoInvitationEntity>,
+    private readonly auditWriter: AuditWriter,
   ) {}
 
   async issueInvitation(
@@ -59,7 +56,17 @@ export class SsoAuthenticationService {
     input: { email: string; name: string; role: UserRole },
   ): Promise<{ expiresAt: string }> {
     this.accessTokens.assertConfigured()
-    if (principal.role !== UserRole.ADMIN) throw forbidden()
+    if (principal.role !== UserRole.ADMIN) {
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: principal.userId },
+        action: 'auth.sso.invitation.issued',
+        entityType: 'organization',
+        entityId: principal.organizationId,
+        outcome: 'denied',
+        reason: 'insufficient_role',
+      })
+      throw forbidden()
+    }
     const email = normalizeEmail(input.email)
     const name = input.name.trim()
     if (!isEmail(email) || !name || name.length > 160) {
@@ -90,7 +97,7 @@ export class SsoAuthenticationService {
     if (
       existingAccount &&
       (existingAccount.organizationId !== principal.organizationId ||
-        !existingAccount.isActive)
+        existingAccount.status !== UserAccountStatus.ACTIVE)
     ) {
       throw new ConflictException({
         code: 'SSO_INVITATION_ACCOUNT_UNAVAILABLE',
@@ -111,7 +118,7 @@ export class SsoAuthenticationService {
         .andWhere('"consumedAt" IS NULL')
         .andWhere('"revokedAt" IS NULL')
         .execute()
-      await invitations.save(
+      const invitation = await invitations.save(
         invitations.create({
           tokenHash,
           organizationId: principal.organizationId,
@@ -124,6 +131,19 @@ export class SsoAuthenticationService {
           revokedAt: null,
         }),
       )
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: principal.userId },
+        action: 'auth.sso.invitation.issued',
+        entityType: 'sso_invitation',
+        entityId: invitation.id,
+        outcome: 'success',
+        reason: 'sso_invitation_issued',
+        allowedSnapshotFields: ['organizationId', 'role'],
+        after: {
+          organizationId: principal.organizationId,
+          role: input.role,
+        },
+      }, manager)
     })
 
     const frontend = configuredUrl(process.env.APP_BASE_URL, 'APP_BASE_URL')
@@ -135,13 +155,6 @@ export class SsoAuthenticationService {
       `Olá, ${name}. Um administrador convidou você para acessar o GreenER.\n\n` +
         `Entre com sua conta Google por este link (válido por 24 horas):\n${inviteUrl.toString()}`,
     )
-    await this.auditLogs.save(
-      auditRecord(principal.userId, 'auth.sso.invitation.issued', 'sso_invitation', tokenHash, {
-        organizationId: principal.organizationId,
-        email,
-        role: input.role,
-      }),
-    )
     return { expiresAt: expiresAt.toISOString() }
   }
 
@@ -149,20 +162,61 @@ export class SsoAuthenticationService {
     principal: AuthPrincipal,
     userId: string,
   ): Promise<void> {
-    if (principal.role !== UserRole.ADMIN) throw forbidden()
-    if (principal.userId === userId) throw forbidden()
-    const identity = await this.identities.findOne({
-      where: { userId, organizationId: principal.organizationId, provider: 'google' },
-      relations: { user: true },
-    })
-    if (!identity) throw new NotFoundException({ code: 'SSO_IDENTITY_NOT_FOUND' })
-    await this.identities.remove(identity)
-    await this.auditLogs.save(
-      auditRecord(principal.userId, 'auth.sso.identity.revoked', 'user', userId, {
-        organizationId: principal.organizationId,
-        provider: 'google',
-      }),
-    )
+    if (principal.role !== UserRole.ADMIN || principal.userId === userId) {
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: principal.userId },
+        action: 'auth.sso.identity.revoked',
+        entityType: 'user',
+        entityId: userId,
+        outcome: 'denied',
+        reason:
+          principal.role !== UserRole.ADMIN
+            ? 'insufficient_role'
+            : 'self_revocation_forbidden',
+      })
+      throw forbidden()
+    }
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        const identities = manager.getRepository(ExternalIdentityEntity)
+        const identity = await identities.findOne({
+          where: {
+            userId,
+            organizationId: principal.organizationId,
+            provider: 'google',
+          },
+        })
+        if (!identity) {
+          throw new NotFoundException({ code: 'SSO_IDENTITY_NOT_FOUND' })
+        }
+        await identities.remove(identity)
+        await this.auditWriter.record({
+          actor: { type: 'user', userId: principal.userId },
+          action: 'auth.sso.identity.revoked',
+          entityType: 'user',
+          entityId: userId,
+          outcome: 'success',
+          reason: 'sso_identity_revoked',
+          allowedSnapshotFields: ['organizationId', 'provider'],
+          after: {
+            organizationId: principal.organizationId,
+            provider: 'google',
+          },
+        }, manager)
+      })
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        await this.auditWriter.record({
+          actor: { type: 'user', userId: principal.userId },
+          action: 'auth.sso.identity.revoked',
+          entityType: 'user',
+          entityId: userId,
+          outcome: 'failed',
+          reason: 'identity_not_found',
+        })
+      }
+      throw error
+    }
   }
 
   async startLogin(input: {
@@ -296,7 +350,7 @@ export class SsoAuthenticationService {
         where: {
           id: handoff.userId,
           organizationId: handoff.organizationId,
-          isActive: true,
+          status: UserAccountStatus.ACTIVE,
         },
       })
       if (!account || !account.emailVerifiedAt) throw invalidSsoLogin()
@@ -318,7 +372,10 @@ export class SsoAuthenticationService {
           relations: { user: true },
         })
         if (existingIdentity) {
-          if (!existingIdentity.user.isActive || !existingIdentity.user.emailVerifiedAt) {
+          if (
+            existingIdentity.user.status !== UserAccountStatus.ACTIVE ||
+            !existingIdentity.user.emailVerifiedAt
+          ) {
             throw invalidSsoLogin()
           }
           if (invitationTokenHash) {
@@ -371,7 +428,9 @@ export class SsoAuthenticationService {
         if (user && user.organizationId !== invitation.organizationId) {
           throw invalidInvitation()
         }
-        if (user && !user.isActive) throw invalidInvitation()
+        if (user && user.status !== UserAccountStatus.ACTIVE) {
+          throw invalidInvitation()
+        }
         if (!user) {
           user = await users.save(
             users.create({
@@ -381,7 +440,7 @@ export class SsoAuthenticationService {
               passwordHash: null,
               emailVerifiedAt: now,
               role: invitation.role,
-              isActive: true,
+              status: UserAccountStatus.ACTIVE,
               lastAccessAt: null,
             }),
           )
@@ -399,12 +458,18 @@ export class SsoAuthenticationService {
           organizationId: user.organizationId,
         })
         await identities.save(link)
-        await manager.getRepository(AuditLogEntity).save(
-          auditRecord(user.id, 'auth.sso.identity.linked', 'user', user.id, {
+        await this.auditWriter.record({
+          actor: { type: 'user', userId: user.id },
+          action: 'auth.sso.identity.linked',
+          entityType: 'user',
+          entityId: user.id,
+          outcome: 'success',
+          allowedSnapshotFields: ['organizationId', 'provider'],
+          after: {
             organizationId: user.organizationId,
             provider: 'google',
-          }),
-        )
+          },
+        }, manager)
         return user
       })
     } catch (error) {
@@ -479,26 +544,6 @@ function forbidden(): ForbiddenException {
     code: 'INSUFFICIENT_ROLE',
     message: 'Você não tem permissão para esta operação',
   })
-}
-
-function auditRecord(
-  actor: string,
-  action: string,
-  entityType: string,
-  entityId: string,
-  after: Record<string, unknown>,
-) {
-  return {
-    actor,
-    actorUserId: actor,
-    action,
-    entityType,
-    entityId,
-    before: null,
-    after,
-    reason: null,
-    outcome: 'succeeded',
-  }
 }
 
 function isUniqueViolation(error: QueryFailedError): boolean {

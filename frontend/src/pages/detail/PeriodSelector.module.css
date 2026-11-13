@@ -11,7 +11,7 @@
 .option[aria-pressed='true']:hover { filter: brightness(.92); }
 .option[aria-pressed='true']:active { filter: brightness(.84); }
 .selectLabel { display: grid; gap: 6px; color: var(--text-secondary); font-size: 12px; font-weight: 650; }
-.selectLabel select { width: 100%; min-height: 44px; border: 1px solid var(--border-default); border-radius: 8px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; }
+.selectLabel select { width: 100%; }
 .selectLabel select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .compact .options { gap: 4px; }
 .compact .option { min-height: 32px; border-radius: 6px; padding: 4px 8px; font-size: 10px; }

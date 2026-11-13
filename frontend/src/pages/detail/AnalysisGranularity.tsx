@@ -38,7 +38,7 @@ export function AnalysisGranularity({ capabilities, requestedValue, onChange, la
         <button type="button" className={styles.repair} disabled={selectedValue === null}
           onClick={() => selectedValue !== null && onChange(selectedValue)}>{labels.repair}</button>
       </div>}
-      {select ? <label className={styles.selectLabel}><span>{labels.heading}</span><select aria-label={labels.heading}
+      {select ? <label className={styles.selectLabel}><span>{labels.heading}</span><select className="form-control" aria-label={labels.heading}
         value={selectedValue ?? ''} onChange={(event) => {
           const option = capabilities.options.find(({ value }) => value === event.target.value)
           if (option) onChange(option.value)

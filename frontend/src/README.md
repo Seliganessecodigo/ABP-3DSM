@@ -2,6 +2,8 @@
 
 `pages/methodology/` contém as quatro abas em `MethodologyPage`, rascunhos em `usePreferenceDraft` e componentes locais de explicação/prévia. `RecordedMethodology` preserva a consulta histórica por coleta. `features/preferences/` valida o contrato HTTP autenticado; `pages/detail/useAnalysisDefaults` aplica somente padrões ausentes na URL.
 
+`pages/recalculationPreview/` apresenta a prévia de recálculo em administração, com escopo local à tela e sem persistir a resposta. `features/analysis/recalculationPreview.ts` valida a resposta do endpoint de prévia; o resultado permanece separado da análise histórica.
+
 Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 estiver ocupada, inclusive em worktrees simultâneos. Metodologia carrega Inter local de `assets/fonts/`, com licença SIL OFL, para reproduzir as referências sem CDN em runtime.
 
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
@@ -11,9 +13,13 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 - Detalhe prioriza estado operacional, localização e evidências recebidas, com resumo ambiental do período. Histórico concentra gráfico, eventos, intervalos, metodologia/fatores registrados e inspeção das contribuições. Os links entre as telas preservam aplicação, período, granularidade e fuso; seleções de coleta/inspeção são descartadas ao mudar de contexto. A entrada do histórico oferece seletor, período e cards de acesso direto. Informações operacionais permanecem acessíveis durante carregamento ou falha ambiental.
 - `components/`: interface compartilhada por telas ou infraestrutura visual, como `AppShell`, `LanguageSelector`, `LoadingState`, ações e feedback de requisição. `LoadingState` apresenta aviso e placeholders no carregamento inicial; na atualização, use a versão compacta e preserve os dados anteriores. Ações pendentes usam `aria-disabled` com bloqueio do handler para manter o foco. Elementos específicos continuam junto da página que os usa.
 - `features/<domínio>/`: contratos e validação HTTP, acesso à API, cache e regras puras pertencentes ao domínio; não contém composição visual de página. `features/analysis/` integra resumo, série e consulta paginada de contribuições por bucket. Consulte o README do módulo para o contrato corrente e seus limites.
+- `features/applications/useApplicationCatalog.ts` concentra o recurso de catálogo usado por catálogo, histórico e dashboard: snapshot validado, polling após a resposta, cancelamento e preservação dos últimos dados válidos. O resumo do dashboard tem ciclo independente; mudanças de período, estado ou região consultam somente o resumo. A ação de atualização solicita ambos os recursos, respeitando uma consulta de catálogo já pendente.
 - `utils/`: funções independentes de React, como formatação de datas.
 - `styles/shared.css`: estilos visuais usados por várias páginas, como botões, cabeçalhos e mensagens. `index.css` contém reset, base e tokens globais; cada componente compartilhado importa seu próprio CSS.
+- Campos de texto, datas, números e selects usam `form-control`, com fonte herdada, borda, seta de seleção, foco, erro e estado desabilitado compartilhados. A densidade padrão tem 44 px; `form-control--compact` tem 36 px em paginação no desktop e 44 px em telas pequenas/toque; `form-control--large` tem 50 px nos formulários de login e preferências. CSS da página mantém largura e composição; não redefine a aparência básica desses campos. Campos numéricos de destaque e buscas com ícone mantêm suas composições específicas.
 - `i18n/`: textos compartilhados e tipos de apoio. `i18n.ts` configura os idiomas e registra automaticamente os módulos `pages/*/i18n.ts`.
+
+`features/preferences/` concentra contratos HTTP, períodos, avisos e padrões pessoais. `components/PersonalAlerts` é compartilhado entre prévia, catálogo, Dashboard e detalhe; a avaliação permanece no backend. `components/EnvironmentalSeries` apresenta a série no Dashboard e na prévia real. `pages/methodology/useRealPreviews` coordena cancelamento e espera curta durante a edição, sem persistir rascunhos. Períodos personalizados preservam início, fim e granularidade na URL.
 
 ## Limites de propriedade
 
@@ -32,4 +38,12 @@ Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 
 5. Registre caminho e parâmetros em `app/useRoute.ts`, associe a página em `App.tsx` e preserve navegação do browser.
 6. Se a tela precisa de dados, use hooks para coordenar carregamento e uma feature tipada para API/cache/validação; confira o contrato do backend. Cubra carregamento, sucesso, vazio, erro e atualização conforme aplicável.
 
-O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/history`, `/methodology`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
+O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/history`, `/methodology`, `/administration/calculations`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
+
+`app/analysisNavigation.ts` mantém o período ao abrir dashboard/histórico pela sidebar e leva a aplicação do detalhe para o histórico. Somente os parâmetros suportados pelo destino são propagados: filtros locais da tabela não se tornam filtros da análise. O fluxo completo contra backend e PostgreSQL reais é executado por `npm run test:integration`; preparação e isolamento estão em `backend/test/README.md`.
+
+A integridade dos catálogos de idioma é verificada em `tests/unit/locales.spec.ts`, incluindo todas as páginas registradas, interpolações e caracteres corrompidos. `e2e/translations.spec.ts` percorre as rotas, as quatro abas de preferências, os filtros do histórico e os fluxos de autenticação nos doze idiomas; também verifica a tradução de mensagens já abertas ao trocar o idioma.
+
+`pages/login/AccountSetupPage` apresenta `/setup-admin` e `/confirm-email` com `useAccountSetup` e o contrato de `features/authentication/api.ts`. Convite e confirmação permanecem públicos; só o backend consome os tokens e concede acesso após senha e TOTP. O fragmento é removido da URL e mantido apenas na memória; recarregar exige reabrir o link do e-mail. O fallback em `public/staticwebapp.config.json` mantém os links funcionais na Azure.
+
+`pages/accounts/` apresenta `/administration/users` para Admin: lista paginada e convites Google, incluindo o vínculo da própria conta por convite. `useAccounts` cancela consultas e envios ao sair; `features/authentication/accounts.ts` valida os contratos de listagem e convite existentes. O item da navegação é exclusivo de Admin, e a autorização permanece no backend. Convites pendentes não são contas; a listagem só inclui o cadastro após a aceitação. A variável pública `VITE_GOOGLE_SSO_ENABLED` controla o botão de login e o formulário de convite, inclusive na publicação de staging.

@@ -37,7 +37,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
     {!id && status === 'select-application' && <section className="empty-state">
       <h2>{t('chooseApplication')}</h2><p>{t('chooseApplicationDescription')}</p>
       <label htmlFor="methodology-application">{t('selectApplication')}</label>{' '}
-      <select id="methodology-application" value={selectedApplicationId} onChange={(event) => setSelectedApplicationId(event.target.value)}>
+      <select className="form-control" id="methodology-application" value={selectedApplicationId} onChange={(event) => setSelectedApplicationId(event.target.value)}>
         <option value="">{t('selectApplication')}</option>{applications.map((item: Application) => <option key={item.id} value={item.id}>{item.name}</option>)}
       </select>{' '}
       <ActionButton disabled={!selectedApplicationId} onClick={() => navigate(`/services/${encodeURIComponent(selectedApplicationId)}/methodology`)}>{t('continue')}</ActionButton>

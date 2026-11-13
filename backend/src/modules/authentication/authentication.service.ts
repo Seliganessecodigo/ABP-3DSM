@@ -5,23 +5,24 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import { randomBytes } from 'node:crypto'
 import {
   DataSource,
   IsNull,
   MoreThan,
   QueryFailedError,
-  Repository,
 } from 'typeorm'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import {
   AuthTokenEntity,
   AuthTokenKind,
 } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
-import { UserEntity, UserRole } from '../../database/entities/user.entity'
+import {
+  UserAccountStatus,
+  UserEntity,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { AccessTokenService } from './access-token.service'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationPersistence } from './authentication.persistence'
@@ -31,6 +32,7 @@ import {
   AuthenticationLoginResponse,
   TotpAuthenticationService,
 } from './totp-authentication.service'
+import { AuditWriter } from '../../shared/audit/audit-writer'
 
 const ACCESS_SECONDS = 15 * 60
 const IDLE_SESSION_MS = 12 * 60 * 60 * 1000
@@ -63,8 +65,7 @@ export class AuthenticationService {
     private readonly dataSource: DataSource,
     @Inject(AUTH_CLOCK)
     private readonly clock: AuthClock,
-    @InjectRepository(AuditLogEntity)
-    private readonly auditLogs: Repository<AuditLogEntity>,
+    private readonly auditWriter: AuditWriter,
     @Inject(EMAIL_DELIVERY)
     private readonly emailDelivery: EmailDelivery,
     private readonly totpAuthentication: TotpAuthenticationService,
@@ -80,7 +81,7 @@ export class AuthenticationService {
 
     if (
       !user ||
-      !user.isActive ||
+      user.status !== UserAccountStatus.ACTIVE ||
       !user.emailVerifiedAt ||
       !user.passwordHash
     ) {
@@ -162,7 +163,8 @@ export class AuthenticationService {
     ) {
       if (
         session &&
-        (!session.user?.isActive || !session.user?.emailVerifiedAt)
+        (session.user?.status !== UserAccountStatus.ACTIVE ||
+          !session.user?.emailVerifiedAt)
       ) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (
@@ -245,7 +247,7 @@ export class AuthenticationService {
       !this.sessionUsable(session, now) ||
       (session.user?.role === UserRole.ADMIN && !session.secondFactorVerifiedAt)
     ) {
-      if (session && !session.user?.isActive) {
+      if (session && session.user?.status !== UserAccountStatus.ACTIVE) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
       } else if (session && !session.user?.emailVerifiedAt) {
         await this.persistence.revokeSessionsForUser(session.userId, now)
@@ -278,7 +280,12 @@ export class AuthenticationService {
 
   async completeSsoLogin(user: UserEntity): Promise<AuthenticationLoginResponse> {
     this.accessTokens.assertConfigured()
-    if (!user.isActive || !user.emailVerifiedAt) throw invalidCredentials()
+    if (
+      user.status !== UserAccountStatus.ACTIVE ||
+      !user.emailVerifiedAt
+    ) {
+      throw invalidCredentials()
+    }
     if (user.role === UserRole.ADMIN) {
       await this.recordAudit(
         user.id,
@@ -356,7 +363,7 @@ export class AuthenticationService {
             email,
             passwordHash: null,
             role: UserRole.ADMIN,
-            isActive: true,
+            status: UserAccountStatus.ACTIVE,
             emailVerifiedAt: null,
             lastAccessAt: null,
           }),
@@ -618,7 +625,13 @@ export class AuthenticationService {
       organization && isEmail(email)
         ? await this.persistence.findUser(organization.id, email)
         : null
-    if (!user || !user.isActive || user.emailVerifiedAt) return generic
+    if (
+      !user ||
+      user.status !== UserAccountStatus.ACTIVE ||
+      user.emailVerifiedAt
+    ) {
+      return generic
+    }
 
     const now = this.clock.now()
     const rawToken = randomBytes(48).toString('base64url')
@@ -660,7 +673,7 @@ export class AuthenticationService {
   private sessionUsable(session: AuthSessionEntity, now: Date): boolean {
     return Boolean(
       !session.revokedAt &&
-      session.user?.isActive &&
+      session.user?.status === UserAccountStatus.ACTIVE &&
       session.user.emailVerifiedAt &&
       session.absoluteExpiresAt > now &&
       session.lastActivityAt.getTime() + IDLE_SESSION_MS > now.getTime(),
@@ -727,24 +740,22 @@ export class AuthenticationService {
     action: string,
     entityType: string,
     entityId: string,
-    outcome: string,
+    outcome: 'succeeded' | 'denied',
   ) {
-    return this.auditLogs.insert({
-      actor,
-      actorUserId:
-        actor === 'anonymous' ||
-        actor === 'system' ||
-        actor === 'representative' ||
-        actor.startsWith('support:')
-          ? null
-          : actor,
+    const auditActor =
+      actor === 'anonymous' ||
+      actor === 'representative' ||
+      actor.startsWith('support:')
+        ? { type: 'unauthenticated' as const }
+        : actor === 'system'
+          ? { type: 'system' as const, componentId: 'authentication' }
+          : { type: 'user' as const, userId: actor }
+    return this.auditWriter.record({
+      actor: auditActor,
       action,
       entityType,
       entityId,
-      before: null,
-      after: null,
-      reason: null,
-      outcome,
+      outcome: outcome === 'succeeded' ? 'success' : outcome,
     })
   }
 }

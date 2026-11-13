@@ -19,7 +19,7 @@
 .summaryMeta { font-size: 11px; }
 .refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
 .filterActions button, .filtersPanel fieldset button, .pagination button, .tableCard th button {
-  min-height: 40px;
+  min-height: var(--control-height);
   border: 1px solid var(--border-default);
   border-radius: 7px;
   padding: 8px 12px;
@@ -37,7 +37,7 @@
   margin-bottom: 8px;
 }
 .periods { display: flex; flex-wrap: wrap; gap: 4px; }
-.periods button { min-height: 38px; }
+.controls button { font-size: var(--control-font-size); line-height: 20px; }
 .periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true'],
 .pagination button[aria-current='page'] {
   color: var(--accent-on-accent);
@@ -50,15 +50,7 @@
   color: var(--text-secondary);
   font-size: 12px;
 }
-.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select, .pagination select {
-  min-height: 40px;
-  max-width: 100%;
-  border: 1px solid var(--border-control);
-  border-radius: 7px;
-  padding: 8px 10px;
-  color: var(--text-primary);
-  background: var(--control-background);
-}
+.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select, .pagination select { max-width: 100%; }
 .card, .tableCard {
   min-width: 0;
   border: 1px solid var(--border-default);
@@ -140,9 +132,6 @@
 .compositionBars .barRow { grid-template-columns: minmax(90px, 1fr) minmax(50px, 1.5fr) auto auto; font-size: 11px; }
 .barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); }
 .barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; }
-.seriesPlaceholder { display: grid; min-height: 222px; place-content: center; justify-items: center; gap: 12px; margin-top: 8px; border: 1px dashed var(--border-control); border-radius: 8px; padding: 16px; background: linear-gradient(var(--surface-card), var(--background-page)); text-align: center; }
-.seriesPlaceholder svg { width: 38px; height: 38px; fill: none; stroke: var(--text-secondary); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
-.seriesPlaceholder p { max-width: 360px; margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .tableCard { margin-top: 10px; padding: 14px; }
 .tableHeading { align-items: center; margin-bottom: 8px; }
 .tableHeading p { max-width: 680px; }
@@ -169,7 +158,7 @@
 .pagination { flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-default); }
 .pagination p { margin: 0; color: var(--text-secondary); font-size: 12px; }
 .pagination nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.pagination nav button { min-width: 38px; min-height: 38px; padding: 6px; }
+.pagination nav button { min-width: var(--control-height-compact); min-height: var(--control-height-compact); padding: 6px; }
 .comparisonNote { margin: 0; color: var(--text-secondary); font-size: 10px; }
 
 @media (max-width: 1100px) {
@@ -186,7 +175,7 @@
   .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
   .periods button { min-height: 44px; }
   .controls > label { min-width: 0; }
-  .controls select { width: 100%; min-height: 44px; }
+  .controls select { width: 100%; }
   .comparisonNote { grid-column: 1 / -1; margin: 0 0 8px; }
   .partialNotice { align-items: flex-start; flex-direction: column; gap: 6px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -199,7 +188,6 @@
   .coverageList { width: 100%; gap: 2px; font-size: 9px; }
   .visualizations { grid-template-columns: 1fr; gap: 8px; }
   .visualizations > .card { min-height: 0; }
-  .seriesPlaceholder { min-height: 190px; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }
   .compositionLegend ul { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }

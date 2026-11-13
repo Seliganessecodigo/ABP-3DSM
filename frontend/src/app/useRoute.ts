@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'history' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'login' } | { kind: 'sso-callback' }
+type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'history' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'accounts' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
 function routeFromLocation(): Route {
+  if (window.location.pathname === '/administration/users' || window.location.pathname === '/administration/users/') return { kind: 'accounts' }
+  if (window.location.pathname === '/setup-admin') return { kind: 'setup-admin' }
+  if (window.location.pathname === '/confirm-email') return { kind: 'confirm-email' }
   if (window.location.pathname === '/sso/callback') return { kind: 'sso-callback' }
   if (window.location.pathname === '/login') return { kind: 'login' }
   if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') return { kind: 'dashboard' }
   if (window.location.pathname === '/history' || window.location.pathname === '/history/') return { kind: 'history' }
   if (window.location.pathname === '/methodology' || window.location.pathname === '/methodology/') return { kind: 'methodology', id: null }
+  if (window.location.pathname === '/administration/calculations' || window.location.pathname === '/administration/calculations/') return { kind: 'administration' }
   const methodology = /^\/services\/([^/]+)\/methodology$/.exec(window.location.pathname)
   if (methodology) {
     try { return { kind: 'methodology', id: decodeURIComponent(methodology[1]) } } catch { return { kind: 'methodology', id: methodology[1] } }

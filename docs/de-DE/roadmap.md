@@ -1,29 +1,35 @@
 # Produkt-Backlog
 
-Das GreenER-Backlog besteht aus sechs Produkt-Epics und einem Epic für technische Grundlagen und Qualität. Jede Seite fasst den Umfang zusammen und verweist auf GitHub-Issues als Quelle für Akzeptanzkriterien, Tasks, Abhängigkeiten und aktuellen Status.
+Beginnen Sie mit der Umweltübersicht, wählen Sie eine auffällige Anwendung und öffnen Sie ihre Details. Untersuchen Sie den Zeitraum im Verlauf und die Schätzung in der Methodik. Berücksichtigen Sie vor jedem Vergleich die Abdeckung.
 
-| Epic | Umfang |
+## Produkt-Backlog {#epics}
+
+| Funktion | Referenz |
 | --- | --- |
-| [EP00 — Technische Grundlagen, Qualität und Lieferprozess](./backlog/ep00) | Bündelt querschnittliche Anforderungen an Technologie, Architektur, Daten, Sicherheit, Betrieb, Fehlerbehandlung und Barrierefreiheit. Untergeordnete Tasks sind überprüfbare technische Lieferungen; Qualität gilt weiterhin für spätere Änderungen. |
-| [EP01 — Anwendungskatalog](./backlog/ep01) | Ermöglicht das Finden und Durchsuchen der von GreenER überwachten Anwendungen. |
-| [EP02 — Anwendungsüberwachung](./backlog/ep02) | Umfasst Erkennung und Lebenszyklus, regelmäßige Aktualisierung, Status und anwendungsbezogene Ausfälle. |
-| [EP03 — Berechnung der Umweltauswirkung](./backlog/ep03) | Zeigt Berechnungen mit nachvollziehbaren Nachweisen, Einheiten, Methoden und Grenzen. |
-| [EP04 — Umweltdashboard](./backlog/ep04) | Fasst Kennzahlen zusammen und unterstützt die Untersuchung von Details und Verlauf. |
-| [EP05 — Analyse und Simulation](./backlog/ep05) | Unterstützt Priorisierung und Vergleich und zeigt regionale Szenarien, ohne offizielle Ergebnisse zu ändern. |
-| [EP06 — Konfiguration und Administration](./backlog/ep06) | Umfasst Sprachen, Designs, Berechtigungen sowie Überwachung und Kontenverwaltung. |
+| EP00 — Grundlagen und Qualität | [EP00](./backlog/ep00) |
+| EP01 — Anwendungskatalog | [EP01](./backlog/ep01) |
+| EP02 — Überwachung | [EP02](./backlog/ep02) |
+| EP03 — Umweltberechnung | [EP03](./backlog/ep03) |
+| EP04 — Umweltdashboard | [EP04](./backlog/ep04) |
+| EP05 — Analyse und Simulation | [EP05](./backlog/ep05) |
+| EP06 — Konfiguration und Administration | [EP06](./backlog/ep06) |
 
-## Produktprinzipien
+## Grundsätze {#principles}
 
-- Fehlende, fehlerhafte oder veraltete Beobachtungen werden nie zu null Verbrauch.
-- Energie und CO₂e behalten Einheit, Zeitraum, Abdeckung und Kontext.
-- Änderungen an Konfiguration oder Methode überschreiben nicht den ursprünglichen Verlauf.
-- Die Neuberechnungsvorschau wird nicht gespeichert und ändert keine offiziellen Ergebnisse.
-- Öffentliche Abfragen und administrative Änderungen haben unterschiedliche Zugriffsregeln; das Backend setzt die Autorisierung durch.
+| Regel | Bedeutung |
+| --- | --- |
+| Erhaltener Verlauf | Einstellungen und Vorschauen ersetzen keine Originalergebnisse. |
+| Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
+| Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-[Im GitHub-Backlog öffnen](https://github.com/orgs/Seliganessecodigo/projects/2/views/1)
+## Geplante Erweiterungen {#planned}
 
-## Abhängigkeiten und Grenzen
+Geplant sind ein eigener Anwendungsvergleich, Simulation anderer Regionen, vollständige Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungssteuerung. Der Umfang des CSV-Exports braucht noch eine Entscheidung. Das Dashboard sortiert bereits nach Energie oder Emissionen. Prioritäten stehen im Backlog; diese Dokumentation legt keine Liefertermine fest.
 
-Abhängigkeiten ohne Terminversprechen: erkennen/sammeln → Modell freigeben/versionierte Ergebnisse → Übersicht/Historie → Vergleich/Simulation. Administration/Präferenzen folgen Autorisierung/Design. Sprint/Kapazität in Projects.
+## Abnahmekriterien {#acceptance}
 
-[Vision und Umfang](./product/vision) · [Qualität und Abnahme](./product/quality) · [Entscheidungen und Abhängigkeiten](./product/decisions)
+Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
+
+## Weiterführende Seiten {#related}
+
+[Vision und Umfang](./product/vision) · [Qualität und Abnahme](./product/quality)

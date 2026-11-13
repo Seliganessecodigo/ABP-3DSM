@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -13,8 +13,12 @@ import {
   type DashboardSortColumn,
   type DashboardTableFilters,
 } from './query.ts'
+import { EnvironmentalSeries } from '../../components/EnvironmentalSeries.tsx'
 import { useDashboard } from './useDashboard.ts'
 import styles from './DashboardPage.module.css'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel, PersonalAlertBadges } from '../../components/PersonalAlerts.tsx'
+import { useAnalysisDefaults } from '../../features/preferences/useAnalysisDefaults.ts'
 
 const tableColumns: ReadonlyArray<Readonly<{ key: DashboardSortColumn; label: string }>> = [
   { key: 'name', label: 'table.application' },
@@ -66,10 +70,12 @@ function normalizeNumberInput(value: string): string {
   return value.trim()
 }
 
-function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode'>) {
+function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode' | 'range' | 'granularity'>) {
   if (query.period === null) return null
   return {
     period: query.period,
+    range: query.range,
+    granularity: query.granularity,
     state: query.state === 'ALL' ? null : query.state,
     regionCode: query.regionCode,
   }
@@ -84,10 +90,15 @@ function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: nu
 }
 
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+  const personalAlerts = usePersonalAlerts()
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: detailText } = useTranslation('detail')
+  const { t: preferencesText } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
   const [query, setQuery] = useState<DashboardQuery>(() => readDashboardQuery(window.location.search))
+  const applyDefaults = useCallback(() => { setQuery(readDashboardQuery(window.location.search)) }, [])
+  useAnalysisDefaults(applyDefaults)
   const [draftFilters, setDraftFilters] = useState<DashboardTableFilters>(query.filters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
@@ -176,7 +187,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   })
   const changePeriod = (next: typeof periodPresets[number]) => {
     if (pending && period === next) return
-    update({ period: next })
+    update({ period: next, explicitPeriod: true, range: undefined })
     refresh()
   }
   const changePageSize = (value: string) => {
@@ -185,7 +196,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   }
   const retry = () => {
     if (pending) return
-    refresh()
+    data.refreshAll()
   }
   const detailsLink = (id: string, name: string) => <a
     data-dashboard-application-id={id}
@@ -222,8 +233,13 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
+      {(period === 'custom' || period === 'month') && <p>{preferencesText(`evaluationPeriod.${period}`)}{query.range && ` · ${dateRangeLabel(query.range.from, query.range.to, locale)} UTC`}</p>}
+      <label>{preferencesText('granularityEditing')}<select className="form-control" aria-label={preferencesText('granularityEditing')} value={query.granularity ?? (period === '24h' ? 'hour' : 'day')} onChange={event => {
+        const granularity = (['hour', 'day', 'month', 'year'] as const).find(value => value === event.target.value)
+        if (granularity) update({ granularity })
+      }}><option value="hour">{preferencesText('hour')}</option><option value="day">{preferencesText('day')}</option><option value="month">{detailText('analysisGranularityMonth')}</option><option value="year">{detailText('analysisGranularityYear')}</option></select></label>
       <label>{t('region')}
-        <select aria-label={t('region')} value={query.regionCode} disabled={data.applications.loading || data.applications.error}
+        <select className="form-control" aria-label={t('region')} value={query.regionCode} disabled={data.applications.loading || data.applications.error}
           onChange={(event) => update({ regionCode: event.target.value })}>
           <option value="">{t('allRegions')}</option>
           {query.regionCode && !regionCodes.includes(query.regionCode) && <option value={query.regionCode}>{query.regionCode}</option>}
@@ -231,7 +247,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </select>
       </label>
       <label>{t('state')}
-        <select aria-label={t('state')} value={query.state} onChange={(event) => update({ state: event.target.value as DashboardQuery['state'] })}>
+        <select className="form-control" aria-label={t('state')} value={query.state} onChange={(event) => update({ state: event.target.value as DashboardQuery['state'] })}>
           <option value="ALL">{tCommon('state.ALL')}</option>
           {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) =>
             <option key={state} value={state}>{labels[state]}</option>)}
@@ -241,10 +257,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
     </section>
 
+    <PersonalAlertsPanel state={personalAlerts} />
     {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
       <p>{data.data ? t('refreshError') : t('error')}</p>
-      {!data.data && <button type="button" onClick={retry}>{t('retry')}</button>}
+      {!data.data && <button className="button secondary" type="button" onClick={retry}>{t('retry')}</button>}
     </div>}
     {data.status === 'invalid-period' && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
 
@@ -295,10 +312,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <section className={styles.visualizations}>
         <article className={styles.card}>
           <h2>{t('trendTitle')}</h2>
-          <div className={styles.seriesPlaceholder} role="note">
-            <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M7 7v34h34M13 30l8-9 7 5 11-13" /></svg>
-            <p>{t('trendUnavailable')}</p>
-          </div>
+          <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
         <article className={styles.card}>
           <div className={styles.sectionHeading}>
@@ -348,7 +362,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <div><h2 id="dashboard-applications-heading">{t('table.title', { count: table.total })}</h2></div>
           <div className={styles.tableActions}>
             <label className={styles.searchLabel}>{t('table.search')}
-              <input type="search" value={query.search} placeholder={t('table.searchPlaceholder')}
+              <input className="form-control" type="search" value={query.search} placeholder={t('table.searchPlaceholder')}
                 onChange={(event) => update({ search: event.target.value })} />
             </label>
             <button type="button" aria-expanded={filtersOpen} aria-controls="dashboard-table-filters" onClick={() => {
@@ -360,40 +374,40 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         {filtersOpen && <form id="dashboard-table-filters" className={styles.filtersPanel} onSubmit={applyFilters}>
           <div className={styles.filterGrid}>
             <fieldset><legend>{t('filters.application')}</legend>
-              <label>{t('filters.text')}<input value={draftFilters.name} onChange={(event) => updateDraft('name', event.target.value)} /></label>
+              <label>{t('filters.text')}<input className="form-control" value={draftFilters.name} onChange={(event) => updateDraft('name', event.target.value)} /></label>
               <button type="button" onClick={() => clearDraft(['name'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.state')}</legend>
-              <label><span>{t('state')}</span><select value={draftFilters.state} onChange={(event) => updateDraft('state', event.target.value as DashboardTableFilters['state'])}>
+              <label><span>{t('state')}</span><select className="form-control" value={draftFilters.state} onChange={(event) => updateDraft('state', event.target.value as DashboardTableFilters['state'])}>
                 <option value="ALL">{tCommon('state.ALL')}</option>
                 {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) => <option key={state} value={state}>{labels[state]}</option>)}
               </select></label>
               <button type="button" onClick={() => clearDraft(['state'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.region')}</legend>
-              <label>{t('filters.text')}<input value={draftFilters.region} onChange={(event) => updateDraft('region', event.target.value)} /></label>
+              <label>{t('filters.text')}<input className="form-control" value={draftFilters.region} onChange={(event) => updateDraft('region', event.target.value)} /></label>
               <button type="button" onClick={() => clearDraft(['region'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('energy')} ({data.data.totals.energy.unit})</legend>
-              <label>{t('filters.minimum')}<input type="number" min="0" step="any" value={draftFilters.energyMin} onChange={(event) => updateDraft('energyMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximum')}<input type="number" min="0" step="any" value={draftFilters.energyMax} onChange={(event) => updateDraft('energyMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.energyMin} onChange={(event) => updateDraft('energyMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.energyMax} onChange={(event) => updateDraft('energyMax', normalizeNumberInput(event.target.value))} /></label>
               <label className={styles.checkbox}><input type="checkbox" checked={draftFilters.energyMissing} onChange={(event) => updateDraft('energyMissing', event.target.checked)} />{t('filters.includeMissing')}</label>
               <button type="button" onClick={() => clearDraft(['energyMin', 'energyMax', 'energyMissing'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('emissions')} ({data.data.totals.emissions.unit})</legend>
-              <label>{t('filters.minimum')}<input type="number" min="0" step="any" value={draftFilters.emissionsMin} onChange={(event) => updateDraft('emissionsMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximum')}<input type="number" min="0" step="any" value={draftFilters.emissionsMax} onChange={(event) => updateDraft('emissionsMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMin} onChange={(event) => updateDraft('emissionsMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMax} onChange={(event) => updateDraft('emissionsMax', normalizeNumberInput(event.target.value))} /></label>
               <label className={styles.checkbox}><input type="checkbox" checked={draftFilters.emissionsMissing} onChange={(event) => updateDraft('emissionsMissing', event.target.checked)} />{t('filters.includeMissing')}</label>
               <button type="button" onClick={() => clearDraft(['emissionsMin', 'emissionsMax', 'emissionsMissing'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.energyCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMin} onChange={(event) => updateDraft('energyCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMax} onChange={(event) => updateDraft('energyCoverageMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMin} onChange={(event) => updateDraft('energyCoverageMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMax} onChange={(event) => updateDraft('energyCoverageMax', normalizeNumberInput(event.target.value))} /></label>
               <button type="button" onClick={() => clearDraft(['energyCoverageMin', 'energyCoverageMax'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.emissionsCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMin} onChange={(event) => updateDraft('emissionsCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMax} onChange={(event) => updateDraft('emissionsCoverageMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMin} onChange={(event) => updateDraft('emissionsCoverageMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMax} onChange={(event) => updateDraft('emissionsCoverageMax', normalizeNumberInput(event.target.value))} /></label>
               <button type="button" onClick={() => clearDraft(['emissionsCoverageMin', 'emissionsCoverageMax'])}>{t('filters.clearColumn')}</button>
             </fieldset>
           </div>
@@ -414,7 +428,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                 <button type="button" onClick={() => toggleSort(key)}>{t(label)}</button>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
-                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}</th>
+                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === row.applicationId)} /></th>
                 <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${row.state}`]}`}>{labels[row.state]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
@@ -430,7 +444,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
             to,
             total: table.total,
           })}</p>
-          <label>{t('table.pageSize')}<select value={query.pageSize} onChange={(event) => changePageSize(event.target.value)}>
+          <label>{t('table.pageSize')}<select className="form-control form-control--compact" value={query.pageSize} onChange={(event) => changePageSize(event.target.value)}>
             {pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? t('table.allRows') : size}</option>)}
           </select></label>
           <nav aria-label={t('table.pagination')}>

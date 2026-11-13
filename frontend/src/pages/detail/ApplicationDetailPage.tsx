@@ -6,18 +6,20 @@ import { OperationalEvidence, type OperationalEvidenceQuery, type MetricKey } fr
 import type { Application, CollectionEvidence, MetricStatus } from '../../features/applications/api.ts'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '../../utils/formatDate.ts'
+import { formatDate, formatDateRangeBoundary } from '../../utils/formatDate.ts'
 import { reasonLabel, stateLabel } from '../../features/applications/presentation.ts'
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
-import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
+import { periodPresets, readPeriodSelection, readCustomAnalysisRange, urlWithPeriod, type PeriodPreset } from '../../features/analysis/periodContext.ts'
 import { analysisRangeFor, environmentalAnalysisSource, type AnalysisGranularityCapabilities, type AnalysisSeriesEvent, type AnalysisSource } from '../../features/analysis/source.ts'
 import { EnvironmentalAnalysis } from './EnvironmentalAnalysis.tsx'
 import { parseAnalysisSeriesPageSize, readAnalysisSeriesQuery, writeAnalysisSeriesQuery, type AnalysisSeriesPageSize, type AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useEnvironmentalAnalysis } from './useEnvironmentalAnalysis.ts'
 import { AnalysisGranularity } from './AnalysisGranularity.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
-import { useAnalysisDefaults } from './useAnalysisDefaults.ts'
+import { useAnalysisDefaults } from '../../features/preferences/useAnalysisDefaults.ts'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel } from '../../components/PersonalAlerts.tsx'
 
 type EnvironmentalStatus = ReturnType<typeof useEnvironmentalAnalysis>['status'] | 'invalid-period' | 'invalid-granularity'
 
@@ -60,6 +62,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   historyApplicationSelector?: ReactNode
 }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
+  const personalAlerts = usePersonalAlerts()
   const { t: tCommon } = useTranslation('common')
   const analysisDefaultsReady = useAnalysisDefaults()
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
@@ -67,6 +70,15 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const searchParams = new URLSearchParams(window.location.search)
   const [inspectionBucket, setInspectionBucket] = useState(() => historyOnly ? searchParams.get('inspectionBucket') : null)
   const requestedInspection = useRef<string | null>(null)
+  const historyRoot = useRef<HTMLElement | null>(null)
+  const returnBucket = useRef<string | null>(null)
+  useEffect(() => {
+    if (inspectionBucket !== null || returnBucket.current === null) return
+    const trigger = Array.from(historyRoot.current?.querySelectorAll<HTMLButtonElement>('[data-history-bucket]') ?? [])
+      .find(button => button.dataset.historyBucket === returnBucket.current)
+    trigger?.focus()
+    returnBucket.current = null
+  }, [inspectionBucket])
   const [evidenceQuery, setEvidenceQuery] = useState(() => readEvidenceQuery(searchParams))
   const [analysisAnchor, setAnalysisAnchor] = useState(analysisNow)
   const seriesPage = readPage(searchParams.get('seriesPage'))
@@ -78,7 +90,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   for (const key of ['applicationId', 'collectionId', 'inspectionBucket', 'seriesPage']) linkedParams.delete(key)
   const detailUrl = `/services/${encodeURIComponent(id)}?${linkedParams.toString()}`
   linkedParams.set('applicationId', id)
-  const historyUrl = `/history?${linkedParams.toString()}`
+  const exploreHistoryUrl = `/history?${linkedParams.toString()}`
   useEffect(() => {
     const syncQueries = () => {
       const params = new URLSearchParams(window.location.search)
@@ -93,11 +105,12 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   }, [historyOnly])
   const selectedPeriod = readPeriodSelection(window.location.search)
   const analysisPeriod = searchParams.get('period') ?? '7d'
+  const customRange = readCustomAnalysisRange(window.location.search)
   const analysisGranularity = searchParams.get('granularity')
   const { application, loading, refreshing, notFound, error, lastAttemptAt, lastResponseAt, pollingIntervalMs, refreshCycle, retry,
     collection, collectionLoading, collectionNotFound, collectionError } = useApplicationDetail(id, selectedCollectionId)
   const environmentalAnalysis = useEnvironmentalAnalysis(id, analysisPeriod, analysisGranularity, analysisSource,
-    application !== null && selectedPeriod !== null && analysisDefaultsReady, refreshCycle, analysisAnchor)
+    application !== null && selectedPeriod !== null && analysisDefaultsReady, refreshCycle, analysisAnchor, customRange)
   const { loadContributions } = environmentalAnalysis
   const inspectionRequestKey = JSON.stringify([id, analysisPeriod, analysisGranularity, analysisAnchor, inspectionBucket])
   useEffect(() => {
@@ -115,6 +128,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     navigate(`${window.location.pathname}?${params.toString()}`)
   }
   const closeHistoryInspection = () => {
+    returnBucket.current = inspectionBucket
     const params = new URLSearchParams(window.location.search)
     params.delete('inspectionBucket')
     window.history.replaceState({}, '', `${window.location.pathname}${params.size ? `?${params.toString()}` : ''}`)
@@ -128,10 +142,13 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const methodologyQuery = methodologyParams.size ? `?${methodologyParams.toString()}` : ''
   const methodologyUrl = `/services/${encodeURIComponent(id)}/methodology${methodologyQuery}`
   const analysisData = selectedPeriod === null || unsupportedGranularity ? null : environmentalAnalysis.data
-  const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor))
+  const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor), customRange)
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)
   const backUrl = `/${window.location.search}`
+  const historyUrlParams = new URLSearchParams(searchParams)
+  historyUrlParams.delete('inspectionBucket')
+  const historyUrl = `/history${historyUrlParams.size ? `?${historyUrlParams.toString()}` : ''}`
   const verificationTime = application?.lastCheckedAt && Number.isFinite(Date.parse(application.lastCheckedAt))
     ? new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: displayTimeZone }).format(new Date(application.lastCheckedAt))
     : null
@@ -179,7 +196,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
     <a className="button secondary" href={methodologyUrl} onClick={(event) => { event.preventDefault(); navigate(methodologyUrl) }}>{tDetail('methodologyFullPage')}</a>
   </>
-  const selectPeriod = (period: typeof periodPresets[number]) => {
+  const selectPeriod = (period: PeriodPreset) => {
     setAnalysisAnchor(analysisNow())
     const next = new URL(urlWithPeriod(window.location.pathname, window.location.search, period), window.location.origin)
     next.searchParams.delete('seriesPage')
@@ -187,7 +204,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   }
   const periodSelector = <PeriodSelector compact select={historyOnly} className={styles.periodSelector}
     title={tDetail('periodTitle')} selected={selectedPeriod} invalidMessage={tDetail('periodInvalid')} busy={analysisPending}
-    options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} onSelect={selectPeriod} />
+    options={[...periodPresets, ...(selectedPeriod === 'custom' || selectedPeriod === 'month' ? [selectedPeriod] : [])].map((value) => ({ value, label: tDetail(`periods.${value}`) }))} onSelect={selectPeriod} />
   const granularityContent = <AnalysisGranularity compact select={historyOnly}
     capabilities={granularityCapabilities} requestedValue={analysisGranularity}
     onChange={(value) => {
@@ -200,14 +217,15 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
         month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
       } }} />
-  return <main className={`content ${styles['detail-content']} ${historyOnly ? styles.historyContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
+  return <main ref={historyRoot} className={`content ${styles['detail-content']} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>
       {inspectionBucket ? <>
         <div className={styles.historyInspectionHeading}>
           <div>
+            <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><a href={historyUrl} onClick={(event) => { event.preventDefault(); closeHistoryInspection() }}>{tDetail('historyTitle')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyInspectionHeading')}</span></nav>
             <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
             <h1>{tDetail('historyInspectionHeading')}</h1>
-            <p>{application?.name} · {formatDate(inspectionBucket, locale, tCommon('date.noObservation'), displayTimeZone)}</p>
+            <p>{application?.name} · {displayTimeZone}</p>
           </div>
           <button type="button" className="button secondary" onClick={closeHistoryInspection}>
             {'\u2190'} {tDetail('historyInspectionBack')}
@@ -215,11 +233,17 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         </div>
       </> : <>
         <div className={styles.historyHeading}>
+          <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyTitle')}</span></nav>
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
           <h1>{tDetail('historyTitle')}</h1>
-          <p>{tDetail('historyDescription')}</p>
+          <p className={styles.historyDesktopDescription}>{tDetail('historyDescription')}</p>
+          <p className={styles.historyMobileDescription}>{tDetail('historyMobileDescription')}</p>
           <a className="button secondary" href={detailUrl} onClick={(event) => { event.preventDefault(); navigate(detailUrl) }}>{tDetail('viewApplicationDetails')}</a>
         </div>
+        <a className={`button secondary ${styles.historyPreview}`} href="/administration/calculations" onClick={event => {
+          event.preventDefault()
+          navigate('/administration/calculations')
+        }}>{tDetail('historyRecalculationPreview')}</a>
         <div className={styles.historyFilters}>
           {historyApplicationSelector}
           {periodSelector}
@@ -227,13 +251,10 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           {analysisBounds && <>
             <div className={styles.historyRange}>
               <span>{tDetail('historyConsultedRange')}</span>
-              <output>{formatDate(analysisBounds.from, locale, tCommon('date.noObservation'), displayTimeZone)} – {formatDate(analysisBounds.to, locale, tCommon('date.noObservation'), displayTimeZone)}</output>
+              <output>{formatDateRangeBoundary(analysisBounds.from, locale, displayTimeZone)} – {formatDateRangeBoundary(analysisBounds.to, locale, displayTimeZone)}</output>
             </div>
             <p className={styles.historyRangeNote}>
-              {tDetail('analysisSeriesTimeZone', { zone: displayTimeZone })} · {tDetail('analysisSeriesRangeBounds', {
-                from: formatDate(analysisBounds.from, locale, tCommon('date.noObservation'), displayTimeZone),
-                to: formatDate(analysisBounds.to, locale, tCommon('date.noObservation'), displayTimeZone),
-              })}
+              {tDetail('analysisSeriesTimeZone', { zone: displayTimeZone })} · {tDetail('historyInspectionEndExclusive')}
             </p>
           </>}
         </div>
@@ -246,18 +267,25 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {application && <>{!historyOnly && <div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div>}{!historyOnly && <div className={styles.detailTop}>
       <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <div className={styles.detailActions}>{periodSelector}
-          <a className="button secondary" href={historyUrl} onClick={(event) => { event.preventDefault(); navigate(historyUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
+          <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
         </div>
       </div>}
       {!historyOnly && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
         <div><h2>{tDetail('operationalOverview')}</h2><p>{tDetail('operationalDescription')}</p></div>
         <p>{tDetail('environmentalSummaryNote')}</p>
       </section>}
+      <PersonalAlertsPanel state={personalAlerts} applicationId={id} />
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
         operationalOverview={!historyOnly}
-        applicationName={application?.name ?? id}
+        historyRegionFallback={application?.location?.regionCode ?? null}
         inspectionBucket={historyOnly ? inspectionBucket : null}
+        collectionHref={(collectionId) => {
+          const params = new URLSearchParams(window.location.search)
+          params.delete('inspectionBucket')
+          params.set('collectionId', collectionId)
+          return `/services/${encodeURIComponent(id)}?${params.toString()}`
+        }}
         status={analysisState}
         contributions={environmentalAnalysis.contributions}
         comparisonPoints={environmentalAnalysis.comparisonPoints}
@@ -297,7 +325,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           historyContributionOpen: tDetail('historyContributionOpen'),
           historyNoContributions: tDetail('historyNoContributions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
-          viewFactorDetails: tDetail('analysisViewFactorDetails'), validDataInPeriod: tDetail('analysisValidDataInPeriod'),
+          equivalentFactor: tDetail('analysisEquivalentFactor'), factorExplanation: tDetail('analysisFactorExplanation'), energyWithEmissions: tDetail('analysisEnergyWithEmissions'),
+          validDataInPeriod: tDetail('analysisValidDataInPeriod'),
           energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {
@@ -327,7 +356,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             noAttempt: tDetail('analysisNoAttempt'),
             noSuccess: tDetail('analysisNoSuccess'),
           },
-          seriesHeading: selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail('periods.' + selectedPeriod)}` : tDetail('analysisSeriesHeading'),
+          seriesHeading: historyOnly ? tDetail('historySeriesHeading') : selectedPeriod ? `${tDetail('analysisSeriesHeading')} • ${tDetail('periods.' + selectedPeriod)}` : tDetail('analysisSeriesHeading'),
           historyIntervalsHeading: tDetail('analysisHistoryIntervals'),
           regionHeading: tDetail('analysisSeriesHeading'),
           metricToggle: tDetail('analysisMetricToggle'),
@@ -394,6 +423,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           emissionsMin: tDetail('analysisSeriesEmissionsMin'), emissionsMax: tDetail('analysisSeriesEmissionsMax'),
           invalidNumericRange: tDetail('analysisSeriesInvalidNumericRange'), invalidUnit: tDetail('analysisSeriesInvalidUnit'),
           clearFilters: tDetail('analysisSeriesClearFilters'),
+          applyFilters: tDetail('analysisSeriesApply'), closeFilters: tDetail('analysisSeriesCloseFilters'),
           mixedUnits: tDetail('analysisSeriesMixedUnits'),
           energyStatus: tDetail('analysisSeriesEnergyStatus'), emissionsStatus: tDetail('analysisSeriesEmissionsStatus'),
           allStatuses: tDetail('analysisSeriesAllStatuses'), availableStatus: tDetail('analysisAvailableStatus'),
@@ -424,6 +454,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           lastResponse: formatDate(lastResponseAt, locale, tCommon('date.noObservation'), displayTimeZone),
         })}</p></section>
         </>} />
+      {historyOnly && inspectionBucket && <p className={styles.historyReturnNote}>{tDetail('historyReturnNote')}</p>}
 
     </>}
   </main>

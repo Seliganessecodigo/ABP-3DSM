@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AuditLogEntity } from '../../database/entities/audit-log.entity'
+import { APP_GUARD } from '@nestjs/core'
 import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AuthTokenEntity } from '../../database/entities/auth-token.entity'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
@@ -24,11 +24,16 @@ import { SsoTransactionEntity } from '../../database/entities/sso-transaction.en
 import { FetchGoogleOidcTransport, GOOGLE_OIDC_TRANSPORT } from './google-oidc-transport'
 import { GoogleOidcClient } from './google-oidc-client'
 import { SsoAuthenticationService } from './sso-authentication.service'
+import { AuditModule } from '../../shared/audit/audit.module'
+import { AccountLifecycleService } from './account-lifecycle.service'
+import { AccountsController } from './accounts.controller'
+import { AccountsService } from './accounts.service'
+import { AccountsRepository } from './accounts.repository'
 
 @Module({
   imports: [
+    AuditModule,
     TypeOrmModule.forFeature([
-      AuditLogEntity,
       AuthSessionEntity,
       AuthTokenEntity,
       OrganizationEntity,
@@ -39,10 +44,13 @@ import { SsoAuthenticationService } from './sso-authentication.service'
       SsoTransactionEntity,
     ]),
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthenticationController, AccountsController],
   providers: [
     AuthenticationPersistence,
     AuthenticationService,
+    AccountLifecycleService,
+    AccountsService,
+    AccountsRepository,
     TotpAuthenticationService,
     SsoAuthenticationService,
     GoogleOidcClient,
@@ -52,6 +60,8 @@ import { SsoAuthenticationService } from './sso-authentication.service'
     PasswordHasher,
     AuthenticationGuard,
     RolesGuard,
+    { provide: APP_GUARD, useClass: AuthenticationGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: AUTH_CLOCK, useClass: SystemAuthClock },
     SmtpEmailDelivery,
     { provide: EMAIL_DELIVERY, useExisting: SmtpEmailDelivery },

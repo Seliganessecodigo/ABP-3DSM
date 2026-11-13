@@ -1,38 +1,23 @@
----
-layout: home
-isHome: false
-hero:
-  name: GreenER
-  text: Energy and environmental impact, with context
-  tagline: Monitor applications and understand energy and CO₂e estimates.
-  actions:
-    - theme: brand
-      text: Get started
-      link: /en-US/getting-started
-    - theme: alt
-      text: Explore the epics
-      link: /en-US/roadmap
-features:
-  - title: Monitoring
-    details: Application discovery and monitoring with clear states.
-  - title: Traceability
-    details: Metrics, periods, and limitations provide context for indicators.
-  - title: Multilingual access
-    details: Documentation and interface are available in eight languages.
----
+# GreenER
 
-## About the project
+GreenER helps monitor applications and understand their estimated energy consumption and carbon dioxide equivalent emissions (CO₂e). It brings together indicators, location and history to support assessment of the environmental impact of digital services.
 
-GreenER is an academic project in the Multiplatform Software Development program at Fatec Jacareí, Brazil. Its goal is to monitor applications, estimate energy consumption, and report equivalent carbon emissions (CO₂e).
+## Where to start {#start}
 
-## Status and reading paths
+Start with the environmental summary, identify an application that needs attention and open its details. Use history to investigate the period and methodology to understand how values were estimated. Always consider coverage before comparing results.
 
-The documentation distinguishes available behavior, planned scope and pending decisions. The interface provides the catalog, operational detail, metric evidence, theme preference, per-application environmental analysis and access to the recorded methodology for each observation. The API also provides an aggregate summary without a dedicated screen yet; ranking and comparison remain planned.
+## Who it is for {#readers}
 
-- [Vision and scope](./product/vision)
-- [User guide](./guide/monitoring)
-- [Methodology and data](./product/methodology)
-- [Quality and acceptance](./product/quality)
-- [Decisions and dependencies](./product/decisions)
-- [API reference](./reference/api)
-- [Operations and diagnosis](./operations)
+| Audience | Need |
+| --- | --- |
+| Infrastructure management | Identify applications and track changes in the environment. |
+| Environmental and operational analysis | Investigate consumption, emissions and data quality for a period. |
+| Development and assessment | Check product behavior and reproduce its results. |
+
+## Language and appearance {#languages}
+
+Use the selector to choose from 12 languages. Your choice stays in this browser. The dark-mode switch changes appearance; before an explicit choice, the interface follows the system. If browser storage is blocked, these preferences may be lost on reload. Changing language formats dates and numbers while preserving observation instants.
+
+## Related reading {#related}
+
+[Vision and scope](./product/vision) · [User guide](./guide/monitoring) · [Methodology and data](./product/methodology)

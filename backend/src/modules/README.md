@@ -1,5 +1,13 @@
 # modules
 
+## Persistência da descoberta de aplicações
+
+`DiscoveryService` transforma o snapshot validado pelo adapter em registros e coordena uma única transação para aplicações e eventos de descoberta. `ApplicationsRepository.insertManyIfAbsent` deduplica identidades preservando o primeiro registro, ordena IDs para manter a mesma ordem de bloqueio em snapshots concorrentes e usa `ON CONFLICT DO NOTHING RETURNING id`. Apenas os IDs realmente inseridos geram eventos em `ApplicationEventsRepository.appendManyInTransaction`; registros já conhecidos mantêm seus metadados e histórico.
+
+Os repositories dividem inserções em lotes internos de até 1.000 registros, abaixo do limite de parâmetros do PostgreSQL. Esse tamanho é técnico: não limita nem trunca o catálogo. Todos os lotes usam a transação do caso de uso; falha em qualquer evento reverte também as aplicações dos lotes anteriores. Não há consulta HTTP dentro da transação nem consulta prévia para verificar existência.
+
+Para 1.001 identidades distintas, a descoberta executa duas inserções de aplicações e duas de eventos; a repetição do mesmo catálogo executa duas inserções de aplicações e nenhuma de eventos. O fluxo anterior fazia 1.001 inserções de aplicações em ambos os casos, além de uma inserção por evento novo. Essas contagens consideram os comandos de dados, sem incluir abertura/fechamento da transação. O teste `applications/discovery-batch.database.spec.ts` verifica as contagens SQL em PostgreSQL real, concorrência com ordem invertida, duplicação, catálogo vazio e rollback de múltiplos lotes. Execute com `TEST_DATABASE_URL` apontando para um PostgreSQL isolado; a fixture cria e remove um banco próprio.
+
 ## Preferências pessoais de Metodologia
 
 `GET /me/preferences` e `PUT /me/preferences/:tab` reutilizam a autenticação para consultar/salvar uma aba de preferências do próprio usuário, com revisão concorrente e auditoria transacional. Ausência retorna `null`, sem limites padrão. Veja [contrato, migration e testes](preferences/README.md).
@@ -9,6 +17,10 @@
 `POST /auth/sso/invitations` permite ao Admin ativo da organização emitir convite com e-mail, nome e papel GreenER. `GET /auth/sso/google` inicia login global Google (`code_challenge` S256; convite opcional no parâmetro `invite`), `GET /auth/sso/google/callback` valida o retorno e redireciona à URL fixa `SSO_RETURN_URL` com um código de handoff, e `POST /auth/sso/handoff/exchange` troca o código com `code` e `codeVerifier`. O handoff dura 60 segundos, é de uso único e nunca inclui JWT na URL. Admin recebe o desafio/setup TOTP existente antes de obter sessão.
 
 `DELETE /auth/sso/identities/{userId}` permite a Admin ativo revogar o vínculo de outra conta da mesma organização; o Admin não pode remover o próprio vínculo. Um novo convite permite vincular a identidade substituta. As variáveis `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` e `SSO_RETURN_URL` são configuradas fora do Git; a callback exata precisa ser cadastrada no Google Cloud Console. SMTP existente envia convites e o banco persiste somente o hash dos tokens.
+
+## Ciclo de vida de contas
+
+`PATCH /auth/users/{userId}/status` permite ao Admin ativo da organização bloquear, desativar ou reativar uma conta, com `status`, `expectedStatus` e `reason` obrigatórios. As contas usam os estados `ACTIVE`, `BLOCKED` e `DEACTIVATED`; uma repetição já satisfeita retorna sucesso com `changed: false`, e um estado esperado obsoleto retorna 409. Bloqueio e desativação revogam todas as sessões na mesma transação da alteração e da auditoria; reativação não restaura sessões antigas. A conta não pode ser bloqueada pelo Admin que atua sobre ela nem pode ser o último Admin ativo.
 
 Módulos NestJS organizados por domínio GreenER. Cada módulo reúne as rotas/controllers, serviços de aplicação, DTOs, regras de domínio e integrações próprias do domínio, mantendo dependências explícitas.
 
@@ -48,7 +60,7 @@ O contrato OpenAPI 1.0.0 está em `GET /openapi.json` e a interface de documenta
 
 `MetadataSyncService.reconcile(cycleId)` compara nome e todos os campos de localização de identidades conhecidas com um snapshot `/services` completo e válido. Quando algum desses campos muda, atualiza o cadastro e anexa um evento `registration_changed` com valores anteriores e novos, horário, ciclo e ator `system` na mesma transação. Repetir os dados não cria evento. Alterações de `metrics_path` não fazem parte desta regra de evento de cadastro.
 
-`DiscoveryService.discover(cycleId)` consulta `/services` antes de abrir a transação. Para cada ID ainda desconhecido, grava aplicação e evento `discovered` com ator `system`, horário observado pelo GreenER e referência ao ciclo. A gravação usa conflito ignorado no ID para manter idempotência entre ciclos simultâneos; só um cadastro realmente inserido gera evento. Falha ou snapshot inválido da origem não abre transação. `metrics_path` é persistido, mas não integra o DTO público. A migration `DiscoverApplications1791350000000` acrescenta a referência de ciclo e remove limites de comprimento de ID/nome que não constam no contrato externo. Mudanças em aplicações já conhecidas ficam para a task #171.
+`DiscoveryService.discover(cycleId)` consulta `/services` antes de abrir a transação. Para cada ID ainda desconhecido, grava aplicação e evento `discovered` com ator `system`, horário observado pelo GreenER e referência ao ciclo. A gravação usa conflito ignorado no ID para manter idempotência entre ciclos simultâneos; só um cadastro realmente inserido gera evento. Falha ou snapshot inválido da origem não abre transação. `metrics_path` é persistido, mas não integra o DTO público. A migration `DiscoverApplications1791350000000` acrescenta a referência de ciclo e remove limites de comprimento de ID/nome que não constam no contrato externo. Aplicações já conhecidas são reconciliadas pelos serviços de metadados, remoção e retorno; somente snapshot completo e válido pode confirmar remoção.
 
 `InitialCatalogSyncRunner` cria um ciclo `startup-catalog-discovery`, executa essa descoberta e encerra o ciclo com contagens. O comando `npm run applications:discover` é executado pelo Compose depois das migrations e pode ser repetido sem duplicar aplicações ou eventos. A sincronização inicial e o scheduler compartilham a mesma trava de processo, política de retry e regras de incidentes; o backend atual é executado com uma instância.
 
@@ -58,7 +70,7 @@ O contrato OpenAPI 1.0.0 está em `GET /openapi.json` e a interface de documenta
 
 `GET /applications/{id}/collections/latest` expõe a observação válida mais recente, e `GET /applications/{id}/collections/{collectionId}` consulta uma observação dentro do escopo da aplicação. Ambas leem somente dados persistidos; aplicação inexistente retorna `APPLICATION_NOT_FOUND`, ausência de observação retorna `COLLECTION_NOT_FOUND` e falha de leitura retorna `APPLICATION_EVIDENCE_UNAVAILABLE` (503). Os valores e unidades de CPU, memória, disco e rede são apresentados independentemente, com status `available`, `missing` ou `invalid`; zero explícito permanece válido. A resposta inclui duração informada pela origem, recebimento GreenER e limites do intervalo derivados conforme #154, mais estado/motivo/horário da tentativa atual. Uma falha recente mantém a observação válida anterior disponível e `isStale: true`. Essas consultas não chamam o agregador nem calculam energia ou CO₂e.
 
-`CollectionsRepository.findHistoryByApplication(id)` lê as coletas persistidas da mesma identidade em ordem temporal. Remoção e retorno não alteram essas linhas; o intervalo removido não ganha pontos nem valores zero. A representação explícita da lacuna na resposta temporal será definida pela task #114, que ainda não fornece esse contrato.
+`CollectionsRepository.findHistoryByApplication(id)` lê as coletas persistidas da mesma identidade em ordem temporal. Remoção e retorno não alteram essas linhas; o intervalo removido não ganha pontos nem valores zero. A consulta de séries ambientais já representa lacunas e eventos por meio do contrato de `GET /applications/{id}/analysis/series`, sem fabricar pontos zero.
 
 ## Metodologia do resultado por coleta — #58
 
@@ -89,6 +101,16 @@ O teste focado `src/modules/applications/environmental-analysis.database.spec.ts
 `POST /applications/{id}/analysis/recalculation-preview` recebe `from` e `to` no corpo (RFC 3339 com fuso explícito) e retorna os totais ambientais persistidos ao lado de uma prévia recalculada em memória. A prévia usa `simplified-energy` v1, consulta o fator de carbono atual por região histórica e informa metodologia, fatores, coberturas, razões e avisos. O snapshot original de fator tem prioridade; sem ele, a região é reconstruída pelo histórico de cadastro no instante da coleta. Falha em uma consulta regional ou ausência de região retorna `status: partial`, preservando o que foi calculável.
 
 A rota é pública e não altera coletas, resultados ambientais, fatores persistidos, rankings, séries nem totais oficiais. Sem observações, retorna `status: empty` e não consulta serviço externo. O período máximo é 30 dias e a consulta aceita até 10.000 observações intersectadas; exceder qualquer limite retorna `400`, sem truncamento. Aplicação inexistente retorna `404`; falha de leitura/processamento retorna `503`. Revisar a integração com a configuração ativa quando a #95 for implementada.
+
+## Simulação regional — #86 / US-15
+
+`GET /carbon/regions` lista os destinos atuais para seleção; lista vazia é sucesso e a integração externa permanece exclusiva do backend. `POST /applications/{id}/analysis/regional-simulation` recebe `from`, `to` (RFC 3339 com fuso explícito) e `destinationRegionCode`. O endpoint é público e somente leitura. Períodos maiores que 30 dias ou com mais de 10.000 coletas intersectadas retornam `400` com código estruturado, sem truncar resultados; aplicação inexistente retorna `404`.
+
+A resposta contém energia calculável, referência, destino, fatores, horários de consulta GreenER, cobertura e diferenças. A energia usa os resultados já persistidos e permanece constante. A referência recalcula emissões coleta a coleta com os snapshots preservados; nenhum fator ausente é buscado no histórico. O destino consulta uma vez o fator atual escolhido por solicitação e o aplica a toda a energia calculável. Uma nova chamada consulta o valor atual novamente.
+
+Diferença absoluta (`gCO2e`) é destino menos referência; diferença percentual é `(destino - referência) / referência`. Diferenças só são retornadas quando referência e destino cobrem os mesmos trechos; percentual com referência zero é `null` com `ZERO_REFERENCE`, mantendo a diferença absoluta calculável. Coberturas parciais permanecem visíveis e lacunas não viram zero. Sem energia calculável, `status` é `empty`; cobertura incompleta ou falha/fator ausente produz `partial`; dados completos produzem `available`. Razões distintas identificam energia ausente, snapshot de referência não preservado, cobertura incompatível, destino inexistente/indisponível ou payload de fator inválido.
+
+Falha ao consultar o destino mantém a referência disponível e deixa destino/diferenças indisponíveis. O `queriedAt` retornado representa a hora da consulta do GreenER e não uma vigência oficial. A simulação não grava nem altera coletas, snapshots, fatores, rankings, séries ou totais oficiais. Execute a regra pura com `npm test -- --runInBand --runTestsByPath src/modules/calculations/regional-simulation.spec.ts`; o teste HTTP/PostgreSQL está junto à análise ambiental em `src/modules/applications/environmental-analysis.database.spec.ts` e requer `TEST_DATABASE_URL` apontando para PostgreSQL isolado.
 
 ## Série e contribuições ambientais — #174
 
@@ -168,3 +190,22 @@ Exemplo reduzido de resposta com resultados utilizáveis:
 ```
 
 Quando nenhuma medida puder ser calculada, `status` é `empty`, ambos os valores de total são `null` e as coberturas são zero; as contagens de estado ainda descrevem as aplicações que correspondem aos filtros.
+
+## Autorização, contas, preferências e auditoria
+
+O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/senha ou Google quando habilitado. Admin precisa configurar ou confirmar TOTP de seis dígitos antes da sessão, inclusive após Google. Analyst e Visitor não recebem autorização administrativa. O frontend mantém a sessão em memória; recarregar exige novo login. O backend valida JWT, sessão, papel e estado atuais; credencial ausente/inválida resulta em 401, papel insuficiente em 403. Novas rotas são protegidas por padrão.
+
+A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
+
+Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
+
+Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de preferências](preferences/README.md) e as [decisões de arquitetura](../../../docs/product/decisions.md).
+
+`authentication/AccountsController` publica listagem/criação de contas e alteração de papéis em `/auth/users`. O caso de uso revalida o Admin e a organização sob bloqueio; os repositories concentram persistência e consulta. Criação reutiliza a confirmação de e-mail e definição de senha; alteração de papel revoga sessões, preserva autoria e impede retirar o último Admin com acesso. Consulte [ACCOUNTS.md](authentication/ACCOUNTS.md) para o contrato, os limites e os testes de PostgreSQL isolado.
+
+
+### Dashboard: série e fator equivalente
+
+`GET /analysis/summary` aceita `granularity=hour|day|month|year` opcional. Quando presente, inclui `series: { granularity, points }`, com o contrato de ponto da série individual. Usa o mesmo período UTC semiaberto e os mesmos filtros de estado atual, região histórica e aplicação dos totais. Cada aplicação resolve suas sobreposições antes da soma entre aplicações; lacunas permanecem nulas e a cobertura é a média temporal das aplicações do escopo. O limite existente de 10.000 intervalos também se aplica aqui (400 `ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED`); granularidade inválida retorna 400 `INVALID_ANALYSIS_GRANULARITY`. Sem o parâmetro, a resposta anterior permanece compatível. As consultas de persistência são em lote, sem consultas HTTP por aplicação ou novas chamadas externas.
+
+O resumo individual inclui `calculation: { energyKwh, intensity }`. A energia corresponde somente aos segmentos que sustentam emissões válidas. A intensidade equivalente em gCO2e/kWh é a soma das emissões persistidas dividida por essa energia, sem média aritmética dos snapshots e sem alterar resultados salvos. Denominador zero/ausente resulta em intensidade nula. Emissões sem energia correspondente também impedem apresentar um fator equivalente. O frontend apresenta esse resultado e preserva os snapshots históricos para inspeção.

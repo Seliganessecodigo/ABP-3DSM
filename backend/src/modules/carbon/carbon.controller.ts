@@ -10,12 +10,14 @@ import {
 } from '@nestjs/swagger'
 import { CarbonIntensityDto, CarbonRegionsDto } from './carbon.dto'
 import { CarbonService } from './carbon.service'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('carbon-intensity')
 @Controller('carbon/regions')
 export class CarbonController {
   constructor(private readonly carbon: CarbonService) {}
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Listar regiões e fatores de carbono atuais' })
   @ApiOkResponse({ type: CarbonRegionsDto })
@@ -25,6 +27,7 @@ export class CarbonController {
     return this.carbon.listRegions()
   }
 
+  @PublicRoute()
   @Get(':code/intensity')
   @ApiOperation({ summary: 'Consultar fator de carbono atual por região' })
   @ApiParam({ name: 'code', schema: { type: 'string', minLength: 1 } })

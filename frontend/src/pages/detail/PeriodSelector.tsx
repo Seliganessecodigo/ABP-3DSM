@@ -17,7 +17,7 @@ export function PeriodSelector({ title, options, selected, invalidMessage, onSel
   return <section className={`${styles.selector}${compact ? ` ${styles.compact}` : ''} ${className ?? ''}`} aria-labelledby="period-selector-heading">
     <h2 id="period-selector-heading">{title}</h2>
     {selected === null && <p role="alert">{invalidMessage}</p>}
-    {select ? <label className={styles.selectLabel}><span>{title}</span><select aria-label={title} disabled={busy}
+    {select ? <label className={styles.selectLabel}><span>{title}</span><select className="form-control" aria-label={title} disabled={busy}
       value={selected ?? ''} onChange={(event) => {
         const option = options.find(({ value }) => value === event.target.value)
         if (option) onSelect(option.value)

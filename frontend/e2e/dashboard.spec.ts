@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { application, mockCatalog } from './support/catalog.ts'
+import { application, gate, mockApi, mockCatalog } from './support/catalog.ts'
 
 type SummaryApplication = {
   applicationId: string
@@ -53,6 +53,25 @@ async function mockSummary(page: Page, handler: (routeUrl: URL) => Promise<{ sta
   })
 }
 
+test('dashboard renders persisted temporal results and preserves missing intervals', async ({ page }, testInfo) => {
+  await page.clock.install({ time: new Date('2026-10-08T12:00:00.000Z') })
+  await mockCatalog(page, [application()])
+  await mockSummary(page, (url) => ({ json: {
+    ...summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]),
+    series: { granularity: 'hour', points: [
+      { bucketStart: '2026-10-08T10:00:00.000Z', bucketEnd: '2026-10-08T11:00:00.000Z', period: { from: '2026-10-08T10:00:00.000Z', to: '2026-10-08T11:00:00.000Z' }, energy: { value: 2, unit: 'kWh', reasons: [] }, emissions: { value: 85, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
+      { bucketStart: '2026-10-08T11:00:00.000Z', bucketEnd: '2026-10-08T12:00:00.000Z', period: { from: '2026-10-08T11:00:00.000Z', to: '2026-10-08T12:00:00.000Z' }, energy: { value: null, unit: 'kWh', reasons: [] }, emissions: { value: null, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0, emissions: 0 } },
+    ] },
+  } }))
+  await page.goto('/dashboard')
+  const panel = page.getByRole('region', { name: 'Série temporal', exact: true })
+  await expect(panel.getByRole('img')).toBeVisible()
+  await page.screenshot({ path: testInfo.outputPath('dashboard-series.png') })
+  await panel.getByRole('button', { name: 'Tabela', exact: true }).click()
+  await expect(panel.getByRole('table')).toContainText('85 gCO2e')
+  await expect(panel.getByRole('table')).toContainText('Sem resultado')
+})
+
 test('dashboard presents real summary values, separate coverage and contribution composition', async ({ page }) => {
   await mockCatalog(page, [
     application({ id: 'svc-1', name: 'api-estoque', location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, latitude: -23, longitude: -46 } }),
@@ -69,7 +88,7 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByText('4 kWh', { exact: true })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Indicadores ambientais' }).getByText('12,6 gCO2e', { exact: true })).toBeVisible()
-  await expect(page.getByText(/série histórica agregada ainda não faz parte/i)).toBeVisible()
+  await expect(page.getByText('Não foi possível consultar a série temporal.', { exact: true })).toBeVisible()
   await expect(page.getByText(/comparação com período anterior indisponível/i)).toBeVisible()
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)
   await expect(page.locator('tbody tr').nth(0)).toContainText('api-estoque')
@@ -78,6 +97,10 @@ test('dashboard presents real summary values, separate coverage and contribution
 })
 
 test('summary filter preserves the period and applies the historical region filter to the API', async ({ page }) => {
+  let catalogRequests = 0
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/applications') catalogRequests += 1
+  })
   await mockCatalog(page, [
     application({ id: 'svc-1', location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, latitude: -23, longitude: -46 } }),
     application({ id: 'svc-2', location: { regionCode: 'US-VA', country: 'United States', region: 'Virginia', city: null, latitude: 38, longitude: -77 } }),
@@ -96,13 +119,66 @@ test('summary filter preserves the period and applies the historical region filt
   })
 
   await page.goto('/dashboard?period=30d')
+  await expect(page.getByLabel('Região histórica')).toBeEnabled()
+  const initialCatalogRequests = catalogRequests
+  await page.getByRole('button', { name: '90 dias', exact: true }).click()
   await page.getByLabel('Estado atual').selectOption('UNAVAILABLE')
   await page.getByLabel('Região histórica').selectOption('US-VA')
 
   await expect.poll(() => requests.at(-1)?.searchParams.get('states')).toBe('UNAVAILABLE')
   await expect.poll(() => requests.at(-1)?.searchParams.get('regionCodes')).toBe('US-VA')
   await expect.poll(() => requests.at(-1)?.searchParams.get('from')).toBeTruthy()
-  await expect(page).toHaveURL(/dashboard\?.*period=30d.*regionCode=US-VA.*dashboardState=UNAVAILABLE/)
+  await expect(page).toHaveURL(/dashboard\?.*period=90d.*regionCode=US-VA.*dashboardState=UNAVAILABLE/)
+  expect(catalogRequests).toBe(initialCatalogRequests)
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect.poll(() => catalogRequests).toBe(initialCatalogRequests + 1)
+})
+
+test('dashboard catalog polling remains independent from a slow summary and stops after navigation', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-14T12:00:00.000Z') })
+  let catalogRequests = 0
+  const pendingSummary = gate()
+  await mockApi(page, async (route) => {
+    catalogRequests += 1
+    await route.fulfill({ json: [application()] })
+  })
+  await mockSummary(page, async (url) => {
+    await pendingSummary.wait
+    return { json: summaryResponse(url, []) }
+  })
+  await page.goto('/dashboard')
+  await expect(page.getByLabel('Região histórica')).toBeEnabled()
+  const initialCatalogRequests = catalogRequests
+  await page.clock.fastForward(60_000)
+  await expect.poll(() => catalogRequests).toBe(initialCatalogRequests + 1)
+  await page.getByRole('navigation').getByRole('link', { name: /metodologia/i }).click()
+  pendingSummary.release()
+  const requestsAfterNavigation = catalogRequests
+  await page.clock.fastForward(120_000)
+  expect(catalogRequests).toBe(requestsAfterNavigation)
+})
+
+test('dashboard preserves catalog regions after a failed refresh and retries independently', async ({ page }) => {
+  let failing = false
+  await mockApi(page, async (route) => {
+    await route.fulfill(failing
+      ? { status: 503, json: { code: 'CATALOG_UNAVAILABLE' } }
+      : { json: [application()] })
+  })
+  await mockSummary(page, (url) => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+  await page.goto('/dashboard')
+  const region = page.getByLabel('Região histórica')
+  await expect(region).toBeEnabled()
+  await expect(region.locator('option[value="BR-SP"]')).toHaveCount(1)
+  failing = true
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect(region).toBeDisabled()
+  await expect(region.locator('option[value="BR-SP"]')).toHaveCount(1)
+  await expect(page.getByRole('region', { name: 'Indicadores ambientais' })).toContainText('85 gCO2e')
+  failing = false
+  await expect(page.getByRole('button', { name: 'Atualizar dados' })).toHaveAttribute('aria-disabled', 'false')
+  await page.getByRole('button', { name: 'Atualizar dados' }).click()
+  await expect(region).toBeEnabled()
 })
 
 test('failed refresh preserves the previous summary and retry recovers without reload', async ({ page }) => {

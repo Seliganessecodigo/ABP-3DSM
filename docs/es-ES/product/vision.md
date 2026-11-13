@@ -1,40 +1,43 @@
-# Visión y alcance del producto
+# Visión y alcance
 
-GreenER responde a tres preguntas: qué aplicaciones se supervisan, qué evidencias respaldan su consumo y cómo interpretar energía y emisiones estimadas. Descubrimiento, métricas, contexto regional e historial apoyan la investigación y la priorización.
+GreenER ayuda a monitorizar aplicaciones y comprender su consumo estimado de energía y sus emisiones equivalentes de dióxido de carbono (CO₂e). Reúne indicadores, ubicación e historial para analizar el impacto ambiental de los servicios digitales.
 
-## Públicos y necesidades
+## Para quién {#readers}
 
 | Público | Necesidad |
 | --- | --- |
-| Gestión de infraestructura | Identificar aplicaciones y cambios del entorno. |
-| Análisis operativo y ambiental | Investigar períodos, comparar resultados compatibles y entender lagunas. |
-| Desarrollo y evaluación | Reproducir el entorno y demostrar criterios de aceptación. |
+| Gestión de infraestructura | Identificar aplicaciones y seguir los cambios del entorno. |
+| Análisis ambiental y operativo | Investigar consumo, emisiones y calidad de los datos de un período. |
+| Desarrollo y evaluación | Comprobar el comportamiento del producto y reproducir sus resultados. |
 
-Son públicos, no una matriz definitiva de permisos; esta sigue [pendiente](./decisions).
+## Funciones disponibles {#features}
 
-## Alcance y disponibilidad
-
-Referencia: código de `develop` del 23/10/2026 (commit `1633ca2`). Los entornos pueden ejecutar revisiones diferentes; una issue cerrada no demuestra disponibilidad en producción.
-
-| Capacidad | Situación |
+| Función | Referencia |
 | --- | --- |
-| Catálogo, búsqueda, filtros, paginación, navegación y ocho idiomas | Implementados en la interfaz. |
-| Descubrimiento, ciclo de vida, recopilación periódica, incidentes y persistencia | Implementados en el backend. |
-| Estado operativo, métricas de origen, evidencias y metodología de recopilación | Disponibles en la API y el detalle; una página explica el modelo, la fórmula, los parámetros y el factor registrados sin recalcular. Se distinguen fallos, ausencia y datos obsoletos. |
-| Análisis ambiental, series temporales e inspección de contribuciones por aplicación | Disponibles en la API e integrados en el detalle de la aplicación. |
-| Resumen ambiental agregado | Endpoint disponible en la API (`GET /analysis/summary`); aún no hay dashboard agregado en la interfaz. |
-| Tema claro/oscuro | Disponible como preferencia de interfaz. |
+| Catálogo y búsqueda | [Encontrar una aplicación](../guide/monitoring#catalog) |
+| Monitorización automática | [Interpretar los datos](../guide/monitoring#data) |
+| Dashboard ambiental | [Consultar el dashboard](../guide/monitoring#dashboard) |
+| Detalle de aplicación | [Investigar el detalle](../guide/monitoring#detail) |
+| Historial y composición | [Explorar el historial](../guide/monitoring#history) |
+| Vista previa de recálculo | [Comparar con una vista previa de recálculo](../guide/monitoring#preview) |
+| Preferencias personales | [Personalizar el análisis](../guide/monitoring#preferences) |
+| Login y segundo factor | [Iniciar sesión](../guide/monitoring#access) |
+| Ordenación por impacto | [Consultar el dashboard](../guide/monitoring#dashboard) |
 
-## Recorridos y valor
+## Recorrido de análisis {#journey}
 
-1. Encontrar una aplicación y abrir el detalle para confirmar identidad, ubicación y estado.
-2. Investigar cambios distinguiendo último intento, última observación válida y ausencia.
-3. En el detalle, seleccionar período y granularidad, interpretar serie/cobertura e investigar las contribuciones de un bucket sin convertir lagunas en cero.
+Empiece por el resumen ambiental, identifique una aplicación que requiera atención y abra su detalle. Use el historial para investigar el período y la metodología para entender las estimaciones. Considere siempre la cobertura antes de comparar resultados.
 
-La [guía](../guide/monitoring) cubre lo existente; las [épicas](../roadmap), el comportamiento esperado.
+## Límites de uso {#limits}
 
-## Límites y evaluación
+La energía se estima con un modelo simplificado de CPU, memoria, disco y red durante el intervalo observado. La potencia se convierte en energía según la duración. Las emisiones multiplican energía por intensidad de carbono regional. Los coeficientes pertenecen al modelo académico, no son mediciones eléctricas ni factores regionales oficiales. Los resultados conservan su metodología y factor originales.
 
-Las estimaciones no son mediciones eléctricas directas ni prueba de ahorro causado por una acción. Eficiencia por transacción exige datos de trabajo realizado. La serie del detalle compara una aplicación con la ventana inmediatamente anterior de igual duración; esto no ofrece comparación entre aplicaciones ni comparación de períodos en un dashboard. El mapa es opcional.
+La cobertura es la proporción del período con observaciones válidas. Energía y emisiones tienen coberturas separadas: puede haber energía estimada sin factor de carbono para calcular emisiones. Compare períodos, unidades y coberturas compatibles. Una cobertura baja indica análisis parcial, no reducción demostrada del consumo.
 
-En las reviews, comprobar si las personas encuentran aplicaciones, distinguen cero de ausencia y rastrean resultados hasta período, unidad y evidencia. Registrar dificultades, feedback y cambios en [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) y [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Metas de tiempo, satisfacción y rendimiento necesitan baseline y aprobación.
+## Mejoras previstas {#planned}
+
+Se prevén comparación dedicada entre aplicaciones, simulación en otra región, gestión completa de usuarios y roles, recuperación autónoma de contraseña, controles globales de monitorización. La exportación CSV requiere definir su alcance. El dashboard ya ordena por energía o emisiones. El backlog mantiene las prioridades; esta documentación no fija fechas para estas mejoras.
+
+## Lecturas relacionadas {#related}
+
+[Guía de uso](../guide/monitoring) · [Metodología y datos](../product/methodology) · [Backlog del producto](../roadmap)

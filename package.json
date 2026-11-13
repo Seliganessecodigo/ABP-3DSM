@@ -9,6 +9,7 @@
     "dev:down": "docker compose down",
     "dev:logs": "docker compose logs --follow",
     "docs:dev": "npm --prefix docs run dev",
+    "docs:check": "npm --prefix docs run check",
     "docs:build": "npm --prefix docs run build",
     "docs:preview": "npm --prefix docs run preview"
   },

@@ -1,48 +1,53 @@
-# Methodik und Bedeutung der Daten
+# Methodik und Daten
 
-Belege behalten ihre Bedeutung: fehlende, fehlerhafte und veraltete Daten bedeuten nicht Null. Energie wird mit dem vereinfachten Modell und versionierten Parametern geschätzt; sie ist keine reale elektrische Messung, und die Parameter sind kein offizieller Regionalfaktor. Die CO₂e-Umrechnung ist in #49/#53 implementiert.
+Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte und Netzwerk im Beobachtungsintervall. Geschätzte Leistung wird über die Dauer in Energie umgerechnet. Emissionen ergeben sich aus Energie mal regionaler CO₂-Intensität. Die Koeffizienten gehören zum akademischen Modell, nicht zu direkter Strommessung oder offiziellen Regionalfaktoren. Ergebnisse erhalten ursprüngliche Methodik und Faktoren.
 
-## Begriffe und Einheiten
+## Daten verstehen {#vocabulary}
 
 | Begriff | Bedeutung |
 | --- | --- |
-| Anwendung | Stabile Identität; Name/Ort können sich ändern. |
-| Beobachtung/Erfassung | Gespeicherte Metriken einer Anwendung und eines Intervalls. |
-| Zyklus | Erkennung, Abgleich und Sammlung; keine einzelne Messung. |
-| Energie | Über Zeitraum akkumulierte Menge in kWh; nicht Leistung. |
-| Kohlenstoffintensität | Regionaler Quellfaktor in gCO₂e/kWh. |
-| CO₂e | Äquivalente Emissionen mit Einheit/Faktor. |
-| Abdeckung | Durch gültige Belege gestützter Anteil des Zeitraums, getrennt für Energie und CO₂e berechnet. |
-| Stale | Aufbewahrte frühere gültige Beobachtung, kein aktueller Erfolg. |
+| Anwendung | Dienst mit stabiler Identität im Katalog. |
+| Beobachtung | Metriksatz für ein Intervall. |
+| Energie | Geschätzte Menge eines Zeitraums in kWh. |
+| CO₂-Intensität | Regionaler Faktor in gCO₂e/kWh. |
+| Emissionen | CO₂-Äquivalentmenge mit angegebener Einheit. |
+| Abdeckung | Anteil des Zeitraums mit gültigen Nachweisen. |
 
-Aggregator: CPU in %, Speicher, Datenträger und Netzwerk in GB. Das sind keine kWh; Umrechnung benötigt dokumentiertes Modell, Koeffizienten und Annahmen.
+## Schätzmodell {#model}
 
-## Zeit und Herkunft
-
-Die Quelle liefert keinen Messzeitstempel. GreenER speichert den Empfang und leitet `[receivedAt - collection_interval_seconds, receivedAt]` ab; das beweist nicht die tatsächlichen Quellmesszeiten.
-
-Letzter Versuch, gültige Beobachtung und Stammdatenänderung sind verschieden. Faktorabfragezeit beweist keine offizielle Gültigkeit. Snapshots bewahren Wert, interne Identität, Vertrag und Abfragezeit; unveröffentlichte Bibliografie/Gültigkeit bleiben unbekannt.
-
-## Zeitregeln für Umweltdaten
-
-Abfragen nutzen ISO-Zeitstempel mit Zeitzone, nach UTC normalisiert, und [from,to). UTC-Kalender-Buckets je Stunde/Tag/Monat/Jahr zählen nur Überlappung, auch an Teilrändern. Presets 24h/7d/30d/90d sind exakte gleitende Fenster mit gemeinsamem KPI/Serien-Anker. Maximal 10.000 Punkte; Überschreitung wird ohne Kürzung oder Granularitätswechsel abgelehnt. Serien teilen gespeicherte Ergebnisse nach Überlappung auf, ohne Beobachtungen neu zu berechnen; Konflikte löst collectedAt neuester, dann ID lexikalisch aufsteigend, ohne Rückfall bei fehlendem Messwert. Keine zusätzliche Rundung; Abdeckungen und Original-Snapshots bleiben getrennt erhalten.
-
-## Energie und Emissionen
-
-Die implementierte dimensionale Beziehung lautet:
-
-    CO₂e [g] = Energie [kWh] × Intensität [gCO₂e/kWh]
-
-Nur Lehrbeispiel: 2 kWh × 100 gCO₂e/kWh = 200 gCO₂e = 0,2 kgCO₂e. Keine freigegebenen Faktoren oder Produktmesswerte. Damit ist das Energiemodell für CPU/Speicher/Datenträger/Netzwerk nicht definiert.
-
-Ohne Faktor bleibt gültige Energie gültig; CO₂e kann unberechenbar sein. Null braucht gültige Belege.
-
-## Historie und Szenarien
-
-| Ergebnis | Regel |
+| Parameter | Wert |
 | --- | --- |
-| Original | Beobachtungen, Konfiguration, Methodik, Faktor bewahren. |
-| Neuberechnungsvorschau | Identifizierte aktuelle Konfiguration, ohne Speicherung/Ersetzung; Rechte, Grenzen und Faktorpolitik offen. |
-| Regionale Simulation | Energie konstant, anderer Faktor, getrennt von offiziellen Ergebnissen. |
+| CPU (100%) | 100 W |
+| Speicher | 0.375 W/GB |
+| Festplatte | 0.01 W/GB |
+| Netzwerk | 0.02 W/GB |
 
-Summen, Ranglisten und Vergleiche brauchen kompatible Zeiträume und Abdeckungen. Lücken werden nicht zu Null; Prozente erfordern einen gültigen Nenner. Die bestätigte Zeitsemantik steht oben. Persistiert werden Energie, Emissionen in Gramm und Faktor mit acht Dezimalstellen; Abdeckung als Anteil von null bis eins mit vier. Zwischenwerte werden nicht gerundet; JSON-Snapshots behalten ihre ursprüngliche Darstellung.
+```text
+P [W] = P_CPU + P_RAM + P_disk + P_network
+E [kWh] = P [W] × Δt [h] / 1000
+CO₂e [g] = E [kWh] × I [gCO₂e/kWh]
+```
+
+## Abdeckung verstehen {#coverage}
+
+Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
+
+Nullverbrauch bedeutet, dass eine gültige Beobachtung diesen Wert belegt. Eine Lücke bedeutet fehlende nutzbare Daten, keinen Nullverbrauch. Nach Aktualisierungsfehlern kann die letzte gültige Messung mit ursprünglichem Zeitpunkt erhalten bleiben. Prüfen Sie Aktualität und Abdeckung vor Entscheidungen. Die Anzeige fragt 60 Sekunden nach jedem Versuch erneut ab; eine neue Messung ist damit nicht garantiert.
+
+## Zeiträume und Verlauf {#history}
+
+| Regel | Bedeutung |
+| --- | --- |
+| Erhaltener Verlauf | Einstellungen und Vorschauen ersetzen keine Originalergebnisse. |
+| Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
+| Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
+
+Wählen Sie in der Neuberechnungsvorschau Anwendung und Datum, um das Original mit aktuellem Modell und aktuellen CO₂-Faktoren der beobachteten Regionen zu vergleichen. Der letzte Tag wird vollständig in UTC einbezogen. Höchstens 30 Tage und 10.000 Beobachtungen sind erlaubt. Die Vorschau wird nicht gespeichert und ändert keinen Verlauf. Prozentdifferenzen erfordern gleiche Einheiten und Abdeckung sowie einen positiven Originalwert.
+
+## Weiterführende Seiten {#related}
+
+[Benutzerhandbuch](../guide/monitoring) · [API-Referenz](../reference/api)
+
+## Einstellungen für echte Daten {#personal-preferences}
+
+Unter `/methodology` konfigurieren Sie Energie- und Emissionsgrenzen je Anwendung, den Abdeckungsrichtwert und Analysevorgaben. Wählen Sie die letzten 24 Stunden, 7, 30 oder 90 Tage, den aktuellen UTC-Monat oder ein eigenes Intervall mit eingeschlossenem Anfang und ausgeschlossenem Ende. Die Vorschau liest echte Daten ohne Speicherung und verwendet dasselbe Warnfeld wie Anwendungen und Dashboard. Speichern erfordert eine Anmeldung und betrifft nur Ihr Konto; Berechnungen, Verlauf und Betriebszustände bleiben erhalten. Warnungen verwenden den Zeitraum der jeweiligen Grenze unabhängig von Seitenfiltern. Analysevorgaben ergänzen nur fehlende URL-Optionen im Dashboard und in der Detailansicht. Teilweise Daten unterhalb der Grenze beweisen keine Einhaltung; fehlende Daten bedeuten niemals null.

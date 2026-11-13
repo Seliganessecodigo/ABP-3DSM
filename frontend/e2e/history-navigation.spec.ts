@@ -61,6 +61,20 @@ test('operational context stays available while environmental analysis is pendin
   await expect(page.getByText('Não foi possível consultar os dados ambientais para este período.', { exact: true })).toBeVisible()
 })
 
+test('history selection and detail links preserve a custom interval', async ({ page }) => {
+  const from = '2026-10-10T00:00:00.000Z'
+  const to = '2026-10-12T00:00:00.000Z'
+  await page.goto(`/history?period=custom&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+  await expect(page.getByRole('combobox', { name: 'Período de análise', exact: true })).toHaveValue('custom')
+  await page.getByRole('button', { name: /app-pagamentos.*Ver histórico/ }).click()
+  await page.getByRole('link', { name: 'Ver detalhes da aplicação', exact: true }).click()
+  await expect(page.getByRole('link', { name: 'Explorar histórico' })).toBeVisible()
+  const params = new URL(page.url()).searchParams
+  expect(params.get('period')).toBe('custom')
+  expect(params.get('from')).toBe(from)
+  expect(params.get('to')).toBe(to)
+})
+
 for (const width of [390, 1366]) {
   test(`history landing is usable at ${width}px with keyboard and no horizontal overflow`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })

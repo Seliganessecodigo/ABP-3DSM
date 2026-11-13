@@ -10,7 +10,9 @@ import type { EnvironmentalFreshnessLabels } from './EnvironmentalFreshness.tsx'
 import type { AnalysisSeriesPageSize, AnalysisSeriesQuery } from './seriesQuery.ts'
 import { useId, useState, type ReactNode, type SyntheticEvent } from 'react'
 import styles from './EnvironmentalAnalysis.module.css'
+import { factorPresentation } from './factorPresentation.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
+import { formatIntervalBoundary } from '../../utils/formatDate.ts'
 
 type Labels = Readonly<{
   heading: string
@@ -100,6 +102,8 @@ type Labels = Readonly<{
   invalidNumericRange: string
   invalidUnit: string
   clearFilters: string
+  applyFilters: string
+  closeFilters: string
   mixedUnits: string
   energyStatus: string
   emissionsStatus: string
@@ -119,6 +123,9 @@ type Labels = Readonly<{
   version: string
   queriedAt: string
   snapshot: string
+  equivalentFactor: string
+  factorExplanation: string
+  energyWithEmissions: string
   multipleFactors: string
   notCalculable: string
   metricUnavailable: string
@@ -131,7 +138,6 @@ type Labels = Readonly<{
   previousPreserved: string
   retry: string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
-  viewFactorDetails: string
   validDataInPeriod: string
 }>
 
@@ -170,7 +176,7 @@ function contributionLabels(labels: Labels, historyLayout = false) {
     emptyContributions: labels.historyNoContributions, loading: labels.loading, error: labels.error,
     collection: labels.contributionCollection, originalInterval: labels.contributionOriginalInterval,
     countedInterval: labels.contributionCountedInterval, collectedAt: labels.contributionCollectedAt,
-    energy: labels.energy, emissions: labels.emissions, methodology: labels.model, factor: labels.factor,
+    energy: labels.energy, emissions: labels.emissions, methodology: historyLayout ? labels.methodologyHeading : labels.model, factor: labels.factor,
     totals: labels.contributionTotals, coverage: labels.contributionCoverage,
     originalValue: labels.contributionOriginalValue, countedValue: labels.contributionCountedValue,
     durationRatio: labels.contributionDurationRatio, reason: labels.contributionReason,
@@ -232,19 +238,13 @@ function Sparkline({ points, metric }: Readonly<{ points: readonly AnalysisSerie
   return <svg data-metric-sparkline="true" className={styles.sparkline} viewBox="0 0 64 20" aria-hidden="true"><polyline points={coordinates} /></svg>
 }
 
-function FactorCard({ factor, locale, labels, onViewDetails }: Readonly<{ factor: AnalysisFactorResult | null; locale: string; labels: Labels; onViewDetails?: () => void }>) {
-  let value: string | null = null
-  if (factor?.status === 'available') {
-    if (factor.factors.length > 1) value = labels.multipleFactors
-    else if (factor.factors.length === 1 && factor.factors[0].intensity !== null && factor.factors[0].unit !== null) {
-      value = `${typeof factor.factors[0].intensity === 'number'
-        ? formatNumber(factor.factors[0].intensity, locale)
-        : formatFactorIntensity(factor.factors[0].intensity, locale)} ${factor.factors[0].unit}`
-    }
-  }
+function FactorCard({ factor, calculation, locale, labels }: Readonly<{ factor: AnalysisFactorResult | null; calculation?: AnalysisViewModel['calculation']; locale: string; labels: Labels }>) {
+  const intensity = calculation?.intensity
+  const equivalent = typeof intensity === 'number'
+  const value = equivalent ? `${formatNumber(intensity, locale)} gCO2e/kWh` : factorPresentation(factor, locale)
 
   let content: ReactNode
-  if (factor?.status === 'unavailable') {
+  if (factor?.status === 'unavailable' && !equivalent) {
     content = <div className={styles.unavailable}><p className={styles.value}>{labels.metricUnavailable}</p><p>{labels.reasons[factor.reason]}</p></div>
   } else if (value === null) {
     content = <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
@@ -253,12 +253,12 @@ function FactorCard({ factor, locale, labels, onViewDetails }: Readonly<{ factor
   }
 
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
-    <h3 id="analysis-factor-heading">{labels.factor}</h3>
+    <h3 id="analysis-factor-heading">{equivalent ? labels.equivalentFactor : labels.factor}</h3>
     {content}
     {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
       {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
     </p>}
-    {factor?.status === 'available' && onViewDetails && <button type="button" className={styles.factorDetailsLink} onClick={onViewDetails}>{labels.viewFactorDetails} →</button>}
+
   </fieldset>
 }
 
@@ -279,16 +279,12 @@ function ContextCard({ data, locale, labels, children }: Readonly<{ data: Analys
   </fieldset>
 }
 
-function formatFactorIntensity(value: string, locale: string) {
-  const numericValue = Number(value)
-  return Number.isFinite(numericValue) ? formatNumber(numericValue, locale) : value
-}
-
-function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
+function CoverageCard({ data, locale, labels, empty = false, compact = false }: Readonly<{
   data: Pick<AnalysisViewModel, 'energyCoverage' | 'emissionsCoverage'> | null
   locale: string
   labels: Labels
   empty?: boolean
+  compact?: boolean
 }>) {
   const energyContent = getCoverageContent(empty, data?.energyCoverage ?? null, locale, labels)
   const emissionsContent = getCoverageContent(empty, data?.emissionsCoverage ?? null, locale, labels)
@@ -298,7 +294,8 @@ function CoverageCard({ data, locale, labels, empty = false }: Readonly<{
 
   return <fieldset className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
     <h3 id="analysis-coverage-heading">{labels.coverage}</h3>
-    {sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
+    {sharedCoverage !== null && !empty && compact ? <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</p>
+    : sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
       <svg data-coverage-ring="true" className={styles.coverageRing} viewBox="0 0 60 60" role="img"
         aria-label={`${labels.coverage}: ${new Intl.NumberFormat(locale, { style: 'percent' }).format(sharedCoverage)}. ${labels.validDataInPeriod}`}>
         <circle className={styles.coverageTrack} cx="30" cy="30" r="25" />
@@ -340,14 +337,15 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
   onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
   onClose: () => void
 }>) {
-  const factor = data?.factor.status === 'available' && data.factor.factors.length === 1 ? data.factor.factors[0] : null
-  const factorValue = factor?.intensity !== null && factor?.unit !== null && factor
-    ? `${factor.intensity} ${factor.unit}`
-    : data?.factor.status === 'available' && data.factor.factors.length > 1
-      ? labels.multipleFactors
-      : data?.factor.status === 'unavailable'
-        ? `${labels.metricUnavailable}: ${labels.reasons[data.factor.reason]}`
-        : labels.metricUnavailable
+  const equivalent = data?.calculation?.intensity
+  const hasEquivalent = typeof equivalent === 'number'
+  const factorValue = hasEquivalent
+    ? `${formatNumber(equivalent, locale)} gCO2e/kWh`
+    : factorPresentation(data?.factor ?? null, locale) ?? labels.metricUnavailable
+  const matchingEnergy = data?.calculation?.energyKwh
+  const energyValue = hasEquivalent && typeof matchingEnergy === 'number'
+    ? `${formatNumber(matchingEnergy, locale)} kWh`
+    : calculationValue(data?.energy ?? null, locale, labels)
 
   return <section className={styles.calculation} aria-label={labels.calculationHeading}>
     <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
@@ -356,13 +354,13 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
       <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
       <div className={styles.contextColumn}>{children}</div>
     </details></header>
-    <div className={styles.formula}>
-      <div><span>{labels.energy}</span><strong>{calculationValue(data?.energy ?? null, locale, labels)}</strong></div>
+    {hasEquivalent ? <div className={styles.formula}>
+      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
       <span aria-hidden="true" className={styles.operator}>×</span>
-      <div><span>{labels.factor}</span><strong>{factorValue}</strong></div>
+      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
       <span aria-hidden="true" className={styles.operator}>=</span>
       <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
-    </div>
+    </div> : <p>{labels.factorExplanation}</p>}
   </section>
 }
 
@@ -390,6 +388,7 @@ function FactorProvenance({ factors, formatDate, labels }: Readonly<{
   if (factors.length === 0) return null
   return <section className={styles.provenance} aria-labelledby="analysis-factors-heading">
     <h2 id="analysis-factors-heading">{labels.factorsHeading}</h2>
+    <p>{labels.factorExplanation}</p>
     <div className={styles.factorList}>
       {factors.map((factor) => <FactorEntry key={`${factor.version}-${factor.region}-${typeof factor.queriedAt === 'string' ? factor.queriedAt : `${factor.queriedAt.from}-${factor.queriedAt.to}`}`}
         factor={factor} formatDate={formatDate} labels={labels} />)}
@@ -482,7 +481,7 @@ function getSeriesStatus(status: AnalysisStatus, emptyResult: boolean): 'loading
   return status
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, operationalOverview = false, applicationName, inspectionBucket }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, operationalOverview = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
   data: AnalysisViewModel | null
   status: AnalysisStatus
   locale: string
@@ -506,8 +505,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   lastSuccessStatus: 'available' | 'empty' | null
   historyMode?: boolean
   operationalOverview?: boolean
-  applicationName: string
+  historyRegionFallback?: string | null
   inspectionBucket: string | null
+  collectionHref?: (collectionId: string) => string
 }>) {
   const [contextOpen, setContextOpen] = useState(false)
   const inspectContributions = onInspectContributions
@@ -518,6 +518,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     : undefined
   const { preserveEmpty, emptyResult, invalidContext, showData, initialLoading, showUnavailable } = getDisplayState(data, status, lastSuccessStatus)
   const seriesPoints = data?.series.status === 'available' ? data.series.points : []
+  const methodologyVersions = data?.methodology.status === 'available'
+    ? [...new Set(data.methodology.entries.map(({ version }) => version))] : []
+  const historyMethodologyFallback = methodologyVersions.length === 1 ? methodologyVersions[0] : null
   const historyHasMetrics = historyMode && showData && data !== null
   const energyCoverage = partialCoverageLabel(data?.energyCoverage, locale)
   const emissionsCoverage = partialCoverageLabel(data?.emissionsCoverage, locale)
@@ -532,18 +535,19 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     const inspection = contributions?.data
     return <section className={styles.historyInspection} aria-label={labels.contributionHeading}>
       {inspection && <section className={styles.historyBucket}>
-        <h2>{formatDate(inspection.bucket.start)} → {formatDate(inspection.bucket.end)} · {labels.historyInspectionEndExclusive}</h2>
-        <p>{applicationName} · {labels.timeZone(seriesQuery.timeZone)}</p>
+        <h2>{formatIntervalBoundary(inspection.bucket.start, locale, seriesQuery.timeZone)} → {formatIntervalBoundary(inspection.bucket.end, locale, seriesQuery.timeZone)}</h2>
+        <p>{labels.historyInspectionEndExclusive} · {labels.timeZone(seriesQuery.timeZone)}</p>
         <dl>
           <div><dt>{labels.energy}</dt><dd>{summaryReading(inspection.totals.energy, locale, labels)}</dd></div>
           <div><dt>{labels.emissions}</dt><dd>{summaryReading(inspection.totals.emissions, locale, labels)}</dd></div>
-          <div><dt>{labels.coverage}</dt><dd>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(inspection.coverage.energy)} / {new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(inspection.coverage.emissions)}</dd></div>
+          <div><dt>{inspection.coverage.energy === inspection.coverage.emissions ? labels.coverage : labels.contributionCoverage}</dt><dd>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(inspection.coverage.energy)}{inspection.coverage.energy !== inspection.coverage.emissions && <> / {new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(inspection.coverage.emissions)}</>}</dd></div>
         </dl>
       </section>}
       {contributions === null && <LoadingState title={labels.loading} compact />}
       {contributions && contributions.data === null && !contributions.loading && !contributions.error && <output>{labels.unavailable}</output>}
       {contributions && <AnalysisContributions data={contributions.data} loading={contributions.loading} error={contributions.error}
         locale={locale} formatDate={formatDate} labels={contributionLabels(labels, true)} historyLayout
+        collectionHref={collectionHref} timeZone={seriesQuery.timeZone}
         onPaginationChange={onContributionPaginationChange} />}
       </section>
   }
@@ -586,7 +590,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
           coverage={data.emissionsCoverage} seriesPoints={seriesPoints} metric="emissions" />
         {historyMode
           ? <>
-            <CoverageCard data={data} locale={locale} labels={labels} />
+            <CoverageCard data={data} locale={locale} labels={labels} compact />
             <ContextCard data={data} locale={locale} labels={labels}>
               <details id="analysis-details" className={styles.historyMethodology}>
                 <summary>{labels.methodologyHeading} · {labels.factorsHeading}</summary>
@@ -597,7 +601,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
               </details>
             </ContextCard>
           </>
-          : !operationalOverview && <FactorCard factor={data.factor} locale={locale} labels={labels} onViewDetails={() => setContextOpen(true)} />}
+          : !operationalOverview && <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
       </div>}
     </section>
     <aside className={styles.coverageColumn} aria-label={labels.coverage}>
@@ -623,6 +627,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}
+          historyRegionFallback={historyRegionFallback} historyMethodologyFallback={historyMethodologyFallback}
           state={getSeriesStatus(status, emptyResult)} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
       heading: labels.seriesHeading, historyIntervalsHeading: labels.historyIntervalsHeading,
       regionHeading: labels.regionHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
@@ -646,6 +651,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       emissionsMin: labels.emissionsMin, emissionsMax: labels.emissionsMax,
       invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
       clearFilters: labels.clearFilters,
+      applyFilters: labels.applyFilters, closeFilters: labels.closeFilters,
+      coverage: labels.coverage, region: labels.region, methodology: labels.methodologyHeading,
       inspectContributions: labels.inspectContributions,
       emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,

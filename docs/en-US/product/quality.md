@@ -1,40 +1,29 @@
-# Cross-cutting requirements and acceptance
+# Quality and acceptance
 
-[EP00](../backlog/ep00) organizes technical foundations and quality. An NFR is a continuing product constraint; its task delivers a finite artifact. Completing database setup does not end the need to preserve integrity in later features.
+The product must let people find an application, distinguish zero from missing data and trace an indicator to its period, unit, coverage and methodology. Queries must preserve navigation context and communicate loading, empty results, failures and older data. Assessment includes keyboard use, visible focus, text beyond color, mobile devices and all 12 languages.
 
-## Observable quality
+## Acceptance criteria {#acceptance}
 
-| Requirement | Expected evidence |
+| Rule | Meaning |
 | --- | --- |
-| RNF-01 — Technologies | Buildable React/TypeScript frontend and NestJS/TypeScript backend. |
-| RNF-02 — Responsibilities | UI presents; backend decides; adapters validate; repositories persist. |
-| RNF-03 — History | Migrations and tests demonstrate identity, integrity and preserved versions. |
-| RNF-04 — Security | Secrets outside Git; protected operations check authorization in the backend. |
-| RNF-05 — Reproducibility | Documented environment, verifiable CI and evidence of deployment behavior. |
-| RNF-06 — Failure handling | Success, empty, error, absence and stale remain distinguishable. |
-| RNF-07 — Experience | Keyboard, focus, contrast, text/icons beyond color, responsiveness and eight languages. |
+| Preserved history | Changing preferences or generating a preview never replaces original results. |
+| Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
+| Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-Access matrix, retention, disaster recovery and numerical availability/performance targets still need decisions. This page declares neither an SLA nor accessibility certification.
+## Interpret the data {#integrity}
 
-## Essential demonstration scenarios
+Zero means a valid observation supports that value. A gap means usable data is missing; it must not be read as zero consumption. When an update fails, the system may retain the last valid reading with its original timestamp. Check freshness and coverage before using an indicator for a decision. Screens request new information 60 seconds after each attempt; this does not guarantee a new measurement on every update.
 
-| Given / when | Expected outcome | Reference |
-| --- | --- | --- |
-| A known application is absent from a complete valid snapshot | Record removal and preserve history. | US-02 |
-| Source failure or invalid payload | Neither confirm removal nor replace data with zero. | US-02/05 |
-| A valid observation exists and the next attempt fails | Preserve the observation and distinguish freshness. | US-03/04 |
-| Valid energy exists but the factor is unavailable | Neither fabricate CO₂e nor discard energy. | US-07/08 |
-| A recalculation preview is requested | Keep the original intact and do not persist the preview. | US-12 |
-| An administrative operation lacks permission | Backend denies the change. | US-18/19/20 |
+Coverage is the proportion of a period supported by valid observations. Energy and emissions have separate coverage: estimated energy may exist even when a carbon factor is missing for emissions. Compare compatible periods, units and coverage. Low coverage signals partial analysis, not proven lower consumption.
 
-These are product criteria; planned capabilities need implementation and tests before being announced as delivered.
+## Validation criteria {#assessment}
 
-## Readiness and completion
+Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
 
-Before starting a task, identify deliverable, consumers, criteria, contract and real dependencies. A pending coefficient or permission must not become a technical assumption. Design requires states, navigation and a verifiable handoff.
+## Checks {#engineering}
 
-Completion requires demonstrated criteria, review, relevant failure tests, updated contracts/documentation and evidence. An open PR is not a completed issue. Planning, review and feedback belong to process deliverable #134.
+[Contributing](../contributing)
 
-## Engineering gate
+## Related reading {#related}
 
-PRs to `develop` require applicable checks and SonarQube Cloud: new-code coverage ≥ 80%, duplication ≤ 3%, A ratings and 100% of security hotspots reviewed. Executable backend changes require tests and LCOV. See [complete CI rules](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) and [Contributing](../contributing). Passing CI does not replace functional acceptance or usability evaluation.
+[Decisions and dependencies](../product/decisions) · [Contributing](../contributing)

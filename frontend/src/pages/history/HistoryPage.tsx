@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
-import { useCatalog } from '../catalog/useCatalog.ts'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 import { ApplicationDetailPage } from '../detail/ApplicationDetailPage.tsx'
 import { PeriodSelector } from '../detail/PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
@@ -18,8 +18,10 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const { t: tCatalog } = useTranslation('catalog')
   const { t: tDetail } = useTranslation('detail')
   const { t } = useTranslation('history')
-  const { applications, hasSnapshot, loading, error, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, error, retry } = useApplicationCatalog()
   const [selectedId, setSelectedId] = useState(applicationIdFromLocation)
+  const selectedPeriod = readPeriodSelection(window.location.search)
+  const periods = selectedPeriod === 'month' || selectedPeriod === 'custom' ? [...periodPresets, selectedPeriod] : periodPresets
 
   useEffect(() => {
     const syncSelection = () => setSelectedId(applicationIdFromLocation())
@@ -48,7 +50,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const selectedApplication = applications.find(({ id }) => id === selectedId)
   const applicationSelector = <label className={styles.applicationFilter}>
     {tCatalog('app')}
-    <select value={selectedId} onChange={(event) => selectApplication(event.target.value)}>
+    <select className="form-control" value={selectedId} onChange={(event) => selectApplication(event.target.value)}>
       <option value="">{t('selectApplication')}</option>
       {applications.map((application) => <option key={application.id} value={application.id}>
         {application.name} · {application.id}
@@ -58,9 +60,12 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   if (selectedApplication) return <ApplicationDetailPage key={selectedApplication.id} id={selectedApplication.id}
     navigate={navigate} historyOnly historyApplicationSelector={applicationSelector} />
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className={styles.heading}>
-      <h1>{tDetail('historyTitle')}</h1>
-      <p>{tDetail('historyDescription')}</p>
+    <header className="page-heading">
+      <div>
+        <p className="eyebrow">{tCatalog('eyebrow')}</p>
+        <h1>{tDetail('historyTitle')}</h1>
+        <p>{tDetail('historyDescription')}</p>
+      </div>
     </header>
     <section className={styles.selector} aria-label={tCatalog('app')}>
       <div className={styles.intro}>
@@ -69,10 +74,10 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
       </div>
       <div className={styles.controls}>
         {applicationSelector}
-        <PeriodSelector compact select selected={readPeriodSelection(window.location.search)}
+        <PeriodSelector compact select selected={selectedPeriod}
           onSelect={(period) => navigate(urlWithPeriod(window.location.pathname, window.location.search, period))}
           title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
-          options={periodPresets.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} />
+          options={periods.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} />
       </div>
       <ul className={styles.capabilities}>
         <li>{t('evolution')}</li><li>{t('events')}</li><li>{t('evidence')}</li>

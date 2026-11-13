@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
 import { useAuthentication } from '../app/useAuthentication.ts'
+import { analysisNavigationUrl } from '../app/analysisNavigation.ts'
 
 function layoutClasses(variant: 'default' | 'detail' | 'methodology', login: boolean, expanded: boolean) {
   const classes = ['app-layout']
@@ -16,16 +17,43 @@ function layoutClasses(variant: 'default' | 'detail' | 'methodology', login: boo
   return classes.join(' ')
 }
 
+function isMethodologyPath(pathname: string) {
+  return pathname === '/methodology' || (pathname.startsWith('/services/') && pathname.endsWith('/methodology'))
+}
+
+function isDashboardPath(pathname: string) {
+  return pathname === '/dashboard' || pathname === '/dashboard/'
+}
+
+function isHistoryPath(pathname: string) {
+  return pathname === '/history' || pathname === '/history/'
+}
+
+function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, history: boolean) {
+  return !methodology && !dashboard && !administration && !history
+}
+
+function UsersNavigation({ allowed, active, navigate }: Readonly<{ allowed: boolean; active: boolean; navigate: (url: string) => void }>) {
+  const { t } = useTranslation('common')
+  if (!allowed) return null
+  return <a href="/administration/users" aria-label={t('nav.users')} aria-current={active ? 'page' : undefined} className={active ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigate('/administration/users') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="8" cy="6" r="3" /><path d="M2 17v-2a6 6 0 0 1 12 0v2M14 3a3 3 0 0 1 0 6M16 12a5 5 0 0 1 2 4v1" /></svg><span className="nav-label">{t('nav.users')}</span></a>
+}
+
 export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
   const { user, signOut } = useAuthentication()
-  const methodologyActive = window.location.pathname === '/methodology' || window.location.pathname.startsWith('/services/') && window.location.pathname.endsWith('/methodology')
-  const dashboardActive = window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/'
-  const historyActive = window.location.pathname === '/history' || window.location.pathname === '/history/'
+  const methodologyActive = isMethodologyPath(window.location.pathname)
+  const dashboardActive = isDashboardPath(window.location.pathname)
+  const historyActive = isHistoryPath(window.location.pathname)
+  const administrationActive = window.location.pathname.startsWith('/administration/calculations')
+  const usersActive = window.location.pathname.startsWith('/administration/users')
+  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive || usersActive, historyActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
+  const dashboardUrl = analysisNavigationUrl('/dashboard', window.location)
+  const historyUrl = analysisNavigationUrl('/history', window.location)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false)
@@ -99,16 +127,17 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </div>
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
-        <a href="/dashboard" aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/dashboard') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/" aria-label={t('nav.applications')} aria-current={methodologyActive || dashboardActive || historyActive ? undefined : 'page'} className={methodologyActive || dashboardActive || historyActive ? '' : 'selected'} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
-        <a href="/history" aria-label={t('nav.history')} aria-current={historyActive ? 'page' : undefined} className={historyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/history') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3.3 7.4A7 7 0 1 1 3 11" /><path d="M3.2 3.8v3.8H7M10 6v4l2.8 1.7" /></svg><span className="nav-label">{t('nav.history')}</span></a>
+        <a href={dashboardUrl} aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
+        <a href="/" aria-label={t('nav.applications')} aria-current={applicationsActive ? 'page' : undefined} className={applicationsActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href={historyUrl} aria-label={t('nav.history')} aria-current={historyActive ? 'page' : undefined} className={historyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(historyUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3.3 7.4A7 7 0 1 1 3 11" /><path d="M3.2 3.8v3.8H7M10 6v4l2.8 1.7" /></svg><span className="nav-label">{t('nav.history')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
         <button aria-label={t('nav.comparison')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></button>
         <button aria-label={t('nav.regionalSimulation')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></button>
         <p className="nav-heading">{t('nav.system')}</p>
         <a href="/methodology" aria-label={t('nav.methodology')} aria-current={methodologyActive ? 'page' : undefined} className={methodologyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="4" y="2.8" width="12" height="14.4" rx="1" /><path d="M7 6h6M7 9h6M7 12h4" /></svg><span className="nav-label">{t('nav.methodology')}</span></a>
-        <button aria-label={t('nav.settings')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></button>
+        <a href="/administration/calculations" aria-current={administrationActive ? 'page' : undefined} className={administrationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/administration/calculations') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></a>
+        <UsersNavigation allowed={user?.role === 'ADMIN'} active={usersActive} navigate={navigateFromMenu} />
       </nav>
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading">
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
@@ -118,6 +147,6 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div className="workspace"><header className="topbar">{!login && <button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button>}<img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
+    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
   </div>
 }

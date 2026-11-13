@@ -1,31 +1,32 @@
 # Arquitectura
 
-## Componentes
+Esta parte está destinada a desarrollo y operación. Presenta entorno local, contratos y comprobaciones. Para aprender a utilizar el producto, consulte la guía de uso.
 
-El entorno local utiliza Docker Compose para iniciar tres servicios: frontend, API y PostgreSQL.
+## Documentación técnica {#components}
 
-| Área | Responsabilidad | Tecnologías |
-| --- | --- | --- |
-| `frontend/` | Interfaz, navegación y presentación | React 19, TypeScript, Vite, i18next |
-| `backend/` | API, casos de uso e integraciones externas | NestJS, TypeScript, TypeORM |
-| PostgreSQL | Persistencia de aplicaciones y datos del dominio | PostgreSQL 18 |
+React 19/TypeScript/Vite presenta; NestJS/TypeORM/PostgreSQL 18 integra y persiste. Solo backend llama fuentes auxiliares. Controllers: transporte; services: casos de uso; adapters: validación; repositories: persistencia. Guards globales de sesión/roles y excepciones `PublicRoute`. Preferencias por usuario; auditoría compartida en `backend/src/shared/audit/`, transaccional para mutaciones exitosas.
 
-El frontend solo llama a la API de GreenER. Únicamente el backend se conecta al Agregador de Métricas y al Servicio de Intensidad de Carbono.
+```text
+frontend/  React 19 · TypeScript · Vite
+backend/   NestJS · TypeScript · TypeORM
+PostgreSQL 18
+frontend → GreenER API → auxiliary APIs
+```
 
-## Organización del código
+## Iniciar sesión {#security}
 
-- `frontend/src/pages/` mantiene cada pantalla junto con sus hooks, traducciones y CSS Modules.
-- `frontend/src/features/` contiene contratos de dominio, validación, acceso HTTP, caché y reglas puras.
-- `backend/src/modules/` agrupa endpoints y casos de uso por dominio.
-- `backend/src/integrations/` adapta y valida las respuestas de las API auxiliares.
-- `backend/src/database/` contiene entidades, migraciones y repositorios.
+Consultas ambientales y dashboard son públicos. `/login` acepta correo/contraseña o Google habilitado. Admin configura/confirma TOTP de seis dígitos, también tras Google; Analyst y Visitor no obtienen permisos administrativos. Sesión en memoria del frontend: recargar exige login. Backend valida JWT, sesión, rol y estado actuales; 401 indica credencial ausente/inválida, 403 rol insuficiente. Nuevas rutas protegidas por defecto.
 
-## Datos y fiabilidad
+Admin de la misma organización cambia cuentas entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, con `expectedStatus` y motivo. Bloqueo/desactivación revocan sesiones; reactivación exige login nuevo. Se protege la propia cuenta y el último Admin activo. Conflicto: 409; destino ya alcanzado: éxito idempotente. Auditoría compartida: éxito en la transacción y denegación fuera del rollback, con actor explícito y sin secretos. No entrega gestión completa de roles ni recuperación de contraseña.
 
-El backend integra las fuentes de datos y los persiste. Sigue los contratos, esquemas y unidades documentados. Los errores, los valores ausentes, las respuestas no válidas, los datos desactualizados y los ceros válidos son estados distintos; las pantallas deben conservar esa diferencia.
+## Períodos e historial {#data}
 
-Consulta los [contratos de las API externas en el repositorio](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) y la [guía de organización del frontend](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/frontend/src/README.md) para ver los detalles de implementación.
+`from` y `to` exigen RFC 3339 con zona explícita. `[from,to)` se normaliza a UTC. La serie admite `hour`, `day`, `month`, `year`, hasta 10.000 puntos; el exceso se rechaza. Resultados guardados se prorratean por solapamiento. Gana el mayor `collectedAt` y luego ID léxico ascendente, sin recurrir a otra observación si la ganadora no sostiene la métrica.
 
-## Lecturas relacionadas
+Las métricas no incluyen instante de medición de origen. Intervalo derivado de recepción menos `collection_interval_seconds`. Consulta del factor no demuestra vigencia; fuente/validez no publicadas siguen desconocidas. Energía, factor y emisiones guardan ocho decimales; cobertura cuatro. Sin redondeo intermedio. Coberturas separadas y snapshots originales conservados.
 
-[Metodología y datos](./product/methodology) · [Referencia de la API](./reference/api) · [Operación y diagnóstico](./operations)
+## Lecturas relacionadas {#related}
+
+[Referencia de la API](./reference/api) · [Primeros pasos](./getting-started)
+
+[ADR](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/adr) · [Design](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/design) · [Specs](https://github.com/Seliganessecodigo/ABP-3DSM/tree/develop/docs/specs)

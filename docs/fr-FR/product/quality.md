@@ -1,38 +1,29 @@
-# Exigences transversales et acceptation
+# Qualité et acceptation
 
-[EP00](../backlog/ep00) organise fondations et qualité. Un RNF reste permanent ; une tâche livre un artefact fini. Terminer l’installation de la base ne met pas fin à l’obligation d’intégrité.
+Le produit doit permettre de trouver une application, distinguer zéro de l’absence et relier un indicateur à sa période, son unité, sa couverture et sa méthode. Les consultations préservent le contexte et indiquent chargement, vide, panne et données anciennes. L’évaluation inclut clavier, focus visible, texte au-delà des couleurs, mobiles et 12 langues.
 
-## Preuves de qualité
+## Critères d’acceptation {#acceptance}
 
-| Exigence | Preuve |
+| Règle | Signification |
 | --- | --- |
-| RNF-01 — Technologies | React/TypeScript et NestJS/TypeScript compilables. |
-| RNF-02 — Responsabilités | UI présente ; backend décide ; adapters valident ; repositories persistent. |
-| RNF-03 — Historique | Migrations/tests d’identité, intégrité et versions conservées. |
-| RNF-04 — Sécurité | Secrets hors Git et autorisation dans le backend. |
-| RNF-05 — Reproductibilité | Environnement documenté, CI vérifiable et publication validée. |
-| RNF-06 — Défaillances | Succès, vide, erreur, absence et stale distinguables. |
-| RNF-07 — Expérience | Clavier, focus, contraste, texte/icône au-delà de la couleur, responsive et huit langues. |
+| Historique conservé | Modifier les préférences ou générer un aperçu ne remplace pas les originaux. |
+| Absence explicite | Pannes, métriques manquantes et données anciennes se distinguent de zéro. |
+| Consultation publique | Lire les indicateurs est public ; sauvegarder des préférences et administrer des comptes exige une autorisation. |
 
-Matrice d’accès, rétention, reprise et objectifs chiffrés de disponibilité/performance restent à définir. Aucun SLA ni certification d’accessibilité n’est déclaré.
+## Interpréter les données {#integrity}
 
-## Scénarios de démonstration
+Zéro signifie qu’une observation valide justifie cette valeur. Une lacune indique des données inutilisables ou absentes, pas une consommation nulle. Après un échec de mise à jour, la dernière lecture valide peut rester affichée avec son horaire initial. Vérifiez actualisation et couverture avant de décider. Les écrans interrogent les données 60 secondes après chaque tentative ; cela ne garantit pas une nouvelle mesure.
 
-| Étant donné / quand | Résultat attendu | Référence |
-| --- | --- | --- |
-| Application connue absente d’un snapshot complet valide | Enregistrer le retrait, conserver l’historique. | US-02 |
-| Source en échec ou payload invalide | Ne confirmer aucun retrait et ne fabriquer aucun zéro. | US-02/05 |
-| Observation valide, puis tentative en échec | Conserver l’observation et distinguer la fraîcheur. | US-03/04 |
-| Énergie valide sans facteur | Ni inventer CO₂e ni supprimer l’énergie. | US-07/08 |
-| Demande d’aperçu de recalcul | Original intact, aperçu non persisté. | US-12 |
-| Opération administrative sans permission | Refus par le backend. | US-18/19/20 |
+La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
 
-Les capacités prévues doivent être implémentées et testées avant d’être annoncées livrées.
+## Critères de validation {#assessment}
 
-## Préparation, conclusion et gate
+Les changements de périmètre et de règles consignent problème, résultat attendu et critères d’acceptation dans les récits concernés. Revues et évaluations d’utilisabilité enregistrent difficultés, retours et améliorations. Rétention, sauvegarde/reprise, objectifs opérationnels et quotas externes restent à définir.
 
-Avant de commencer : livraison, consommateurs, critères, contrat et dépendances identifiés. Coefficient/permission en attente ne devient pas hypothèse technique. Design : états, navigation et handoff vérifiables.
+## Vérifications {#engineering}
 
-Conclusion : critères démontrés, code revu, échecs testés, contrat/documentation et preuves actualisés. Ouvrir une PR ne termine pas l’issue. Planning, review et feedback relèvent de #134.
+[Contribuer](../contributing)
 
-PRs vers `develop` : vérifications pertinentes et SonarQube Cloud, couverture nouvelle ≥ 80%, duplication ≤ 3%, ratings A et 100% des hotspots revus. Backend exécutable : tests et LCOV. Voir [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) et [Contribuer](../contributing). La CI ne remplace ni acceptation fonctionnelle ni évaluation d’utilisabilité.
+## Lectures associées {#related}
+
+[Décisions et dépendances](../product/decisions) · [Contribuer](../contributing)

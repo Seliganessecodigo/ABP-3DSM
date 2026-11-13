@@ -1,72 +1,154 @@
-# GreenER-API-Referenz
+# API-Referenz
 
-Routen im `develop`-Code am 23.10.2026 geprüft (Commit `1633ca2`). Lokal Swagger: `http://localhost:3000/docs`; Schema: `/openapi.json`. Vollständige DTOs im OpenAPI der Zielumgebung.
+Referenz zur GreenER-API-Integration. Vollständige Typen, optionale Felder und Grenzen unter `/openapi.json`, Swagger unter `/docs`. Katalog/Verlauf lesen gespeicherte Daten. Vorschau und CO₂-Routen können die Intensitätsquelle abfragen.
 
-## Vorhandene Lesezugriffe
+## Öffentliche Abfragen {#public}
 
-| Methode und Route | Ergebnis |
+| HTTP | URI | Zugang |
+| --- | --- | --- |
+| GET | `/health` | — |
+| GET | `/applications` | — |
+| GET | `/applications/{id}` | — |
+| GET | `/applications/{id}/collections/latest` | — |
+| GET | `/applications/{id}/collections/{collectionId}` | — |
+| GET | `/applications/{id}/analysis` | — |
+| GET | `/applications/{id}/analysis/series` | — |
+| GET | `/applications/{id}/analysis/series/contributions` | — |
+| GET | `/analysis/summary` | — |
+| GET | `/monitoring/incidents` | — |
+| GET | `/carbon/regions` | — |
+| GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/recalculation-preview` | — |
+
+## Zeiträume und Verlauf {#queries}
+
+`from` und `to` benötigen RFC 3339 mit expliziter Zeitzone. `[from,to)` wird UTC-normalisiert. Zeitreihe: `hour`, `day`, `month`, `year`, höchstens 10.000 Punkte; Überschreitung wird abgelehnt. Gespeicherte Werte werden nach Überlappung verteilt. Neuester `collectedAt` gewinnt, dann aufsteigende lexikalische ID; kein Rückgriff auf ältere Beobachtungen bei ungeeignetem Gewinner.
+
+| URI | Parameter |
 | --- | --- |
-| GET /health | HTTP-Gesundheitsantwort. |
-| GET /applications | Gespeichertes Array; `[]` ist gültig. |
-| GET /applications/{id} | Anwendung, Zustand, Zeitpunkte, Standort. |
-| GET /applications/{id}/collections/latest | Letzte gültige Beobachtung und Kontext. |
-| GET /applications/{id}/collections/{collectionId} | Beobachtung dieser Anwendung; collectionId UUID. |
-| GET /applications/{id}/analysis?from=…&to=… | Gespeichertes Umweltergebnis für eine Anwendung und einen Zeitraum. |
-| GET /applications/{id}/analysis/series?from=…&to=…&granularity=… | Umweltzeitreihe je Anwendung. |
-| GET /applications/{id}/analysis/series/contributions?… | Beiträge und Ausschlüsse eines Zeitreihen-Buckets, mit Seitennavigation. |
-| GET /analysis/summary?from=…&to=… | Aggregierte Umweltübersicht mit optionalen Filtern. |
-| GET /monitoring/incidents | Integrationsvorfälle mit Filtern und Seitennavigation. |
-| GET /openapi.json | Maschinenlesbarer Vertrag. |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
-Lesezugriffe verwenden gespeicherte Daten; Umweltabfragen aggregieren gespeicherte Ergebnisse ohne Neuberechnung der Historie. Zeitreihen verwenden UTC-Granularitäten und erhalten Lücken und Ereignisse. Katalogsuche und Seitennavigation erfolgen im Frontend.
+Quellmetriken haben keinen Messzeitpunkt. Intervall: Empfang minus `collection_interval_seconds`. Faktorabfrage beweist keine Gültigkeit; unveröffentlichte Quelle/Gültigkeit bleiben unbekannt. Energie/Faktor/Emissionen speichern acht Dezimalstellen, Abdeckung vier. Keine Zwischenrundung. Getrennte Abdeckungen und ursprüngliche Snapshots bleiben erhalten.
 
-## Lokale Abfragen
+## Zeitreihe und Berechnungserklärung {#environmental-presentation}
 
-~~~sh
-curl --fail-with-body http://localhost:3000/health
-curl --fail-with-body http://localhost:3000/applications
-~~~
+Bei `/analysis/summary` ergänzt der optionale Parameter `granularity` die Antwort um `series.points` mit demselben Zeitraum und denselben Filtern wie die Gesamtsummen. Jedes Intervall summiert gespeicherte Anwendungsergebnisse und behält getrennte Abdeckungen bei. Fehlende Werte bleiben `null`.
 
-Zurückgegebene ID URL-kodieren; keine fortlaufenden IDs oder UUID-Anwendungs-IDs voraussetzen. Das DTO enthält `id`, `name`, `state`, `reason`, `lastObservationAt`, `isStale`, `isCalculable`, `firstSeenAt`, `lastCheckedAt`, `removedAt`, `updatedAt` und `location`. Die Detailansicht nutzt Betriebsfelder zur Erklärung von Zustand, Aktualität und Berechenbarkeit; Typen und Nullbarkeit stehen in OpenAPI. Stadt darf null sein; unvollständige Altbestände: `location: null`.
+Bei `/applications/{id}/analysis` bezeichnet `calculation.energyKwh` die Energie der Segmente mit berechneten Emissionen; `calculation.intensity` ist der äquivalente Faktor in gCO₂e/kWh, berechnet aus diesen Emissionen geteilt durch die zugehörige Energie. Bei fehlender Energie oder einem Energiewert von null bleibt der Faktor undefiniert. Historische Ergebnisse und Faktoren bleiben erhalten.
 
-## Fehler
+## Anmelden {#login}
 
-| HTTP / Code | Bedeutung |
+Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder aktiviertes Google. Admin benötigt sechsstelligen TOTP, auch nach Google; Analyst/Visitor erhalten keine Verwaltungsrechte. Frontend-Sitzung nur im Speicher; Neuladen verlangt Anmeldung. Backend prüft JWT, Sitzung, aktuelle Rolle und Kontostatus: 401 bei fehlender/ungültiger Anmeldung, 403 bei unzureichender Rolle. Neue Routen sind standardmäßig geschützt.
+
+| HTTP | URI | Zugang |
+| --- | --- | --- |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## Geschützte Operationen {#protected}
+
+| HTTP | URI | Zugang |
+| --- | --- | --- |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+
+Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
+
+```json
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
+```
+
+## Konten über die API verwalten {#accounts}
+
+Nur ein aktiver Admin derselben Organisation darf Konten auflisten, erstellen oder Rollen ändern. Die Erstellung nimmt `name`, `email`, `role` und `reason` entgegen, ohne Passwort oder automatische E-Mail-Bestätigung. Der Kontoinhaber legt das Passwort im bestehenden Bestätigungsablauf fest; der Versand der Bestätigung wird separat angefordert. Verwaltungsoberfläche und Passwortwiederherstellung bleiben eigene Lieferungen.
+
+Suche und Filter werden vor Sortierung und Seiteneinteilung angewendet. Standard sind 10 Einträge; verfügbar sind 5, 10, 15, 20 und `all` für die vollständige gefilterte Menge. Übersetzte Bezeichnungen müssen in Enum-Codes und lokale Datumsangaben in RFC 3339 mit Zeitzonenoffset umgewandelt werden. Fehlende Werte stehen in beiden Richtungen am Ende; Gleichstände entscheidet die Kennung.
+
+Rollenänderungen erfordern `expectedRole` und `reason`. Die Änderung widerruft Sitzungen und temporäre TOTP-Zugangsdaten, erhält das Audit und verhindert den Entzug des eigenen Zugriffs oder des letzten aktiven Admins mit bestätigter E-Mail. Unbestätigte Konten ersetzen diesen Administrator nicht. Die Zuweisung von Admin behält die TOTP-Pflicht bei.
+
+## Mit einer Neuberechnungsvorschau vergleichen {#preview}
+
+Unter `/administration/calculations` Anwendung/Datum wählen und Original/Vorschau vergleichen. Enddatum umfasst den ganzen UTC-Tag; API verwendet `[from,to)`. Öffentliche Vorschau mit aktuellem Modell und aktuellen Faktoren historischer Regionen, ohne Speicherung. Grenzen: 30 Tage, 10.000 Beobachtungen. Antwort: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Faktorfehler erhält berechenbare Energie; CO₂e bleibt nicht verfügbar. Prozente verlangen gleiche Einheiten/Abdeckung und positiven Referenzwert.
+
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## Analyse anpassen {#preferences}
+
+Unter `/methodology` konfigurieren Sie Energie- und Emissionsgrenzen je Anwendung, den Abdeckungsrichtwert und Analysevorgaben. Wählen Sie die letzten 24 Stunden, 7, 30 oder 90 Tage, den aktuellen UTC-Monat oder ein eigenes Intervall mit eingeschlossenem Anfang und ausgeschlossenem Ende. Die Vorschau liest echte Daten ohne Speicherung und verwendet dasselbe Warnfeld wie Anwendungen und Dashboard. Speichern erfordert eine Anmeldung und betrifft nur Ihr Konto; Berechnungen, Verlauf und Betriebszustände bleiben erhalten. Warnungen verwenden den Zeitraum der jeweiligen Grenze unabhängig von Seitenfiltern. Analysevorgaben ergänzen nur fehlende URL-Optionen im Dashboard und in der Detailansicht. Teilweise Daten unterhalb der Grenze beweisen keine Einhaltung; fehlende Daten bedeuten niemals null.
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
+
+| tab | value |
 | --- | --- |
-| 400 / INVALID_APPLICATION_ID | Leere/ungültige ID gemäß Route; ungültige Erfassungs-UUID ebenfalls 400. |
-| 404 / APPLICATION_NOT_FOUND | Unbekannte Anwendung. |
-| 404 / COLLECTION_NOT_FOUND | Beobachtung für diese Anwendung fehlt. |
-| 503 / CATALOG_UNAVAILABLE | Katalog-Lesefehler. |
-| 503 / APPLICATION_EVIDENCE_UNAVAILABLE | Beleg-Lesefehler. |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
 
-Strukturierte Codes/Status nutzen; Meldungen sind kein Übersetzungsvertrag. Fehler nicht durch leer/Null ersetzen.
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
 
-## Grenzen
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
-Nur Backend greift auf Quellen zu; [versionierte Verträge](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md). Keine zukünftigen Energie-/Auth-/Admin-Endpunkte veröffentlicht. JWT-Administration ist [EP06](../backlog/ep06)-Anforderung, keine angenommene verfügbare API. Siehe [Betrieb](../operations) für URL/CORS/Diagnose und [Methodik](../product/methodology).
+## Fehlerbehandlung {#errors}
 
-## Umweltanalyse abfragen
+Fehler mit HTTP-Status und strukturierten Codes behandeln; Meldungen sind kein Übersetzungsvertrag. `null` bedeutet fehlend, nicht Nullverbrauch. Leere Liste ist gültig und unterscheidet sich von Fehlern. Codes im Operationskontext auswerten.
 
-`GET /applications/{id}/analysis` benötigt `from` und `to` als RFC-3339-Zeitstempel mit expliziter Zeitzone. Der Anfang ist eingeschlossen, das Ende ausgeschlossen; beide Werte werden nach UTC normalisiert. Die Antwort enthält `status` (`available` oder `empty`), Zeitraum, Energie, Emissionen, getrennte Abdeckungswerte und Herkunft (Methoden, abgefragte Faktoren und Gründe). `null` bedeutet, dass kein verwendbares Ergebnis vorliegt; null als Zahl ist ein gültiger Wert.
-
-| HTTP / Code | Bedeutung |
+| HTTP | Code |
 | --- | --- |
-| 400 / INVALID_ANALYSIS_PERIOD | Ungültiger Zeitstempel, fehlende Zeitzone oder `to` kleiner/gleich `from`. |
-| 404 / APPLICATION_NOT_FOUND | Anwendung unbekannt. |
-| 503 / APPLICATION_ANALYSIS_UNAVAILABLE | Analyse oder gespeicherte Ergebnisse konnten nicht gelesen werden. |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
 
-Zusammenfassung und Zeitreihe je Anwendung sind in die Detailansicht integriert. Die Abfrage der Bucket-Beiträge wird dort ebenfalls verwendet; das Frontend fordert derzeit die erste Seite an, interaktive Seitennavigation steht noch aus.
+## HTTP-Vertrag {#contracts}
 
-## Umweltzeitreihe abfragen
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
 
-`GET /applications/{id}/analysis/series` benötigt `from`, `to` und `granularity` (`hour`, `day`, `month` oder `year`). Die Antwort enthält `points`, `events`, Summen und Abdeckung. UTC-Kalender-Buckets zählen nur die Überlappung mit dem Zeitraum und können teilweise sein. Zeiträume mit mehr als 10.000 Punkten werden abgelehnt; der Server kürzt nicht und ändert die Granularität nicht automatisch.
+## Weiterführende Seiten {#related}
 
-`GET /applications/{id}/analysis/series/contributions` benötigt zusätzlich `bucketStart`; `page` ist standardmäßig 1 und `pageSize` 10. Zulässige Größen: `5`, `10`, `15`, `20` und `all`; `all` ist nur auf Seite 1 gültig. Die Antwort enthält Beiträge und Ausschlüsse mit gespeicherten Methoden- und Faktorsnapshots.
-
-## Aggregierte Übersicht abfragen
-
-`GET /analysis/summary` benötigt `from` und `to`. Wiederholbare optionale Filter sind `states`, `regionCodes` und `applicationIds`. Die Antwort enthält Summen, Abdeckung, Zählungen nach Status, Anwendungen, `dataAsOf` und Herkunft. Der Endpunkt ist verfügbar, eine eigene Dashboard-Ansicht gibt es jedoch noch nicht.
-
-## Überwachungsfälle abfragen
-
-`GET /monitoring/incidents` akzeptiert `applicationId`, `source`, `integration`, `status`, `page` und `limit`. Statuswerte sind `OPEN`, `RECOVERING` und `RESOLVED`; Standardwerte sind Seite 1 und Limit 20. Die Antwort enthält `items`, `total`, `page` und `limit`. Aktuelle Grenzen und Aufzählungen stehen in OpenAPI.
+[Betrieb und Diagnose](../operations) · [Methodik und Daten](../product/methodology)

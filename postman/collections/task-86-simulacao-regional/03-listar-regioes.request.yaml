@@ -1,0 +1,23 @@
+$kind: http-request
+name: Listar regiões de destino
+order: 3000
+method: GET
+url: '{{base_url}}/carbon/regions'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('retorna catálogo de regiões e fatores atuais', function () {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.json()).to.have.property('regions').that.is.an('array');
+      });
+
+      const regions = pm.response.json().regions;
+      pm.test('há ao menos um destino para simular', function () {
+        pm.expect(regions.length).to.be.greaterThan(0);
+      });
+      const destination = regions.find((region) => region.code !== pm.collectionVariables.get('referenceRegionCode'));
+      pm.test('existe destino diferente da região de referência', function () {
+        pm.expect(destination, 'a demonstração precisa comparar regiões distintas').to.exist;
+      });
+      if (destination) pm.collectionVariables.set('destinationRegionCode', destination.code);

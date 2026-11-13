@@ -18,7 +18,9 @@ O endpoint `GET /applications/{id}/analysis/series/contributions` fornece inspe�
 
 A resposta contém energia, emissões em `gCO2e`, coberturas temporais independentes e composição reconciliável por aplicação. `applications[]` inclui apenas aplicações com algum resultado ambiental; a tabela deixa esse limite explícito e usa a localização atual do catálogo para sua coluna de região. As contagens de estado continuam cobrindo o escopo selecionado, inclusive aplicações sem resultado.
 
-O contrato atual não oferece série histórica agregada entre aplicações nem define comparação com período anterior. O dashboard informa essas pendências sem calcular séries no cliente, interpolar lacunas ou mostrar valores demonstrativos. As opções de filtros locais, ordenação e paginação da tabela são aplicadas à coleção completa de contribuições antes de paginar.
+O dashboard solicita `granularity=hour` para 24 horas e `day` para os demais presets. `series.points` vem na mesma resposta dos totais, com o mesmo período, filtros e cancelamento. `DashboardSeries` apresenta barras por intervalo, alternância de energia/CO₂e e tabela acessível, sem somar aplicações no navegador nem interpolar lacunas. A comparação com período anterior continua dependendo de contrato próprio. Filtros locais, ordenação e paginação da tabela de aplicações não alteram a série.
+
+O resumo individual fornece `calculation.energyKwh` e `calculation.intensity`: energia com emissões calculadas e fator equivalente ponderado, calculados no backend sobre os mesmos segmentos. A fórmula usa essa energia correspondente, inclusive em cobertura parcial. Energia zero não gera divisão por zero nem fator inventado. Sem intensidade equivalente, fatores numéricos são exibidos como valor único ou faixa, sem média no cliente. O card do fator mantém a mesma altura dos demais indicadores, sem expansão interna. A explicação e a proveniência completa ficam na metodologia.
 
 Validações direcionadas:
 

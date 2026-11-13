@@ -8,7 +8,9 @@ import { selectCatalog, type ApplicationState as State, type CatalogQuery, type 
 import { reasonLabel, stateLabel, stateIcons } from '../../features/applications/presentation.ts'
 import { formatDate } from '../../utils/formatDate.ts'
 import { readQuery, makeUrl, states } from './query.ts'
-import { useCatalog } from './useCatalog.ts'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel, PersonalAlertBadges } from '../../components/PersonalAlerts.tsx'
 
 const catalogReturnKey = 'greener:catalog-return'
 const columns: Array<{ key: CatalogSortColumn; label: string; commonLabel?: boolean }> = [
@@ -32,6 +34,7 @@ function paginationPages(page: number, pageCount: number): Array<number | 'ellip
 }
 
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+  const personalAlerts = usePersonalAlerts()
   const { t: tCatalog, i18n } = useTranslation('catalog')
   const { t: tCommon } = useTranslation('common')
   const initial = useMemo(() => readQuery(), [])
@@ -41,7 +44,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const [draftFilters, setDraftFilters] = useState(initial.filters ?? {})
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const filterDialogRef = useRef<HTMLElement>(null)
-  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useCatalog()
+  const { applications, hasSnapshot, loading, refreshing, error, refresh, retry } = useApplicationCatalog()
   const presentation = useMemo(() => ({
     locale: i18n.resolvedLanguage ?? 'pt-BR', timeZone: query.timeZone,
     stateLabels: Object.fromEntries(states.filter(({ value }) => value !== 'ALL').map(({ value }) => [value, stateLabel(value, tCommon)])) as Record<State, string>,
@@ -141,7 +144,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const columnSort = (column: CatalogSortColumn) => sortPresentation(query.sort, column)
   const region = (item: (typeof applications)[number]) => item.location?.regionCode ?? tCommon('location.unknown')
   const displayCell = (item: (typeof applications)[number], column: CatalogSortColumn) => {
-    if (column === 'name') return <strong>{item.name}</strong>
+    if (column === 'name') return <><strong>{item.name}</strong><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} /></>
     if (column === 'country') return item.location?.country ?? tCommon('location.unknown')
     if (column === 'regionCode') return region(item)
     if (column === 'city') return item.location ? item.location.city ?? tCommon('location.cityUnknown') : tCommon('location.unknown')
@@ -152,19 +155,20 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
 
   return <main className="content" tabIndex={-1}>
     <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><h1>{tCatalog('title')}</h1><p>{tCatalog('description')}</p></div><div className={styles['heading-actions']}><ActionButton appearance="secondary" onClick={refresh} pending={refreshing || loading}>{tCatalog('refresh')}</ActionButton><button ref={filterTriggerRef} className={styles['filter-trigger']} aria-expanded={filtersOpen} aria-controls="catalog-column-filters" onClick={() => { setDraftFilters(query.filters ?? {}); setFiltersOpen(true) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3 4h14l-5.5 6.2v4.4l-3 1.5v-5.9L3 4Z" /></svg>{tCatalog('columnFilters')}</button></div></div>
+    <PersonalAlertsPanel state={personalAlerts} />
     <label className={styles['search-wrap']}><span aria-hidden="true">⌕</span><input type="search" aria-label={tCatalog('searchLabel')} placeholder={tCatalog('searchPlaceholder')} value={query.search} onChange={(event) => update({ search: event.target.value })} /></label>
     <div className={styles.filters} aria-label={tCatalog('filterLabel')}>{states.map(({ value }) => <button key={value} className={query.state === value ? `${styles.filter} ${styles.active}` : styles.filter} aria-pressed={query.state === value} onClick={() => update({ state: value })}>{stateLabel(value, tCommon)}{hasSnapshot && ` (${counts[value]})`}</button>)}</div>
     {filtersOpen && <div className={styles['filter-backdrop']} onMouseDown={(event) => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
       <section ref={filterDialogRef} id="catalog-column-filters" className={styles['filter-dialog']} role="dialog" aria-modal="true" aria-labelledby="catalog-filter-title" aria-describedby="catalog-filter-description">
         <header className={styles['filter-dialog-header']}><div><h2 id="catalog-filter-title">{tCatalog('columnFilters')}</h2><p id="catalog-filter-description">{tCatalog('filterDialogDescription')}</p></div><button className={styles['filter-close']} aria-label={tCatalog('closeFilters')} onClick={() => setFiltersOpen(false)}>×</button></header>
         <div className={styles['filter-grid']}>
-          <label>{tCatalog('nameFilter')}<input placeholder={tCatalog('namePlaceholder')} value={draftFilters.name ?? ''} onChange={(event) => updateFilter({ name: event.target.value })} /></label>
-          <label>{tCatalog('countryFilter')}<input placeholder={tCatalog('countryPlaceholder')} value={draftFilters.country ?? ''} onChange={(event) => updateFilter({ country: event.target.value })} /></label>
-          <label>{tCatalog('regionCodeFilter')}<input placeholder={tCatalog('regionPlaceholder')} value={draftFilters.regionCode ?? ''} onChange={(event) => updateFilter({ regionCode: event.target.value })} /></label>
-          <label>{tCatalog('cityFilter')}<input placeholder={tCatalog('cityPlaceholder')} value={draftFilters.city ?? ''} disabled={Boolean(draftFilters.cityIsMissing)} onChange={(event) => updateFilter({ city: event.target.value })} /></label>
-          <label>{tCatalog('stateFilter')}<select value={draftFilters.state ?? 'ALL'} onChange={(event) => updateFilter({ state: event.target.value as State | 'ALL' })}>{states.map(({ value }) => <option key={value} value={value}>{stateLabel(value, tCommon)}</option>)}</select></label>
+          <label>{tCatalog('nameFilter')}<input className="form-control" placeholder={tCatalog('namePlaceholder')} value={draftFilters.name ?? ''} onChange={(event) => updateFilter({ name: event.target.value })} /></label>
+          <label>{tCatalog('countryFilter')}<input className="form-control" placeholder={tCatalog('countryPlaceholder')} value={draftFilters.country ?? ''} onChange={(event) => updateFilter({ country: event.target.value })} /></label>
+          <label>{tCatalog('regionCodeFilter')}<input className="form-control" placeholder={tCatalog('regionPlaceholder')} value={draftFilters.regionCode ?? ''} onChange={(event) => updateFilter({ regionCode: event.target.value })} /></label>
+          <label>{tCatalog('cityFilter')}<input className="form-control" placeholder={tCatalog('cityPlaceholder')} value={draftFilters.city ?? ''} disabled={Boolean(draftFilters.cityIsMissing)} onChange={(event) => updateFilter({ city: event.target.value })} /></label>
+          <label>{tCatalog('stateFilter')}<select className="form-control" value={draftFilters.state ?? 'ALL'} onChange={(event) => updateFilter({ state: event.target.value as State | 'ALL' })}>{states.map(({ value }) => <option key={value} value={value}>{stateLabel(value, tCommon)}</option>)}</select></label>
           <label className={styles['missing-city']}><input type="checkbox" checked={Boolean(draftFilters.cityIsMissing)} onChange={(event) => updateFilter({ cityIsMissing: event.target.checked, city: '' })} />{tCatalog('cityMissing')}</label>
-          <fieldset className={styles['date-filters']}><legend>{tCatalog('lastCheck')}: {tCatalog('timeZone', { timeZone: query.timeZone })}</legend><label>{tCatalog('from')}<input type="datetime-local" value={inputDate(draftFilters.lastCheckedFrom)} onChange={(event) => setDate('lastCheckedFrom', event.target.value)} /></label><label>{tCatalog('to')}<input type="datetime-local" value={inputDate(draftFilters.lastCheckedTo)} onChange={(event) => setDate('lastCheckedTo', event.target.value)} /></label></fieldset>
+          <fieldset className={styles['date-filters']}><legend>{tCommon('date.lastCheck')}: {tCatalog('timeZone', { timeZone: query.timeZone })}</legend><label>{tCatalog('from')}<input className="form-control" type="datetime-local" value={inputDate(draftFilters.lastCheckedFrom)} onChange={(event) => setDate('lastCheckedFrom', event.target.value)} /></label><label>{tCatalog('to')}<input className="form-control" type="datetime-local" value={inputDate(draftFilters.lastCheckedTo)} onChange={(event) => setDate('lastCheckedTo', event.target.value)} /></label></fieldset>
         </div>
         {dateError && <p className={styles['date-error']} role="alert">{tCatalog('invalidDateRange')}</p>}
         <p className={styles['filter-note']}>{tCatalog('filterCombinationNote')}<br />{tCatalog('clearPreservesSort')}</p>
@@ -188,10 +192,10 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
         const sort = columnSort(column.key)
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
       })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td>{detailLink(item)}</td></tr>)}</tbody></table></div>
-      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2>{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
+      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}{detailLink(item)}</article>)}</div>
       <div className={styles.pagination}>
         <span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span>
-        <label>{tCatalog('pageSize')}<select value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>
+        <label>{tCatalog('pageSize')}<select className="form-control form-control--compact" value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>
         <div className={styles['page-controls']}>
           <button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
           {pages.map((page) => typeof page === 'number'

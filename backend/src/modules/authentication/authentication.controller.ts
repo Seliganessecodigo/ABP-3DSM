@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
   Query,
@@ -18,6 +19,7 @@ import {
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiConflictResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -31,7 +33,9 @@ import { Request, Response } from 'express'
 import { AuthenticationService, AuthPrincipal } from './authentication.service'
 import {
   AcceptAdminInvitationDto,
+  AccountStatusResponseDto,
   AuthenticatedUserDto,
+  ChangeAccountStatusDto,
   ConfirmEmailDto,
   LoginDto,
   RefreshSessionDto,
@@ -51,8 +55,13 @@ import { AuthenticationGuard } from './authentication.guard'
 import { CurrentPrincipal } from './current-principal.decorator'
 import { RequireRoles } from './roles.decorator'
 import { RolesGuard } from './roles.guard'
-import { UserRole } from '../../database/entities/user.entity'
+import { PublicRoute } from './public-route.decorator'
+import {
+  UserAccountStatus,
+  UserRole,
+} from '../../database/entities/user.entity'
 import { SsoAuthenticationService } from './sso-authentication.service'
+import { AccountLifecycleService } from './account-lifecycle.service'
 import {
   CreateSsoInvitationDto,
   ExchangeSsoHandoffDto,
@@ -65,6 +74,7 @@ export class AuthenticationController {
   constructor(
     private readonly authentication: AuthenticationService,
     private readonly sso: SsoAuthenticationService,
+    private readonly accountLifecycle: AccountLifecycleService,
   ) {}
 
   @Post('sso/invitations')
@@ -102,6 +112,38 @@ export class AuthenticationController {
     await this.sso.revokeIdentity(principal, userId)
   }
 
+  @Patch('users/:userId/status')
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @RequireRoles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Alterar o estado de uma conta da organização' })
+  @ApiOkResponse({ type: AccountStatusResponseDto })
+  @ApiBadRequestResponse({ description: 'Estado, pré-condição ou motivo inválido' })
+  @ApiForbiddenResponse({ description: 'Somente Admin ativo pode alterar contas' })
+  @ApiConflictResponse({ description: 'Estado desatualizado ou último Admin ativo' })
+  @ApiUnauthorizedResponse({ description: 'Sessão inválida' })
+  changeAccountStatus(
+    @CurrentPrincipal() principal: AuthPrincipal,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @Body() body: ChangeAccountStatusDto,
+  ) {
+    requireStrings(body, ['status', 'expectedStatus', 'reason'])
+    if (
+      !Object.values(UserAccountStatus).includes(body.status) ||
+      !Object.values(UserAccountStatus).includes(body.expectedStatus) ||
+      !body.reason.trim() ||
+      body.reason.length > 512
+    ) {
+      throw new BadRequestException('Estado ou motivo da conta inválido')
+    }
+    return this.accountLifecycle.changeStatus(principal, userId, {
+      status: body.status,
+      expectedStatus: body.expectedStatus,
+      reason: body.reason.trim(),
+    })
+  }
+
+  @PublicRoute()
   @Get('sso/google')
   @ApiOperation({ summary: 'Iniciar autenticação OIDC com Google' })
   @ApiResponse({ status: 302, description: 'Redireciona para a autenticação Google' })
@@ -123,6 +165,7 @@ export class AuthenticationController {
       })
   }
 
+  @PublicRoute()
   @Get('sso/google/callback')
   @ApiOperation({ summary: 'Processar o callback OIDC do Google' })
   @ApiResponse({ status: 302, description: 'Redireciona à UI com handoff ou erro genérico' })
@@ -153,6 +196,7 @@ export class AuthenticationController {
     }
   }
 
+  @PublicRoute()
   @Post('sso/handoff/exchange')
   @HttpCode(200)
   @ApiOperation({ summary: 'Trocar código de handoff por sessão GreenER ou desafio TOTP' })
@@ -172,6 +216,7 @@ export class AuthenticationController {
     return this.sso.exchangeHandoff(body)
   }
 
+  @PublicRoute()
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Autenticar usuário e iniciar sessão' })
@@ -195,6 +240,7 @@ export class AuthenticationController {
     return this.authentication.login(body)
   }
 
+  @PublicRoute()
   @Post('totp/setup')
   @HttpCode(200)
   @ApiOperation({ summary: 'Preparar configuração TOTP do Admin inicial' })
@@ -205,6 +251,7 @@ export class AuthenticationController {
     return this.authentication.beginInitialTotpSetup(body.setupToken)
   }
 
+  @PublicRoute()
   @Post('totp/setup/confirm')
   @HttpCode(200)
   @ApiOperation({ summary: 'Confirmar configuração TOTP e iniciar sessão Admin' })
@@ -216,6 +263,7 @@ export class AuthenticationController {
     return this.authentication.confirmInitialTotpSetup(body.setupToken, body.code)
   }
 
+  @PublicRoute()
   @Post('totp/challenge')
   @HttpCode(200)
   @ApiOperation({ summary: 'Validar desafio TOTP de login' })
@@ -269,6 +317,7 @@ export class AuthenticationController {
     )
   }
 
+  @PublicRoute()
   @Post('sessions/refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Rotacionar o refresh token da sessão' })
@@ -302,6 +351,7 @@ export class AuthenticationController {
     }
   }
 
+  @PublicRoute()
   @Post('invitations/accept')
   @HttpCode(202)
   @ApiOperation({
@@ -320,6 +370,7 @@ export class AuthenticationController {
     return this.authentication.acceptAdminInvitation(body)
   }
 
+  @PublicRoute()
   @Post('email/confirm')
   @HttpCode(200)
   @ApiOperation({
@@ -330,6 +381,7 @@ export class AuthenticationController {
     return this.authentication.confirmEmail(body)
   }
 
+  @PublicRoute()
   @Post('email/confirmation/resend')
   @HttpCode(200)
   @ApiOperation({ summary: 'Solicitar reenvio da confirmação do e-mail' })

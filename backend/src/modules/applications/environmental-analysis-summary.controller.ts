@@ -9,12 +9,14 @@ import {
 } from '@nestjs/swagger'
 import { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 import { EnvironmentalAnalysisSummaryService } from './environmental-analysis-summary.service'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('analysis')
 @Controller('analysis/summary')
 export class EnvironmentalAnalysisSummaryController {
   constructor(private readonly summary: EnvironmentalAnalysisSummaryService) {}
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Consultar resumo ambiental agregado por período' })
   @ApiQuery({ name: 'from', required: true, type: String, format: 'date-time' })
@@ -43,7 +45,15 @@ export class EnvironmentalAnalysisSummaryController {
     style: 'form',
     explode: true,
   })
+  @ApiQuery({
+    name: 'granularity',
+    required: false,
+    enum: ['hour', 'day', 'month', 'year'],
+    description:
+      'Inclui série UTC no mesmo escopo; limite de 10.000 intervalos.',
+  })
   @ApiOkResponse({ type: EnvironmentalAnalysisSummaryDto })
+  @ApiQuery({ name: 'includeProvenance', required: false, enum: ['true', 'false'], description: 'Defaults to true. Use false for dashboards that only consume totals and series; provenanceIncluded is then false and provenance arrays are empty.' })
   @ApiBadRequestResponse({ description: 'Período ou filtros inválidos' })
   @ApiServiceUnavailableResponse({
     description: 'Resumo ambiental indisponível',
@@ -52,6 +62,11 @@ export class EnvironmentalAnalysisSummaryController {
     @Query() query: Record<string, string | string[] | undefined>,
   ): Promise<EnvironmentalAnalysisSummaryDto> {
     return this.summary.getSummary({
+      includeProvenance: query.includeProvenance === undefined ? undefined : (scalar(query.includeProvenance) ?? 'invalid'),
+      granularity:
+        query.granularity === undefined
+          ? undefined
+          : (scalar(query.granularity) ?? 'invalid'),
       from: scalar(query.from),
       to: scalar(query.to),
       states: query.states,

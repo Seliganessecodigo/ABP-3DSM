@@ -1,5 +1,15 @@
 # Cálculo de CO₂e
 
+## Desempenho das projeções
+
+Os segmentos internos mantêm início, fim e duração original em nanossegundos (`bigint`). A preparação valida cada timestamp uma vez; a série usa esses valores sem converter cada segmento para texto e depois interpretá-lo novamente. A formatação UTC ocorre na produção de pontos ou evidências HTTP. Rateio, sobreposição, desempate, cobertura, ausência e precisão permanecem iguais.
+
+O resumo agregado libera o event loop entre aplicações para permitir que requisições leves avancem durante uma análise. Não há cache, alteração de schema ou mudança de contrato HTTP.
+
+Na projeção sem rastreabilidade, o repository lê valores e limites temporais. Os motivos de energia ou emissões são carregados somente quando o valor é nulo ou `NaN`; os metadados completos não são transferidos nem reconstruídos. `energyReasons` e `emissionsReasons` são campos internos opcionais dessa projeção. Consultas completas mantêm a evidência original. A equivalência é verificada em PostgreSQL, incluindo fator indisponível e valor não finito com motivo de ausência.
+
+Execute `npm run benchmark:analysis` em `backend/` para medir resumo e série sobre 80.640 coletas sintéticas, com oito aplicações e sete dias. O comando não usa banco, rede ou credenciais e verifica a equivalência entre totais e pontos. Compare execuções com a mesma máquina/carga; os tempos de CPU não representam a latência publicada. O teste de regressão da série também limita o número de interpretações de timestamps; o teste do serviço verifica que outras tarefas do servidor avançam durante a projeção.
+
 `calculateCarbonEmission` é uma função pura: recebe energia em kWh e o snapshot explícito do fator, sem consultar HTTP, banco ou relógio.
 
 Emissões em gramas = energia em kWh × intensidade em gCO₂e/kWh. A conversão para quilogramas divide o resultado por 1000, sem arredondamento intermediário. Por exemplo, 2 kWh com intensidade de 100 gCO₂e/kWh produzem 200 gCO₂e, equivalentes a 0,2 kgCO₂e. A precisão de persistência é responsabilidade do consumidor.

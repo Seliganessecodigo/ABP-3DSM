@@ -4,6 +4,10 @@ import {
 } from './energy-calculation'
 
 describe('calculateObservationEnergy', () => {
+  it.each(['0000', '0001', '0004', '0099', '0100', '0400', '1900', '1969', '2000', '2024', '2100', '9999'])('preserves the UTC epoch and nanoseconds for year %s', year => {
+    const timestamp = `${year}-03-01T00:00:00.123456789Z`
+    expect(parseZonedTimestampNanoseconds(timestamp)).toBe(BigInt(Date.parse(`${year}-03-01T00:00:00Z`)) * 1_000_000n + 123_456_789n)
+  })
   it('estimates energy for a complete observation with the initial model', () => {
     const result = calculateObservationEnergy({
       id: 'observation-1',

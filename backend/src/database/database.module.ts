@@ -1,20 +1,15 @@
 import { Global, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ApplicationEventEntity } from "./entities/application-event.entity";
-import { CollectionEntity } from "./entities/collection.entity";
+import { EnvironmentalPersistenceModule } from "./environmental-persistence.module";
 import { MonitoringCycleEntity } from "./entities/monitoring-cycle.entity";
 import { CarbonRegionEntity } from "./entities/carbon-region.entity";
 import { CalculationConfigEntity } from "./entities/calculation-config.entity";
 import { RecalculationEntity } from "./entities/recalculation.entity";
-import { AuditLogEntity } from "./entities/audit-log.entity";
 import { MonitoringIncidentEntity } from "./entities/monitoring-incident.entity";
-import { ApplicationEventsRepository } from "./repositories/application-events.repository";
-import { CollectionsRepository } from "./repositories/collections.repository";
 import { MonitoringCyclesRepository } from "./repositories/monitoring-cycles.repository";
 import { CarbonRegionsRepository } from "./repositories/carbon-regions.repository";
 import { CalculationConfigsRepository } from "./repositories/calculation-configs.repository";
 import { RecalculationsRepository } from "./repositories/recalculations.repository";
-import { AuditLogsRepository } from "./repositories/audit-logs.repository";
 import { MonitoringIncidentsRepository } from "./repositories/monitoring-incidents.repository";
 import { typeOrmOptions } from "./typeorm.options";
 import { OrganizationEntity } from "./entities/organization.entity";
@@ -29,14 +24,12 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({ useFactory: typeOrmOptions }),
+    EnvironmentalPersistenceModule,
     TypeOrmModule.forFeature([
-      ApplicationEventEntity,
-      CollectionEntity,
       MonitoringCycleEntity,
       CarbonRegionEntity,
       CalculationConfigEntity,
       RecalculationEntity,
-      AuditLogEntity,
       MonitoringIncidentEntity,
       OrganizationEntity,
       AuthSessionEntity,
@@ -48,24 +41,19 @@ import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
     ]),
   ],
   providers: [
-    ApplicationEventsRepository,
-    CollectionsRepository,
     MonitoringCyclesRepository,
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
-    AuditLogsRepository,
     MonitoringIncidentsRepository,
   ],
   exports: [
     TypeOrmModule,
-    ApplicationEventsRepository,
-    CollectionsRepository,
+    EnvironmentalPersistenceModule,
     MonitoringCyclesRepository,
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
-    AuditLogsRepository,
     MonitoringIncidentsRepository,
   ],
 })

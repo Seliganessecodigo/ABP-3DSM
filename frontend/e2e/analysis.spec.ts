@@ -122,7 +122,7 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=provenance')
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const factorCard = analysis.getByRole('group', { name: 'Fator regional', exact: true })
-  await expect(factorCard).toContainText('Múltiplos fatores')
+  await expect(factorCard).toContainText('0,18–0,42 kg CO₂e/kWh')
   await expect(factorCard).not.toContainText('v-alpha-original')
   await expect(factorCard).not.toContainText('v-beta-original')
   await page.locator('#analysis-details summary').click()
@@ -294,12 +294,12 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   const table = series.getByRole('table')
   await expect(pageSize).toHaveValue('10')
   await expect(table.getByRole('row')).toHaveCount(11)
-  await expect(series.getByText('Página 1 de 2', { exact: true })).toBeVisible()
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(series.getByRole('button', { name: 'Anterior', exact: true })).toBeDisabled()
 
   await series.getByRole('button', { name: 'Próxima', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(3)
-  await expect(series.getByText('Página 2 de 2', { exact: true })).toBeVisible()
+  await expect(series.getByRole('button', { name: 'Página 2 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   let params = new URL(page.url()).searchParams
   expect(params.get('seriesPage')).toBe('2')
   expect(params.get('seriesSize')).toBe('10')
@@ -308,7 +308,7 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
 
   await series.getByRole('button', { name: 'Anterior', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(11)
-  await expect(series.getByText('Página 1 de 2', { exact: true })).toBeVisible()
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
@@ -325,9 +325,8 @@ test('mostra a faixa e permite ir diretamente para uma página da série', async
   const table = series.getByRole('table')
   await expect(series.getByText('Exibindo 1–10 de 12', { exact: true })).toBeVisible()
 
-  const pageSelection = series.getByRole('combobox', { name: 'Página', exact: true })
-  await expect(pageSelection).toHaveValue('1')
-  await pageSelection.selectOption('2')
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
+  await series.getByRole('button', { name: 'Página 2 de 2', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(3)
   await expect(series.getByText('Exibindo 11–12 de 12', { exact: true })).toBeVisible()
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
