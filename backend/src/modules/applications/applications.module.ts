@@ -8,6 +8,8 @@ import { EnvironmentalAnalysisController } from "./environmental-analysis.contro
 import { EnvironmentalAnalysisService } from "./environmental-analysis.service";
 import { EnvironmentalAnalysisSummaryController } from "./environmental-analysis-summary.controller";
 import { EnvironmentalAnalysisSummaryModule } from "./environmental-analysis-summary.module";
+import { EnvironmentalAnalysisRankingController } from "./environmental-analysis-ranking.controller";
+import { EnvironmentalAnalysisRankingService } from "./environmental-analysis-ranking.service";
 import { IntegrationsModule } from "../../integrations/integrations.module";
 import { DiscoveryService } from "./discovery.service";
 import { RemovalService } from "./removal.service";
@@ -46,12 +48,14 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     ApplicationsController,
     EnvironmentalAnalysisController,
     EnvironmentalAnalysisSummaryController,
+    EnvironmentalAnalysisRankingController,
     MonitoringIncidentsController,
   ],
   providers: [
     ApplicationsService,
     CollectionEvidenceService,
     EnvironmentalAnalysisService,
+    EnvironmentalAnalysisRankingService,
     DiscoveryService,
     RemovalService,
     MetadataSyncService,
