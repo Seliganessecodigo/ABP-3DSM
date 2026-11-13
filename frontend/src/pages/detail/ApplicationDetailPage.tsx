@@ -54,12 +54,13 @@ function freshnessLabel(application: Pick<Application, 'state' | 'lastObservatio
 }
 
 export function ApplicationDetailPage({ id, navigate, analysisSource = environmentalAnalysisSource, historyOnly = false,
-  historyApplicationSelector }: Readonly<{
+  historyApplicationSelector, operationalOverview = true }: Readonly<{
   id: string
   navigate: (url: string) => void
   analysisSource?: AnalysisSource
   historyOnly?: boolean
   historyApplicationSelector?: ReactNode
+  operationalOverview?: boolean
 }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
   const personalAlerts = usePersonalAlerts()
@@ -86,6 +87,11 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const [storedSeriesQuery, setSeriesQuery] = useState<AnalysisSeriesQuery>(() => readAnalysisSeriesQuery(searchParams))
   const seriesQuery = storedSeriesQuery
   const displayTimeZone = seriesQuery.timeZone
+  const linkedParams = new URLSearchParams(window.location.search)
+  for (const key of ['applicationId', 'collectionId', 'inspectionBucket', 'seriesPage']) linkedParams.delete(key)
+  const detailUrl = `/services/${encodeURIComponent(id)}?${linkedParams.toString()}`
+  linkedParams.set('applicationId', id)
+  const exploreHistoryUrl = `/history?${linkedParams.toString()}`
   useEffect(() => {
     const syncQueries = () => {
       const params = new URLSearchParams(window.location.search)
@@ -233,6 +239,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           <h1>{tDetail('historyTitle')}</h1>
           <p className={styles.historyDesktopDescription}>{tDetail('historyDescription')}</p>
           <p className={styles.historyMobileDescription}>{tDetail('historyMobileDescription')}</p>
+          <a className="button secondary" href={detailUrl} onClick={(event) => { event.preventDefault(); navigate(detailUrl) }}>{tDetail('viewApplicationDetails')}</a>
         </div>
         <a className={`button secondary ${styles.historyPreview}`} href="/administration/calculations" onClick={event => {
           event.preventDefault()
@@ -260,11 +267,18 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <>{!historyOnly && <div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div>}{!historyOnly && <div className={styles.detailTop}>
       <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
-        {periodSelector}
+        <div className={styles.detailActions}>{periodSelector}
+          <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
+        </div>
       </div>}
+      {!historyOnly && operationalOverview && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
+        <div><h2>{tDetail('operationalOverview')}</h2><p>{tDetail('operationalDescription')}</p></div>
+        <p>{tDetail('environmentalSummaryNote')}</p>
+      </section>}
       <PersonalAlertsPanel state={personalAlerts} applicationId={id} />
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
+        operationalOverview={!historyOnly && operationalOverview}
         historyRegionFallback={application?.location?.regionCode ?? null}
         inspectionBucket={historyOnly ? inspectionBucket : null}
         collectionHref={(collectionId) => {

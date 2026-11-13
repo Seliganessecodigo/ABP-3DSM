@@ -234,7 +234,7 @@ export function Harness() {
   const id = new URLSearchParams(window.location.search).get('applicationId') ?? 'svc-0142'
   return <AuthenticationProvider>
     <AppShell navigate={navigate}>
-      <ApplicationDetailPage id={id} navigate={navigate} analysisSource={source} />
+      <ApplicationDetailPage id={id} navigate={navigate} analysisSource={source} operationalOverview={false} />
     </AppShell>
   </AuthenticationProvider>
 }

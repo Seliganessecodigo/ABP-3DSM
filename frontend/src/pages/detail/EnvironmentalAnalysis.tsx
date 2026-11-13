@@ -262,7 +262,7 @@ function FactorCard({ factor, calculation, locale, labels }: Readonly<{ factor: 
   </fieldset>
 }
 
-function ContextCard({ data, locale, labels }: Readonly<{ data: AnalysisViewModel; locale: string; labels: Labels }>) {
+function ContextCard({ data, locale, labels, children }: Readonly<{ data: AnalysisViewModel; locale: string; labels: Labels; children?: ReactNode }>) {
   const regions = data.factor.status === 'available'
     ? new Set(data.factor.factors.map(({ regionCode, region }) => regionCode || region).filter(Boolean)).size
     : null
@@ -275,6 +275,7 @@ function ContextCard({ data, locale, labels }: Readonly<{ data: AnalysisViewMode
   return <fieldset className={styles.metric} aria-labelledby="analysis-context-heading">
     <h3 id="analysis-context-heading">{labels.historyContextHeading}</h3>
     <p className={value === null ? styles.unavailableValue : styles.value}>{value ?? labels.metricUnavailable}</p>
+    {children}
   </fieldset>
 }
 
@@ -331,11 +332,7 @@ function calculationValue(reading: AnalysisReading | null, locale: string, label
   return labels.metricUnavailable
 }
 
-function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle, onClose }: Readonly<{
-  data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
-  onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
-  onClose: () => void
-}>) {
+function CalculationFormula({ data, locale, labels }: Readonly<{ data: AnalysisViewModel | null; locale: string; labels: Labels }>) {
   const equivalent = data?.calculation?.intensity
   const hasEquivalent = typeof equivalent === 'number'
   const factorValue = hasEquivalent
@@ -346,6 +343,20 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
     ? `${formatNumber(matchingEnergy, locale)} kWh`
     : calculationValue(data?.energy ?? null, locale, labels)
 
+  return hasEquivalent ? <div className={styles.formula}>
+      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>×</span>
+      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>=</span>
+      <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
+    </div> : <p>{labels.factorExplanation}</p>
+}
+
+function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle, onClose }: Readonly<{
+  data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
+  onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
+  onClose: () => void
+}>) {
   return <section className={styles.calculation} aria-label={labels.calculationHeading}>
     <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
       className={styles.calculationDetails} id="analysis-details">
@@ -353,29 +364,23 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
       <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
       <div className={styles.contextColumn}>{children}</div>
     </details></header>
-    {hasEquivalent ? <div className={styles.formula}>
-      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
-      <span aria-hidden="true" className={styles.operator}>×</span>
-      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
-      <span aria-hidden="true" className={styles.operator}>=</span>
-      <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
-    </div> : <p>{labels.factorExplanation}</p>}
+    <CalculationFormula data={data} locale={locale} labels={labels} />
   </section>
 }
 
-function UnavailableSlots({ labels }: Readonly<{ labels: Labels }>) {
+function UnavailableSlots({ labels, overview = false }: Readonly<{ labels: Labels; overview?: boolean }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} />
-    <FactorCard factor={null} locale="pt-BR" labels={labels} />
+    {!overview && <FactorCard factor={null} locale="pt-BR" labels={labels} />}
   </div>
 }
 
-function EmptySlots({ labels }: Readonly<{ labels: Labels }>) {
+function EmptySlots({ labels, overview = false }: Readonly<{ labels: Labels; overview?: boolean }>) {
   return <div className={styles.metrics}>
     <MetricCard id="analysis-energy" title={labels.energy} reading={null} locale="pt-BR" labels={labels} empty />
     <MetricCard id="analysis-emissions" title={labels.emissions} reading={null} locale="pt-BR" labels={labels} empty />
-    <MetricCard id="analysis-factor-heading" title={labels.factor} reading={null} locale="pt-BR" labels={labels} empty />
+    {!overview && <MetricCard id="analysis-factor-heading" title={labels.factor} reading={null} locale="pt-BR" labels={labels} empty />}
   </div>
 }
 
@@ -480,7 +485,7 @@ function getSeriesStatus(status: AnalysisStatus, emptyResult: boolean): 'loading
   return status
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, operationalOverview = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
   data: AnalysisViewModel | null
   status: AnalysisStatus
   locale: string
@@ -503,6 +508,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   lastSuccessAt: string | null
   lastSuccessStatus: 'available' | 'empty' | null
   historyMode?: boolean
+  operationalOverview?: boolean
   historyRegionFallback?: string | null
   inspectionBucket: string | null
   collectionHref?: (collectionId: string) => string
@@ -549,13 +555,18 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         onPaginationChange={onContributionPaginationChange} />}
       </section>
   }
-  if (initialLoading) return <section aria-label={labels.heading} className={styles.loadingLayout}>
+  if (initialLoading && !operationalOverview) return <section aria-label={labels.heading} className={styles.loadingLayout}>
     <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
   </section>
-  return <div className={`${styles.analysisLayout} ${historyMode ? styles.historyLayout : ''} ${historyHasMetrics ? styles.historyMetrics : ''}`}>
+  return <div className={`${styles.analysisLayout} ${historyMode ? styles.historyLayout : ''} ${historyHasMetrics ? styles.historyMetrics : ''} ${operationalOverview ? styles.operationalLayout : ''}`}>
+    {operationalOverview && <>
+      <div className={styles.operationalContext}>{contextContent}</div>
+      <div className={styles.evidenceColumn}>{evidenceContent}</div>
+    </>}
     <section className={styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
+      {initialLoading && <LoadingState title={labels.loading} compact />}
       {status === 'refreshing' && <LoadingState title={labels.refreshing} compact />}
       {status === 'empty' && <output>{labels.empty}</output>}
       {preserveEmpty && <output>{labels.previousEmpty}</output>}
@@ -565,7 +576,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <strong>{labels.coverage}: {partialCoverage}</strong>
         <p>{labels.gapsNote}</p>
       </div>}
-      {data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>
+      {!operationalOverview && data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>
         {data.series.events.slice(0, 25).map(event => <li key={event.id}>{labels.seriesEventSummary(event)}</li>)}
       </ul>}
       {status === 'error' && <div className={styles.analysisError} role="alert">
@@ -574,8 +585,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         <ActionButton onClick={onRetry}>{labels.retry}</ActionButton>
       </div>}
       </div>
-      {showUnavailable && <UnavailableSlots labels={labels} />}
-      {(invalidContext || emptyResult) && <EmptySlots labels={labels} />}
+      {showUnavailable && <UnavailableSlots labels={labels} overview={operationalOverview} />}
+      {(invalidContext || emptyResult) && <EmptySlots labels={labels} overview={operationalOverview} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}
           coverage={data.energyCoverage} seriesPoints={seriesPoints} metric="energy" />
@@ -584,15 +595,25 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         {historyMode
           ? <>
             <CoverageCard data={data} locale={locale} labels={labels} compact />
-            <ContextCard data={data} locale={locale} labels={labels} />
+            <ContextCard data={data} locale={locale} labels={labels}>
+              <details id="analysis-details" className={styles.historyMethodology}>
+                <summary>{labels.methodologyHeading} · {labels.factorsHeading}</summary>
+                <div>
+                  <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />
+                  <section aria-label={labels.calculationHeading}><h2>{labels.calculationHeading}</h2><CalculationFormula data={data} locale={locale} labels={labels} /></section>
+                  {data.factor.status === 'available' && <FactorProvenance factors={data.factor.factors} formatDate={formatDate} labels={labels} />}
+                  <MethodologySection result={data.methodology} state={getMethodologyState(data, status)} labels={labels} />
+                </div>
+              </details>
+            </ContextCard>
           </>
-          : <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
+          : !operationalOverview && <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
       </div>}
     </section>
     <aside className={styles.coverageColumn} aria-label={labels.coverage}>
       <CoverageCard data={showData ? data : null} locale={locale} labels={labels} empty={emptyResult || invalidContext} />
     </aside>
-      {!historyMode && <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
+      {!historyMode && !operationalOverview && <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
         onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)} onClose={() => setContextOpen(false)}>
         {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
           totals={data ? { energy: data.energy, emissions: data.emissions } : null}
@@ -608,7 +629,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       </CalculationSummary>}
       {!invalidContext && <aside className={styles.freshnessColumn}><EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
         formatDate={formatDate} labels={labels.freshness} compact /></aside>}
-      <div className={styles.seriesColumn}>
+      {!operationalOverview && <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}
@@ -643,7 +664,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,
       }} page={seriesPage} pageSize={seriesPageSize} query={seriesQuery} onQueryChange={onSeriesQueryChange} historyMode={historyMode} controlContent={granularityContent}
       onPaginationChange={onSeriesPaginationChange} onInspectContributions={inspectContributions} />}
-      </div>
-      <div className={styles.evidenceColumn}>{evidenceContent}</div>
+      </div>}
+      {!operationalOverview && <div className={styles.evidenceColumn}>{evidenceContent}</div>}
   </div>
 }

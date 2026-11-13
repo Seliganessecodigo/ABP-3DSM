@@ -1,0 +1,12 @@
+{
+  "eyebrow": "Étudier une période",
+  "startTitle": "Quelle application souhaitez-vous analyser ?",
+  "startDescription": "Explorez l’évolution de l’énergie et des émissions et consultez les collectes qui expliquent chaque résultat.",
+  "selectApplication": "Sélectionnez une application",
+  "evolution": "Évolution de l’énergie et du CO₂e",
+  "events": "Événements enregistrés sur la période",
+  "evidence": "Collectes et méthodologie d’origine",
+  "applicationsTitle": "Choisissez une application pour commencer",
+  "openHistory": "Voir l’historique",
+  "currentState": "État actuel : {{state}}"
+}

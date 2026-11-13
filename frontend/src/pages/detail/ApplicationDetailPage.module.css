@@ -123,3 +123,18 @@
   :global(.content).detail-content { grid-template-rows: 24px 52px minmax(0, 1fr); gap: 1px; }
   :global(.content).detail-content { padding-top: 0; padding-bottom: 0; }
 }
+
+.detailActions { display: flex; align-items: center; flex-wrap: wrap; justify-content: end; gap: 12px; }
+@media (min-width: 901px) {
+  :global(.content).detail-content:has(> .overviewIntro) { display: flex; flex-direction: column; }
+  .detail-content > .breadcrumb, .detailTop, .overviewIntro { flex-shrink: 0; }
+}
+.overviewIntro { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-block: 12px; }
+.overviewIntro h2 { margin: 0 0 4px; color: var(--text-primary); font-size: 16px; }
+.overviewIntro p { max-width: 44rem; margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.overviewIntro > p { max-width: 22rem; }
+.historyHeading > a { justify-self: start; }
+@media (min-width: 1101px) {
+  .historyHeading { position: relative; padding-right: 200px; }
+  .historyHeading > a { position: absolute; top: 0; right: 0; }
+}

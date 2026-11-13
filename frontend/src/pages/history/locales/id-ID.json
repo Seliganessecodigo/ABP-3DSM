@@ -1,0 +1,12 @@
+{
+  "eyebrow": "Selidiki suatu periode",
+  "startTitle": "Aplikasi mana yang ingin Anda analisis?",
+  "startDescription": "Jelajahi perubahan energi dan emisi serta periksa pengumpulan data yang menjelaskan setiap hasil.",
+  "selectApplication": "Pilih aplikasi",
+  "evolution": "Perubahan energi dan CO₂e",
+  "events": "Peristiwa yang tercatat dalam periode",
+  "evidence": "Pengumpulan data dan metodologi asli",
+  "applicationsTitle": "Pilih aplikasi untuk memulai",
+  "openHistory": "Lihat riwayat",
+  "currentState": "Status saat ini: {{state}}"
+}
