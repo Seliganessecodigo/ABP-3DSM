@@ -54,12 +54,13 @@ function freshnessLabel(application: Pick<Application, 'state' | 'lastObservatio
 }
 
 export function ApplicationDetailPage({ id, navigate, analysisSource = environmentalAnalysisSource, historyOnly = false,
-  historyApplicationSelector }: Readonly<{
+  historyApplicationSelector, operationalOverview = true }: Readonly<{
   id: string
   navigate: (url: string) => void
   analysisSource?: AnalysisSource
   historyOnly?: boolean
   historyApplicationSelector?: ReactNode
+  operationalOverview?: boolean
 }>) {
   const { t: tDetail, i18n } = useTranslation('detail')
   const personalAlerts = usePersonalAlerts()
@@ -270,14 +271,14 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
         </div>
       </div>}
-      {!historyOnly && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
+      {!historyOnly && operationalOverview && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
         <div><h2>{tDetail('operationalOverview')}</h2><p>{tDetail('operationalDescription')}</p></div>
         <p>{tDetail('environmentalSummaryNote')}</p>
       </section>}
       <PersonalAlertsPanel state={personalAlerts} applicationId={id} />
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
-        operationalOverview={!historyOnly}
+        operationalOverview={!historyOnly && operationalOverview}
         historyRegionFallback={application?.location?.regionCode ?? null}
         inspectionBucket={historyOnly ? inspectionBucket : null}
         collectionHref={(collectionId) => {

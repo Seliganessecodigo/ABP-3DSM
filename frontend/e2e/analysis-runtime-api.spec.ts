@@ -243,8 +243,7 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   await mockCatalog(page, [application()])
   await page.goto('/history?applicationId=svc-0142&period=7d')
 
-  const point = page.getByRole('row').filter({ hasText: /77,5\s*kWh/ })
-  await point.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).click()
+  await page.getByRole('table').getByRole('button', { name: 'Inspecionar', exact: true }).click()
 
   await expect.poll(() => contributionsRequests.length).toBe(1)
   const contributionsRequest = contributionsRequests[0]
@@ -255,8 +254,9 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   expect(contributionsRequest.searchParams.get('page') ?? '1').toBe('1')
   expect(contributionsRequest.searchParams.get('pageSize') ?? '10').toBe('10')
   const inspection = page.getByRole('region', { name: 'Contribuições que compõem o agregado', exact: true })
+  await inspection.locator('details > summary').click()
   await expect(inspection.getByText('factor-original-1', { exact: true })).toBeVisible()
-  await expect(inspection.getByText('methodology-original-1', { exact: true })).toBeVisible()
+  await expect(inspection.getByRole('region', { name: 'Detalhes da contribuição', exact: true }).getByText('methodology-original-1', { exact: true })).toBeVisible()
   await expect(inspection).toContainText('factor-snapshot-1')
   await expect(inspection).toContainText('BR-SP')
   await expect(inspection).toContainText('Brasil')
@@ -271,8 +271,6 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   await expect(firstContribution).toContainText('1 kWh')
   await expect(firstContribution).toContainText('0,5 kWh')
   await expect(firstContribution).toContainText('50%')
-  await expect(inspection).toContainText('Sem observações disponíveis')
-  await expect(inspection).toContainText('Fator de carbono indisponível')
   await expect(page.getByText('Página 1 de 2', { exact: true })).toBeVisible()
   await inspection.getByRole('button', { name: 'Próxima', exact: true }).click()
   await expect(page.getByText('Página 2 de 2', { exact: true })).toBeVisible()

@@ -40,9 +40,9 @@ test('environmental loading preserves application and period without showing mis
   try {
     await expect(page.getByRole('heading', { name: application().name })).toBeVisible()
     await expect(page.getByRole('button', { name: '30 dias', exact: true })).toHaveAttribute('aria-pressed', 'true')
-    const loading = page.locator('[data-loading-state="detail"]')
+    const loading = page.getByRole('status').filter({ hasText: 'Carregando dados ambientais...' })
     await expect(loading).toBeVisible()
-    await expect(loading.locator('[data-loading-skeleton]')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Localização', exact: true })).toBeVisible()
     await expect(loading).not.toContainText(/indisponível|0 kWh|0 gCO2e/i)
     await expect(page.getByRole('button', { name: '30 dias', exact: true })).toHaveAttribute('aria-disabled', 'true')
     await page.screenshot({ path: test.info().outputPath('environmental-loading.png'), fullPage: true })

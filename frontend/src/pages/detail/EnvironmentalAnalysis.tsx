@@ -332,11 +332,7 @@ function calculationValue(reading: AnalysisReading | null, locale: string, label
   return labels.metricUnavailable
 }
 
-function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle, onClose }: Readonly<{
-  data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
-  onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
-  onClose: () => void
-}>) {
+function CalculationFormula({ data, locale, labels }: Readonly<{ data: AnalysisViewModel | null; locale: string; labels: Labels }>) {
   const equivalent = data?.calculation?.intensity
   const hasEquivalent = typeof equivalent === 'number'
   const factorValue = hasEquivalent
@@ -347,6 +343,20 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
     ? `${formatNumber(matchingEnergy, locale)} kWh`
     : calculationValue(data?.energy ?? null, locale, labels)
 
+  return hasEquivalent ? <div className={styles.formula}>
+      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>×</span>
+      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
+      <span aria-hidden="true" className={styles.operator}>=</span>
+      <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
+    </div> : <p>{labels.factorExplanation}</p>
+}
+
+function CalculationSummary({ data, locale, labels, children, detailsOpen, onDetailsToggle, onClose }: Readonly<{
+  data: AnalysisViewModel | null; locale: string; labels: Labels; children: ReactNode; detailsOpen: boolean
+  onDetailsToggle: (event: SyntheticEvent<HTMLDetailsElement>) => void
+  onClose: () => void
+}>) {
   return <section className={styles.calculation} aria-label={labels.calculationHeading}>
     <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
       className={styles.calculationDetails} id="analysis-details">
@@ -354,13 +364,7 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
       <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
       <div className={styles.contextColumn}>{children}</div>
     </details></header>
-    {hasEquivalent ? <div className={styles.formula}>
-      <div><span>{hasEquivalent ? labels.energyWithEmissions : labels.energy}</span><strong>{energyValue}</strong></div>
-      <span aria-hidden="true" className={styles.operator}>×</span>
-      <div><span>{hasEquivalent ? labels.equivalentFactor : labels.factor}</span><strong>{factorValue}</strong></div>
-      <span aria-hidden="true" className={styles.operator}>=</span>
-      <div><span>{labels.emissions}</span><strong>{calculationValue(data?.emissions ?? null, locale, labels)}</strong></div>
-    </div> : <p>{labels.factorExplanation}</p>}
+    <CalculationFormula data={data} locale={locale} labels={labels} />
   </section>
 }
 
@@ -595,6 +599,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
               <details id="analysis-details" className={styles.historyMethodology}>
                 <summary>{labels.methodologyHeading} · {labels.factorsHeading}</summary>
                 <div>
+                  <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />
+                  <section aria-label={labels.calculationHeading}><h2>{labels.calculationHeading}</h2><CalculationFormula data={data} locale={locale} labels={labels} /></section>
                   {data.factor.status === 'available' && <FactorProvenance factors={data.factor.factors} formatDate={formatDate} labels={labels} />}
                   <MethodologySection result={data.methodology} state={getMethodologyState(data, status)} labels={labels} />
                 </div>

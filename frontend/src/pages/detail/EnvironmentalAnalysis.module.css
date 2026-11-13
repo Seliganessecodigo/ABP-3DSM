@@ -192,7 +192,7 @@
   .analysisLayout:not(.historyLayout) .metrics > :last-child { grid-column: 1 / -1; }
 }
 
-.operationalLayout { flex: 1; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr); grid-template-rows: auto auto auto; align-content: start; overflow: auto; padding-right: 4px; }
+.analysisLayout.operationalLayout { flex: 1; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr); grid-template-rows: auto auto auto; align-content: start; overflow: auto; padding-right: 4px; }
 .operationalLayout .section { grid-column: 1; grid-row: 2; }
 .operationalLayout .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .operationalLayout .coverageColumn { grid-column: 2; grid-row: 2; padding-top: 0; }
