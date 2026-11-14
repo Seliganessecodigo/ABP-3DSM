@@ -179,6 +179,47 @@ export class CollectionsRepository {
     )
   }
 
+  async findComparisonMetricsByApplicationsAndPeriod(
+    applicationIds: readonly string[],
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<ComparisonMetricRow[]> {
+    if (applicationIds.length === 0) return []
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<ComparisonMetricRow[]>(
+      `WITH metric_rows AS (
+        SELECT collection."applicationId", collection.id,
+          to_char(collection."collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+          metric.key AS "metricKey",
+          CASE WHEN jsonb_typeof(collection.metrics -> metric.key) = 'number'
+            THEN collection.metrics ->> metric.key END AS value,
+          COALESCE(collection."metricUnits" ->> metric.key, metric.unit) AS unit,
+          jsonb_typeof(collection.metrics -> metric.key) AS valueType
+        FROM collections collection
+        CROSS JOIN (VALUES
+          ('cpuPercent', '%'),
+          ('memoryGb', 'GB'),
+          ('diskGb', 'GB'),
+          ('networkGb', 'GB')
+        ) AS metric(key, unit)
+        WHERE collection."applicationId" = ANY($1::text[])
+          AND collection."collectedAt" >= $2::timestamptz
+          AND collection."collectedAt" < $3::timestamptz
+      )
+      SELECT DISTINCT ON ("applicationId", "metricKey")
+        "applicationId", "metricKey", value, unit, "collectedAt",
+        CASE WHEN valueType = 'number' THEN 'available'
+          WHEN valueType IS NULL THEN 'missing'
+          ELSE 'invalid' END AS status
+      FROM metric_rows
+      ORDER BY "applicationId", "metricKey",
+        CASE WHEN valueType = 'number' THEN 0 ELSE 1 END,
+        "collectedAt" DESC, id DESC`,
+      [applicationIds, formatUtcTimestamp(startBound), formatUtcTimestamp(endBound)],
+    )
+  }
+
   findEnvironmentalHistoryByCollectedAt(
     applicationId: string,
     periodStartNanoseconds: bigint,
@@ -256,6 +297,15 @@ interface EnvironmentalCollectionRow {
   energyKwh: string | null
   carbonGrams: string | null
   calculationEvidence: PersistedEnvironmentalInterval['calculationEvidence']
+}
+
+export interface ComparisonMetricRow {
+  applicationId: string
+  metricKey: string
+  value: string | null
+  unit: string
+  collectedAt: string
+  status: 'available' | 'missing' | 'invalid'
 }
 
 export type EnvironmentalBundle = Omit<

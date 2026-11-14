@@ -15,6 +15,7 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` exige de 2 a 5 IDs únicos e uma referência selecionada. Retorna energia, emissões, coberturas independentes, métricas e snapshots históricos de localização no mesmo período. Diferenças são aplicação menos referência; percentuais exigem referência positiva. Ausências permanecem explícitas e o estado é `empty`, `partial` ou `complete`.
 
 As métricas não incluem horário de medição na origem. O intervalo é derivado do recebimento menos `collection_interval_seconds`. O horário de consulta do fator não comprova vigência; fonte e validade não publicadas permanecem desconhecidas. Energia, fator e emissões persistem oito casas decimais; cobertura, quatro. Não há arredondamento intermediário. Energia e emissões preservam coberturas separadas e snapshots originais.
 

@@ -15,6 +15,7 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` は2～5個の重複しないIDと選択した基準アプリケーションを必須とします。同じ期間のエネルギー、排出量、個別のカバレッジ、メトリクス、過去の場所snapshotを返します。差分はアプリケーション値－基準値です。百分率には正の基準値が必要です。欠損値は明示され、状態は `empty`、`partial`、`complete` のいずれかです。
 
 元の測定時刻はなく、受信時刻から`collection_interval_seconds`を引いて区間を導出します。係数照会時刻は有効期間ではなく、未公開の出典・有効性は不明です。エネルギー・係数・排出は小数8桁、カバー率4桁で保存し、中間丸めは行いません。別々のカバー率と原本snapshotを保持します。
 

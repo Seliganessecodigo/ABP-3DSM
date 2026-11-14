@@ -15,6 +15,7 @@ Referenz zur GreenER-API-Integration. Vollständige Typen, optionale Felder und 
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ Referenz zur GreenER-API-Integration. Vollständige Typen, optionale Felder und 
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` erfordert 2–5 eindeutige IDs und eine ausgewählte Referenz. Die Antwort enthält Energie, Emissionen, getrennte Abdeckungen, Metriken und historische Standort-Snapshots für denselben Zeitraum. Differenzen sind Anwendung minus Referenz; Prozentwerte erfordern eine positive Referenz. Fehlende Werte bleiben explizit; Status ist `empty`, `partial` oder `complete`.
 
 Quellmetriken haben keinen Messzeitpunkt. Intervall: Empfang minus `collection_interval_seconds`. Faktorabfrage beweist keine Gültigkeit; unveröffentlichte Quelle/Gültigkeit bleiben unbekannt. Energie/Faktor/Emissionen speichern acht Dezimalstellen, Abdeckung vier. Keine Zwischenrundung. Getrennte Abdeckungen und ursprüngliche Snapshots bleiben erhalten.
 

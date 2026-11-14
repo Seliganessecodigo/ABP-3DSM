@@ -15,6 +15,7 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` memerlukan 2–5 ID unik dan referensi yang dipilih. Respons mengembalikan energi, emisi, cakupan terpisah, metrik, dan snapshot lokasi historis untuk periode yang sama. Selisih adalah aplikasi dikurangi referensi; persentase memerlukan referensi positif. Nilai yang tidak tersedia tetap eksplisit dan statusnya `empty`, `partial`, atau `complete`.
 
 Metrik sumber tidak memiliki waktu pengukuran; interval dari penerimaan dikurangi `collection_interval_seconds`. Waktu kueri faktor bukan masa berlaku; sumber/validitas tidak diterbitkan tetap tak diketahui. Energi/faktor/emisi 8 desimal, cakupan4; tanpa pembulatan antara. Cakupan terpisah dan snapshot asli dipertahankan.
 

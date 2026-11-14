@@ -15,6 +15,7 @@
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` требует 2–5 уникальных ID и выбранное эталонное приложение. Ответ содержит энергию, выбросы, отдельное покрытие, метрики и исторические снимки местоположения за один период. Разница — приложение минус эталон; процент рассчитывается только при положительном эталонном значении. Отсутствующие значения остаются явными, статус — `empty`, `partial` или `complete`.
 
 Источник метрик не даёт время измерения; интервал — приём минус `collection_interval_seconds`. Время запроса фактора не определяет срок действия; неопубликованные источник/валидность неизвестны. Энергия/фактор/выбросы: 8 десятичных знаков, покрытие 4, без промежуточного округления. Сохраняются раздельные покрытия и исходные снимки.
 

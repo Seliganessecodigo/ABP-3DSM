@@ -15,6 +15,7 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison`은 고유 ID 2~5개와 선택된 기준 애플리케이션을 요구합니다. 동일 기간의 에너지, 배출량, 개별 커버리지, 지표 및 과거 위치 snapshot을 반환합니다. 차이는 애플리케이션 값에서 기준값을 뺀 값이며, 백분율은 기준값이 양수일 때만 계산합니다. 누락값은 명시적으로 유지하며 상태는 `empty`, `partial` 또는 `complete`입니다.
 
 원본 측정 시각이 없으므로 수신 시각에서 `collection_interval_seconds`를 빼 구간을 구합니다. 계수 조회 시각은 유효기간이 아니며 비공개 출처·유효성은 미상입니다. 에너지/계수/배출은 소수8자리, 커버리지4자리로 저장하고 중간 반올림은 없습니다. 별도 커버리지와 원본 snapshot을 보존합니다.
 

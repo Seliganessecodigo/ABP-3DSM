@@ -112,6 +112,20 @@ Diferença absoluta (`gCO2e`) é destino menos referência; diferença percentua
 
 Falha ao consultar o destino mantém a referência disponível e deixa destino/diferenças indisponíveis. O `queriedAt` retornado representa a hora da consulta do GreenER e não uma vigência oficial. A simulação não grava nem altera coletas, snapshots, fatores, rankings, séries ou totais oficiais. Execute a regra pura com `npm test -- --runInBand --runTestsByPath src/modules/calculations/regional-simulation.spec.ts`; o teste HTTP/PostgreSQL está junto à análise ambiental em `src/modules/applications/environmental-analysis.database.spec.ts` e requer `TEST_DATABASE_URL` apontando para PostgreSQL isolado.
 
+## Comparação ambiental de aplicações — #178
+
+`GET /analysis/comparison` é público e recebe `from`, `to`, de 2 a 5 `applicationIds` únicos e um `referenceApplicationId` pertencente à seleção. O período exige RFC 3339 com fuso explícito, é normalizado para UTC e usa `[from,to)`. Período ou seleção inválidos retornam `400`; uma aplicação inexistente retorna `404`; falha de leitura retorna `503` com `ANALYSIS_COMPARISON_UNAVAILABLE`.
+
+A resposta contém uma linha por aplicação na ordem solicitada, com estado atual, snapshots de localização histórica recortados ao período, métricas operacionais, energia, emissões, coberturas independentes e diferenças contra a referência. Localização é reconstruída pelos eventos de metadados; segmentos sem evidência retornam `location: null` com `HISTORICAL_LOCATION_UNAVAILABLE`, sem substituição pela localização atual.
+
+Energia e emissões reutilizam resultados persistidos e projeção temporal de #235, sem recálculo ou consulta externa. Energia é `kWh`; emissões são `gCO2e`. Métricas CPU, memória, disco e rede usam, independentemente, a observação válida mais recente recebida pelo GreenER dentro do período, com unidade e timestamp próprios. Ausência permanece `null`; estados `missing`/`invalid`, cobertura parcial e razões são preservados.
+
+Diferença absoluta é aplicação menos referência. Percentual é `(aplicação - referência) / referência * 100` somente para referência positiva; referência zero mantém a diferença absoluta e informa `ZERO_REFERENCE`. Unidades compatíveis são comparadas após conversões explícitas existentes (`gCO2e`/`kgCO2e`); unidades desconhecidas ou incompatíveis deixam somente aquele delta indisponível. Coberturas diferem em pontos percentuais, sem percentual relativo.
+
+`status` é `empty` sem qualquer valor ambiental ou métrica comparável, `partial` quando há cobertura incompleta, dado ausente ou unidade incompatível, e `complete` quando os campos previstos estão disponíveis para todas as aplicações. A consulta não oferece kWh/transação nem classificação de eficiência.
+
+O teste HTTP/PostgreSQL está em `src/modules/applications/environmental-analysis-comparison.database.spec.ts`. Para executá-lo, defina `TEST_DATABASE_URL` para um PostgreSQL isolado e rode `npm test -- --runInBand --runTestsByPath src/modules/applications/environmental-analysis-comparison.database.spec.ts`.
+
 ## Série e contribuições ambientais — #174
 
 `GET /applications/{id}/analysis/series?from={RFC3339}&to={RFC3339}&granularity={hour|day|month|year}` retorna a série de energia e CO₂e, totais, coberturas e eventos. `from`/`to` exigem offset explícito; a consulta normaliza os instantes para UTC e usa `[from,to)`. Os buckets seguem o calendário UTC da granularidade pedida. O primeiro e o último bucket podem ser parciais: `bucketStart`/`bucketEnd` descrevem o bucket civil completo e `period.from`/`period.to` descrevem a parte contada dentro da janela.
