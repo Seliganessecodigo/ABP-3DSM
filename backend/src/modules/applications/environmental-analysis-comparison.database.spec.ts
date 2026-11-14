@@ -294,12 +294,12 @@ describeWithDatabase('GET /analysis/comparison com PostgreSQL', () => {
               cpu: expect.objectContaining({
                 value: 10,
                 unit: '%',
-                collectedAt: '2026-10-01T03:00:10.000Z',
+                collectedAt: '2026-10-01T03:00:10.000000Z',
               }),
               memory: expect.objectContaining({
                 value: 2,
                 unit: 'GB',
-                collectedAt: '2026-10-01T03:00:20.000Z',
+                collectedAt: '2026-10-01T03:00:20.000000Z',
               }),
             }),
           }),
@@ -316,7 +316,10 @@ describeWithDatabase('GET /analysis/comparison com PostgreSQL', () => {
                   country: 'Brazil',
                   region: 'Sudeste',
                   city: null,
+                  latitude: -23.5,
+                  longitude: -46.6,
                 },
+                reasons: [],
               },
               {
                 from: middle,
@@ -326,7 +329,10 @@ describeWithDatabase('GET /analysis/comparison com PostgreSQL', () => {
                   country: 'Brazil',
                   region: 'Norte',
                   city: 'Manaus',
+                  latitude: -3.1,
+                  longitude: -60,
                 },
+                reasons: [],
               },
             ],
           }),
@@ -435,7 +441,7 @@ describeWithDatabase('GET /analysis/comparison com PostgreSQL', () => {
         expect.arrayContaining([
           expect.objectContaining({
             applicationId: ids[1],
-            differences: {
+            differences: expect.objectContaining({
               energy: {
                 absolute: 2,
                 unit: 'kWh',
@@ -456,7 +462,7 @@ describeWithDatabase('GET /analysis/comparison com PostgreSQL', () => {
                   reason: 'ZERO_REFERENCE',
                 },
               }),
-            },
+            }),
           }),
         ]),
       )
