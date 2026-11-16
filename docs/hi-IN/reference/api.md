@@ -15,6 +15,7 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` के लिए 2–5 अद्वितीय IDs और चयनित संदर्भ आवश्यक हैं। यह समान अवधि के लिए ऊर्जा, उत्सर्जन, अलग-अलग कवरेज, मेट्रिक्स और ऐतिहासिक स्थान snapshots लौटाता है। अंतर application minus reference है; प्रतिशत के लिए संदर्भ सकारात्मक होना चाहिए। अनुपलब्ध मान स्पष्ट रहते हैं और स्थिति `empty`, `partial` या `complete` होती है।
 
 स्रोत metrics में मापन समय नहीं; प्राप्ति से `collection_interval_seconds` घटाकर अंतराल है। factor query समय वैधता सिद्ध नहीं करता; अप्रकाशित स्रोत/वैधता अज्ञात हैं। ऊर्जा/factor/उत्सर्जन 8 दशमलव, कवरेज4; मध्य rounding नहीं। अलग कवरेज और मूल snapshots सुरक्षित हैं।
 

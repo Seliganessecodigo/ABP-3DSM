@@ -15,6 +15,7 @@ Riferimento per integrare API GreenER. Tipi, campi opzionali e limiti completi i
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -30,7 +31,10 @@ Riferimento per integrare API GreenER. Tipi, campi opzionali e limiti completi i
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
 | `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
+
+`GET /analysis/comparison` richiede da 2 a 5 ID univoci e un riferimento selezionato. Restituisce energia, emissioni, coperture separate, metriche e snapshot storici della posizione per lo stesso periodo. Le differenze sono applicazione meno riferimento; le percentuali richiedono un riferimento positivo. I valori assenti restano espliciti e lo stato è `empty`, `partial` o `complete`.
 
 Metriche senza timestamp misurazione di origine. Intervallo da ricevimento meno `collection_interval_seconds`. Ora richiesta fattore non prova validità; fonte/validità non pubblicate restano ignote. Energia/fattore/emissioni a otto decimali, copertura a quattro. Nessun arrotondamento intermedio. Coperture separate e snapshot originali conservati.
 
