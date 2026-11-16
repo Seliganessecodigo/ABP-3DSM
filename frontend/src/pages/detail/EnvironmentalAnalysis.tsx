@@ -558,13 +558,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   if (initialLoading && !operationalOverview) return <section aria-label={labels.heading} className={styles.loadingLayout}>
     <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
   </section>
-  return <div className={`${styles.analysisLayout} ${historyMode ? styles.historyLayout : ''} ${historyHasMetrics ? styles.historyMetrics : ''} ${operationalOverview ? styles.operationalLayout : ''}`}>
-    {operationalOverview && <>
-      <div className={styles.operationalContext}>{contextContent}</div>
-      <div className={styles.evidenceColumn}>{evidenceContent}</div>
-    </>}
-    <section className={styles.section} aria-labelledby="environmental-analysis-heading">
-      <h2 id="environmental-analysis-heading" className={styles.sectionHeading}>{labels.heading}</h2>
+  return <div className={operationalOverview ? styles.overviewLayout : `${styles.analysisLayout} ${historyMode ? styles.historyLayout : ''} ${historyHasMetrics ? styles.historyMetrics : ''}`}>
+    <section className={operationalOverview ? styles.overviewSummary : styles.section} aria-labelledby="environmental-analysis-heading">
+      <h2 id="environmental-analysis-heading" className={operationalOverview ? styles.screenReaderOnly : styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
       {initialLoading && <LoadingState title={labels.loading} compact />}
       {status === 'refreshing' && <LoadingState title={labels.refreshing} compact />}
@@ -610,9 +606,13 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
           : !operationalOverview && <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
       </div>}
     </section>
-    <aside className={styles.coverageColumn} aria-label={labels.coverage}>
+    <aside className={operationalOverview ? styles.overviewCoverage : styles.coverageColumn} aria-label={labels.coverage}>
       <CoverageCard data={showData ? data : null} locale={locale} labels={labels} empty={emptyResult || invalidContext} />
     </aside>
+    {operationalOverview && <>
+      <div className={styles.overviewEvidence}>{evidenceContent}</div>
+      <div className={styles.overviewContext}>{contextContent}</div>
+    </>}
       {!historyMode && !operationalOverview && <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
         onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)} onClose={() => setContextOpen(false)}>
         {!invalidContext && <AnalysisComposition result={emptyResult ? { status: 'empty' } : data?.composition ?? { status: 'unavailable', reason: labels.composition.unavailable }}
@@ -627,7 +627,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
               ? (page, pageSize) => onContributionPaginationChange(page, pageSize) : undefined} />}
         {contextContent}
       </CalculationSummary>}
-      {!invalidContext && <aside className={styles.freshnessColumn}><EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
+      {!invalidContext && <aside className={operationalOverview ? styles.overviewFreshness : styles.freshnessColumn}><EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
         formatDate={formatDate} labels={labels.freshness} compact /></aside>}
       {!operationalOverview && <div className={styles.seriesColumn}>
         {invalidContext && granularityContent}

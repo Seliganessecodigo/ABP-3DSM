@@ -17,7 +17,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const { t: tCommon } = useTranslation('common')
   const { t: tCatalog } = useTranslation('catalog')
   const { t: tDetail } = useTranslation('detail')
-  const { t } = useTranslation('history')
+  const { t, i18n } = useTranslation('history')
   const { applications, hasSnapshot, loading, error, retry } = useApplicationCatalog()
   const [selectedId, setSelectedId] = useState(applicationIdFromLocation)
   const selectedPeriod = readPeriodSelection(window.location.search)
@@ -68,10 +68,6 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
       </div>
     </header>
     <section className={styles.selector} aria-label={tCatalog('app')}>
-      <div className={styles.intro}>
-        <span className={styles.historyIcon} aria-hidden="true">↶</span>
-        <div><p className={styles.eyebrow}>{t('eyebrow')}</p><h2>{t('startTitle')}</h2><p>{t('startDescription')}</p></div>
-      </div>
       <div className={styles.controls}>
         {applicationSelector}
         <PeriodSelector compact select selected={selectedPeriod}
@@ -79,20 +75,17 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
           title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
           options={periods.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} />
       </div>
-      <ul className={styles.capabilities}>
-        <li>{t('evolution')}</li><li>{t('events')}</li><li>{t('evidence')}</li>
-      </ul>
     </section>
     {error && hasSnapshot && <RequestFeedback state="error"><p>{tCatalog('stale')}</p><button type="button" onClick={retry}>{tCommon('actions.retry')}</button></RequestFeedback>}
     {applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
     {applications.length > 0 && <section className={styles.applications} aria-labelledby="history-applications-heading">
-      <h2 id="history-applications-heading">{t('applicationsTitle')}</h2>
-      <div className={styles.applicationGrid}>{applications.map((application) => <button type="button" key={application.id}
-        className={styles.applicationCard} onClick={() => selectApplication(application.id)}>
-        <span className={styles.applicationName}>{application.name}<span aria-hidden="true">↗</span></span>
-        <span className={styles.applicationId}>{application.id}</span>
-        <span>{application.location ? [application.location.country, application.location.region].join(' · ') : tCommon('location.unknown')}</span>
-        <span className={styles.applicationAction}>{t('openHistory')}<small>{t('currentState', { state: stateLabel(application.state, tCommon) })}</small></span>
+      <h2 id="history-applications-heading">{t('applicationsTitle')}<span className={styles.applicationCount}>{new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR').format(applications.length)}</span></h2>
+      <div className={styles.applicationList}>{applications.map((application) => <button type="button" key={application.id}
+        className={styles.applicationRow} onClick={() => selectApplication(application.id)}>
+        <span className={styles.applicationIdentity}><span className={styles.applicationName}>{application.name}</span><span className={styles.applicationId}>{application.id}</span></span>
+        <span className={styles.applicationLocation}>{application.location ? [application.location.country, application.location.region].join(' · ') : tCommon('location.unknown')}</span>
+        <span className={styles.applicationState}><span className={`state-badge state-${application.state.toLowerCase()}`} aria-label={t('currentState', { state: stateLabel(application.state, tCommon) })}>{stateLabel(application.state, tCommon)}</span></span>
+        <span className={styles.applicationAction}>{t('openHistory')}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg></span>
       </button>)}</div>
     </section>}
     {selectedId && !loading && hasSnapshot && <RequestFeedback state="empty"><p>{tCatalog('noResults')}</p></RequestFeedback>}

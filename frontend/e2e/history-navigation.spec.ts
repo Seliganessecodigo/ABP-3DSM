@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
 test('history landing guides selection and carries the chosen period into investigation', async ({ page }) => {
   await page.goto('/history')
-  await expect(page.getByRole('heading', { name: 'Qual aplicação você quer analisar?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /^Escolha uma aplicação para começar/ })).toBeVisible()
   await page.getByRole('combobox', { name: 'Período de análise', exact: true }).selectOption('30d')
   await page.getByRole('button', { name: /app-pagamentos.*Ver histórico/ }).click()
   await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('svc-0142')
@@ -21,7 +21,7 @@ test('history landing guides selection and carries the chosen period into invest
 
 test('detail and history link both ways preserving analysis context and clearing record selection', async ({ page }) => {
   await page.goto('/services/svc-0142?period=30d&granularity=day&seriesTimeZone=UTC&collectionId=old&inspectionBucket=old')
-  await expect(page.getByRole('heading', { name: 'Situação da aplicação', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
   await expect(page.getByRole('figure')).toHaveCount(0)
   await page.getByRole('link', { name: 'Explorar histórico' }).click()
   await expect(page).toHaveURL(/\/history\?/)
@@ -80,9 +80,10 @@ for (const width of [390, 1366]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/history')
     const card = page.getByRole('button', { name: /app-pagamentos.*Ver histórico/ })
+    await expect(card).toBeVisible()
+    await page.screenshot({ path: test.info().outputPath(`history-start-${width}.png`), fullPage: true })
     await card.focus()
     await expect(card).toBeFocused()
-    await page.screenshot({ path: test.info().outputPath(`history-start-${width}.png`), fullPage: true })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.keyboard.press('Enter')
     await expect(page.getByRole('combobox', { name: 'Aplicação', exact: true })).toHaveValue('svc-0142')
