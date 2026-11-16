@@ -49,7 +49,15 @@ describe("MonitoringCycleRunner", () => {
       },
       discovery: { discover: jest.fn().mockResolvedValue(0) },
       metadata: { reconcile: jest.fn().mockResolvedValue(0) },
-      removal: { reconcile: jest.fn().mockResolvedValue(0) },
+      removal: {
+        reconcile: jest
+          .fn()
+          .mockResolvedValue({
+            removedCount: 0,
+            retainedServices: [],
+            failures: [],
+          }),
+      },
       returns: { reconcile: jest.fn().mockResolvedValue(0) },
       applications: {
         findForCollection: jest.fn().mockResolvedValue([{ id: "app-1" }]),
@@ -116,9 +124,11 @@ describe("MonitoringCycleRunner", () => {
     expect(dependencies.metadata.reconcile).toHaveBeenCalledWith("cycle-1", [
       service,
     ]);
-    expect(dependencies.removal.reconcile).toHaveBeenCalledWith("cycle-1", [
-      service,
-    ]);
+    expect(dependencies.removal.reconcile).toHaveBeenCalledWith(
+      "cycle-1",
+      [service],
+      expect.any(AbortSignal),
+    );
     expect(dependencies.collections.append).toHaveBeenCalledWith(
       expect.objectContaining({
         applicationId: "app-1",
@@ -249,9 +259,11 @@ describe("MonitoringCycleRunner", () => {
       expect.any(Date),
       1,
     );
-    expect(dependencies.removal.reconcile).toHaveBeenCalledWith("cycle-1", [
-      service,
-    ]);
+    expect(dependencies.removal.reconcile).toHaveBeenCalledWith(
+      "cycle-1",
+      [service],
+      expect.any(AbortSignal),
+    );
   });
 
   it("marks timed-out metrics as stale with a timeout-specific reason", async () => {
@@ -389,6 +401,78 @@ describe("MonitoringCycleRunner", () => {
     });
     await runner.run();
     expect(peak).toBe(2);
+  });
+
+  it("keeps collecting an application omitted from the list when removal was not confirmed", async () => {
+    dependencies.adapter.fetchServices.mockResolvedValue([]);
+    await runner.run();
+    expect(dependencies.adapter.fetchMetrics).toHaveBeenCalledWith(
+      "app-1",
+      expect.any(AbortSignal),
+    );
+    expect(dependencies.statuses.record).toHaveBeenCalledWith(
+      "app-1",
+      expect.objectContaining({ result: "valid" }),
+      "cycle-1",
+    );
+  });
+
+  it("refreshes metadata from a valid individual lookup before collecting the retained service", async () => {
+    dependencies.adapter.fetchServices.mockResolvedValue([]);
+    dependencies.removal.reconcile.mockResolvedValue({
+      removedCount: 0,
+      retainedServices: [service],
+      failures: [],
+    });
+    await runner.run();
+    expect(dependencies.metadata.reconcile).toHaveBeenLastCalledWith(
+      "cycle-1",
+      [service],
+    );
+    expect(
+      dependencies.metadata.reconcile.mock.invocationCallOrder.at(-1),
+    ).toBeLessThan(
+      dependencies.applications.findForCollection.mock.invocationCallOrder[0],
+    );
+    expect(dependencies.adapter.fetchMetrics).toHaveBeenCalledWith(
+      "app-1",
+      expect.any(AbortSignal),
+    );
+  });
+
+  it("records an uncertain removal as a catalog failure and continues collecting independent applications", async () => {
+    const error = new IntegrationError("UPSTREAM_TIMEOUT");
+    dependencies.removal.reconcile.mockResolvedValue({
+      removedCount: 0,
+      retainedServices: [],
+      failures: [{ applicationId: "app-1", error }],
+    });
+    dependencies.adapter.fetchServices.mockResolvedValue([]);
+    await runner.run();
+    expect(dependencies.adapter.fetchMetrics).toHaveBeenCalledWith(
+      "app-1",
+      expect.any(AbortSignal),
+    );
+    expect(dependencies.incidents.recordFailure).toHaveBeenCalledWith(
+      expect.objectContaining({ integration: "services", applicationId: null }),
+      "TIMEOUT",
+      "cycle-1",
+      expect.any(Date),
+      1,
+    );
+    expect(dependencies.incidents.recordSuccess).not.toHaveBeenCalledWith(
+      expect.objectContaining({ integration: "services" }),
+      expect.anything(),
+      expect.anything(),
+    );
+    expect(dependencies.cycles.finish).toHaveBeenCalledWith(
+      "cycle-1",
+      expect.objectContaining({
+        status: MonitoringCycleStatus.PARTIAL,
+        processedCount: 1,
+        failedCount: 1,
+      }),
+    );
   });
 
   it("skips overlapping cycles while the active cycle is still running", async () => {

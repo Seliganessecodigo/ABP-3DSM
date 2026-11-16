@@ -139,10 +139,10 @@ describeDatabase('remoção confirmada por snapshot válido', () => {
     payload = [service('b')]
     const id = await cycleId()
     const before = new Date()
-    expect(await app.get(RemovalService).reconcile(id)).toBeGreaterThanOrEqual(
+    expect((await app.get(RemovalService).reconcile(id)).removedCount).toBeGreaterThanOrEqual(
       1,
     )
-    expect(await app.get(RemovalService).reconcile(id)).toBe(0)
+    expect((await app.get(RemovalService).reconcile(id)).removedCount).toBe(0)
     const [application] = (await database.query(
       'SELECT state, "removedAt" FROM applications WHERE id = $1',
       [`${prefix}a`],

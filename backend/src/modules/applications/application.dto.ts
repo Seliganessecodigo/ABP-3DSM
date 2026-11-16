@@ -32,7 +32,7 @@ export class ApplicationDto {
   @ApiProperty({ type: ApplicationLocationDto, nullable: true })
   location!: ApplicationLocationDto | null
 
-  @ApiProperty({ enum: ApplicationState })
+  @ApiProperty({ enum: ApplicationState, description: 'AVAILABLE: métricas válidas; UNAVAILABLE: falha da tentativa; NO_METRICS: métricas ausentes; REMOVED: ausência na lista válida e confirmação HTTP 404 em /services/{id}. Erro de métricas não confirma remoção.' })
   state!: ApplicationState
 
   @ApiProperty({ enum: ApplicationStateReason })

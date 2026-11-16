@@ -35,6 +35,7 @@ describe.each([true, false])(
         insertManyIfAbsent: jest.fn().mockResolvedValue([]),
         findByIdsForUpdate: jest.fn().mockResolvedValue([]),
         findMissingForUpdate: jest.fn().mockResolvedValue([]),
+        findForCollection: jest.fn().mockResolvedValue([]),
         findReturnedForUpdate: jest.fn().mockResolvedValue([]),
       }
       const events = { appendInTransaction: jest.fn(), appendManyInTransaction: jest.fn() }
@@ -77,10 +78,7 @@ describe.each([true, false])(
         expect(applications.findByIdsForUpdate).toHaveBeenCalledWith(manager, [
           'app-1',
         ])
-        expect(applications.findMissingForUpdate).toHaveBeenCalledWith(
-          manager,
-          ['app-1'],
-        )
+        expect(applications.findMissingForUpdate).not.toHaveBeenCalled()
         expect(applications.findReturnedForUpdate).toHaveBeenCalledWith(
           manager,
           ['app-1'],
