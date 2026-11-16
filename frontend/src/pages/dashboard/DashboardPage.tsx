@@ -218,7 +218,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
         <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('filters.contextHeading'), description: t('helpFilters'), target: '[data-help="dashboard-filters"]' },
-  { title: t('trendTitle'), description: t('trend.note'), target: '[data-help="dashboard-trend"]' },
+  { title: t('trendTitle'), description: [t('trend.note'), t('comparisonPending')].join('\n\n'), target: '[data-help="dashboard-trend"]' },
   { title: t('compositionTitle'), description: t('helpResults'), target: '[data-help="dashboard-results"]' },
 ]} /></div>
         {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}

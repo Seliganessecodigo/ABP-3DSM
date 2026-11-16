@@ -53,7 +53,7 @@ test('escolha explícita persiste na recarga e na navegação sem perder filtros
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.reload()
   await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true })).toHaveAttribute('aria-checked', 'true')
-  await row(page, 'svc-0142').getByRole('link').click()
+  await row(page, 'svc-0142').getByRole('link', { name: 'Ver detalhes', exact: true }).click()
 
   await expect(page.getByRole('heading', { name: 'Identificação e situação', exact: true })).toBeVisible()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
@@ -203,7 +203,7 @@ for (const theme of ['Claro', 'Escuro']) {
     await page.screenshot({ path: testInfo.outputPath(`filters-${theme}.png`), fullPage: true })
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toBeHidden()
-    await row(page, 'svc-0142').getByRole('link').click()
+    await row(page, 'svc-0142').getByRole('link', { name: 'Ver detalhes', exact: true }).click()
 
     await expect(page.getByRole('heading', { name: 'Identificação e situação', exact: true })).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath(`detail-${theme}.png`), fullPage: true })
