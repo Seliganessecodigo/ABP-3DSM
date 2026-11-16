@@ -58,5 +58,11 @@
   "auth.role.ADMIN": "관리자",
   "auth.role.ANALYST": "분석가",
   "auth.role.VISITOR": "방문자",
-  "nav.users": "사용자"
+  "nav.users": "사용자",
+  "help.open": "이 화면 도움말",
+  "help.step": "{{current}} / {{total}} 단계",
+  "help.close": "도움말 닫기",
+  "help.previous": "이전",
+  "help.next": "다음",
+  "help.finish": "완료"
 }

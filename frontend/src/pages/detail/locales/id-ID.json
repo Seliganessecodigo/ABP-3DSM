@@ -240,5 +240,6 @@
   "analysisFactorExplanation": "Emisi merupakan jumlah perhitungan setiap interval. Faktor ekuivalen merangkum faktor yang diterapkan, dibobot menurut energi dengan CO₂e yang dihitung.",
   "analysisEnergyWithEmissions": "Energi dengan CO₂e yang dihitung",
   "periods.month": "Bulan berjalan (UTC)",
-  "periods.custom": "Interval khusus"
+  "periods.custom": "Interval khusus",
+  "helpHistoryFilters": "Pilih aplikasi, periode dan granularitas. Interval kueri dan zona waktu ditampilkan di filter; indikator dan grafik memakai periode yang sama."
 }

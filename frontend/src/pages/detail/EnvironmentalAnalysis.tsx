@@ -559,7 +559,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
     <LoadingState title={labels.loading} panelTitle={labels.seriesHeading} layout="detail" />
   </section>
   return <div className={operationalOverview ? styles.overviewLayout : `${styles.analysisLayout} ${historyMode ? styles.historyLayout : ''} ${historyHasMetrics ? styles.historyMetrics : ''}`}>
-    <section className={operationalOverview ? styles.overviewSummary : styles.section} aria-labelledby="environmental-analysis-heading">
+    <section data-help="analysis-summary" className={operationalOverview ? styles.overviewSummary : styles.section} aria-labelledby="environmental-analysis-heading">
       <h2 id="environmental-analysis-heading" className={operationalOverview ? styles.screenReaderOnly : styles.sectionHeading}>{labels.heading}</h2>
       <div className={styles.analysisNotice} aria-live="polite">
       {initialLoading && <LoadingState title={labels.loading} compact />}
@@ -610,8 +610,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       <CoverageCard data={showData ? data : null} locale={locale} labels={labels} empty={emptyResult || invalidContext} />
     </aside>
     {operationalOverview && <>
-      <div className={styles.overviewEvidence}>{evidenceContent}</div>
-      <div className={styles.overviewContext}>{contextContent}</div>
+      <div data-help="detail-evidence" className={styles.overviewEvidence}>{evidenceContent}</div>
+      <div data-help="detail-context" className={styles.overviewContext}>{contextContent}</div>
     </>}
       {!historyMode && !operationalOverview && <CalculationSummary data={data} locale={locale} labels={labels} detailsOpen={contextOpen}
         onDetailsToggle={(event) => setContextOpen(event.currentTarget.open)} onClose={() => setContextOpen(false)}>
@@ -629,7 +629,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       </CalculationSummary>}
       {!invalidContext && <aside className={operationalOverview ? styles.overviewFreshness : styles.freshnessColumn}><EnvironmentalFreshness lastAttemptAt={lastAttemptAt} lastSuccessAt={lastSuccessAt}
         formatDate={formatDate} labels={labels.freshness} compact /></aside>}
-      {!operationalOverview && <div className={styles.seriesColumn}>
+      {!operationalOverview && <div data-help="analysis-series" className={styles.seriesColumn}>
         {invalidContext && granularityContent}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}

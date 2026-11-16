@@ -240,5 +240,6 @@
   "analysisFactorExplanation": "Las emisiones suman los cálculos de cada intervalo. El factor equivalente resume los factores aplicados, ponderados por la energía con CO₂e calculado.",
   "analysisEnergyWithEmissions": "Energía con CO₂e calculado",
   "periods.month": "Mes actual (UTC)",
-  "periods.custom": "Intervalo personalizado"
+  "periods.custom": "Intervalo personalizado",
+  "helpHistoryFilters": "Seleccione la aplicación, el período y la granularidad. El intervalo consultado y la zona horaria aparecen en los filtros; los indicadores y el gráfico usan ese mismo período."
 }

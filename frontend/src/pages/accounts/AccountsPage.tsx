@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthentication } from '../../app/useAuthentication.ts'
@@ -9,7 +10,7 @@ import styles from './AccountsPage.module.css'
 export function AccountsPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { user } = useAuthentication()
   const { t } = useTranslation('accounts')
-  if (user?.role !== 'ADMIN') return <main className="content" tabIndex={-1}><h1>{t('title')}</h1><p className="notice">{t(user ? 'denied' : 'signIn')}</p>{!user && <a className="button" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('login')}</a>}</main>
+  if (user?.role !== 'ADMIN') return <main className="content" tabIndex={-1}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]} /></div><p className="notice">{t(user ? 'denied' : 'signIn')}</p>{!user && <a className="button" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('login')}</a>}</main>
   return <AccountsAdministration key={user.id} />
 }
 function AccountsAdministration() {
@@ -25,10 +26,13 @@ function AccountsAdministration() {
     nameField.current?.focus()
   }
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className="page-heading"><div><p className="eyebrow">GreenER</p><h1>{t('title')}</h1><p>{t('subtitle')}</p></div></header>
+    <header className="page-heading"><div><p className="eyebrow">GreenER</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  { title: t('inviteTitle'), description: t('inviteDescription'), target: '[aria-labelledby="google-invitation-heading"]' },
+  { title: t('listTitle'), description: t('existingAccountHint'), target: '[aria-labelledby="accounts-list-heading"]' },
+]} /></div></div></header>
     <section className={styles.panel} aria-labelledby="google-invitation-heading">
       <h2 id="google-invitation-heading">{t('inviteTitle')}</h2>
-      <p>{t('inviteDescription')}</p>
+
       {ssoEnabled ? <>
         <p className={styles.hint}>{t('existingAccountHint')}</p>
         {user && <ActionButton appearance="secondary" disabled={pending} onClick={() => prepareInvitation(user)}>{t('linkMine')}</ActionButton>}

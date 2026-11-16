@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import styles from './ApplicationDetailPage.module.css'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
@@ -218,6 +219,15 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
         month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
       } }} />
+  const pageHelp = <PageHelp steps={historyOnly ? [
+    { title: tDetail('periodTitle'), description: tDetail('helpHistoryFilters'), target: '[data-help="history-filters"]' },
+    { title: tDetail('analysisSeriesHeading'), description: tDetail('analysisSeriesGapsNote'), target: '[data-help="analysis-series"]' },
+    { title: tDetail('historyInspectionHeading'), description: [tDetail('historyContributionsDescription'), tDetail('historyTableNote')].join('\n\n'), target: '[data-help="analysis-series"]' },
+  ] : [
+    { title: tDetail('identity'), description: tDetail('operationalDescription'), target: '[data-help="detail-context"]' },
+    { title: tDetail('analysisHeading'), description: tDetail('environmentalSummaryNote'), target: '[data-help="analysis-summary"]' },
+    { title: tDetail('evidenceTitle'), description: tDetail('evidenceZeroNote'), target: '[data-help="detail-evidence"]' },
+  ]} />
   return <main ref={historyRoot} className={`content ${styles['detail-content']} ${!historyOnly && operationalOverview ? styles.overviewContent : ''} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>
       {inspectionBucket ? <>
@@ -225,7 +235,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           <div>
             <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><a href={historyUrl} onClick={(event) => { event.preventDefault(); closeHistoryInspection() }}>{tDetail('historyTitle')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyInspectionHeading')}</span></nav>
             <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
-            <h1>{tDetail('historyInspectionHeading')}</h1>
+            <div className="heading-title"><h1>{tDetail('historyInspectionHeading')}</h1>{pageHelp}</div>
             <p>{application?.name} · {displayTimeZone}</p>
           </div>
           <button type="button" className="button secondary" onClick={closeHistoryInspection}>
@@ -236,16 +246,16 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         <div className={styles.historyHeading}>
           <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyTitle')}</span></nav>
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
-          <h1>{tDetail('historyTitle')}</h1>
-          <p className={styles.historyDesktopDescription}>{tDetail('historyDescription')}</p>
-          <p className={styles.historyMobileDescription}>{tDetail('historyMobileDescription')}</p>
-          <a className="button secondary" href={detailUrl} onClick={(event) => { event.preventDefault(); navigate(detailUrl) }}>{tDetail('viewApplicationDetails')}</a>
+          <div className="heading-title"><h1>{tDetail('historyTitle')}</h1>{pageHelp}</div>
         </div>
-        <a className={`button secondary ${styles.historyPreview}`} href="/administration/calculations" onClick={event => {
+        <div className={styles.historyActions}>
+        <a className="button secondary" href={detailUrl} onClick={(event) => { event.preventDefault(); navigate(detailUrl) }}>{tDetail('viewApplicationDetails')}</a>
+        <a className="button secondary" href="/administration/calculations" onClick={event => {
           event.preventDefault()
           navigate('/administration/calculations')
         }}>{tDetail('historyRecalculationPreview')}</a>
-        <div className={styles.historyFilters}>
+        </div>
+        <div data-help="history-filters" className={styles.historyFilters}>
           {historyApplicationSelector}
           {periodSelector}
           {granularityContent}
@@ -266,7 +276,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <>{!historyOnly && <div className={styles.breadcrumb}><a aria-label={tDetail('back')} href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{application.name}</span></div>}{!historyOnly && <div className={styles.detailTop}>
-      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
+      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1>{pageHelp}<span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <div className={styles.detailActions}>{periodSelector}
           <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
         </div>

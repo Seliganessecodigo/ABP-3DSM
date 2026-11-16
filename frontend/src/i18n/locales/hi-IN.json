@@ -58,5 +58,11 @@
   "auth.role.ADMIN": "व्यवस्थापक",
   "auth.role.ANALYST": "विश्लेषक",
   "auth.role.VISITOR": "आगंतुक",
-  "nav.users": "उपयोगकर्ता"
+  "nav.users": "उपयोगकर्ता",
+  "help.open": "इस पृष्ठ की सहायता",
+  "help.step": "चरण {{current}} / {{total}}",
+  "help.close": "सहायता बंद करें",
+  "help.previous": "पिछला",
+  "help.next": "अगला",
+  "help.finish": "समाप्त करें"
 }

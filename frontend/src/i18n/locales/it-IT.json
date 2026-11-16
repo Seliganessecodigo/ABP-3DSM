@@ -58,5 +58,11 @@
   "loading.description": "Attendi il completamento della richiesta. Nessun valore è ancora visualizzato.",
   "loading.processing": "Elaborazione…",
   "auth.login": "Accedi",
-  "nav.users": "Utenti"
+  "nav.users": "Utenti",
+  "help.open": "Guida di questa pagina",
+  "help.step": "Passaggio {{current}} di {{total}}",
+  "help.close": "Chiudi guida",
+  "help.previous": "Precedente",
+  "help.next": "Avanti",
+  "help.finish": "Concludi"
 }

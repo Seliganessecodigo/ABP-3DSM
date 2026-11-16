@@ -86,5 +86,7 @@
   "trend.graph": "图表",
   "trend.table": "表格",
   "trend.interval": "时段（UTC）",
-  "trend.note": "按UTC时段显示数值。空缺表示数据缺失，而非零。"
+  "trend.note": "按UTC时段显示数值。空缺表示数据缺失，而非零。",
+  "helpFilters": "选择时间范围、粒度、区域和状态以定义汇总范围。同样的条件适用于指标和图表。",
+  "helpResults": "比较各应用的CO₂e占比。可以从表格打开应用详情以进一步查看。"
 }

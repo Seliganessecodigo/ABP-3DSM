@@ -240,5 +240,6 @@
   "analysisFactorExplanation": "배출량은 각 구간의 계산 결과를 합한 값입니다. 등가 계수는 CO₂e를 계산한 에너지로 가중한 적용 계수의 요약입니다.",
   "analysisEnergyWithEmissions": "CO₂e를 계산한 에너지",
   "periods.month": "이번 달 (UTC)",
-  "periods.custom": "사용자 지정 구간"
+  "periods.custom": "사용자 지정 구간",
+  "helpHistoryFilters": "애플리케이션, 기간, 집계 단위를 선택하세요. 조회 구간과 시간대는 필터에 표시되며 지표와 차트에 같은 기간이 적용됩니다."
 }

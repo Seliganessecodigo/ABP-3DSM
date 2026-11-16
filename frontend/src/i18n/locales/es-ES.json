@@ -58,5 +58,11 @@
   "loading.description": "Espera a que termine la consulta. Todavía no se muestran valores.",
   "loading.processing": "Procesando…",
   "auth.login": "Iniciar sesión",
-  "nav.users": "Usuarios"
+  "nav.users": "Usuarios",
+  "help.open": "Ayuda de esta pantalla",
+  "help.step": "Paso {{current}} de {{total}}",
+  "help.close": "Cerrar ayuda",
+  "help.previous": "Anterior",
+  "help.next": "Siguiente",
+  "help.finish": "Finalizar"
 }

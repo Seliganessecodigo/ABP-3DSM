@@ -58,5 +58,11 @@
   "loading.description": "Please wait while the request completes. No values are shown yet.",
   "loading.processing": "Processing…",
   "auth.login": "Sign in",
-  "nav.users": "Users"
+  "nav.users": "Users",
+  "help.open": "Help for this page",
+  "help.step": "Step {{current}} of {{total}}",
+  "help.close": "Close help",
+  "help.previous": "Previous",
+  "help.next": "Next",
+  "help.finish": "Finish"
 }

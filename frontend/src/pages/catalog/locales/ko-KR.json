@@ -53,5 +53,6 @@
   "filterCombinationNote": "통합 검색과 적용된 필터가 함께 사용됩니다.",
   "clearPreservesSort": "필터를 초기화해도 현재 정렬 순서는 유지됩니다.",
   "applyFilters": "필터 적용",
-  "login": "로그인"
+  "login": "로그인",
+  "helpActions": "상세에서 현재 상태와 지표를 확인하세요. 이력에서 애플리케이션의 에너지와 CO₂e 변화를 확인하세요."
 }

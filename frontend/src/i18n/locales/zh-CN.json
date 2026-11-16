@@ -58,5 +58,11 @@
   "loading.description": "请等待查询完成。尚未显示任何数值。",
   "loading.processing": "正在处理…",
   "auth.login": "登录",
-  "nav.users": "用户"
+  "nav.users": "用户",
+  "help.open": "此页面帮助",
+  "help.step": "第 {{current}} 步，共 {{total}} 步",
+  "help.close": "关闭帮助",
+  "help.previous": "上一步",
+  "help.next": "下一步",
+  "help.finish": "完成"
 }

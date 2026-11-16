@@ -53,5 +53,6 @@
   "cityPlaceholder": "Type a city...",
   "filterCombinationNote": "General search and active filters are combined.",
   "clearPreservesSort": "Clearing filters preserves the current sort order.",
-  "applyFilters": "Apply filters"
+  "applyFilters": "Apply filters",
+  "helpActions": "Use Details to view the current state and metrics. Use History to follow the application’s energy and CO₂e over time."
 }
