@@ -5,8 +5,7 @@
 .selector { margin-bottom: 24px; border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; background: var(--surface-card); }
 .controls { display: grid; grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr); align-items: end; gap: 16px; }
 .applicationFilter { display: grid; min-width: 0; gap: 6px; color: var(--text-secondary); font-size: 12px; font-weight: 650; }
-.applicationFilter select { width: 100%; min-height: 44px; border: 1px solid var(--border-control); border-radius: 8px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); font: inherit; }
-.applicationFilter select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.applicationFilter select { width: 100%; }
 .applications > h2 { margin: 0 0 12px; color: var(--text-primary); font-size: 15px; }
 .applicationCount { margin-left: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 400; }
 .applicationList { overflow: hidden; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); }
