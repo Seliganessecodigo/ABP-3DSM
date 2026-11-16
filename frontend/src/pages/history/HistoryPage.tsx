@@ -75,7 +75,6 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
           title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
           options={periods.map((value) => ({ value, label: tDetail(`periods.${value}`) }))} />
       </div>
-      <p>{t('startDescription')}</p>
     </section>
     {error && hasSnapshot && <RequestFeedback state="error"><p>{tCatalog('stale')}</p><button type="button" onClick={retry}>{tCommon('actions.retry')}</button></RequestFeedback>}
     {applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
