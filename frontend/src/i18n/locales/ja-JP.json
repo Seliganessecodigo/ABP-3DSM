@@ -58,5 +58,11 @@
   "loading.description": "照会が完了するまでお待ちください。値はまだ表示されていません。",
   "loading.processing": "処理中…",
   "auth.login": "ログイン",
-  "nav.users": "ユーザー"
+  "nav.users": "ユーザー",
+  "help.open": "この画面のヘルプ",
+  "help.step": "ステップ {{current}} / {{total}}",
+  "help.close": "ヘルプを閉じる",
+  "help.previous": "前へ",
+  "help.next": "次へ",
+  "help.finish": "完了"
 }

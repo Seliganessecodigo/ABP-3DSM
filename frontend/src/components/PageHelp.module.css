@@ -1,0 +1,12 @@
+.trigger { display: inline-grid; flex: 0 0 auto; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border-control); border-radius: 50%; padding: 0; color: var(--accent-default); background: var(--surface-card); font: inherit; font-size: 16px; font-weight: 650; cursor: pointer; }
+.trigger:hover { background: var(--control-hover); }
+.trigger:focus-visible, .close:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.dialog { position: fixed; inset: auto 24px 24px auto; width: min(400px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; color: var(--text-primary); background: var(--surface-card); box-shadow: 0 8px 32px rgb(0 0 0 / 16%); }
+.dialog::backdrop { background: rgb(0 0 0 / 18%); }
+.dialog header { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-secondary); font-size: 12px; }
+.close { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 6px; padding: 0; color: var(--text-secondary); background: transparent; font: inherit; font-size: 24px; cursor: pointer; }
+.dialog h2 { margin: 12px 0 8px; font-size: 18px; }
+.dialog p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.6; white-space: pre-line; }
+.dialog footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.highlight { outline: 3px solid var(--focus-ring); outline-offset: 4px; scroll-margin: 12px; }
+@media (max-width: 640px) { .trigger { width: 44px; height: 44px; } .dialog { right: 16px; bottom: 16px; } }

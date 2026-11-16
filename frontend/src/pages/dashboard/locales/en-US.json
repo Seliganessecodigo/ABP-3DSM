@@ -86,5 +86,7 @@
   "trend.graph": "Chart",
   "trend.table": "Table",
   "trend.interval": "Interval (UTC)",
-  "trend.note": "Values per UTC interval. Gaps mean missing data, not zero."
+  "trend.note": "Values per UTC interval. Gaps mean missing data, not zero.",
+  "helpFilters": "Choose a period, granularity, region and state to define the summary. The same criteria apply to the indicators and charts.",
+  "helpResults": "Compare each application’s share of CO₂e. Open an application’s details from the table to investigate it."
 }

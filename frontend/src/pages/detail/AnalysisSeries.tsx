@@ -684,7 +684,6 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
         <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.next} disabled={page >= pageCount} onClick={() => onPaginationChange(page + 1, pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
       </div>
     </div>
-    {historyMode && <p className={styles.mobileTableNote}>{t('historyTableNote')}</p>}
   </>
 }
 
@@ -894,7 +893,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
       </li>)}</ul>
     </section>}
     {historyMode && <section className={styles.historyIntervals} aria-label={labels.historyIntervalsHeading}>
-      <header><h3>{labels.historyIntervalsHeading}</h3><p className={styles.tableNote}>{t('historyTableNote')}</p></header>
+      <header><h3>{labels.historyIntervalsHeading}</h3></header>
 
       <SeriesContent series={series} state={state} view="table" metric={metric} locale={locale} timeZone={query.timeZone} chartStyle={chartStyle}
         comparisonPoints={comparisonPoints} labels={chartLabels} formatDate={formatSeriesDate} historyMode={historyMode} invalidDateRange={invalidDateRange}

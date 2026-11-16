@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
@@ -215,7 +216,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     <header className={styles.header}>
       <div>
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
-        <h1>{t('title')}</h1>
+        <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  { title: t('filters.contextHeading'), description: t('helpFilters'), target: '[data-help="dashboard-filters"]' },
+  { title: t('trendTitle'), description: t('trend.note'), target: '[data-help="dashboard-trend"]' },
+  { title: t('compositionTitle'), description: t('helpResults'), target: '[data-help="dashboard-results"]' },
+]} /></div>
         {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
@@ -225,7 +230,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </button>
     </header>
 
-    <section className={styles.controls} aria-label={t('filters.contextHeading')}>
+    <section data-help="dashboard-filters" className={styles.controls} aria-label={t('filters.contextHeading')}>
       <div className={styles.periods} role="group" aria-label={t('period')}>
         {periodPresets.map((preset) => <button key={preset} type="button" aria-pressed={period === preset}
           aria-disabled={period === preset && pending}
@@ -254,7 +259,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </select>
       </label>
       {data.applications.error && <p className={styles.warning} role="status">{t('regionOptionsUnavailable')}</p>}
-      <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
+
     </section>
 
     <PersonalAlertsPanel state={personalAlerts} />
@@ -309,7 +314,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
       {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
-      <section className={styles.visualizations}>
+      <section data-help="dashboard-trend" className={styles.visualizations}>
         <article className={styles.card}>
           <h2>{t('trendTitle')}</h2>
           <EnvironmentalSeries series={data.data.series} locale={locale} />
@@ -357,7 +362,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </article>
       </section>
 
-      <section className={styles.tableCard} aria-labelledby="dashboard-applications-heading">
+      <section data-help="dashboard-results" className={styles.tableCard} aria-labelledby="dashboard-applications-heading">
         <div className={styles.tableHeading}>
           <div><h2 id="dashboard-applications-heading">{t('table.title', { count: table.total })}</h2></div>
           <div className={styles.tableActions}>

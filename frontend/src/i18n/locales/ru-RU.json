@@ -58,5 +58,11 @@
   "auth.role.ADMIN": "Администратор",
   "auth.role.ANALYST": "Аналитик",
   "auth.role.VISITOR": "Посетитель",
-  "nav.users": "Пользователи"
+  "nav.users": "Пользователи",
+  "help.open": "Помощь по этой странице",
+  "help.step": "Шаг {{current}} из {{total}}",
+  "help.close": "Закрыть справку",
+  "help.previous": "Назад",
+  "help.next": "Далее",
+  "help.finish": "Завершить"
 }

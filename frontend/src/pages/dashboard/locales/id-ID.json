@@ -86,5 +86,7 @@
   "trend.graph": "Grafik",
   "trend.table": "Tabel",
   "trend.interval": "Interval (UTC)",
-  "trend.note": "Nilai per interval UTC. Celah berarti data tidak tersedia, bukan nol."
+  "trend.note": "Nilai per interval UTC. Celah berarti data tidak tersedia, bukan nol.",
+  "helpFilters": "Pilih periode, granularitas, wilayah dan status untuk menentukan ringkasan. Kriteria yang sama berlaku pada indikator dan grafik.",
+  "helpResults": "Bandingkan bagian CO₂e setiap aplikasi. Buka detail aplikasi dari tabel untuk menyelidikinya."
 }

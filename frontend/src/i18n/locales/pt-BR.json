@@ -58,5 +58,11 @@
   "loading.description": "Aguarde a consulta. Nenhum valor foi apresentado ainda.",
   "loading.processing": "Processando…",
   "auth.login": "Entrar",
-  "nav.users": "Usuários"
+  "nav.users": "Usuários",
+  "help.open": "Ajuda desta tela",
+  "help.step": "Passo {{current}} de {{total}}",
+  "help.close": "Fechar ajuda",
+  "help.previous": "Anterior",
+  "help.next": "Próximo",
+  "help.finish": "Concluir"
 }

@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
@@ -63,11 +64,13 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
     <header className="page-heading">
       <div>
         <p className="eyebrow">{tCatalog('eyebrow')}</p>
-        <h1>{tDetail('historyTitle')}</h1>
-        <p>{tDetail('historyDescription')}</p>
+        <div className="heading-title"><h1>{tDetail('historyTitle')}</h1><PageHelp steps={[
+  { title: tCatalog('app'), description: tDetail('helpHistoryFilters'), target: '[data-help="history-selector"]' },
+  { title: t('applicationsTitle'), description: tDetail('historyDescription'), target: '[aria-labelledby="history-applications-heading"]' },
+]} /></div>
       </div>
     </header>
-    <section className={styles.selector} aria-label={tCatalog('app')}>
+    <section data-help="history-selector" className={styles.selector} aria-label={tCatalog('app')}>
       <div className={styles.controls}>
         {applicationSelector}
         <PeriodSelector compact select selected={selectedPeriod}

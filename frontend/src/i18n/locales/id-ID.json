@@ -58,5 +58,11 @@
   "auth.role.ADMIN": "Administrator",
   "auth.role.ANALYST": "Analis",
   "auth.role.VISITOR": "Pengunjung",
-  "nav.users": "Pengguna"
+  "nav.users": "Pengguna",
+  "help.open": "Bantuan halaman ini",
+  "help.step": "Langkah {{current}} dari {{total}}",
+  "help.close": "Tutup bantuan",
+  "help.previous": "Sebelumnya",
+  "help.next": "Berikutnya",
+  "help.finish": "Selesai"
 }

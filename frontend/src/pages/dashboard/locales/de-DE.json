@@ -86,5 +86,7 @@
   "trend.graph": "Diagramm",
   "trend.table": "Tabelle",
   "trend.interval": "Intervall (UTC)",
-  "trend.note": "Werte je UTC-Intervall. Lücken bedeuten fehlende Daten, nicht null."
+  "trend.note": "Werte je UTC-Intervall. Lücken bedeuten fehlende Daten, nicht null.",
+  "helpFilters": "Wählen Sie Zeitraum, Granularität, Region und Zustand für die Zusammenfassung. Diese Kriterien gelten auch für Kennzahlen und Diagramme.",
+  "helpResults": "Vergleichen Sie den CO₂e-Anteil der Anwendungen. Öffnen Sie die Details einer Anwendung in der Tabelle, um sie zu untersuchen."
 }

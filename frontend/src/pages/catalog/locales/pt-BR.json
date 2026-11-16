@@ -53,5 +53,6 @@
   "cityPlaceholder": "Digite uma cidade...",
   "filterCombinationNote": "A busca geral e os filtros ativos são combinados.",
   "clearPreservesSort": "Limpar filtros preserva a ordenação atual.",
-  "applyFilters": "Aplicar filtros"
+  "applyFilters": "Aplicar filtros",
+  "helpActions": "Use Detalhes para consultar a situação e as métricas atuais. Use Histórico para acompanhar a evolução de energia e CO₂e da aplicação."
 }

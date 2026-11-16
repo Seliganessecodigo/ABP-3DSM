@@ -58,5 +58,11 @@
   "loading.description": "Bitte warten Sie auf die Abfrage. Es werden noch keine Werte angezeigt.",
   "loading.processing": "Wird verarbeitet…",
   "auth.login": "Anmelden",
-  "nav.users": "Benutzer"
+  "nav.users": "Benutzer",
+  "help.open": "Hilfe zu dieser Seite",
+  "help.step": "Schritt {{current}} von {{total}}",
+  "help.close": "Hilfe schließen",
+  "help.previous": "Zurück",
+  "help.next": "Weiter",
+  "help.finish": "Fertig"
 }

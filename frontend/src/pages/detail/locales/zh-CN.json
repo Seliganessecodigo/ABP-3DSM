@@ -240,5 +240,6 @@
   "analysisFactorExplanation": "排放量为各时段计算结果之和。等效因子按已计算CO₂e的能耗加权，汇总实际使用的因子。",
   "analysisEnergyWithEmissions": "已计算CO₂e的能耗",
   "periods.month": "本月（UTC）",
-  "periods.custom": "自定义区间"
+  "periods.custom": "自定义区间",
+  "helpHistoryFilters": "选择应用、时间范围和粒度。查询区间和时区显示在筛选区域，指标和图表使用相同的时间范围。"
 }

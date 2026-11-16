@@ -86,5 +86,7 @@
   "trend.graph": "Gráfico",
   "trend.table": "Tabela",
   "trend.interval": "Intervalo (UTC)",
-  "trend.note": "Valores por intervalo em UTC. Lacunas indicam ausência de dados; não representam zero."
+  "trend.note": "Valores por intervalo em UTC. Lacunas indicam ausência de dados; não representam zero.",
+  "helpFilters": "Escolha período, granularidade, região e estado para definir o resumo. Os mesmos critérios se aplicam aos indicadores e gráficos.",
+  "helpResults": "Compare a participação de cada aplicação no CO₂e. Na tabela, abra os detalhes da aplicação que quiser investigar."
 }

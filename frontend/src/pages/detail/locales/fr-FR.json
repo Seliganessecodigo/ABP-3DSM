@@ -240,5 +240,6 @@
   "analysisFactorExplanation": "Les émissions sont la somme des calculs de chaque intervalle. Le facteur équivalent résume les facteurs appliqués, pondérés par l’énergie dont le CO₂e a été calculé.",
   "analysisEnergyWithEmissions": "Énergie avec CO₂e calculé",
   "periods.month": "Mois en cours (UTC)",
-  "periods.custom": "Intervalle personnalisé"
+  "periods.custom": "Intervalle personnalisé",
+  "helpHistoryFilters": "Sélectionnez l’application, la période et la granularité. L’intervalle consulté et le fuseau figurent dans les filtres ; les indicateurs et le graphique utilisent la même période."
 }

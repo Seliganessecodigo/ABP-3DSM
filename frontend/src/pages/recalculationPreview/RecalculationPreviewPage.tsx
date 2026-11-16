@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getApplications, type Application } from '../../features/applications/api.ts'
@@ -133,7 +134,10 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
   }
 
   return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.heading}><h1>{t('title')}</h1><p>{t('subtitle')}</p></header>
+    <header className={styles.heading}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  { title: t('recalculateTitle'), description: t('recalculateDescription'), target: '[data-help="recalculation-form"]' },
+  { title: t('resultTitle'), description: t('noSave'), target: '[data-help="recalculation-form"]' },
+]} /></div></header>
     <nav className={styles.tabs} aria-label={t('administration')}>
       {[['health', 'health'], ['monitoring', 'monitoring'], ['calculations', 'calculations'], ['audit', 'audit'], ['access', 'access']].map(([key, label]) => key === 'calculations'
         ? <a key={key} href="/administration/calculations" aria-current="page">{t(label)}</a>
@@ -163,7 +167,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
         <p>{t('emissionsFormula')}</p>
       </section>
       <section className={styles.card}><h2>{t('parametersTitle')}</h2><p>{t('configurationNote')}</p></section>
-      <section className={styles.card}><h2>{t('recalculateTitle')}</h2><p>{t('recalculateDescription')}</p>
+      <section data-help="recalculation-form" className={styles.card}><h2>{t('recalculateTitle')}</h2>
         {applicationsState === 'loading' && <p role="status">{t('loadingApplications')}</p>}
         {applicationsState === 'error' && <p role="alert">{t('applicationsFailed')}</p>}
         {applicationsState === 'ready' && applications.length === 0 && <p role="status">{t('noApplications')}</p>}

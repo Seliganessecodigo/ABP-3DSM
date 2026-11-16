@@ -111,3 +111,5 @@
 }
 
 .search-wrap:focus-within { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+.rowActions { display: flex; align-items: center; gap: 8px; }

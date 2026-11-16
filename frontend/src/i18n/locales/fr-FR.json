@@ -58,5 +58,11 @@
   "loading.description": "Veuillez patienter pendant la requête. Aucune valeur n’est encore affichée.",
   "loading.processing": "Traitement…",
   "auth.login": "Se connecter",
-  "nav.users": "Utilisateurs"
+  "nav.users": "Utilisateurs",
+  "help.open": "Aide de cette page",
+  "help.step": "Étape {{current}} sur {{total}}",
+  "help.close": "Fermer l’aide",
+  "help.previous": "Précédent",
+  "help.next": "Suivant",
+  "help.finish": "Terminer"
 }

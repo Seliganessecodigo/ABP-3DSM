@@ -69,6 +69,11 @@ test('detail prioritizes operational evidence and links to historical investigat
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: test.info().outputPath('detail-operational.png') })
   await page.setViewportSize({ width: 1366, height: 844 })
+  const desktopCards = await Promise.all(['Energia', 'CO₂e', 'Cobertura'].map(name => page.getByRole('group', { name, exact: true }).boundingBox()))
+  for (const card of desktopCards) {
+    expect(Math.abs(card!.y - desktopCards[0]!.y)).toBeLessThanOrEqual(1)
+    expect(Math.abs(card!.height - desktopCards[0]!.height)).toBeLessThanOrEqual(1)
+  }
   await page.screenshot({ path: test.info().outputPath('detail-operational-desktop.png') })
   await page.setViewportSize({ width: 390, height: 844 })
   await expect.poll(() => page.locator('.sidebar').evaluate(sidebar => sidebar.getBoundingClientRect().right)).toBeLessThanOrEqual(0)
