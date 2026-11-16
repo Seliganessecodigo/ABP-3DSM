@@ -12,7 +12,9 @@ Refs #251, #252 e #253. Entrega documental baseada nas evidências locais existe
 
 O conjunto contém **36 PNGs nativos** do diagnóstico local capturado em **13/11/2026 às 17:36 UTC** e **quatro SVGs locais candidatos à correção**. O [manifesto](manifest.json) relaciona origem, arquivo, nó, dimensões e SHA-256. Os nomes numéricos dos PNGs correspondem aos IDs reais dos nós. Não há implementação frontend nesta entrega.
 
-O diagnóstico preservado identifica quatro quadros vazios no ranking: `802:4408` (erro), `802:4427` (vazio), `802:4543` (ordenação) e `802:4650` (mobile 390). Seus PNGs vazios foram excluídos. Os SVGs `proposta-local-*` preservam a proposta visual corrigida localmente, sem afirmar que a correção foi aplicada no Figma. Arquivos auxiliares de automação, credenciais e o relatório completo do ambiente não integram a entrega.
+**Organização atual informada pelo responsável em 16/11/2026:** o Figma está organizado por linhas, cada linha corresponde a uma tela e o primeiro quadro contém um texto que identifica aquela linha. Essa informação substitui o registro local antigo de organização pendente. A organização atual não foi reinspecionada pelo agente devido à cota do conector.
+
+No diagnóstico de 13/11, quatro exportações do ranking estavam vazias: `802:4408` (erro), `802:4427` (vazio), `802:4543` (ordenação) e `802:4650` (mobile 390). Esses PNGs históricos foram excluídos e os SVGs `proposta-local-*` preservados como referência local. **Isso não comprova que os quadros atuais estejam vazios ou precisem de reparo.** Arquivos auxiliares de automação, credenciais e o relatório completo do ambiente não integram a entrega.
 
 ### Prévia dos fluxos
 
@@ -28,9 +30,9 @@ As regras abaixo consolidam o aceite das tasks e o handoff local. São especific
 | --- | --- |
 | Ranking: escolher indicador, direção e período | Classificar pelo valor do indicador no mesmo recorte; empates recebem posições equivalentes e apresentação estável por identidade. Menor consumo absoluto não comprova eficiência. |
 | Ranking: abrir item sem classificação | Informar o motivo e permitir acessar detalhe/histórico; ausência ou falha não recebe valor zero nem posição. |
-| Ranking: participação | Usar total válido do mesmo indicador/recorte com denominador positivo; barra relativa ao maior valor não significa participação no total. O frame final dessa participação ainda precisa ser demonstrado. |
+| Ranking: participação | Usar total válido do mesmo indicador/recorte com denominador positivo; barra relativa ao maior valor não significa participação no total. Conferir a representação no arquivo atual durante a revisão. |
 | Ranking: comparar selecionadas | Abrir comparação com 2–5 identidades únicas, preservando seleção entre páginas e filtros. |
-| Comparação: selecionar aplicações | Impedir duplicatas e explicar limite de 2–5; escolher referência explícita. Os quadros de sucesso mostram duas aplicações; o resultado com 3–5 ainda precisa de frame final. |
+| Comparação: selecionar aplicações | Impedir duplicatas e explicar limite de 2–5; escolher referência explícita. As capturas incluídas mostram duas aplicações; conferir o resultado com 3–5 no arquivo atual durante a revisão. |
 | Comparação: aplicar recorte | Exibir indicadores/unidades lado a lado no mesmo período e filtros; coberturas de energia e CO₂e separadas. Diferença absoluta contra referência; percentual não aplicável para referência zero ou dado ausente. |
 | Comparação: resultado parcial | Mostrar cobertura e motivos de incompatibilidade/ausência; não inferir eficiência, transações ou trabalho produzido. Não incluir kWh por transação. |
 | Simulação: selecionar aplicação, período e destino | Acionar “Simular cenário”; preservar energia observada e resultado histórico, substituindo apenas o fator regional do cenário. Não garantir migração ou economia real. |
@@ -76,13 +78,15 @@ Aplicar à lista de ranking e à lista de seleção de aplicações. A matriz de
 - Reutilizar tokens/temas #213, componentes #260 e período #262. Ligação nativa às variáveis e instâncias compartilhadas ainda precisa ser conferida; os SVGs importados não comprovam essas ligações nem auto-layout.
 - Textos longos devem quebrar linhas e aumentar altura sem perder dados essenciais. Validar os oito idiomas exigidos pelas tasks, claro/escuro, contraste medido, teclado e leitor de tela. Estas evidências não demonstram essa validação.
 
-## Pendências para concluir as tasks
+## Pontos para revisão do aceite
+
+Esta lista registra critérios cuja validação atual não foi realizada pelo agente. Não é um diagnóstico de defeitos ou de itens ausentes no Figma atual. A organização por linhas foi confirmada pelo responsável; o diagnóstico antigo não deve ser usado para exigir nova organização ou reparo.
 
 | Pendência | Evidência necessária para aceite |
 | --- | --- |
-| Recuperar os quatro quadros vazios do ranking e organizar o canvas | Nova inspeção/exportação nativa após corrigir hierarquia, recorte e posições; não basta o SVG local |
+| Atualização das evidências históricas | Conferir os quadros atuais na organização por linhas e, quando possível, substituir as exportações antigas; o estado de 13/11 não descreve necessariamente o arquivo atual |
 | Protótipo navegável dos três fluxos | Ações/transições conectadas e verificadas no arquivo, incluindo abrir/fechar diálogos, confirmar, cancelar, retry e retorno |
-| Estados parciais e limites | Frames finais de parcial, falha de atualização, referência zero, ausência/invalidade de fator/energia e edição pendente; hoje são especificações de handoff |
+| Estados parciais e limites | Conferir parcial, falha de atualização, referência zero, ausência/invalidade de fator/energia e edição pendente; o handoff documenta o comportamento esperado |
 | Ranking completo | Participação, empates equivalentes, busca/filtros ativos e exceções de ordenação demonstrados na revisão final |
 | Comparação completa | Resultado para 3–5 aplicações e seleção persistida durante busca/paginação; referência explícita e percentual não aplicável |
 | Temas, tokens, acessibilidade e i18n | Claro/escuro dos fluxos, vínculos compartilhados, contraste, foco/teclado, leitor de tela e textos longos nos oito idiomas |
@@ -100,4 +104,4 @@ As referências iniciais `8:306`, `8:396` e `8:469` são históricas. A leitura 
 - Lint, build e testes frontend/backend não executados localmente: somente documentos e artefatos estáticos. `npm run docs:build` não executado localmente: nenhuma página publicada em `docs/` foi alterada.
 - CI obrigatória antes do merge: Frontend build and lint; Backend build, lint, typecheck, and migrations; SonarQube Cloud quality gate. Para código novo, aplicam-se cobertura ≥ 80%, duplicação ≤ 3%, ratings A e 100% dos hotspots revisados. O resultado deve ser conferido na PR.
 
-A PR registra o material disponível para revisão e permanece em draft enquanto houver critérios sem evidência. Abertura de PR não encerra as issues; fechamento depende de merge e confirmação do escopo aceito.
+A PR registra o material disponível e pode seguir para revisão. Não declara homologação do PO nem inspeção atual de todos os critérios. Abertura de PR não encerra as issues; fechamento depende de merge e confirmação do escopo aceito.
