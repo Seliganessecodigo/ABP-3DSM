@@ -218,7 +218,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
         month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
       } }} />
-  return <main ref={historyRoot} className={`content ${styles['detail-content']} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
+  return <main ref={historyRoot} className={`content ${styles['detail-content']} ${!historyOnly && operationalOverview ? styles.overviewContent : ''} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>
       {inspectionBucket ? <>
         <div className={styles.historyInspectionHeading}>
@@ -271,10 +271,6 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
         </div>
       </div>}
-      {!historyOnly && operationalOverview && <section className={styles.overviewIntro} aria-label={tDetail('operationalOverview')}>
-        <div><h2>{tDetail('operationalOverview')}</h2><p>{tDetail('operationalDescription')}</p></div>
-        <p>{tDetail('environmentalSummaryNote')}</p>
-      </section>}
       <PersonalAlertsPanel state={personalAlerts} applicationId={id} />
       <EnvironmentalAnalysis data={analysisData}
         historyMode={historyOnly}
