@@ -15,6 +15,64 @@ describe("Agregador de Métricas", () => {
     jest.restoreAllMocks();
   });
 
+  it.each(["billing/api", "another-service"])(
+    "valida a identidade na consulta individual: %s",
+    async (returnedId) => {
+      server = createServer((request, response) => {
+        expect(request.url).toBe("/services/billing%2Fapi");
+        response
+          .writeHead(200)
+          .end(
+            JSON.stringify({
+              id: returnedId,
+              name: "Billing",
+              metrics_path: "/metrics/billing%2Fapi",
+              location: {
+                region_code: "BR-SP",
+                country: "Brazil",
+                region: "São Paulo",
+                city: null,
+                latitude: -23.5,
+                longitude: -46.6,
+              },
+            }),
+          );
+      });
+      await new Promise<void>((resolve) =>
+        server.listen(0, "127.0.0.1", resolve),
+      );
+      const adapter = new MetricsAggregatorAdapter(
+        `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+      );
+      const result = adapter.fetchService("billing/api");
+      if (returnedId === "billing/api")
+        await expect(result).resolves.toMatchObject({ id: returnedId });
+      else
+        await expect(result).rejects.toMatchObject({
+          code: "INVALID_UPSTREAM_RESPONSE",
+        });
+    },
+  );
+
+  it.each([404, 500])(
+    "preserva o status HTTP %i da consulta individual",
+    async (status) => {
+      server = createServer((_request, response) =>
+        response.writeHead(status).end(),
+      );
+      await new Promise<void>((resolve) =>
+        server.listen(0, "127.0.0.1", resolve),
+      );
+      const adapter = new MetricsAggregatorAdapter(
+        `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+      );
+      await expect(adapter.fetchService("billing-api")).rejects.toMatchObject({
+        code: "UPSTREAM_UNAVAILABLE",
+        status,
+      });
+    },
+  );
+
   it("aceita o snapshot completo com cidade nula e normaliza os campos documentados", async () => {
     server = createServer((request, response) => {
       if (request.url !== "/services") {

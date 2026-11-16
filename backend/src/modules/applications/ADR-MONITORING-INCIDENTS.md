@@ -21,6 +21,7 @@ The monitoring pipeline calls a service catalog, per-application metrics, and a 
 - Share the incident policy across startup and scheduled runners. Keep valid metrics when carbon lookup fails and preserve prior carbon snapshots.
 - Expose current and closed records through a public read-only paginated/filterable endpoint. Do not expose internal diagnostics or add a retention policy in this change.
 - Treat persistence failures as persistence failures: log safely, do not fabricate source incidents, and do not advance recovery without committed state.
+- Removal confirmation checks the documented individual service endpoint after absence in a valid list. A 200 response retains the application for metric collection; only a 404 confirms removal. Failed individual checks are catalog failures, keep the global services incident open and do not prevent independent metric collection. The four operational states continue to depend on their own evidence, and a metrics failure alone cannot remove an application. This additional confirmation follows the product correction requested on 2026-11-16.
 - Keep the existing process-local scheduler lock for the current single-instance deployment; skip overlapping ticks and let an active cycle finish.
 
 ## Consequences

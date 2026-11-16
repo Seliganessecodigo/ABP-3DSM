@@ -66,6 +66,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
   let carbonIntensity: { fetchIntensity: jest.Mock };
   let upstream: {
     fetchServices: jest.Mock<Promise<ServiceSummary[]>, []>;
+    fetchService: jest.Mock;
     fetchMetrics: jest.Mock;
   };
 
@@ -127,6 +128,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     };
     upstream = {
       fetchServices: jest.fn(),
+      fetchService: jest.fn(),
       fetchMetrics: jest.fn(),
     };
     const adapter = upstream as unknown as MetricsAggregatorAdapter;
@@ -164,6 +166,10 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
       `DELETE FROM carbon_regions WHERE code = 'br-sudeste'`,
     );
     upstream.fetchServices.mockReset();
+    upstream.fetchService.mockReset();
+    upstream.fetchService.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
     upstream.fetchMetrics.mockReset();
     upstream.fetchServices.mockResolvedValue([service("a")]);
     upstream.fetchMetrics.mockResolvedValue({
@@ -443,7 +449,8 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     await expect(
       collectionStore.persistEnvironmentalBundle(pending.id, {
         ...bundle,
-        calculationEvidence: null as unknown as typeof bundle.calculationEvidence,
+        calculationEvidence:
+          null as unknown as typeof bundle.calculationEvidence,
       }),
     ).rejects.toThrow("INVALID_ENVIRONMENTAL_BUNDLE");
     const unchangedPending = await database
@@ -927,6 +934,56 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         where: { applicationId: "cycle-test-a" },
       }),
     ).toHaveLength(2);
+  });
+
+  it("distinguishes the four states without removing an omitted service that is still registered", async () => {
+    await runner.run();
+    const store = database.getRepository(ApplicationEntity);
+    const id = "cycle-test-a";
+    expect((await store.findOneByOrFail({ id })).state).toBe(
+      ApplicationState.AVAILABLE,
+    );
+    const history = await collectionStore.findHistoryByApplication(id);
+
+    upstream.fetchServices.mockResolvedValue([]);
+    upstream.fetchService.mockResolvedValue({
+      ...service("a"),
+      name: "Registered application",
+      location: { ...service("a").location, city: "Campinas" },
+    });
+    upstream.fetchMetrics.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 500),
+    );
+    await runner.run();
+    expect(await store.findOneByOrFail({ id })).toMatchObject({
+      state: ApplicationState.UNAVAILABLE,
+      removedAt: null,
+      lastObservationAt: receivedAt,
+      isStale: true,
+      name: "Registered application",
+      city: "Campinas",
+    });
+
+    upstream.fetchMetrics.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
+    await runner.run();
+    expect(await store.findOneByOrFail({ id })).toMatchObject({
+      state: ApplicationState.NO_METRICS,
+      removedAt: null,
+      lastObservationAt: receivedAt,
+    });
+
+    upstream.fetchService.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
+    upstream.fetchMetrics.mockClear();
+    await runner.run();
+    expect((await store.findOneByOrFail({ id })).state).toBe(
+      ApplicationState.REMOVED,
+    );
+    expect(upstream.fetchMetrics).not.toHaveBeenCalled();
+    expect(await collectionStore.findHistoryByApplication(id)).toEqual(history);
   });
 
   it("does not confirm removal if the services snapshot is invalid", async () => {
