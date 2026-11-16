@@ -19,6 +19,7 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
     const element = target ? [...document.querySelectorAll<HTMLElement>(target)].find(item => item.getClientRects().length > 0) : null
     element?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
     element?.classList.add(styles.highlight)
+    if (dialog.current) dialog.current.dataset.placement = element && element.getBoundingClientRect().top > window.innerHeight / 2 ? 'top' : 'bottom'
     dialog.current?.showModal()
     return () => element?.classList.remove(styles.highlight)
   }, [step, target])

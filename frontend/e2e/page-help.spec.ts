@@ -54,6 +54,10 @@ for (const width of [1366, 390]) {
     await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
     await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
     await expect(dialog).toContainText('Use Detalhes')
+    const target = await page.locator('[data-help="application-actions"]:visible').first().boundingBox()
+    const tutorial = await dialog.boundingBox()
+    expect(target!.y + target!.height <= tutorial!.y || tutorial!.y + tutorial!.height <= target!.y,
+      'the tutorial must leave its highlighted actions visible').toBe(true)
     await page.screenshot({ path: testInfo.outputPath('help.png'), fullPage: true })
     await dialog.getByRole('button', { name: 'Concluir', exact: true }).click()
     await expect(trigger).toBeFocused()

@@ -3,6 +3,7 @@
 .trigger:focus-visible, .close:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 .dialog { position: fixed; inset: auto 24px 24px auto; width: min(400px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; margin: 0; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; color: var(--text-primary); background: var(--surface-card); box-shadow: 0 8px 32px rgb(0 0 0 / 16%); }
 .dialog::backdrop { background: rgb(0 0 0 / 18%); }
+.dialog[data-placement='top'] { top: 16px; bottom: auto; }
 .dialog header { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-secondary); font-size: 12px; }
 .close { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 6px; padding: 0; color: var(--text-secondary); background: transparent; font: inherit; font-size: 24px; cursor: pointer; }
 .dialog h2 { margin: 12px 0 8px; font-size: 18px; }
