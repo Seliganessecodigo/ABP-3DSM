@@ -103,7 +103,7 @@ function SearchDialog({
       <button className={styles.iconButton} type="button" onClick={onClose} aria-label={t('close')}>×</button>
     </div>
     <label className={styles.searchLabel}>{t('searchAll')}
-      <input autoFocus className="form-control" type="search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} />
+      <input autoFocus className="form-control" type="search" placeholder={t('searchPlaceholder')} value={search} onChange={(event) => setSearch(event.currentTarget.value)} />
     </label>
     {app && <div className={styles.catalogToolbar}>
       <label>{t('sortBy')}<select className="form-control" aria-label={t('sortBy')} value={`${sort.column}:${sort.direction}`} onChange={(event) => {

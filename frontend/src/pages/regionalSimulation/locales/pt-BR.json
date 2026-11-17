@@ -39,6 +39,7 @@
   "confirmClear": "Limpar cenário",
   "close": "Fechar",
   "searchAll": "Buscar por nome, código ou localização",
+  "searchPlaceholder": "Ex.: Billing API, billing-api ou br-sudeste",
   "noApplicationsMatch": "Nenhuma aplicação corresponde à busca.",
   "noRegionsMatch": "Nenhuma região corresponde à busca.",
   "applicationCount": "Total de aplicações: {{count}}",
