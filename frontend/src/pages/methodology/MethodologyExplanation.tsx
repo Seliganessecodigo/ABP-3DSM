@@ -5,7 +5,7 @@ import styles from './Preferences.module.css'
 export function MethodologyExplanation({ tab }: Readonly<{ tab: PreferenceTab }>) {
   const { t } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const flow = tab === 'energy' || tab === 'emissions'
-  return <section className={`${styles.card} ${styles.explanation}`} aria-labelledby="explanation-title">
+  return <section data-help="methodology-explanation" className={`${styles.card} ${styles.explanation}`} aria-labelledby="explanation-title">
     <p className={styles.step}>{t('stepUnderstand')}</p><h2 id="explanation-title">{t(`${tab}.title`)}</h2>
     {flow ? <>
       <div className={styles.flow}>{[0, 1, 2].map((index) => <div key={index}><div className={styles.flowBox}><h3>{t(`${tab}.flow${index}Title`)}</h3><p>{t(`${tab}.flow${index}Description`)}</p></div>{index < 2 && <span className={styles.arrow} aria-hidden="true">↓</span>}</div>)}</div>

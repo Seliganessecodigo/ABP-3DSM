@@ -64,5 +64,22 @@
   "help.close": "Cerrar ayuda",
   "help.previous": "Anterior",
   "help.next": "Siguiente",
-  "help.finish": "Finalizar"
+  "help.finish": "Finalizar",
+  "pagination.label": "Paginación",
+  "pagination.size": "Elementos por página",
+  "pagination.all": "Todas",
+  "pagination.previous": "Página anterior",
+  "pagination.next": "Página siguiente",
+  "pagination.page": "Página {{page}} de {{count}}",
+  "help.energy": "La energía es la electricidad estimada a partir del uso de CPU, memoria, disco y red. El kWh mide energía acumulada: 1 kWh equivale a 1.000 W usados durante una hora. El valor corresponde al período elegido, no a la potencia instantánea.",
+  "help.energyTitle": "Energía",
+  "help.emissions": "El CO₂e (dióxido de carbono equivalente) estima las emisiones asociadas a la electricidad usada por la aplicación. Combina la energía estimada con el factor de carbono regional. No es una medición directa de las emisiones de la aplicación.",
+  "help.emissionsTitle": "CO₂e",
+  "help.coverage": "La cobertura es la parte del tiempo analizado respaldada por datos utilizables. Con el 100%, todo el período está cubierto. Energía y CO₂e pueden tener coberturas diferentes. Un hueco significa información ausente, no consumo cero.",
+  "help.coverageTitle": "Cobertura",
+  "help.states": "Disponible indica métricas válidas; No disponible, un fallo de consulta; Sin métricas, lecturas ausentes; Eliminada, salida confirmada del registro de origen. Las comprobaciones actualizan el estado y conservan el historial.",
+  "help.metrics": "CPU, memoria, disco y red describen el uso de recursos y alimentan la estimación de energía. Compruebe la hora de observación: una actualización puede fallar y conservar la lectura anterior. Cero válido y lectura ausente son distintos.",
+  "help.factor": "El factor regional indica las emisiones asociadas a cada kWh de electricidad en esa región. La misma energía puede dar distintos valores de CO₂e según el factor. Los registros permiten comprobar el factor y la metodología utilizados.",
+  "help.period": "El período es la ventana de tiempo analizada, no la frecuencia de recogida. La granularidad, cuando existe, es el tamaño de los grupos de lecturas, como hora o día. Compruebe la zona horaria indicada.",
+  "help.composition": "Cada barra o sector muestra la participación de una aplicación en el CO₂e calculable del ámbito elegido. Una participación mayor aporta más al total; por sí sola no demuestra menor eficiencia. Los datos ausentes no se tratan como cero."
 }

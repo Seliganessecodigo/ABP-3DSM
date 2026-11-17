@@ -1,3 +1,5 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
+import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
@@ -51,19 +53,6 @@ type ComparisonRow = Readonly<{
 function positiveInteger(value: string | null, fallback: number): number {
   const parsed = Number(value)
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback
-}
-
-function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
-  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
-  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
-  return [
-    1,
-    ...(first > 2 ? ['ellipsis-start' as const] : []),
-    ...Array.from({ length: last - first + 1 }, (_, index) => first + index),
-    ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []),
-    pageCount,
-  ]
 }
 
 function readPageState(search: string): PageState {
@@ -253,7 +242,6 @@ export function ComparisonPage() {
   const pageSize = query.pageSize === 'all' ? Math.max(total, 1) : query.pageSize
   const firstItem = total === 0 ? 0 : (result.page - 1) * pageSize + 1
   const lastItem = Math.min(result.page * pageSize, total)
-  const pages = paginationPages(result.page, result.pageCount)
   const stateFilters = states.map((state) => ({
     value: state,
     label: state === 'ALL' ? t('allStates') : stateLabel(state, tCommon),
@@ -315,15 +303,22 @@ export function ComparisonPage() {
 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className="page-heading">
-      <div><p className="eyebrow">{t('eyebrow')}</p><h1>{t('title')}</h1><p>{t('description')}</p></div>
+      <div><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+      { title: t('selectionHeading'), description: t('helpSelection'), target: '[data-help="comparison-selection"]' },
+      { title: tDetail('periodTitle'), description: tCommon('help.period'), target: '[data-help="comparison-period"]' },
+      { title: t('reference'), description: t('helpReference'), target: '[data-help="comparison-reference"]' },
+      { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="comparison-energy"]' },
+      { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="comparison-emissions"]' },
+      { title: t('energyCoverage'), description: tCommon('help.coverage'), target: '[data-help="comparison-energyCoverage"]' },
+    ]} /></div><p>{t('description')}</p></div>
     </header>
     {catalogError && <RequestFeedback state="error"><p>{t('catalogError')}</p><button type="button" onClick={retryCatalog}>{tCommon('actions.retry')}</button></RequestFeedback>}
-    <section className={styles.period} aria-label={t('periodSection')}>
+    <section data-help="comparison-period" className={styles.period} aria-label={t('periodSection')}>
       <PeriodSelector compact select selected={pageState.period} onSelect={selectPeriod}
         title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
         options={periodOptions.map((period) => ({ value: period, label: tDetail(`periods.${period}`) }))} />
     </section>
-    <section className={styles.selection} aria-labelledby="comparison-selection-heading">
+    <section data-help="comparison-selection" className={styles.selection} aria-labelledby="comparison-selection-heading">
       <h2 id="comparison-selection-heading">{t('selectionHeading')}</h2>
       <p>{t('selectionInstructions')}</p>
       {selectedIds.length >= 5 && <p role="status">{t('selectionLimit')}</p>}
@@ -334,7 +329,7 @@ export function ComparisonPage() {
           <button type="button" aria-label={t('removeApplication', { name: applicationName(id) })} onClick={() => toggleApplication(id, false)}>×</button>
         </li>)}
       </ul>
-      {selectedIds.length >= 2 && selectedIds.length <= 5 && <label className={styles.reference}>
+      {selectedIds.length >= 2 && selectedIds.length <= 5 && <label data-help="comparison-reference" className={styles.reference}>
         {t('reference')}<select className="form-control" value={referenceApplicationId ?? ''} onChange={(event) => selectReference(event.target.value)}>
           {referenceApplicationId && !selectedIds.includes(referenceApplicationId) && <option value={referenceApplicationId}>{t('invalidId')}: {referenceApplicationId}</option>}
           {selectedIds.map((id) => <option key={id} value={id}>{applicationName(id)}</option>)}
@@ -387,20 +382,9 @@ export function ComparisonPage() {
           })}</tbody>
         </table>
       </div>}
-      {result.total > 0 && <nav className={styles.pagination} aria-label={t('pagination')}>
-        <span>{tCatalog('range', { start: firstItem, end: lastItem, count: total })}</span>
-        <label>{tCatalog('pageSize')}<select className="form-control" value={query.pageSize} onChange={(event) => updateQuery({
-          ...query, page: 1, pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value),
-        })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>
-        <button type="button" disabled={result.page <= 1} aria-label={tCatalog('previousAria')} onClick={() => updateQuery({ ...query, page: result.page - 1 })}>{tCatalog('previous')}</button>
-        <div className={styles.pageNumbers}>
-          {pages.map((page) => typeof page === 'number'
-            ? <button type="button" key={page} aria-label={tCatalog('page', { page, count: result.pageCount })}
-              aria-current={page === result.page ? 'page' : undefined} onClick={() => updateQuery({ ...query, page })}>{page}</button>
-            : <span key={page} aria-hidden="true">…</span>)}
-        </div>
-        <button type="button" disabled={result.page >= result.pageCount} aria-label={tCatalog('nextAria')} onClick={() => updateQuery({ ...query, page: result.page + 1 })}>{tCatalog('next')}</button>
-      </nav>}
+      {result.total > 0 && <Pagination page={result.page} pageCount={result.pageCount} label={t('pagination')}
+        onPageChange={page => updateQuery({ ...query, page })} summary={tCatalog('range', { start: firstItem, end: lastItem, count: total })}
+        pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => updateQuery({ ...query, page: 1, pageSize: value === 'all' ? 'all' : Number(value) }) }} />}
     </section>
     {selectedIds.length > 5 && <RequestFeedback state="error"><p>{t('tooManySelected')}</p></RequestFeedback>}
     {selectedIds.length > 0 && selectedIds.length < 2 && <p className={styles.notice} role="status">{t('selectAtLeastTwo')}</p>}
@@ -427,13 +411,13 @@ export function ComparisonPage() {
             <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
                 <th scope="col" key={application.applicationId}>{application.name}{application.applicationId === referenceApplicationId && <small>{t('reference')}</small>}</th>)}</tr></thead>
-              <tbody>{rows.map((row) => <tr key={row.key}><th scope="row">{row.label}</th>{selectedApplications.map((application) =>
+              <tbody>{rows.map((row) => <tr key={row.key} data-help={`comparison-${row.key}`}><th scope="row">{row.label}</th>{selectedApplications.map((application) =>
                 <td key={application.applicationId}><span>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}</td>)}</tr>)}</tbody>
             </table>
           </div>
           <div className={styles.mobileResults}>
-            {rows.map((row) => <section key={row.key} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
+            {rows.map((row) => <section key={row.key} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
               <h3 id={`comparison-${row.key}`}>{row.label}</h3>
               {selectedApplications.map((application) => <div className={styles.mobileValue} key={application.applicationId}>
                 <strong>{application.name}{application.applicationId === referenceApplicationId ? ` · ${t('reference')}` : ''}</strong>

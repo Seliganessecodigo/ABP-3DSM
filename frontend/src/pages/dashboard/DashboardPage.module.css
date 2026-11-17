@@ -5,7 +5,7 @@
   padding: 20px clamp(16px, 2vw, 28px) 40px;
   color: var(--text-primary);
 }
-.header, .sectionHeading, .tableHeading, .tableActions, .filterActions, .pagination {
+.header, .sectionHeading, .tableHeading, .tableActions, .filterActions{
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,17 +18,17 @@
 .subtitle { font-size: 13px; }
 .summaryMeta { font-size: 11px; }
 .refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
-.filterActions button, .filtersPanel fieldset button, .pagination button, .tableCard th button {
+.filterActions button, .filtersPanel fieldset button, .tableCard th button {
   min-height: var(--control-height);
   border: 1px solid var(--border-default);
-  border-radius: 7px;
+  border-radius: var(--control-radius);
   padding: 8px 12px;
   color: var(--text-primary);
   background: var(--surface-card);
   cursor: pointer;
 }
 .refreshButton { color: var(--accent-on-accent); background: var(--accent-default); border-color: var(--accent-default); font-weight: 650; white-space: nowrap; }
-.refreshButton[aria-disabled='true'], .pagination button:disabled { cursor: not-allowed; opacity: .65; }
+.refreshButton[aria-disabled='true']{ cursor: not-allowed; opacity: .65; }
 .controls {
   display: flex;
   align-items: end;
@@ -38,19 +38,18 @@
 }
 .periods { display: flex; flex-wrap: wrap; gap: 4px; }
 .controls button { font-size: var(--control-font-size); line-height: 20px; }
-.periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true'],
-.pagination button[aria-current='page'] {
+.periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true']{
   color: var(--accent-on-accent);
   background: var(--accent-default);
   border-color: var(--accent-default);
 }
-.controls label, .searchLabel, .filtersPanel label, .pagination label {
+.controls label, .searchLabel, .filtersPanel label{
   display: grid;
   gap: 5px;
   color: var(--text-secondary);
   font-size: 12px;
 }
-.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select, .pagination select { max-width: 100%; }
+.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select{ max-width: 100%; }
 .card, .tableCard {
   min-width: 0;
   border: 1px solid var(--border-default);
@@ -155,10 +154,6 @@
 .tableCard td a { color: var(--accent-default); font-weight: 650; }
 .tableCard tbody th a { color: var(--text-primary); font-weight: 700; text-decoration: none; }
 .tableCard tbody th a:hover { color: var(--accent-default); text-decoration: underline; }
-.pagination { flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-default); }
-.pagination p { margin: 0; color: var(--text-secondary); font-size: 12px; }
-.pagination nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.pagination nav button { min-width: var(--control-height-compact); min-height: var(--control-height-compact); padding: 6px; }
 .comparisonNote { margin: 0; color: var(--text-secondary); font-size: 10px; }
 
 @media (max-width: 1100px) {
@@ -207,7 +202,4 @@
   .tableCard tbody td::before { content: attr(data-label); color: var(--text-secondary); font-size: 9px; text-align: left; }
   .tableCard tbody td .stateBadge { max-width: 100%; overflow-wrap: anywhere; }
   .scopeNote { font-size: 11px; }
-  .pagination { align-items: flex-start; flex-direction: column; }
-  .pagination nav { width: 100%; }
-  .pagination nav button { flex: 1 0 auto; }
 }

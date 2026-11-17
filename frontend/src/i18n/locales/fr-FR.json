@@ -64,5 +64,22 @@
   "help.close": "Fermer l’aide",
   "help.previous": "Précédent",
   "help.next": "Suivant",
-  "help.finish": "Terminer"
+  "help.finish": "Terminer",
+  "pagination.label": "Pagination",
+  "pagination.size": "Éléments par page",
+  "pagination.all": "Toutes",
+  "pagination.previous": "Page précédente",
+  "pagination.next": "Page suivante",
+  "pagination.page": "Page {{page}} sur {{count}}",
+  "help.energy": "L’énergie est l’électricité estimée à partir du processeur, de la mémoire, du disque et du réseau. Le kWh mesure une énergie cumulée : 1 kWh équivaut à 1 000 W utilisés pendant une heure. La valeur concerne la période choisie, pas la puissance instantanée.",
+  "help.energyTitle": "Énergie",
+  "help.emissions": "Le CO₂e (équivalent dioxyde de carbone) estime les émissions liées à l’électricité utilisée par l’application. Le calcul combine l’énergie estimée et le facteur carbone régional. Il ne mesure pas directement les émissions de l’application.",
+  "help.emissionsTitle": "CO₂e",
+  "help.coverage": "La couverture est la part du temps analysé appuyée par des données exploitables. À 100 %, toute la période est couverte. Énergie et CO₂e peuvent avoir des couvertures différentes. Une lacune signifie une information manquante, pas une consommation nulle.",
+  "help.coverageTitle": "Couverture",
+  "help.states": "Disponible indique des métriques valides ; Indisponible, un échec de consultation ; Sans métriques, des relevés absents ; Supprimée, une sortie confirmée du registre source. Les vérifications actualisent l’état et conservent l’historique.",
+  "help.metrics": "Processeur, mémoire, disque et réseau décrivent les ressources utilisées et alimentent l’estimation d’énergie. Vérifiez l’heure du relevé : une actualisation peut échouer et conserver la lecture précédente. Un zéro valide diffère d’un relevé absent.",
+  "help.factor": "Le facteur régional indique les émissions associées à chaque kWh d’électricité dans cette région. Une même énergie peut donner différents CO₂e selon le facteur. Les enregistrements précisent le facteur et la méthode utilisés.",
+  "help.period": "La période est la fenêtre de temps analysée, pas la fréquence de collecte. La granularité, lorsqu’elle est proposée, regroupe les relevés par heure ou par jour, par exemple. Vérifiez le fuseau indiqué pour les dates.",
+  "help.composition": "Chaque barre ou secteur indique la part d’une application dans le CO₂e calculable du périmètre choisi. Une part plus grande contribue davantage au total ; elle ne prouve pas à elle seule une efficacité moindre. Les données absentes ne valent pas zéro."
 }

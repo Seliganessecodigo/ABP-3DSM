@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "Referensi tidak positif; persentase tidak dapat dihitung",
   "reason.METRIC_MISSING": "Metrik tidak tersedia",
   "reason.METRIC_INVALID": "Metrik tidak valid",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Lokasi historis tidak tersedia"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Lokasi historis tidak tersedia",
+  "helpSelection": "Pilih dua sampai lima aplikasi untuk periode yang sama. Pencarian, filter dan halaman membantu menemukannya tanpa menghapus pilihan yang sudah ada. Pilihan valid atau perubahan periode memperbarui perbandingan.",
+  "helpReference": "Aplikasi referensi adalah dasar selisih, bukan rekomendasi aplikasi terbaik. Nilai positif berarti lebih dari referensi; negatif berarti lebih sedikit. Periksa satuan dan cakupan: persentase bisa tidak tersedia, termasuk saat referensi nol."
 }

@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "기준이 양수가 아니므로 백분율을 계산할 수 없음",
   "reason.METRIC_MISSING": "메트릭 누락",
   "reason.METRIC_INVALID": "잘못된 메트릭",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "기간 내 과거 위치를 사용할 수 없음"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "기간 내 과거 위치를 사용할 수 없음",
+  "helpSelection": "같은 기간에 비교할 애플리케이션을 2~5개 선택하세요. 검색, 필터, 페이지 이동으로 찾아도 기존 선택은 해제되지 않습니다. 유효한 선택이나 기간이 바뀌면 비교가 갱신됩니다.",
+  "helpReference": "기준 애플리케이션은 차이를 계산하는 비교 대상이며 최상의 애플리케이션을 추천하는 것은 아닙니다. 양수는 기준보다 많고 음수는 적다는 뜻입니다. 단위와 커버리지를 확인하세요. 기준값이 0인 경우 등에는 백분율을 표시하지 못할 수 있습니다."
 }

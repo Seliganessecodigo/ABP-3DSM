@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -37,13 +38,6 @@ const filterDefaults: DashboardTableFilters = {
   emissionsMin: '', emissionsMax: '', emissionsMissing: false,
   energyCoverageMin: '', energyCoverageMax: '',
   emissionsCoverageMin: '', emissionsCoverageMax: '',
-}
-
-function paginationPages(page: number, pageCount: number): number[] {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
-  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
-  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
-  return [1, ...(first > 2 ? [-1] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? [-2] : []), pageCount]
 }
 
 function numberLabel(value: number | null, unit: string, locale: string, missing: string): string {
@@ -217,9 +211,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <div>
         <p className={styles.eyebrow}>{t('eyebrow')}</p>
         <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
-  { title: t('filters.contextHeading'), description: t('helpFilters'), target: '[data-help="dashboard-filters"]' },
-  { title: t('trendTitle'), description: [t('trend.note'), t('comparisonPending')].join('\n\n'), target: '[data-help="dashboard-trend"]' },
-  { title: t('compositionTitle'), description: t('helpResults'), target: '[data-help="dashboard-results"]' },
+  { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
+  { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
+  { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="dashboard-emissions"]' },
+  { title: t('coverage'), description: tCommon('help.coverage'), target: '#dashboard-coverage' },
+  { title: t('trendTitle'), description: [t('trend.note'), t('comparisonPending')].join("\n\n"), target: '[data-help="dashboard-trend"]' },
+  { title: t('compositionTitle'), description: tCommon('help.composition'), target: '[data-help="dashboard-composition"]' },
 ]} /></div>
         {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
@@ -279,12 +276,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       {data.data.status === 'empty' && <p className={styles.emptyNotice} role="status">{t('empty')}</p>}
 
       <section className={styles.kpis} aria-label={t('indicators')}>
-        <article className={styles.card}>
+        <article data-help="dashboard-energy" className={styles.card}>
           <h2>{t('energy')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('energyCoverage')}: {coverageLabel(data.data.coverage.energy, locale)}</p>
         </article>
-        <article className={styles.card}>
+        <article data-help="dashboard-emissions" className={styles.card}>
           <h2>{t('emissions')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
@@ -314,12 +311,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
       {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
-      <section data-help="dashboard-trend" className={styles.visualizations}>
-        <article className={styles.card}>
+      <section className={styles.visualizations}>
+        <article data-help="dashboard-trend" className={styles.card}>
           <h2>{t('trendTitle')}</h2>
           <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
-        <article className={styles.card}>
+        <article data-help="dashboard-composition" className={styles.card}>
           <div className={styles.sectionHeading}>
             <h2>{t('compositionTitle')}</h2>
             <div className={styles.modeButtons}>
@@ -443,24 +440,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               </tr>)}</tbody>
             </table>
           </div>}
-        {table.total > 0 && <footer className={styles.pagination}>
-          <p>{t('table.range', {
-            from: from + 1,
-            to,
-            total: table.total,
-          })}</p>
-          <label>{t('table.pageSize')}<select className="form-control form-control--compact" value={query.pageSize} onChange={(event) => changePageSize(event.target.value)}>
-            {pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? t('table.allRows') : size}</option>)}
-          </select></label>
-          <nav aria-label={t('table.pagination')}>
-            <button type="button" disabled={page <= 1} onClick={() => update({ page: page - 1 })}>{t('table.previous')}</button>
-            {paginationPages(page, pageCount).map((number, index) => number < 0
-              ? <span key={`${number}-${index}`} aria-hidden="true">…</span>
-              : <button key={number} type="button" aria-current={number === page ? 'page' : undefined}
-                aria-label={t('table.pageChoice', { page: number, total: pageCount })} onClick={() => update({ page: number })}>{number}</button>)}
-            <button type="button" disabled={page >= pageCount} onClick={() => update({ page: page + 1 })}>{t('table.next')}</button>
-          </nav>
-        </footer>}
+        {table.total > 0 && <Pagination page={page} pageCount={pageCount} label={t('table.pagination')}
+          onPageChange={page => update({ page })} summary={t('table.range', { from: from + 1, to, total: table.total })}
+          pageSize={{ value: query.pageSize, options: pageSizes, onChange: changePageSize }} />}
       </section>
     </>}
   </main>

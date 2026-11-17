@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "参考值不是正数，无法计算百分比",
   "reason.METRIC_MISSING": "缺少指标",
   "reason.METRIC_INVALID": "指标无效",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "没有可用的历史位置"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "没有可用的历史位置",
+  "helpSelection": "选择2到5个应用，在同一时段内比较。搜索、筛选和翻页可以帮助查找应用，不会取消已有选择。有效选择或时间范围变化时，比较会更新。",
+  "helpReference": "参考应用是计算差异的基准，不是最佳应用的推荐。正值表示比参考应用多，负值表示更少。请核对单位和覆盖率：某些情况下无法计算百分比，包括参考值为零时。"
 }

@@ -90,7 +90,9 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.getByRole('region', { name: 'Indicadores ambientais' }).getByText('12,6 gCO2e', { exact: true })).toBeVisible()
   await expect(page.getByText('Não foi possível consultar a série temporal.', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Próximo', exact: true }).click()
+  while (await page.getByRole('dialog').getByRole('heading').innerText() !== 'Série temporal') {
+    await page.getByRole('dialog').getByRole('button', { name: 'Próximo', exact: true }).click()
+  }
   await expect(page.getByRole('dialog')).toContainText(/comparação com período anterior indisponível/i)
   await page.getByRole('dialog').getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)

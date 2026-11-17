@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "La referencia no es positiva; no se puede calcular el porcentaje",
   "reason.METRIC_MISSING": "Métrica ausente",
   "reason.METRIC_INVALID": "Métrica no válida",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Ubicación histórica no disponible"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Ubicación histórica no disponible",
+  "helpSelection": "Elija de dos a cinco aplicaciones para el mismo período. La búsqueda, los filtros y las páginas ayudan a encontrarlas sin quitar las ya seleccionadas. La comparación se actualiza al cambiar una selección válida o el período.",
+  "helpReference": "La referencia es la aplicación base para las diferencias, no una recomendación de la mejor aplicación. Un valor positivo indica más que la referencia; uno negativo, menos. Compruebe unidades y cobertura: el porcentaje puede no estar disponible, incluso si la referencia es cero."
 }

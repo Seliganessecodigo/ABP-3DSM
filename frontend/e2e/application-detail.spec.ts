@@ -87,7 +87,7 @@ test('navegação mantém Aplicações ativa no detalhe', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/services/svc-0142')
 
-  const navigation = page.getByRole('navigation')
+  const navigation = page.getByRole('navigation', { name: 'Navegação principal', exact: true })
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).toHaveAttribute('aria-current', 'page')
 })
 
@@ -100,7 +100,7 @@ test('selecionar Aplicações no drawer móvel fecha o menu e foca a nova págin
   await page.getByRole('dialog').getByRole('link', { name: 'Aplicações', exact: true }).click()
 
   await expect.poll(() => new URL(page.url()).pathname).toBe('/')
-  await expect(page.getByRole('navigation')).toBeHidden()
+  await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true })).toBeHidden()
   await expect(page.getByRole('main')).toBeFocused()
 })
 
