@@ -14,6 +14,12 @@ export function useTheme() {
   const theme = preference === 'system' ? systemTheme : preference
 
   useEffect(() => {
+    const synchronize = () => setPreference(preferenceOf(document.documentElement.dataset.themePreference))
+    window.addEventListener('greener-theme-change', synchronize)
+    return () => window.removeEventListener('greener-theme-change', synchronize)
+  }, [])
+
+  useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     const followSystem = (event: MediaQueryListEvent) => setSystemDark(event.matches)
     media.addEventListener('change', followSystem)
@@ -27,10 +33,12 @@ export function useTheme() {
   }, [preference, theme])
 
   function chooseTheme(next: ThemePreference) {
+    document.documentElement.dataset.themePreference = next
+    window.dispatchEvent(new Event('greener-theme-change'))
     setPreference(next)
     try { window.localStorage.setItem('greener-theme', next) }
     catch { /* Keep the choice in memory when persistence is blocked. */ }
   }
 
-  return { theme, chooseTheme }
+  return { theme, preference, chooseTheme }
 }

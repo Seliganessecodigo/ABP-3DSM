@@ -1,5 +1,5 @@
 .page { max-width: 1400px; }
-.panel { margin-bottom: 24px; border: 1px solid var(--border-default); border-radius: 12px; padding: 24px; background: var(--surface-card); }
+.panel { margin-bottom: 24px; border-bottom: 1px solid var(--border-default); padding: 24px 0; }
 .panel h2 { margin: 0 0 12px; color: var(--text-primary); font-size: 18px; }
 .panel p { color: var(--text-secondary); line-height: 1.6; }
 .hint { font-size: 13px; }
@@ -16,4 +16,8 @@
 .table tbody th { font-weight: 600; }
 .panel .error { color: var(--error-foreground); }
 @media (max-width: 1100px) { .form { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 640px) { .panel { padding: 16px; } .form { grid-template-columns: 1fr; } .table { min-width: 650px; } }
+@media (max-width: 640px) { .panel { padding: 16px 0; } .form { grid-template-columns: 1fr; } .table { min-width: 650px; } }
+
+.filters { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
+.filters label { display: grid; gap: 8px; flex: 1; min-width: 160px; }
+.sort { padding: 4px 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
