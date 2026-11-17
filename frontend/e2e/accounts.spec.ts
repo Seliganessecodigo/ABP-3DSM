@@ -54,7 +54,7 @@ test('admin lista contas e envia convite autenticado sem criar conta antecipadam
   await page.getByLabel('Nome completo').fill('Maria Souza')
   await page.getByLabel('E-mail da conta Google').fill('maria@example.com')
   await page.getByRole('button', { name: 'Enviar convite', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Convite enviado')
+  await expect(page.getByRole('status').filter({ hasText: 'Convite enviado' })).toBeVisible()
   await expect(page.getByLabel('Nome completo')).toHaveValue('')
   await expect(page.getByRole('rowheader', { name: 'Maria Souza' })).toHaveCount(0)
 })
@@ -100,10 +100,10 @@ test('paginação usa total e página do servidor', async ({ page }) => {
     return route.fulfill({ json: { items: second ? [{ ...account, id: 'last', name: 'Última conta' }] : [account], pagination: { page: second ? 2 : 1, pageSize: 10, totalItems: 11, totalPages: 2, hasNextPage: !second } } })
   })
   await openAccounts(page)
-  await page.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await page.getByRole('button', { name: "Próxima página", exact: true }).click()
   await expect(page.getByRole('rowheader', { name: 'Última conta' })).toBeVisible()
   await expect(page.getByText('Página 2 de 2 · 11 contas')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Próxima', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: "Próxima página", exact: true })).toBeDisabled()
 })
 
 test('formulário bloqueia envio duplicado e cancela ao sair da tela', async ({ page }) => {

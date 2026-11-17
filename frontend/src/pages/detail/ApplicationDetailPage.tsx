@@ -193,7 +193,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         filteredCount: (count, total) => tDetail('evidenceFilteredCount', { count, total }),
         metrics: { cpu: tDetail('metricCpu'), memory: tDetail('metricMemory'), disk: tDetail('metricDisk'), network: tDetail('metricNetwork') } }} />
   const contextContent = !historyOnly && application && <>
-      <section className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
+      <section data-help="detail-identity" className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
       <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{freshnessLabel(application, { removed: tDetail('freshnessRemoved'), noObservation: tCommon('date.noObservation'), stale: tCommon('freshness.stale'), current: tCommon('freshness.current') })}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl></section>
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
     <a className="button secondary" href={methodologyUrl} onClick={(event) => { event.preventDefault(); navigate(methodologyUrl) }}>{tDetail('methodologyFullPage')}</a>
@@ -219,14 +219,24 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         hour: tDetail('analysisGranularityHour'), day: tDetail('analysisGranularityDay'),
         month: tDetail('analysisGranularityMonth'), year: tDetail('analysisGranularityYear'),
       } }} />
-  const pageHelp = <PageHelp steps={historyOnly ? [
-    { title: tDetail('periodTitle'), description: tDetail('helpHistoryFilters'), target: '[data-help="history-filters"]' },
-    { title: tDetail('analysisSeriesHeading'), description: tDetail('analysisSeriesGapsNote'), target: '[data-help="analysis-series"]' },
-    { title: tDetail('historyInspectionHeading'), description: [tDetail('historyContributionsDescription'), tDetail('historyTableNote')].join('\n\n'), target: '[data-help="analysis-series"]' },
+  const pageHelp = <PageHelp steps={historyOnly ? inspectionBucket ? [
+    { title: tDetail('historyInspectionHeading'), description: tCommon('help.period'), target: '[data-help="history-bucket"]' },
+    { title: tDetail('historyContributionsHeading'), description: tDetail('historyContributionsDescription'), target: '[data-help="history-contributions"]' },
+    { title: tDetail('analysisFactor'), description: tCommon('help.factor') },
   ] : [
-    { title: tDetail('identity'), description: tDetail('operationalDescription'), target: '[data-help="detail-context"]' },
-    { title: tDetail('analysisHeading'), description: tDetail('environmentalSummaryNote'), target: '[data-help="analysis-summary"]' },
-    { title: tDetail('evidenceTitle'), description: tDetail('evidenceZeroNote'), target: '[data-help="detail-evidence"]' },
+    { title: tDetail('periodTitle'), description: [tDetail('helpHistoryFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="history-filters"]' },
+    { title: tCommon('help.energyTitle'), description: tCommon('help.energy'), target: '[data-help="analysis-energy"]' },
+    { title: tCommon('help.emissionsTitle'), description: tCommon('help.emissions'), target: '[data-help="analysis-emissions"]' },
+    { title: tCommon('help.coverageTitle'), description: tCommon('help.coverage'), target: '[data-help="analysis-coverage"]' },
+    { title: tDetail('analysisSeriesHeading'), description: tDetail('analysisSeriesGapsNote'), target: '[data-help="analysis-chart"]' },
+    { title: tDetail('analysisHistoryIntervals'), description: [tDetail('historyContributionsDescription'), tDetail('historyTableNote')].join("\n\n"), target: '[data-help="history-intervals"]' },
+    { title: tDetail('historyContextHeading'), description: tCommon('help.factor'), target: '[data-help="analysis-context"]' },
+  ] : [
+    { title: tDetail('identity'), description: tCommon('help.states'), target: '[data-help="detail-identity"]' },
+    { title: tCommon('help.energyTitle'), description: tCommon('help.energy'), target: '[data-help="analysis-energy"]' },
+    { title: tCommon('help.emissionsTitle'), description: tCommon('help.emissions'), target: '[data-help="analysis-emissions"]' },
+    { title: tCommon('help.coverageTitle'), description: tCommon('help.coverage'), target: '[data-help="analysis-coverage"]' },
+    { title: tDetail('evidenceTitle'), description: tCommon('help.metrics'), target: '[data-help="detail-evidence"]' },
   ]} />
   return <main ref={historyRoot} className={`content ${styles['detail-content']} ${!historyOnly && operationalOverview ? styles.overviewContent : ''} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>

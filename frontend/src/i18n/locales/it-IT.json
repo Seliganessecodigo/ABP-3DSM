@@ -64,5 +64,22 @@
   "help.close": "Chiudi guida",
   "help.previous": "Precedente",
   "help.next": "Avanti",
-  "help.finish": "Concludi"
+  "help.finish": "Concludi",
+  "pagination.label": "Paginazione",
+  "pagination.size": "Elementi per pagina",
+  "pagination.all": "Tutte",
+  "pagination.previous": "Pagina precedente",
+  "pagination.next": "Pagina successiva",
+  "pagination.page": "Pagina {{page}} di {{count}}",
+  "help.energy": "L’energia è l’elettricità stimata dall’uso di CPU, memoria, disco e rete. Il kWh misura energia accumulata: 1 kWh equivale a 1.000 W usati per un’ora. Il valore riguarda il periodo scelto, non la potenza istantanea.",
+  "help.energyTitle": "Energia",
+  "help.emissions": "Il CO₂e (anidride carbonica equivalente) stima le emissioni associate all’elettricità usata dall’applicazione. Il calcolo combina energia stimata e fattore di carbonio regionale. Non misura direttamente le emissioni dell’applicazione.",
+  "help.emissionsTitle": "CO₂e",
+  "help.coverage": "La copertura è la parte del tempo analizzato sostenuta da dati utilizzabili. Al 100% tutto il periodo è coperto. Energia e CO₂e possono avere coperture diverse. Un vuoto indica informazioni mancanti, non consumo zero.",
+  "help.coverageTitle": "Copertura",
+  "help.states": "Disponibile indica metriche valide; Non disponibile, una consultazione fallita; Senza metriche, letture mancanti; Rimossa, l’uscita confermata dal registro di origine. Le verifiche aggiornano lo stato e conservano la cronologia.",
+  "help.metrics": "CPU, memoria, disco e rete descrivono l’uso delle risorse e alimentano la stima energetica. Controlla l’ora dell’osservazione: un aggiornamento può fallire e conservare la lettura precedente. Uno zero valido è diverso da una lettura assente.",
+  "help.factor": "Il fattore regionale indica le emissioni per ogni kWh di elettricità in quella regione. La stessa energia può produrre CO₂e diversi secondo il fattore. I registri del calcolo mostrano fattore e metodologia utilizzati.",
+  "help.period": "Il periodo è la finestra temporale analizzata, non la frequenza di raccolta. La granularità, quando disponibile, raggruppa le letture, ad esempio per ora o giorno. Controlla il fuso orario indicato.",
+  "help.composition": "Ogni barra o settore mostra la quota di un’applicazione nel CO₂e calcolabile dell’ambito scelto. Una quota maggiore contribuisce di più al totale; da sola non dimostra minore efficienza. I dati assenti non valgono zero."
 }

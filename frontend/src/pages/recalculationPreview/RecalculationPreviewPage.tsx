@@ -136,14 +136,14 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
   return <main className={styles.page} tabIndex={-1}>
     <header className={styles.heading}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('recalculateTitle'), description: t('recalculateDescription'), target: '[data-help="recalculation-form"]' },
-  { title: t('resultTitle'), description: t('noSave'), target: '[data-help="recalculation-form"]' },
+  { title: t('resultTitle'), description: t('noSave'), target: '[data-help="recalculation-result"]' },
 ]} /></div></header>
     <nav className={styles.tabs} aria-label={t('administration')}>
       {[['health', 'health'], ['monitoring', 'monitoring'], ['calculations', 'calculations'], ['audit', 'audit'], ['access', 'access']].map(([key, label]) => key === 'calculations'
         ? <a key={key} href="/administration/calculations" aria-current="page">{t(label)}</a>
         : <span key={key} aria-disabled="true" title={t('navigationUnavailable')}>{t(label)}<small>{t('navigationUnavailable')}</small></span>)}
     </nav>
-    {result ? <section className={styles.resultPage} aria-labelledby="preview-title">
+    {result ? <section data-help="recalculation-result" className={styles.resultPage} aria-labelledby="preview-title">
       <h2 id="preview-title" ref={resultHeading} tabIndex={-1}>{t('resultTitle')}</h2>
       <p>{t('preserved')}</p>
       <p>{t('application')}: {applications.find((item) => item.id === result.original.applicationId)?.name ?? result.original.applicationId}</p>

@@ -16,13 +16,23 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
 
   useEffect(() => {
     if (step === null) return
-    const element = target ? [...document.querySelectorAll<HTMLElement>(target)].find(item => item.getClientRects().length > 0) : null
-    element?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    element?.classList.add(styles.highlight)
-    if (dialog.current) dialog.current.dataset.placement = element && element.getBoundingClientRect().top > window.innerHeight / 2 ? 'top' : 'bottom'
+    const scope = trigger.current?.closest('main')
+    let highlighted: HTMLElement | null = null
+    const updateHighlight = () => {
+      highlighted?.classList.remove(styles.highlight)
+      highlighted = target ? [...(scope?.querySelectorAll<HTMLElement>(target) ?? [])].find(item => {
+        const bounds = item.getBoundingClientRect()
+        return bounds.width > 0 && bounds.height > 0 && getComputedStyle(item).visibility !== 'hidden' && !item.closest('[hidden], [aria-hidden="true"]')
+      }) ?? null : null
+      highlighted?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      highlighted?.classList.add(styles.highlight)
+      if (dialog.current) dialog.current.dataset.placement = highlighted && highlighted.getBoundingClientRect().top > window.innerHeight / 2 ? 'top' : 'bottom'
+    }
+    updateHighlight()
     dialog.current?.showModal()
-    return () => element?.classList.remove(styles.highlight)
-  }, [step, target])
+    window.addEventListener('resize', updateHighlight)
+    return () => { highlighted?.classList.remove(styles.highlight); window.removeEventListener('resize', updateHighlight) }
+  }, [step, target, steps])
 
   function close() {
     dialog.current?.close()

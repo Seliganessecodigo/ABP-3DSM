@@ -102,17 +102,6 @@
 .auditDetails { color: var(--text-secondary); font-size: 12px; }
 .auditDetails > summary { width: fit-content; min-height: 36px; padding-block: 8px; color: var(--accent-default); cursor: pointer; overflow-wrap: anywhere; }
 .auditDetails .list { margin-top: 12px; }
-.historySection .pagination { position: relative; justify-content: space-between; padding: 4px 0 16px; color: var(--text-secondary); font-size: 11px; }
-.historySection .pagination > output { margin-right: auto; }
-.historySection .pagination label { position: absolute; left: 50%; transform: translateX(-50%); }
-
-.pageControls { display: flex; align-items: center; gap: 6px; }
-.pageNumber, .currentPage, .pageButton { width: 36px; height: 36px; min-height: 36px; display: inline-grid; place-items: center; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; color: var(--text-primary); background: var(--surface-card); font: inherit; font-size: 12px; cursor: pointer; }
-.currentPage { border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 700; }
-.pageNumber:hover, .pageButton:hover:not(:disabled) { border-color: var(--accent-default); color: var(--accent-default); background: var(--control-hover); }
-.currentPage:hover { color: var(--accent-on-accent); background: var(--accent-default); filter: brightness(.92); }
-.pageButton { padding: 0; }
-.pageButton svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 .historyDetails .list li {
   border: 0;
@@ -123,49 +112,6 @@
   color: var(--text-primary);
   font-size: 16px;
 }
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.pagination label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination button {
-  min-height: 40px;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
-  padding: 6px 10px;
-  color: var(--text-primary);
-  background: var(--surface-card);
-  font: inherit;
-}
-
-.pagination button {
-  cursor: pointer;
-}
-
-.pagination button:disabled,
-.pagination select:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.pagination button:focus-visible,
-.pagination select:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-.historySection .pagination .pageNumber,
-.historySection .pagination .currentPage,
-.historySection .pagination .pageButton { width: 36px; height: 36px; min-height: 36px; padding: 0; }
 
 .totals,
 .list li {
@@ -282,8 +228,4 @@
   .selectedSummary > a { width: 100%; }
   .selectedSummary > div { gap: 2px; line-height: 1.2; }
   .selectedSummary > div > p:first-child { font-size: 14px; }
-  .historySection .pagination { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); justify-content: stretch; gap: 8px; padding: 6px 0 18px; }
-  .historySection .pagination > output { grid-column: 1 / -1; grid-row: 1; font-size: 10px; }
-  .historySection .pagination label { position: static; grid-column: 2; grid-row: 2; gap: 6px; transform: none; }
-  .historySection .pageControls { grid-column: 3; grid-row: 2; justify-content: end; gap: 4px; }
 }

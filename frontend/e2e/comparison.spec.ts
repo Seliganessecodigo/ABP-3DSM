@@ -7,6 +7,44 @@ const availableMetric = { value: 10, unit: '%', status: 'available', collectedAt
 type DifferenceFixture = { absolute: number | null; unit: string | null; percentage: number | null; reason: string | null }
 const noDifference: DifferenceFixture = { absolute: null, unit: null, percentage: null, reason: null }
 
+for (const width of [1366, 390]) {
+  test(`comparison help explains the reference and highlights each matching area at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 844 })
+    await mockCatalog(page, [application(), application({ id: 'svc-0121', name: 'app-checkout' })])
+    await page.route(/\/analysis\/comparison(?:\?.*)?$/, route => route.fulfill({ json: comparisonResponse(new URL(route.request().url())) }))
+    await page.goto('/comparison?applicationIds=svc-0142&applicationIds=svc-0121&period=7d')
+    await expect(page.getByRole('table', { name: 'Comparação no período' }).or(page.locator('#comparison-energy:visible'))).toBeVisible()
+    const original = new URL(page.url()).searchParams.getAll('applicationIds')
+    await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    const targets = ['comparison-selection', 'comparison-period', 'comparison-reference', 'comparison-energy', 'comparison-emissions', 'comparison-energyCoverage']
+    for (const [index, target] of targets.entries()) {
+      await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-width', '3px')
+      await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-style', 'solid')
+      if (target === 'comparison-reference') await expect(dialog).toContainText('não é uma recomendação de melhor aplicação')
+      if (index < targets.length - 1) await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+    }
+    await page.screenshot({ path: testInfo.outputPath('comparison-help.png'), fullPage: true })
+    await page.setViewportSize({ width: width === 390 ? 1366 : 390, height: 844 })
+    await expect(page.locator('[data-help="comparison-energyCoverage"]:visible')).toHaveCSS('outline-style', 'solid')
+    await expect(page.locator('[data-help="comparison-energyCoverage"]').filter({ visible: false })).toHaveCSS('outline-style', 'none')
+    await dialog.getByRole('button', { name: 'Concluir', exact: true }).click()
+    expect(new URL(page.url()).searchParams.getAll('applicationIds')).toEqual(original)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  })
+}
+
+test('comparison help keeps explanations available when results have no target yet', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await page.goto('/comparison')
+  await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  for (let index = 0; index < 3; index++) await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+  await expect(dialog.getByRole('heading')).toHaveText('Energia')
+  await expect(dialog).toContainText('kWh')
+  for (const area of await page.locator('main [data-help]').all()) await expect(area).not.toHaveCSS('outline-style', 'solid')
+})
+
 function comparisonApplication(
   applicationId: string,
   name: string,
@@ -200,7 +238,7 @@ test('enforces the five-application limit and changes reference when the selecte
   await expect(sixth).toBeDisabled()
 
   await selectedApplications.getByRole('button', { name: /Remover app-001/ }).click()
-  await expect(page.getByRole('status')).toContainText('A aplicação de referência foi alterada')
+  await expect(page.getByRole('status').filter({ hasText: 'A aplicação de referência foi alterada' })).toBeVisible()
   await expect(page.getByRole('combobox', { name: 'Aplicação de referência' })).toHaveValue('svc-002')
   await expect(sixth).toBeEnabled()
   expect(new URL(page.url()).searchParams.getAll('applicationIds')).toEqual(['svc-002', 'svc-003', 'svc-004', 'svc-005'])
@@ -230,7 +268,7 @@ test('preserves partial readings and explains why a zero reference has no percen
 
   await page.goto('/comparison?applicationIds=svc-0142&applicationIds=svc-0121&period=7d')
   const table = page.getByRole('table', { name: 'Comparação no período' })
-  await expect(page.getByRole('status')).toContainText('A comparação é parcial')
+  await expect(page.getByRole('status').filter({ hasText: 'A comparação é parcial' })).toBeVisible()
   await expect(table.getByRole('row', { name: /Energia/ })).toContainText('+5 kWh')
   await expect(table.getByRole('row', { name: /Energia/ })).toContainText('Referência igual a zero')
   await expect(table.getByRole('row', { name: /Emissões estimadas/ })).toContainText('Indisponível')

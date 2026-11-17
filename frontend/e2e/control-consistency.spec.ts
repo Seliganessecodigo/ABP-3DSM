@@ -73,8 +73,43 @@ for (const locale of supportedLocales) {
     await mockDashboard(page)
     await page.goto('/dashboard')
     await expect(page.locator('html')).toHaveAttribute('lang', locale)
-    const summaryFilters = page.locator('main select[aria-label]')
+    const summaryFilters = page.locator('[data-help="dashboard-filters"] select[aria-label]')
     await expectFields(summaryFilters, 44)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), locale).toBe(true)
+  })
+}
+
+test('composition help highlights the composition chart rather than the applications table', async ({ page }) => {
+  await mockDashboard(page)
+  await page.goto('/dashboard')
+  await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  for (let index = 0; index < 12 && !(await dialog.getByRole('heading').innerText()).includes('Composição'); index++) {
+    await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+  }
+  const highlighted = page.locator('[data-help]').filter({ has: page.getByRole('heading', { name: 'Composição de CO₂e por aplicação', exact: true }) }).last()
+  await expect(highlighted).toHaveCSS('outline-width', '3px')
+  await expect(highlighted).toHaveCSS('outline-style', 'solid')
+  await expect(page.locator('[data-help="dashboard-results"]')).not.toHaveCSS('outline-style', 'solid')
+})
+
+for (const width of [1366, 390]) {
+  test(`pagination has the same controls across catalog, dashboard and comparison at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 844 })
+    await mockDashboard(page)
+    for (const path of ['/', '/dashboard', '/comparison']) {
+      await page.goto(path)
+      const pagination = page.getByRole('main').getByRole('navigation').last()
+      await expect(pagination.getByRole('button', { name: 'Página anterior', exact: true })).toBeDisabled()
+      await expect(pagination.getByRole('button', { name: 'Próxima página', exact: true })).toBeDisabled()
+      for (const button of await pagination.getByRole('button').all()) {
+        await expect(button).toHaveCSS('height', width <= 640 ? '44px' : '36px')
+        await expect(button).toHaveCSS('border-radius', '8px')
+      }
+      await expect(page.getByLabel('Itens por página', { exact: true })).toHaveCSS('height', width <= 640 ? '44px' : '36px')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      await pagination.scrollIntoViewIfNeeded()
+      await page.screenshot({ path: testInfo.outputPath(`pagination-${path.replaceAll('/', '') || 'catalog'}.png`) })
+    }
   })
 }

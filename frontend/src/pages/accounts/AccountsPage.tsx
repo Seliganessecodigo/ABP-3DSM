@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -56,7 +57,9 @@ function AccountsAdministration() {
       {loadError && <p role="alert" className={styles.error}>{t(loadError)}</p>}
       {result && <>
         {result.items.length ? <div className={styles.tableScroll}><table className={styles.table}><caption>{t('listCaption')}</caption><thead><tr>{['name', 'emailColumn', 'role', 'status', 'actions'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody>{result.items.map(account => <tr key={account.id}><th scope="row">{account.name}</th><td>{account.email}</td><td>{t(`role.${account.role}`)}</td><td>{t(`status.${account.status}`)}</td><td>{ssoEnabled && account.status === 'ACTIVE' && <ActionButton appearance="secondary" disabled={pending} onClick={() => prepareInvitation(account)} aria-label={t('inviteAccount', { name: account.name })}>{t('inviteAction')}</ActionButton>}</td></tr>)}</tbody></table></div> : <p className="notice">{t('empty')}</p>}
-        <nav className={styles.pagination} aria-label={t('pagination')}><span>{t('page', { page: result.pagination.page, pages: Math.max(1, result.pagination.totalPages), total: result.pagination.totalItems })}</span><ActionButton appearance="secondary" disabled={loading || state.page <= 1} onClick={() => state.changePage(-1)}>{t('previous')}</ActionButton><ActionButton appearance="secondary" disabled={loading || !result.pagination.hasNextPage} onClick={() => state.changePage(1)}>{t('next')}</ActionButton></nav>
+        <Pagination page={result.pagination.page} pageCount={result.pagination.totalPages} label={t('pagination')} disabled={loading} hasNextPage={result.pagination.hasNextPage}
+          summary={t('page', { page: result.pagination.page, pages: Math.max(1, result.pagination.totalPages), total: result.pagination.totalItems })}
+          onPageChange={page => state.changePage(page - state.page)} />
       </>}
     </section>
   </main>
