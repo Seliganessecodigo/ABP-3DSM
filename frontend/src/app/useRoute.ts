@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 
 type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'accounts' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
 function routeFromLocation(): Route {
+  if (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') return { kind: 'dashboard' }
+  if (window.location.pathname === '/applications' || window.location.pathname === '/applications/') return { kind: 'catalog' }
   if (window.location.pathname === '/administration/users' || window.location.pathname === '/administration/users/') return { kind: 'accounts' }
   if (window.location.pathname === '/setup-admin') return { kind: 'setup-admin' }
   if (window.location.pathname === '/confirm-email') return { kind: 'confirm-email' }
   if (window.location.pathname === '/sso/callback') return { kind: 'sso-callback' }
   if (window.location.pathname === '/login') return { kind: 'login' }
-  if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') return { kind: 'dashboard' }
   if (window.location.pathname === '/comparison' || window.location.pathname === '/comparison/') return { kind: 'comparison' }
   if (window.location.pathname === '/history' || window.location.pathname === '/history/') return { kind: 'history' }
   if (window.location.pathname === '/regional-simulation' || window.location.pathname === '/regional-simulation/') return { kind: 'regional-simulation' }
