@@ -22,7 +22,7 @@ function isMethodologyPath(pathname: string) {
 }
 
 function isDashboardPath(pathname: string) {
-  return pathname === '/dashboard' || pathname === '/dashboard/'
+  return pathname === '/' || pathname === '/dashboard' || pathname === '/dashboard/'
 }
 
 function isRegionalSimulationPath(pathname: string) {
