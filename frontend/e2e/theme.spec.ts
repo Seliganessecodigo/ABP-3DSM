@@ -93,7 +93,7 @@ for (const saved of ['light', 'dark', 'system', 'invalid', null]) {
     await page.addInitScript((value) => {
       if (value !== null) localStorage.setItem('greener-theme', value)
     }, saved)
-    await page.route('**/src/main.tsx', (route) => route.abort())
+    await page.route(/\/src\/main\.tsx(?:\?.*)?$/, (route) => route.abort())
     await page.goto('/')
     await expect(page.locator('#root')).toBeEmpty()
     await expect(page.locator('html')).toHaveCSS('color-scheme', saved === 'light' ? 'light' : 'dark')
