@@ -46,16 +46,26 @@ export interface AuditPage {
   items: AuditEvent[]
   pagination: { page: number; pageSize: number | 'all'; totalItems: number; totalPages: number; hasNextPage: boolean }
 }
-const base = ((import.meta.env.VITE_API_URL as string | undefined) ?? '/api').replace(/\/+$/, '')
+let base = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+while (base.endsWith('/')) base = base.slice(0, -1)
 function invalid(): never { throw new Error('Invalid monitoring response') }
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return invalid()
   return value as Record<string, unknown>
 }
-function text(value: unknown): string { if (typeof value !== 'string' || !value) return invalid(); return value }
+function text(value: unknown): string {
+  if (typeof value !== 'string' || !value) return invalid()
+  return value
+}
 function nullableText(value: unknown): string | null { return value === null ? null : text(value) }
-function count(value: unknown): number { if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) return invalid(); return value }
-function boolean(value: unknown): boolean { if (typeof value !== 'boolean') return invalid(); return value }
+function count(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) return invalid()
+  return value
+}
+function boolean(value: unknown): boolean {
+  if (typeof value !== 'boolean') return invalid()
+  return value
+}
 function choice<T extends string>(value: unknown, values: readonly T[]): T {
   if (typeof value !== 'string' || !values.includes(value as T)) return invalid()
   return value as T

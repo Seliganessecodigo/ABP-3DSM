@@ -29,19 +29,34 @@ function isRegionalSimulationPath(pathname: string) {
   return pathname === '/regional-simulation' || pathname === '/regional-simulation/'
 }
 
-function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean) {
-  return !methodology && !dashboard && !administration && !comparison
+function isAdministrationPath(pathname: string) {
+  return pathname.startsWith('/administration/calculations') || pathname === '/settings' || pathname === '/settings/'
+}
+
+function isComparisonPath(pathname: string) {
+  return pathname === '/comparison' || pathname === '/comparison/'
+}
+
+function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean, simulation: boolean) {
+  return !methodology && !dashboard && !administration && !comparison && !simulation
+}
+
+function AccountAccess({ login, navigate }: Readonly<{ login: boolean; navigate: (url: string) => void }>) {
+  const { t } = useTranslation('common')
+  const { user, signOut } = useAuthentication()
+  if (user) return <div className="auth-account"><span><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></div>
+  if (login) return null
+  return <a className="auth-login" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('auth.login')}</a>
 }
 
 export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
-  const { user, signOut } = useAuthentication()
   const methodologyActive = isMethodologyPath(window.location.pathname)
   const dashboardActive = isDashboardPath(window.location.pathname)
-  const comparisonActive = window.location.pathname === '/comparison' || window.location.pathname === '/comparison/'
-  const administrationActive = window.location.pathname.startsWith('/administration/calculations') || window.location.pathname === '/settings' || window.location.pathname === '/settings/'
+  const comparisonActive = isComparisonPath(window.location.pathname)
+  const administrationActive = isAdministrationPath(window.location.pathname)
   const regionalSimulationActive = isRegionalSimulationPath(window.location.pathname)
-  const applicationsActive = !regionalSimulationActive && isApplicationsActive(methodologyActive, dashboardActive, administrationActive, comparisonActive)
+  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive, comparisonActive, regionalSimulationActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -135,7 +150,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
         <LanguageSelector />
         <ThemeSelector />
-        {user ? <div className="auth-account"><span><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></div> : !login && <a className="auth-login" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>{t('auth.login')}</a>}
+        <AccountAccess login={login} navigate={navigate} />
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}

@@ -27,7 +27,7 @@ export function MonitoringSettings() {
   const date = (value: string | null) => formatDate(value, locale, t('unknown'))
   const number = new Intl.NumberFormat(locale)
   return <>
-    {loading && <p role="status">{t('loading')}</p>}
+    {loading && <output>{t('loading')}</output>}
     {error && <div role="alert"><p className={styles.error}>{t(error)}</p>{health && <p className={styles.previous}>{t('previousData')}</p>}<ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('retry')}</ActionButton></div>}
     {health && <>
       <section className={styles.section}>
@@ -44,7 +44,7 @@ export function MonitoringSettings() {
       </section>
       <section className={styles.section}><h2>{t('latestCycle')}</h2>{health.latestCycle ? <div className={styles.tableScroll}><table className={styles.table}><thead><tr>{['startedAt', 'result', 'processed', 'failures'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody><tr><td>{date(health.latestCycle.startedAt)}</td><td>{t(`cycle.${health.latestCycle.status}`)}</td><td>{number.format(health.latestCycle.processedCount)}</td><td>{number.format(health.latestCycle.failedCount)}</td></tr></tbody></table></div> : <p>{t('noCycles')}</p>}</section>
     </>}
-    {saved && <p role="status">{t('saved')}</p>}
+    {saved && <output>{t('saved')}</output>}
     <dialog ref={dialog} className={styles.dialog} aria-labelledby="monitoring-confirmation-title" onCancel={e => { e.preventDefault(); if (!saving) setConfirming(null) }}>
       <form onSubmit={e => { e.preventDefault(); if (confirming !== null && reason.trim()) void changePaused(confirming, reason.trim()).then(ok => { if (ok) { setConfirming(null); setSaved(true) } }) }}>
         <h2 id="monitoring-confirmation-title">{t(confirming ? 'pauseTitle' : 'resumeTitle')}</h2><p>{t(confirming ? 'pauseDescription' : 'resumeDescription')}</p>

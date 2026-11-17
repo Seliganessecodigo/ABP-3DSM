@@ -22,11 +22,13 @@ As capturas usam respostas controladas do Playwright. Nomes, contagens e horári
 
 - `npm ci`, `npm run lint`, `npm run build`: executados. O build mantém o aviso de bundle acima de 500 kB.
 - `npm run test:unit`: 72 testes passaram, incluindo integridade dos doze catálogos de idioma.
-- `npm run test:e2e -- e2e/settings.spec.ts e2e/accounts.spec.ts --workers=1`: 23 testes passaram.
+- `npm run test:e2e -- e2e/settings.spec.ts e2e/accounts.spec.ts --workers=1`: 24 casos validados, incluindo o caso adicional de filtros/ordenação/Todos e preservação da ordem ao limpar.
 - Testes de menu desktop/mobile nas linhas 521/538 de `applications.spec.ts`: dois passaram.
 - `npm run test:e2e -- e2e/theme.spec.ts e2e/page-help.spec.ts:70 --workers=1`: 24 testes passaram, após corrigir o bloqueio do módulo React no teste de inicialização do tema para também reconhecer query strings do Vite.
 - Verificação visual das capturas desktop/mobile realizada; não equivale à homologação contra fontes externas reais.
 - `git diff --check`: executado.
+
+Após a primeira análise do Sonar, os fluxos foram simplificados para reduzir complexidade, retirar condicionais ternárias encadeadas, explicitar guardas e usar `output` nos anúncios de estado. A apresentação de ordenação segue o padrão já utilizado no catálogo, compartilhada entre usuários e auditoria. Os números interpolados usam o formatador Intl do i18next. A regressão posterior passou em 121 testes numa única execução (72 unitários e 49 E2E), mais o novo caso de filtros de usuários executado isoladamente; total de 122 casos distintos.
 
 Os testes novos cobrem pausa, falha/retry, cancelamento/foco, payload inválido, diagnóstico ausente, sessão/papel, criação, alteração de papel, bloqueio/reativação/desativação, conflito, preservação de convites, URL entre abas, auditoria, tema sincronizado e mobile sem ampliar a largura da página. A proteção de último Admin, autorrebaixamento e transições continua sendo verificada no backend existente; a UI não duplica essas regras.
 

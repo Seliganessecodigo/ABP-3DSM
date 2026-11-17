@@ -4,11 +4,12 @@ import { useAuthentication } from '../../app/useAuthentication.ts'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { getMonitoringAudit, type AuditPage } from '../../features/monitoring/api.ts'
+import { tableSortPresentation } from '../../utils/tableSortPresentation.ts'
 import { formatDate } from '../../utils/formatDate.ts'
 import { monitoringError } from './useMonitoring.ts'
 import styles from './SettingsPage.module.css'
 
-const columns = ['createdAt', 'actorLabel', 'action', 'outcome'] as const
+const columns = ['createdAt', 'actorLabel', 'action', 'outcome']
 export function AuditSettings({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { authenticatedFetch } = useAuthentication()
   const { t, i18n } = useTranslation('settings')
@@ -21,7 +22,7 @@ export function AuditSettings({ navigate }: Readonly<{ navigate: (url: string) =
   if (!/^[1-9]\d*$/.test(query.get('page') ?? '') || !Number.isSafeInteger(Number(query.get('page')))) query.set('page', '1')
   if (!['5', '10', '15', '20', 'all'].includes(query.get('pageSize') ?? '')) query.set('pageSize', '10')
   if (query.get('pageSize') === 'all') query.set('page', '1')
-  if (!columns.some(column => column === query.get('sortBy'))) query.set('sortBy', 'createdAt')
+  if (!columns.includes(query.get('sortBy') ?? '')) query.set('sortBy', 'createdAt')
   if (!['asc', 'desc'].includes(query.get('sortDirection') ?? '')) query.set('sortDirection', 'desc')
   const queryString = query.toString()
   const [result, setResult] = useState<AuditPage | null>(null)
@@ -51,9 +52,9 @@ export function AuditSettings({ navigate }: Readonly<{ navigate: (url: string) =
     <div className={styles.filters}><label>{t('search')}<input className="form-control" type="search" maxLength={320} value={query.get('search') ?? ''} onChange={e => update('search', e.target.value)} /></label><label>{t('result')}<select className="form-control" value={query.get('outcome') ?? ''} onChange={e => update('outcome', e.target.value)}><option value="">{t('all')}</option>{(['success', 'denied', 'failed'] as const).map(value => <option key={value} value={value}>{t(`outcome.${value}`)}</option>)}</select></label></div>
     <details><summary>{t('filters')}</summary><div className={styles.filters}>{(['actorLabel', 'action', 'reason'] as const).map(key => <label key={key}>{t(`audit.${key}`)}<input className="form-control" maxLength={320} value={query.get(key) ?? ''} onChange={e => update(key, e.target.value)} /></label>)}
       <label>{t('after')} · UTC<input className="form-control" type="datetime-local" value={dateInput(query.get('createdAtFrom'))} onChange={e => update('createdAtFrom', e.target.value ? new Date(`${e.target.value}Z`).toISOString() : '')} /></label><label>{t('before')} · UTC<input className="form-control" type="datetime-local" value={dateInput(query.get('createdAtTo'))} onChange={e => update('createdAtTo', e.target.value ? new Date(`${e.target.value}Z`).toISOString() : '')} /></label>
-    </div><button className="button secondary" type="button" onClick={() => { for (const key of ['search', 'outcome', 'actorLabel', 'action', 'reason', 'createdAtFrom', 'createdAtTo']) params.delete(`audit.${key}`); params.set('audit.page', '1'); setLoading(true); setError(''); setResult(null); setSelected(null); navigate(`/settings?${params}`) }}>{t('clearFilters')}</button></details>
-    {loading && <p role="status">{t('loading')}</p>}{error && <p role="alert" className={styles.error}>{t(error)}</p>}
-    {result && <><div className={styles.tableScroll}><table className={styles.table}><caption>{t('auditDescription')}</caption><thead><tr>{columns.map(column => <th key={column} scope="col" aria-sort={query.get('sortBy') === column ? query.get('sortDirection') === 'asc' ? 'ascending' : 'descending' : 'none'}><button className={styles.sort} type="button" onClick={() => { params.set('audit.sortBy', column); update('sortDirection', query.get('sortBy') === column && query.get('sortDirection') === 'asc' ? 'desc' : 'asc') }}>{t(`audit.${column}`)} {query.get('sortBy') === column ? query.get('sortDirection') === 'asc' ? '↑' : '↓' : ''}</button></th>)}<th scope="col">{t('details')}</th></tr></thead><tbody>{result.items.map(item => <tr key={item.id}><td>{date(item.createdAt)}</td><td>{item.actorLabel ?? item.actor}</td><td>{item.action}</td><td>{t(`outcome.${item.outcome}`)}</td><td><button type="button" className="button secondary" aria-expanded={selected === item.id} onClick={() => setSelected(selected === item.id ? null : item.id)}>{t('details')}</button></td></tr>)}</tbody></table></div>
+    </div><button className="button secondary" type="button" onClick={() => { for (const key of ['search', 'outcome', 'actorLabel', 'action', 'reason', 'createdAtFrom', 'createdAtTo']) { params.delete(`audit.${key}`) } params.set('audit.page', '1'); setLoading(true); setError(''); setResult(null); setSelected(null); navigate(`/settings?${params}`) }}>{t('clearFilters')}</button></details>
+    {loading && <output>{t('loading')}</output>}{error && <p role="alert" className={styles.error}>{t(error)}</p>}
+    {result && <><div className={styles.tableScroll}><table className={styles.table}><caption>{t('auditDescription')}</caption><thead><tr>{columns.map(column => { const sort = tableSortPresentation(column, query.get('sortBy'), query.get('sortDirection')); return <th key={column} scope="col" aria-sort={sort.ariaSort}><button className={styles.sort} type="button" onClick={() => { params.set('audit.sortBy', column); update('sortDirection', query.get('sortBy') === column && query.get('sortDirection') === 'asc' ? 'desc' : 'asc') }}>{t(`audit.${column}`)}<span aria-hidden="true">{sort.indicator}</span></button></th> })}<th scope="col">{t('details')}</th></tr></thead><tbody>{result.items.map(item => <tr key={item.id}><td>{date(item.createdAt)}</td><td>{item.actorLabel ?? item.actor}</td><td>{item.action}</td><td>{t(`outcome.${item.outcome}`)}</td><td><button type="button" className="button secondary" aria-expanded={selected === item.id} onClick={() => setSelected(selected === item.id ? null : item.id)}>{t('details')}</button></td></tr>)}</tbody></table></div>
       {!result.items.length && <p>{t('noEvents')}</p>}
       <Pagination page={result.pagination.page} pageCount={result.pagination.totalPages} hasNextPage={result.pagination.hasNextPage} disabled={loading} onPageChange={page => update('page', String(page))} pageSize={{ value: result.pagination.pageSize, options: [5, 10, 15, 20, 'all'], onChange: value => update('pageSize', value) }} summary={t('total', { count: result.pagination.totalItems })} />
     </>}

@@ -7,6 +7,14 @@ import { applyAccountChange, type AccountChange } from '../../features/authentic
 import { AuthenticationError } from '../../features/authentication/api.ts'
 import styles from '../settings/SettingsPage.module.css'
 
+function operationError(error: unknown): string {
+  if (error instanceof AccountError || error instanceof AuthenticationError) {
+    const messages: Partial<Record<number, string>> = { 401: 'sessionExpired', 403: 'denied', 409: 'conflict' }
+    return messages[error.status] ?? 'loadFailed'
+  }
+  return 'loadFailed'
+}
+
 export function AccountManagement({ account, onClose, onSaved }: Readonly<{ account: Account | null; onClose: () => void; onSaved: () => void }>) {
   const { t } = useTranslation('settings')
   const { t: accounts } = useTranslation('accounts')
@@ -32,17 +40,22 @@ export function AccountManagement({ account, onClose, onSaved }: Readonly<{ acco
     return () => { request.current?.abort(); element?.close(); document.body.style.overflow = previousOverflow; if (trigger instanceof HTMLElement) trigger.focus() }
   }, [])
   const label = account ? t('manageAccount', { name: account.name }) : t('createAccount')
+  function prepareChange(): AccountChange {
+    if (!account) return { kind: 'create', name: name.trim(), email: email.trim(), role, reason: reason.trim() }
+    if (kind === 'role') return { kind, account, role, reason: reason.trim() }
+    return { kind, account, status, reason: reason.trim() }
+  }
   async function submit() {
     if (request.current) return
     if (account && !reviewed) { setReviewed(true); cancel.current?.focus(); return }
-    const change: AccountChange = account ? kind === 'role' ? { kind, account, role, reason: reason.trim() } : { kind, account, status, reason: reason.trim() } : { kind: 'create', name: name.trim(), email: email.trim(), role, reason: reason.trim() }
+    const change = prepareChange()
     const controller = new AbortController()
     request.current = controller; setSaving(true); setError('')
     try {
       await applyAccountChange(authenticatedFetch, change, controller.signal)
       if (!controller.signal.aborted) onSaved()
     } catch (e) {
-      if (!controller.signal.aborted) setError(e instanceof AccountError && e.status === 409 ? 'conflict' : e instanceof AccountError && e.status === 403 ? 'denied' : (e instanceof AuthenticationError || e instanceof AccountError) && e.status === 401 ? 'sessionExpired' : 'loadFailed')
+      if (!controller.signal.aborted) setError(operationError(e))
     } finally { if (request.current === controller) { request.current = null; if (!controller.signal.aborted) setSaving(false) } }
   }
   return <dialog ref={dialog} className={styles.dialog} aria-labelledby="account-operation-title" onCancel={e => { e.preventDefault(); if (!saving) onClose() }}><form onSubmit={e => { e.preventDefault(); if (reason.trim()) void submit() }}>

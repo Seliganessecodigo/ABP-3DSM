@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { useTheme } from '../../app/useTheme.ts'
+import type { AuthenticatedUser } from '../../features/authentication/api.ts'
 import { supportedLocales, localeNames } from '../../i18n.ts'
 import { AccountsPage } from '../accounts/AccountsPage.tsx'
 import { PageHelp, type HelpStep } from '../../components/PageHelp.tsx'
@@ -9,7 +10,7 @@ import { AuditSettings } from './AuditSettings.tsx'
 import styles from './SettingsPage.module.css'
 
 const tabs = ['monitoring', 'users', 'audit', 'account'] as const
-export type SettingsTab = typeof tabs[number]
+type SettingsTab = typeof tabs[number]
 export function SettingsPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { user } = useAuthentication()
   const { t } = useTranslation('settings')
@@ -17,19 +18,32 @@ export function SettingsPage({ navigate }: Readonly<{ navigate: (url: string) =>
   const tab = tabs.find(tab => tab === requested) ?? (user?.role === 'ADMIN' ? 'monitoring' : 'account')
   const allowed = user?.role === 'ADMIN' ? tabs : ['account'] as const
   const permitted = tab === 'account' || user?.role === 'ADMIN'
-  const help: readonly [HelpStep, ...HelpStep[]] = tab === 'monitoring' ? [{ title: t('integrations'), description: t('refreshNote') }, { title: t('pause'), description: t('pauseDescription') }] :
-    tab === 'users' ? [{ title: t('createAccount'), description: t('createDescription') }, { title: t('operation'), description: t('accessChangeDescription') }] :
-    tab === 'audit' ? [{ title: t('tabs.audit'), description: t('auditDescription') }] : [{ title: t('tabs.account'), description: t('accountDescription') }, { title: t('analysisPreferences'), description: t('preferencesDescription') }]
+  const helpByTab: Record<SettingsTab, readonly [HelpStep, ...HelpStep[]]> = {
+    monitoring: [{ title: t('integrations'), description: t('refreshNote') }, { title: t('pause'), description: t('pauseDescription') }],
+    users: [{ title: t('createAccount'), description: t('createDescription') }, { title: t('operation'), description: t('accessChangeDescription') }],
+    audit: [{ title: t('tabs.audit'), description: t('auditDescription') }],
+    account: [{ title: t('tabs.account'), description: t('accountDescription') }, { title: t('analysisPreferences'), description: t('preferencesDescription') }],
+  }
+  let help = helpByTab[tab]
+  if (!user || !permitted) help = [{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]
   return <main className={styles.page} tabIndex={-1}>
-    <header><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={!user || !permitted ? [{ title: t('title'), description: t(user ? 'denied' : 'signIn') }] : help} /></div><p className={styles.description}>{t('description')}</p></header>
+    <header><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={help} /></div><p className={styles.description}>{t('description')}</p></header>
     <nav className={styles.tabs} aria-label={t('areas')}>{allowed.map(item => <a key={item} href={`/settings?tab=${item}`} aria-current={tab === item ? 'page' : undefined} onClick={event => { event.preventDefault(); const params = new URLSearchParams(window.location.search); params.set('tab', item); navigate(`/settings?${params}`) }}>{t(`tabs.${item}`)}</a>)}</nav>
     <div className={styles.panel}>
-      {!user ? <><p className="notice">{t('signIn')}</p><a className="button" href="/login" onClick={e => { e.preventDefault(); navigate('/login') }}>{t('login')}</a></> : !permitted ? <p className="notice" role="alert">{t('denied')}</p> :
-        tab === 'users' ? <AccountsPage navigate={navigate} embedded /> :
-        tab === 'monitoring' ? <MonitoringSettings key={user.id} /> :
-        tab === 'audit' ? <AuditSettings key={user.id} navigate={navigate} /> : <PersonalSettings navigate={navigate} />}
+      <SettingsContent user={user} permitted={permitted} tab={tab} navigate={navigate} />
     </div>
   </main>
+}
+function SettingsContent({ user, permitted, tab, navigate }: Readonly<{ user: AuthenticatedUser | null; permitted: boolean; tab: SettingsTab; navigate: (url: string) => void }>) {
+  const { t } = useTranslation('settings')
+  if (!user) return <><p className="notice">{t('signIn')}</p><a className="button" href="/login" onClick={e => { e.preventDefault(); navigate('/login') }}>{t('login')}</a></>
+  if (!permitted) return <p className="notice" role="alert">{t('denied')}</p>
+  switch (tab) {
+    case 'users': return <AccountsPage navigate={navigate} embedded />
+    case 'monitoring': return <MonitoringSettings key={user.id} />
+    case 'audit': return <AuditSettings key={user.id} navigate={navigate} />
+    case 'account': return <PersonalSettings navigate={navigate} />
+  }
 }
 function PersonalSettings({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { user, signOut } = useAuthentication()

@@ -23,7 +23,13 @@ export function useMonitoring() {
     const controller = new AbortController()
     void getMonitoringHealth(authenticatedFetch, controller.signal).then(result => {
       if (!controller.signal.aborted) setHealth(result)
-    }).catch(e => { if (!controller.signal.aborted) { const key = monitoringError(e); if (key !== 'loadFailed') setHealth(null); setError(key) } })
+    }).catch(e => {
+      if (!controller.signal.aborted) {
+        const key = monitoringError(e)
+        if (key !== 'loadFailed') setHealth(null)
+        setError(key)
+      }
+    })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
   }, [authenticatedFetch, user?.id, revision])
