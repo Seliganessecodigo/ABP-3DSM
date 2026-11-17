@@ -17,6 +17,7 @@ import { SsoAuthentication1791420000000 } from '../../database/migrations/179142
 import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
 import { UserAccountStatus1793400000000 } from '../../database/migrations/1793400000000-UserAccountStatus'
+import { MonitoringPauseControl1793500000000 } from '../../database/migrations/1793500000000-MonitoringPauseControl'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { AUTH_CLOCK, AuthClock } from './clock'
@@ -136,6 +137,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         UserPreferences1793200000000,
         AuditActorIdentity1793300000000,
         UserAccountStatus1793400000000,
+        MonitoringPauseControl1793500000000,
       ],
     })
     await database.initialize()
