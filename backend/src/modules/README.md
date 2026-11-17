@@ -211,6 +211,16 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 
 A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
 
+## Saúde operacional, ciclos e auditoria
+
+`GET /monitoring/health` e `GET /monitoring/cycles` exigem Admin e consultam o scheduler, ciclos persistidos, incidentes e estados stale/atrasados das aplicações. Estados sem evidência persistida são `UNKNOWN` ou `UNAVAILABLE`, nunca saudáveis por ausência de falha. A saúde e os ciclos são globais porque o modelo de monitoramento é global.
+
+`PATCH /monitoring/control` exige Admin, `paused` booleano e `reason` de até 512 caracteres. A configuração global persiste em `monitoring_settings`; pausa impede novos ciclos no próximo tick e deixa um ciclo em andamento terminar. Retomar reabilita os ciclos no próximo tick. Repetir o estado atual retorna `changed: false`; mudanças efetivas e justificadas são gravadas no `AuditWriter` na mesma transação. Se o scheduler não conseguir ler a configuração, ele pula o ciclo.
+
+`GET /monitoring/audit` lista eventos atribuídos a usuários da organização do Admin; eventos de sistema ou sem vínculo organizacional são omitidos. Busca geral ignora caixa e acentos, combina filtros por AND e não procura credenciais. Ordenação permite `id`, `actor`, `actorType`, `actorLabel`, `createdAt`, `action`, `entityType`, `entityId`, `reason` e `outcome`; usa valores nativos, ID como desempate e nulos ao final. A paginação é 10 por padrão, aceita 5/10/15/20/`all`, e retorna total filtrado. Datas devem ser ISO 8601 com offset; enums usam códigos estáveis. Os contratos estão no OpenAPI em `/docs` e `/openapi.json`.
+
+Testes de API/PostgreSQL: `npm test -- --runInBand src/modules/applications/monitoring-operations.database.spec.ts` com `TEST_DATABASE_URL` apontando para PostgreSQL isolado. Teste de parser: `npm test -- --runInBand src/modules/applications/monitoring-audit.query.spec.ts`.
+
 Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
 
 Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de preferências](preferences/README.md) e as [decisões de arquitetura](../../../docs/product/decisions.md).

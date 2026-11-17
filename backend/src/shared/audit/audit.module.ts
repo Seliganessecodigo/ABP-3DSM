@@ -8,6 +8,6 @@ import { AuditWriter } from './audit-writer'
 @Module({
   imports: [TypeOrmModule.forFeature([AuditLogEntity, UserEntity])],
   providers: [AuditLogsRepository, AuditWriter],
-  exports: [AuditWriter],
+  exports: [AuditWriter, AuditLogsRepository],
 })
 export class AuditModule {}

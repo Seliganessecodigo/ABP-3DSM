@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, IsNull, Repository } from "typeorm";
 import {
+  MonitoringIntegration,
   MonitoringIncidentEntity,
   MonitoringIncidentStatus,
 } from "../entities/monitoring-incident.entity";
@@ -21,6 +22,31 @@ export class MonitoringIncidentsRepository {
     @InjectRepository(MonitoringIncidentEntity)
     private readonly repository: Repository<MonitoringIncidentEntity>,
   ) {}
+
+  async healthByIntegration() {
+    return this.repository.createQueryBuilder('incident')
+      .select('incident.integration', 'integration')
+      .addSelect("COUNT(*) FILTER (WHERE incident.status = 'OPEN')", 'openCount')
+      .addSelect("COUNT(*) FILTER (WHERE incident.status = 'RECOVERING')", 'recoveringCount')
+      .addSelect("COUNT(*) FILTER (WHERE incident.status = 'RESOLVED')", 'resolvedCount')
+      .addSelect('MAX(incident.latestAttemptAt)', 'lastAttemptAt')
+      .addSelect('MAX(incident.lastValidResponseAt)', 'lastValidResponseAt')
+      .addSelect("MAX(incident.latestAttemptAt) FILTER (WHERE incident.status = 'OPEN')", 'lastFailureAt')
+      .groupBy('incident.integration')
+      .getRawMany<{
+        integration: MonitoringIntegration
+        openCount: string
+        recoveringCount: string
+        resolvedCount: string
+        lastAttemptAt: Date | null
+        lastValidResponseAt: Date | null
+        lastFailureAt: Date | null
+      }>()
+  }
+
+  recentForHealth(limit = 20) {
+    return this.repository.find({ order: { latestAttemptAt: 'DESC', id: 'ASC' }, take: limit })
+  }
 
   findActive(
     source: string,

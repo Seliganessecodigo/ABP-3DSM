@@ -29,12 +29,20 @@ import { MonitoringIncidentsRepository } from "../../database/repositories/monit
 import { MonitoringIncidentsController } from "./monitoring-incidents.controller";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
 import { MonitoringCycleLock } from "./monitoring-cycle.lock";
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
+import { MonitoringOperationsController } from "./monitoring-operations.controller";
+import { MonitoringOperationsService } from "./monitoring-operations.service";
+import { AuditModule } from "../../shared/audit/audit.module";
 
-export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
+export function createMonitoringScheduler(
+  runner: MonitoringCycleRunner,
+  settings?: MonitoringSettingsRepository,
+) {
   return new MonitoringScheduler(
     getMonitoringScheduleIntervalSeconds(),
     () => runner.run(),
     (skippedAt) => runner.recordDelayedCycle(skippedAt),
+    settings ? () => settings.isPaused() : undefined,
   );
 }
 
@@ -43,6 +51,7 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     TypeOrmModule.forFeature([ApplicationEntity, MonitoringIncidentEntity]),
     IntegrationsModule,
     EnvironmentalAnalysisSummaryModule,
+    AuditModule,
   ],
   controllers: [
     ApplicationsController,
@@ -50,6 +59,7 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     EnvironmentalAnalysisSummaryController,
     EnvironmentalAnalysisRankingController,
     MonitoringIncidentsController,
+    MonitoringOperationsController,
   ],
   providers: [
     ApplicationsService,
@@ -66,11 +76,12 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     MonitoringCycleRunner,
     MonitoringIncidentsRepository,
     MonitoringIncidentsService,
+    MonitoringOperationsService,
     MonitoringCycleLock,
     {
       provide: MonitoringScheduler,
       useFactory: createMonitoringScheduler,
-      inject: [MonitoringCycleRunner],
+      inject: [MonitoringCycleRunner, MonitoringSettingsRepository],
     },
     {
       provide: "MONITORING_METRICS_CONCURRENCY",

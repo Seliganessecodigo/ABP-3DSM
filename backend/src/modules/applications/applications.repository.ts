@@ -17,6 +17,21 @@ export class ApplicationsRepository {
     private readonly applications: Repository<ApplicationEntity>,
   ) {}
 
+  async monitoringHealth() {
+    const result = await this.applications.createQueryBuilder('application')
+      .select('COUNT(*) FILTER (WHERE application.removedAt IS NULL)', 'knownCount')
+      .addSelect('COUNT(*) FILTER (WHERE application.removedAt IS NULL AND application.isStale = true)', 'staleCount')
+      .addSelect("COUNT(*) FILTER (WHERE application.removedAt IS NULL AND application.stateReason = 'MONITORING_CYCLE_DELAYED')", 'delayedCount')
+      .addSelect('MAX(application.lastObservationAt)', 'lastObservationAt')
+      .getRawOne<{ knownCount: string; staleCount: string; delayedCount: string; lastObservationAt: Date | null }>()
+    return {
+      knownCount: Number(result?.knownCount ?? 0),
+      staleCount: Number(result?.staleCount ?? 0),
+      delayedCount: Number(result?.delayedCount ?? 0),
+      lastObservationAt: result?.lastObservationAt ?? null,
+    }
+  }
+
   findAll() {
     return this.applications.find()
   }
