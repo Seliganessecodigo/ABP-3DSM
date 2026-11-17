@@ -518,7 +518,7 @@ test('intervalo invertido vindo da URL é rejeitado sem parecer que não há apl
   await expect(row(page, 'svc-0142')).toBeVisible()
 })
 
-test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar funcionalidades adiadas', async ({ page }) => {
+test('menu destaca Aplicações e oferece as rotas disponíveis', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/')
   const navigation = page.getByRole('navigation')
@@ -528,9 +528,10 @@ test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar 
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
   await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/administration/calculations')
   await expect(navigation.getByRole('link', { name: 'Comparação', exact: true })).toHaveAttribute('href', '/comparison')
-  for (const name of ['Ranking', 'Simulação regional']) {
+  for (const name of ['Ranking']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
+  await expect(navigation.getByRole('link', { name: 'Simulação regional', exact: true })).toHaveAttribute('href', '/regional-simulation')
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
 })
 
@@ -557,11 +558,13 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
     .toHaveAttribute('href', '/administration/calculations')
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Comparação', exact: true }))
     .toHaveAttribute('href', '/comparison')
-  for (const name of ['Ranking', 'Simulação regional']) {
+  for (const name of ['Ranking']) {
     const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
     await expect(destination).toBeVisible()
     await expect(destination).toBeDisabled()
   }
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Simulação regional', exact: true }))
+    .toHaveAttribute('href', '/regional-simulation')
 
   const navigation = page.getByRole('navigation')
   for (const close of ['X', 'Escape', 'clique fora'] as const) {

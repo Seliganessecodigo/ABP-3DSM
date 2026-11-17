@@ -11,6 +11,7 @@ import { AccountSetupPage } from './pages/login/AccountSetupPage.tsx'
 import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
 import { AccountsPage } from './pages/accounts/AccountsPage.tsx'
+import { RegionalSimulationPage } from './pages/regionalSimulation/RegionalSimulationPage.tsx'
 import { ComparisonPage } from './pages/comparison/ComparisonPage.tsx'
 
 function App() {
@@ -38,6 +39,7 @@ function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) 
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
     case 'comparison': return <ComparisonPage />
     case 'history': return <HistoryPage key="history" navigate={navigate} />
+    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" />
     case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
     case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
     case 'administration': return <RecalculationPreviewPage navigate={navigate} />
