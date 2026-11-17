@@ -74,7 +74,7 @@ test('refresh preserves visible data and focus and blocks duplicate keyboard act
     await page.keyboard.press('Enter')
     await page.keyboard.press('Space')
     expect(requests).toBe(initialRequests + 1)
-    await expect(page.getByRole('status')).toContainText(/carregando/i)
+    await expect(page.getByRole('status').filter({ hasText: /carregando/i })).toBeVisible()
   } finally { pending.release() }
   await expect(refresh).not.toHaveAttribute('aria-busy', 'true')
   await expect(refresh).toBeFocused()
