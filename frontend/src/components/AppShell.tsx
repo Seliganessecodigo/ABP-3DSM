@@ -25,6 +25,10 @@ function isDashboardPath(pathname: string) {
   return pathname === '/dashboard' || pathname === '/dashboard/'
 }
 
+function isRegionalSimulationPath(pathname: string) {
+  return pathname === '/regional-simulation' || pathname === '/regional-simulation/'
+}
+
 function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean) {
   return !methodology && !dashboard && !administration
 }
@@ -41,8 +45,9 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const methodologyActive = isMethodologyPath(window.location.pathname)
   const dashboardActive = isDashboardPath(window.location.pathname)
   const administrationActive = window.location.pathname.startsWith('/administration/calculations')
+  const regionalSimulationActive = isRegionalSimulationPath(window.location.pathname)
   const usersActive = window.location.pathname.startsWith('/administration/users')
-  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive || usersActive)
+  const applicationsActive = !regionalSimulationActive && isApplicationsActive(methodologyActive, dashboardActive, administrationActive || usersActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -126,7 +131,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
         <button aria-label={t('nav.comparison')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></button>
-        <button aria-label={t('nav.regionalSimulation')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></button>
+        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} aria-current={regionalSimulationActive ? 'page' : undefined} className={regionalSimulationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
         <p className="nav-heading">{t('nav.system')}</p>
         <a href="/methodology" aria-label={t('nav.methodology')} aria-current={methodologyActive ? 'page' : undefined} className={methodologyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="4" y="2.8" width="12" height="14.4" rx="1" /><path d="M7 6h6M7 9h6M7 12h4" /></svg><span className="nav-label">{t('nav.methodology')}</span></a>
         <a href="/administration/calculations" aria-current={administrationActive ? 'page' : undefined} className={administrationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/administration/calculations') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></a>

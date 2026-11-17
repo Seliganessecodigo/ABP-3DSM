@@ -11,6 +11,7 @@ import { AccountSetupPage } from './pages/login/AccountSetupPage.tsx'
 import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
 import { AccountsPage } from './pages/accounts/AccountsPage.tsx'
+import { RegionalSimulationPage } from './pages/regionalSimulation/RegionalSimulationPage.tsx'
 
 function App() {
   return <AuthenticationProvider><Application /></AuthenticationProvider>
@@ -36,6 +37,7 @@ function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) 
     case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
     case 'history': return <HistoryPage key="history" navigate={navigate} />
+    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" />
     case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
     case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
     case 'administration': return <RecalculationPreviewPage navigate={navigate} />
