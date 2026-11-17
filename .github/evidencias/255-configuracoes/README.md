@@ -11,6 +11,8 @@ Proposta para revisão do produto. A implementação das tasks #94, #95 e #161 a
 
 Feedback do usuário após a primeira proposta: excesso de cards em uma aplicação que já utiliza esse recurso em várias telas. A versão 2 aplica uma superfície contínua, abas com sublinhado, informações operacionais em linha, integrações em lista, tabelas com divisórias e seções de conta sem cartões individuais. Diálogos ficam reservados às ações que exigem confirmação.
 
+Revisão da direção visual na conversa: o solicitante aprovou a versão 2 ("Isso, ficou bom agora") e confirmou que a gestão de usuários existente deve ser integrada à aba Usuários de Configurações, retirando a entrada separada da sidebar e preservando suas operações. Essa aprovação da direção visual não comprova as conexões nativas ou a inspeção do SVG importado, que continuam limitadas pela ferramenta.
+
 A prancha contém sete vistas: monitoramento desktop; usuários; auditoria; conta pessoal; monitoramento pausado no tema escuro; estados/confirmações; monitoramento mobile. A primeira composição mede 1440 × 980; a mobile, 390 × 1080. O protótipo HTML adapta todas as áreas ao mobile.
 
 **Limitação comprovada:** a sessão Figma permitiu listar as páginas, mas as chamadas seguintes de leitura/edição nativa retornaram limite de chamadas do plano. `upload_assets` aceitou os dois SVGs e confirmou sua inserção como árvores vetoriais. Não foi possível conferir o resultado importado ou conectar as interações no Figma. As capturas deste diretório comprovam somente a renderização local. A prancha não equivale a componentes, auto-layout ou protótipo nativo navegável. O protótipo local permite revisar os fluxos enquanto essa limitação persistir.
@@ -100,7 +102,7 @@ Listagens paginadas: padrão 10; opções 5, 10, 15, 20 e Todos; contagem filtra
 
 ## Pendências e tasks
 
-- #255: revisão do PO sobre a versão 2, conexões nativas no Figma e validação do arquivo importado pendentes. A issue deve permanecer aberta.
+- #255: direção visual da versão 2 aprovada pelo solicitante na conversa; conexões nativas no Figma e validação do arquivo importado pendentes. A issue deve permanecer aberta até a revisão completa e integração da entrega.
 - #94: consumir este handoff para shell e comandos. Execução manual ainda não tem rota no contrato conferido; não inventar endpoint nem usar atualizar diagnóstico como substituto.
 - #95: o aceite antigo prevê parâmetros editáveis/versionados; a conversa agora mantém intervalo somente leitura e não define parâmetros/fatores editáveis. É necessário realinhar o aceite antes de implementar configuração sem finalidade aprovada. Não criar limites numéricos arbitrários.
 - #161: implementar contas/papéis/transições usando #158/#245 e preservar autoria/handoff #234. Recuperação de senha permanece #265.
