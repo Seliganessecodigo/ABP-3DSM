@@ -527,7 +527,8 @@ test('menu destaca Aplicações e oferece Dashboard e metodologia sem habilitar 
   await expect(navigation.getByRole('link', { name: 'Histórico', exact: true })).toHaveCount(0)
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
   await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/administration/calculations')
-  for (const name of ['Ranking', 'Comparação', 'Simulação regional']) {
+  await expect(navigation.getByRole('link', { name: 'Comparação', exact: true })).toHaveAttribute('href', '/comparison')
+  for (const name of ['Ranking', 'Simulação regional']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
   }
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
@@ -554,7 +555,9 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Histórico', exact: true })).toHaveCount(0)
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Configurações', exact: true }))
     .toHaveAttribute('href', '/administration/calculations')
-  for (const name of ['Ranking', 'Comparação', 'Simulação regional']) {
+  await expect(page.getByRole('navigation').getByRole('link', { name: 'Comparação', exact: true }))
+    .toHaveAttribute('href', '/comparison')
+  for (const name of ['Ranking', 'Simulação regional']) {
     const destination = page.getByRole('navigation').getByRole('button', { name, exact: true })
     await expect(destination).toBeVisible()
     await expect(destination).toBeDisabled()
