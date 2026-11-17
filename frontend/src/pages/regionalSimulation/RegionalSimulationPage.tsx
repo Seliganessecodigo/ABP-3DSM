@@ -97,7 +97,7 @@ function SearchDialog({
       {t(column)} · {t(direction)}
     </option>))
 
-  return <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="selection-dialog-title" onCancel={(event) => { event.preventDefault(); onClose() }} onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
+  return <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="selection-dialog-title" onCancel={(event) => { event.preventDefault(); onClose() }} onClick={(event) => { if (event.target === event.currentTarget) onClose() }} onKeyDown={(event) => { if (event.key === 'Escape' && event.target === event.currentTarget) onClose() }}>
     <div className={styles.dialogHeader}>
       <h2 id="selection-dialog-title">{t(app ? 'chooseApplication' : 'chooseRegion')}</h2>
       <button className={styles.iconButton} type="button" onClick={onClose} aria-label={t('close')}>×</button>
