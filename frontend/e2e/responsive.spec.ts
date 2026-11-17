@@ -50,7 +50,7 @@ test('long application names stay inside mobile cards and breadcrumbs', async ({
   const longName = 'aplicacao-de-processamento-de-pagamentos-internacionais'
   await mockEnvironmentalData(page)
   await mockCatalog(page, [application({ name: longName })])
-  for (const path of ['/', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/services/svc-0142', '/services/svc-0142/methodology']) {
     await page.goto(path)
     await expect(page.getByRole('main')).toContainText(longName)
     const overflow = await page.getByRole('main').evaluate(main => ({
@@ -63,7 +63,7 @@ test('long application names stay inside mobile cards and breadcrumbs', async ({
 })
 
 for (const viewport of viewports) {
-  for (const path of ['/', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
     test(`${path} distributes content within ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport)
       await mockEnvironmentalData(page)

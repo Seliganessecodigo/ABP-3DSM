@@ -31,7 +31,7 @@ for (const locale of supportedLocales) {
     await page.route('**/analysis/summary?*', route => route.fulfill({ status: 503, json: {} }))
     await page.route('**/api/auth/login', route => route.fulfill({ status: 401, json: {} }))
 
-    await page.goto('/', { waitUntil: 'domcontentloaded' })
+    await page.goto('/applications', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(catalog.title)
     await expect(page.getByRole('link', { name: common['auth.login'], exact: true })).toBeVisible()
     await page.getByRole('button', { name: catalog.columnFilters, exact: true }).click()

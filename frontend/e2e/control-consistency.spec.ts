@@ -45,7 +45,7 @@ for (const width of [1440, 390]) {
       await page.locator('button[aria-controls="dashboard-table-filters"]').click()
       await expectFields(page.locator('#dashboard-table-filters input:not([type="checkbox"]), #dashboard-table-filters select'), 44)
 
-      await page.goto('/')
+      await page.goto('/applications')
       await expectFields(page.getByLabel('Itens por página'), width <= 640 ? 44 : 36, 12)
       await page.getByRole('button', { name: /filtros/i }).click()
       const dialog = page.getByRole('dialog')
@@ -97,7 +97,7 @@ for (const width of [1366, 390]) {
   test(`pagination has the same controls across catalog, dashboard and comparison at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 844 })
     await mockDashboard(page)
-    for (const path of ['/', '/dashboard', '/comparison']) {
+    for (const path of ['/applications', '/dashboard', '/comparison']) {
       await page.goto(path)
       const pagination = page.getByRole('main').getByRole('navigation').last()
       await expect(pagination.getByRole('button', { name: 'Página anterior', exact: true })).toBeDisabled()

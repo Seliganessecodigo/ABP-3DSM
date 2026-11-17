@@ -13,7 +13,7 @@ test('the catalog refreshes one minute after the previous response', async ({ pa
     await route.fulfill({ json: catalog })
   })
 
-  await page.goto('/')
+  await page.goto('/applications')
   await expect(row(page, 'svc-0142')).toBeVisible()
   await expect.poll(() => requests).toBeGreaterThan(0)
   const initialRequests = requests
@@ -63,7 +63,7 @@ test('a failed catalog refresh keeps the last valid rows until a later response 
       : [application()] })
   })
 
-  await page.goto('/')
+  await page.goto('/applications')
   await expect(row(page, 'svc-0142')).toBeVisible()
   failing = true
   await page.clock.fastForward(60_000)
@@ -132,7 +132,7 @@ test('automatic catalog updates preserve the current search, filter, and page', 
     await route.fulfill({ json: catalog })
   })
 
-  await page.goto('/')
+  await page.goto('/applications')
   await search(page).fill('api-')
   await page.getByRole('button', { name: /^Disponível\b/i }).click()
   await page.getByRole('button', { name: /próxima página/i }).click()
@@ -165,7 +165,7 @@ test('a slow automatic catalog refresh does not overlap another poll or manual r
     await route.fulfill({ json: [application()] })
   })
 
-  await page.goto('/')
+  await page.goto('/applications')
   await expect(row(page, 'svc-0142')).toBeVisible()
   const refresh = page.getByRole('button', { name: /atualizar catálogo/i })
   await expect(refresh).toBeEnabled()

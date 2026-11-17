@@ -15,7 +15,7 @@ for (const item of cases) {
     await page.route('**/applications/svc-0142/collections/latest', route => route.fulfill({ json: collectionResponse() }))
     await page.route('**/applications/svc-0142/analysis**', route => route.fulfill({ status: 503, json: {} }))
     await page.route('**/analysis/summary?*', route => route.fulfill({ status: 503, json: {} }))
-    await page.goto('/')
+    await page.goto('/applications')
     const selector = page.getByRole('combobox').filter({ has: page.locator(`option[value="${item.locale}"]`) })
     await expect(selector.locator('option')).toHaveCount(12)
     await selector.selectOption(item.locale)
@@ -42,7 +42,7 @@ test('new languages render mobile loading without fallback or horizontal overflo
     await pending.wait
     await route.fulfill({ json: [] })
   })
-  await page.goto('/')
+  await page.goto('/applications')
   try {
     for (const item of cases) {
       await page.locator('.mobile-menu-toggle').click()
