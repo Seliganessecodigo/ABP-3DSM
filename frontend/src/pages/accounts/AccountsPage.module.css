@@ -14,7 +14,6 @@
 .table th, .table td { padding: 12px; border-bottom: 1px solid var(--border-default); overflow-wrap: anywhere; }
 .table thead th { color: var(--text-secondary); font-weight: 600; }
 .table tbody th { font-weight: 600; }
-.pagination { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; color: var(--text-secondary); font-size: 13px; }
 .panel .error { color: var(--error-foreground); }
 @media (max-width: 1100px) { .form { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 640px) { .panel { padding: 16px; } .form { grid-template-columns: 1fr; } .table { min-width: 650px; } .pagination { justify-content: flex-start; } }
+@media (max-width: 640px) { .panel { padding: 16px; } .form { grid-template-columns: 1fr; } .table { min-width: 650px; } }

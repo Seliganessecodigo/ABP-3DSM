@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatIntervalBoundary } from '../../utils/formatDate.ts'
@@ -78,13 +79,6 @@ type ChartLabels = Labels & Readonly<{
 
 function readingText(reading: AnalysisReading, locale: string, labels: Labels) {
   return formatSeriesReading(reading, locale, labels)
-}
-
-function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
-  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
-  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
-  return [1, ...(first > 2 ? ['ellipsis-start' as const] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []), pageCount]
 }
 
 function hasNoObservation(reading: AnalysisReading) {
@@ -670,20 +664,9 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
           {historyMode && onInspectContributions && <td className={styles.intervalAction}><button type="button" aria-label={point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : t('historyInspect')} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? <>{t('historyViewGap')} →</> : <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>}</button></td>}
         </tr>)}</tbody>
     </table>
-    <div className={styles.pagination}>
-      <output aria-live="polite">{historyMode ? t('historyRange', { start: firstRow, end: lastRow, count: filteredPoints.length }) : labels.rangeStatus(firstRow, lastRow, filteredPoints.length)}</output>
-      <label>{labels.pageSize}<select className="form-control form-control--compact" value={pageSize} onChange={event => onPaginationChange(1, parseAnalysisSeriesPageSize(event.target.value))}>
-        {[5, 10, 15, 20].map(size => <option key={size} value={size}>{size}</option>)}
-        <option value="all">{labels.allRows}</option>
-      </select></label>
-      <div className={styles.pageControls}>
-        <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.previous} disabled={page <= 1} onClick={() => onPaginationChange(page - 1, pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
-        {paginationPages(page, pageCount).map(number => typeof number === 'number'
-          ? <button key={number} type="button" aria-current={number === page ? 'page' : undefined} aria-label={labels.pageStatus(number, pageCount)} className={number === page ? styles.currentPage : styles.pageNumber} onClick={() => onPaginationChange(number, pageSize)}>{number}</button>
-          : <span key={number} aria-hidden="true">…</span>)}
-        <button type="button" className={`button secondary ${styles.pageButton}`} aria-label={labels.next} disabled={page >= pageCount} onClick={() => onPaginationChange(page + 1, pageSize)}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
-      </div>
-    </div>
+    <Pagination page={page} pageCount={pageCount} onPageChange={page => onPaginationChange(page, pageSize)}
+      summary={historyMode ? t('historyRange', { start: firstRow, end: lastRow, count: filteredPoints.length }) : labels.rangeStatus(firstRow, lastRow, filteredPoints.length)}
+      pageSize={{ value: pageSize, options: [5,10,15,20,'all'], onChange: value => onPaginationChange(1, parseAnalysisSeriesPageSize(value)) }} />
   </>
 }
 
@@ -854,7 +837,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
   const chartLabels: ChartLabels = { ...labels, eventsHeading, eventSummary }
   const events = series.status === 'available' ? series.events ?? [] : []
   return <section className={`${styles.section} ${historyMode ? styles.historyMode : ''} ${historyMode && chartStyle === 'columns' ? styles.columnView : ''}`} aria-label={labels.regionHeading}>
-    <div className={`${styles.chartContent} ${historyMode ? styles.historyChart : ''}`}>
+    <div data-help="analysis-chart" className={`${styles.chartContent} ${historyMode ? styles.historyChart : ''}`}>
     <div className={styles.header}>
       <h2 id="analysis-series-heading">{labels.heading}</h2>
       <div className={styles.controls}>
@@ -892,7 +875,7 @@ export function AnalysisSeries({ series, state, locale, labels, formatDate, page
         }}>{labels.focusEvent}</button>
       </li>)}</ul>
     </section>}
-    {historyMode && <section className={styles.historyIntervals} aria-label={labels.historyIntervalsHeading}>
+    {historyMode && <section data-help="history-intervals" className={styles.historyIntervals} aria-label={labels.historyIntervalsHeading}>
       <header><h3>{labels.historyIntervalsHeading}</h3></header>
 
       <SeriesContent series={series} state={state} view="table" metric={metric} locale={locale} timeZone={query.timeZone} chartStyle={chartStyle}

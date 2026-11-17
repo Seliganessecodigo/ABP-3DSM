@@ -272,7 +272,7 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   await expect(firstContribution).toContainText('0,5 kWh')
   await expect(firstContribution).toContainText('50%')
   await expect(page.getByText('Página 1 de 2', { exact: true })).toBeVisible()
-  await inspection.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await inspection.getByRole('button', { name: "Próxima página", exact: true }).click()
   await expect(page.getByText('Página 2 de 2', { exact: true })).toBeVisible()
   await expect(inspection.getByText('factor-original-11', { exact: true })).toBeVisible()
   expect(contributionsRequests).toHaveLength(2)
@@ -280,7 +280,7 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
 
   await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('5')
   await expect(page.getByText('Página 1 de 3', { exact: true })).toBeVisible()
-  await inspection.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await inspection.getByRole('button', { name: "Próxima página", exact: true }).click()
   await expect(inspection.getByText('factor-original-6', { exact: true })).toBeVisible()
   await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('all')
   await expect(page.getByText('Página 1 de 1', { exact: true })).toBeVisible()

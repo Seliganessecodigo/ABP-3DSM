@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "基準が正でないため、割合を計算できません",
   "reason.METRIC_MISSING": "メトリックがありません",
   "reason.METRIC_INVALID": "メトリックが無効です",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "期間内の所在地情報はありません"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "期間内の所在地情報はありません",
+  "helpSelection": "同じ期間で比較するアプリケーションを2～5個選択します。検索、フィルター、ページ切替で候補を探しても選択済みのものは解除されません。有効な選択や期間の変更に応じて比較が更新されます。",
+  "helpReference": "基準アプリケーションは差を求めるための比較元であり、最良のアプリケーションを推奨するものではありません。正の値は基準より多く、負の値は少ないことを示します。単位とカバレッジを確認してください。基準がゼロなどの場合、割合は表示できないことがあります。"
 }

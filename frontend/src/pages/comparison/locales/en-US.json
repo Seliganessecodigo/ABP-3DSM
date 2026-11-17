@@ -52,5 +52,7 @@
   "reason.NON_POSITIVE_REFERENCE": "Reference is not positive; percentage cannot be calculated",
   "reason.METRIC_MISSING": "Metric missing",
   "reason.METRIC_INVALID": "Metric invalid",
-  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Historical location unavailable"
+  "reason.HISTORICAL_LOCATION_UNAVAILABLE": "Historical location unavailable",
+  "helpSelection": "Choose two to five applications for the same period. Search, filters and pages help you find them without removing applications already selected. A valid selection or period change updates the comparison.",
+  "helpReference": "The reference application is the baseline for differences, not a recommendation of the best application. Positive means more than the reference; negative means less. Check units and coverage: percentages may be unavailable, including when the reference is zero."
 }

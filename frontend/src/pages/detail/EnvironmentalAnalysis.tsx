@@ -215,7 +215,7 @@ function MetricCard({ id, title, reading, locale, labels, empty = false, coverag
       : <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
   }
 
-  return <fieldset className={styles.metric} aria-labelledby={id}>
+  return <fieldset data-help={id} className={styles.metric} aria-labelledby={id}>
     <h3 id={id}>{title}</h3>
     <div className={styles.metricValueRow}>{content}{metric && <Sparkline points={seriesPoints} metric={metric} />}</div>
     {coverage?.status === 'available' && coverage.unit === 'fraction' && <p className={styles.metricCoverage}>
@@ -272,7 +272,7 @@ function ContextCard({ data, locale, labels, children }: Readonly<{ data: Analys
   const value = regions !== null && versions !== null
     ? labels.historyContextSummary(new Intl.NumberFormat(locale).format(regions), new Intl.NumberFormat(locale).format(versions))
     : null
-  return <fieldset className={styles.metric} aria-labelledby="analysis-context-heading">
+  return <fieldset data-help="analysis-context" className={styles.metric} aria-labelledby="analysis-context-heading">
     <h3 id="analysis-context-heading">{labels.historyContextHeading}</h3>
     <p className={value === null ? styles.unavailableValue : styles.value}>{value ?? labels.metricUnavailable}</p>
     {children}
@@ -292,7 +292,7 @@ function CoverageCard({ data, locale, labels, empty = false, compact = false }: 
   const emissionsValue = data?.emissionsCoverage.status === 'available' && data.emissionsCoverage.unit === 'fraction' ? data.emissionsCoverage.value : null
   const sharedCoverage = energyValue !== null && emissionsValue !== null && energyValue === emissionsValue ? energyValue : null
 
-  return <fieldset className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
+  return <fieldset data-help="analysis-coverage" className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
     <h3 id="analysis-coverage-heading">{labels.coverage}</h3>
     {sharedCoverage !== null && !empty && compact ? <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</p>
     : sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
@@ -538,7 +538,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   if (historyMode && inspectionBucket !== null) {
     const inspection = contributions?.data
     return <section className={styles.historyInspection} aria-label={labels.contributionHeading}>
-      {inspection && <section className={styles.historyBucket}>
+      {inspection && <section data-help="history-bucket" className={styles.historyBucket}>
         <h2>{formatIntervalBoundary(inspection.bucket.start, locale, seriesQuery.timeZone)} → {formatIntervalBoundary(inspection.bucket.end, locale, seriesQuery.timeZone)}</h2>
         <p>{labels.historyInspectionEndExclusive} · {labels.timeZone(seriesQuery.timeZone)}</p>
         <dl>

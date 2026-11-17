@@ -295,9 +295,9 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   await expect(pageSize).toHaveValue('10')
   await expect(table.getByRole('row')).toHaveCount(11)
   await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
-  await expect(series.getByRole('button', { name: 'Anterior', exact: true })).toBeDisabled()
+  await expect(series.getByRole('button', { name: 'Página anterior', exact: true })).toBeDisabled()
 
-  await series.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await series.getByRole('button', { name: "Próxima página", exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(3)
   await expect(series.getByRole('button', { name: 'Página 2 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   let params = new URL(page.url()).searchParams
@@ -306,7 +306,7 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
 
-  await series.getByRole('button', { name: 'Anterior', exact: true }).click()
+  await series.getByRole('button', { name: 'Página anterior', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(11)
   await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   params = new URL(page.url()).searchParams
@@ -514,8 +514,8 @@ test('mantém pontos com unidades mistas e libera a faixa numérica após escolh
   expect(params.get('collectionId')).toBe('collection-history')
 })
 
-test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o ponto após o limite', async ({ browser }) => {
-  const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4173', locale: 'pt-BR', timezoneId: 'UTC' })
+test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o ponto após o limite', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, locale: 'pt-BR', timezoneId: 'UTC' })
   const page = await context.newPage()
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesFrom=2026-10-17T13%3A00%3A00.000Z&seriesTo=2026-10-17T15%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')

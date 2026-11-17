@@ -64,5 +64,22 @@
   "help.close": "Tutup bantuan",
   "help.previous": "Sebelumnya",
   "help.next": "Berikutnya",
-  "help.finish": "Selesai"
+  "help.finish": "Selesai",
+  "pagination.label": "Paginasi",
+  "pagination.size": "Item per halaman",
+  "pagination.all": "Semua",
+  "pagination.previous": "Halaman sebelumnya",
+  "pagination.next": "Halaman berikutnya",
+  "pagination.page": "Halaman {{page}} dari {{count}}",
+  "help.energy": "Energi adalah perkiraan listrik dari penggunaan CPU, memori, disk dan jaringan. kWh mengukur energi terkumpul: 1 kWh setara 1.000 W selama satu jam. Nilainya untuk periode terpilih, bukan daya sesaat.",
+  "help.energyTitle": "Energi",
+  "help.emissions": "CO₂e (setara karbon dioksida) memperkirakan emisi terkait listrik yang digunakan aplikasi. Perhitungan menggabungkan perkiraan energi dan faktor karbon wilayah. Ini bukan pengukuran langsung emisi aplikasi.",
+  "help.emissionsTitle": "CO₂e",
+  "help.coverage": "Cakupan adalah bagian waktu analisis yang didukung data yang dapat digunakan. Pada 100%, seluruh periode tercakup. Energi dan CO₂e bisa memiliki cakupan berbeda. Celah berarti informasi tidak ada, bukan konsumsi nol.",
+  "help.coverageTitle": "Cakupan",
+  "help.states": "Tersedia berarti metrik valid; Tidak tersedia berarti kueri gagal; Tanpa metrik berarti pembacaan tidak ada; Dihapus berarti keluar dari registri sumber telah dikonfirmasi. Pemeriksaan memperbarui status dan riwayat tetap disimpan.",
+  "help.metrics": "CPU, memori, disk dan jaringan menjelaskan penggunaan sumber daya dan menjadi dasar perkiraan energi. Periksa waktu pengamatan: pembaruan bisa gagal dan mempertahankan pembacaan sebelumnya. Nol yang valid berbeda dari pembacaan yang tidak ada.",
+  "help.factor": "Faktor wilayah menjelaskan emisi untuk setiap kWh listrik di wilayah tersebut. Energi yang sama dapat menghasilkan CO₂e berbeda dengan faktor berbeda. Catatan perhitungan menunjukkan faktor dan metodologi yang digunakan.",
+  "help.period": "Periode adalah rentang waktu analisis, bukan frekuensi pengumpulan. Granularitas, jika tersedia, mengelompokkan pembacaan per jam atau hari, misalnya. Periksa zona waktu yang ditampilkan saat membaca tanggal.",
+  "help.composition": "Setiap batang atau irisan menunjukkan bagian aplikasi dalam CO₂e yang dapat dihitung pada lingkup terpilih. Bagian lebih besar berarti kontribusi lebih besar pada total; itu saja tidak membuktikan efisiensi lebih rendah. Data yang tidak ada tidak dianggap nol."
 }

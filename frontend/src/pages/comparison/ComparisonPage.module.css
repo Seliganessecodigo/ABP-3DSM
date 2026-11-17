@@ -62,7 +62,6 @@
 
 .selectedList button,
 .activeFilters button,
-.pagination button,
 .applicationTable th button {
   color: var(--text-primary);
 }
@@ -169,53 +168,6 @@
   color: var(--text-secondary);
 }
 
-.pagination {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-}
-
-.pagination label {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-}
-
-.pagination select {
-  width: auto;
-  min-width: 5rem;
-}
-
-.pagination button,
-.pageNumbers button {
-  min-height: 2.75rem;
-  padding: .4rem .75rem;
-  border: 1px solid var(--border-default);
-  border-radius: .5rem;
-  background: var(--surface-card);
-  cursor: pointer;
-}
-
-.pageNumbers {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .25rem;
-}
-
-.pageNumbers button[aria-current='page'] {
-  border-color: var(--accent-default);
-  background: var(--control-selected);
-  font-weight: 700;
-}
-
-.pagination button:disabled {
-  color: var(--text-disabled);
-  cursor: not-allowed;
-}
-
 .resultHeading {
   display: flex;
   align-items: center;
@@ -288,13 +240,5 @@
   .mobileResults {
     display: grid;
     gap: .75rem;
-  }
-
-  .pagination {
-    justify-content: flex-start;
-  }
-
-  .pagination > span:first-child {
-    flex-basis: 100%;
   }
 }

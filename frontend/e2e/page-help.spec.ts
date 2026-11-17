@@ -66,7 +66,7 @@ for (const width of [1366, 390]) {
   })
 }
 
-for (const path of ['/dashboard', '/services/svc-0142', '/history?applicationId=svc-0142', '/history', '/methodology', '/administration/calculations', '/login', '/administration/users']) {
+for (const path of ['/dashboard', '/comparison', '/services/svc-0142', '/history?applicationId=svc-0142', '/history', '/methodology', '/administration/calculations', '/login', '/administration/users']) {
   test(`help is available on ${path}`, async ({ page }) => {
     await mockAnalysis(page)
     await page.goto(path)
@@ -77,6 +77,28 @@ for (const path of ['/dashboard', '/services/svc-0142', '/history?applicationId=
     await dialog.getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
     await expect(dialog).toBeHidden()
   })
+}
+
+for (const width of [1366, 390]) {
+  for (const history of [false, true]) {
+    test(`help follows each ${history ? 'history' : 'detail'} area at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 })
+      await mockAnalysis(page)
+      await page.goto(history ? '/history?applicationId=svc-0142' : '/services/svc-0142')
+      await expect(page.locator('[data-help="analysis-energy"]')).toContainText('4 kWh')
+      await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+      const dialog = page.getByRole('dialog')
+      const targets = history
+        ? ['history-filters', 'analysis-energy', 'analysis-emissions', 'analysis-coverage', 'analysis-chart', 'history-intervals', 'analysis-context']
+        : ['detail-identity', 'analysis-energy', 'analysis-emissions', 'analysis-coverage', 'detail-evidence']
+      for (const [index, target] of targets.entries()) {
+        await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-style', 'solid')
+        if (index < targets.length - 1) await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+      }
+      await dialog.getByRole('button', { name: 'Concluir', exact: true }).click()
+      for (const target of targets) await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-style', 'none')
+    })
+  }
 }
 
 for (const locale of supportedLocales) {

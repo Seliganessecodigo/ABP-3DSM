@@ -1,3 +1,4 @@
+import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { analysisNavigationUrl } from '../../app/analysisNavigation.ts'
 import styles from './CatalogPage.module.css'
@@ -28,13 +29,6 @@ function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn)
   return { ariaSort: 'descending', indicator: '\u2193' }
 }
 
-function paginationPages(page: number, pageCount: number): Array<number | 'ellipsis-start' | 'ellipsis-end'> {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
-  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
-  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
-  return [1, ...(first > 2 ? ['ellipsis-start' as const] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? ['ellipsis-end' as const] : []), pageCount]
-}
-
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const personalAlerts = usePersonalAlerts()
   const { t: tCatalog, i18n } = useTranslation('catalog')
@@ -52,7 +46,6 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     stateLabels: Object.fromEntries(states.filter(({ value }) => value !== 'ALL').map(({ value }) => [value, stateLabel(value, tCommon)])) as Record<State, string>,
   }), [i18n.resolvedLanguage, query.timeZone, tCommon])
   const result = useMemo(() => selectCatalog(applications, query, presentation), [applications, query, presentation])
-  const pages = paginationPages(result.page, result.pageCount)
   useEffect(() => {
     const url = makeUrl({ ...query, page: result.page })
     if (`${window.location.pathname}${window.location.search}` !== url) {
@@ -164,7 +157,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   return <main className="content" tabIndex={-1}>
     <div className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><div className="heading-title"><h1>{tCatalog('title')}</h1><PageHelp steps={[
       { title: tCatalog('title'), description: tCatalog('description'), target: '[data-help="catalog-table"]' },
-      { title: tCatalog('columnFilters'), description: tCatalog('filterCombinationNote'), target: '[data-help="catalog-filters"]' },
+      { title: tCatalog('stateFilter'), description: tCommon('help.states'), target: '[data-help="catalog-filters"]' },
       { title: tCatalog('actions'), description: tCatalog('helpActions'), target: '[data-help="application-actions"]' },
     ]} /></div></div><div className={styles['heading-actions']}><ActionButton appearance="secondary" onClick={refresh} pending={refreshing || loading}>{tCatalog('refresh')}</ActionButton><button ref={filterTriggerRef} className={styles['filter-trigger']} aria-expanded={filtersOpen} aria-controls="catalog-column-filters" onClick={() => { setDraftFilters(query.filters ?? {}); setFiltersOpen(true) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M3 4h14l-5.5 6.2v4.4l-3 1.5v-5.9L3 4Z" /></svg>{tCatalog('columnFilters')}</button></div></div>
     <PersonalAlertsPanel state={personalAlerts} />
@@ -204,18 +197,10 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
         const sort = columnSort(column.key)
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
       })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td><div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></td></tr>)}</tbody></table></div>
-      <div className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></article>)}</div>
-      <div className={styles.pagination}>
-        <span>{tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}</span>
-        <label>{tCatalog('pageSize')}<select className="form-control form-control--compact" value={query.pageSize} onChange={(event) => update({ pageSize: event.target.value === 'all' ? 'all' : Number(event.target.value) })}>{pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? tCatalog('all') : size}</option>)}</select></label>
-        <div className={styles['page-controls']}>
-          <button aria-label={tCatalog('previousAria')} className={`button ${styles['page-button']}`} disabled={result.page <= 1} onClick={() => update({ page: Math.max(1, result.page - 1) })}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m12.5 4.5-5.5 5.5 5.5 5.5" /></svg></button>
-          {pages.map((page) => typeof page === 'number'
-            ? <button key={page} aria-current={page === result.page ? 'page' : undefined} aria-label={tCatalog('page', { page, count: result.pageCount })} className={page === result.page ? styles['current-page'] : styles['page-number']} onClick={() => update({ page })}>{page}</button>
-            : <span key={page} aria-hidden="true">…</span>)}
-          <button aria-label={tCatalog('nextAria')} className={`button ${styles['page-button']}`} disabled={result.page >= result.pageCount} onClick={() => update({ page: result.page + 1 })}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m7.5 4.5 5.5 5.5-5.5 5.5" /></svg></button>
-        </div>
-      </div>
+      <div data-help="catalog-table" className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></article>)}</div>
+      <Pagination page={result.page} pageCount={result.pageCount} onPageChange={page => update({ page })}
+        summary={tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}
+        pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => update({ pageSize: value === 'all' ? 'all' : Number(value) }) }} />
     </>}
   </main>
 }
