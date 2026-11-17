@@ -9,10 +9,14 @@ for (const width of [390, 1366]) {
       await mockCatalog(page, [application()])
       await page.route(/\/analysis\/summary\?/, route => route.fulfill({ status: 503, json: {} }))
       await page.route(url => /^\/(?:api\/)?(?:applications(?:\/[^/]+)?|analysis\/summary)$/.test(url.pathname), async route => {
+        if (route.request().isNavigationRequest()) {
+          await route.fallback()
+          return
+        }
         await pending.wait
         await route.fallback()
       })
-      await page.goto(path)
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
       try {
         const loading = page.locator('[data-loading-state]').first()
         await expect(loading).toBeVisible()
