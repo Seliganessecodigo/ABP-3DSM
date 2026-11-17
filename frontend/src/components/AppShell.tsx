@@ -41,6 +41,10 @@ function isApplicationsActive(methodology: boolean, dashboard: boolean, administ
   return !methodology && !dashboard && !administration && !comparison && !simulation
 }
 
+function activeNavigationProps(active: boolean): Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'aria-current' | 'className'> {
+  return { 'aria-current': active ? 'page' : undefined, className: active ? 'selected' : '' }
+}
+
 function AccountAccess({ login, navigate }: Readonly<{ login: boolean; navigate: (url: string) => void }>) {
   const { t } = useTranslation('common')
   const { user, signOut } = useAuthentication()
@@ -67,7 +71,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false)
     menuToggleRef.current?.focus()
-  }, [])
+  }, [setMobileMenuOpen])
   const navigateFromMenu = (url: string) => {
     const shouldFocusMain = mobileMenuOpen
     setMobileMenuOpen(false)
@@ -122,7 +126,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   }, [closeMobileMenu, mobileMenuOpen])
 
   return <div className={layoutClasses(variant, login, desktopExpanded)}>
-    <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={t('nav.main')} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
+    <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" loading="lazy" decoding="async" />
       {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
       <div className="sidebar-brand-row">
@@ -136,15 +140,15 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </div>
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
-        <a href={dashboardUrl} aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/" aria-label={t('nav.applications')} aria-current={applicationsActive ? 'page' : undefined} className={applicationsActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href={dashboardUrl} aria-label={t('nav.dashboard')} {...activeNavigationProps(dashboardActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
+        <a href="/" aria-label={t('nav.applications')} {...activeNavigationProps(applicationsActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
-        <a href={comparisonUrl} aria-label={t('nav.comparison')} aria-current={comparisonActive ? 'page' : undefined} className={comparisonActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></a>
-        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} aria-current={regionalSimulationActive ? 'page' : undefined} className={regionalSimulationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
+        <a href={comparisonUrl} aria-label={t('nav.comparison')} {...activeNavigationProps(comparisonActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></a>
+        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} {...activeNavigationProps(regionalSimulationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
         <p className="nav-heading">{t('nav.system')}</p>
-        <a href="/methodology" aria-label={t('nav.methodology')} aria-current={methodologyActive ? 'page' : undefined} className={methodologyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="4" y="2.8" width="12" height="14.4" rx="1" /><path d="M7 6h6M7 9h6M7 12h4" /></svg><span className="nav-label">{t('nav.methodology')}</span></a>
-        <a href="/settings" aria-current={administrationActive ? 'page' : undefined} className={administrationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/settings') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></a>
+        <a href="/methodology" aria-label={t('nav.methodology')} {...activeNavigationProps(methodologyActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="4" y="2.8" width="12" height="14.4" rx="1" /><path d="M7 6h6M7 9h6M7 12h4" /></svg><span className="nav-label">{t('nav.methodology')}</span></a>
+        <a href="/settings" {...activeNavigationProps(administrationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/settings') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></a>
       </nav>
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading">
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
