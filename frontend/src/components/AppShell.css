@@ -28,7 +28,7 @@
 .nav-icon { width: 14px; height: 14px; flex: 0 0 auto; color: currentColor; }
 .nav-label { overflow: hidden; max-width: 180px; white-space: nowrap; opacity: 1; transition: max-width .2s ease, opacity .16s ease, transform .16s ease; }
 .sidebar nav button:disabled { opacity: .86; }
-.sidebar nav a.selected { background: var(--sidebar-selected); color: var(--navigation-text); font-weight: 650; }
+.sidebar nav a.selected { background: var(--sidebar-selected); box-shadow: inset 0 2px 5px rgb(0 45 36 / 50%), inset 0 -1px 1px rgb(100 216 172 / 12%); color: var(--navigation-text); font-weight: 650; }
 .sidebar-preferences { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; margin-top: auto; padding: 8px 4px 0; transition: max-height .2s ease, margin .2s ease, opacity .16s ease; }
 .sidebar-preferences .nav-heading { margin: 0 0 4px; }
 .sidebar .sidebar-preferences .language-control { position: relative; display: flex; align-items: center; gap: 4px; min-width: 0; min-height: 32px; color: var(--sidebar-text); }
