@@ -1,5 +1,5 @@
 /** Carry only analysis parameters understood by the destination, never table filters. */
-export function analysisNavigationUrl(destination: '/dashboard' | '/history', location: Pick<Location, 'pathname' | 'search'>): string {
+export function analysisNavigationUrl(destination: '/dashboard' | '/history' | '/comparison', location: Pick<Location, 'pathname' | 'search'>): string {
   const current = new URLSearchParams(location.search)
   const next = new URLSearchParams()
   const keys = destination === '/history' ? ['period', 'granularity', 'from', 'to', 'seriesTimeZone'] : ['period', 'granularity', 'from', 'to']

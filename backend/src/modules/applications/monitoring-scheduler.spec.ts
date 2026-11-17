@@ -20,6 +20,35 @@ describe("agendador de monitoramento", () => {
     scheduler.stop();
   });
 
+  it("does not run scheduled cycles while persisted monitoring is paused", async () => {
+    jest.useFakeTimers();
+    const runCycle = jest.fn().mockResolvedValue(undefined);
+    const scheduler = new MonitoringScheduler(60, runCycle, undefined, async () => true);
+
+    scheduler.start();
+    expect(scheduler.isActive).toBe(true);
+    expect(scheduler.interval).toBe(60);
+    await jest.advanceTimersByTimeAsync(60_000);
+
+    expect(runCycle).not.toHaveBeenCalled();
+    scheduler.stop();
+    expect(scheduler.isActive).toBe(false);
+  });
+
+  it("fails closed when it cannot read the persisted pause state", async () => {
+    jest.useFakeTimers();
+    const runCycle = jest.fn().mockResolvedValue(undefined);
+    const scheduler = new MonitoringScheduler(60, runCycle, undefined, async () => {
+      throw new Error("database unavailable");
+    });
+
+    scheduler.start();
+    await jest.advanceTimersByTimeAsync(60_000);
+
+    expect(runCycle).not.toHaveBeenCalled();
+    scheduler.stop();
+  });
+
   it("não inicia outro ciclo enquanto o anterior ainda está executando", async () => {
     jest.useFakeTimers();
     let releaseFirstCycle!: () => void;
