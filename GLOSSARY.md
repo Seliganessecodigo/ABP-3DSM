@@ -28,6 +28,12 @@ Previously valid data that remains available but is older than the latest monito
 The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
 _Avoid_: Application coverage, data share
 
+**Monitored application**:
+A software system registered in GreenER whose state, metrics, and location are observed over time.
+
+**Reference application**:
+A selected monitored application used as the basis for calculating differences against the other selected applications. It does not imply greater efficiency or environmental preference.
+
 **Environmental ranking**:
 An ordering of applications by absolute energy consumption or CO₂e for a shared period and domain-filtered scope. It identifies contribution magnitude and does not measure efficiency.
 
