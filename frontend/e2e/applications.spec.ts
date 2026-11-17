@@ -526,7 +526,7 @@ test('menu destaca Aplicações e oferece as rotas disponíveis', async ({ page 
   await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('href', '/dashboard')
   await expect(navigation.getByRole('link', { name: 'Histórico', exact: true })).toHaveCount(0)
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
-  await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/administration/calculations')
+  await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/settings')
   await expect(navigation.getByRole('link', { name: 'Comparação', exact: true })).toHaveAttribute('href', '/comparison')
   for (const name of ['Ranking']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
@@ -555,7 +555,7 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
     .toHaveAttribute('href', '/dashboard')
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Histórico', exact: true })).toHaveCount(0)
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Configurações', exact: true }))
-    .toHaveAttribute('href', '/administration/calculations')
+    .toHaveAttribute('href', '/settings')
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Comparação', exact: true }))
     .toHaveAttribute('href', '/comparison')
   for (const name of ['Ranking']) {

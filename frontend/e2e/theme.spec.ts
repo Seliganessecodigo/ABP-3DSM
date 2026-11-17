@@ -4,7 +4,7 @@ import { application, gate, mixedCatalog, mockApi, mockCatalog, row, unavailable
 test('interruptor único Modo escuro alterna entre claro e escuro', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' })
   await mockCatalog(page, [])
-  await page.goto('/applications')
+  await page.goto('/')
   const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
   await expect(toggle).toHaveAttribute('aria-checked', 'false')
   await expect(toggle.locator('.theme-switch > span')).toHaveCSS('transition-duration', '0.18s')
@@ -20,14 +20,14 @@ test('interruptor único Modo escuro alterna entre claro e escuro', async ({ pag
 test('interruptor respeita a preferência por movimento reduzido', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await mockCatalog(page, [])
-  await page.goto('/applications')
+  await page.goto('/')
   await expect(page.getByRole('switch', { name: 'Modo escuro', exact: true }).locator('.theme-switch > span'))
     .toHaveCSS('transition-property', 'none')
 })
 
 test('preferências de tema têm nomes acessíveis nos oito idiomas', async ({ page }) => {
   await mockCatalog(page, [])
-  await page.goto('/applications')
+  await page.goto('/')
   const language = page.getByRole('combobox').filter({ has: page.locator('option[value="en-US"]') })
   const cases = [
     ['pt-BR', 'Modo escuro'],
@@ -48,7 +48,7 @@ test('preferências de tema têm nomes acessíveis nos oito idiomas', async ({ p
 test('escolha explícita persiste na recarga e na navegação sem perder filtros', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' })
   await mockCatalog(page, [application()])
-  await page.goto('/applications?search=pagamentos')
+  await page.goto('/?search=pagamentos')
   await page.getByRole('switch', { name: 'Modo escuro', exact: true }).click()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
   await page.reload()
@@ -68,7 +68,7 @@ test('escolha explícita persiste na recarga e na navegação sem perder filtros
 test('sistema acompanha mudanças até a primeira escolha manual', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
   await mockCatalog(page, [])
-  await page.goto('/applications')
+  await page.goto('/')
   const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
   await expect(toggle).toHaveAttribute('aria-checked', 'true')
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark')
@@ -93,8 +93,8 @@ for (const saved of ['light', 'dark', 'system', 'invalid', null]) {
     await page.addInitScript((value) => {
       if (value !== null) localStorage.setItem('greener-theme', value)
     }, saved)
-    await page.route('**/src/main.tsx', (route) => route.abort())
-    await page.goto('/applications')
+    await page.route(/\/src\/main\.tsx(?:\?.*)?$/, (route) => route.abort())
+    await page.goto('/')
     await expect(page.locator('#root')).toBeEmpty()
     await expect(page.locator('html')).toHaveCSS('color-scheme', saved === 'light' ? 'light' : 'dark')
   })
@@ -102,7 +102,7 @@ for (const saved of ['light', 'dark', 'system', 'invalid', null]) {
 
 test('controles funcionam por teclado na sidebar recolhida e no mobile', async ({ page }) => {
   await mockCatalog(page, mixedCatalog)
-  await page.goto('/applications')
+  await page.goto('/')
   await page.getByRole('button', { name: 'Recolher navegação' }).click()
   const dark = page.getByRole('switch', { name: 'Modo escuro', exact: true })
   await dark.focus()
@@ -130,7 +130,7 @@ test('armazenamento bloqueado não impede carregar e escolher o tema na sessão'
     Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError') } })
   })
   await mockCatalog(page, [])
-  await page.goto('/applications')
+  await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: 'Aplicações', exact: true })).toBeVisible()
   await page.getByRole('switch', { name: 'Modo escuro', exact: true }).click()
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'light')
@@ -142,7 +142,7 @@ test('armazenamento bloqueado não impede carregar e escolher o tema na sessão'
 
 test('texto, estados e controles mantêm contraste nos dois temas', async ({ page }, testInfo) => {
   await mockCatalog(page, mixedCatalog)
-  await page.goto('/applications')
+  await page.goto('/')
   for (const name of ['Claro', 'Escuro']) {
     const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
     if ((await toggle.getAttribute('aria-checked')) !== String(name === 'Escuro')) await toggle.click()
@@ -186,7 +186,7 @@ for (const theme of ['Claro', 'Escuro']) {
         await route.fulfill({ json: isCatalog ? (response === 'success' ? [application()] : []) : application() })
       }
     })
-    await page.goto('/applications', { waitUntil: 'domcontentloaded' })
+    await page.goto('/', { waitUntil: 'domcontentloaded' })
     const toggle = page.getByRole('switch', { name: 'Modo escuro', exact: true })
     if ((await toggle.getAttribute('aria-checked')) !== String(theme === 'Escuro')) await toggle.click()
     try {

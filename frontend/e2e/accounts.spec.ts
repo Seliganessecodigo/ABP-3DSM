@@ -8,6 +8,8 @@ const account = { id: 'user-analyst', name: 'Bruno Lima', email: 'bruno@example.
 const accounts = { items: [account], pagination: { page: 1, pageSize: 10, totalItems: 1, totalPages: 1, hasNextPage: false } }
 async function signIn(page: Page, role = 'ADMIN') {
   await mockCatalog(page, [])
+  await page.route('**/api/monitoring/health', route => route.fulfill({ status: 503, json: {} }))
+  await page.route('**/api/me/preferences/alerts', route => route.fulfill({ json: { configured: false, evaluatedAt: '2026-11-17T17:00:00Z', applications: [] } }))
   await page.route('**/api/auth/login', route => route.fulfill({ json: { accessToken: 'access-test', refreshToken: 'refresh-test', tokenType: 'Bearer', expiresIn: 900 } }))
   await page.route('**/api/auth/me', route => route.fulfill({ json: { ...admin, role } }))
   await page.goto('/login')
@@ -18,7 +20,8 @@ async function signIn(page: Page, role = 'ADMIN') {
 }
 async function openAccounts(page: Page) {
   await signIn(page)
-  await page.getByRole('link', { name: 'Usuários', exact: true }).click()
+  await page.getByRole('link', { name: 'Configura\u00e7\u00f5es', exact: true }).click()
+  await page.getByRole('link', { name: 'Usu\u00e1rios', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Usuários', exact: true })).toBeVisible()
 }
 
@@ -26,7 +29,7 @@ test('visitante não consulta contas e recebe acesso ao login', async ({ page })
   let requests = 0
   await page.route('**/api/auth/users?*', route => { requests++; return route.fulfill({ json: accounts }) })
   await page.goto('/administration/users')
-  await expect(page.getByRole('main')).toContainText('Entre com uma conta de administrador')
+  await expect(page.getByRole('main')).toContainText('Entre para gerenciar sua conta')
   await expect(page.getByRole('main').getByRole('link', { name: 'Entrar', exact: true })).toBeVisible()
   expect(requests).toBe(0)
 })
@@ -51,11 +54,11 @@ test('admin lista contas e envia convite autenticado sem criar conta antecipadam
   })
   await openAccounts(page)
   await expect(page.getByRole('cell', { name: 'bruno@example.com' })).toBeVisible()
-  await page.getByLabel('Nome completo').fill('Maria Souza')
+  await page.locator('form').getByLabel('Nome completo').fill('Maria Souza')
   await page.getByLabel('E-mail da conta Google').fill('maria@example.com')
   await page.getByRole('button', { name: 'Enviar convite', exact: true }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Convite enviado' })).toBeVisible()
-  await expect(page.getByLabel('Nome completo')).toHaveValue('')
+  await expect(page.locator('form').getByLabel('Nome completo')).toHaveValue('')
   await expect(page.getByRole('rowheader', { name: 'Maria Souza' })).toHaveCount(0)
 })
 
@@ -63,13 +66,13 @@ test('prepara vínculo próprio e de conta existente mantendo papel sem enviar a
   await page.route('**/api/auth/users?*', route => route.fulfill({ json: accounts }))
   await openAccounts(page)
   await page.getByRole('button', { name: 'Vincular minha conta Google' }).click()
-  await expect(page.getByLabel('Nome completo')).toHaveValue(admin.name)
+  await expect(page.locator('form').getByLabel('Nome completo')).toHaveValue(admin.name)
   await expect(page.getByLabel('E-mail da conta Google')).toHaveValue(admin.email)
-  await expect(page.getByLabel('Papel', { exact: true })).toHaveValue('ADMIN')
-  await expect(page.getByLabel('Nome completo')).toBeFocused()
+  await expect(page.locator('form').getByLabel('Papel', { exact: true })).toHaveValue('ADMIN')
+  await expect(page.locator('form').getByLabel('Nome completo')).toBeFocused()
   await page.getByRole('button', { name: 'Preparar convite para Bruno Lima' }).click()
   await expect(page.getByLabel('E-mail da conta Google')).toHaveValue(account.email)
-  await expect(page.getByLabel('Papel', { exact: true })).toHaveValue('ANALYST')
+  await expect(page.locator('form').getByLabel('Papel', { exact: true })).toHaveValue('ANALYST')
 })
 
 test('falha de convite preserva formulário e não expõe resposta interna', async ({ page }) => {
@@ -79,7 +82,7 @@ test('falha de convite preserva formulário e não expõe resposta interna', asy
   await page.getByRole('button', { name: 'Vincular minha conta Google' }).click()
   await page.getByRole('button', { name: 'Enviar convite', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Esta conta não pode receber o convite')
-  await expect(page.getByLabel('Nome completo')).toHaveValue(admin.name)
+  await expect(page.locator('form').getByLabel('Nome completo')).toHaveValue(admin.name)
   await expect(page.getByText('sensitive internal detail')).toHaveCount(0)
 })
 
@@ -127,15 +130,15 @@ test('nova página mantém textos nos doze idiomas e cabe no celular', async ({ 
   test.setTimeout(60_000)
   await page.route('**/api/auth/users?*', route => route.fulfill({ json: accounts }))
   await openAccounts(page)
-  await page.screenshot({path:'../.github/evidencias/google-access/users-desktop.png',fullPage:true})
+  await page.screenshot({path:test.info().outputPath('users-desktop.png'),fullPage:true})
   for(const locale of supportedLocales) {
     const strings=JSON.parse(readFileSync(new URL(`../src/pages/accounts/locales/${locale}.json`,import.meta.url),'utf8'))
     await page.locator('.sidebar select').first().selectOption(locale)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(strings.title)
+    await expect(page.getByRole('heading', { level: 2, name: strings.title, exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: strings.send, exact: true })).toBeVisible()
   }
   await page.locator('.sidebar select').first().selectOption('pt-BR')
   await page.setViewportSize({ width:390,height:844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth)).toBe(true)
-  await page.screenshot({path:'../.github/evidencias/google-access/users-mobile.png',fullPage:true})
+  await page.screenshot({path:test.info().outputPath('users-mobile.png'),fullPage:true})
 })

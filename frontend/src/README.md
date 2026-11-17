@@ -2,7 +2,9 @@
 
 `pages/methodology/` contém as quatro abas em `MethodologyPage`, rascunhos em `usePreferenceDraft` e componentes locais de explicação/prévia. `RecordedMethodology` preserva a consulta histórica por coleta. `features/preferences/` valida o contrato HTTP autenticado; `pages/detail/useAnalysisDefaults` aplica somente padrões ausentes na URL.
 
-`pages/recalculationPreview/` apresenta a prévia de recálculo em administração, com escopo local à tela e sem persistir a resposta. `features/analysis/recalculationPreview.ts` valida a resposta do endpoint de prévia; o resultado permanece separado da análise histórica.
+`pages/settings/` compõe Configurações em `/settings`, com monitoramento, usuários, auditoria e conta pessoal conforme o papel. Contratos, limites e verificação estão em [settings/README.md](pages/settings/README.md). `features/monitoring/` valida as consultas administrativas existentes.
+
+`pages/recalculationPreview/` preserva a prévia de recálculo por link direto, com escopo local à tela e sem persistir a resposta. `features/analysis/recalculationPreview.ts` valida a resposta do endpoint de prévia; o resultado permanece separado da análise histórica.
 
 Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 estiver ocupada, inclusive em worktrees simultâneos. Metodologia carrega Inter local de `assets/fonts/`, com licença SIL OFL, para reproduzir as referências sem CDN em runtime.
 
@@ -51,7 +53,7 @@ A integridade dos catálogos de idioma é verificada em `tests/unit/locales.spec
 
 `pages/login/AccountSetupPage` apresenta `/setup-admin` e `/confirm-email` com `useAccountSetup` e o contrato de `features/authentication/api.ts`. Convite e confirmação permanecem públicos; só o backend consome os tokens e concede acesso após senha e TOTP. O fragmento é removido da URL e mantido apenas na memória; recarregar exige reabrir o link do e-mail. O fallback em `public/staticwebapp.config.json` mantém os links funcionais na Azure.
 
-`pages/accounts/` apresenta `/administration/users` para Admin: lista paginada e convites Google, incluindo o vínculo da própria conta por convite. `useAccounts` cancela consultas e envios ao sair; `features/authentication/accounts.ts` valida os contratos de listagem e convite existentes. O item da navegação é exclusivo de Admin, e a autorização permanece no backend. Convites pendentes não são contas; a listagem só inclui o cadastro após a aceitação. A variável pública `VITE_GOOGLE_SSO_ENABLED` controla o botão de login e o formulário de convite, inclusive na publicação de staging.
+`pages/accounts/` fornece a aba Usuários de `/settings?tab=users` para Admin; `/administration/users` preserva os links anteriores como alias. A aba oferece criação de contas, mudança de papel, bloqueio/reativação/desativação com motivo e confirmação, além de lista paginada e convites Google, incluindo o vínculo da própria conta por convite. `useAccounts` cancela consultas e envios ao sair; `features/authentication/accounts.ts` valida os contratos de listagem e convite existentes. O acesso administrativo fica nas Configurações, e a autorização permanece no backend. Não há mais um item separado de Usuários na sidebar. Convites pendentes não são contas; a listagem só inclui o cadastro após a aceitação. A variável pública `VITE_GOOGLE_SSO_ENABLED` controla o botão de login e o formulário de convite, inclusive na publicação de staging.
 # Regional simulation page
 
 `pages/regionalSimulation/` implements the hypothetical regional-factor simulation. Application, destination region, and period (24h, 7d, 30d; default 7d) persist in the URL. Opening/reloading restores the selections without submitting; the POST runs only after an explicit action. Pending, empty, partial, and failed results remain distinct.

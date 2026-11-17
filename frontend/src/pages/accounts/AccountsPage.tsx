@@ -4,19 +4,24 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { ActionButton } from '../../components/ActionButton.tsx'
-import { isAccountRole, type GoogleInvitation } from '../../features/authentication/accounts.ts'
+import { tableSortPresentation } from '../../utils/tableSortPresentation.ts'
+import { AccountManagement } from './AccountManagement.tsx'
+import { isAccountRole, type GoogleInvitation, type Account } from '../../features/authentication/accounts.ts'
 import { useAccounts } from './useAccounts.ts'
 import styles from './AccountsPage.module.css'
 
-export function AccountsPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+export function AccountsPage({ navigate, embedded = false }: Readonly<{ navigate: (url: string) => void; embedded?: boolean }>) {
   const { user } = useAuthentication()
   const { t } = useTranslation('accounts')
   if (user?.role !== 'ADMIN') return <main className="content" tabIndex={-1}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]} /></div><p className="notice">{t(user ? 'denied' : 'signIn')}</p>{!user && <a className="button" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('login')}</a>}</main>
-  return <AccountsAdministration key={user.id} />
+  return <AccountsAdministration key={user.id} embedded={embedded} navigate={navigate} />
 }
-function AccountsAdministration() {
+function AccountsAdministration({ embedded, navigate }: Readonly<{ embedded: boolean; navigate: (url: string) => void }>) {
   const { t } = useTranslation('accounts')
-  const state = useAccounts()
+  const { t: settings } = useTranslation('settings')
+  const [management, setManagement] = useState<{ account: Account | null } | null>(null)
+  const [saved, setSaved] = useState(false)
+  const state = useAccounts(navigate)
   const { user, result, loading, loadError, reload, inviteState, inviteError, sendInvitation } = state
   const [draft, setDraft] = useState<GoogleInvitation>({ name: '', email: '', role: 'VISITOR' })
   const nameField = useRef<HTMLInputElement>(null)
@@ -26,11 +31,32 @@ function AccountsAdministration() {
     setDraft({ name: input.name, email: input.email, role: input.role })
     nameField.current?.focus()
   }
-  return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className="page-heading"><div><p className="eyebrow">GreenER</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  const Container = embedded ? 'section' : 'main'
+  return <Container className={embedded ? styles.page : `content ${styles.page}`} tabIndex={-1}>
+    <header className={styles.toolbar}><div>{!embedded && <p className="eyebrow">GreenER</p>}<div className="heading-title">{embedded ? <h2>{t('title')}</h2> : <h1>{t('title')}</h1>}{!embedded && <PageHelp steps={[
   { title: t('inviteTitle'), description: t('inviteDescription'), target: '[aria-labelledby="google-invitation-heading"]' },
   { title: t('listTitle'), description: t('existingAccountHint'), target: '[aria-labelledby="accounts-list-heading"]' },
-]} /></div></div></header>
+]} />}</div></div><button type="button" className="button" onClick={() => { setSaved(false); setManagement({ account: null }) }}>{settings('createAccount')}</button></header>
+    {saved && <output>{settings('saved')}</output>}
+    <section className={styles.panel} aria-labelledby="accounts-list-heading" aria-busy={loading}>
+      <div className={styles.toolbar}><h2 id="accounts-list-heading">{t('listTitle')}</h2><ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('refresh')}</ActionButton></div>
+      {loading && <output className="notice">{t('loading')}</output>}
+      {loadError && <><p role="alert" className={styles.error}>{t(loadError)}</p>{result && <p className="notice">{settings('previousData')}</p>}</>}
+      <div className={styles.filters}>
+        <label>{settings('search')}<input className="form-control" type="search" maxLength={320} value={state.query.get('search') ?? ''} onChange={e => state.updateQuery('search', e.target.value)} /></label>
+        <label>{t('role')}<select className="form-control" value={state.query.get('role') ?? ''} onChange={e => state.updateQuery('role', e.target.value)}><option value="">{settings('all')}</option>{(['ADMIN', 'ANALYST', 'VISITOR'] as const).map(value => <option key={value} value={value}>{t(`role.${value}`)}</option>)}</select></label>
+        <label>{t('status')}<select className="form-control" value={state.query.get('status') ?? ''} onChange={e => state.updateQuery('status', e.target.value)}><option value="">{settings('all')}</option>{(['ACTIVE', 'BLOCKED', 'DEACTIVATED'] as const).map(value => <option key={value} value={value}>{t(`status.${value}`)}</option>)}</select></label>
+      </div>
+      <details><summary>{settings('filters')}</summary><div className={styles.filters}>{(['name', 'email'] as const).map(key => <label key={key}>{t(key === 'email' ? 'emailColumn' : key)}<input className="form-control" maxLength={320} value={state.query.get(key) ?? ''} onChange={e => state.updateQuery(key, e.target.value)} /></label>)}</div></details>
+      <button type="button" className="button secondary" onClick={state.clearFilters}>{settings('clear')}</button>
+      {result && <>
+        {result.items.length ? <div className={styles.tableScroll}><table className={styles.table}><caption>{t('listCaption')}</caption><thead><tr>{(['name', 'email', 'role', 'status'] as const).map(key => { const sort = tableSortPresentation(key, state.query.get('sortBy'), state.query.get('sortDirection')); return <th key={key} scope="col" aria-sort={sort.ariaSort}><button type="button" className={styles.sort} onClick={() => state.updateQuery('sortBy', key, { sortDirection: state.query.get('sortBy') === key && state.query.get('sortDirection') === 'asc' ? 'desc' : 'asc' })}>{t(key === 'email' ? 'emailColumn' : key)}<span aria-hidden="true">{sort.indicator}</span></button></th> })}<th scope="col">{t('actions')}</th></tr></thead><tbody>{result.items.map(account => <tr key={account.id}><th scope="row">{account.name}</th><td>{account.email}</td><td>{t(`role.${account.role}`)}</td><td>{t(`status.${account.status}`)}</td><td><button type="button" className="button secondary" onClick={() => { setSaved(false); setManagement({ account }) }}>{settings('manageAccount', { name: account.name })}</button>{ssoEnabled && account.status === 'ACTIVE' && <ActionButton appearance="secondary" disabled={pending} onClick={() => prepareInvitation(account)} aria-label={t('inviteAccount', { name: account.name })}>{t('inviteAction')}</ActionButton>}</td></tr>)}</tbody></table></div> : <p className="notice">{['search', 'name', 'email', 'role', 'status'].some(key => state.query.get(key)) ? settings('noResults') : t('empty')}</p>}
+        <Pagination page={result.pagination.page} pageCount={result.pagination.totalPages} label={t('pagination')} disabled={loading} hasNextPage={result.pagination.hasNextPage}
+          summary={t('page', { page: result.pagination.page, pages: Math.max(1, result.pagination.totalPages), total: result.pagination.totalItems })}
+          pageSize={{ value: result.pagination.pageSize, options: [5, 10, 15, 20, 'all'], onChange: value => state.updateQuery('pageSize', value) }}
+          onPageChange={page => state.changePage(page - state.page)} />
+      </>}
+    </section>
     <section className={styles.panel} aria-labelledby="google-invitation-heading">
       <h2 id="google-invitation-heading">{t('inviteTitle')}</h2>
 
@@ -51,16 +77,6 @@ function AccountsAdministration() {
         {inviteError && <p role="alert" className={styles.error}>{t(inviteError)}</p>}
       </> : <p className="notice">{t('googleUnavailable')}</p>}
     </section>
-    <section className={styles.panel} aria-labelledby="accounts-list-heading" aria-busy={loading}>
-      <div className={styles.toolbar}><h2 id="accounts-list-heading">{t('listTitle')}</h2><ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('refresh')}</ActionButton></div>
-      {loading && <output className="notice">{t('loading')}</output>}
-      {loadError && <p role="alert" className={styles.error}>{t(loadError)}</p>}
-      {result && <>
-        {result.items.length ? <div className={styles.tableScroll}><table className={styles.table}><caption>{t('listCaption')}</caption><thead><tr>{['name', 'emailColumn', 'role', 'status', 'actions'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody>{result.items.map(account => <tr key={account.id}><th scope="row">{account.name}</th><td>{account.email}</td><td>{t(`role.${account.role}`)}</td><td>{t(`status.${account.status}`)}</td><td>{ssoEnabled && account.status === 'ACTIVE' && <ActionButton appearance="secondary" disabled={pending} onClick={() => prepareInvitation(account)} aria-label={t('inviteAccount', { name: account.name })}>{t('inviteAction')}</ActionButton>}</td></tr>)}</tbody></table></div> : <p className="notice">{t('empty')}</p>}
-        <Pagination page={result.pagination.page} pageCount={result.pagination.totalPages} label={t('pagination')} disabled={loading} hasNextPage={result.pagination.hasNextPage}
-          summary={t('page', { page: result.pagination.page, pages: Math.max(1, result.pagination.totalPages), total: result.pagination.totalItems })}
-          onPageChange={page => state.changePage(page - state.page)} />
-      </>}
-    </section>
-  </main>
+    {management && <AccountManagement account={management.account} onClose={() => setManagement(null)} onSaved={() => { setManagement(null); setSaved(true); reload() }} />}
+  </Container>
 }

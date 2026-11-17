@@ -1,19 +1,29 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'accounts' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
+type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'settings' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
+const staticRoutes: Partial<Record<string, Route>> = {
+  '/settings': { kind: 'settings' }, '/settings/': { kind: 'settings' },
+  '/': { kind: 'dashboard' },
+  '/applications': { kind: 'catalog' }, '/applications/': { kind: 'catalog' },
+  '/setup-admin': { kind: 'setup-admin' }, '/confirm-email': { kind: 'confirm-email' },
+  '/sso/callback': { kind: 'sso-callback' }, '/login': { kind: 'login' },
+  '/dashboard': { kind: 'dashboard' }, '/dashboard/': { kind: 'dashboard' },
+  '/comparison': { kind: 'comparison' }, '/comparison/': { kind: 'comparison' },
+  '/history': { kind: 'history' }, '/history/': { kind: 'history' },
+  '/regional-simulation': { kind: 'regional-simulation' }, '/regional-simulation/': { kind: 'regional-simulation' },
+  '/methodology': { kind: 'methodology', id: null }, '/methodology/': { kind: 'methodology', id: null },
+  '/administration/calculations': { kind: 'administration' }, '/administration/calculations/': { kind: 'administration' },
+}
 function routeFromLocation(): Route {
-  if (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') return { kind: 'dashboard' }
-  if (window.location.pathname === '/applications' || window.location.pathname === '/applications/') return { kind: 'catalog' }
-  if (window.location.pathname === '/administration/users' || window.location.pathname === '/administration/users/') return { kind: 'accounts' }
-  if (window.location.pathname === '/setup-admin') return { kind: 'setup-admin' }
-  if (window.location.pathname === '/confirm-email') return { kind: 'confirm-email' }
-  if (window.location.pathname === '/sso/callback') return { kind: 'sso-callback' }
-  if (window.location.pathname === '/login') return { kind: 'login' }
-  if (window.location.pathname === '/comparison' || window.location.pathname === '/comparison/') return { kind: 'comparison' }
-  if (window.location.pathname === '/history' || window.location.pathname === '/history/') return { kind: 'history' }
-  if (window.location.pathname === '/regional-simulation' || window.location.pathname === '/regional-simulation/') return { kind: 'regional-simulation' }
-  if (window.location.pathname === '/methodology' || window.location.pathname === '/methodology/') return { kind: 'methodology', id: null }
-  if (window.location.pathname === '/administration/calculations' || window.location.pathname === '/administration/calculations/') return { kind: 'administration' }
+  if (window.location.pathname === '/administration/users' || window.location.pathname === '/administration/users/') {
+    const params = new URLSearchParams(window.location.search)
+    params.set('tab', 'users')
+    window.history.replaceState({}, '', `/settings?${params}`)
+    return { kind: 'settings' }
+  }
+  const direct = staticRoutes[window.location.pathname]
+  // A referência nova mantém a atualização da tela quando só a query muda.
+  if (direct) return { ...direct }
   const methodology = /^\/services\/([^/]+)\/methodology$/.exec(window.location.pathname)
   if (methodology) {
     try { return { kind: 'methodology', id: decodeURIComponent(methodology[1]) } } catch { return { kind: 'methodology', id: methodology[1] } }

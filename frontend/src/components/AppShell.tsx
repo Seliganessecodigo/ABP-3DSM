@@ -4,7 +4,7 @@ import foliageBackground from '../assets/foliage-background.svg'
 import greenErMark from '../assets/green-er-mark.png'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRightArrowLeft, faBars, faBookOpen, faChevronLeft, faEarthAmericas, faGear, faLayerGroup, faRankingStar, faTableCellsLarge, faUsers, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRightArrowLeft, faBars, faBookOpen, faChevronLeft, faEarthAmericas, faGear, faLayerGroup, faRankingStar, faTableCellsLarge, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
@@ -31,26 +31,38 @@ function isRegionalSimulationPath(pathname: string) {
   return pathname === '/regional-simulation' || pathname === '/regional-simulation/'
 }
 
-function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean) {
-  return !methodology && !dashboard && !administration && !comparison
+function isAdministrationPath(pathname: string) {
+  return pathname.startsWith('/administration/calculations') || pathname === '/settings' || pathname === '/settings/'
 }
 
-function UsersNavigation({ allowed, active, navigate }: Readonly<{ allowed: boolean; active: boolean; navigate: (url: string) => void }>) {
+function isComparisonPath(pathname: string) {
+  return pathname === '/comparison' || pathname === '/comparison/'
+}
+
+function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean, simulation: boolean) {
+  return !methodology && !dashboard && !administration && !comparison && !simulation
+}
+
+function activeNavigationProps(active: boolean): Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'aria-current' | 'className'> {
+  return { 'aria-current': active ? 'page' : undefined, className: active ? 'selected' : '' }
+}
+
+function AccountAccess({ login, navigate }: Readonly<{ login: boolean; navigate: (url: string) => void }>) {
   const { t } = useTranslation('common')
-  if (!allowed) return null
-  return <a href="/administration/users" aria-label={t('nav.users')} aria-current={active ? 'page' : undefined} className={active ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigate('/administration/users') }}><FontAwesomeIcon className="nav-icon" icon={faUsers} aria-hidden="true" /><span className="nav-label">{t('nav.users')}</span></a>
+  const { user, signOut } = useAuthentication()
+  if (user) return <div className="auth-account"><span><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></div>
+  if (login) return null
+  return <a className="auth-login" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('auth.login')}</a>
 }
 
 export function AppShell({ children, navigate, variant = 'default', login = false }: Readonly<{ children: React.ReactNode; navigate: (url: string) => void; variant?: 'default' | 'detail' | 'methodology'; login?: boolean }>) {
   const { t } = useTranslation('common')
-  const { user, signOut } = useAuthentication()
   const methodologyActive = isMethodologyPath(window.location.pathname)
   const dashboardActive = isDashboardPath(window.location.pathname)
-  const comparisonActive = window.location.pathname === '/comparison' || window.location.pathname === '/comparison/'
-  const administrationActive = window.location.pathname.startsWith('/administration/calculations')
+  const comparisonActive = isComparisonPath(window.location.pathname)
+  const administrationActive = isAdministrationPath(window.location.pathname)
   const regionalSimulationActive = isRegionalSimulationPath(window.location.pathname)
-  const usersActive = window.location.pathname.startsWith('/administration/users')
-  const applicationsActive = !regionalSimulationActive && isApplicationsActive(methodologyActive, dashboardActive, administrationActive || usersActive, comparisonActive)
+  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive, comparisonActive, regionalSimulationActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -61,7 +73,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false)
     menuToggleRef.current?.focus()
-  }, [])
+  }, [setMobileMenuOpen])
   const navigateFromMenu = (url: string) => {
     const shouldFocusMain = mobileMenuOpen
     setMobileMenuOpen(false)
@@ -130,22 +142,21 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </div>
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
-        <a href={dashboardUrl} aria-label={t('nav.dashboard')} aria-current={dashboardActive ? 'page' : undefined} className={dashboardActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><FontAwesomeIcon className="nav-icon" icon={faTableCellsLarge} aria-hidden="true" /><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/applications" aria-label={t('nav.applications')} aria-current={applicationsActive ? 'page' : undefined} className={applicationsActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/applications') }}><FontAwesomeIcon className="nav-icon" icon={faLayerGroup} aria-hidden="true" /><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href={dashboardUrl} aria-label={t('nav.dashboard')} {...activeNavigationProps(dashboardActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><FontAwesomeIcon className="nav-icon" icon={faTableCellsLarge} aria-hidden="true" /><span className="nav-label">{t('nav.dashboard')}</span></a>
+        <a href="/applications" aria-label={t('nav.applications')} {...activeNavigationProps(applicationsActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/applications') }}><FontAwesomeIcon className="nav-icon" icon={faLayerGroup} aria-hidden="true" /><span className="nav-label">{t('nav.applications')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
         <button aria-label={t('nav.ranking')} disabled><FontAwesomeIcon className="nav-icon" icon={faRankingStar} aria-hidden="true" /><span className="nav-label">{t('nav.ranking')}</span></button>
-        <a href={comparisonUrl} aria-label={t('nav.comparison')} aria-current={comparisonActive ? 'page' : undefined} className={comparisonActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><FontAwesomeIcon className="nav-icon" icon={faArrowRightArrowLeft} aria-hidden="true" /><span className="nav-label">{t('nav.comparison')}</span></a>
-        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} aria-current={regionalSimulationActive ? 'page' : undefined} className={regionalSimulationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><FontAwesomeIcon className="nav-icon" icon={faEarthAmericas} aria-hidden="true" /><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
+        <a href={comparisonUrl} aria-label={t('nav.comparison')} {...activeNavigationProps(comparisonActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><FontAwesomeIcon className="nav-icon" icon={faArrowRightArrowLeft} aria-hidden="true" /><span className="nav-label">{t('nav.comparison')}</span></a>
+        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} {...activeNavigationProps(regionalSimulationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><FontAwesomeIcon className="nav-icon" icon={faEarthAmericas} aria-hidden="true" /><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
         <p className="nav-heading">{t('nav.system')}</p>
-        <a href="/methodology" aria-label={t('nav.methodology')} aria-current={methodologyActive ? 'page' : undefined} className={methodologyActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><FontAwesomeIcon className="nav-icon" icon={faBookOpen} aria-hidden="true" /><span className="nav-label">{t('nav.methodology')}</span></a>
-        <a href="/administration/calculations" aria-current={administrationActive ? 'page' : undefined} className={administrationActive ? 'selected' : ''} onClick={(event) => { event.preventDefault(); navigateFromMenu('/administration/calculations') }}><FontAwesomeIcon className="nav-icon" icon={faGear} aria-hidden="true" /><span className="nav-label">{t('nav.settings')}</span></a>
-        <UsersNavigation allowed={user?.role === 'ADMIN'} active={usersActive} navigate={navigateFromMenu} />
+        <a href="/methodology" aria-label={t('nav.methodology')} {...activeNavigationProps(methodologyActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><FontAwesomeIcon className="nav-icon" icon={faBookOpen} aria-hidden="true" /><span className="nav-label">{t('nav.methodology')}</span></a>
+        <a href="/settings" {...activeNavigationProps(administrationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/settings') }}><FontAwesomeIcon className="nav-icon" icon={faGear} aria-hidden="true" /><span className="nav-label">{t('nav.settings')}</span></a>
       </nav>
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading">
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
         <LanguageSelector />
         <ThemeSelector />
-        {user ? <div className="auth-account"><span><strong>{user.name}</strong><small>{t(`auth.role.${user.role}`)}</small></span><button type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('auth.signOut')}</button></div> : !login && <a className="auth-login" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>{t('auth.login')}</a>}
+        <AccountAccess login={login} navigate={navigate} />
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
