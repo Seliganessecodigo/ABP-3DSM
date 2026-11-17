@@ -61,21 +61,17 @@ function SearchDialog({
   selectedId: string
 }>) {
   const { t } = useTranslation('regionalSimulation')
+  const { t: tc } = useTranslation('common')
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [search, setSearch] = useState('')
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState({ name: '', country: '', regionCode: '', city: '' })
   const [sort, setSort] = useState<{ column: CatalogSortColumn; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' })
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState<number | 'all'>(10)
   useEffect(() => {
     const dialog = dialogRef.current
     if (dialog && !dialog.open) dialog.showModal()
     return () => { if (dialog?.open) dialog.close() }
   }, [])
   const term = normalized(search.trim())
-  const appResults = selectCatalog(applications, { search: term, state: 'ALL', regionCode: '', page, pageSize,
-    sort, filters },
+  const appResults = selectCatalog(applications, { search: term, state: 'ALL', regionCode: '', page: 1, pageSize: 'all', sort },
   { locale: 'pt-BR', timeZone: 'UTC', stateLabels: { AVAILABLE: 'Disponível', UNAVAILABLE: 'Indisponível', NO_METRICS: 'Sem métricas', REMOVED: 'Removida' } })
   const regionMatches = regions.filter((region) => !term || normalized([
     region.code, region.country, region.region, region.city,
@@ -83,28 +79,23 @@ function SearchDialog({
   const choose = (id: string) => { onSelect(id); onClose() }
   const app = kind === 'application'
   const appItems = appResults.items.map((item) => <button key={item.id} type="button"
-    className={`${styles.selectionItem}${item.id === selectedId ? ` ${styles.selectedItem}` : ''}`}
+    className={`${styles.selectionItem} ${styles.applicationItem}${item.id === selectedId ? ` ${styles.selectedItem}` : ''}`}
     aria-pressed={item.id === selectedId} onClick={() => choose(item.id)}>
-    <strong>{item.name}</strong><span>{item.id} · {item.location ? `${item.location.regionCode} · ${item.location.country}` : t('locationUnavailable')}</span>
+    <span className={styles.applicationIdentity}><strong>{item.name}</strong>
+      <span className={styles.selectionMeta}><span>{item.id}</span><span aria-hidden="true">·</span><span>{item.location ? `${item.location.regionCode} · ${item.location.country}` : t('locationUnavailable')}</span></span>
+    </span>
+    <span className={`${styles.selectionStatus} ${styles[`state${item.state}`]}`}>{tc(`state.${item.state}`)}</span>
+    {item.id === selectedId && <svg className={styles.selectionCheck} viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8" /></svg>}
   </button>)
   const regionItems = regionMatches.map((item) => <button key={item.code} type="button"
     className={`${styles.selectionItem}${item.code === selectedId ? ` ${styles.selectedItem}` : ''}`}
     aria-pressed={item.code === selectedId} onClick={() => choose(item.code)}>
     <strong>{item.code} · {item.region}</strong><span>{item.country}{item.city ? ` · ${item.city}` : ''}</span>
   </button>)
-  const filterInputs = (['name', 'country', 'regionCode', 'city'] as const).map((key) => <label key={key}>
-    {t(key)}<input className="form-control" value={filters[key]} onChange={(event) => {
-      setFilters((current) => ({ ...current, [key]: event.currentTarget.value }))
-      setPage(1)
-    }} />
-  </label>)
   const sortOptions = (['name', 'country', 'regionCode', 'city'] as const).flatMap((column) =>
     (['asc', 'desc'] as const).map((direction) => <option key={`${column}:${direction}`} value={`${column}:${direction}`}>
       {t(column)} · {t(direction)}
     </option>))
-  const pageSizeValue = pageSize === 'all' ? Math.max(appResults.total, 1) : pageSize
-  const firstItem = appResults.total ? (appResults.page - 1) * pageSizeValue + 1 : 0
-  const lastItem = Math.min(appResults.page * pageSizeValue, appResults.total)
 
   return <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="selection-dialog-title" onCancel={(event) => { event.preventDefault(); onClose() }} onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
     <div className={styles.dialogHeader}>
@@ -112,34 +103,22 @@ function SearchDialog({
       <button className={styles.iconButton} type="button" onClick={onClose} aria-label={t('close')}>×</button>
     </div>
     <label className={styles.searchLabel}>{t('searchAll')}
-      <input autoFocus className="form-control" type="search" value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1) }} />
+      <input autoFocus className="form-control" type="search" value={search} onChange={(event) => setSearch(event.currentTarget.value)} />
     </label>
-    <div className={styles.selectionList}>
+    {app && <div className={styles.catalogToolbar}>
+      <label>{t('sortBy')}<select className="form-control" aria-label={t('sortBy')} value={`${sort.column}:${sort.direction}`} onChange={(event) => {
+        const [column, direction] = event.currentTarget.value.split(':') as [CatalogSortColumn, 'asc' | 'desc']
+        setSort({ column, direction })
+      }}>{sortOptions}</select></label>
+      <span className={styles.resultCount} role="status">{t('applicationCount', { count: appResults.total })}</span>
+    </div>}
+    <div className={`${styles.selectionList}${app ? ` ${styles.applicationList}` : ''}`}>
       {app ? appItems : regionItems}
       {app && appResults.total === 0 && <p className={styles.dialogEmpty}>{t('noApplicationsMatch')}</p>}
       {!app && regionMatches.length === 0 && <p className={styles.dialogEmpty}>{t('noRegionsMatch')}</p>}
       {!app && regions.length === 0 && regionMatches.length === 0 && <p className={styles.dialogEmpty}>{t('regionsEmpty')}</p>}
     </div>
-    {app && <div className={styles.catalogControls}>
-      <details open={filtersOpen} onToggle={(event) => setFiltersOpen(event.currentTarget.open)}><summary>{t('columnFilters')}</summary>
-        <div className={styles.filterGrid}>{filterInputs}</div>
-      </details>
-      <div className={styles.catalogActions}>
-        <label>{t('sortBy')} <select className="form-control" value={`${sort.column}:${sort.direction}`} onChange={(event) => {
-          const [column, direction] = event.currentTarget.value.split(':') as [CatalogSortColumn, 'asc' | 'desc']
-          setSort({ column, direction })
-        }}>
-        {sortOptions}
-      </select></label>
-      <label>{t('itemsPerPage')} <select className="form-control" value={pageSize} onChange={(event) => { setPageSize(event.currentTarget.value === 'all' ? 'all' : Number(event.currentTarget.value)); setPage(1) }}>
-        {[5, 10, 15, 20].map((value) => <option key={value} value={value}>{value}</option>)}<option value="all">{t('all')}</option>
-      </select></label>
-      <span>{t('showingApplications', { from: firstItem, to: lastItem, total: appResults.total })}</span>
-      <button type="button" className="button secondary" disabled={appResults.page <= 1} onClick={() => setPage((current) => current - 1)}>{t('previous')}</button>
-      <button type="button" className="button secondary" disabled={appResults.page >= appResults.pageCount} onClick={() => setPage((current) => current + 1)}>{t('next')}</button>
-      </div>
-    </div>}
-    <div className={styles.dialogFooter}><span>{t(app ? 'applicationCount' : 'regionCount', { count: app ? appResults.total : regionMatches.length })}</span><button type="button" className="button secondary" onClick={onClose}>{t('cancel')}</button></div>
+    <div className={styles.dialogFooter}>{!app && <span>{t('regionCount', { count: regionMatches.length })}</span>}<button type="button" className="button secondary" onClick={onClose}>{t('cancel')}</button></div>
   </dialog>
 }
 
@@ -357,7 +336,7 @@ export function RegionalSimulationPage() {
       <div className={styles.controlGroup}>
         <span className={styles.fieldLabel}>{t('application')}</span>
         <button className={`form-control ${styles.selectButton}`} type="button" aria-label={t('application')} aria-haspopup="dialog" onClick={() => setDialog('application')} disabled={applicationsLoading && applications.length === 0}>
-          <span>{selectedApplication?.name ?? (applicationsLoading ? t('loadingApplications') : applicationId || t('chooseApplication'))}</span><span aria-hidden="true">⌄</span>
+          <span>{selectedApplication?.name ?? (applicationsLoading ? t('loadingApplications') : applicationId || t('chooseApplication'))}</span>
         </button>
       </div>
       <label className={styles.controlGroup}><span className={styles.fieldLabel}>{t('period')}</span>
@@ -369,7 +348,7 @@ export function RegionalSimulationPage() {
       <div className={styles.controlGroup}>
         <span className={styles.fieldLabel}>{t('destinationRegion')}</span>
         <button className={`form-control ${styles.selectButton}`} type="button" aria-label={t('destinationRegion')} aria-haspopup="dialog" onClick={() => setDialog('region')} disabled={regionsLoading || regionsError || regions.length === 0}>
-          <span>{selectedRegion ? `${selectedRegion.code} · ${selectedRegion.country}` : regionsLoading ? t('loadingRegions') : destinationRegionCode || t('chooseRegion')}</span><span aria-hidden="true">⌄</span>
+          <span>{selectedRegion ? `${selectedRegion.code} · ${selectedRegion.country}` : regionsLoading ? t('loadingRegions') : destinationRegionCode || t('chooseRegion')}</span>
         </button>
       </div>
       <button type="button" className={`button ${styles.submit}`} onClick={() => void simulate()} disabled={!canSimulate}>{loading ? t('simulating') : t('simulate')}</button>
