@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import {
   Inject,
   Injectable,
@@ -281,52 +282,8 @@ export class PasswordRecoveryService implements OnModuleInit, OnModuleDestroy {
         .take(10)
         .getMany()
       for (const item of pending) {
-        const now = this.clock.now()
-        const token = await this.dataSource
-          .getRepository(AuthTokenEntity)
-          .findOneBy({ id: item.authTokenId })
-        if (
-          !token ||
-          token.expiresAt <= now ||
-          item.expiresAt <= now ||
-          token.revokedAt ||
-          token.consumedAt
-        ) {
-          await this.dataSource
-            .getRepository(PasswordRecoveryOutboxEntity)
-            .update(item.id, { status: 'FAILED' })
-          continue
-        }
-        try {
-          const message = JSON.parse(
-            decryptPayload(item.encryptedPayload, item.keyVersion),
-          ) as { to: string; subject: string; text: string }
-          await this.email.send(message.to, message.subject, message.text)
-          await this.dataSource
-            .getRepository(PasswordRecoveryOutboxEntity)
-            .update(item.id, { status: 'SENT', attempts: item.attempts + 1 })
-        } catch {
-          const attempts = item.attempts + 1
-          const nextAttemptAt = new Date(
-            now.getTime() + Math.min(60_000 * 2 ** attempts, 15 * 60_000),
-          )
-          await this.dataSource
-            .getRepository(PasswordRecoveryOutboxEntity)
-            .update(item.id, {
-              attempts,
-              nextAttemptAt,
-              ...(nextAttemptAt >= item.expiresAt
-                ? { status: 'FAILED' as const }
-                : {}),
-            })
-          await this.audit.record({
-            actor: { type: 'system', componentId: 'password-recovery' },
-            action: 'auth.password-recovery.delivery.failed',
-            entityType: 'password-recovery-delivery',
-            entityId: item.id,
-            outcome: 'failed',
-          })
-        }
+        // eslint-disable-next-line no-await-in-loop -- Limit SMTP concurrency to one and preserve retry bookkeeping per delivery.
+        await this.deliver(item)
       }
     } finally {
       try {
@@ -338,6 +295,55 @@ export class PasswordRecoveryService implements OnModuleInit, OnModuleDestroy {
         this.processing = false
         await runner.release()
       }
+    }
+  }
+
+  private async deliver(item: PasswordRecoveryOutboxEntity): Promise<void> {
+    const now = this.clock.now()
+    const token = await this.dataSource
+      .getRepository(AuthTokenEntity)
+      .findOneBy({ id: item.authTokenId })
+    if (
+      !token ||
+      token.expiresAt <= now ||
+      item.expiresAt <= now ||
+      token.revokedAt ||
+      token.consumedAt
+    ) {
+      await this.dataSource
+        .getRepository(PasswordRecoveryOutboxEntity)
+        .update(item.id, { status: 'FAILED' })
+      return
+    }
+    try {
+      const message = JSON.parse(
+        decryptPayload(item.encryptedPayload, item.keyVersion),
+      ) as { to: string; subject: string; text: string }
+      await this.email.send(message.to, message.subject, message.text)
+      await this.dataSource
+        .getRepository(PasswordRecoveryOutboxEntity)
+        .update(item.id, { status: 'SENT', attempts: item.attempts + 1 })
+    } catch {
+      const attempts = item.attempts + 1
+      const nextAttemptAt = new Date(
+        now.getTime() + Math.min(60_000 * 2 ** attempts, 15 * 60_000),
+      )
+      await this.dataSource
+        .getRepository(PasswordRecoveryOutboxEntity)
+        .update(item.id, {
+          attempts,
+          nextAttemptAt,
+          ...(nextAttemptAt >= item.expiresAt
+            ? { status: 'FAILED' as const }
+            : {}),
+        })
+      await this.audit.record({
+        actor: { type: 'system', componentId: 'password-recovery' },
+        action: 'auth.password-recovery.delivery.failed',
+        entityType: 'password-recovery-delivery',
+        entityId: item.id,
+        outcome: 'failed',
+      })
     }
   }
 }

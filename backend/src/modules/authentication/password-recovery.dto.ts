@@ -31,7 +31,7 @@ export function validateRecoveryRequest(
     body.organization.trim().length > 80 ||
     typeof body.email !== 'string' ||
     body.email.length > 320 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())
+    !isRecoveryEmail(body.email.trim())
   ) {
     throw new BadRequestException({ code: 'PASSWORD_RECOVERY_REQUEST_INVALID' })
   }
@@ -57,4 +57,14 @@ export function validateRecoveryCompletion(
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function isRecoveryEmail(email: string): boolean {
+  const parts = email.split('@')
+  return (
+    parts.length === 2 &&
+    parts[0].length > 0 &&
+    !/\s/.test(email) &&
+    parts[1].slice(1, -1).includes('.')
+  )
 }

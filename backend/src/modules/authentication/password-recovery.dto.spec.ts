@@ -12,6 +12,12 @@ describe('password recovery input', () => {
     { organization: ' ', email: 'a@example.test' },
     { organization: 'x'.repeat(81), email: 'a@example.test' },
     { organization: 'org', email: 'invalid' },
+    { organization: 'org', email: '@example.test' },
+    { organization: 'org', email: 'a@@example.test' },
+    { organization: 'org', email: 'a b@example.test' },
+    { organization: 'org', email: 'a@domain' },
+    { organization: 'org', email: 'a@.test' },
+    { organization: 'org', email: 'a@example.' },
     { organization: 'org', email: 12 },
     { organization: 'org', email: `${'a'.repeat(310)}@example.test` },
   ])('rejects malformed requests with a stable code', (input) => {
