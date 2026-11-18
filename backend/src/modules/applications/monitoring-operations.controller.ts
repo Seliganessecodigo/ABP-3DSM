@@ -12,6 +12,7 @@ import { MonitoringOperationsService } from './monitoring-operations.service'
 import {
   MonitoringAuditQueryDto, MonitoringAuditPageDto, MonitoringControlInputDto,
   MonitoringCyclePageDto, MonitoringHealthDto,
+  MonitoringControlResultDto,
 } from './monitoring-operations.dto'
 import { parseMonitoringAuditQuery } from './monitoring-audit.query'
 
@@ -53,8 +54,8 @@ export class MonitoringOperationsController {
   }
 
   @Patch('control')
-  @ApiOperation({ summary: 'Pausar ou retomar os próximos ciclos de monitoramento' })
-  @ApiOkResponse({ schema: { example: { paused: true, changed: true, updatedAt: '2026-11-17T14:00:00.000Z' } } })
+  @ApiOperation({ summary: 'Versionar pausa/retomada dos próximos ciclos de monitoramento', description: 'Estado, revisão e auditoria são confirmados na mesma transação. Ciclos iniciados preservam a versão anterior. Repetir o estado não cria uma revisão.' })
+  @ApiOkResponse({ type: MonitoringControlResultDto })
   @ApiBadRequestResponse({ description: 'Estado ou motivo inválido' })
   setControl(@CurrentPrincipal() principal: AuthPrincipal, @Body() body: MonitoringControlInputDto) {
     return this.operations.setPaused(principal, body?.paused, body?.reason)

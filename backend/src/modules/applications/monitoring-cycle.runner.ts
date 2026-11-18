@@ -30,6 +30,7 @@ import {
   type EnergyObservationInput,
 } from "../calculations/energy-calculation";
 import { calculateCarbonEmission } from "../calculations/carbon-emission";
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
 
 interface CycleCounts {
   discoveredCount: number;
@@ -67,6 +68,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     private readonly incidents: MonitoringIncidentsService,
     private readonly carbonFactors: CarbonFactorService,
     private readonly cycleLock: MonitoringCycleLock,
+    private readonly settings: MonitoringSettingsRepository,
   ) {}
 
   async run(): Promise<void> {
@@ -124,7 +126,11 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
   }
 
   private async runCycle(signal: AbortSignal): Promise<void> {
-    const cycle = await this.cycles.start({ source: "scheduled-monitoring" });
+    const configuration = await this.settings.get();
+    if (!configuration) throw new Error("Monitoring settings are unavailable");
+    if (configuration.paused) return;
+    // This snapshot is the cycle boundary; later changes apply to subsequent cycles.
+    const cycle = await this.cycles.start({ source: "scheduled-monitoring", configurationVersion: configuration.configurationVersion });
     const counts: CycleCounts = {
       discoveredCount: 0,
       processedCount: 0,

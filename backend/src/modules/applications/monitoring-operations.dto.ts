@@ -13,6 +13,7 @@ export class MonitoringControlInputDto {
 }
 
 export class MonitoringCycleDto {
+  @ApiPropertyOptional({ nullable: true, format: 'uuid', description: 'Versão do controle lida no início; null para ciclos anteriores ao versionamento ou descoberta inicial' }) configurationVersion!: string | null
   @ApiProperty({ format: 'uuid' }) id!: string
   @ApiProperty({ enum: MonitoringCycleStatus }) status!: MonitoringCycleStatus
   @ApiProperty({ format: 'date-time' }) startedAt!: Date
@@ -43,6 +44,7 @@ export class MonitoringSourceHealthDto {
 }
 
 export class MonitoringHealthDto {
+  @ApiPropertyOptional({ nullable: true, format: 'uuid', description: 'Versão atual de pausa/retomada; não altera intervalo ou metodologia' }) configurationVersion!: string | null
   @ApiProperty({ enum: ['ACTIVE', 'PAUSED', 'UNAVAILABLE'] }) state!: string
   @ApiPropertyOptional({ nullable: true }) paused!: boolean | null
   @ApiProperty() schedulerRunning!: boolean
@@ -54,6 +56,13 @@ export class MonitoringHealthDto {
   @ApiProperty() staleApplications!: number
   @ApiProperty() delayedApplications!: number
   @ApiPropertyOptional({ nullable: true, format: 'date-time' }) lastObservationAt!: Date | null
+}
+
+export class MonitoringControlResultDto {
+  @ApiProperty() paused!: boolean
+  @ApiProperty() changed!: boolean
+  @ApiProperty({ format: 'date-time' }) updatedAt!: Date
+  @ApiProperty({ format: 'uuid', description: 'Revisão imutável; repetir o estado atual mantém a mesma revisão' }) configurationVersion!: string
 }
 
 export class MonitoringAuditQueryDto {

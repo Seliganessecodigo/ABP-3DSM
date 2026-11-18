@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, Repository } from 'typeorm'
 import { MonitoringSettingsEntity } from '../entities/monitoring-settings.entity'
+import { MonitoringControlVersionEntity } from '../entities/monitoring-control-version.entity'
 
 @Injectable()
 export class MonitoringSettingsRepository {
@@ -25,9 +26,14 @@ export class MonitoringSettingsRepository {
     return settings.paused
   }
 
-  async setPaused(paused: boolean, manager?: EntityManager): Promise<MonitoringSettingsEntity> {
-    const repository = manager?.getRepository(MonitoringSettingsEntity) ?? this.repository
+  async setPaused(paused: boolean, author: { actor: string; reason: string }, manager: EntityManager): Promise<MonitoringSettingsEntity> {
+    const repository = manager.getRepository(MonitoringSettingsEntity)
     const current = await repository.findOneByOrFail({ id: 'global' })
-    return repository.save({ ...current, paused, updatedAt: new Date() })
+    const versions = manager.getRepository(MonitoringControlVersionEntity)
+    const version = await versions.save(versions.create({
+      paused, previousVersion: current.configurationVersion,
+      actorType: 'user', actor: author.actor, reason: author.reason,
+    }))
+    return repository.save({ ...current, paused, configurationVersion: version.id, updatedAt: version.createdAt })
   }
 }

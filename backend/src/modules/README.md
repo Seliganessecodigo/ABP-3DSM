@@ -247,3 +247,7 @@ A matriz de ordenação aceita `applicationId`, `name`, `state`, `stateReason`, 
 Paginação usa `page` (padrão 1) e `pageSize` (padrão 10; opções 5, 10, 15, 20 ou `all`). `all` retorna todos os itens filtrados e só aceita `page=1`. Parâmetros inválidos retornam 400; página válida além da última é ajustada; lista vazia retorna página 1 e zero páginas. `scope` contém contagens, totais e coberturas do escopo completo; `presentation` e `pagination.totalItems` descrevem o conjunto após busca/filtros. A resposta inclui localização atual do catálogo; o filtro regional continua histórico.
 
 OpenAPI em `/openapi.json` documenta o contrato. O teste HTTP/PostgreSQL de ranking fica junto ao teste do resumo, em `src/modules/applications/environmental-analysis-summary.database.spec.ts`; execute com `TEST_DATABASE_URL` apontando para um PostgreSQL isolado.
+
+## Controle versionado
+
+O [controle de pausa/retomada](applications/MONITORING_CONFIGURATION.md) documenta as revisões imutáveis, autorização, auditoria transacional e versão preservada por ciclo da #95.

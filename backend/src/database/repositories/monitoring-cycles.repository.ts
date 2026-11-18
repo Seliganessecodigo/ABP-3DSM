@@ -50,7 +50,9 @@ export class MonitoringCyclesRepository {
       ...cycle,
       id,
       ...result,
-      details: result.details ?? null,
+      details: cycle.details?.configurationVersion
+        ? { ...result.details, configurationVersion: cycle.details.configurationVersion }
+        : result.details ?? null,
       finishedAt,
       durationMs: String(finishedAt.getTime() - cycle.startedAt.getTime()),
     })

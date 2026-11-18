@@ -11,7 +11,7 @@ import { MonitoringScheduler } from './monitoring-scheduler'
 import { ApplicationsRepository } from './applications.repository'
 import { MonitoringAuditQuery } from './monitoring-audit.query'
 
-const auditSnapshotFields = ['paused'] as const
+const auditSnapshotFields = ['paused', 'configurationVersion'] as const
 
 @Injectable()
 export class MonitoringOperationsService {
@@ -49,6 +49,7 @@ export class MonitoringOperationsService {
     return {
       state: paused === null || !schedulerRunning ? 'UNAVAILABLE' : paused ? 'PAUSED' : 'ACTIVE',
       paused,
+      configurationVersion: settings?.configurationVersion ?? null,
       schedulerRunning: schedulerRunning && paused === false,
       intervalSeconds: this.scheduler.interval,
       latestCycle: latestCycle ? cycleDto(latestCycle, this.scheduler.interval) : null,
@@ -90,20 +91,30 @@ export class MonitoringOperationsService {
     if (typeof paused !== 'boolean' || typeof reason !== 'string' || !reason.trim() || reason.length > 512) {
       throw new BadRequestException({ code: 'INVALID_MONITORING_CONTROL', message: 'Estado e motivo da alteração são obrigatórios' })
     }
-    return this.database.transaction(async (manager) => {
-      const before = await this.settings.getForUpdate(manager)
-      if (!before) throw new ServiceUnavailableException({ code: 'MONITORING_SETTINGS_UNAVAILABLE', message: 'Configuração do monitoramento indisponível' })
-      if (before.paused === paused) return { paused, changed: false, updatedAt: before.updatedAt }
-      const after = await this.settings.setPaused(paused, manager)
+    try {
+      return await this.database.transaction(async (manager) => {
+        const before = await this.settings.getForUpdate(manager)
+        if (!before) throw new ServiceUnavailableException({ code: 'MONITORING_SETTINGS_UNAVAILABLE', message: 'Configuração do monitoramento indisponível' })
+        if (before.paused === paused) return { paused, changed: false, updatedAt: before.updatedAt, configurationVersion: before.configurationVersion }
+        const after = await this.settings.setPaused(paused, { actor: principal.userId, reason: reason.trim() }, manager)
+        await this.auditWriter.record({
+          actor: { type: 'user', userId: principal.userId },
+          action: paused ? 'monitoring.paused' : 'monitoring.resumed',
+          entityType: 'monitoring', entityId: 'global', outcome: 'success',
+          before: { paused: before.paused, configurationVersion: before.configurationVersion },
+          after: { paused: after.paused, configurationVersion: after.configurationVersion },
+          allowedSnapshotFields: auditSnapshotFields, reason,
+        }, manager)
+        return { paused: after.paused, changed: true, updatedAt: after.updatedAt, configurationVersion: after.configurationVersion }
+      })
+    } catch (error) {
       await this.auditWriter.record({
         actor: { type: 'user', userId: principal.userId },
         action: paused ? 'monitoring.paused' : 'monitoring.resumed',
-        entityType: 'monitoring', entityId: 'global', outcome: 'success',
-        before: { paused: before.paused }, after: { paused: after.paused },
-        allowedSnapshotFields: auditSnapshotFields, reason,
-      }, manager)
-      return { paused: after.paused, changed: true, updatedAt: after.updatedAt }
-    })
+        entityType: 'monitoring', entityId: 'global', outcome: 'failed', reason,
+      })
+      throw error
+    }
   }
 
   listAuditFromPrincipal(principal: AuthPrincipal, filters: MonitoringAuditQuery) {
@@ -115,6 +126,7 @@ function cycleDto(cycle: NonNullable<Awaited<ReturnType<MonitoringCyclesReposito
   const durationMs = cycle.durationMs === null ? null : Number(cycle.durationMs)
   return {
     id: cycle.id, status: cycle.status, startedAt: cycle.startedAt, finishedAt: cycle.finishedAt,
+    configurationVersion: cycle.details?.configurationVersion ?? null,
     durationMs,
     overrunMs: durationMs === null ? null : Math.max(0, durationMs - intervalSeconds * 1000),
     discoveredCount: cycle.discoveredCount, processedCount: cycle.processedCount,

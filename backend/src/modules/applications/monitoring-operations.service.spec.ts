@@ -19,7 +19,7 @@ describe('MonitoringOperationsService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    settings.get.mockResolvedValue({ paused: false })
+    settings.get.mockResolvedValue({ paused: false, configurationVersion: 'version-1' })
     cycles.latest.mockResolvedValue(null)
     incidents.healthByIntegration.mockResolvedValue([])
     incidents.recentForHealth.mockResolvedValue([])
@@ -77,17 +77,31 @@ describe('MonitoringOperationsService', () => {
     await expect(service.setPaused(principal, true, ' ')).rejects.toBeInstanceOf(BadRequestException)
     await expect(service.setPaused(principal, true, 'x'.repeat(513))).rejects.toBeInstanceOf(BadRequestException)
 
-    settings.getForUpdate.mockResolvedValue({ paused: false, updatedAt: new Date(0) })
+    settings.getForUpdate.mockResolvedValue({ paused: false, configurationVersion: 'version-1', updatedAt: new Date(0) })
     expect(await service.setPaused(principal, false, 'No change')).toMatchObject({ paused: false, changed: false })
     expect(settings.setPaused).not.toHaveBeenCalled()
 
-    settings.getForUpdate.mockResolvedValue({ paused: false })
-    settings.setPaused.mockResolvedValue({ paused: true, updatedAt: new Date(1) })
+    settings.getForUpdate.mockResolvedValue({ paused: false, configurationVersion: 'version-1' })
+    settings.setPaused.mockResolvedValue({ paused: true, configurationVersion: 'version-2', updatedAt: new Date(1) })
     expect(await service.setPaused(principal, true, 'Maintenance')).toMatchObject({ paused: true, changed: true })
-    expect(settings.setPaused).toHaveBeenCalledWith(true, manager)
+    expect(settings.setPaused).toHaveBeenCalledWith(true, { actor: 'user-1', reason: 'Maintenance' }, manager)
     expect(auditWriter.record).toHaveBeenCalledWith(expect.objectContaining({ action: 'monitoring.paused', reason: 'Maintenance' }), manager)
+    expect(auditWriter.record).toHaveBeenCalledWith(expect.objectContaining({
+      before: { paused: false, configurationVersion: 'version-1' },
+      after: { paused: true, configurationVersion: 'version-2' },
+    }), manager)
 
     settings.getForUpdate.mockResolvedValue(null)
     await expect(service.setPaused(principal, true, 'Maintenance')).rejects.toBeInstanceOf(ServiceUnavailableException)
+  })
+
+  it('reports transaction failure through an audit event without snapshots outside the failed transaction', async () => {
+    settings.getForUpdate.mockResolvedValue({ paused: true, configurationVersion: 'version-2' })
+    settings.setPaused.mockRejectedValueOnce(new Error('storage unavailable'))
+    await expect(service.setPaused({ userId: 'user-1' } as never, false, 'Return')).rejects.toThrow('storage unavailable')
+    expect(auditWriter.record).toHaveBeenCalledWith({
+      actor: { type: 'user', userId: 'user-1' }, action: 'monitoring.resumed',
+      entityType: 'monitoring', entityId: 'global', outcome: 'failed', reason: 'Return',
+    })
   })
 })
