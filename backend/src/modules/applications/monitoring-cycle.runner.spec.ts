@@ -17,6 +17,7 @@ describe("MonitoringCycleRunner", () => {
   let runner: MonitoringCycleRunner;
   let dependencies: {
     adapter: { fetchServices: jest.Mock; fetchMetrics: jest.Mock };
+    settings: { get: jest.Mock };
     cycles: { start: jest.Mock; finish: jest.Mock };
     discovery: { discover: jest.Mock };
     metadata: { reconcile: jest.Mock };
@@ -43,6 +44,7 @@ describe("MonitoringCycleRunner", () => {
           receivedAt,
         }),
       },
+      settings: { get: jest.fn().mockResolvedValue({ paused: false, configurationVersion: "version-1" }) },
       cycles: {
         start: jest.fn().mockResolvedValue({ id: "cycle-1" }),
         finish: jest.fn().mockResolvedValue({}),
@@ -112,7 +114,20 @@ describe("MonitoringCycleRunner", () => {
         typeof MonitoringCycleRunner
       >[11],
       new MonitoringCycleLock(),
+      dependencies.settings as never,
     );
+  });
+
+  it('starts with the current control version and refuses paused or missing configuration', async () => {
+    dependencies.settings.get.mockResolvedValueOnce({ paused: true, configurationVersion: 'paused-version' });
+    await runner.run();
+    expect(dependencies.cycles.start).not.toHaveBeenCalled();
+    expect(dependencies.adapter.fetchServices).not.toHaveBeenCalled();
+    dependencies.settings.get.mockResolvedValueOnce(null);
+    await expect(runner.run()).rejects.toThrow('Monitoring settings are unavailable');
+    await runner.run();
+    expect(dependencies.cycles.start).toHaveBeenCalledWith({ source: 'scheduled-monitoring', configurationVersion: 'version-1' });
+    expect(dependencies.settings.get).toHaveBeenCalledTimes(3);
   });
 
   it("reuses one validated snapshot and persists the source-defined interval and units", async () => {

@@ -1,3 +1,4 @@
+import { VersionMonitoringControl1793600000000 } from '../../database/migrations/1793600000000-VersionMonitoringControl'
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { DataSource } from 'typeorm'
@@ -138,6 +139,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         AuditActorIdentity1793300000000,
         UserAccountStatus1793400000000,
         MonitoringPauseControl1793500000000,
+        VersionMonitoringControl1793600000000,
       ],
     })
     await database.initialize()

@@ -1,3 +1,8 @@
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
+import { MonitoringSettingsEntity } from "../../database/entities/monitoring-settings.entity";
+import { MonitoringControlVersionEntity } from "../../database/entities/monitoring-control-version.entity";
+import { MonitoringPauseControl1793500000000 } from "../../database/migrations/1793500000000-MonitoringPauseControl";
+import { VersionMonitoringControl1793600000000 } from "../../database/migrations/1793600000000-VersionMonitoringControl";
 import { DataSource } from "typeorm";
 import { ApplicationEntity } from "../../database/entities/application.entity";
 import { ApplicationEventEntity } from "../../database/entities/application-event.entity";
@@ -75,6 +80,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
       type: "postgres",
       url: testDatabaseUrl,
       entities: [
+        MonitoringSettingsEntity, MonitoringControlVersionEntity,
         ApplicationEntity,
         ApplicationEventEntity,
         CollectionEntity,
@@ -96,6 +102,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         ApplicationOperationalStatus1791360000000,
         MonitoringIncidents1791370000000,
         CollectionCalculationEvidence1791380000000,
+        MonitoringPauseControl1793500000000, VersionMonitoringControl1793600000000,
       ],
       synchronize: false,
     });
@@ -153,6 +160,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         new CarbonRegionsRepository(database.getRepository(CarbonRegionEntity)),
       ),
       new MonitoringCycleLock(),
+      new MonitoringSettingsRepository(database.getRepository(MonitoringSettingsEntity)),
     );
   });
 

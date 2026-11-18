@@ -8,6 +8,9 @@ export class MonitoringSettingsEntity {
   @Column({ type: 'boolean', default: false })
   paused!: boolean
 
+  @Column({ type: 'uuid' })
+  configurationVersion!: string
+
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date
 }

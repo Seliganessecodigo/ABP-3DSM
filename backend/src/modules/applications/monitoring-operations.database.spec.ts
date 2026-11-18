@@ -3,6 +3,10 @@ import { AuthSessionEntity } from '../../database/entities/auth-session.entity'
 import { AuditLogEntity } from '../../database/entities/audit-log.entity'
 import { MonitoringCycleEntity, MonitoringCycleStatus } from '../../database/entities/monitoring-cycle.entity'
 import { MonitoringSettingsEntity } from '../../database/entities/monitoring-settings.entity'
+import { MonitoringControlVersionEntity } from '../../database/entities/monitoring-control-version.entity'
+import { CollectionEntity } from '../../database/entities/collection.entity'
+import { MetricsAggregatorAdapter } from '../../integrations/metrics-aggregator.adapter'
+import { VersionMonitoringControl1793600000000 } from '../../database/migrations/1793600000000-VersionMonitoringControl'
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { OrganizationEntity } from '../../database/entities/organization.entity'
@@ -49,6 +53,105 @@ describeDatabase('monitoring operations through protected HTTP and PostgreSQL', 
       token: fixture.app.get(AccessTokenService).sign(user.id, organization.id, session.id, role),
     }
   }
+
+  async function control(token: string, paused: boolean, reason = 'Alteração aprovada') {
+    return fetch(`${fixture.url}/monitoring/control`, {
+      method: 'PATCH', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ paused, reason }),
+    })
+  }
+
+  it('migrates the existing paused state and timestamp without assigning versions to old cycles', async () => {
+    const queryRunner = fixture.database.createQueryRunner()
+    const migration = new VersionMonitoringControl1793600000000()
+    try {
+      await migration.down(queryRunner)
+      await queryRunner.query(`UPDATE monitoring_settings SET paused = true, "updatedAt" = '2026-11-01T12:00:00Z' WHERE id = 'global'`)
+      const cycle = await fixture.database.getRepository(MonitoringCycleEntity).save({ startedAt: new Date('2026-11-01T10:00:00Z'), details: { source: 'legacy' } })
+      await migration.up(queryRunner)
+      const version = await fixture.database.getRepository(MonitoringControlVersionEntity).findOneByOrFail({ actorType: 'system' })
+      expect(version).toMatchObject({ paused: true, previousVersion: null, actor: 'migration.monitoring-control', createdAt: new Date('2026-11-01T12:00:00Z') })
+      expect(await fixture.database.getRepository(MonitoringSettingsEntity).findOneByOrFail({ id: 'global' })).toMatchObject({ paused: true, configurationVersion: version.id })
+      expect((await fixture.database.getRepository(MonitoringCycleEntity).findOneByOrFail({ id: cycle.id })).details).toEqual({ source: 'legacy' })
+    } finally {
+      await queryRunner.release()
+    }
+  })
+
+  it('serializes concurrent requests into one immutable revision and keeps idempotent requests on that revision', async () => {
+    const admin = await createPrincipal(UserRole.ADMIN)
+    const versions = fixture.database.getRepository(MonitoringControlVersionEntity)
+    const baseline = await versions.findOneByOrFail({ actorType: 'system' })
+    const responses = await Promise.all([control(admin.token, true), control(admin.token, true)])
+    expect(responses.map(response => response.status)).toEqual([200, 200])
+    const bodies = await Promise.all(responses.map(response => response.json()))
+    expect(bodies.map(body => body.changed).sort()).toEqual([false, true])
+    expect(bodies[0].configurationVersion).toBe(bodies[1].configurationVersion)
+    const version = await versions.findOneByOrFail({ id: bodies[0].configurationVersion })
+    expect(version).toMatchObject({ paused: true, previousVersion: baseline.id, actorType: 'user', actor: admin.user.id, reason: 'Alteração aprovada' })
+    expect(await versions.count()).toBe(2)
+    const audit = await fixture.database.getRepository(AuditLogEntity).findOneByOrFail({ actorUserId: admin.user.id })
+    expect(audit).toMatchObject({ before: { paused: false, configurationVersion: baseline.id }, after: { paused: true, configurationVersion: version.id }, outcome: 'success' })
+    await expect(versions.update(version.id, { paused: false })).rejects.toThrow('immutable')
+    await expect(versions.delete(version.id)).rejects.toThrow('immutable')
+    expect(await versions.findOneByOrFail({ id: baseline.id })).toEqual(baseline)
+  })
+
+  it('rolls back the revision and current state if success audit fails, then records failure without snapshots', async () => {
+    const admin = await createPrincipal(UserRole.ADMIN)
+    const settings = fixture.database.getRepository(MonitoringSettingsEntity)
+    const before = await settings.findOneByOrFail({ id: 'global' })
+    jest.spyOn(fixture.app.get(AuditWriter), 'record').mockRejectedValueOnce(new Error('simulated audit failure'))
+    const response = await control(admin.token, true)
+    expect(response.status).toBe(500)
+    expect(await response.text()).not.toContain('simulated audit failure')
+    expect(await settings.findOneByOrFail({ id: 'global' })).toEqual(before)
+    expect(await fixture.database.getRepository(MonitoringControlVersionEntity).count()).toBe(1)
+    const audit = await fixture.database.getRepository(AuditLogEntity).findOneByOrFail({ actorUserId: admin.user.id })
+    expect(audit).toMatchObject({ outcome: 'failed', before: null, after: null })
+  })
+
+  it('rejects unauthorized and invalid changes without creating a revision', async () => {
+    const admin = await createPrincipal(UserRole.ADMIN)
+    for (const role of [UserRole.ANALYST, UserRole.VISITOR]) {
+      const user = await createPrincipal(role, admin.organization.id)
+      expect((await control(user.token, true)).status).toBe(403)
+    }
+    expect((await control('invalid', true)).status).toBe(401)
+    expect((await control(admin.token, true, ' ')).status).toBe(400)
+    expect((await control(admin.token, true, 'x'.repeat(513))).status).toBe(400)
+    expect(await fixture.database.getRepository(MonitoringControlVersionEntity).count()).toBe(1)
+  })
+
+  it('preserves an in-flight cycle version and original observations across pause and resume', async () => {
+    const admin = await createPrincipal(UserRole.ADMIN)
+    const settings = fixture.database.getRepository(MonitoringSettingsEntity)
+    const original = await settings.findOneByOrFail({ id: 'global' })
+    const adapter = fixture.app.get(MetricsAggregatorAdapter)
+    const fetchServices = adapter.fetchServices.bind(adapter)
+    jest.spyOn(adapter, 'fetchServices').mockImplementationOnce(async signal => {
+      expect((await control(admin.token, true)).status).toBe(200)
+      return fetchServices(signal)
+    })
+    await fixture.cycle()
+    const cycles = fixture.database.getRepository(MonitoringCycleEntity)
+    const first = await cycles.findOneByOrFail({})
+    expect(first.details).toMatchObject({ configurationVersion: original.configurationVersion })
+    const observations = await fixture.database.getRepository(CollectionEntity).find({ order: { id: 'ASC' } })
+    expect(observations.length).toBeGreaterThan(0)
+    await fixture.cycle()
+    expect(await cycles.count()).toBe(1)
+    const resume = await control(admin.token, false)
+    const resumed = await resume.json()
+    expect(resume.status).toBe(200)
+    await fixture.cycle()
+    const latest = await fetch(`${fixture.url}/monitoring/health`, { headers: { authorization: `Bearer ${admin.token}` } })
+    expect(await latest.json()).toMatchObject({ configurationVersion: resumed.configurationVersion, latestCycle: { configurationVersion: resumed.configurationVersion } })
+    expect(await cycles.findOneByOrFail({ id: first.id })).toEqual(first)
+    for (const observation of observations) {
+      expect(await fixture.database.getRepository(CollectionEntity).findOneByOrFail({ id: observation.id })).toEqual(observation)
+    }
+  })
 
   it('returns persisted operational state and protects it to Admin', async () => {
     const admin = await createPrincipal(UserRole.ADMIN)

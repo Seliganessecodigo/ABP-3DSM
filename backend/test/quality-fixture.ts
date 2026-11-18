@@ -1,3 +1,4 @@
+import { VersionMonitoringControl1793600000000 } from '../src/database/migrations/1793600000000-VersionMonitoringControl'
 import 'reflect-metadata'
 import { Test } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
@@ -105,7 +106,8 @@ export async function createQualityFixture(port = 0, collectBeforeListening = fa
         AuthenticationAndOrganizations1791400000000, AdminTotpAuthentication1791410000000,
         SsoAuthentication1791420000000, UserPreferences1793200000000,
         AuditActorIdentity1793300000000, UserAccountStatus1793400000000,
-        MonitoringPauseControl1793500000000],
+        MonitoringPauseControl1793500000000,
+        VersionMonitoringControl1793600000000],
     })
     await database.initialize()
     await database.runMigrations()

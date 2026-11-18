@@ -19,6 +19,7 @@ import { ExternalIdentityEntity } from "./entities/external-identity.entity";
 import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
+import { MonitoringControlVersionEntity } from "./entities/monitoring-control-version.entity";
 import { MonitoringSettingsEntity } from "./entities/monitoring-settings.entity";
 import { MonitoringSettingsRepository } from "./repositories/monitoring-settings.repository";
 
@@ -41,6 +42,7 @@ import { MonitoringSettingsRepository } from "./repositories/monitoring-settings
       SsoInvitationEntity,
       SsoTransactionEntity,
       MonitoringSettingsEntity,
+      MonitoringControlVersionEntity,
     ]),
   ],
   providers: [
