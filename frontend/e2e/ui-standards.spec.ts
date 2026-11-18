@@ -49,7 +49,7 @@ for (const width of [390, 1440]) {
       await expect(trail).toHaveCount(1)
       await expect(trail).toBeVisible()
       await expect(trail.locator('[aria-current="page"]')).toHaveCount(1)
-      await expect(trail.getByRole('link', { name: 'Ir para Dashboard', exact: true })).toHaveAttribute('href', '/dashboard')
+      await expect(trail.getByRole('link', { name: 'Ir para Dashboard', exact: true }), path).toHaveAttribute('href', path === '/comparison' ? '/dashboard?period=7d' : '/dashboard')
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       if (path === '/methodology') await page.screenshot({ path: testInfo.outputPath(`methodology-${width}.png`), fullPage: true })
     }
