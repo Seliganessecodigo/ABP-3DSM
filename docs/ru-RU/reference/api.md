@@ -15,6 +15,7 @@
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison` требует 2–5 уникальных ID и выбранное эталонное приложение. Ответ содержит энергию, выбросы, отдельное покрытие, метрики и исторические снимки местоположения за один период. Разница — приложение минус эталон; процент рассчитывается только при положительном эталонном значении. Отсутствующие значения остаются явными, статус — `empty`, `partial` или `complete`.
+
 Источник метрик не даёт время измерения; интервал — приём минус `collection_interval_seconds`. Время запроса фактора не определяет срок действия; неопубликованные источник/валидность неизвестны. Энергия/фактор/выбросы: 8 десятичных знаков, покрытие 4, без промежуточного округления. Сохраняются раздельные покрытия и исходные снимки.
+
+## Временной ряд и объяснение расчёта {#environmental-presentation}
+
+В `/analysis/summary` необязательный параметр `granularity` добавляет `series.points` с теми же периодом и фильтрами, что и итоги. Каждый интервал суммирует сохранённые результаты приложений и сохраняет независимое покрытие. Отсутствующие значения остаются `null`.
+
+В `/applications/{id}/analysis` поле `calculation.energyKwh` содержит энергию сегментов с рассчитанными выбросами; `calculation.intensity` — эквивалентный коэффициент в gCO₂e/kWh, полученный делением этих выбросов на соответствующую энергию. При нулевой или отсутствующей энергии коэффициент остаётся неопределённым. Исторические результаты и коэффициенты сохраняются.
 
 ## Войти {#login}
 
@@ -97,7 +107,7 @@ Admin той же организации меняет состояние меж�
 
 ## Настроить анализ {#preferences}
 
-`/methodology` содержит вкладки энергии, выбросов, покрытия и анализа с примерами/личными настройками. Любая авторизованная роль сохраняет только свои вкладки с оптимистической ревизией; конфликт — 409. Пороги отображения не меняют общие настройки, расчёты или внешние уведомления. Период/детализация подставляются лишь при отсутствии параметров URL. Историческая методология: `/services/:id/methodology`, с выбранным `collectionId`.
+В `/methodology` задайте ограничения энергии и выбросов для каждого приложения, порог покрытия и параметры анализа. Доступны последние 24 часа, 7, 30 или 90 дней, текущий месяц UTC или свой интервал с включённым началом и исключённым концом. Предпросмотр читает реальные данные без сохранения и использует ту же панель предупреждений, что приложения и панель мониторинга. Сохранение требует входа и действует только для вашей учётной записи; расчёты, история и рабочие состояния не изменяются. Предупреждения используют период каждого ограничения независимо от фильтров страницы. Настройки анализа заполняют только отсутствующие параметры URL панели мониторинга и страницы приложения. Частичные данные ниже порога не доказывают соблюдение ограничения; отсутствие данных никогда не означает ноль.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## Обработка ошибок {#errors}
 

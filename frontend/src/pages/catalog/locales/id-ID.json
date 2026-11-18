@@ -53,5 +53,6 @@
   "filterCombinationNote": "Pencarian umum dan filter aktif digabungkan.",
   "clearPreservesSort": "Menghapus filter mempertahankan urutan saat ini.",
   "applyFilters": "Terapkan filter",
-  "login": "Masuk"
+  "login": "Masuk",
+  "helpActions": "Gunakan Detail untuk melihat status dan metrik terkini. Gunakan Riwayat untuk mengikuti perubahan energi dan CO₂e aplikasi."
 }

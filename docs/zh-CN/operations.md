@@ -27,6 +27,10 @@ MONITORING_METRICS_CONCURRENCY=2
 
 使用Node.js 24+、npm、Docker Compose v2。复制`.env.example`为`.env`，运行`npm run dev`。Compose先迁移并尝试发现，来源故障不阻止API启动。邀请/确认需要SMTP。首位Admin通过`backend/`的`organizations:create-invitation`创建，设置`ORGANIZATION_NAME`、`ORGANIZATION_SLUG`、`ORGANIZATION_REPRESENTATIVE_EMAIL`。没有通用生产Admin账户。
 
+首次在网站访问分为两步：打开 `/setup-admin` 邀请，输入姓名和邮箱，然后打开 `/confirm-email` 确认链接以创建密码。接着登录并设置管理员必需的身份验证应用。无效、过期或已使用的链接会提示如何申请新链接；令牌会从 URL 中移除，仅保留在页面内存中。刷新页面后，请重新打开原始邮件链接。SMTP 必须投递到真实邮箱；`.test` 地址仅为示例。在 Azure 上，运维人员在已配置的后端控制台运行 `npm run organizations:create-invitation:prod` 发出首次邀请，受邀者在网站完成注册。`APP_BASE_URL` 必须指向已发布的前端。`frontend/public/staticwebapp.config.json` 支持直接访问托管路由。
+
+管理员可在**用户** (`/administration/users`) 中查看组织账号并发送Google邀请。点击**关联我的Google账号**可填入自己的信息，确认发送后，使用相同邮箱的Google账号打开邮件链接。仅邮箱相同不会自动关联身份。新账号在接受邀请后显示，待处理邀请不计入账号列表。重新发送会撤销先前的邀请。现有账号保留姓名、角色和密码，管理员仍需TOTP。测试部署从GitHub变量读取 `VITE_GOOGLE_SSO_ENABLED`，仅在配置后端凭据和URL后才设置为 `true`。`GOOGLE_CALLBACK_URL` 为公开API地址加 `/auth/sso/google/callback`，`SSO_RETURN_URL` 为公开前端地址加 `/sso/callback`。
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
@@ -72,3 +76,7 @@ staging从`develop`通过CI后将API发布Azure App Service，frontend发布Stat
 ## 相关阅读 {#related}
 
 [开始使用](./getting-started) · [API参考](./reference/api)
+
+## 诊断响应缓慢 {#response-performance}
+
+在认定数据库是原因之前，请比较首字节时间、响应大小和执行计划。仪表板以 `includeProvenance=false` 查询 `/analysis/summary`，保留数值、覆盖率和时间序列，并返回 `provenanceIncluded=false`，不包含来源列表。完整查询仍为默认方式。精简投影不传输每次采集的因子；计算过程已排序时间区间，因此省去数据库的重复排序。

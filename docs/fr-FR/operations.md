@@ -27,6 +27,10 @@ La première absence dans un snapshot complet et valide confirme la suppression.
 
 Node.js 24+, npm, Docker Compose v2. Copier `.env.example` vers `.env` ; lancer `npm run dev`. Compose applique les migrations et tente la découverte ; une panne de source n’empêche pas le démarrage. Configurer SMTP pour invitations/confirmations. Premier Admin : script `organizations:create-invitation` dans `backend/`, avec `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Aucun Admin universel de production.
 
+Le premier accès au site comporte deux étapes : ouvrir l’invitation sur `/setup-admin`, saisir le nom et l’e-mail, puis ouvrir la confirmation sur `/confirm-email` pour créer le mot de passe. Connectez-vous ensuite et configurez l’authentificateur obligatoire de l’Admin. Les liens invalides, expirés ou utilisés indiquent comment en demander un nouveau ; les jetons sont retirés de l’URL et restent uniquement en mémoire. Après un rechargement, rouvrez le lien original de l’e-mail. SMTP doit livrer à une véritable boîte ; les adresses `.test` sont des exemples. Sur Azure, l’opérateur émet la première invitation depuis la console du backend configuré avec `npm run organizations:create-invitation:prod` ; la personne invitée termine son inscription sur le site. `APP_BASE_URL` doit désigner le frontend publié. `frontend/public/staticwebapp.config.json` permet l’accès direct aux routes hébergées.
+
+Dans **Utilisateurs** (`/administration/users`), l’administrateur consulte les comptes de l’organisation et envoie des invitations Google. **Associer mon compte Google** remplit le formulaire avec ses informations ; confirmez l’envoi puis ouvrez le lien avec le compte Google de même adresse. Une adresse identique ne suffit jamais à associer une identité. Les nouveaux comptes apparaissent après acceptation ; les invitations en attente ne sont pas des comptes. Un nouvel envoi annule l’invitation précédente. Les comptes existants conservent nom, rôle et mot de passe ; TOTP reste obligatoire pour les administrateurs. Staging lit `VITE_GOOGLE_SSO_ENABLED` dans les variables GitHub : activez `true` seulement après configuration des identifiants et URL du backend. `GOOGLE_CALLBACK_URL` utilise l’adresse publique de l’API suivie de `/auth/sso/google/callback`, et `SSO_RETURN_URL` celle du frontend suivie de `/sso/callback`.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
@@ -72,3 +76,7 @@ Staging part de `develop` après CI : API dans Azure App Service, frontend dans 
 ## Lectures associées {#related}
 
 [Démarrage](./getting-started) · [Référence de l’API](./reference/api)
+
+## Diagnostiquer les lenteurs {#response-performance}
+
+Comparez le délai du premier octet, la taille de la réponse et le plan d’exécution avant d’incriminer la base. Le Dashboard consulte `/analysis/summary` avec `includeProvenance=false` : valeurs, couverture et série sont conservées ; la réponse indique `provenanceIncluded=false` et exclut les listes de traçabilité. La requête complète reste disponible par défaut. La projection compacte ne transfère pas les facteurs de chaque collecte ; le calcul trie les intervalles et évite un second tri dans la base.

@@ -1,14 +1,11 @@
 import { Global, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ApplicationEventEntity } from "./entities/application-event.entity";
-import { CollectionEntity } from "./entities/collection.entity";
+import { EnvironmentalPersistenceModule } from "./environmental-persistence.module";
 import { MonitoringCycleEntity } from "./entities/monitoring-cycle.entity";
 import { CarbonRegionEntity } from "./entities/carbon-region.entity";
 import { CalculationConfigEntity } from "./entities/calculation-config.entity";
 import { RecalculationEntity } from "./entities/recalculation.entity";
 import { MonitoringIncidentEntity } from "./entities/monitoring-incident.entity";
-import { ApplicationEventsRepository } from "./repositories/application-events.repository";
-import { CollectionsRepository } from "./repositories/collections.repository";
 import { MonitoringCyclesRepository } from "./repositories/monitoring-cycles.repository";
 import { CarbonRegionsRepository } from "./repositories/carbon-regions.repository";
 import { CalculationConfigsRepository } from "./repositories/calculation-configs.repository";
@@ -23,14 +20,16 @@ import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
 import { PasswordRecoveryOutboxEntity } from "./entities/password-recovery-outbox.entity";
+import { MonitoringControlVersionEntity } from "./entities/monitoring-control-version.entity";
+import { MonitoringSettingsEntity } from "./entities/monitoring-settings.entity";
+import { MonitoringSettingsRepository } from "./repositories/monitoring-settings.repository";
 
 @Global()
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({ useFactory: typeOrmOptions }),
+    EnvironmentalPersistenceModule,
     TypeOrmModule.forFeature([
-      ApplicationEventEntity,
-      CollectionEntity,
       MonitoringCycleEntity,
       CarbonRegionEntity,
       CalculationConfigEntity,
@@ -44,26 +43,27 @@ import { PasswordRecoveryOutboxEntity } from "./entities/password-recovery-outbo
       SsoInvitationEntity,
       SsoTransactionEntity,
       PasswordRecoveryOutboxEntity,
+      MonitoringSettingsEntity,
+      MonitoringControlVersionEntity,
     ]),
   ],
   providers: [
-    ApplicationEventsRepository,
-    CollectionsRepository,
     MonitoringCyclesRepository,
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
     MonitoringIncidentsRepository,
+    MonitoringSettingsRepository,
   ],
   exports: [
     TypeOrmModule,
-    ApplicationEventsRepository,
-    CollectionsRepository,
+    EnvironmentalPersistenceModule,
     MonitoringCyclesRepository,
     CarbonRegionsRepository,
     CalculationConfigsRepository,
     RecalculationsRepository,
     MonitoringIncidentsRepository,
+    MonitoringSettingsRepository,
   ],
 })
 export class DatabaseModule {}

@@ -53,6 +53,37 @@ async function mockSummary(page: Page, handler: (routeUrl: URL) => Promise<{ sta
   })
 }
 
+test('rota raiz abre o dashboard e marca sua navegação como ativa', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await mockSummary(page, (url) => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+
+  await page.goto('/')
+
+  await expect(page.getByRole('heading', { name: 'Dashboard ambiental' })).toBeVisible()
+  const navigation = page.getByRole('navigation', { name: 'Navegação principal' })
+  await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).not.toHaveAttribute('aria-current', 'page')
+})
+
+test('dashboard renders persisted temporal results and preserves missing intervals', async ({ page }, testInfo) => {
+  await page.clock.install({ time: new Date('2026-10-08T12:00:00.000Z') })
+  await mockCatalog(page, [application()])
+  await mockSummary(page, (url) => ({ json: {
+    ...summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]),
+    series: { granularity: 'hour', points: [
+      { bucketStart: '2026-10-08T10:00:00.000Z', bucketEnd: '2026-10-08T11:00:00.000Z', period: { from: '2026-10-08T10:00:00.000Z', to: '2026-10-08T11:00:00.000Z' }, energy: { value: 2, unit: 'kWh', reasons: [] }, emissions: { value: 85, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
+      { bucketStart: '2026-10-08T11:00:00.000Z', bucketEnd: '2026-10-08T12:00:00.000Z', period: { from: '2026-10-08T11:00:00.000Z', to: '2026-10-08T12:00:00.000Z' }, energy: { value: null, unit: 'kWh', reasons: [] }, emissions: { value: null, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0, emissions: 0 } },
+    ] },
+  } }))
+  await page.goto('/dashboard')
+  const panel = page.getByRole('region', { name: 'Série temporal', exact: true })
+  await expect(panel.getByRole('img')).toBeVisible()
+  await page.screenshot({ path: testInfo.outputPath('dashboard-series.png') })
+  await panel.getByRole('button', { name: 'Tabela', exact: true }).click()
+  await expect(panel.getByRole('table')).toContainText('85 gCO2e')
+  await expect(panel.getByRole('table')).toContainText('Sem resultado')
+})
+
 test('dashboard presents real summary values, separate coverage and contribution composition', async ({ page }) => {
   await mockCatalog(page, [
     application({ id: 'svc-1', name: 'api-estoque', location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, latitude: -23, longitude: -46 } }),
@@ -69,8 +100,13 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.getByRole('navigation').getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByText('4 kWh', { exact: true })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Indicadores ambientais' }).getByText('12,6 gCO2e', { exact: true })).toBeVisible()
-  await expect(page.getByText(/série histórica agregada ainda não faz parte/i)).toBeVisible()
-  await expect(page.getByText(/comparação com período anterior indisponível/i)).toBeVisible()
+  await expect(page.getByText('Não foi possível consultar a série temporal.', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+  while (await page.getByRole('dialog').getByRole('heading').innerText() !== 'Série temporal') {
+    await page.getByRole('dialog').getByRole('button', { name: 'Próximo', exact: true }).click()
+  }
+  await expect(page.getByRole('dialog')).toContainText(/comparação com período anterior indisponível/i)
+  await page.getByRole('dialog').getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)
   await expect(page.locator('tbody tr').nth(0)).toContainText('api-estoque')
   await expect(page.locator('tbody tr').nth(1)).toContainText('api-checkout')

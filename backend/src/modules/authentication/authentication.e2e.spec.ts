@@ -1,3 +1,4 @@
+import { VersionMonitoringControl1793600000000 } from '../../database/migrations/1793600000000-VersionMonitoringControl'
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { DataSource } from 'typeorm'
@@ -18,6 +19,7 @@ import { UserPreferences1793200000000 } from '../../database/migrations/17932000
 import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
 import { UserAccountStatus1793400000000 } from '../../database/migrations/1793400000000-UserAccountStatus'
 import { PasswordRecovery1793500000000 } from '../../database/migrations/1793500000000-PasswordRecovery'
+import { MonitoringPauseControl1793500000000 } from '../../database/migrations/1793500000000-MonitoringPauseControl'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { PasswordRecoveryService } from './password-recovery.service'
@@ -142,6 +144,8 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         AuditActorIdentity1793300000000,
         UserAccountStatus1793400000000,
         PasswordRecovery1793500000000,
+        MonitoringPauseControl1793500000000,
+        VersionMonitoringControl1793600000000,
       ],
     })
     await database.initialize()

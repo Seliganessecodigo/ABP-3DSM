@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { Pagination } from '../../components/Pagination.tsx'
+import { PageHelp } from '../../components/PageHelp.tsx'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -13,8 +15,12 @@ import {
   type DashboardSortColumn,
   type DashboardTableFilters,
 } from './query.ts'
+import { EnvironmentalSeries } from '../../components/EnvironmentalSeries.tsx'
 import { useDashboard } from './useDashboard.ts'
 import styles from './DashboardPage.module.css'
+import { usePersonalAlerts } from '../../features/preferences/usePersonalAlerts.ts'
+import { PersonalAlertsPanel, PersonalAlertBadges } from '../../components/PersonalAlerts.tsx'
+import { useAnalysisDefaults } from '../../features/preferences/useAnalysisDefaults.ts'
 
 const tableColumns: ReadonlyArray<Readonly<{ key: DashboardSortColumn; label: string }>> = [
   { key: 'name', label: 'table.application' },
@@ -32,13 +38,6 @@ const filterDefaults: DashboardTableFilters = {
   emissionsMin: '', emissionsMax: '', emissionsMissing: false,
   energyCoverageMin: '', energyCoverageMax: '',
   emissionsCoverageMin: '', emissionsCoverageMax: '',
-}
-
-function paginationPages(page: number, pageCount: number): number[] {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1)
-  const first = page <= 3 ? 2 : page >= pageCount - 2 ? pageCount - 3 : page - 1
-  const last = page <= 3 ? 4 : page >= pageCount - 2 ? pageCount - 1 : page + 1
-  return [1, ...(first > 2 ? [-1] : []), ...Array.from({ length: last - first + 1 }, (_, index) => first + index), ...(last < pageCount - 1 ? [-2] : []), pageCount]
 }
 
 function numberLabel(value: number | null, unit: string, locale: string, missing: string): string {
@@ -66,10 +65,12 @@ function normalizeNumberInput(value: string): string {
   return value.trim()
 }
 
-function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode'>) {
+function summaryFilters(query: Pick<DashboardQuery, 'period' | 'state' | 'regionCode' | 'range' | 'granularity'>) {
   if (query.period === null) return null
   return {
     period: query.period,
+    range: query.range,
+    granularity: query.granularity,
     state: query.state === 'ALL' ? null : query.state,
     regionCode: query.regionCode,
   }
@@ -84,10 +85,15 @@ function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: nu
 }
 
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
+  const personalAlerts = usePersonalAlerts()
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: detailText } = useTranslation('detail')
+  const { t: preferencesText } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
   const [query, setQuery] = useState<DashboardQuery>(() => readDashboardQuery(window.location.search))
+  const applyDefaults = useCallback(() => { setQuery(readDashboardQuery(window.location.search)) }, [])
+  useAnalysisDefaults(applyDefaults)
   const [draftFilters, setDraftFilters] = useState<DashboardTableFilters>(query.filters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
@@ -176,7 +182,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   })
   const changePeriod = (next: typeof periodPresets[number]) => {
     if (pending && period === next) return
-    update({ period: next })
+    update({ period: next, explicitPeriod: true, range: undefined })
     refresh()
   }
   const changePageSize = (value: string) => {
@@ -200,11 +206,18 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     ? 'none'
     : query.sort.direction === 'asc' ? 'ascending' : 'descending'
 
-  return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.header}>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className={`page-heading ${styles.header}`}>
       <div>
-        <p className={styles.eyebrow}>{t('eyebrow')}</p>
-        <h1>{t('title')}</h1>
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
+  { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
+  { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="dashboard-emissions"]' },
+  { title: t('coverage'), description: tCommon('help.coverage'), target: '#dashboard-coverage' },
+  { title: t('trendTitle'), description: [t('trend.note'), t('comparisonPending')].join("\n\n"), target: '[data-help="dashboard-trend"]' },
+  { title: t('compositionTitle'), description: tCommon('help.composition'), target: '[data-help="dashboard-composition"]' },
+]} /></div>
         {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
@@ -214,7 +227,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </button>
     </header>
 
-    <section className={styles.controls} aria-label={t('filters.contextHeading')}>
+    <section data-help="dashboard-filters" className={styles.controls} aria-label={t('filters.contextHeading')}>
       <div className={styles.periods} role="group" aria-label={t('period')}>
         {periodPresets.map((preset) => <button key={preset} type="button" aria-pressed={period === preset}
           aria-disabled={period === preset && pending}
@@ -222,6 +235,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
+      {(period === 'custom' || period === 'month') && <p>{preferencesText(`evaluationPeriod.${period}`)}{query.range && ` · ${dateRangeLabel(query.range.from, query.range.to, locale)} UTC`}</p>}
+      <label>{preferencesText('granularityEditing')}<select className="form-control" aria-label={preferencesText('granularityEditing')} value={query.granularity ?? (period === '24h' ? 'hour' : 'day')} onChange={event => {
+        const granularity = (['hour', 'day', 'month', 'year'] as const).find(value => value === event.target.value)
+        if (granularity) update({ granularity })
+      }}><option value="hour">{preferencesText('hour')}</option><option value="day">{preferencesText('day')}</option><option value="month">{detailText('analysisGranularityMonth')}</option><option value="year">{detailText('analysisGranularityYear')}</option></select></label>
       <label>{t('region')}
         <select className="form-control" aria-label={t('region')} value={query.regionCode} disabled={data.applications.loading || data.applications.error}
           onChange={(event) => update({ regionCode: event.target.value })}>
@@ -238,9 +256,10 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </select>
       </label>
       {data.applications.error && <p className={styles.warning} role="status">{t('regionOptionsUnavailable')}</p>}
-      <p className={styles.comparisonNote}>{t('comparisonPending')}</p>
+
     </section>
 
+    <PersonalAlertsPanel state={personalAlerts} />
     {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
       <p>{data.data ? t('refreshError') : t('error')}</p>
@@ -257,12 +276,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       {data.data.status === 'empty' && <p className={styles.emptyNotice} role="status">{t('empty')}</p>}
 
       <section className={styles.kpis} aria-label={t('indicators')}>
-        <article className={styles.card}>
+        <article data-help="dashboard-energy" className={styles.card}>
           <h2>{t('energy')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('energyCoverage')}: {coverageLabel(data.data.coverage.energy, locale)}</p>
         </article>
-        <article className={styles.card}>
+        <article data-help="dashboard-emissions" className={styles.card}>
           <h2>{t('emissions')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
@@ -293,14 +312,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
       <section className={styles.visualizations}>
-        <article className={styles.card}>
+        <article data-help="dashboard-trend" className={styles.card}>
           <h2>{t('trendTitle')}</h2>
-          <div className={styles.seriesPlaceholder} role="note">
-            <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M7 7v34h34M13 30l8-9 7 5 11-13" /></svg>
-            <p>{t('trendUnavailable')}</p>
-          </div>
+          <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
-        <article className={styles.card}>
+        <article data-help="dashboard-composition" className={styles.card}>
           <div className={styles.sectionHeading}>
             <h2>{t('compositionTitle')}</h2>
             <div className={styles.modeButtons}>
@@ -343,7 +359,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </article>
       </section>
 
-      <section className={styles.tableCard} aria-labelledby="dashboard-applications-heading">
+      <section data-help="dashboard-results" className={styles.tableCard} aria-labelledby="dashboard-applications-heading">
         <div className={styles.tableHeading}>
           <div><h2 id="dashboard-applications-heading">{t('table.title', { count: table.total })}</h2></div>
           <div className={styles.tableActions}>
@@ -414,7 +430,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                 <button type="button" onClick={() => toggleSort(key)}>{t(label)}</button>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
-                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}</th>
+                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === row.applicationId)} /></th>
                 <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${row.state}`]}`}>{labels[row.state]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
@@ -424,24 +440,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               </tr>)}</tbody>
             </table>
           </div>}
-        {table.total > 0 && <footer className={styles.pagination}>
-          <p>{t('table.range', {
-            from: from + 1,
-            to,
-            total: table.total,
-          })}</p>
-          <label>{t('table.pageSize')}<select className="form-control form-control--compact" value={query.pageSize} onChange={(event) => changePageSize(event.target.value)}>
-            {pageSizes.map((size) => <option key={size} value={size}>{size === 'all' ? t('table.allRows') : size}</option>)}
-          </select></label>
-          <nav aria-label={t('table.pagination')}>
-            <button type="button" disabled={page <= 1} onClick={() => update({ page: page - 1 })}>{t('table.previous')}</button>
-            {paginationPages(page, pageCount).map((number, index) => number < 0
-              ? <span key={`${number}-${index}`} aria-hidden="true">…</span>
-              : <button key={number} type="button" aria-current={number === page ? 'page' : undefined}
-                aria-label={t('table.pageChoice', { page: number, total: pageCount })} onClick={() => update({ page: number })}>{number}</button>)}
-            <button type="button" disabled={page >= pageCount} onClick={() => update({ page: page + 1 })}>{t('table.next')}</button>
-          </nav>
-        </footer>}
+        {table.total > 0 && <Pagination page={page} pageCount={pageCount} label={t('table.pagination')}
+          onPageChange={page => update({ page })} summary={t('table.range', { from: from + 1, to, total: table.total })}
+          pageSize={{ value: query.pageSize, options: pageSizes, onChange: changePageSize }} />}
       </section>
     </>}
   </main>

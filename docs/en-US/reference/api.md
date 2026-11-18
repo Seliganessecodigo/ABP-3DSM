@@ -15,6 +15,7 @@ This reference supports GreenER API integrations. The environment publishes comp
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@ This reference supports GreenER API integrations. The environment publishes comp
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison` requires 2–5 unique IDs and a selected reference. It returns energy, emissions, independent coverage, metrics and historical location snapshots for the same period. Differences are application minus reference; percentages require a positive reference. Missing values remain explicit, and the status is `empty`, `partial` or `complete`.
+
 Source metrics have no measurement timestamp. The interval derives from receipt minus `collection_interval_seconds`. Factor query time does not establish validity; unpublished source and validity remain unknown. Energy, factor and emissions persist eight decimal places; coverage four. No intermediate rounding occurs. Energy and emissions retain separate coverage and original snapshots.
+
+## Series and calculation explanation {#environmental-presentation}
+
+In `/analysis/summary`, the optional `granularity` parameter includes `series.points` with the same period and filters as the totals. Each interval sums persisted application results and keeps independent coverage. Missing values remain `null`.
+
+In `/applications/{id}/analysis`, `calculation.energyKwh` is the energy of segments with calculated emissions; `calculation.intensity` is the equivalent factor in gCO₂e/kWh, obtained by dividing those emissions by the corresponding energy. For zero or missing energy, the factor remains null. Historical results and factors are preserved.
 
 ## Sign in {#login}
 
@@ -97,7 +107,7 @@ At `/administration/calculations`, select an application and dates to compare or
 
 ## Personalize analysis {#preferences}
 
-At `/methodology`, energy, emissions, coverage and analysis tabs provide examples and personal preferences. Any authenticated role can save its own tab using optimistic revisions; 409 means conflict. Thresholds affect presentation, not global settings, calculations or external notifications. Saved period/granularity only fill missing detail URL options. Recorded methodology remains at `/services/:id/methodology`, with `collectionId` when selected.
+In `/methodology`, configure per-application energy and emissions limits, coverage thresholds and analysis defaults. Choose the last 24 hours, 7, 30 or 90 days, the current UTC month or a custom interval with an inclusive start and exclusive end. The preview reads real data without saving and uses the same warning panel as applications and the Dashboard. Saving requires login and affects only your account; calculations, history and operational states remain intact. Warnings use each limit’s period independently of page filters. Analysis defaults fill only missing URL options on the Dashboard and detail pages. Partial data below a limit does not prove compliance; missing data never means zero.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## Error handling {#errors}
 

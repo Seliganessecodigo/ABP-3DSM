@@ -47,3 +47,7 @@ Nell’anteprima di ricalcolo scegliete applicazione e date per confrontare l’
 ## Letture correlate {#related}
 
 [Guida all’uso](../guide/monitoring) · [Riferimento API](../reference/api)
+
+## Preferenze applicate ai dati reali {#personal-preferences}
+
+In `/methodology`, configura limiti di energia ed emissioni per applicazione, soglie di copertura e impostazioni iniziali di analisi. Scegli le ultime 24 ore, 7, 30 o 90 giorni, il mese corrente UTC o un intervallo personalizzato con inizio incluso e fine esclusa. L’anteprima consulta dati reali senza salvare e usa lo stesso pannello di avvisi delle applicazioni e del Dashboard. Il salvataggio richiede l’accesso e riguarda solo il tuo account; calcoli, cronologia e stati operativi restano invariati. Gli avvisi usano il periodo di ciascun limite indipendentemente dai filtri. Le impostazioni iniziali completano solo le opzioni mancanti nell’URL del Dashboard e del dettaglio. Dati parziali sotto il limite non dimostrano il suo rispetto; dati mancanti non significano mai zero.

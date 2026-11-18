@@ -2,17 +2,21 @@ import { expect, test } from '@playwright/test'
 import { application, gate, mockApi, mockCatalog, row } from './support/catalog.ts'
 
 for (const width of [390, 1366]) {
-  for (const path of ['/', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
     test(`loading uses a status and placeholders at ${width}px on ${path}`, async ({ page }) => {
       const pending = gate()
       await page.setViewportSize({ width, height: 844 })
       await mockCatalog(page, [application()])
       await page.route(/\/analysis\/summary\?/, route => route.fulfill({ status: 503, json: {} }))
       await page.route(url => /^\/(?:api\/)?(?:applications(?:\/[^/]+)?|analysis\/summary)$/.test(url.pathname), async route => {
+        if (route.request().isNavigationRequest()) {
+          await route.fallback()
+          return
+        }
         await pending.wait
         await route.fallback()
       })
-      await page.goto(path)
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
       try {
         const loading = page.locator('[data-loading-state]').first()
         await expect(loading).toBeVisible()
@@ -40,9 +44,9 @@ test('environmental loading preserves application and period without showing mis
   try {
     await expect(page.getByRole('heading', { name: application().name })).toBeVisible()
     await expect(page.getByRole('button', { name: '30 dias', exact: true })).toHaveAttribute('aria-pressed', 'true')
-    const loading = page.locator('[data-loading-state="detail"]')
+    const loading = page.getByRole('status').filter({ hasText: 'Carregando dados ambientais...' })
     await expect(loading).toBeVisible()
-    await expect(loading.locator('[data-loading-skeleton]')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Localização', exact: true })).toBeVisible()
     await expect(loading).not.toContainText(/indisponível|0 kWh|0 gCO2e/i)
     await expect(page.getByRole('button', { name: '30 dias', exact: true })).toHaveAttribute('aria-disabled', 'true')
     await page.screenshot({ path: test.info().outputPath('environmental-loading.png'), fullPage: true })
@@ -60,7 +64,7 @@ test('refresh preserves visible data and focus and blocks duplicate keyboard act
     if (refreshing) await pending.wait
     await route.fulfill({ json: [application()] })
   })
-  await page.goto('/')
+  await page.goto('/applications')
   await expect(row(page, application().id)).toBeVisible()
   const initialRequests = requests
   refreshing = true
@@ -74,7 +78,7 @@ test('refresh preserves visible data and focus and blocks duplicate keyboard act
     await page.keyboard.press('Enter')
     await page.keyboard.press('Space')
     expect(requests).toBe(initialRequests + 1)
-    await expect(page.getByRole('status')).toContainText(/carregando/i)
+    await expect(page.getByRole('status').filter({ hasText: /carregando/i })).toBeVisible()
   } finally { pending.release() }
   await expect(refresh).not.toHaveAttribute('aria-busy', 'true')
   await expect(refresh).toBeFocused()
@@ -87,7 +91,7 @@ test('loading respects reduced motion preferences', async ({ page }) => {
     await pending.wait
     await route.fulfill({ json: [] })
   })
-  await page.goto('/')
+  await page.goto('/applications')
   try {
     const loading = page.locator('[data-loading-state]')
     await expect(loading).toBeVisible()

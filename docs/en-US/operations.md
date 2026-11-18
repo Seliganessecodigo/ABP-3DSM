@@ -27,6 +27,10 @@ The first absence in a complete valid snapshot confirms removal. Each external c
 
 Use Node.js 24+, npm and Docker Compose v2. Copy `.env.example` to `.env` and run `npm run dev`. Compose applies migrations and attempts discovery before API startup; source failure does not prevent startup. Configure SMTP for invitations and confirmations. Provision the first Admin with `organizations:create-invitation` in `backend/`, setting `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. There is no universal production Admin account.
 
+First access on the website has two steps: open the invitation at `/setup-admin`, enter your name and email, then open the confirmation at `/confirm-email` to create your password. Next, sign in and set up the required Admin authenticator. Invalid, expired or used links explain how to request a replacement; tokens are removed from the URL and remain only in page memory. After a page reload, reopen the original email link. SMTP must deliver to a real mailbox; `.test` addresses are illustrative only. On Azure, the operator issues the first invitation from the configured backend console with `npm run organizations:create-invitation:prod`; the invited person completes registration on the website. `APP_BASE_URL` must point to the published frontend. `frontend/public/staticwebapp.config.json` enables direct access to hosted routes.
+
+In **Users** (`/administration/users`), an Admin can list organization accounts and send Google sign-in invitations. **Link my Google Account** fills the form with the Admin’s details; confirm sending and open the email link using the Google Account with the same email address. Matching email addresses alone never links identities. New accounts appear after acceptance; pending invitations are not listed as accounts. Resending revokes the previous invitation, and existing accounts retain their name, role and password. Admins still require TOTP. Staging deployment reads `VITE_GOOGLE_SSO_ENABLED` from GitHub variables: set it to `true` only after configuring backend credentials and URLs. Set `GOOGLE_CALLBACK_URL` to the public API address plus `/auth/sso/google/callback` and `SSO_RETURN_URL` to the public frontend address plus `/sso/callback`.
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
@@ -72,3 +76,7 @@ Staging deploys from `develop` after CI: API to Azure App Service and frontend t
 ## Related reading {#related}
 
 [Getting started](./getting-started) · [API reference](./reference/api)
+
+## Diagnosing slow responses {#response-performance}
+
+Compare time to first byte, response size and the execution plan before blaming the database. The Dashboard requests `/analysis/summary` with `includeProvenance=false`: readings, coverage and series remain intact, while the response reports `provenanceIncluded=false` and excludes provenance lists. Full queries remain the default. The compact projection does not transfer each collection’s factors; the summary sorts intervals during calculation and avoids a second database sort.

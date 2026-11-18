@@ -14,6 +14,7 @@ Para rotas protegidas, ausência ou invalidade da sessão resulta em 401; papel 
 | GET /applications/{id}/collections/latest | Nenhuma | Observação mais recente |
 | GET /applications/{id}/collections/{collectionId} | Nenhuma | Observação armazenada |
 | GET /analysis/summary | Nenhuma | Resumo ambiental agregado |
+| GET /analysis/ranking | Nenhuma | Ranking ambiental agregado |
 | GET /applications/{id}/analysis | Nenhuma | Resultado ambiental por período |
 | GET /applications/{id}/analysis/series | Nenhuma | Série ambiental persistida |
 | GET /applications/{id}/analysis/series/contributions | Nenhuma | Contribuições persistidas |
@@ -61,6 +62,10 @@ Estas rotas não exigem JWT prévio. Cada fluxo valida a credencial de seu contr
 | GET /auth/users | ADMIN ativo da mesma organização; busca, filtros, ordenação e paginação; sem credenciais |
 | POST /auth/users | ADMIN ativo da mesma organização; cria conta pendente de confirmação, sem receber senha |
 | PATCH /auth/users/{userId}/role | ADMIN ativo da mesma organização; papel esperado, motivo e revogação atômica de sessões |
+| GET /monitoring/health | ADMIN autenticado; saúde global do monitoramento |
+| GET /monitoring/cycles | ADMIN autenticado; ciclos globais recentes |
+| GET /monitoring/audit | ADMIN autenticado; eventos de usuários da própria organização; eventos globais sem vínculo são omitidos |
+| PATCH /monitoring/control | ADMIN autenticado; pausa/retomada global com justificativa e auditoria |
 
 A conta pode estar ativa, bloqueada ou desativada. Bloqueio e desativação revogam todas as sessões;
 reativação exige novo login. O Admin não pode bloquear a própria conta nem o último Admin ativo.

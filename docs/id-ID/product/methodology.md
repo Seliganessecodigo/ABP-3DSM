@@ -47,3 +47,7 @@ Di pratinjau hitung ulang pilih aplikasi dan tanggal untuk membandingkan hasil a
 ## Bacaan terkait {#related}
 
 [Panduan penggunaan](../guide/monitoring) · [Referensi API](../reference/api)
+
+## Preferensi yang diterapkan pada data nyata {#personal-preferences}
+
+Di `/methodology`, atur batas energi dan emisi per aplikasi, acuan cakupan serta nilai awal analisis. Pilih 24 jam, 7, 30 atau 90 hari terakhir, bulan berjalan dalam UTC atau rentang khusus dengan awal disertakan dan akhir dikecualikan. Pratinjau membaca data nyata tanpa menyimpan dan memakai panel peringatan yang sama dengan aplikasi dan Dashboard. Penyimpanan memerlukan login dan hanya memengaruhi akun Anda; perhitungan, riwayat dan status operasional tetap utuh. Peringatan menggunakan periode setiap batas terlepas dari filter halaman. Nilai awal analisis hanya mengisi opsi yang tidak ada di URL Dashboard dan detail. Data parsial di bawah batas tidak membuktikan kepatuhan; data yang hilang tidak pernah berarti nol.

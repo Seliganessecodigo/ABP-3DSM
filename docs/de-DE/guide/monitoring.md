@@ -10,9 +10,13 @@ Suchen Sie im Katalog nach Name, Kennung oder Region und filtern Sie nach Status
 
 Wählen Sie im Dashboard 24 Stunden, 7, 30 oder 90 Tage, Region und Status. Prüfen Sie Energie, Emissionen, Abdeckung und Anzahl nach Status. Das Diagramm zeigt Emissionsanteile als Balken oder Ring. Tabellenfilter, Suche und Impact-Sortierung ändern die sichtbaren Zeilen; die Gesamtsummen behalten den ausgewählten Umfang.
 
+Wechseln Sie in der Zeitreihe zwischen Energie und CO₂e oder öffnen Sie die Intervalltabelle. Das 24-Stunden-Fenster wird stündlich gruppiert, die übrigen täglich. Die Intervalle folgen UTC und denselben Filtern wie die Kennzahlen. Lücken bleiben ohne Wert.
+
 ## Details untersuchen {#detail}
 
 Öffnen Sie Details für Identität, Standort, Status und Aktualisierungszeiten. Prüfen Sie Metriken und Umweltergebnisse im selben Zeitraum. Die aufgezeichnete Methodik zeigt Modell, Parameter und CO₂-Faktor der Berechnung, ohne das Ergebnis zu ändern. Fehlt die Stadt, bleiben andere Ortsangaben nutzbar.
+
+Der äquivalente Faktor fasst die angewendeten regionalen Faktoren zusammen, gewichtet nach der Energie mit berechneten Emissionen. Die Erklärung verwendet diese Energie, die bei fehlenden Faktoren geringer als die Gesamtenergie sein kann. Prüfen Sie Werte und Quellen je Region in der Methodik. Die Faktorkarte bleibt gleich hoch wie die anderen Kennzahlen und wird nicht innerhalb der Karte erweitert.
 
 ## Verlauf erkunden {#history}
 

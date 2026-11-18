@@ -15,6 +15,7 @@
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison`要求2至5个不重复的应用ID，并指定其中一个作为参考。响应返回同一期间的能源、排放、独立覆盖率、指标和历史位置快照。差值为应用减参考；参考值必须为正数时才计算百分比。缺失值会明确保留，状态为`empty`、`partial`或`complete`。
+
 来源指标没有测量时间；区间由接收时间减`collection_interval_seconds`得出。因子查询时间不证明有效期，未发布来源和有效性保持未知。能源、因子、排放存8位小数，覆盖率4位，无中间舍入。保留独立覆盖率及原始快照。
+
+## 时间序列与计算说明 {#environmental-presentation}
+
+在 `/analysis/summary` 中，可选参数 `granularity` 返回与总计使用相同时段和筛选条件的 `series.points`。每个时段汇总各应用的持久化结果，并保留独立覆盖率。缺失值保持为 `null`。
+
+在 `/applications/{id}/analysis` 中，`calculation.energyKwh` 表示已计算排放量的区间能耗；`calculation.intensity` 为对应排放量除以能耗得到的等效因子，单位为gCO₂e/kWh。能耗为零或缺失时，因子为空。历史结果和因子保持不变。
 
 ## 登录账户 {#login}
 
@@ -97,7 +107,7 @@
 
 ## 个性化分析 {#preferences}
 
-`/methodology`有能源、排放、覆盖率和分析四个标签页，包含示例和个人偏好。任何已登录角色只能保存自身标签页；乐观版本冲突返回409。显示阈值不更改全局配置、计算或外部通知。保存期间/粒度仅填充详情URL中缺失的选项。历史方法保留在`/services/:id/methodology`，可带选中的`collectionId`。
+在 `/methodology` 中设置每个应用的能耗和排放上限、覆盖率参考值以及分析默认值。可选择最近24小时、7天、30天、90天、UTC当月或自定义起止时间，包含开始时刻但不包含结束时刻。预览读取真实数据而不保存，并使用与应用页面及仪表板相同的警告面板。保存需要登录且仅影响自己的账户，不改变计算、历史记录或运行状态。警告独立于页面筛选条件，使用各上限自己的时间范围。分析默认值仅补充仪表板和详情页面URL中缺少的选项。部分数据低于上限不能证明符合要求；缺失数据绝不代表零。
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## 错误处理 {#errors}
 

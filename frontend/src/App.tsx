@@ -7,9 +7,13 @@ import { MethodologyPage } from './pages/methodology/MethodologyPage.tsx'
 import { DashboardPage } from './pages/dashboard/DashboardPage.tsx'
 import { LoginPage } from './pages/login/LoginPage.tsx'
 import { SsoCallbackPage } from './pages/login/SsoCallbackPage.tsx'
+import { AccountSetupPage } from './pages/login/AccountSetupPage.tsx'
 import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
 import { RecoverPasswordPage } from './pages/recoverPassword/RecoverPasswordPage.tsx'
 import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
+import { SettingsPage } from './pages/settings/SettingsPage.tsx'
+import { RegionalSimulationPage } from './pages/regionalSimulation/RegionalSimulationPage.tsx'
+import { ComparisonPage } from './pages/comparison/ComparisonPage.tsx'
 
 function App() {
   return <AuthenticationProvider><Application /></AuthenticationProvider>
@@ -17,7 +21,7 @@ function App() {
 
 function Application() {
   const { route, navigate } = useRoute()
-  const login = route.kind === 'login' || route.kind === 'recover-password' || route.kind === 'sso-callback'
+  const login = ['recover-password', 'login', 'sso-callback', 'setup-admin', 'confirm-email'].includes(route.kind)
   let variant: 'default' | 'detail' | 'methodology' = 'default'
   if (route.kind === 'detail' || route.kind === 'history') variant = 'detail'
   if (route.kind === 'methodology' && !route.id) variant = 'methodology'
@@ -28,11 +32,16 @@ function Application() {
 
 function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) {
   switch (route.kind) {
+    case 'settings': return <SettingsPage navigate={navigate} />
+    case 'setup-admin': return <AccountSetupPage key="invitation" kind="invitation" navigate={navigate} />
+    case 'confirm-email': return <AccountSetupPage key="confirmation" kind="confirmation" navigate={navigate} />
     case 'login': return <LoginPage navigate={navigate} />
     case 'recover-password': return <RecoverPasswordPage navigate={navigate} />
     case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
+    case 'comparison': return <ComparisonPage />
     case 'history': return <HistoryPage key="history" navigate={navigate} />
+    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" />
     case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
     case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
     case 'administration': return <RecalculationPreviewPage navigate={navigate} />

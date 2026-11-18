@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
 import { application, mockCatalog } from './support/catalog.ts'
 import { mkdir } from 'node:fs/promises'
+import { mockPreferenceEffects } from './support/preferences.ts'
+
+test.beforeEach(async ({ page }) => { await mockPreferenceEffects(page) })
 
 const names = ['Energia', 'Emissões de CO₂e', 'Cobertura dos dados', 'Padrão das análises']
 const energy = { threshold: 10, unit: 'kWh', scope: 'application', referencePeriod: 'month', alertsEnabled: true }
@@ -19,6 +22,7 @@ async function mockPreferences(page: Page, fail = 0) {
   const preferences = initial()
   await page.route('**/api/me/preferences', (route) => route.fulfill({ json: preferences }))
   await page.route('**/api/me/preferences/*', async (route) => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: { configured: false, evaluatedAt: '2026-11-10T12:00:00.000Z', applications: [] } })
     expect(route.request().headers().authorization).toBe('Bearer preferences-access')
     if (fail) return route.fulfill({ status: fail, json: { code: fail === 409 ? 'PREFERENCE_CONFLICT' : 'PREFERENCES_UNAVAILABLE' } })
     const tab = route.request().url().split('/').at(-1) as keyof typeof preferences
@@ -86,18 +90,16 @@ for (const status of [503, 409]) test(`falha ${status} mantém edição, valor a
   await expect(page.getByText('10 kWh por aplicação/mês', { exact: true })).toBeVisible()
 })
 
-test('prévia pública combina avisos na aplicação e mantém estados distintos', async ({ page }) => {
+test('prévia pública usa o mesmo painel de avisos e não salva o rascunho', async ({ page }) => {
   await mockCatalog(page, [])
   await page.goto('/methodology')
-  const row = page.getByRole('row').filter({ hasText: 'app-checkout' })
-  await expect(row).toContainText('3 avisos')
-  await expect(row).toContainText('Energia: 9,4 > 8 kWh')
-  await expect(row).toContainText('CO₂e: 1,8 > 1,5 kg')
-  await expect(row).toContainText('Cobertura: 79% < 85%')
+  const row = page.getByRole('article').filter({ hasText: 'app-pagamentos' })
+  await expect(row).toContainText('9,4 kWh')
+  await expect(row).not.toContainText('1,8 kgCO2e')
+  await expect(row).not.toContainText('79 %')
   await page.getByRole('switch', { name: 'Destacar e avisar quando ultrapassar' }).click()
-  await expect(row).toContainText('2 avisos')
-  await expect(row).not.toContainText('Energia:')
-  await expect(page.getByRole('row').filter({ hasText: 'app-relatorios' })).toContainText('Sem métricas')
+  await expect(page.getByRole('region', { name: 'Meus avisos ambientais', exact: true })).toContainText('Nenhum aviso habilitado')
+  await expect(page.getByText('Dados reais', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Salvar minhas preferências' }).click()
   await expect(page.getByRole('alert')).toContainText('Entre na sua conta')
 })
@@ -109,14 +111,14 @@ test('valida cobertura e alterna indicador/tabela/gráfico da prévia de anális
   await expect(page.getByRole('button', { name: 'Salvar minhas preferências' })).toBeDisabled()
   await page.getByRole('button', { name: 'Cancelar alterações' }).click()
   await page.getByRole('tab', { name: names[3], exact: true }).click()
-  await expect(page.getByRole('img', { name: /Evolução ilustrativa/ })).toBeVisible()
+  await expect(page.getByRole('img', { name: /Série temporal/ })).toBeVisible()
   await page.getByRole('button', { name: 'Tabela', exact: true }).click()
-  await expect(page.getByRole('cell', { name: '20/10', exact: true })).toBeVisible()
+  await expect(page.getByRole('cell', { name: '2 kWh', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'CO₂e', exact: true }).click()
-  await expect(page.getByRole('columnheader', { name: 'CO₂e (kg CO₂e)' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: '85 gCO2e', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Gráfico', exact: true }).click()
-  await page.getByLabel('Período em edição').selectOption('30')
-  await expect(page.getByRole('heading', { name: 'Evolução do consumo e emissões · 30 dias' })).toBeVisible()
+  await page.getByLabel('Período de aplicação', { exact: true }).selectOption('30d')
+  await expect(page.getByRole('img', { name: /Série temporal/ })).toBeVisible()
 })
 
 for (const viewport of [{ width: 1894, height: 1004 }, { width: 1366, height: 768 }, { width: 2560, height: 1440 }, { width: 390, height: 844 }, { width: 320, height: 740 }]) test(`quatro abas sem overflow em ${viewport.width}px`, async ({ page }, testInfo) => {
@@ -216,7 +218,7 @@ test('captura edição e diálogo nas referências atuais', async ({ page }, tes
     await page.getByRole('tab', { name, exact: true }).click()
     if (index < 2) await page.getByLabel('Limite em edição', { exact: true }).fill(index === 0 ? '8' : '1.5')
     else if (index === 2) await page.getByLabel('Referência em edição', { exact: false }).fill('85')
-    else { await page.getByLabel('Período em edição').selectOption('7'); await page.getByLabel('Granularidade em edição').selectOption('hour') }
+    else { await page.getByLabel('Período de aplicação', { exact: true }).selectOption('7d'); await page.getByLabel('Granularidade em edição').selectOption('hour') }
     await page.getByRole('heading', { level: 1 }).click()
     await page.screenshot({ path: `${directory}/1894-edicao-${index + 1}.png`, fullPage: true })
     if (index === 0) {

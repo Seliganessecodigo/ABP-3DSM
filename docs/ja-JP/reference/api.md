@@ -15,6 +15,7 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison` は2～5個の重複しないIDと選択した基準アプリケーションを必須とします。同じ期間のエネルギー、排出量、個別のカバレッジ、メトリクス、過去の場所snapshotを返します。差分はアプリケーション値－基準値です。百分率には正の基準値が必要です。欠損値は明示され、状態は `empty`、`partial`、`complete` のいずれかです。
+
 元の測定時刻はなく、受信時刻から`collection_interval_seconds`を引いて区間を導出します。係数照会時刻は有効期間ではなく、未公開の出典・有効性は不明です。エネルギー・係数・排出は小数8桁、カバー率4桁で保存し、中間丸めは行いません。別々のカバー率と原本snapshotを保持します。
+
+## 時系列と計算の説明 {#environmental-presentation}
+
+`/analysis/summary` の任意パラメーター `granularity` を指定すると、合計と同じ期間・フィルターの `series.points` が含まれます。各期間はアプリケーションの保存済み結果を合計し、指標別のカバレッジを維持します。欠損値は `null` のままです。
+
+`/applications/{id}/analysis` の `calculation.energyKwh` は排出量を計算できた区間のエネルギーです。`calculation.intensity` は、その排出量を対応するエネルギーで割った等価排出係数（gCO₂e/kWh）です。エネルギーがゼロまたは欠損の場合、係数は未定義です。過去の結果と係数は保持されます。
 
 ## ログインする {#login}
 
@@ -97,7 +107,7 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 
 ## 分析を自分用に設定する {#preferences}
 
-`/methodology`にエネルギー、排出量、カバー率、分析の4タブと例示データ。ログインした各役割は自分のタブだけ保存し、楽観的リビジョン競合は409。表示しきい値は全体設定・計算・外部通知を変更しません。保存した期間/粒度は詳細URLで未指定の場合のみ適用。記録済み方法論は`/services/:id/methodology`と選択時の`collectionId`で保持します。
+`/methodology` でアプリケーションごとのエネルギー・排出量上限、カバレッジ基準、分析の初期設定を指定します。直近24時間、7日、30日、90日、UTCの当月、または開始を含み終了を含まない任意の期間を選択できます。プレビューは保存せずに実データを読み取り、アプリケーションとダッシュボードと同じ警告パネルを使用します。保存にはログインが必要で、自分のアカウントだけに適用されます。計算、履歴、稼働状態は変わりません。警告には画面のフィルターとは独立した各上限の期間が使われます。分析の初期設定は、ダッシュボードと詳細画面のURLに指定がない項目だけを補います。部分的なデータが上限未満でも遵守を証明しません。欠損はゼロではありません。
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## エラー処理 {#errors}
 

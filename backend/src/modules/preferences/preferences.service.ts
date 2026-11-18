@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, ServiceUnavailableE
 import { PreferencesRepository } from './preferences.repository'
 import { preferenceTabs, type PreferenceTab, type PreferenceValue, type PreferencesDto, type SavedPreferenceDto } from './preferences.dto'
 import type { AuthPrincipal } from '../authentication/authentication.service'
+import { validatePreferencePeriod } from './preference-period'
 
 function record(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 function number(value: unknown): value is number { return typeof value === 'number' && Number.isFinite(value) && value >= 0 }
@@ -12,6 +13,7 @@ export function validatePreference(tab: string, input: unknown): { tab: Preferen
   const selectedTab = preferenceTabs.find((item) => item === tab)
   if (!selectedTab || !record(input) || !exact(input, ['expectedRevision', 'value']) || !Number.isSafeInteger(input.expectedRevision) || !number(input.expectedRevision) || !record(input.value)) throw invalid()
   const value = input.value
+  if (Object.hasOwn(value, 'period')) return validatePeriodPreference(selectedTab, value, input.expectedRevision)
   if (selectedTab === 'energy' || selectedTab === 'emissions') {
     if (!exact(value, ['threshold', 'alertsEnabled', 'scope', 'referencePeriod', 'unit']) || !number(value.threshold) || typeof value.alertsEnabled !== 'boolean' || value.scope !== 'application' || value.referencePeriod !== 'month' || value.unit !== (selectedTab === 'energy' ? 'kWh' : 'kgCO2e')) throw invalid()
     return { tab: selectedTab, expectedRevision: input.expectedRevision, value: { threshold: value.threshold, alertsEnabled: value.alertsEnabled, scope: 'application', referencePeriod: 'month', unit: selectedTab === 'energy' ? 'kWh' : 'kgCO2e' } }
@@ -22,6 +24,22 @@ export function validatePreference(tab: string, input: unknown): { tab: Preferen
   }
   if (!exact(value, ['periodDays', 'granularity']) || value.periodDays !== 7 && value.periodDays !== 30 || value.granularity !== 'hour' && value.granularity !== 'day') throw invalid()
   return { tab: selectedTab, expectedRevision: input.expectedRevision, value: { periodDays: value.periodDays, granularity: value.granularity } }
+}
+function validatePeriodPreference(tab: PreferenceTab, value: Record<string, unknown>, expectedRevision: number) {
+  const period = validatePreferencePeriod(value.period)
+  const invalid = () => new BadRequestException({ code: 'INVALID_PREFERENCE' })
+  let result: PreferenceValue
+  if (tab === 'analysis') {
+    if (!exact(value, ['period', 'granularity']) || (value.granularity !== 'hour' && value.granularity !== 'day')) throw invalid()
+    result = { period, granularity: value.granularity }
+  } else if (tab === 'coverage') {
+    if (!exact(value, ['period', 'thresholdPercent', 'alertsEnabled']) || !number(value.thresholdPercent) || value.thresholdPercent > 100 || typeof value.alertsEnabled !== 'boolean') throw invalid()
+    result = { period, thresholdPercent: value.thresholdPercent, alertsEnabled: value.alertsEnabled }
+  } else {
+    if (!exact(value, ['period', 'threshold', 'alertsEnabled', 'scope', 'unit']) || !number(value.threshold) || typeof value.alertsEnabled !== 'boolean' || value.scope !== 'application' || value.unit !== (tab === 'energy' ? 'kWh' : 'kgCO2e')) throw invalid()
+    result = { period, threshold: value.threshold, alertsEnabled: value.alertsEnabled, scope: 'application', unit: tab === 'energy' ? 'kWh' : 'kgCO2e' }
+  }
+  return { tab, expectedRevision, value: result }
 }
 function present(row: { value: PreferenceValue; revision: number; updatedAt: Date }): SavedPreferenceDto {
   return { value: row.value, revision: row.revision, updatedAt: row.updatedAt.toISOString() }

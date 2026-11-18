@@ -1,0 +1,14 @@
+.series { min-width: 0; }
+.controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.controls > div { display: flex; gap: 4px; }
+.controls button { min-height: 44px; padding: 6px 12px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); color: var(--text-secondary); font: inherit; cursor: pointer; }
+.controls button[aria-pressed='true'] { background: var(--control-hover); color: var(--accent-default); }
+.note { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.chart { display: block; width: 100%; min-height: 180px; overflow: visible; }
+.chart text { fill: var(--text-secondary); font-size: 12px; }
+.axis, .gap { stroke: var(--text-secondary); }
+.bar { fill: var(--accent-default); }
+.tableWrap { max-height: 280px; overflow: auto; }
+.tableWrap table { width: 100%; border-collapse: collapse; text-align: start; font-size: 12px; }
+.tableWrap th, .tableWrap td { padding: 10px 8px; border-bottom: 1px solid var(--border-default); }
+.tableWrap caption { text-align: start; padding: 8px; }

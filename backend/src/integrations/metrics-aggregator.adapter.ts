@@ -122,6 +122,18 @@ export class MetricsAggregatorAdapter {
     );
   }
 
+  async fetchService(
+    serviceId: string,
+    signal?: AbortSignal,
+  ): Promise<ServiceSummary> {
+    const service = parseService(
+      await this.getJson(`/services/${encodeURIComponent(serviceId)}`, signal),
+    );
+    if (service.id !== serviceId)
+      throw new IntegrationError("INVALID_UPSTREAM_RESPONSE");
+    return service;
+  }
+
   private async getJson(path: string, signal?: AbortSignal): Promise<unknown> {
     try {
       return await fetchJsonWithRetry(new URL(path, this.baseUrl), signal);

@@ -1,0 +1,12 @@
+{
+  "eyebrow": "期間を調べる",
+  "startTitle": "どのアプリケーションを分析しますか？",
+  "startDescription": "エネルギーと排出量の推移を確認し、各結果の根拠となる収集データを調べます。",
+  "selectApplication": "アプリケーションを選択",
+  "evolution": "エネルギーとCO₂eの推移",
+  "events": "期間内に記録されたイベント",
+  "evidence": "収集データと当時の算定方法",
+  "applicationsTitle": "アプリケーションを選んで開始",
+  "openHistory": "履歴を見る",
+  "currentState": "現在の状態：{{state}}"
+}

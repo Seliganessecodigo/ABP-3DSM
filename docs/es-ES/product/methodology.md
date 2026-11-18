@@ -47,3 +47,7 @@ En la vista previa de recálculo, elija aplicación y fechas para comparar el or
 ## Lecturas relacionadas {#related}
 
 [Guía de uso](../guide/monitoring) · [Referencia de la API](../reference/api)
+
+## Preferencias aplicadas a datos reales {#personal-preferences}
+
+En `/methodology`, configura límites de energía y emisiones por aplicación, la referencia de cobertura y los valores iniciales del análisis. Elige las últimas 24 horas, 7, 30 o 90 días, el mes actual en UTC o un intervalo personalizado con inicio incluido y fin excluido. La vista previa consulta datos reales sin guardar y utiliza el mismo panel de avisos que las aplicaciones y el Dashboard. Guardar exige iniciar sesión y afecta solo a tu cuenta; no modifica cálculos, historial ni estados operativos. Los avisos usan el período de cada límite independientemente de los filtros. Los valores iniciales solo completan opciones ausentes en la URL del Dashboard y del detalle. Los datos parciales inferiores al límite no demuestran su cumplimiento; la ausencia nunca equivale a cero.

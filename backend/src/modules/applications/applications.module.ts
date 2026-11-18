@@ -2,13 +2,14 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApplicationEntity } from "../../database/entities/application.entity";
 import { ApplicationsController } from "./applications.controller";
-import { ApplicationsRepository } from "./applications.repository";
 import { ApplicationsService } from "./applications.service";
 import { CollectionEvidenceService } from "./collection-evidence.service";
 import { EnvironmentalAnalysisController } from "./environmental-analysis.controller";
 import { EnvironmentalAnalysisService } from "./environmental-analysis.service";
 import { EnvironmentalAnalysisSummaryController } from "./environmental-analysis-summary.controller";
-import { EnvironmentalAnalysisSummaryService } from "./environmental-analysis-summary.service";
+import { EnvironmentalAnalysisSummaryModule } from "./environmental-analysis-summary.module";
+import { EnvironmentalAnalysisRankingController } from "./environmental-analysis-ranking.controller";
+import { EnvironmentalAnalysisRankingService } from "./environmental-analysis-ranking.service";
 import { IntegrationsModule } from "../../integrations/integrations.module";
 import { DiscoveryService } from "./discovery.service";
 import { RemovalService } from "./removal.service";
@@ -28,12 +29,20 @@ import { MonitoringIncidentsRepository } from "../../database/repositories/monit
 import { MonitoringIncidentsController } from "./monitoring-incidents.controller";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
 import { MonitoringCycleLock } from "./monitoring-cycle.lock";
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
+import { MonitoringOperationsController } from "./monitoring-operations.controller";
+import { MonitoringOperationsService } from "./monitoring-operations.service";
+import { AuditModule } from "../../shared/audit/audit.module";
 
-export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
+export function createMonitoringScheduler(
+  runner: MonitoringCycleRunner,
+  settings?: MonitoringSettingsRepository,
+) {
   return new MonitoringScheduler(
     getMonitoringScheduleIntervalSeconds(),
     () => runner.run(),
     (skippedAt) => runner.recordDelayedCycle(skippedAt),
+    settings ? () => settings.isPaused() : undefined,
   );
 }
 
@@ -41,19 +50,22 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
   imports: [
     TypeOrmModule.forFeature([ApplicationEntity, MonitoringIncidentEntity]),
     IntegrationsModule,
+    EnvironmentalAnalysisSummaryModule,
+    AuditModule,
   ],
   controllers: [
     ApplicationsController,
     EnvironmentalAnalysisController,
     EnvironmentalAnalysisSummaryController,
+    EnvironmentalAnalysisRankingController,
     MonitoringIncidentsController,
+    MonitoringOperationsController,
   ],
   providers: [
-    ApplicationsRepository,
     ApplicationsService,
     CollectionEvidenceService,
     EnvironmentalAnalysisService,
-    EnvironmentalAnalysisSummaryService,
+    EnvironmentalAnalysisRankingService,
     DiscoveryService,
     RemovalService,
     MetadataSyncService,
@@ -64,11 +76,12 @@ export function createMonitoringScheduler(runner: MonitoringCycleRunner) {
     MonitoringCycleRunner,
     MonitoringIncidentsRepository,
     MonitoringIncidentsService,
+    MonitoringOperationsService,
     MonitoringCycleLock,
     {
       provide: MonitoringScheduler,
       useFactory: createMonitoringScheduler,
-      inject: [MonitoringCycleRunner],
+      inject: [MonitoringCycleRunner, MonitoringSettingsRepository],
     },
     {
       provide: "MONITORING_METRICS_CONCURRENCY",

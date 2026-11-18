@@ -215,6 +215,11 @@
   "evidenceFilteredCount": "{{count}} von {{total}} Metriken",
   "analysisCloseDetails": "Details schlie\u00dfen",
   "methodologyFullPage": "Vollständige Methodik ansehen",
+  "exploreHistory": "Verlauf untersuchen",
+  "viewApplicationDetails": "Anwendungsdetails anzeigen",
+  "operationalOverview": "Anwendungsstatus",
+  "operationalDescription": "Aktuellen Status, Standort und empfangene Betriebsdaten prüfen.",
+  "environmentalSummaryNote": "Energie und CO₂e fassen den gewählten Zeitraum zusammen. Untersuchen Sie ihre Entwicklung im Verlauf.",
   "historyContribution": "Beitrag",
   "historyViewCollection": "Erfassung und Metriken ansehen",
   "historyTableNote": "Suche, Filter und Seitennavigation ändern weder Diagramm noch Summen.",
@@ -230,5 +235,11 @@
   "historyMethodology": "Methodik",
   "historyAction": "Aktion",
   "historyReturnNote": "Zurück stellt Kriterien und Seite des Verlaufs wieder her und fokussiert das untersuchte Intervall.",
-  "historyRecalculationPreview": "Neuberechnungsvorschau"
+  "historyRecalculationPreview": "Neuberechnungsvorschau",
+  "analysisEquivalentFactor": "Äquivalenter Faktor",
+  "analysisFactorExplanation": "Die Emissionen ergeben sich aus der Summe der Berechnungen je Intervall. Der äquivalente Faktor fasst die verwendeten Faktoren zusammen, gewichtet nach der Energie mit berechnetem CO₂e.",
+  "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e",
+  "periods.month": "Aktueller Monat (UTC)",
+  "periods.custom": "Benutzerdefiniertes Intervall",
+  "helpHistoryFilters": "Wählen Sie Anwendung, Zeitraum und Granularität. Das abgefragte Intervall und die Zeitzone stehen in den Filtern; Kennzahlen und Diagramm verwenden denselben Zeitraum."
 }

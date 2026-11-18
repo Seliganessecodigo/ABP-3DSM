@@ -34,7 +34,7 @@ test('solicita pelo botão e compara original e prévia no mesmo escopo', async 
 
   await page.goto('/administration/calculations')
   await expect(page.getByRole('heading', { level: 1, name: 'Administração' })).toBeVisible()
-  await expect(page.getByText('Monitoramento, parâmetros, auditoria e controle de acesso • Área restrita')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ajuda desta tela', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Modelo de estimativa' })).toBeVisible()
   await expect(page.getByText('Energia (kWh) = potência (kW) × duração (h)')).toBeVisible()
   await expect(page.getByText('CO₂e (kg) = energia (kWh) × fator regional (gCO₂e/kWh) ÷ 1000')).toBeVisible()

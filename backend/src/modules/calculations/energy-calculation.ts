@@ -48,6 +48,9 @@ export interface EnergyCalculationResult {
 const ISO_TIMESTAMP_WITH_OFFSET =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|([+-])(\d{2}):(\d{2}))$/
 
+const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const
+const GREGORIAN_CYCLE_MILLISECONDS = 146_097 * 86_400_000
+
 const METRIC_NAMES: readonly EnergyMetricName[] = [
   'cpuPercent',
   'memoryGb',
@@ -86,21 +89,17 @@ export function parseZonedTimestampNanoseconds(value: unknown): bigint | null {
     return null
   }
 
-  const localDate = new Date(0)
-  localDate.setUTCFullYear(year, month - 1, day)
-  localDate.setUTCHours(hour, minute, second, 0)
-  if (
-    localDate.getUTCFullYear() !== year ||
-    localDate.getUTCMonth() !== month - 1 ||
-    localDate.getUTCDate() !== day
-  ) {
-    return null
-  }
+  const leapFebruary = month === 2 && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+  if (day > (leapFebruary ? 29 : MONTH_DAYS[month - 1])) return null
+
+  // Date.UTC maps years 0–99 to 1900–1999; one Gregorian cycle preserves their calendar.
+  const localMilliseconds = Date.UTC(year < 100 ? year + 400 : year, month - 1, day, hour, minute, second)
+    - (year < 100 ? GREGORIAN_CYCLE_MILLISECONDS : 0)
 
   const offsetSeconds =
     (offsetSign === '-' ? -1 : 1) * (offsetHour * 3600 + offsetMinute * 60)
   const localNanoseconds =
-    BigInt(localDate.getTime()) * 1_000_000n +
+    BigInt(localMilliseconds) * 1_000_000n +
     BigInt(fractionText.padEnd(9, '0') || '0')
   const offsetNanoseconds = BigInt(offsetSeconds) * 1_000_000_000n
 

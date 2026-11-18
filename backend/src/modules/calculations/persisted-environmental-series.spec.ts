@@ -1,7 +1,26 @@
 import { aggregatePersistedEnvironmentalSeries, countEnvironmentalSeriesBuckets } from './persisted-environmental-series'
 import type { PersistedEnvironmentalInterval } from './persisted-environmental-period'
+import * as timestamps from './energy-calculation'
 
 describe('série ambiental persistida por calendário UTC', () => {
+  it('parses each observation once instead of converting its dates again for every segment', () => {
+    const start = Date.parse('2026-10-01T00:00:00.000Z')
+    const observations: PersistedEnvironmentalInterval[] = Array.from({ length: 1000 }, (_, index) => ({
+      id: `minute-${index}`,
+      intervalStart: new Date(start + index * 60_000).toISOString(),
+      intervalEnd: new Date(start + (index + 1) * 60_000).toISOString(),
+      collectedAt: new Date(start + (index + 1) * 60_000).toISOString(),
+      energyKwh: '1', carbonGrams: '85', calculationEvidence: null,
+    }))
+    const parse = jest.spyOn(timestamps, 'parseZonedTimestampNanoseconds')
+    try {
+      const result = aggregatePersistedEnvironmentalSeries('2026-10-01T00:00:00.000Z', '2026-10-02T00:00:00.000Z', 'hour', observations)
+      expect(result.totals.energy.value).toBe(1000)
+      expect(result.totals.emissions.value).toBe(85000)
+      expect(result.coverage.energy).toBe(1000 / 1440)
+      expect(parse.mock.calls.length).toBeLessThanOrEqual(3 * observations.length + 20)
+    } finally { parse.mockRestore() }
+  })
   it('separa a travessia da meia-noite do dia bissexto em buckets diários parciais', () => {
     const observation: PersistedEnvironmentalInterval = {
       id: 'leap-day-collection',

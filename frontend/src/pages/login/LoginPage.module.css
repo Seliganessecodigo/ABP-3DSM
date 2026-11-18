@@ -21,5 +21,8 @@
 .google:disabled { opacity: .65; cursor: wait; }
 .cancel { margin-top: 12px; border: 0; padding: 8px 0; color: var(--accent-default); background: transparent; font: inherit; cursor: pointer; }
 .error { margin: 0; color: var(--error-foreground); font-size: 12px; }
+.setupCard { min-height: 0; }
+.hint { margin: -12px 0 0; color: var(--text-secondary); font-size: 12px; }
+.backLink { display: inline-block; margin-top: 24px; color: var(--accent-default); font-size: 14px; }
 @media (max-width: 640px) { .page { min-height: calc(100vh - 71px); padding: 27px 18px 32px; } .watermark { top: 8px; right: 10px; width: 145px; } .heading { padding-inline: 6px; } .heading h1 { font-size: 24px; } .card { min-height: 0; margin-top: 34px; padding: 32px 23px 36px; } .card h2 { font-size: 24px; } .card > p { margin-bottom: 27px; } .card form { gap: 19px; } }
 

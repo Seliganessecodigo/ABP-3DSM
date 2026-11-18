@@ -38,5 +38,6 @@
   "namePlaceholder": "Inserisci parte di un nome o ID...", "countryPlaceholder": "Inserisci un paese...",
   "regionPlaceholder": "Inserisci una regione...", "cityPlaceholder": "Inserisci una città...",
   "filterCombinationNote": "La ricerca generale e i filtri attivi vengono combinati.",
-  "clearPreservesSort": "La cancellazione dei filtri mantiene l’ordinamento corrente.", "applyFilters": "Applica filtri"
+  "clearPreservesSort": "La cancellazione dei filtri mantiene l’ordinamento corrente.", "applyFilters": "Applica filtri",
+  "helpActions": "Usa Dettagli per consultare lo stato e le metriche attuali. Usa Cronologia per seguire l’andamento di energia e CO₂e dell’applicazione."
 }

@@ -18,7 +18,16 @@ export class MonitoringScheduler
     private readonly recordSkippedCycle?: (
       skippedAt: Date,
     ) => Promise<void> | void,
+    private readonly isPaused?: () => Promise<boolean>,
   ) {}
+
+  get isActive(): boolean {
+    return this.timer !== undefined
+  }
+
+  get interval(): number {
+    return this.intervalSeconds
+  }
 
   onApplicationBootstrap(): void {
     this.start();
@@ -42,6 +51,12 @@ export class MonitoringScheduler
   }
 
   private async runScheduledCycle(): Promise<void> {
+    try {
+      if (await this.isPaused?.()) return
+    } catch {
+      this.logger.error("Monitoring state could not be read; cycle was skipped.");
+      return;
+    }
     if (this.cycleInProgress) {
       this.pendingSkippedAt = new Date();
       return;

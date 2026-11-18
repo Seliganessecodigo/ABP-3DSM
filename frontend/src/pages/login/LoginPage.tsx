@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import styles from './LoginPage.module.css'
 import greenErMark from '../../assets/green-er-mark.png'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -109,7 +110,10 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
   }
   return <main className={styles.page}>
     <img className={styles.watermark} src={greenErMark} alt="" />
-    <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><h1>{t('heading')}</h1></header>
+    <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><div className="heading-title"><h1>{t('heading')}</h1><PageHelp steps={[
+  { title: t('heading'), description: t('description'), target: 'main form' },
+  { title: t('totpChallengeHeading'), description: t('totpChallengeDescription'), target: 'main form' },
+]} /></div></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading">{t('submit')}</h2>
       <p>{t('description')}</p>

@@ -27,6 +27,10 @@ MONITORING_METRICS_CONCURRENCY=2
 
 Node.js 24+, npm, Docker Compose v2 चाहिए। `.env.example` को `.env` में कॉपी करके `npm run dev` चलाएँ। Compose migration और खोज करता है; स्रोत विफलता API आरंभ नहीं रोकती। निमंत्रण/पुष्टि हेतु SMTP सेट करें। पहला Admin: `backend/` में `organizations:create-invitation`, चर `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`। सार्वभौमिक production Admin नहीं है।
 
+साइट पर पहली पहुँच के दो चरण हैं: `/setup-admin` पर आमंत्रण खोलें, नाम और ईमेल दर्ज करें, फिर `/confirm-email` पर पुष्टि खोलकर पासवर्ड बनाएँ। इसके बाद प्रवेश करके व्यवस्थापक के लिए अनिवार्य ऑथेंटिकेटर ऐप सेट करें। अमान्य, समाप्त या इस्तेमाल किए गए लिंक पर नया लिंक माँगने का निर्देश मिलता है; टोकन URL से हटकर केवल पृष्ठ की मेमोरी में रहते हैं। पृष्ठ दोबारा लोड करने पर मूल ईमेल लिंक फिर खोलें। SMTP को वास्तविक मेलबॉक्स में संदेश पहुँचाने चाहिए; `.test` पते केवल उदाहरण हैं। Azure में ऑपरेटर कॉन्फ़िगर किए गए बैकएंड कंसोल से `npm run organizations:create-invitation:prod` चलाकर पहला आमंत्रण भेजता है; आमंत्रित व्यक्ति साइट पर पंजीकरण पूरा करता है। `APP_BASE_URL` प्रकाशित फ्रंटएंड का पता होना चाहिए। `frontend/public/staticwebapp.config.json` होस्ट किए गए मार्गों को सीधे खोलने देता है।
+
+**उपयोगकर्ता** (`/administration/users`) में व्यवस्थापक संगठन के खाते देख सकते हैं और Google निमंत्रण भेज सकते हैं। **मेरा Google खाता जोड़ें** फ़ॉर्म में आपकी जानकारी भरता है। भेजने की पुष्टि करें और उसी ईमेल वाले Google खाते से ईमेल का लिंक खोलें। केवल समान ईमेल से पहचान अपने आप नहीं जुड़ती। नए खाते स्वीकार करने के बाद दिखते हैं; लंबित निमंत्रण खाते नहीं हैं। दोबारा भेजने से पिछला निमंत्रण रद्द होता है। मौजूदा नाम, भूमिका और पासवर्ड सुरक्षित रहते हैं; व्यवस्थापक के लिए TOTP आवश्यक है। टेस्ट परिनियोजन GitHub चर `VITE_GOOGLE_SSO_ENABLED` पढ़ता है। बैकएंड क्रेडेंशियल और URL कॉन्फ़िगर करने के बाद ही `true` करें। `GOOGLE_CALLBACK_URL` सार्वजनिक API पते के बाद `/auth/sso/google/callback` है और `SSO_RETURN_URL` सार्वजनिक फ़्रंटएंड पते के बाद `/sso/callback` है।
+
 ```text
 AUTH_JWT_SECRET
 AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
@@ -72,3 +76,7 @@ Staging `develop` से CI बाद API Azure App Service, frontend Static Web
 ## संबंधित पठन {#related}
 
 [शुरुआत करें](./getting-started) · [API संदर्भ](./reference/api)
+
+## धीमे उत्तरों की जाँच {#response-performance}
+
+डेटाबेस को कारण मानने से पहले पहले बाइट का समय, उत्तर का आकार और निष्पादन योजना की तुलना करें। डैशबोर्ड `/analysis/summary` को `includeProvenance=false` के साथ पढ़ता है: मान, कवरेज और समय शृंखला सुरक्षित रहते हैं; उत्तर `provenanceIncluded=false` दिखाता है और स्रोत सूचियाँ नहीं भेजता। पूरा अनुरोध अब भी डिफ़ॉल्ट है। संक्षिप्त प्रक्षेपण हर संग्रह के गुणांक नहीं भेजता; गणना अंतरालों को क्रम में लगाती है, इसलिए डेटाबेस में दोबारा क्रमबद्ध करने की ज़रूरत नहीं रहती।

@@ -1,3 +1,4 @@
+import { VersionMonitoringControl1793600000000 } from '../src/database/migrations/1793600000000-VersionMonitoringControl'
 import 'reflect-metadata'
 import { Test } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
@@ -27,6 +28,7 @@ import { UserPreferences1793200000000 } from '../src/database/migrations/1793200
 import { AuditActorIdentity1793300000000 } from '../src/database/migrations/1793300000000-AuditActorIdentity'
 import { UserAccountStatus1793400000000 } from '../src/database/migrations/1793400000000-UserAccountStatus'
 import { PasswordRecovery1793500000000 } from '../src/database/migrations/1793500000000-PasswordRecovery'
+import { MonitoringPauseControl1793500000000 } from '../src/database/migrations/1793500000000-MonitoringPauseControl'
 
 /** Real application/adapters/migrations; only the external HTTP sources and email are local fixtures. */
 export async function createQualityFixture(port = 0, collectBeforeListening = false) {
@@ -105,13 +107,15 @@ export async function createQualityFixture(port = 0, collectBeforeListening = fa
         AuthenticationAndOrganizations1791400000000, AdminTotpAuthentication1791410000000,
         SsoAuthentication1791420000000, UserPreferences1793200000000,
         AuditActorIdentity1793300000000, UserAccountStatus1793400000000,
-        PasswordRecovery1793500000000],
+        PasswordRecovery1793500000000,
+        MonitoringPauseControl1793500000000,
+        VersionMonitoringControl1793600000000],
     })
     await database.initialize()
     await database.runMigrations()
     const module = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(DataSource).useValue(database)
-      .overrideProvider(MonitoringScheduler).useValue({})
+      .overrideProvider(MonitoringScheduler).useValue({ isActive: true, interval: 60 })
       .overrideProvider(EMAIL_DELIVERY).useValue({
         send: async (to: string, subject: string, text: string) => { emails.push({ to, subject, text }) },
       }).compile()

@@ -38,5 +38,6 @@
   "namePlaceholder": "输入名称或标识符片段...", "countryPlaceholder": "输入国家...",
   "regionPlaceholder": "输入区域...", "cityPlaceholder": "输入城市...",
   "filterCombinationNote": "全局搜索与当前筛选条件会共同生效。",
-  "clearPreservesSort": "清除筛选条件不会改变当前排序。", "applyFilters": "应用筛选"
+  "clearPreservesSort": "清除筛选条件不会改变当前排序。", "applyFilters": "应用筛选",
+  "helpActions": "在详情中查看当前状态和指标。在历史中查看应用的能源和CO₂e变化趋势。"
 }

@@ -1,7 +1,7 @@
 /* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
+import { EntityManager, In, QueryDeepPartialEntity, Repository } from 'typeorm'
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationState } from '../../database/entities/application-state'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
@@ -17,12 +17,32 @@ export class ApplicationsRepository {
     private readonly applications: Repository<ApplicationEntity>,
   ) {}
 
+  async monitoringHealth() {
+    const result = await this.applications.createQueryBuilder('application')
+      .select('COUNT(*) FILTER (WHERE application.removedAt IS NULL)', 'knownCount')
+      .addSelect('COUNT(*) FILTER (WHERE application.removedAt IS NULL AND application.isStale = true)', 'staleCount')
+      .addSelect("COUNT(*) FILTER (WHERE application.removedAt IS NULL AND application.stateReason = 'MONITORING_CYCLE_DELAYED')", 'delayedCount')
+      .addSelect('MAX(application.lastObservationAt)', 'lastObservationAt')
+      .getRawOne<{ knownCount: string; staleCount: string; delayedCount: string; lastObservationAt: Date | null }>()
+    return {
+      knownCount: Number(result?.knownCount ?? 0),
+      staleCount: Number(result?.staleCount ?? 0),
+      delayedCount: Number(result?.delayedCount ?? 0),
+      lastObservationAt: result?.lastObservationAt ?? null,
+    }
+  }
+
   findAll() {
     return this.applications.find()
   }
 
   findById(id: string) {
     return this.applications.findOneBy({ id })
+  }
+
+  findByIds(ids: readonly string[]) {
+    if (ids.length === 0) return Promise.resolve([])
+    return this.applications.findBy({ id: In([...ids]) })
   }
 
   findByIdForUpdate(manager: EntityManager, id: string) {

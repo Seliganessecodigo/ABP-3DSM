@@ -38,5 +38,6 @@
   "namePlaceholder": "Teil eines Namens oder einer Kennung...", "countryPlaceholder": "Land eingeben...",
   "regionPlaceholder": "Region eingeben...", "cityPlaceholder": "Stadt eingeben...",
   "filterCombinationNote": "Allgemeine Suche und aktive Filter werden kombiniert.",
-  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden"
+  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden",
+  "helpActions": "Unter Details sehen Sie den aktuellen Zustand und die Messwerte. Unter Verlauf verfolgen Sie Energie und CO₂e der Anwendung im Zeitverlauf."
 }

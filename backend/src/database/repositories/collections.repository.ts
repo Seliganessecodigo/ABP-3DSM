@@ -116,10 +116,38 @@ export class CollectionsRepository {
       .getMany();
   }
 
+  async findForRegionalSimulation(
+    applicationId: string,
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<PersistedEnvironmentalInterval[]> {
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<EnvironmentalCollectionRow[]>(
+      `SELECT id,
+        to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
+        to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
+        to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+        "energyKwh", "carbonGrams", "calculationEvidence"
+      FROM collections
+      WHERE "applicationId" = $1
+        AND "intervalStart" < $3::timestamptz
+        AND "intervalEnd" > $2::timestamptz
+      ORDER BY "intervalStart" ASC, id ASC
+      LIMIT 10001`,
+      [
+        applicationId,
+        formatUtcTimestamp(startBound),
+        formatUtcTimestamp(endBound),
+      ],
+    )
+  }
+
   async findEnvironmentalByApplicationsAndPeriod(
     applicationIds: readonly string[],
     periodStartNanoseconds: bigint,
     periodEndNanoseconds: bigint,
+    options: { includeProvenance?: boolean } = {},
   ): Promise<
     (PersistedEnvironmentalInterval & { readonly applicationId: string })[]
   > {
@@ -131,17 +159,64 @@ export class CollectionsRepository {
         to_char("intervalStart" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalStart",
         to_char("intervalEnd" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "intervalEnd",
         to_char("collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
-        "energyKwh", "carbonGrams", "calculationEvidence"
+        "energyKwh", "carbonGrams",
+        ${options.includeProvenance === false
+          ? `NULL::jsonb AS "calculationEvidence",
+            CASE WHEN "energyKwh" IS NOT NULL AND "energyKwh" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{energy,reasons}' END AS "energyReasons",
+            CASE WHEN "carbonGrams" IS NOT NULL AND "carbonGrams" != 'NaN'::numeric THEN NULL
+              ELSE "calculationEvidence" #> '{carbon,reasons}' END AS "emissionsReasons"`
+          : '"calculationEvidence"'}
       FROM collections
       WHERE "applicationId" = ANY($1::text[])
         AND "intervalStart" < $3::timestamptz
-        AND "intervalEnd" > $2::timestamptz
-      ORDER BY "applicationId" ASC, "intervalStart" ASC, id ASC`,
+        AND "intervalEnd" > $2::timestamptz`,
       [
         applicationIds,
         formatUtcTimestamp(startBound),
         formatUtcTimestamp(endBound),
       ],
+    )
+  }
+
+  async findComparisonMetricsByApplicationsAndPeriod(
+    applicationIds: readonly string[],
+    periodStartNanoseconds: bigint,
+    periodEndNanoseconds: bigint,
+  ): Promise<ComparisonMetricRow[]> {
+    if (applicationIds.length === 0) return []
+    const startBound = floorToMicrosecond(periodStartNanoseconds)
+    const endBound = ceilToMicrosecond(periodEndNanoseconds)
+    return this.repository.manager.query<ComparisonMetricRow[]>(
+      `WITH metric_rows AS (
+        SELECT collection."applicationId", collection.id,
+          to_char(collection."collectedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "collectedAt",
+          metric.key AS "metricKey",
+          CASE WHEN jsonb_typeof(collection.metrics -> metric.key) = 'number'
+            THEN collection.metrics ->> metric.key END AS value,
+          COALESCE(collection."metricUnits" ->> metric.key, metric.unit) AS unit,
+          jsonb_typeof(collection.metrics -> metric.key) AS valueType
+        FROM collections collection
+        CROSS JOIN (VALUES
+          ('cpuPercent', '%'),
+          ('memoryGb', 'GB'),
+          ('diskGb', 'GB'),
+          ('networkGb', 'GB')
+        ) AS metric(key, unit)
+        WHERE collection."applicationId" = ANY($1::text[])
+          AND collection."collectedAt" >= $2::timestamptz
+          AND collection."collectedAt" < $3::timestamptz
+      )
+      SELECT DISTINCT ON ("applicationId", "metricKey")
+        "applicationId", "metricKey", value, unit, "collectedAt",
+        CASE WHEN valueType = 'number' THEN 'available'
+          WHEN valueType IS NULL THEN 'missing'
+          ELSE 'invalid' END AS status
+      FROM metric_rows
+      ORDER BY "applicationId", "metricKey",
+        CASE WHEN valueType = 'number' THEN 0 ELSE 1 END,
+        "collectedAt" DESC, id DESC`,
+      [applicationIds, formatUtcTimestamp(startBound), formatUtcTimestamp(endBound)],
     )
   }
 
@@ -222,6 +297,15 @@ interface EnvironmentalCollectionRow {
   energyKwh: string | null
   carbonGrams: string | null
   calculationEvidence: PersistedEnvironmentalInterval['calculationEvidence']
+}
+
+export interface ComparisonMetricRow {
+  applicationId: string
+  metricKey: string
+  value: string | null
+  unit: string
+  collectedAt: string
+  status: 'available' | 'missing' | 'invalid'
 }
 
 export type EnvironmentalBundle = Omit<

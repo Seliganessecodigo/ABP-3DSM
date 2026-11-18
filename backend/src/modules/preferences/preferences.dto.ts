@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { PreferencePeriodDto } from './preference-period'
 
 export const preferenceTabs = ['energy', 'emissions', 'coverage', 'analysis'] as const
 export type PreferenceTab = typeof preferenceTabs[number]
@@ -7,15 +8,18 @@ export class LimitPreferenceDto {
   @ApiProperty({ minimum: 0 }) threshold!: number
   @ApiProperty() alertsEnabled!: boolean
   @ApiProperty({ enum: ['application'] }) scope!: 'application'
-  @ApiProperty({ enum: ['month'] }) referencePeriod!: 'month'
+  @ApiPropertyOptional({ enum: ['month'], deprecated: true }) referencePeriod?: 'month'
+  @ApiPropertyOptional({ type: PreferencePeriodDto }) period?: PreferencePeriodDto
   @ApiProperty({ enum: ['kWh', 'kgCO2e'] }) unit!: 'kWh' | 'kgCO2e'
 }
 export class CoveragePreferenceDto {
+  @ApiPropertyOptional({ type: PreferencePeriodDto }) period?: PreferencePeriodDto
   @ApiProperty({ minimum: 0, maximum: 100 }) thresholdPercent!: number
   @ApiProperty() alertsEnabled!: boolean
 }
 export class AnalysisPreferenceDto {
-  @ApiProperty({ enum: [7, 30] }) periodDays!: 7 | 30
+  @ApiPropertyOptional({ enum: [7, 30], deprecated: true }) periodDays?: 7 | 30
+  @ApiPropertyOptional({ type: PreferencePeriodDto }) period?: PreferencePeriodDto
   @ApiProperty({ enum: ['hour', 'day'] }) granularity!: 'hour' | 'day'
 }
 export type PreferenceValue = LimitPreferenceDto | CoveragePreferenceDto | AnalysisPreferenceDto

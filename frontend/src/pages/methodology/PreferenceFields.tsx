@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { PreferenceDraft, PreferenceTab } from './usePreferenceDraft.ts'
 import styles from './Preferences.module.css'
+import { PreferencePeriodFields } from './PreferencePeriodFields.tsx'
 
 export function PreferenceFields({ tab, draft, dirty, disabled, onUpdate }: Readonly<{
   tab: PreferenceTab; draft: PreferenceDraft; dirty: boolean; disabled: boolean; onUpdate: (patch: Partial<PreferenceDraft>) => void
@@ -11,7 +12,6 @@ export function PreferenceFields({ tab, draft, dirty, disabled, onUpdate }: Read
     {(tab === 'energy' || tab === 'emissions') && <>
       <label>{t('scope')}<select className="form-control form-control--large"><option>{t('perApplication')}</option></select></label>
       <div className={styles.fields}><label>{t('limitEditing')}<input className="form-control form-control--large" type="number" min="0" step="any" required value={draft.value} onChange={(event) => onUpdate({ value: event.target.value })} /></label><label>{t('unit')}<select className="form-control form-control--large" defaultValue={unit} key={unit}><option>{unit}</option></select></label></div>
-      <label>{t('referencePeriod')}<select className="form-control form-control--large"><option>{t('monthly')}</option></select></label>
       <label className={styles.toggle}><input type="checkbox" role="switch" checked={draft.enabled} onChange={(event) => onUpdate({ enabled: event.target.checked })} /><span aria-hidden="true" />{t('highlight')}</label>
     </>}
     {tab === 'coverage' && <>
@@ -20,9 +20,9 @@ export function PreferenceFields({ tab, draft, dirty, disabled, onUpdate }: Read
       <p className={styles.formNote}>{t('coverageNote')}</p>
     </>}
     {tab === 'analysis' && <>
-      <label>{t('periodEditing')}<select className="form-control form-control--large" value={draft.period} onChange={(event) => onUpdate({ period: event.target.value === '7' ? '7' : '30' })}><option value="7">{t('days', { count: 7 })}</option><option value="30">{t('days', { count: 30 })}</option></select></label>
       <label>{t('granularityEditing')}<select className="form-control form-control--large" value={draft.granularity} onChange={(event) => onUpdate({ granularity: event.target.value === 'hour' ? 'hour' : 'day' })}><option value="hour">{t('hour')}</option><option value="day">{t('day')}</option></select></label>
       <p className={styles.editNote}>{dirty && <span className={styles.badge}>{t('editing')}</span>}{t('previewFollows')}</p>
     </>}
+    <PreferencePeriodFields tab={tab} draft={draft} onUpdate={onUpdate} />
   </fieldset>
 }

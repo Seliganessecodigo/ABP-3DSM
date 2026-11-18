@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common'
 import { randomUUID } from 'node:crypto'
 import { CarbonIntensityAdapter } from '../../integrations/carbon-intensity.adapter'
+import { IntegrationError } from '../../integrations/integration-error'
 import { ApplicationsRepository } from './applications.repository'
 import { CollectionsRepository } from '../../database/repositories/collections.repository'
 import { ApplicationEventsRepository } from '../../database/repositories/application-events.repository'
@@ -14,7 +15,13 @@ import { parseZonedTimestampNanoseconds, calculateObservationEnergy } from '../c
 import { SIMPLIFIED_ENERGY_MODEL_V1 } from '../calculations/energy-model'
 import { calculateCarbonEmission, type CarbonFactorSnapshotInput } from '../calculations/carbon-emission'
 import type { PersistedEnvironmentalInterval } from '../calculations/persisted-environmental-period'
-import { formatUtcTimestamp, summarizePersistedEnvironmentalPeriod } from '../calculations/persisted-environmental-period'
+import {
+  formatUtcTimestamp,
+  projectPersistedEnvironmentalInterval,
+  resolvePersistedEnvironmentalSegments,
+  summarizePersistedEnvironmentalPeriod,
+} from '../calculations/persisted-environmental-period'
+import { calculateRegionalSimulation } from '../calculations/regional-simulation'
 import { EnvironmentalAnalysisDto } from './environmental-analysis.dto'
 import { EnvironmentalRecalculationPreviewDto } from './environmental-recalculation-preview.dto'
 import {
@@ -29,6 +36,7 @@ import {
   EnvironmentalAnalysisSeriesDto,
 } from './environmental-analysis-series.dto'
 import { buildEnvironmentalAnalysisSeriesEvents } from '../calculations/persisted-environmental-series-events'
+import { RegionalSimulationResultDto } from './regional-simulation.dto'
 
 @Injectable()
 export class EnvironmentalAnalysisService {
@@ -203,6 +211,141 @@ export class EnvironmentalAnalysisService {
       throw new ServiceUnavailableException({
         code: "APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE",
       });
+    }
+  }
+
+  async simulateRegionalChange(
+    applicationId: string,
+    from: string,
+    to: string,
+    destinationRegionCode: string,
+  ): Promise<RegionalSimulationResultDto> {
+    if (!applicationId.trim()) throw new BadRequestException({ code: 'INVALID_APPLICATION_ID' })
+    if (typeof destinationRegionCode !== 'string' || !destinationRegionCode.trim()) {
+      throw new BadRequestException({ code: 'INVALID_DESTINATION_REGION' })
+    }
+    const start = parseZonedTimestampNanoseconds(from)
+    const end = parseZonedTimestampNanoseconds(to)
+    if (start === null || end === null || end <= start) {
+      throw new BadRequestException({ code: 'INVALID_ANALYSIS_PERIOD' })
+    }
+    if (end - start > 30n * 24n * 60n * 60n * 1_000_000_000n) {
+      throw new BadRequestException({ code: 'REGIONAL_SIMULATION_PERIOD_LIMIT_EXCEEDED' })
+    }
+
+    try {
+      const application = await this.applications.findById(applicationId)
+      if (!application) throw new NotFoundException({ code: 'APPLICATION_NOT_FOUND' })
+      const observations = await this.collections.findForRegionalSimulation(applicationId, start, end)
+      if (observations.length > 10_000) {
+        throw new BadRequestException({ code: 'REGIONAL_SIMULATION_OBSERVATION_LIMIT_EXCEEDED' })
+      }
+
+      const segments = resolvePersistedEnvironmentalSegments(from, to, observations).map((segment) => {
+        const segmentFrom = formatUtcTimestamp(segment.start)
+        const segmentTo = formatUtcTimestamp(segment.end)
+        if (segment.observation === null) {
+          return {
+            interval: { from: segmentFrom, to: segmentTo },
+            energy: { value: null, reasons: [{ code: 'NO_OBSERVATION' }] },
+            factorSnapshot: null,
+          }
+        }
+        const projected = projectPersistedEnvironmentalInterval(segment.observation, segmentFrom, segmentTo)
+        return {
+          interval: projected.interval,
+          energy: projected.energy,
+          factorSnapshot: projected.factorSnapshot,
+        }
+      })
+      const hasCalculableEnergy = segments.some(
+        (segment) => segment.energy.value !== null && Number.isFinite(segment.energy.value) && segment.energy.value >= 0,
+      )
+      let destinationFactor: {
+        regionCode: string
+        country: string
+        region: string
+        city: string | null
+        intensity: number
+        unit: string
+        queriedAt: string
+      } | null = null
+      let destinationFailureCode: string | undefined
+      if (hasCalculableEnergy) {
+        try {
+          const factor = await this.carbonIntensity.fetchIntensity(destinationRegionCode)
+          destinationFactor = {
+            regionCode: factor.regionCode,
+            country: factor.country,
+            region: factor.region,
+            city: factor.city,
+            intensity: factor.intensity,
+            unit: factor.unit,
+            queriedAt: factor.queriedAt.toISOString(),
+          }
+        } catch (error) {
+          destinationFailureCode = error instanceof IntegrationError
+            ? error.status === 404
+              ? 'DESTINATION_REGION_NOT_FOUND'
+              : error.code === 'INVALID_UPSTREAM_RESPONSE'
+                ? 'DESTINATION_FACTOR_INVALID'
+                : 'DESTINATION_FACTOR_UNAVAILABLE'
+            : 'DESTINATION_FACTOR_UNAVAILABLE'
+        }
+      }
+
+      const simulation = calculateRegionalSimulation({
+        from,
+        to,
+        destinationRegionCode,
+        segments,
+        destinationFactor,
+        destinationFailureCode,
+      })
+      const status = simulation.energy.value === null
+        ? 'empty'
+        : simulation.coverage.energy < 1 ||
+            simulation.coverage.reference < simulation.coverage.energy ||
+            simulation.coverage.destination < simulation.coverage.energy
+          ? 'partial'
+          : 'available'
+      const factorDto = (factor: {
+        readonly id?: string | null
+        readonly version?: string | null
+        readonly regionCode: string | null
+        readonly country: string | null
+        readonly region: string | null
+        readonly city: string | null
+        readonly intensity: number | null
+        readonly unit: string | null
+        readonly queriedAt: string | null
+      }) => ({
+        id: factor.id ?? null,
+        version: factor.version ?? null,
+        regionCode: factor.regionCode,
+        country: factor.country,
+        region: factor.region,
+        city: factor.city,
+        intensity: factor.intensity,
+        unit: factor.unit,
+        queriedAt: factor.queriedAt,
+      })
+      return {
+        status,
+        applicationId,
+        destinationRegionCode,
+        period: simulation.period,
+        energy: simulation.energy,
+        reference: simulation.reference.emissions,
+        referenceFactors: simulation.reference.factorSnapshots.map(factorDto),
+        destinationFactor: destinationFactor ? factorDto(destinationFactor) : null,
+        destination: simulation.destination.emissions,
+        coverage: simulation.coverage,
+        difference: simulation.difference,
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) throw error
+      throw new ServiceUnavailableException({ code: 'REGIONAL_SIMULATION_UNAVAILABLE' })
     }
   }
 

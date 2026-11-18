@@ -215,6 +215,11 @@
   "evidenceFilteredCount": "{{count}} di {{total}} metriche",
   "analysisCloseDetails": "Chiudi dettagli",
   "methodologyFullPage": "Visualizza la metodologia completa",
+  "exploreHistory": "Esplora lo storico",
+  "viewApplicationDetails": "Visualizza i dettagli dell’applicazione",
+  "operationalOverview": "Stato dell’applicazione",
+  "operationalDescription": "Consulta lo stato attuale, la posizione e le evidenze operative ricevute.",
+  "environmentalSummaryNote": "Energia e CO₂e riassumono il periodo selezionato. Esplora il loro andamento nello storico.",
   "historyContribution": "Contributo",
   "historyViewCollection": "Visualizza raccolta e metriche",
   "historyTableNote": "Ricerca, filtri e paginazione non modificano il grafico né i totali.",
@@ -230,5 +235,11 @@
   "historyMethodology": "Metodologia",
   "historyAction": "Azione",
   "historyReturnNote": "Il ritorno ripristina criteri e pagina della cronologia, con il focus sull’intervallo esaminato.",
-  "historyRecalculationPreview": "Anteprima del ricalcolo"
+  "historyRecalculationPreview": "Anteprima del ricalcolo",
+  "analysisEquivalentFactor": "Fattore equivalente",
+  "analysisFactorExplanation": "Le emissioni sono la somma dei calcoli di ogni intervallo. Il fattore equivalente riassume i fattori applicati, ponderati per l’energia con CO₂e calcolato.",
+  "analysisEnergyWithEmissions": "Energia con CO₂e calcolato",
+  "periods.month": "Mese corrente (UTC)",
+  "periods.custom": "Intervallo personalizzato",
+  "helpHistoryFilters": "Seleziona applicazione, periodo e granularità. L’intervallo consultato e il fuso orario sono nei filtri; gli indicatori e il grafico usano lo stesso periodo."
 }

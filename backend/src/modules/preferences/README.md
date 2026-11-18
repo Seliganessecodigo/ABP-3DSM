@@ -1,47 +1,32 @@
-# Preferências pessoais de Metodologia
+# Preferências pessoais e avisos ambientais
 
-Escopo autorizado: página `/methodology`, edição por aba, persistência por usuário e padrões de abertura no detalhe. A autenticação existente (SSO, TOTP do Admin e renovação de sessão) é reutilizada.
+`GET /me/preferences` e `PUT /me/preferences/:tab` exigem JWT e operam somente na conta autenticada. Cada aba retorna `null` ou `{ value, revision, updatedAt }`. O PUT recebe `{ expectedRevision, value }`; revisão 0 cria a preferência e divergência retorna `409 PREFERENCE_CONFLICT`. Formatos inválidos retornam `400 INVALID_PREFERENCE`; indisponibilidade retorna `503 PREFERENCES_UNAVAILABLE`.
 
-## Contrato HTTP
+## Períodos e valores
 
-`GET /me/preferences` e `PUT /me/preferences/:tab` exigem o `AuthenticationGuard` existente. Admin, Analyst e Visitor autenticados consultam/alteram **somente suas próprias preferências de apresentação**. Isso não concede acesso à configuração do sistema. A identidade vem do principal validado no backend, nunca de parâmetros ou corpo. JWT inválido, sessão revogada e usuário inativo/removido seguem as regras de autenticação existentes.
+Todas as abas aceitam `period: { kind }`, com `kind` igual a `24h`, `7d`, `30d`, `90d` ou `month`. Janelas móveis terminam no instante da avaliação; mês começa no primeiro dia em UTC. Intervalos fixos usam `{ kind: "custom", from, to }`, com timestamps RFC 3339 incluindo fuso, início incluído e fim excluído, estritamente posterior ao início. A interface edita datas em UTC.
 
-O GET retorna `energy`, `emissions`, `coverage`, `analysis`. Cada propriedade é `null` quando nunca foi salva, ou `{ value, revision, updatedAt }`. Ausência não cria limites padrão. A revisão inicia em 1 e o instante RFC 3339 é emitido pelo servidor.
-
-O PUT substitui **apenas uma aba** e recebe `{ expectedRevision, value }`. Revisão esperada 0 cria uma preferência ausente; atualizações exigem a revisão lida.
-
-| Aba | `value` |
+| Aba | Formato atual de `value` |
 | --- | --- |
-| `energy` | `{ threshold: number, alertsEnabled: boolean, scope: "application", referencePeriod: "month", unit: "kWh" }` |
-| `emissions` | `{ threshold: number, alertsEnabled: boolean, scope: "application", referencePeriod: "month", unit: "kgCO2e" }` |
-| `coverage` | `{ thresholdPercent: number, alertsEnabled: boolean }` |
-| `analysis` | `{ periodDays: 7 \| 30, granularity: "hour" \| "day" }` |
+| energy | `{ threshold, alertsEnabled, scope: "application", unit: "kWh", period }` |
+| emissions | `{ threshold, alertsEnabled, scope: "application", unit: "kgCO2e", period }` |
+| coverage | `{ thresholdPercent, alertsEnabled, period }` |
+| analysis | `{ granularity: "hour" / "day", period }` |
 
-Limites são finitos e não negativos; percentuais aceitam 0 a 100, incluindo as bordas. Não há teto ambiental arbitrário. Campos desconhecidos, unidades incompatíveis, strings numéricas e corpos parciais são rejeitados. Escopo, unidade e período fixos correspondem às opções do desenho aprovado; não são criadas conversões ou outras opções.
+Limites são finitos e não negativos; cobertura aceita 0 a 100. O formato legado continua aceito: limites com `referencePeriod: "month"`, cobertura sem período e análise com `periodDays: 7 / 30`. Campos antigos e novos não se misturam. Preferências antigas usam o mês corrente nos avisos e seu período original na análise; não há migration de conteúdo JSONB.
 
-Respostas: `200` com preferência salva, `400 INVALID_PREFERENCE`, `401` conforme autenticação existente, `409 PREFERENCE_CONFLICT` para revisão desatualizada e `503 PREFERENCES_UNAVAILABLE` para falha de persistência. Falha nunca equivale a sucesso, ausência ou zero. O OpenAPI é gerado pelos DTOs/decorators do módulo.
+## Avaliação real e prévia
 
-## Persistência
+`GET /me/preferences/alerts` exige JWT, lê apenas as próprias preferências e retorna `{ configured, evaluatedAt, applications }`. Cada aplicação contém `applicationId`, `name` e `evaluations`, com métrica, status, valor, unidade, limite, cobertura, período e limites temporais.
 
-A migration `UserPreferences1793200000000` cria `user_preferences`, com chave por usuário/aba, JSONB, revisão e instante. Não há seed com números do Figma. Escrita, revisão e auditoria antes/depois ocorrem na mesma transação. A trava no usuário serializa inclusive primeiras gravações concorrentes. A auditoria mantém ator, aba, valores, revisão, motivo, resultado e timestamp; a retenção de autoria segue a relação opcional com usuário já existente.
+`POST /me/preferences/alerts/preview` é público e somente de leitura: recebe `{ energy, emissions, coverage }`, cada item nulo ou no formato validado da preferência, e avalia o rascunho sobre dados ambientais públicos. Não lê preferências de terceiros, não salva, não envia e-mail e não altera cálculos. As duas rotas usam o mesmo avaliador no backend. A UI reutiliza o mesmo painel na prévia, catálogo, Dashboard e detalhe; a prévia de série usa o mesmo componente do Dashboard com dados reais.
 
-Execute as migrations habituais antes de iniciar o backend. A reversão remove esta tabela e as preferências salvas; a auditoria permanece.
+Energia e CO₂e são avaliados por aplicação em seus próprios períodos, independentemente dos filtros da análise. O backend converte gCO₂e persistidos para kgCO₂e antes de comparar. Valor estritamente acima do limite gera `exceeded`; igualdade não ultrapassa. Cobertura estritamente abaixo da referência gera aviso. Resultados parciais já acima do limite são suficientes para avisar; abaixo dele são `insufficient-data`. Ausência de valor nunca vira zero. Estados operacionais são independentes.
 
-## Interface
+Períodos iguais são consultados uma única vez por avaliação, com no máximo três períodos distintos. O módulo de agregação somente de leitura é compartilhado sem iniciar outro scheduler. Avisos pedem o resumo sem listas de rastreabilidade, pois só consomem valores e cobertura. A análise pública completa continua disponível. Padrões de período e granularidade preenchem apenas opções ausentes na URL do Dashboard e do detalhe; escolhas explícitas prevalecem.
 
-A consulta permanece pública. Sem sessão, o editor e as prévias podem ser explorados; salvar pede login e não grava dados. Com sessão, a preferência ativa só muda após sucesso. Cancelar restaura o valor ativo ou o exemplo quando não houver preferência. A troca de aba com edição pendente permite continuar, descartar e trocar ou salvar e trocar. Erros mantêm valor ativo, edição e aba de origem. Após conflito, cancelar recarrega a revisão atual. Requisições são canceladas ao desmontar/trocar usuário.
+## Persistência e verificação
 
-No detalhe, período e granularidade salvos preenchem somente parâmetros ausentes na URL. Escolhas feitas durante o carregamento também prevalecem. Falha nessa consulta mantém a análise pública utilizável com os padrões existentes; não modifica resultados ambientais.
+A migration existente `UserPreferences1793200000000` mantém JSONB por usuário/aba, revisão e instante. Escrita, revisão e auditoria ocorrem na mesma transação; a trava no usuário serializa primeiras gravações concorrentes. Não há limites ativos criados automaticamente. Falhas mantêm rascunho e valor ativo separados. Requisições são canceladas na troca de contexto/usuário e respostas antigas não substituem o rascunho atual.
 
-Tabelas e gráfico de Metodologia contêm **dados de exemplo**, identificados na interface. Limites controlam os avisos combinados dessas prévias, separados do estado operacional. Esta tarefa não altera o contrato do catálogo real nem cria agregações mensais, fatores, fórmulas, métricas ou notificações externas. Aplicar esses limites em outras telas exige respeitar o período e o contrato de dados da tela. A metodologia histórica permanece em `/services/:id/methodology`, preservando `collectionId`, resultados e estados de erro/ausência.
-
-## Verificação
-
-Use `TEST_DATABASE_URL` exclusivamente com PostgreSQL isolado. O teste aplica migrations e cria/remove seus próprios usuários.
-
-```sh
-npm test -- --runInBand --runTestsByPath src/modules/preferences/preferences.service.spec.ts src/modules/preferences/preferences.database.spec.ts
-npm run test:cov -- --runInBand
-```
-
-O teste HTTP usa JWT/sessão reais, cobrindo os três papéis, isolamento, usuário inativo, concorrência e auditoria. Os testes unitários cobrem validação, limites, ausência, sucesso e falhas. A suíte frontend `e2e/methodology-preferences.spec.ts` usa respostas HTTP controladas para validar edição, diálogo, falhas e responsividade; não substitui o teste com PostgreSQL.
+Use `TEST_DATABASE_URL` somente com PostgreSQL isolado e execute `npm run test:cov -- --runInBand`. As suítes de período, avisos e preferências cobrem validação, unidades, ausência, cobertura parcial, isolamento, autorização, concorrência e prévia sem persistência. `frontend/tests/integration/preference-effects.spec.ts` compara prévia e avisos salvos com backend/PostgreSQL reais, confirma que os cálculos públicos permanecem iguais e que filtros explícitos prevalecem.

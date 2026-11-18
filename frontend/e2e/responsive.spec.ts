@@ -50,7 +50,7 @@ test('long application names stay inside mobile cards and breadcrumbs', async ({
   const longName = 'aplicacao-de-processamento-de-pagamentos-internacionais'
   await mockEnvironmentalData(page)
   await mockCatalog(page, [application({ name: longName })])
-  for (const path of ['/', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/services/svc-0142', '/services/svc-0142/methodology']) {
     await page.goto(path)
     await expect(page.getByRole('main')).toContainText(longName)
     const overflow = await page.getByRole('main').evaluate(main => ({
@@ -63,7 +63,7 @@ test('long application names stay inside mobile cards and breadcrumbs', async ({
 })
 
 for (const viewport of viewports) {
-  for (const path of ['/', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
     test(`${path} distributes content within ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport)
       await mockEnvironmentalData(page)
@@ -71,7 +71,7 @@ for (const viewport of viewports) {
       await expect(page.getByRole('main').getByRole('heading').first()).toBeVisible()
       if (path === '/services/svc-0142') await expect(page.getByRole('heading', { name: application().name })).toBeVisible()
       if (path === '/dashboard') await expect(page.getByRole('region', { name: 'Indicadores ambientais' })).toBeVisible()
-      if (path === '/services/svc-0142') await expect(page.getByRole('figure').first()).toBeVisible()
+      if (path === '/services/svc-0142') await expect(page.getByRole('link', { name: 'Explorar histórico' })).toBeVisible()
       const bounds = await page.getByRole('main').evaluate(main => {
         const rect = main.getBoundingClientRect()
         const workspace = main.parentElement!.getBoundingClientRect()
@@ -88,17 +88,7 @@ for (const viewport of viewports) {
       if (path === '/services/svc-0142' && viewport.width >= 1366) {
         const workspace = await page.locator('.workspace').evaluate(element => ({ height: element.clientHeight, scrollHeight: element.scrollHeight }))
         expect(workspace.scrollHeight).toBeLessThanOrEqual(workspace.height + 1)
-        if (viewport.height >= 1080) {
-          const chart = await page.getByRole('figure').first().boundingBox()
-          expect(chart!.height).toBeGreaterThan(viewport.height / 3)
-          const point = page.getByRole('figure').first().getByRole('button').first()
-          await point.hover()
-          const tooltip = page.getByRole('status')
-          await expect(tooltip).toContainText('Atual:')
-          expect((await tooltip.boundingBox())!.width).toBeLessThanOrEqual(180)
-          await point.focus()
-          await expect(tooltip).toBeVisible()
-        }
+
       }
       await page.screenshot({ path: test.info().outputPath('page.png'), fullPage: true })
     })

@@ -59,7 +59,13 @@ describeDatabase('RNF-06: real HTTP sources → application → PostgreSQL → p
     expect(detail.energy).toEqual(contribution.energy)
     expect(detail.emissions).toEqual(contribution.emissions)
     expect(detail.coverage).toEqual(contribution.coverage)
-    expect(series.totals).toEqual({ energy: detail.energy, emissions: detail.emissions })
+    // UTC bucket splits can change the last binary digit; persisted precision is eight decimals.
+    expect(series.totals).toEqual({
+      energy: { ...detail.energy, value: expect.closeTo(detail.energy.value, 12) },
+      emissions: { ...detail.emissions, value: expect.closeTo(detail.emissions.value, 12) },
+    })
+    expect(detail.calculation.energyKwh).toBeCloseTo(Number(rows[0].energyKwh), 12)
+    expect(detail.calculation.intensity).toBeCloseTo(Number(rows[0].carbonGrams) / Number(rows[0].energyKwh), 12)
     expect(series.coverage).toEqual(detail.coverage)
     const preview = await fetch(`${fixture.url}/applications/quality-api/analysis/recalculation-preview`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ from, to }),

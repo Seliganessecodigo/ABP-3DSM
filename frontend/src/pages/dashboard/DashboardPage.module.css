@@ -2,33 +2,30 @@
   width: 100%;
   min-width: 0;
   margin: 0 auto;
-  padding: 20px clamp(16px, 2vw, 28px) 40px;
   color: var(--text-primary);
 }
-.header, .sectionHeading, .tableHeading, .tableActions, .filterActions, .pagination {
+.header, .sectionHeading, .tableHeading, .tableActions, .filterActions{
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
-.header { margin-bottom: 12px; }
-.header h1 { margin: 0; font-size: clamp(24px, 3vw, 32px); }
-.header p { margin: 4px 0 0; color: var(--text-secondary); }
-.eyebrow { color: var(--accent-default) !important; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.header { align-items: flex-start; margin-bottom: 24px; }
+.header h1 { margin: 0; }
 .subtitle { font-size: 13px; }
 .summaryMeta { font-size: 11px; }
 .refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
-.filterActions button, .filtersPanel fieldset button, .pagination button, .tableCard th button {
+.filterActions button, .filtersPanel fieldset button, .tableCard th button {
   min-height: var(--control-height);
   border: 1px solid var(--border-default);
-  border-radius: 7px;
+  border-radius: var(--control-radius);
   padding: 8px 12px;
   color: var(--text-primary);
   background: var(--surface-card);
   cursor: pointer;
 }
 .refreshButton { color: var(--accent-on-accent); background: var(--accent-default); border-color: var(--accent-default); font-weight: 650; white-space: nowrap; }
-.refreshButton[aria-disabled='true'], .pagination button:disabled { cursor: not-allowed; opacity: .65; }
+.refreshButton[aria-disabled='true']{ cursor: not-allowed; opacity: .65; }
 .controls {
   display: flex;
   align-items: end;
@@ -38,19 +35,18 @@
 }
 .periods { display: flex; flex-wrap: wrap; gap: 4px; }
 .controls button { font-size: var(--control-font-size); line-height: 20px; }
-.periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true'],
-.pagination button[aria-current='page'] {
+.periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true']{
   color: var(--accent-on-accent);
   background: var(--accent-default);
   border-color: var(--accent-default);
 }
-.controls label, .searchLabel, .filtersPanel label, .pagination label {
+.controls label, .searchLabel, .filtersPanel label{
   display: grid;
   gap: 5px;
   color: var(--text-secondary);
   font-size: 12px;
 }
-.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select, .pagination select { max-width: 100%; }
+.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select{ max-width: 100%; }
 .card, .tableCard {
   min-width: 0;
   border: 1px solid var(--border-default);
@@ -132,9 +128,6 @@
 .compositionBars .barRow { grid-template-columns: minmax(90px, 1fr) minmax(50px, 1.5fr) auto auto; font-size: 11px; }
 .barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); }
 .barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; }
-.seriesPlaceholder { display: grid; min-height: 222px; place-content: center; justify-items: center; gap: 12px; margin-top: 8px; border: 1px dashed var(--border-control); border-radius: 8px; padding: 16px; background: linear-gradient(var(--surface-card), var(--background-page)); text-align: center; }
-.seriesPlaceholder svg { width: 38px; height: 38px; fill: none; stroke: var(--text-secondary); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
-.seriesPlaceholder p { max-width: 360px; margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .tableCard { margin-top: 10px; padding: 14px; }
 .tableHeading { align-items: center; margin-bottom: 8px; }
 .tableHeading p { max-width: 680px; }
@@ -158,10 +151,6 @@
 .tableCard td a { color: var(--accent-default); font-weight: 650; }
 .tableCard tbody th a { color: var(--text-primary); font-weight: 700; text-decoration: none; }
 .tableCard tbody th a:hover { color: var(--accent-default); text-decoration: underline; }
-.pagination { flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-default); }
-.pagination p { margin: 0; color: var(--text-secondary); font-size: 12px; }
-.pagination nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.pagination nav button { min-width: var(--control-height-compact); min-height: var(--control-height-compact); padding: 6px; }
 .comparisonNote { margin: 0; color: var(--text-secondary); font-size: 10px; }
 
 @media (max-width: 1100px) {
@@ -172,7 +161,6 @@
   .page { padding: 16px 12px 28px; }
   .header { align-items: flex-start; flex-wrap: wrap; }
   .header { gap: 12px; }
-  .header h1 { font-size: 24px; }
   .summaryMeta { line-height: 1.5; }
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
   .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
@@ -191,7 +179,6 @@
   .coverageList { width: 100%; gap: 2px; font-size: 9px; }
   .visualizations { grid-template-columns: 1fr; gap: 8px; }
   .visualizations > .card { min-height: 0; }
-  .seriesPlaceholder { min-height: 190px; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }
   .compositionLegend ul { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
@@ -211,7 +198,4 @@
   .tableCard tbody td::before { content: attr(data-label); color: var(--text-secondary); font-size: 9px; text-align: left; }
   .tableCard tbody td .stateBadge { max-width: 100%; overflow-wrap: anywhere; }
   .scopeNote { font-size: 11px; }
-  .pagination { align-items: flex-start; flex-direction: column; }
-  .pagination nav { width: 100%; }
-  .pagination nav button { flex: 1 0 auto; }
 }

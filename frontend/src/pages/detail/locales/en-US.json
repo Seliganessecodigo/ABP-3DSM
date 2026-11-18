@@ -215,6 +215,11 @@
   "evidenceFilteredCount": "{{count}} of {{total}} metrics",
   "analysisCloseDetails": "Close details",
   "methodologyFullPage": "View full methodology",
+  "exploreHistory": "Explore history",
+  "viewApplicationDetails": "View application details",
+  "operationalOverview": "Application status",
+  "operationalDescription": "Check the current status, location and operational evidence received.",
+  "environmentalSummaryNote": "Energy and CO₂e summarize the selected period. Explore history to investigate their evolution.",
   "historyContribution": "Contribution",
   "historyViewCollection": "View collection and metrics",
   "historyTableNote": "Search, filters and pagination do not change the chart or totals.",
@@ -230,5 +235,11 @@
   "historyMethodology": "Methodology",
   "historyAction": "Action",
   "historyReturnNote": "Returning restores the history criteria and page, focusing the interval that opened this inspection.",
-  "historyRecalculationPreview": "Recalculation preview"
+  "historyRecalculationPreview": "Recalculation preview",
+  "analysisEquivalentFactor": "Equivalent factor",
+  "analysisFactorExplanation": "Emissions are the sum of each interval’s calculations. The equivalent factor summarizes the applied factors, weighted by energy with calculated CO₂e.",
+  "analysisEnergyWithEmissions": "Energy with calculated CO₂e",
+  "periods.month": "Current month (UTC)",
+  "periods.custom": "Custom interval",
+  "helpHistoryFilters": "Select the application, period and granularity. The queried interval and time zone appear in the filters; the indicators and chart use that same period."
 }

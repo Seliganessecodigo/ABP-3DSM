@@ -15,6 +15,7 @@ Référence d’intégration à l’API GreenER. L’environnement publie types,
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@ Référence d’intégration à l’API GreenER. L’environnement publie types,
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison` exige 2 à 5 IDs uniques et une référence sélectionnée. La réponse fournit énergie, émissions, couvertures indépendantes, métriques et snapshots historiques de localisation pour la même période. Les différences sont application moins référence ; les pourcentages exigent une référence positive. Les absences restent explicites et le statut est `empty`, `partial` ou `complete`.
+
 Les métriques n’incluent pas l’heure de mesure source. L’intervalle dérive de la réception moins `collection_interval_seconds`. L’heure de requête du facteur ne prouve pas sa validité ; source/validité non publiées restent inconnues. Énergie, facteur, émissions : huit décimales ; couverture : quatre. Pas d’arrondi intermédiaire. Couvertures séparées et snapshots originaux conservés.
+
+## Série et explication du calcul {#environmental-presentation}
+
+Dans `/analysis/summary`, le paramètre facultatif `granularity` ajoute `series.points` avec la même période et les mêmes filtres que les totaux. Chaque intervalle additionne les résultats persistés des applications et conserve des couvertures indépendantes. Les valeurs manquantes restent `null`.
+
+Dans `/applications/{id}/analysis`, `calculation.energyKwh` indique l’énergie des segments avec des émissions calculées ; `calculation.intensity` est le facteur équivalent en gCO₂e/kWh, obtenu en divisant ces émissions par l’énergie correspondante. Si l’énergie est nulle ou manquante, le facteur reste nul. Les résultats et facteurs historiques sont conservés.
 
 ## Se connecter {#login}
 
@@ -97,7 +107,7 @@ Dans `/administration/calculations`, comparer original et aperçu par applicatio
 
 ## Personnaliser l’analyse {#preferences}
 
-`/methodology` propose énergie, émissions, couverture et analyse, avec exemples et préférences personnelles. Tout rôle connecté sauvegarde ses propres onglets avec révision optimiste ; 409 signale un conflit. Les seuils d’affichage ne modifient ni calcul, ni configuration globale, ni notifications externes. Période/granularité complètent uniquement les paramètres URL absents. Méthodologie historique : `/services/:id/methodology` avec `collectionId` sélectionné.
+Dans `/methodology`, configurez les limites d’énergie et d’émissions par application, le seuil de couverture et les paramètres initiaux d’analyse. Choisissez les dernières 24 heures, 7, 30 ou 90 jours, le mois UTC courant ou un intervalle personnalisé avec début inclus et fin exclue. L’aperçu consulte les données réelles sans enregistrer et utilise le même panneau d’avertissements que les applications et le Dashboard. L’enregistrement nécessite une connexion et concerne uniquement votre compte ; les calculs, l’historique et les états opérationnels restent inchangés. Les avertissements utilisent la période de chaque limite indépendamment des filtres. Les paramètres initiaux complètent uniquement les options absentes de l’URL du Dashboard et du détail. Des données partielles sous la limite ne prouvent pas son respect ; une absence ne signifie jamais zéro.
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## Gestion des erreurs {#errors}
 

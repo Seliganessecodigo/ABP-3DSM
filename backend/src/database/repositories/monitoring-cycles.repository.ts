@@ -13,6 +13,20 @@ export class MonitoringCyclesRepository {
     private readonly repository: Repository<MonitoringCycleEntity>,
   ) {}
 
+  async list(page = 1, limit = 20) {
+    const [items, total] = await this.repository.findAndCount({
+      order: { startedAt: 'DESC', id: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    })
+    return { items, total, page, limit }
+  }
+
+  latest() {
+    return this.repository.createQueryBuilder('cycle')
+      .orderBy('cycle.startedAt', 'DESC').addOrderBy('cycle.id', 'ASC').getOne()
+  }
+
   start(details?: Record<string, unknown>): Promise<MonitoringCycleEntity> {
     return this.repository.save(
       this.repository.create({
@@ -36,7 +50,9 @@ export class MonitoringCyclesRepository {
       ...cycle,
       id,
       ...result,
-      details: result.details ?? null,
+      details: cycle.details?.configurationVersion
+        ? { ...result.details, configurationVersion: cycle.details.configurationVersion }
+        : result.details ?? null,
       finishedAt,
       durationMs: String(finishedAt.getTime() - cycle.startedAt.getTime()),
     })

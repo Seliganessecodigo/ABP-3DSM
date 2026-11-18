@@ -15,6 +15,7 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
@@ -29,10 +30,19 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
+`GET /analysis/comparison` के लिए 2–5 अद्वितीय IDs और चयनित संदर्भ आवश्यक हैं। यह समान अवधि के लिए ऊर्जा, उत्सर्जन, अलग-अलग कवरेज, मेट्रिक्स और ऐतिहासिक स्थान snapshots लौटाता है। अंतर application minus reference है; प्रतिशत के लिए संदर्भ सकारात्मक होना चाहिए। अनुपलब्ध मान स्पष्ट रहते हैं और स्थिति `empty`, `partial` या `complete` होती है।
+
 स्रोत metrics में मापन समय नहीं; प्राप्ति से `collection_interval_seconds` घटाकर अंतराल है। factor query समय वैधता सिद्ध नहीं करता; अप्रकाशित स्रोत/वैधता अज्ञात हैं। ऊर्जा/factor/उत्सर्जन 8 दशमलव, कवरेज4; मध्य rounding नहीं। अलग कवरेज और मूल snapshots सुरक्षित हैं।
+
+## समय श्रृंखला और गणना की व्याख्या {#environmental-presentation}
+
+`/analysis/summary` में वैकल्पिक `granularity` पैरामीटर कुल योग के समान अवधि और फ़िल्टर वाले `series.points` जोड़ता है। प्रत्येक अंतराल अनुप्रयोगों के सहेजे गए परिणामों को जोड़ता है और स्वतंत्र कवरेज बनाए रखता है। अनुपलब्ध मान `null` रहते हैं।
+
+`/applications/{id}/analysis` में `calculation.energyKwh` उन खंडों की ऊर्जा है जिनके उत्सर्जन की गणना हुई है; `calculation.intensity` उन उत्सर्जनों को संबंधित ऊर्जा से भाग देकर प्राप्त समतुल्य कारक (gCO₂e/kWh) है। ऊर्जा शून्य या अनुपलब्ध होने पर कारक अपरिभाषित रहता है। ऐतिहासिक परिणाम और कारक सुरक्षित रहते हैं।
 
 ## लॉगिन करें {#login}
 
@@ -97,7 +107,7 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 
 ## विश्लेषण व्यक्तिगत बनाएँ {#preferences}
 
-`/methodology` में ऊर्जा, उत्सर्जन, कवरेज और विश्लेषण टैब में उदाहरण/व्यक्तिगत प्राथमिकताएँ हैं। प्रत्येक प्रमाणित भूमिका केवल अपने टैब सहेजती है, optimistic revision संघर्ष पर 409। प्रदर्शन सीमाएँ वैश्विक सेटिंग, गणना या बाहरी सूचना नहीं बदलतीं। सहेजी अवधि/समूह केवल विवरण URL में अनुपस्थित विकल्प भरते हैं। ऐतिहासिक पद्धति `/services/:id/methodology` और चुने `collectionId` से उपलब्ध है।
+`/methodology` में हर अनुप्रयोग के लिए ऊर्जा और उत्सर्जन सीमा, कवरेज संदर्भ तथा विश्लेषण के शुरुआती विकल्प तय करें। पिछले 24 घंटे, 7, 30 या 90 दिन, UTC का वर्तमान महीना या अपनी समय सीमा चुनें; शुरुआत शामिल है और अंत शामिल नहीं है। पूर्वावलोकन बिना सहेजे वास्तविक डेटा पढ़ता है और अनुप्रयोग तथा डैशबोर्ड वाला ही चेतावनी पैनल दिखाता है। सहेजने के लिए लॉगिन ज़रूरी है और बदलाव केवल आपके खाते पर लागू होता है; गणना, इतिहास और परिचालन स्थिति नहीं बदलती। चेतावनियाँ पृष्ठ के फ़िल्टर से अलग हर सीमा की अवधि का उपयोग करती हैं। विश्लेषण के शुरुआती विकल्प डैशबोर्ड और विवरण के URL में अनुपस्थित विकल्प ही भरते हैं। सीमा से कम आंशिक डेटा अनुपालन सिद्ध नहीं करता; अनुपस्थित डेटा कभी शून्य नहीं है।
 
 ```text
 GET /me/preferences → { energy, emissions, coverage, analysis }
@@ -110,10 +120,21 @@ unknown fields / partial bodies / numeric strings → 400
 
 | tab | value |
 | --- | --- |
-| energy | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kWh"}` |
-| emissions | `{threshold, alertsEnabled, scope: "application", referencePeriod: "month", unit: "kgCO2e"}` |
-| coverage | `{thresholdPercent, alertsEnabled}`; 0–100 |
-| analysis | `{periodDays: 7 / 30, granularity: "hour" / "day"}` |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
+
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
+
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
 ## त्रुटि प्रबंधन {#errors}
 

@@ -66,5 +66,5 @@ export function makeUrl(query: CatalogQuery & { timeZone: string }): string {
   if (filters.lastCheckedTo) params.set('to', filters.lastCheckedTo)
   if (query.timeZone) params.set('tz', query.timeZone)
   const queryString = params.toString()
-  return queryString ? '/?' + queryString : '/'
+  return queryString ? '/applications?' + queryString : '/applications'
 }

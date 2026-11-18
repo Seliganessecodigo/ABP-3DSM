@@ -102,6 +102,30 @@ O teste focado `src/modules/applications/environmental-analysis.database.spec.ts
 
 A rota é pública e não altera coletas, resultados ambientais, fatores persistidos, rankings, séries nem totais oficiais. Sem observações, retorna `status: empty` e não consulta serviço externo. O período máximo é 30 dias e a consulta aceita até 10.000 observações intersectadas; exceder qualquer limite retorna `400`, sem truncamento. Aplicação inexistente retorna `404`; falha de leitura/processamento retorna `503`. Revisar a integração com a configuração ativa quando a #95 for implementada.
 
+## Simulação regional — #86 / US-15
+
+`GET /carbon/regions` lista os destinos atuais para seleção; lista vazia é sucesso e a integração externa permanece exclusiva do backend. `POST /applications/{id}/analysis/regional-simulation` recebe `from`, `to` (RFC 3339 com fuso explícito) e `destinationRegionCode`. O endpoint é público e somente leitura. Períodos maiores que 30 dias ou com mais de 10.000 coletas intersectadas retornam `400` com código estruturado, sem truncar resultados; aplicação inexistente retorna `404`.
+
+A resposta contém energia calculável, referência, destino, fatores, horários de consulta GreenER, cobertura e diferenças. A energia usa os resultados já persistidos e permanece constante. A referência recalcula emissões coleta a coleta com os snapshots preservados; nenhum fator ausente é buscado no histórico. O destino consulta uma vez o fator atual escolhido por solicitação e o aplica a toda a energia calculável. Uma nova chamada consulta o valor atual novamente.
+
+Diferença absoluta (`gCO2e`) é destino menos referência; diferença percentual é `(destino - referência) / referência`. Diferenças só são retornadas quando referência e destino cobrem os mesmos trechos; percentual com referência zero é `null` com `ZERO_REFERENCE`, mantendo a diferença absoluta calculável. Coberturas parciais permanecem visíveis e lacunas não viram zero. Sem energia calculável, `status` é `empty`; cobertura incompleta ou falha/fator ausente produz `partial`; dados completos produzem `available`. Razões distintas identificam energia ausente, snapshot de referência não preservado, cobertura incompatível, destino inexistente/indisponível ou payload de fator inválido.
+
+Falha ao consultar o destino mantém a referência disponível e deixa destino/diferenças indisponíveis. O `queriedAt` retornado representa a hora da consulta do GreenER e não uma vigência oficial. A simulação não grava nem altera coletas, snapshots, fatores, rankings, séries ou totais oficiais. Execute a regra pura com `npm test -- --runInBand --runTestsByPath src/modules/calculations/regional-simulation.spec.ts`; o teste HTTP/PostgreSQL está junto à análise ambiental em `src/modules/applications/environmental-analysis.database.spec.ts` e requer `TEST_DATABASE_URL` apontando para PostgreSQL isolado.
+
+## Comparação ambiental de aplicações — #178
+
+`GET /analysis/comparison` é público e recebe `from`, `to`, de 2 a 5 `applicationIds` únicos e um `referenceApplicationId` pertencente à seleção. O período exige RFC 3339 com fuso explícito, é normalizado para UTC e usa `[from,to)`. Período ou seleção inválidos retornam `400`; uma aplicação inexistente retorna `404`; falha de leitura retorna `503` com `ANALYSIS_COMPARISON_UNAVAILABLE`.
+
+A resposta contém uma linha por aplicação na ordem solicitada, com estado atual, snapshots de localização histórica recortados ao período, métricas operacionais, energia, emissões, coberturas independentes e diferenças contra a referência. Localização é reconstruída pelos eventos de metadados; segmentos sem evidência retornam `location: null` com `HISTORICAL_LOCATION_UNAVAILABLE`, sem substituição pela localização atual.
+
+Energia e emissões reutilizam resultados persistidos e projeção temporal de #235, sem recálculo ou consulta externa. Energia é `kWh`; emissões são `gCO2e`. Métricas CPU, memória, disco e rede usam, independentemente, a observação válida mais recente recebida pelo GreenER dentro do período, com unidade e timestamp próprios. Ausência permanece `null`; estados `missing`/`invalid`, cobertura parcial e razões são preservados.
+
+Diferença absoluta é aplicação menos referência. Percentual é `(aplicação - referência) / referência * 100` somente para referência positiva; referência zero mantém a diferença absoluta e informa `ZERO_REFERENCE`. Unidades compatíveis são comparadas após conversões explícitas existentes (`gCO2e`/`kgCO2e`); unidades desconhecidas ou incompatíveis deixam somente aquele delta indisponível. Coberturas diferem em pontos percentuais, sem percentual relativo.
+
+`status` é `empty` sem qualquer valor ambiental ou métrica comparável, `partial` quando há cobertura incompleta, dado ausente ou unidade incompatível, e `complete` quando os campos previstos estão disponíveis para todas as aplicações. A consulta não oferece kWh/transação nem classificação de eficiência.
+
+O teste HTTP/PostgreSQL está em `src/modules/applications/environmental-analysis-comparison.database.spec.ts`. Para executá-lo, defina `TEST_DATABASE_URL` para um PostgreSQL isolado e rode `npm test -- --runInBand --runTestsByPath src/modules/applications/environmental-analysis-comparison.database.spec.ts`.
+
 ## Série e contribuições ambientais — #174
 
 `GET /applications/{id}/analysis/series?from={RFC3339}&to={RFC3339}&granularity={hour|day|month|year}` retorna a série de energia e CO₂e, totais, coberturas e eventos. `from`/`to` exigem offset explícito; a consulta normaliza os instantes para UTC e usa `[from,to)`. Os buckets seguem o calendário UTC da granularidade pedida. O primeiro e o último bucket podem ser parciais: `bucketStart`/`bucketEnd` descrevem o bucket civil completo e `period.from`/`period.to` descrevem a parte contada dentro da janela.
@@ -187,6 +211,16 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 
 A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
 
+## Saúde operacional, ciclos e auditoria
+
+`GET /monitoring/health` e `GET /monitoring/cycles` exigem Admin e consultam o scheduler, ciclos persistidos, incidentes e estados stale/atrasados das aplicações. Estados sem evidência persistida são `UNKNOWN` ou `UNAVAILABLE`, nunca saudáveis por ausência de falha. A saúde e os ciclos são globais porque o modelo de monitoramento é global.
+
+`PATCH /monitoring/control` exige Admin, `paused` booleano e `reason` de até 512 caracteres. A configuração global persiste em `monitoring_settings`; pausa impede novos ciclos no próximo tick e deixa um ciclo em andamento terminar. Retomar reabilita os ciclos no próximo tick. Repetir o estado atual retorna `changed: false`; mudanças efetivas e justificadas são gravadas no `AuditWriter` na mesma transação. Se o scheduler não conseguir ler a configuração, ele pula o ciclo.
+
+`GET /monitoring/audit` lista eventos atribuídos a usuários da organização do Admin; eventos de sistema ou sem vínculo organizacional são omitidos. Busca geral ignora caixa e acentos, combina filtros por AND e não procura credenciais. Ordenação permite `id`, `actor`, `actorType`, `actorLabel`, `createdAt`, `action`, `entityType`, `entityId`, `reason` e `outcome`; usa valores nativos, ID como desempate e nulos ao final. A paginação é 10 por padrão, aceita 5/10/15/20/`all`, e retorna total filtrado. Datas devem ser ISO 8601 com offset; enums usam códigos estáveis. Os contratos estão no OpenAPI em `/docs` e `/openapi.json`.
+
+Testes de API/PostgreSQL: `npm test -- --runInBand src/modules/applications/monitoring-operations.database.spec.ts` com `TEST_DATABASE_URL` apontando para PostgreSQL isolado. Teste de parser: `npm test -- --runInBand src/modules/applications/monitoring-audit.query.spec.ts`.
+
 Em `/methodology`, as abas de energia, emissões, cobertura e análise permitem explorar exemplos e editar preferências pessoais. Salvar exige login de qualquer papel e altera apenas a própria aba, com revisão otimista: 409 indica conflito. Os limites são de apresentação; não alteram parâmetros globais, cálculos nem notificações externas. Período/granularidade salvos preenchem somente opções ausentes na URL do detalhe. A metodologia histórica permanece em `/services/:id/methodology`, com `collectionId` quando selecionado.
 
 Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de preferências](preferences/README.md) e as [decisões de arquitetura](../../../docs/product/decisions.md).
@@ -198,3 +232,27 @@ Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de
 `POST /auth/password-recovery/request` recebe a organização (slug) e o e-mail. Retorna `202` com `PASSWORD_RECOVERY_REQUEST_ACCEPTED` para contas elegíveis e demais casos. Limites: cinco emissões por conta e vinte solicitações por IP em quinze minutos; excesso por IP retorna `429` genérico. Contas ativas, verificadas e com senha local recebem token de uso único válido por uma hora. O token é armazenado somente como SHA-256 em `auth_tokens`; `password_recovery_outbox` mantém o conteúdo AES-256-GCM cifrado com chave versionada derivada do chaveiro `AUTH_TOTP_ENCRYPTION_KEYS` e `AUTH_TOTP_ENCRYPTION_KEY_VERSION`. Preserve as versões antigas das chaves enquanto houver itens pendentes. O worker local tenta a entrega pelo `EmailDelivery` e encerra itens vencidos sem enviar link expirado.
 
 `POST /auth/password-recovery/complete` aceita token e senha (8–1024 caracteres), retorna `204`, altera o hash pela política existente, consome o token atomicamente e revoga sessões de refresh. Tokens inválidos, expirados ou reutilizados retornam `PASSWORD_RECOVERY_TOKEN_INVALID`. TOTP e JWTs de acesso já emitidos não são alterados. A auditoria não guarda senha, token ou e-mail. A tela frontend `/recover-password` permanece um placeholder estático.
+
+### Dashboard: série e fator equivalente
+
+`GET /analysis/summary` aceita `granularity=hour|day|month|year` opcional. Quando presente, inclui `series: { granularity, points }`, com o contrato de ponto da série individual. Usa o mesmo período UTC semiaberto e os mesmos filtros de estado atual, região histórica e aplicação dos totais. Cada aplicação resolve suas sobreposições antes da soma entre aplicações; lacunas permanecem nulas e a cobertura é a média temporal das aplicações do escopo. O limite existente de 10.000 intervalos também se aplica aqui (400 `ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED`); granularidade inválida retorna 400 `INVALID_ANALYSIS_GRANULARITY`. Sem o parâmetro, a resposta anterior permanece compatível. As consultas de persistência são em lote, sem consultas HTTP por aplicação ou novas chamadas externas.
+
+O resumo individual inclui `calculation: { energyKwh, intensity }`. A energia corresponde somente aos segmentos que sustentam emissões válidas. A intensidade equivalente em gCO2e/kWh é a soma das emissões persistidas dividida por essa energia, sem média aritmética dos snapshots e sem alterar resultados salvos. Denominador zero/ausente resulta em intensidade nula. Emissões sem energia correspondente também impedem apresentar um fator equivalente. O frontend apresenta esse resultado e preserva os snapshots históricos para inspeção.
+
+### Ranking ambiental — #175
+
+`GET /analysis/ranking` é público e recebe `from`, `to`, `metric=energy|emissions` e `direction=asc|desc`, além dos filtros de domínio repetíveis `states`, `regionCodes` e `applicationIds` do resumo. O intervalo e a região histórica seguem exatamente #156. A primeira abertura da interface usa energia decrescente; trocar o critério ou direção consulta novamente o servidor. As duas medidas persistidas, suas unidades, razões e coberturas continuam na linha.
+
+O servidor classifica aplicações com valor disponível (zero incluído); cobertura parcial não remove a aplicação nem extrapola seu valor. Ausências permanecem nulas e aplicações sem valor na métrica ativa ficam no fim como `unranked`, com razões da medida. Posições são competitivas (1, 1, 3). Participação é fração do valor disponível dividido pelo total calculável da mesma métrica no escopo de domínio completo, nula quando o denominador não é positivo. A UI deve nomeá-la “participação no total calculável” e mostrar a cobertura ao lado da medida.
+
+Busca `search` cobre os campos de dados expostos, por trecho sem diferença de caixa/acentos; filtros de coluna combinam por E. Texto usa `filterApplicationId`, `filterName`, `filterRegionCode`, `filterCountry`, `filterRegion` e `filterCity`; `filterState`, `filterStateReason` e `filterRankability` usam códigos exatos. `filterEnergyReason` e `filterEmissionsReason` procuram reason code exato nas respectivas listas de razões. Campos numéricos aceitam limites inclusivos (`energyMin/Max`, `emissionsMin/Max`, `energyCoverageMin/Max`, `emissionsCoverageMin/Max`, `positionMin/Max`, `participationMin/Max`) e `energyMissing`, `emissionsMissing`, `positionMissing` ou `participationMissing` como `true|false`. Busca e filtros de coluna rodam depois do cálculo e não mudam posição, participação ou totais.
+
+A matriz de ordenação aceita `applicationId`, `name`, `state`, `stateReason`, `regionCode`, `country`, `region`, `city`, `energy`, `emissions`, `energyCoverage`, `emissionsCoverage`, `rankability`, `position` e `participation`; arrays de razões não são ordenáveis. `sortBy` e `sortDirection=asc|desc` devem ser enviados juntos. Valores ausentes ficam no fim em ambas as direções; desempate estável usa ID. A ordenação de apresentação atua dentro de cada grupo e mantém `unranked` no final.
+
+Paginação usa `page` (padrão 1) e `pageSize` (padrão 10; opções 5, 10, 15, 20 ou `all`). `all` retorna todos os itens filtrados e só aceita `page=1`. Parâmetros inválidos retornam 400; página válida além da última é ajustada; lista vazia retorna página 1 e zero páginas. `scope` contém contagens, totais e coberturas do escopo completo; `presentation` e `pagination.totalItems` descrevem o conjunto após busca/filtros. A resposta inclui localização atual do catálogo; o filtro regional continua histórico.
+
+OpenAPI em `/openapi.json` documenta o contrato. O teste HTTP/PostgreSQL de ranking fica junto ao teste do resumo, em `src/modules/applications/environmental-analysis-summary.database.spec.ts`; execute com `TEST_DATABASE_URL` apontando para um PostgreSQL isolado.
+
+## Controle versionado
+
+O [controle de pausa/retomada](applications/MONITORING_CONFIGURATION.md) documenta as revisões imutáveis, autorização, auditoria transacional e versão preservada por ciclo da #95.

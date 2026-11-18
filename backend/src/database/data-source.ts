@@ -20,6 +20,8 @@ import { SsoHandoffEntity } from "./entities/sso-handoff.entity";
 import { SsoInvitationEntity } from "./entities/sso-invitation.entity";
 import { SsoTransactionEntity } from "./entities/sso-transaction.entity";
 import { PasswordRecoveryOutboxEntity } from "./entities/password-recovery-outbox.entity";
+import { MonitoringControlVersionEntity } from "./entities/monitoring-control-version.entity";
+import { MonitoringSettingsEntity } from "./entities/monitoring-settings.entity";
 
 loadEnv({ path: resolve(__dirname, "../../../.env") });
 
@@ -52,6 +54,8 @@ export default new DataSource({
     SsoInvitationEntity,
     SsoTransactionEntity,
     PasswordRecoveryOutboxEntity,
+    MonitoringSettingsEntity,
+    MonitoringControlVersionEntity,
   ],
   migrations: [resolve(__dirname, "migrations/**/!(*.spec).{ts,js}")],
   migrationsTableName: "migrations",

@@ -1,3 +1,4 @@
+import { PageHelp } from '../../components/PageHelp.tsx'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActionButton } from '../../components/ActionButton.tsx'
@@ -46,6 +47,13 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   const unit = tab === 'energy' ? 'kWh' : 'kg CO₂e'
   const number = (value: string) => new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR', { maximumFractionDigits: 6 }).format(Number(value))
   function preferenceText(value: typeof draft) {
+    if (value.evaluationPeriod) {
+      const period = value.evaluationPeriod
+      const date = (instant: string) => new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(instant))
+      const label = period.kind === 'custom' ? period.from && period.to ? `${date(period.from)} → ${date(period.to)} UTC` : t('invalidValue') : t(`evaluationPeriod.${period.kind}`)
+      if (tab === 'analysis') return `${label} · ${t(value.granularity)}`
+      return `${number(value.value)} ${tab === 'coverage' ? '%' : unit} · ${label}`
+    }
     if (tab === 'analysis') return `${t('days', { count: Number(value.period) })} • ${t(value.granularity)}`
     if (tab === 'coverage') return t('activeCoverage', { value: number(value.value), status: t(value.enabled ? 'enabled' : 'disabled') })
     return t('activeLimit', { value: number(value.value), unit })
@@ -62,11 +70,15 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   if (active) statusKey = 'upToDate'
   if (state.saved) statusKey = 'saved'
   if (dirty) statusKey = 'unsaved'
-  const activeSummary = active && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
+  const activeSummary = active && !active.draft.evaluationPeriod && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
   const savingUnavailable = <p className={styles.saveError} role="alert">{saveError ? t(saveError) : ''}</p>
   const save = () => { if (form.current?.reportValidity()) void state.save() }
-  return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.heading}><p className={styles.eyebrow}>{common('nav.system')}</p><h1>{t('title')}</h1><p>{t('description')}</p></header>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className="page-heading"><div><p className="eyebrow">{common('nav.system')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  { title: t(`${tab}.title`), description: common(`help.${tab === 'analysis' ? 'period' : tab}`), target: '[data-help="methodology-explanation"]' },
+  { title: t(tab + '.editTitle'), description: t(tab + '.editDescription'), target: '[data-help="preference-edit"]' },
+  { title: t('save'), description: t('saveNote'), target: '[data-help="preference-save"]' },
+]} /></div></div></header>
     <div className={styles.tabRow}>
       <div ref={tabList} className={styles.tabs} role="tablist" tabIndex={-1} aria-label={t('individual')} onKeyDown={(event) => {
         const next = nextTabForKey(event.key, tab)
@@ -78,8 +90,8 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
     </div>
     <div id="preference-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className={styles.columns}>
       <MethodologyExplanation tab={tab} />
-      <section className={`${styles.card} ${tab === 'energy' || tab === 'emissions' ? styles.limitCard : ''}`} aria-labelledby="edit-title">
-        <p className={styles.step}>{t('stepEdit')}</p><h2 id="edit-title">{t(`${tab}.editTitle`)}</h2><p className={styles.intro}>{t(`${tab}.editDescription`)}</p>
+      <section data-help="preference-edit" className={`${styles.card} ${tab === 'energy' || tab === 'emissions' ? styles.limitCard : ''}`} aria-labelledby="edit-title">
+        <p className={styles.step}>{t('stepEdit')}</p><h2 id="edit-title">{t(`${tab}.editTitle`)}</h2>
         <div className={styles.activePreference}><span>{t('active')}</span><strong>{activeText}</strong></div>
         {state.loadState === 'error' && <div role="alert"><p>{t('loadError')}</p><ActionButton appearance="secondary" onClick={state.retry}>{common('actions.retry')}</ActionButton></div>}
         <form ref={form} onSubmit={(event) => { event.preventDefault(); save() }}>
@@ -87,9 +99,9 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
           {!valid && <p className={styles.saveError} role="alert">{t('invalidValue')}</p>}
         </form>
       </section>
-      <MethodologyPreview tab={tab} drafts={state.drafts} />
+      <MethodologyPreview tab={tab} drafts={state.drafts} savedTabs={preferenceTabs.filter(item => Boolean(state.active[item]))} />
     </div>
-    <footer className={styles.footer}><div><strong>{t(`tabs.${tab}`)} • {t(statusKey)}</strong><p>{t('saveNote')}</p></div><div className={styles.actions}><ActionButton appearance="secondary" onClick={state.cancel} disabled={!dirty || saving}>{t('cancel')}</ActionButton><ActionButton onClick={save} pending={saving} disabled={!valid || state.loadState !== 'ready' || !!active && !dirty}>{t(saving ? 'saving' : 'save')}</ActionButton></div></footer>
+    <footer data-help="preference-save" className={styles.footer}><div><strong>{t(`tabs.${tab}`)} • {t(statusKey)}</strong></div><div className={styles.actions}><ActionButton appearance="secondary" onClick={state.cancel} disabled={!dirty || saving}>{t('cancel')}</ActionButton><ActionButton onClick={save} pending={saving} disabled={!valid || state.loadState !== 'ready' || !!active && !dirty}>{t(saving ? 'saving' : 'save')}</ActionButton></div></footer>
     {saveError && !pendingTab && savingUnavailable}
     {state.saved && <output>{t('saved')}</output>}
     <details className={styles.recorded} onToggle={(event) => setRecordedOpen(event.currentTarget.open)}><summary>{t('recorded')}</summary>{recordedOpen && <RecordedMethodology id={null} navigate={navigate} />}</details>
