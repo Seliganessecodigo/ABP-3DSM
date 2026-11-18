@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'settings' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
+type Route = { kind: 'recover-password' } | { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'settings' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
 const staticRoutes: Partial<Record<string, Route>> = {
+  '/recover-password': { kind: 'recover-password' },
   '/settings': { kind: 'settings' }, '/settings/': { kind: 'settings' },
   '/': { kind: 'dashboard' },
   '/applications': { kind: 'catalog' }, '/applications/': { kind: 'catalog' },

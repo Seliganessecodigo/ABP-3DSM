@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -62,6 +63,8 @@ import {
 } from '../../database/entities/user.entity'
 import { SsoAuthenticationService } from './sso-authentication.service'
 import { AccountLifecycleService } from './account-lifecycle.service'
+import { PasswordRecoveryService } from './password-recovery.service'
+import { RequestPasswordRecoveryDto, CompletePasswordRecoveryDto, validateRecoveryRequest, validateRecoveryCompletion } from './password-recovery.dto'
 import {
   CreateSsoInvitationDto,
   ExchangeSsoHandoffDto,
@@ -75,7 +78,34 @@ export class AuthenticationController {
     private readonly authentication: AuthenticationService,
     private readonly sso: SsoAuthenticationService,
     private readonly accountLifecycle: AccountLifecycleService,
+    private readonly passwordRecovery: PasswordRecoveryService,
   ) {}
+
+  @PublicRoute()
+  @Post('password-recovery/request')
+  @HttpCode(202)
+  @ApiOperation({ summary: 'Solicitar recuperação de senha por e-mail' })
+  @ApiResponse({ status: 202, description: 'Solicitação aceita sem revelar a existência da conta', schema: { example: { code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' } } })
+  @ApiBody({ type: RequestPasswordRecoveryDto })
+  @ApiBadRequestResponse({ description: 'Organização ou e-mail inválido' })
+  @ApiTooManyRequestsResponse({ description: 'Limite por IP excedido' })
+  requestPasswordRecovery(@Body() body: RequestPasswordRecoveryDto, @Req() request: Request) {
+    validateRecoveryRequest(body)
+    return this.passwordRecovery.request(body, request.ip || 'unknown')
+  }
+
+  @PublicRoute()
+  @Post('password-recovery/complete')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Definir nova senha com token temporário' })
+  @ApiBody({ type: CompletePasswordRecoveryDto })
+  @ApiNoContentResponse({ description: 'Senha alterada; sessões de renovação revogadas' })
+  @ApiBadRequestResponse({ description: 'Senha fora dos limites aceitos' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido, expirado, revogado ou já utilizado' })
+  async completePasswordRecovery(@Body() body: CompletePasswordRecoveryDto): Promise<void> {
+    validateRecoveryCompletion(body)
+    await this.passwordRecovery.complete(body)
+  }
 
   @Post('sso/invitations')
   @UseGuards(AuthenticationGuard, RolesGuard)

@@ -227,6 +227,15 @@ Consulte a [matriz HTTP](authentication/AUTHORIZATION_MATRIX.md), o [contrato de
 
 `authentication/AccountsController` publica listagem/criação de contas e alteração de papéis em `/auth/users`. O caso de uso revalida o Admin e a organização sob bloqueio; os repositories concentram persistência e consulta. Criação reutiliza a confirmação de e-mail e definição de senha; alteração de papel revoga sessões, preserva autoria e impede retirar o último Admin com acesso. Consulte [ACCOUNTS.md](authentication/ACCOUNTS.md) para o contrato, os limites e os testes de PostgreSQL isolado.
 
+## Recuperação de senha (#160)
+
+`POST /auth/password-recovery/request` recebe a organização (slug) e o e-mail. Retorna `202` com `PASSWORD_RECOVERY_REQUEST_ACCEPTED` para contas elegíveis e demais casos. Limites: cinco emissões por conta e vinte solicitações por IP em quinze minutos; excesso por IP retorna `429` genérico. Contas ativas, verificadas e com senha local recebem token de uso único válido por uma hora. O token é armazenado somente como SHA-256 em `auth_tokens`; `password_recovery_outbox` mantém o conteúdo AES-256-GCM cifrado com chave versionada derivada do chaveiro `AUTH_TOTP_ENCRYPTION_KEYS` e `AUTH_TOTP_ENCRYPTION_KEY_VERSION`. Preserve as versões antigas das chaves enquanto houver itens pendentes. O worker local tenta a entrega pelo `EmailDelivery` e encerra itens vencidos sem enviar link expirado.
+
+`POST /auth/password-recovery/complete` aceita token e senha (8–1024 caracteres), retorna `204`, altera o hash pela política existente, consome o token atomicamente e revoga sessões de refresh. Tokens inválidos, expirados ou reutilizados retornam `PASSWORD_RECOVERY_TOKEN_INVALID`. TOTP e JWTs de acesso já emitidos não são alterados. A auditoria não guarda senha, token ou e-mail. A tela frontend `/recover-password` permanece um placeholder estático.
+
+Entradas malformadas retornam `400` com `PASSWORD_RECOVERY_REQUEST_INVALID` ou `PASSWORD_RECOVERY_COMPLETION_INVALID`, sem texto dependente de idioma. A conclusão revalida elegibilidade e expiração sob bloqueio da conta, depois do hash; falha da auditoria reverte senha, consumo e revogação. A rotação de refresh verifica a revogação também na escrita, cobrindo redefinições concorrentes.
+
+A migration `1793700000000-PasswordRecovery` cria a outbox, o contador por IP e `auth_sessions.refreshRevokedAt`. O worker consulta até dez entregas a cada cinco segundos, coordena réplicas com advisory lock PostgreSQL sem transação aberta durante SMTP e descarta tokens expirados, revogados ou consumidos. Retentativas usam espera exponencial de dois a quinze minutos, limitada à validade do token. Uma interrupção após o aceite SMTP e antes de persistir `SENT` pode repetir o e-mail; o token continua sendo de uso único. Falhas do ciclo geram aviso genérico sem payload ou credenciais.
 
 ### Dashboard: série e fator equivalente
 

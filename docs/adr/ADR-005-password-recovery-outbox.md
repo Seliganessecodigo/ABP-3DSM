@@ -1,0 +1,5 @@
+# ADR-005 — Outbox durável para e-mails de recuperação
+
+O início da recuperação de senha não deve aguardar o provedor de e-mail nem revelar a existência da conta por latência ou falha de entrega. Como o backend não possui fila de mensagens, persistimos a intenção de envio junto com o token e a processamos em segundo plano pelo provedor SMTP configurado; o payload do e-mail é cifrado com AES-256-GCM e uma chave versionada para permitir retentativas sem armazenar o token ou link em claro. Falhas podem ser retentadas enquanto o token estiver válido. Isso adiciona persistência e processamento operacional, mas evita perder solicitações aceitas após reinício do processo e mantém o resultado público independente da entrega.
+
+Réplicas coordenam o processamento por advisory lock de sessão PostgreSQL, liberado ao encerrar o ciclo; a conexão permanece reservada, sem transação aberta durante o envio. O token é revalidado por item e tokens consumidos, revogados ou vencidos não são enviados. SMTP e persistência de `SENT` não são uma transação distribuída: uma queda entre essas etapas pode repetir a mensagem, sem permitir reutilização do token.

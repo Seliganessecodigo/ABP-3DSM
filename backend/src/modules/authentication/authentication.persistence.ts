@@ -71,7 +71,7 @@ export class AuthenticationPersistence {
     lastActivityAt: Date,
   ) {
     return this.sessions.update(
-      { id, refreshTokenHash: previousRefreshTokenHash, revokedAt: IsNull() },
+      { id, refreshTokenHash: previousRefreshTokenHash, revokedAt: IsNull(), refreshRevokedAt: IsNull() },
       { refreshTokenHash, lastActivityAt },
     )
   }

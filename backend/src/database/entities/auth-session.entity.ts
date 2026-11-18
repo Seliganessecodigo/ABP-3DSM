@@ -46,5 +46,8 @@ export class AuthSessionEntity {
   revokedAt!: Date | null
 
   @Column({ type: 'timestamptz', nullable: true })
+  refreshRevokedAt!: Date | null
+
+  @Column({ type: 'timestamptz', nullable: true })
   secondFactorVerifiedAt!: Date | null
 }
