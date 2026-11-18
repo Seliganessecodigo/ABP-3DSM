@@ -1,0 +1,9 @@
+.breadcrumbs { min-width: 0; flex-shrink: 0; margin: 0 0 10px; color: var(--text-secondary); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: 11px; font-weight: 500; line-height: 1.5; }
+.breadcrumbs ol { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0; padding: 0; list-style: none; }
+.breadcrumbs li { display: flex; min-width: 0; max-width: 100%; align-items: center; gap: 8px; }
+.breadcrumbs a, .breadcrumbs span[aria-current] { display: inline-flex; min-width: 0; min-height: 24px; align-items: center; gap: 7px; overflow-wrap: anywhere; }
+.breadcrumbs a { border-radius: 4px; color: var(--accent-default); text-decoration: none; }
+.breadcrumbs a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.breadcrumbs span[aria-current] { color: var(--text-secondary); }
+.separator { width: 8px; flex: 0 0 8px; color: var(--text-secondary); font-size: 8px; }
+@media (max-width: 640px), (pointer: coarse) { .breadcrumbs a { min-height: 44px; } }

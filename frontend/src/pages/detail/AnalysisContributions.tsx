@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faChartPie, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { Pagination } from '../../components/Pagination.tsx'
 import type { AnalysisContributionsPage } from '../../features/analysis/source.ts'
 import { useState } from 'react'
@@ -128,7 +130,7 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
     {error && <output role="alert">{labels.error}</output>}
     {data && <>
       {!historyLayout && <section className={styles.totals} aria-label={labels.totals}>
-        <h3>{labels.totals}</h3>
+        <h3><CardIcon icon={faChartPie} size="small" inline />{labels.totals}</h3>
         <p>{labels.energy}: {data.totals.energy.status === 'available' ? number(data.totals.energy.value, data.totals.energy.unit) : '—'}</p>
         <p>{labels.emissions}: {data.totals.emissions.status === 'available' ? number(data.totals.emissions.value, data.totals.emissions.unit) : '—'}</p>
         <p>{labels.coverage}: {coverage(data.coverage.energy)} / {coverage(data.coverage.emissions)}</p>
@@ -184,7 +186,7 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
         {detailContributions.map((contribution) => renderContribution(contribution))}
       </ol>}
       {!historyLayout && data.exclusions.length > 0 && <section className={styles.exclusions} aria-label={labels.exclusions}>
-        <h3>{labels.exclusions}</h3>
+        <h3><CardIcon icon={faFilter} size="small" inline />{labels.exclusions}</h3>
         <ul className={styles.list}>{data.exclusions.map((exclusion) => <li key={`${exclusion.collectionId ?? 'none'}-${exclusion.from}-${exclusion.to}`}>
           <h4>{exclusion.collectionId ?? '—'}</h4>
           <p>{formatDate(exclusion.from)} – {formatDate(exclusion.to)}</p>

@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faShieldHalved } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import greenErMark from '../../assets/green-er-mark.png'
@@ -22,7 +24,7 @@ export function AccountSetupPage({ kind, navigate }: Readonly<{ kind: AccountSet
     <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}><p className={styles.eyebrow}>GreenER</p><h1>{t('setupWelcome')}</h1></header>
     <section className={`${styles.card} ${styles.setupCard}`} aria-labelledby="account-setup-heading" aria-busy={state === 'pending'}>
-      <h2 id="account-setup-heading" ref={heading} tabIndex={-1}>{t(title)}</h2>
+      <h2 id="account-setup-heading" ref={heading} tabIndex={-1}><CardIcon icon={faShieldHalved} size="small" inline />{t(title)}</h2>
       {invalid && <p role="alert">{t('setupInvalidLink')}</p>}
       {complete && <p><output>{t(invitation ? 'setupEmailSent' : 'setupReadyDescription')}</output></p>}
       {token && !complete && <>

@@ -81,5 +81,7 @@
   "help.metrics": "CPU, memory, disk and network describe application resource use and feed the energy estimate. Check the observation time: an update attempt can fail and retain the previous reading. A valid zero differs from a missing reading.",
   "help.factor": "The regional factor describes emissions associated with each kWh of electricity in that region. The same energy can produce different CO₂e values with different factors. Calculation records identify the factor and methodology used.",
   "help.period": "The period is the time window analyzed, not the collection frequency. Granularity, where available, is the size of reading groups, such as an hour or a day. Check the displayed time zone when reading dates.",
-  "help.composition": "Each bar or slice shows an application’s share of calculable CO₂e in the selected scope. A larger share means a larger contribution to the total; it does not by itself establish lower efficiency. Missing data is not treated as zero."
+  "help.composition": "Each bar or slice shows an application’s share of calculable CO₂e in the selected scope. A larger share means a larger contribution to the total; it does not by itself establish lower efficiency. Missing data is not treated as zero.",
+  "nav.breadcrumb": "Breadcrumb",
+  "nav.breadcrumbGo": "Go to {{page}}"
 }

@@ -1,3 +1,6 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
+import { SortButton } from '../../components/SortButton.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
@@ -150,7 +153,7 @@ function differenceText(
   return value.reason ? `${absolute} · ${reasonLabel(value.reason)}` : absolute
 }
 
-export function ComparisonPage() {
+export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t, i18n } = useTranslation('comparison')
   const { t: tCommon } = useTranslation('common')
   const { t: tCatalog } = useTranslation('catalog')
@@ -307,7 +310,7 @@ export function ComparisonPage() {
 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className={`page-heading ${styles.header}`}>
-      <div><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
       { title: t('selectionHeading'), description: t('helpSelection'), target: '[data-help="comparison-selection"]' },
       { title: tDetail('periodTitle'), description: tCommon('help.period'), target: '[data-help="comparison-period"]' },
       { title: t('reference'), description: t('helpReference'), target: '[data-help="comparison-reference"]' },
@@ -343,7 +346,7 @@ export function ComparisonPage() {
       </div>
       <details className={styles.catalog} open={catalogExpanded} onToggle={event => setCatalogExpanded(event.currentTarget.open)}>
       <summary className={styles.catalogHeading}>
-        <span className={styles.sectionIcon}><FontAwesomeIcon icon={faLayerGroup} aria-hidden="true" /></span>
+        <CardIcon icon={faLayerGroup} size="small" />
         <h2 id="comparison-selection-heading">{t('selectionHeading')}</h2>
         <span className={styles.selectionCount}>{formatNumber(selectedIds.length, locale)} / 5</span>
         <FontAwesomeIcon icon={faChevronDown} className={styles.chevron} aria-hidden="true" />
@@ -377,8 +380,7 @@ export function ComparisonPage() {
         <table className={styles.applicationTable}>
           <thead><tr>
             <th scope="col">{t('selectColumn')}</th>
-            {sortColumns.map((column) => <th key={column} scope="col" aria-sort={query.sort?.column === column ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}>
-              <button type="button" onClick={() => toggleSort(column)}>{sortLabels[column]}{query.sort?.column === column ? query.sort.direction === 'asc' ? ' ↑' : ' ↓' : ''}</button>
+            {sortColumns.map((column) => <th key={column} scope="col" aria-sort={query.sort?.column === column ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><SortButton state={query.sort?.column === column ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'} onClick={() => toggleSort(column)}>{sortLabels[column]}</SortButton>
             </th>)}
           </tr></thead>
           <tbody>{result.items.map((application) => {
@@ -411,7 +413,7 @@ export function ComparisonPage() {
     {selectedIds.length >= 2 && selectedIds.length <= 5 && selectedIds.includes(referenceApplicationId ?? '') && pageState.period !== null &&
       <section className={styles.results} aria-labelledby="comparison-results-heading">
         <div className={styles.resultHeading}>
-          <div className={styles.resultTitle}><span className={styles.sectionIcon}><FontAwesomeIcon icon={faArrowRightArrowLeft} aria-hidden="true" /></span><h2 id="comparison-results-heading">{t('resultsHeading')}</h2></div>
+          <div className={styles.resultTitle}><CardIcon icon={faArrowRightArrowLeft} size="small" /><h2 id="comparison-results-heading">{t('resultsHeading')}</h2></div>
           <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
         </div>
         {comparisonLoading && <LoadingState title={t('loadingComparison')} compact />}
@@ -429,14 +431,14 @@ export function ComparisonPage() {
             <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
                 <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
-              <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}>{row.icon && <span className={styles.metricIcon}><FontAwesomeIcon icon={row.icon} aria-hidden="true" /></span>}{row.label}</span></th>{selectedApplications.map((application) =>
+              <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}>{row.icon && <CardIcon icon={row.icon} />}{row.label}</span></th>{selectedApplications.map((application) =>
                 <td key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><span className={styles.metricValue}>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}</td>)}</tr>)}</tbody>
             </table>
           </div>
           <div className={styles.mobileResults}>
             {rows.map((row) => <section key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
-              <h3 id={`comparison-${row.key}`} className={styles.indicatorLabel}>{row.icon && <span className={styles.metricIcon}><FontAwesomeIcon icon={row.icon} aria-hidden="true" /></span>}{row.label}</h3>
+              <h3 id={`comparison-${row.key}`} className={styles.indicatorLabel}>{row.icon && <CardIcon icon={row.icon} />}{row.label}</h3>
               {selectedApplications.map((application) => <div className={styles.mobileValue} key={application.applicationId}>
                 <strong>{application.name}{application.applicationId === referenceApplicationId ? ` · ${t('reference')}` : ''}</strong>
                 <span className={styles.metricValue}>{row.value(application)}</span>

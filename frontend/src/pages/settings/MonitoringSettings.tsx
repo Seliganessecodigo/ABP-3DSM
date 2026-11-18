@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faClockRotateLeft, faGaugeHigh, faPlug } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActionButton } from '../../components/ActionButton.tsx'
@@ -31,18 +33,18 @@ export function MonitoringSettings() {
     {error && <div role="alert"><p className={styles.error}>{t(error)}</p>{health && <p className={styles.previous}>{t('previousData')}</p>}<ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('retry')}</ActionButton></div>}
     {health && <>
       <section className={styles.section}>
-        <div className={styles.row}><div><h2>{t(`state.${health.state}`)}</h2><p>{t('interval', { count: health.intervalSeconds })}</p></div>
+        <div className={styles.row}><div><h2><CardIcon icon={faGaugeHigh} size="small" inline />{t(`state.${health.state}`)}</h2><p>{t('interval', { count: health.intervalSeconds })}</p></div>
           <button ref={trigger} type="button" className="button" disabled={health.paused === null || loading} onClick={() => { setConfirming(!health.paused); setReason(''); setSaved(false) }}>{t(health.paused ? 'resume' : 'pause')}</button>
         </div>
         <dl className={styles.facts}><div><dt>{t('knownApplications')}</dt><dd>{number.format(health.knownApplications)}</dd></div><div><dt>{t('staleApplications')}</dt><dd>{number.format(health.staleApplications)}</dd></div><div><dt>{t('lastObservation')}</dt><dd>{date(health.lastObservationAt)}</dd></div></dl>
       </section>
-      <section className={styles.section}><div className={styles.row}><div><h2>{t('integrations')}</h2><p>{t('refreshNote')}</p></div><ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('refresh')}</ActionButton></div>
+      <section className={styles.section}><div className={styles.row}><div><h2><CardIcon icon={faPlug} size="small" inline />{t('integrations')}</h2><p>{t('refreshNote')}</p></div><ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('refresh')}</ActionButton></div>
         {!health.sources.length && <p>{t('noSources')}</p>}
         <div className={styles.sources}>{health.sources.map(source => <div className={styles.source} key={source.integration}>
           <strong>{t(`source.${source.integration}`)}</strong><span>{t(`sourceState.${source.status}`)}</span><div><p>{t('lastAttempt')}: {date(source.lastAttemptAt)}</p><p>{t('lastSuccess')}: {date(source.lastSuccessAt)}</p><p>{t('lastFailure')}: {date(source.lastFailureAt)}</p><p>{t('openIncidents', { count: source.openIncidentCount })}</p></div>
         </div>)}</div>
       </section>
-      <section className={styles.section}><h2>{t('latestCycle')}</h2>{health.latestCycle ? <div className={styles.tableScroll}><table className={styles.table}><thead><tr>{['startedAt', 'result', 'processed', 'failures'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody><tr><td>{date(health.latestCycle.startedAt)}</td><td>{t(`cycle.${health.latestCycle.status}`)}</td><td>{number.format(health.latestCycle.processedCount)}</td><td>{number.format(health.latestCycle.failedCount)}</td></tr></tbody></table></div> : <p>{t('noCycles')}</p>}</section>
+      <section className={styles.section}><h2><CardIcon icon={faClockRotateLeft} size="small" inline />{t('latestCycle')}</h2>{health.latestCycle ? <div className={styles.tableScroll}><table className={styles.table}><thead><tr>{['startedAt', 'result', 'processed', 'failures'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody><tr><td>{date(health.latestCycle.startedAt)}</td><td>{t(`cycle.${health.latestCycle.status}`)}</td><td>{number.format(health.latestCycle.processedCount)}</td><td>{number.format(health.latestCycle.failedCount)}</td></tr></tbody></table></div> : <p>{t('noCycles')}</p>}</section>
     </>}
     {saved && <output>{t('saved')}</output>}
     <dialog ref={dialog} className={styles.dialog} aria-labelledby="monitoring-confirmation-title" onCancel={e => { e.preventDefault(); if (!saving) setConfirming(null) }}>

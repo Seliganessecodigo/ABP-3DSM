@@ -81,5 +81,7 @@
   "help.metrics": "CPU, memória, disco e rede descrevem o uso de recursos da aplicação e alimentam a estimativa de energia. Confira o horário da observação: uma tentativa de atualização pode falhar e manter a leitura anterior. Zero válido e leitura ausente são situações diferentes.",
   "help.factor": "O fator regional informa as emissões associadas a cada kWh de eletricidade naquela região. Com a mesma energia, fatores diferentes podem produzir valores diferentes de CO₂e. Os registros do cálculo permitem conferir qual fator e metodologia foram usados.",
   "help.period": "Período é a janela de tempo analisada, não a frequência da coleta. Granularidade, quando disponível, é o tamanho dos grupos de leituras, como hora ou dia. Confira também o fuso indicado ao ler as datas.",
-  "help.composition": "Cada barra ou fatia mostra quanto uma aplicação participa do CO₂e calculável no recorte escolhido. Uma participação maior significa uma contribuição maior para o total; sozinha, não demonstra menor eficiência. Dados ausentes não são tratados como zero."
+  "help.composition": "Cada barra ou fatia mostra quanto uma aplicação participa do CO₂e calculável no recorte escolhido. Uma participação maior significa uma contribuição maior para o total; sozinha, não demonstra menor eficiência. Dados ausentes não são tratados como zero.",
+  "nav.breadcrumb": "Trilha de navegação",
+  "nav.breadcrumbGo": "Ir para {{page}}"
 }

@@ -39,9 +39,9 @@ function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) 
     case 'recover-password': return <RecoverPasswordPage navigate={navigate} />
     case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
-    case 'comparison': return <ComparisonPage />
+    case 'comparison': return <ComparisonPage navigate={navigate} />
     case 'history': return <HistoryPage key="history" navigate={navigate} />
-    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" />
+    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" navigate={navigate} />
     case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
     case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
     case 'administration': return <RecalculationPreviewPage navigate={navigate} />

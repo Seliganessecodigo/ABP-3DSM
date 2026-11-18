@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faBolt, faLeaf, faBookOpen, faCalculator, faChartPie, faClockRotateLeft, faEarthAmericas } from '@fortawesome/free-solid-svg-icons'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
@@ -216,7 +218,7 @@ function MetricCard({ id, title, reading, locale, labels, empty = false, coverag
   }
 
   return <fieldset data-help={id} className={styles.metric} aria-labelledby={id}>
-    <h3 id={id}>{title}</h3>
+    <h3 id={id}>{metric && <CardIcon icon={metric === 'energy' ? faBolt : faLeaf} size="small" inline />}{title}</h3>
     <div className={styles.metricValueRow}>{content}{metric && <Sparkline points={seriesPoints} metric={metric} />}</div>
     {coverage?.status === 'available' && coverage.unit === 'fraction' && <p className={styles.metricCoverage}>
       {labels.coverage} {new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(coverage.value)}
@@ -253,7 +255,7 @@ function FactorCard({ factor, calculation, locale, labels }: Readonly<{ factor: 
   }
 
   return <fieldset className={styles.metric} aria-labelledby="analysis-factor-heading">
-    <h3 id="analysis-factor-heading">{equivalent ? labels.equivalentFactor : labels.factor}</h3>
+    <h3 id="analysis-factor-heading"><CardIcon icon={faEarthAmericas} size="small" inline />{equivalent ? labels.equivalentFactor : labels.factor}</h3>
     {content}
     {factor?.status === 'available' && factor.factors.length === 1 && <p className={styles.metricMetadata}>
       {[factor.factors[0].regionCode || factor.factors[0].region, factor.factors[0].source].filter(Boolean).join(' · ')}
@@ -273,7 +275,7 @@ function ContextCard({ data, locale, labels, children }: Readonly<{ data: Analys
     ? labels.historyContextSummary(new Intl.NumberFormat(locale).format(regions), new Intl.NumberFormat(locale).format(versions))
     : null
   return <fieldset data-help="analysis-context" className={styles.metric} aria-labelledby="analysis-context-heading">
-    <h3 id="analysis-context-heading">{labels.historyContextHeading}</h3>
+    <h3 id="analysis-context-heading"><CardIcon icon={faClockRotateLeft} size="small" inline />{labels.historyContextHeading}</h3>
     <p className={value === null ? styles.unavailableValue : styles.value}>{value ?? labels.metricUnavailable}</p>
     {children}
   </fieldset>
@@ -293,7 +295,7 @@ function CoverageCard({ data, locale, labels, empty = false, compact = false }: 
   const sharedCoverage = energyValue !== null && emissionsValue !== null && energyValue === emissionsValue ? energyValue : null
 
   return <fieldset data-help="analysis-coverage" className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
-    <h3 id="analysis-coverage-heading">{labels.coverage}</h3>
+    <h3 id="analysis-coverage-heading"><CardIcon icon={faChartPie} size="small" inline />{labels.coverage}</h3>
     {sharedCoverage !== null && !empty && compact ? <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</p>
     : sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
       <svg data-coverage-ring="true" className={styles.coverageRing} viewBox="0 0 60 60" role="img"
@@ -358,7 +360,7 @@ function CalculationSummary({ data, locale, labels, children, detailsOpen, onDet
   onClose: () => void
 }>) {
   return <section className={styles.calculation} aria-label={labels.calculationHeading}>
-    <header><h2>{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
+    <header><h2><CardIcon icon={faCalculator} size="small" inline />{labels.calculationHeading}</h2><details open={detailsOpen} onToggle={onDetailsToggle}
       className={styles.calculationDetails} id="analysis-details">
       <summary>{labels.calculationEstimate} · {labels.methodologyHeading} ↗</summary>
       <button type="button" className={styles.closeDetails} aria-label={labels.closeDetails} onClick={onClose}>×</button>
@@ -391,7 +393,7 @@ function FactorProvenance({ factors, formatDate, labels }: Readonly<{
 }>) {
   if (factors.length === 0) return null
   return <section className={styles.provenance} aria-labelledby="analysis-factors-heading">
-    <h2 id="analysis-factors-heading">{labels.factorsHeading}</h2>
+    <h2 id="analysis-factors-heading"><CardIcon icon={faEarthAmericas} size="small" inline />{labels.factorsHeading}</h2>
     <p>{labels.factorExplanation}</p>
     <div className={styles.factorList}>
       {factors.map((factor) => <FactorEntry key={`${factor.version}-${factor.region}-${typeof factor.queriedAt === 'string' ? factor.queriedAt : `${factor.queriedAt.from}-${factor.queriedAt.to}`}`}
@@ -427,7 +429,7 @@ function MethodologySection({ result, state, labels }: Readonly<{
   labels: Labels
 }>) {
   return <section className={styles.provenance} aria-labelledby="analysis-methodology-heading">
-    <h2 id="analysis-methodology-heading">{labels.methodologyHeading}</h2>
+    <h2 id="analysis-methodology-heading"><CardIcon icon={faBookOpen} size="small" inline />{labels.methodologyHeading}</h2>
     {state === 'loading' && <LoadingState title={labels.loading} compact />}
     {state === 'error' && <output>{labels.methodologyUnavailable}</output>}
     {state === 'unavailable' && !result && <output>{labels.methodologyUnavailable}</output>}
@@ -596,7 +598,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
                 <summary>{labels.methodologyHeading} · {labels.factorsHeading}</summary>
                 <div>
                   <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />
-                  <section aria-label={labels.calculationHeading}><h2>{labels.calculationHeading}</h2><CalculationFormula data={data} locale={locale} labels={labels} /></section>
+                  <section aria-label={labels.calculationHeading}><h2><CardIcon icon={faCalculator} size="small" inline />{labels.calculationHeading}</h2><CalculationFormula data={data} locale={locale} labels={labels} /></section>
                   {data.factor.status === 'available' && <FactorProvenance factors={data.factor.factors} formatDate={formatDate} labels={labels} />}
                   <MethodologySection result={data.methodology} state={getMethodologyState(data, status)} labels={labels} />
                 </div>

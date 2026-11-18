@@ -1,3 +1,6 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faDatabase, faEarthAmericas, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
@@ -166,7 +169,7 @@ function ResultCards({ result, applicationName, locale, pending }: Readonly<{
     {pending && <p className={styles.pendingNotice} role="status">{t('pendingResult')}</p>}
     <div className={styles.resultGrid}>
       <article data-help="simulation-original" className={styles.resultCard} aria-label={t('originalResult')}>
-        <div className={styles.cardHeading}><h2>{t('originalResult')}</h2><span className={styles.preserved}>{t('preserved')}</span></div>
+        <div className={styles.cardHeading}><h2><CardIcon icon={faDatabase} size="small" inline />{t('originalResult')}</h2><span className={styles.preserved}>{t('preserved')}</span></div>
         <p className={styles.fieldLabel}>{t('application')}</p><strong className={styles.emphasis}>{applicationName}</strong>
         <dl className={styles.values}>
           <div><dt>{t('energyForPeriod')}</dt><dd>{energy ?? energyUnavailable}</dd></div>
@@ -176,7 +179,7 @@ function ResultCards({ result, applicationName, locale, pending }: Readonly<{
         <p className={styles.muted}>{t('historicalFactorsPreserved')}</p>
       </article>
       <article data-help="simulation-factor" className={styles.resultCard} aria-label={t('destinationFactorTitle')}>
-        <h2>{t('destinationFactorTitle')}</h2>
+        <h2><CardIcon icon={faEarthAmericas} size="small" inline />{t('destinationFactorTitle')}</h2>
         <strong className={styles.emphasis}>{location}</strong>
         <p className={styles.fieldLabel}>{t('carbonIntensity')}</p>
         {result.destinationFactor?.intensity !== null && result.destinationFactor?.unit
@@ -197,7 +200,7 @@ function ResultCards({ result, applicationName, locale, pending }: Readonly<{
         </div>
       </article>
       <article data-help="simulation-scenario" className={`${styles.resultCard} ${styles.scenarioCard}`} aria-label={t('scenarioResult')}>
-        <h2>{t('scenarioResult')}</h2><p className={styles.muted}>{t('scenarioEmissions')}</p>
+        <h2><CardIcon icon={faLeaf} size="small" inline />{t('scenarioResult')}</h2><p className={styles.muted}>{t('scenarioEmissions')}</p>
         <p className={styles.resultValue}>{destination ?? destinationUnavailable}</p>
         {percentText && (lower || higher) && <span className={lower ? styles.positiveDelta : styles.negativeDelta}>{t(lower ? 'percentBelow' : 'percentAbove', { percent: percentText })}</span>}
         {percent === 0 && <span className={styles.neutralDelta}>{t('noDifference')}</span>}
@@ -210,7 +213,7 @@ function ResultCards({ result, applicationName, locale, pending }: Readonly<{
   </section>
 }
 
-export function RegionalSimulationPage() {
+export function RegionalSimulationPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t, i18n } = useTranslation('regionalSimulation')
   const { applications, loading: applicationsLoading, error: applicationsError, retry: retryApplications } = useApplicationCatalog()
   const [search, setSearch] = useState(window.location.search)
@@ -323,7 +326,7 @@ export function RegionalSimulationPage() {
 
   return <main className={`content ${styles.page}`}>
     <header className={`page-heading ${styles.header}`}>
-      <div><p className="eyebrow">{t('sectionLabel')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><p className="eyebrow">{t('sectionLabel')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
         { title: t('simulationParameters'), description: t('helpParameters'), target: '[data-help="simulation-parameters"]' },
         { title: t('originalResult'), description: t('helpOriginal'), target: '[data-help="simulation-original"]' },
         { title: t('destinationFactorTitle'), description: t('helpFactor'), target: '[data-help="simulation-factor"]' },

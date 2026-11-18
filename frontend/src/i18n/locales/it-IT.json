@@ -81,5 +81,7 @@
   "help.metrics": "CPU, memoria, disco e rete descrivono l’uso delle risorse e alimentano la stima energetica. Controlla l’ora dell’osservazione: un aggiornamento può fallire e conservare la lettura precedente. Uno zero valido è diverso da una lettura assente.",
   "help.factor": "Il fattore regionale indica le emissioni per ogni kWh di elettricità in quella regione. La stessa energia può produrre CO₂e diversi secondo il fattore. I registri del calcolo mostrano fattore e metodologia utilizzati.",
   "help.period": "Il periodo è la finestra temporale analizzata, non la frequenza di raccolta. La granularità, quando disponibile, raggruppa le letture, ad esempio per ora o giorno. Controlla il fuso orario indicato.",
-  "help.composition": "Ogni barra o settore mostra la quota di un’applicazione nel CO₂e calcolabile dell’ambito scelto. Una quota maggiore contribuisce di più al totale; da sola non dimostra minore efficienza. I dati assenti non valgono zero."
+  "help.composition": "Ogni barra o settore mostra la quota di un’applicazione nel CO₂e calcolabile dell’ambito scelto. Una quota maggiore contribuisce di più al totale; da sola non dimostra minore efficienza. I dati assenti non valgono zero.",
+  "nav.breadcrumb": "Percorso di navigazione",
+  "nav.breadcrumbGo": "Vai a {{page}}"
 }

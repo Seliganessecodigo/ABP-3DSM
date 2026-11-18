@@ -1,3 +1,7 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faLayerGroup, faFilter } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
+import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { analysisNavigationUrl } from '../../app/analysisNavigation.ts'
@@ -155,7 +159,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const detailLink = (item: (typeof applications)[number]) => <a data-application-id={item.id} className={styles['detail-link']} href={`/services/${encodeURIComponent(item.id)}${window.location.search}`} aria-label={tCatalog('details')} title={tCatalog('details')} onClick={(event) => { event.preventDefault(); window.sessionStorage.setItem(catalogReturnKey, JSON.stringify({ applicationId: item.id, scrollY: window.scrollY })); navigate(`/services/${encodeURIComponent(item.id)}${window.location.search}`) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M1.8 10s3-5.2 8.2-5.2 8.2 5.2 8.2 5.2-3 5.2-8.2 5.2S1.8 10 1.8 10Z"/><circle cx="10" cy="10" r="2.4"/></svg><span className={styles['detail-link-text']}>{tCatalog('details')}</span></a>
 
   return <main className="content" tabIndex={-1}>
-    <header className="page-heading"><div><p className="eyebrow">{tCatalog('eyebrow')}</p><div className="heading-title"><h1>{tCatalog('title')}</h1><PageHelp steps={[
+    <header className="page-heading"><div><Breadcrumbs navigate={navigate} items={[{ label: tCommon('nav.applications') }]} /><p className="eyebrow">{tCatalog('eyebrow')}</p><div className="heading-title"><h1>{tCatalog('title')}</h1><PageHelp steps={[
       { title: tCatalog('title'), description: tCatalog('description'), target: '[data-help="catalog-table"]' },
       { title: tCatalog('stateFilter'), description: tCommon('help.states'), target: '[data-help="catalog-filters"]' },
       { title: tCatalog('actions'), description: tCatalog('helpActions'), target: '[data-help="application-actions"]' },
@@ -165,7 +169,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     <div data-help="catalog-filters" className={styles.filters} aria-label={tCatalog('filterLabel')}>{states.map(({ value }) => <button key={value} className={query.state === value ? `${styles.filter} ${styles.active}` : styles.filter} aria-pressed={query.state === value} onClick={() => update({ state: value })}>{stateLabel(value, tCommon)}{hasSnapshot && ` (${counts[value]})`}</button>)}</div>
     {filtersOpen && <div className={styles['filter-backdrop']} onMouseDown={(event) => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
       <section ref={filterDialogRef} id="catalog-column-filters" className={styles['filter-dialog']} role="dialog" aria-modal="true" aria-labelledby="catalog-filter-title" aria-describedby="catalog-filter-description">
-        <header className={styles['filter-dialog-header']}><div><h2 id="catalog-filter-title">{tCatalog('columnFilters')}</h2><p id="catalog-filter-description">{tCatalog('filterDialogDescription')}</p></div><button className={styles['filter-close']} aria-label={tCatalog('closeFilters')} onClick={() => setFiltersOpen(false)}>×</button></header>
+        <header className={styles['filter-dialog-header']}><div><h2 id="catalog-filter-title"><CardIcon icon={faFilter} size="small" inline />{tCatalog('columnFilters')}</h2><p id="catalog-filter-description">{tCatalog('filterDialogDescription')}</p></div><button className={styles['filter-close']} aria-label={tCatalog('closeFilters')} onClick={() => setFiltersOpen(false)}>×</button></header>
         <div className={styles['filter-grid']}>
           <label>{tCatalog('nameFilter')}<input className="form-control" placeholder={tCatalog('namePlaceholder')} value={draftFilters.name ?? ''} onChange={(event) => updateFilter({ name: event.target.value })} /></label>
           <label>{tCatalog('countryFilter')}<input className="form-control" placeholder={tCatalog('countryPlaceholder')} value={draftFilters.country ?? ''} onChange={(event) => updateFilter({ country: event.target.value })} /></label>
@@ -195,9 +199,9 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     {!loading && hasSnapshot && result.total > 0 && <>
       <div data-help="catalog-table" className={styles['table-wrap']}><table><thead><tr>{columns.map((column) => {
         const sort = columnSort(column.key)
-        return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><button className={styles['sort-button']} onClick={() => toggleSort(column.key)}>{columnLabel(column)}<span aria-hidden="true">{sort.indicator}</span></button></th>
+        return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><SortButton state={sort.ariaSort} onClick={() => toggleSort(column.key)}>{columnLabel(column)}</SortButton></th>
       })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td><div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></td></tr>)}</tbody></table></div>
-      <div data-help="catalog-table" className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2>{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></article>)}</div>
+      <div data-help="catalog-table" className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2><CardIcon icon={faLayerGroup} size="small" inline />{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}</div></article>)}</div>
       <Pagination page={result.page} pageCount={result.pageCount} onPageChange={page => update({ page })}
         summary={tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}
         pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => update({ pageSize: value === 'all' ? 'all' : Number(value) }) }} />

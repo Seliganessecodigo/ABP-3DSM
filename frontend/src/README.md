@@ -1,5 +1,7 @@
 # Organização do frontend
 
+Os padrões visuais de cards, tabelas ordenáveis e trilha de navegação usam `components/CardIcon`, `components/SortButton` e `components/Breadcrumbs`. Reutilize esses componentes ao ampliar as telas; estado, filtros, links de retorno e regras de ordenação continuam pertencendo à página. Consulte [components/README.md](components/README.md) para os contratos.
+
 `pages/methodology/` contém as quatro abas em `MethodologyPage`, rascunhos em `usePreferenceDraft` e componentes locais de explicação/prévia. `RecordedMethodology` preserva a consulta histórica por coleta. `features/preferences/` valida o contrato HTTP autenticado; `pages/detail/useAnalysisDefaults` aplica somente padrões ausentes na URL.
 
 `pages/settings/` compõe Configurações em `/settings`, com monitoramento, usuários, auditoria e conta pessoal conforme o papel. Contratos, limites e verificação estão em [settings/README.md](pages/settings/README.md). `features/monitoring/` valida as consultas administrativas existentes.

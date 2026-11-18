@@ -1,4 +1,7 @@
-﻿import { useTranslation } from 'react-i18next'
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faBolt, faBookOpen, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { Application } from '../../features/applications/api.ts'
 import { ActionButton } from '../../components/ActionButton.tsx'
@@ -24,11 +27,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
   const referenceUrl = snapshot?.source && /^https?:\/\//i.test(snapshot.source) ? snapshot.source : null
   const isLoading = status === 'loading'
   return <section className={`content ${styles.page}`} tabIndex={-1}>
-    <nav className={styles.breadcrumb} aria-label={common('nav.main')}>
-      <a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{common('nav.applications')}</a>
-      {application && <><span aria-hidden="true">›</span><a href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{application.name}</a></>}
-      <span aria-hidden="true">›</span><span aria-current="page">{t('title')}</span>
-    </nav>
+    <Breadcrumbs navigate={navigate} items={[{ label: common('nav.applications'), href: '/applications' }, ...(application ? [{ label: application.name, href: backUrl }] : []), { label: t('title') }]} />
     <header className="page-heading">
       <div><p className="eyebrow">{t('eyebrow')}</p><h1>{t('title')}</h1>
         <p>{t('description', { application: application?.name ?? '' })}</p></div>
@@ -51,7 +50,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
     {status === 'error' && <section className="empty-state" role="alert"><h2>{t('error')}</h2><p>{t('errorDescription')}</p><ActionButton onClick={retry}>{common('actions.retry')}</ActionButton></section>}
     {data && collection && <>
       <section className={styles.indicator} aria-labelledby="methodology-indicator-title">
-        <div><p className={styles.kicker}>{t('indicator')}</p><h2 id="methodology-indicator-title">{t('energyEstimate')}</h2><p>{application?.name}</p></div>
+        <div><p className={styles.kicker}>{t('indicator')}</p><h2 id="methodology-indicator-title"><CardIcon icon={faBolt} size="small" inline />{t('energyEstimate')}</h2><p>{application?.name}</p></div>
         <p className={styles.value}>{!energy || energy.valueKwh === null ? t('notCalculable') : <><strong>{number(energy.valueKwh)}</strong> kWh</>}</p>
         <span className={styles.status}>{energy?.valueKwh !== null && energy ? t('estimated') : t('notCalculable')}</span>
       </section>
@@ -59,7 +58,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
       {data.status === 'absent' && <section className="empty-state"><h2>{t('unavailable')}</h2><p>{t('unavailableDescription')}</p></section>}
       {method && <>
       <section className={styles.card} aria-labelledby="formula-heading">
-        <header><div><p className={styles.kicker}>{t('calculation')}</p><h2 id="formula-heading">{t('formula')}</h2></div><span className={styles.tag}>{t('version')} {method.version}</span></header>
+        <header><div><p className={styles.kicker}>{t('calculation')}</p><h2 id="formula-heading"><CardIcon icon={faBookOpen} size="small" inline />{t('formula')}</h2></div><span className={styles.tag}>{t('version')} {method.version}</span></header>
           {method.formula.status === 'available' && method.formula.expression ? <pre className={styles.formula}><code>{method.formula.expression}</code></pre> : <p className={styles.note}>{t('unavailableDescription')}</p>}
           <p className={styles.note}>{t('formulaNote')}</p>
           <div className={styles.grid}>
@@ -70,7 +69,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
           </div>
       </section>
       <section className={styles.card}>
-        <h2>{t('validityAndSource')}</h2><dl className={styles.metadata}>
+        <h2><CardIcon icon={faCircleInfo} size="small" inline />{t('validityAndSource')}</h2><dl className={styles.metadata}>
           {snapshot && <><div><dt>{t('version')}</dt><dd>{snapshot.version ?? t('unknown')}</dd></div><div><dt>{t('factor')}</dt><dd>{snapshot.intensity === null ? t('notProvided') : `${number(snapshot.intensity)} ${snapshot.unit ?? ''}`}</dd></div>
             {snapshot.source && <div><dt>{t('reference')}</dt><dd>{referenceUrl ? <a href={referenceUrl} target="_blank" rel="noopener noreferrer">{snapshot.source}</a> : snapshot.source}</dd></div>}
             <div><dt>{t('queriedAt')}</dt><dd>{snapshot.queriedAt ? date(snapshot.queriedAt) : t('notProvided')}</dd></div></>}

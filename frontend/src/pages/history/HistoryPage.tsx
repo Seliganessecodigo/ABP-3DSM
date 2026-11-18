@@ -1,3 +1,6 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -63,7 +66,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className="page-heading">
       <div>
-        <p className="eyebrow">{tCatalog('eyebrow')}</p>
+        <Breadcrumbs navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tCommon('nav.history') }]} /><p className="eyebrow">{tCatalog('eyebrow')}</p>
         <div className="heading-title"><h1>{tDetail('historyTitle')}</h1><PageHelp steps={[
   { title: tCatalog('app'), description: tDetail('helpHistoryFilters'), target: '[data-help="history-selector"]' },
   { title: t('applicationsTitle'), description: tDetail('historyDescription'), target: '[aria-labelledby="history-applications-heading"]' },
@@ -82,7 +85,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
     {error && hasSnapshot && <RequestFeedback state="error"><p>{tCatalog('stale')}</p><button type="button" onClick={retry}>{tCommon('actions.retry')}</button></RequestFeedback>}
     {applications.length === 0 && <RequestFeedback state="empty"><h2>{tCatalog('emptyTitle')}</h2><p>{tCatalog('empty')}</p></RequestFeedback>}
     {applications.length > 0 && <section className={styles.applications} aria-labelledby="history-applications-heading">
-      <h2 id="history-applications-heading">{t('applicationsTitle')}<span className={styles.applicationCount}>{new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR').format(applications.length)}</span></h2>
+      <h2 id="history-applications-heading"><CardIcon icon={faClockRotateLeft} size="small" inline />{t('applicationsTitle')}<span className={styles.applicationCount}>{new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR').format(applications.length)}</span></h2>
       <div className={styles.applicationList}>{applications.map((application) => <button type="button" key={application.id}
         className={styles.applicationRow} onClick={() => selectApplication(application.id)}>
         <span className={styles.applicationIdentity}><span className={styles.applicationName}>{application.name}</span><span className={styles.applicationId}>{application.id}</span></span>

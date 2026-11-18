@@ -17,7 +17,6 @@
 .compact .filteredCount { margin-bottom: 4px; font-size: 10px; }
 .compact .table { font-size: 11px; }
 .compact .table th, .compact .table td { padding: 6px 4px; }
-.compact .sortButton { min-height: 24px; }
 .compact .note { margin-top: 4px !important; font-size: 9px; }
 .compact .freshness { margin: 0 0 4px; font-size: 10px; }
 .status { display: inline-block; border-radius: 4px; padding: 2px 4px; font-size: 9px; line-height: 1.2; white-space: nowrap; }
@@ -46,9 +45,6 @@
 .table tbody th { color: var(--text-primary); font-weight: 500; }
 .table tbody th, .table td { overflow-wrap: anywhere; }
 .table tbody td:last-child { color: var(--text-primary); font-weight: 600; }
-.sortButton { min-height: 44px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; text-align: left; cursor: pointer; }
-.sortButton:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-.sortButton:hover { color: var(--accent-default); }
 .noMatches { margin: 0; border: 1px solid var(--border-default); border-radius: 8px; padding: 12px; color: var(--text-secondary); background: var(--surface-raised); }
 .note { margin: 12px 0 0 !important; }
 @media (max-width: 640px) {

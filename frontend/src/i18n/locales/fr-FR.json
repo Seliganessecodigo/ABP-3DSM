@@ -81,5 +81,7 @@
   "help.metrics": "Processeur, mémoire, disque et réseau décrivent les ressources utilisées et alimentent l’estimation d’énergie. Vérifiez l’heure du relevé : une actualisation peut échouer et conserver la lecture précédente. Un zéro valide diffère d’un relevé absent.",
   "help.factor": "Le facteur régional indique les émissions associées à chaque kWh d’électricité dans cette région. Une même énergie peut donner différents CO₂e selon le facteur. Les enregistrements précisent le facteur et la méthode utilisés.",
   "help.period": "La période est la fenêtre de temps analysée, pas la fréquence de collecte. La granularité, lorsqu’elle est proposée, regroupe les relevés par heure ou par jour, par exemple. Vérifiez le fuseau indiqué pour les dates.",
-  "help.composition": "Chaque barre ou secteur indique la part d’une application dans le CO₂e calculable du périmètre choisi. Une part plus grande contribue davantage au total ; elle ne prouve pas à elle seule une efficacité moindre. Les données absentes ne valent pas zéro."
+  "help.composition": "Chaque barre ou secteur indique la part d’une application dans le CO₂e calculable du périmètre choisi. Une part plus grande contribue davantage au total ; elle ne prouve pas à elle seule une efficacité moindre. Les données absentes ne valent pas zéro.",
+  "nav.breadcrumb": "Fil d’Ariane",
+  "nav.breadcrumbGo": "Aller à {{page}}"
 }

@@ -1,3 +1,6 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faBolt, faLeaf, faArrowRotateRight, faBookOpen, faCalculator, faSliders } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -121,7 +124,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
     const change = difference(original, preview, result.original.coverage[key], result.preview.coverage[key])
     const formatMeasure = (measure: PreviewMeasure) => measure.value === null ? t('unavailable') : `${formatNumber(measure.value)} ${measure.unit}`
     return <section className={styles.measure} aria-label={label} key={key}>
-      <h3>{label}</h3>
+      <h3><CardIcon icon={key === 'energy' ? faBolt : faLeaf} size="small" inline />{label}</h3>
       <div className={styles.measureValues}>
         <p><span>{t('original')}</span><strong>{formatMeasure(original)}</strong></p>
         <p><span>{t('preview')}</span><strong>{formatMeasure(preview)}</strong></p>
@@ -134,7 +137,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
   }
 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className="page-heading"><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+    <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /></div><header className="page-heading"><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('recalculateTitle'), description: t('recalculateDescription'), target: '[data-help="recalculation-form"]' },
   { title: t('resultTitle'), description: t('noSave'), target: '[data-help="recalculation-result"]' },
 ]} /></div></header>
@@ -144,7 +147,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
         : <span key={key} aria-disabled="true" title={t('navigationUnavailable')}>{t(label)}<small>{t('navigationUnavailable')}</small></span>)}
     </nav>
     {result ? <section data-help="recalculation-result" className={styles.resultPage} aria-labelledby="preview-title">
-      <h2 id="preview-title" ref={resultHeading} tabIndex={-1}>{t('resultTitle')}</h2>
+      <h2 id="preview-title" ref={resultHeading} tabIndex={-1}><CardIcon icon={faCalculator} size="small" inline />{t('resultTitle')}</h2>
       <p>{t('preserved')}</p>
       <p>{t('application')}: {applications.find((item) => item.id === result.original.applicationId)?.name ?? result.original.applicationId}</p>
       <p>{t('from')}: {new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR').format(new Date(result.original.period.from))} · {t('to')}: {new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR').format(new Date(Date.parse(result.original.period.to) - 1))}</p>
@@ -153,7 +156,7 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
       {result.warnings.length > 0 && <div role="status" className={styles.warning}>{result.warnings.map((warning) => warningMessage(warning.code, warning.regionCode)).join(' ')}</div>}
       <div className={styles.measureGrid}>{renderMeasure(t('energy'), 'energy')}{renderMeasure(t('emissions'), 'emissions')}</div>
       <section className={styles.provenance} aria-label={t('methodAndFactors')}>
-        <h3>{t('methodAndFactors')}</h3>
+        <h3><CardIcon icon={faBookOpen} size="small" inline />{t('methodAndFactors')}</h3>
         {result.preview.provenance.methodologies.map((method) => <p key={`${method.key}-${method.version}`}>{t('method')}: {method.key} v{method.version} · {JSON.stringify(method.parameters)}</p>)}
         {result.preview.provenance.factors.map((factor, index) => <p key={`${factor.regionCode}-${factor.version}-${index}`}>{t('factor')}: {[factor.regionCode, factor.country, factor.region, factor.city, factor.version, factor.contractVersion, factor.source, factor.intensity === null ? null : `${formatNumber(factor.intensity)} ${factor.unit ?? ''}`, factor.validFrom, factor.validUntil, factor.queriedAt.from, factor.queriedAt.to].filter(Boolean).join(' · ') || t('unavailable')}</p>)}
         {result.preview.provenance.methodologies.length === 0 && result.preview.provenance.factors.length === 0 && <p>{t('provenanceUnavailable')}</p>}
@@ -162,12 +165,12 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
     </section> : <>
       <section className={styles.banner} aria-label={t('calculations')}>● {t('calculations')} · {t('preserved')}</section>
       <section className={styles.card} aria-labelledby="estimation-model-title">
-        <h2 id="estimation-model-title">{t('modelTitle')}</h2>
+        <h2 id="estimation-model-title"><CardIcon icon={faCalculator} size="small" inline />{t('modelTitle')}</h2>
         <p>{t('energyFormula')}</p>
         <p>{t('emissionsFormula')}</p>
       </section>
-      <section className={styles.card}><h2>{t('parametersTitle')}</h2><p>{t('configurationNote')}</p></section>
-      <section data-help="recalculation-form" className={styles.card}><h2>{t('recalculateTitle')}</h2>
+      <section className={styles.card}><h2><CardIcon icon={faSliders} size="small" inline />{t('parametersTitle')}</h2><p>{t('configurationNote')}</p></section>
+      <section data-help="recalculation-form" className={styles.card}><h2><CardIcon icon={faArrowRotateRight} size="small" inline />{t('recalculateTitle')}</h2>
         {applicationsState === 'loading' && <p role="status">{t('loadingApplications')}</p>}
         {applicationsState === 'error' && <p role="alert">{t('applicationsFailed')}</p>}
         {applicationsState === 'ready' && applications.length === 0 && <p role="status">{t('noApplications')}</p>}
