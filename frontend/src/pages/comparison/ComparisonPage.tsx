@@ -1,6 +1,7 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
+import { tableSortPresentation } from '../../utils/tableSortPresentation.ts'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
@@ -380,8 +381,10 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
         <table className={styles.applicationTable}>
           <thead><tr>
             <th scope="col">{t('selectColumn')}</th>
-            {sortColumns.map((column) => <th key={column} scope="col" aria-sort={query.sort?.column === column ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'}><SortButton state={query.sort?.column === column ? query.sort.direction === 'asc' ? 'ascending' : 'descending' : 'none'} onClick={() => toggleSort(column)}>{sortLabels[column]}</SortButton>
-            </th>)}
+            {sortColumns.map((column) => {
+              const sort = tableSortPresentation(column, query.sort?.column ?? null, query.sort?.direction ?? null)
+              return <th key={column} scope="col" aria-sort={sort.ariaSort}><SortButton state={sort.ariaSort} onClick={() => toggleSort(column)}>{sortLabels[column]}</SortButton></th>
+            })}
           </tr></thead>
           <tbody>{result.items.map((application) => {
             const checked = selectedIds.includes(application.id)

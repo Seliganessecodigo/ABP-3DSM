@@ -241,7 +241,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   ]} />
   return <main ref={historyRoot} className={`content ${styles['detail-content']} ${!historyOnly && operationalOverview ? styles.overviewContent : ''} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
     {historyOnly && <header className={styles.historyHeader}>
-      {inspectionBucket ? <>
+      {inspectionBucket ?
         <div className={styles.historyInspectionHeading}>
           <div>
             <Breadcrumbs className={styles.breadcrumb} navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tDetail('historyTitle'), href: historyUrl, onNavigate: closeHistoryInspection }, { label: tDetail('historyInspectionHeading') }]} />
@@ -253,7 +253,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
             {'\u2190'} {tDetail('historyInspectionBack')}
           </button>
         </div>
-      </> : <>
+      : <>
         <div className={styles.historyHeading}>
           <Breadcrumbs className={styles.breadcrumb} navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tDetail('historyTitle') }]} />
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
