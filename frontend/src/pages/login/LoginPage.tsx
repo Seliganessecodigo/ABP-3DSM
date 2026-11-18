@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import styles from './LoginPage.module.css'
 import greenErMark from '../../assets/green-er-mark.png'
@@ -115,7 +117,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
   { title: t('totpChallengeHeading'), description: t('totpChallengeDescription'), target: 'main form' },
 ]} /></div></header>
     <section className={styles.card} aria-labelledby="login-heading">
-      <h2 id="login-heading">{t('submit')}</h2>
+      <h2 id="login-heading"><CardIcon icon={faLock} size="small" inline />{t('submit')}</h2>
       <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
         <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>

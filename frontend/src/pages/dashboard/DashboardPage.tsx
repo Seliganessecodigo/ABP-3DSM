@@ -1,3 +1,7 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
+import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
@@ -209,7 +213,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className={`page-heading ${styles.header}`}>
       <div>
-        <p className="eyebrow">{t('eyebrow')}</p>
+        <Breadcrumbs navigate={navigate} /><p className="eyebrow">{t('eyebrow')}</p>
         <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
   { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
@@ -277,17 +281,17 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
 
       <section className={styles.kpis} aria-label={t('indicators')}>
         <article data-help="dashboard-energy" className={styles.card}>
-          <h2>{t('energy')}</h2>
+          <h2><CardIcon icon={faBolt} size="small" inline />{t('energy')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('energyCoverage')}: {coverageLabel(data.data.coverage.energy, locale)}</p>
         </article>
         <article data-help="dashboard-emissions" className={styles.card}>
-          <h2>{t('emissions')}</h2>
+          <h2><CardIcon icon={faLeaf} size="small" inline />{t('emissions')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</p>
           <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
         </article>
         <article id="dashboard-coverage" className={`${styles.card} ${styles.coverageCard}`}>
-          <h2>{t('coverage')}</h2>
+          <h2><CardIcon icon={faChartPie} size="small" inline />{t('coverage')}</h2>
           <div className={styles.coverageVisual}>
             <div className={styles.coverageRing} role="img" aria-label={`${t('emissionsCoverage')}: ${coverageLabel(data.data.coverage.emissions, locale)}`}
               style={{ background: `conic-gradient(var(--accent-default) ${data.data.coverage.emissions * 100}%, var(--control-hover) 0)` }}>
@@ -300,7 +304,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           </div>
         </article>
         <article className={styles.card}>
-          <h2>{t('applicationStates', { count: totalApplications })}</h2>
+          <h2><CardIcon icon={faLayerGroup} size="small" inline />{t('applicationStates', { count: totalApplications })}</h2>
           <ul className={styles.stateList}>
             {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) =>
               <li key={state}><span className={`${styles.stateBadge} ${styles[`state${state}`]}`}>{labels[state]} <strong>{data.data?.states[state]}</strong></span></li>)}
@@ -313,12 +317,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
 
       <section className={styles.visualizations}>
         <article data-help="dashboard-trend" className={styles.card}>
-          <h2>{t('trendTitle')}</h2>
+          <h2><CardIcon icon={faChartLine} size="small" inline />{t('trendTitle')}</h2>
           <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
         <article data-help="dashboard-composition" className={styles.card}>
           <div className={styles.sectionHeading}>
-            <h2>{t('compositionTitle')}</h2>
+            <h2><CardIcon icon={faChartPie} size="small" inline />{t('compositionTitle')}</h2>
             <div className={styles.modeButtons}>
               <button type="button" aria-pressed={compositionMode === 'bars'}
                 onClick={() => setCompositionMode(compositionMode === 'donut' ? 'bars' : 'donut')}>
@@ -426,8 +430,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           ? <p className={styles.emptyNotice} role="status">{data.data.applications.length === 0 ? t('table.noContributors') : t('table.noMatches')}</p>
           : <div className={styles.tableScroll}>
             <table>
-              <thead><tr>{tableColumns.map(({ key, label }) => <th key={key} scope="col" aria-sort={sortState(key)}>
-                <button type="button" onClick={() => toggleSort(key)}>{t(label)}</button>
+              <thead><tr>{tableColumns.map(({ key, label }) => <th key={key} scope="col" aria-sort={sortState(key)}><SortButton state={sortState(key)} onClick={() => toggleSort(key)}>{t(label)}</SortButton>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
                 <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === row.applicationId)} /></th>

@@ -81,5 +81,7 @@
   "help.metrics": "CPU, Speicher, Datenträger und Netzwerk beschreiben die Ressourcennutzung und liefern die Grundlage der Energieschätzung. Prüfen Sie die Beobachtungszeit: Eine Aktualisierung kann scheitern und den vorherigen Wert behalten. Ein gültiger Nullwert ist kein fehlender Messwert.",
   "help.factor": "Der regionale Faktor beschreibt Emissionen pro kWh Strom in dieser Region. Dieselbe Energie kann mit verschiedenen Faktoren unterschiedliche CO₂e ergeben. Die Berechnungsaufzeichnungen zeigen den verwendeten Faktor und die Methode.",
   "help.period": "Der Zeitraum ist das analysierte Zeitfenster, nicht das Erfassungsintervall. Die Granularität gruppiert, sofern angeboten, Messwerte etwa pro Stunde oder Tag. Beachten Sie die angegebene Zeitzone.",
-  "help.composition": "Jeder Balken oder Abschnitt zeigt den Anteil einer Anwendung am berechenbaren CO₂e im gewählten Umfang. Ein größerer Anteil trägt mehr zur Summe bei; allein daraus folgt keine geringere Effizienz. Fehlende Daten werden nicht als null behandelt."
+  "help.composition": "Jeder Balken oder Abschnitt zeigt den Anteil einer Anwendung am berechenbaren CO₂e im gewählten Umfang. Ein größerer Anteil trägt mehr zur Summe bei; allein daraus folgt keine geringere Effizienz. Fehlende Daten werden nicht als null behandelt.",
+  "nav.breadcrumb": "Brotkrumennavigation",
+  "nav.breadcrumbGo": "Zu {{page}}"
 }

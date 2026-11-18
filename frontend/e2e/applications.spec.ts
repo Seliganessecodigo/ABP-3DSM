@@ -435,7 +435,7 @@ test('filtros de coluna, ordenação e tamanho de página são refletidos na URL
   const nameHeader = page.getByRole('columnheader', { name: /aplicação/i })
   await nameHeader.getByRole('button').click()
   await expect(nameHeader).toHaveAttribute('aria-sort', 'descending')
-  await expect(nameHeader.locator('button span')).toHaveCSS('font-size', '17px')
+  await expect(nameHeader.locator('[data-sort-state="descending"]')).toHaveCSS('font-size', '14px')
   await expect(page).toHaveURL(/sort=name.*direction=desc|direction=desc.*sort=name/)
   await page.getByRole('combobox', { name: /itens por página/i }).selectOption('5')
   await expect(page).toHaveURL(/size=5/)

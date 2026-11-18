@@ -15,7 +15,7 @@
 .subtitle { font-size: 13px; }
 .summaryMeta { font-size: 11px; }
 .refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
-.filterActions button, .filtersPanel fieldset button, .tableCard th button {
+.filterActions button, .filtersPanel fieldset button {
   min-height: var(--control-height);
   border: 1px solid var(--border-default);
   border-radius: var(--control-radius);
@@ -146,7 +146,6 @@
 .tableCard table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
 .tableCard th, .tableCard td { padding: 6px 8px; border-bottom: 1px solid var(--border-default); white-space: nowrap; }
 .tableCard th { color: var(--text-secondary); font-weight: 600; }
-.tableCard th button { min-height: 32px; border: 0; padding: 4px; background: transparent; font: inherit; }
 .tableCard tbody th { color: var(--text-primary); }
 .tableCard td a { color: var(--accent-default); font-weight: 650; }
 .tableCard tbody th a { color: var(--text-primary); font-weight: 700; text-decoration: none; }

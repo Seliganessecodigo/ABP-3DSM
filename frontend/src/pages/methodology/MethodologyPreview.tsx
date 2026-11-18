@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faChartLine } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import type { PreferenceDraft, PreferenceTab } from './usePreferenceDraft.ts'
 import { PersonalAlertsPanel } from '../../components/PersonalAlerts.tsx'
@@ -9,7 +11,7 @@ export function MethodologyPreview({ tab, drafts, savedTabs }: Readonly<{ tab: P
   const { t } = useTranslation('methodology', { keyPrefix: 'preferences' })
   return <section className={`${styles.card} ${styles.preview}`} aria-labelledby="preview-title">
     <p className={styles.step}>{t('stepPreview')}</p>
-    <div className={styles.previewHeading}><h2 id="preview-title">{t(tab === 'analysis' ? 'analysisPreview' : 'warningsPreview')}</h2><span className={styles.badge}>{t('realData')}</span></div>
+    <div className={styles.previewHeading}><h2 id="preview-title"><CardIcon icon={faChartLine} size="small" inline />{t(tab === 'analysis' ? 'analysisPreview' : 'warningsPreview')}</h2><span className={styles.badge}>{t('realData')}</span></div>
     {tab === 'analysis' && <p className={styles.previewDescription}>{t('analysis.previewNotice')}</p>}
     {tab === 'analysis' ? <AnalysisPreview draft={drafts.analysis} /> : <AlertPreview drafts={drafts} includedTabs={[...savedTabs, tab]} />}
     <p className={styles.previewFoot}>{t('previewReadOnly')}</p>

@@ -1,8 +1,4 @@
 .page { min-width: 0; }
-.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--text-secondary); font-size: 12px; }
-.breadcrumb a { color: var(--accent-default); text-decoration: none; }
-.breadcrumb a:hover { text-decoration: underline; }
-.breadcrumb a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 .indicator { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 24px; margin-bottom: 16px; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px 24px; background: var(--surface-card); }
 .indicator h2 { margin: 0 0 4px; color: var(--text-primary); font-size: 17px; }
 .indicator p { margin: 0; color: var(--text-secondary); font-size: 12px; }

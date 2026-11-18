@@ -1,3 +1,5 @@
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import styles from './EnvironmentalFreshness.module.css'
 
 export type EnvironmentalFreshnessLabels = Readonly<{
@@ -16,7 +18,7 @@ export function EnvironmentalFreshness({ lastAttemptAt, lastSuccessAt, formatDat
   compact?: boolean
 }>) {
   return <section className={`${styles.section}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
-    <h2>{labels.heading}</h2>
+    <h2><CardIcon icon={faClockRotateLeft} size="small" inline />{labels.heading}</h2>
     <dl className={styles.timestamps}>
       <div><dt>{labels.lastAttempt}</dt><dd>{lastAttemptAt ? formatDate(lastAttemptAt) : labels.noAttempt}</dd></div>
       <div><dt>{labels.lastSuccess}</dt><dd>{lastSuccessAt ? formatDate(lastSuccessAt) : labels.noSuccess}</dd></div>

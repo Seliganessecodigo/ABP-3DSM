@@ -1,3 +1,4 @@
+import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -641,9 +642,9 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
     {historyMode && <p className={styles.intervalStatus}>{filteredPoints.length} {t('historyIntervalsUnit')} · {activeFilterCount === 0 ? t('historyNoFilters') : t('historyActiveFilters', { count: activeFilterCount })}</p>}
     <table className={styles.table}>
       <thead><tr>
-        <th scope="col" aria-sort={sortState('moment')}><button className={styles.sortButton} type="button" onClick={() => onSort('moment')}>{historyMode ? t('historyStart') : labels.moment}<span aria-hidden="true">{sortState('moment') === 'ascending' ? '↑' : sortState('moment') === 'descending' ? '↓' : ''}</span></button></th>
-        <th scope="col" aria-sort={sortState('energy')}><button className={styles.sortButton} type="button" disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}<span aria-hidden="true">{sortState('energy') === 'ascending' ? '↑' : sortState('energy') === 'descending' ? '↓' : ''}</span></button></th>
-        <th scope="col" aria-sort={sortState('emissions')}><button className={styles.sortButton} type="button" disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}<span aria-hidden="true">{sortState('emissions') === 'ascending' ? '↑' : sortState('emissions') === 'descending' ? '↓' : ''}</span></button></th>
+        <th scope="col" aria-sort={sortState('moment')}><SortButton state={sortState('moment')} onClick={() => onSort('moment')}>{historyMode ? t('historyStart') : labels.moment}</SortButton></th>
+        <th scope="col" aria-sort={sortState('energy')}><SortButton state={sortState('energy')} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}</SortButton></th>
+        <th scope="col" aria-sort={sortState('emissions')}><SortButton state={sortState('emissions')} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}</SortButton></th>
         {historyMode && <><th scope="col">{labels.coverage}</th><th scope="col">{labels.region}</th><th scope="col">{t('historyMethodology')}</th></>}
         {historyMode && <th scope="col">{tCommon('state.label')}</th>}
         {historyMode && onInspectContributions && <th scope="col">{t('historyAction')}</th>}

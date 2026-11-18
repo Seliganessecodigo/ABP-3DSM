@@ -1,0 +1,6 @@
+.button { display: inline-flex; min-height: 36px; max-width: 100%; align-items: center; gap: 7px; border: 0; border-radius: 4px; padding: 4px 0; color: inherit; background: transparent; font: inherit; font-weight: 650; text-align: start; cursor: pointer; }
+.button:hover:not(:disabled) { color: var(--accent-default); }
+.button:disabled { color: var(--text-disabled); cursor: not-allowed; }
+.indicator { display: inline-block; width: 14px; flex: 0 0 14px; color: var(--accent-default); font-family: GreenERInter, Inter, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; text-align: center; }
+.indicator[data-sort-state='none'] { color: var(--text-secondary); opacity: .65; }
+@media (max-width: 640px), (pointer: coarse) { .button { min-height: 44px; } }

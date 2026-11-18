@@ -58,16 +58,14 @@
 .apply-button { min-width: 160px; border-color: var(--accent-default); color: var(--accent-on-accent); background: var(--accent-default); font-weight: 650; }
 .active-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .active-filters button { min-height: 44px; border: 1px solid var(--border-default); border-radius: 16px; padding: 4px 8px; color: var(--text-primary); background: var(--control-hover); cursor: pointer; }
-.sort-button { display: inline-flex; align-items: center; gap: 4px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: inherit; cursor: pointer; }
-.sort-button span:not(:empty) { display: inline-grid; width: 18px; height: 18px; place-items: center; color: var(--accent-default); font-size: 17px; font-weight: 800; line-height: 1; }
 .mobile-cards { display: none; }
-.filter:hover, .filter-trigger:hover, .active-filters button:hover, .sort-button:hover { border-color: var(--accent-default); color: var(--accent-default); background: var(--control-hover); }
+.filter:hover, .filter-trigger:hover, .active-filters button:hover { border-color: var(--accent-default); color: var(--accent-default); background: var(--control-hover); }
 .filter.active:hover { color: var(--accent-on-accent); background: var(--accent-default); filter: brightness(.92); }
 .filter:active, .filter-trigger:active, .active-filters button:active{ transform: translateY(1px); }
 .filter-close:hover, .clear-button:hover, .apply-button:hover { border-color: var(--accent-default); color: var(--accent-default); background: var(--control-hover); }
 .apply-button:hover { color: var(--accent-on-accent); background: var(--accent-default); filter: brightness(.92); }
 .filter-close:active, .clear-button:active, .apply-button:active { transform: translateY(1px); }
-.filter:focus-visible, .filter-trigger:focus-visible, .active-filters button:focus-visible, .sort-button:focus-visible, .filter-close:focus-visible, .clear-button:focus-visible, .apply-button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.filter:focus-visible, .filter-trigger:focus-visible, .active-filters button:focus-visible, .filter-close:focus-visible, .clear-button:focus-visible, .apply-button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 
 @media (max-width: 640px) {
   :global(.content) { width: 100%; box-sizing: border-box; }

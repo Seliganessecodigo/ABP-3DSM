@@ -81,5 +81,7 @@
   "help.metrics": "CPU, memori, disk dan jaringan menjelaskan penggunaan sumber daya dan menjadi dasar perkiraan energi. Periksa waktu pengamatan: pembaruan bisa gagal dan mempertahankan pembacaan sebelumnya. Nol yang valid berbeda dari pembacaan yang tidak ada.",
   "help.factor": "Faktor wilayah menjelaskan emisi untuk setiap kWh listrik di wilayah tersebut. Energi yang sama dapat menghasilkan CO₂e berbeda dengan faktor berbeda. Catatan perhitungan menunjukkan faktor dan metodologi yang digunakan.",
   "help.period": "Periode adalah rentang waktu analisis, bukan frekuensi pengumpulan. Granularitas, jika tersedia, mengelompokkan pembacaan per jam atau hari, misalnya. Periksa zona waktu yang ditampilkan saat membaca tanggal.",
-  "help.composition": "Setiap batang atau irisan menunjukkan bagian aplikasi dalam CO₂e yang dapat dihitung pada lingkup terpilih. Bagian lebih besar berarti kontribusi lebih besar pada total; itu saja tidak membuktikan efisiensi lebih rendah. Data yang tidak ada tidak dianggap nol."
+  "help.composition": "Setiap batang atau irisan menunjukkan bagian aplikasi dalam CO₂e yang dapat dihitung pada lingkup terpilih. Bagian lebih besar berarti kontribusi lebih besar pada total; itu saja tidak membuktikan efisiensi lebih rendah. Data yang tidak ada tidak dianggap nol.",
+  "nav.breadcrumb": "Jejak navigasi",
+  "nav.breadcrumbGo": "Buka {{page}}"
 }
