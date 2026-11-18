@@ -3,7 +3,7 @@ import { application, largeCatalog, mockCatalog, row, search } from './support/c
 
 test('período escolhido no detalhe acompanha os filtros ao voltar e reabrir a aplicação', async ({ page }) => {
   await mockCatalog(page, largeCatalog())
-  await page.goto('/?q=api-&state=AVAILABLE&page=2&size=5')
+  await page.goto('/applications?q=api-&state=AVAILABLE&page=2&size=5')
 
   await expect(search(page)).toHaveValue('api-')
   await row(page, 'svc-006').getByRole('link', { name: /ver detalhes/i }).click()
@@ -34,7 +34,7 @@ test('período escolhido no detalhe acompanha os filtros ao voltar e reabrir a a
 
 test('período da URL do catálogo sobrevive à recarga e à navegação do navegador', async ({ page }) => {
   await mockCatalog(page, largeCatalog())
-  await page.goto('/?q=api-&state=AVAILABLE&page=2&size=5&period=30d')
+  await page.goto('/applications?q=api-&state=AVAILABLE&page=2&size=5&period=30d')
   await row(page, 'svc-006').getByRole('link', { name: /ver detalhes/i }).click()
 
   const thirtyDays = page.getByRole('button', { name: '30 dias', exact: true })

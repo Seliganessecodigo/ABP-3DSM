@@ -2,17 +2,21 @@ import { expect, test } from '@playwright/test'
 import { application, gate, mockApi, mockCatalog, row } from './support/catalog.ts'
 
 for (const width of [390, 1366]) {
-  for (const path of ['/', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
+  for (const path of ['/applications', '/dashboard', '/services/svc-0142', '/services/svc-0142/methodology']) {
     test(`loading uses a status and placeholders at ${width}px on ${path}`, async ({ page }) => {
       const pending = gate()
       await page.setViewportSize({ width, height: 844 })
       await mockCatalog(page, [application()])
       await page.route(/\/analysis\/summary\?/, route => route.fulfill({ status: 503, json: {} }))
       await page.route(url => /^\/(?:api\/)?(?:applications(?:\/[^/]+)?|analysis\/summary)$/.test(url.pathname), async route => {
+        if (route.request().isNavigationRequest()) {
+          await route.fallback()
+          return
+        }
         await pending.wait
         await route.fallback()
       })
-      await page.goto(path)
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
       try {
         const loading = page.locator('[data-loading-state]').first()
         await expect(loading).toBeVisible()
@@ -60,7 +64,7 @@ test('refresh preserves visible data and focus and blocks duplicate keyboard act
     if (refreshing) await pending.wait
     await route.fulfill({ json: [application()] })
   })
-  await page.goto('/')
+  await page.goto('/applications')
   await expect(row(page, application().id)).toBeVisible()
   const initialRequests = requests
   refreshing = true
@@ -87,7 +91,7 @@ test('loading respects reduced motion preferences', async ({ page }) => {
     await pending.wait
     await route.fulfill({ json: [] })
   })
-  await page.goto('/')
+  await page.goto('/applications')
   try {
     const loading = page.locator('[data-loading-state]')
     await expect(loading).toBeVisible()

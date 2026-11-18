@@ -147,7 +147,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor), customRange)
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)
-  const backUrl = `/${window.location.search}`
+  const backUrl = `/applications${window.location.search}`
   const historyUrlParams = new URLSearchParams(searchParams)
   historyUrlParams.delete('inspectionBucket')
   const historyUrl = `/history${historyUrlParams.size ? `?${historyUrlParams.toString()}` : ''}`
@@ -243,7 +243,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       {inspectionBucket ? <>
         <div className={styles.historyInspectionHeading}>
           <div>
-            <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><a href={historyUrl} onClick={(event) => { event.preventDefault(); closeHistoryInspection() }}>{tDetail('historyTitle')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyInspectionHeading')}</span></nav>
+            <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><a href={historyUrl} onClick={(event) => { event.preventDefault(); closeHistoryInspection() }}>{tDetail('historyTitle')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyInspectionHeading')}</span></nav>
             <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
             <div className="heading-title"><h1>{tDetail('historyInspectionHeading')}</h1>{pageHelp}</div>
             <p>{application?.name} · {displayTimeZone}</p>
@@ -254,7 +254,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         </div>
       </> : <>
         <div className={styles.historyHeading}>
-          <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyTitle')}</span></nav>
+          <nav className={styles.breadcrumb} aria-label={tCommon('nav.history')}><a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{tCommon('nav.applications')}</a><span aria-hidden="true">›</span><span aria-current="page">{tDetail('historyTitle')}</span></nav>
           <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
           <div className="heading-title"><h1>{tDetail('historyTitle')}</h1>{pageHelp}</div>
         </div>

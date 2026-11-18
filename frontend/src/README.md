@@ -45,7 +45,7 @@ O histórico é uma ação por aplicação no catálogo, ao lado de Detalhes; a 
 5. Registre caminho e parâmetros em `app/useRoute.ts`, associe a página em `App.tsx` e preserve navegação do browser.
 6. Se a tela precisa de dados, use hooks para coordenar carregamento e uma feature tipada para API/cache/validação; confira o contrato do backend. Cubra carregamento, sucesso, vazio, erro e atualização conforme aplicável.
 
-O roteamento atual cobre o catálogo, `/services/:id`, `/dashboard`, `/history`, `/methodology`, `/administration/calculations`, `/login` e o retorno SSO em `/sso/callback`, incluindo navegação pelo histórico do navegador. Ele usa a History API e não introduz uma dependência de roteamento.
+O roteamento abre o Dashboard em `/` e `/dashboard`; o catálogo de aplicações fica em `/applications`. O logo leva ao Dashboard. As demais rotas incluem `/services/:id`, `/history`, `/methodology`, `/administration/calculations`, `/login` e o retorno SSO em `/sso/callback`, com navegação pelo histórico do navegador via History API.
 
 `app/analysisNavigation.ts` mantém o período ao abrir dashboard/histórico pela sidebar e leva a aplicação do detalhe para o histórico. Somente os parâmetros suportados pelo destino são propagados: filtros locais da tabela não se tornam filtros da análise. O fluxo completo contra backend e PostgreSQL reais é executado por `npm run test:integration`; preparação e isolamento estão em `backend/test/README.md`.
 

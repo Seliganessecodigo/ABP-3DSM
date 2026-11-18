@@ -15,7 +15,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
   const [selectedApplicationId, setSelectedApplicationId] = useState('')
   const params = new URLSearchParams(window.location.search)
   const backQuery = params.size ? `?${params.toString()}` : ''
-  const backUrl = id ? `/services/${encodeURIComponent(id)}${backQuery}` : '/'
+  const backUrl = id ? `/services/${encodeURIComponent(id)}${backQuery}` : '/applications'
   const date = (value: string) => formatDate(value, locale, common('date.noObservation'))
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value)
   const energy = data?.energy
@@ -25,7 +25,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
   const isLoading = status === 'loading'
   return <section className={`content ${styles.page}`} tabIndex={-1}>
     <nav className={styles.breadcrumb} aria-label={common('nav.main')}>
-      <a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{common('nav.applications')}</a>
+      <a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{common('nav.applications')}</a>
       {application && <><span aria-hidden="true">›</span><a href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{application.name}</a></>}
       <span aria-hidden="true">›</span><span aria-current="page">{t('title')}</span>
     </nav>

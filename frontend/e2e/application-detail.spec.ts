@@ -99,14 +99,14 @@ test('selecionar Aplicações no drawer móvel fecha o menu e foca a nova págin
   await page.getByRole('button', { name: 'Abrir menu' }).click()
   await page.getByRole('dialog').getByRole('link', { name: 'Aplicações', exact: true }).click()
 
-  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/applications')
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true })).toBeHidden()
   await expect(page.getByRole('main')).toBeFocused()
 })
 
 test('seleção abre somente o ID escolhido mesmo com nomes iguais', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'svc-outro' })])
-  await page.goto('/')
+  await page.goto('/applications')
   await row(page, 'svc-outro').getByRole('link', { name: /ver detalhes/i }).click()
   await expect(page).toHaveURL(/\/services\/svc-outro(?:\?|$)/)
   await expect(page.getByRole('heading', { name: 'app-pagamentos', exact: true })).toBeVisible()
@@ -127,7 +127,7 @@ test('URL direta e recarga conservam identidade e detalhe', async ({ page }) => 
 test('ID com caracteres reservados é codificado na navegação e conserva identidade', async ({ page }) => {
   const id = 'svc/financeiro?origem=teste'
   await mockCatalog(page, [application({ id })])
-  await page.goto('/')
+  await page.goto('/applications')
   await row(page, id).getByRole('link', { name: /ver detalhes/i }).click()
   await expect.poll(() => new URL(page.url()).pathname).toBe(`/services/${encodeURIComponent(id)}`)
   await expect(page.getByRole('main')).toContainText(id)
@@ -211,7 +211,7 @@ test('falha no detalhe é distinta de não encontrada e permite nova tentativa',
 test('retorno conserva busca, estado, página e contexto de período', async ({ page }) => {
   await mockCatalog(page, largeCatalog())
   // period é contexto de navegação; não é um parâmetro da API de catálogo.
-  await page.goto('/?period=2026-10')
+  await page.goto('/applications?period=2026-10')
   await search(page).fill('api-')
   await page.getByRole('button', { name: /^Disponível\b/i }).click()
   await page.getByRole('button', { name: /próxima página/i }).click()
@@ -228,7 +228,7 @@ test('retorno conserva busca, estado, página e contexto de período', async ({ 
 
 test('retorno do detalhe restaura posição e foco no serviço selecionado', async ({ page }) => {
   await mockCatalog(page, largeCatalog())
-  await page.goto('/')
+  await page.goto('/applications')
   await search(page).fill('api-')
   await page.getByRole('button', { name: /próxima página/i }).click()
   const detailLink = row(page, 'svc-011').getByRole('link', { name: /ver detalhes/i })
@@ -416,7 +416,7 @@ test('ordena os rótulos de métrica e situação sem comparar unidades numéric
 
 test('volta do navegador conserva o contexto da lista', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/applications')
   await search(page).fill('pagamentos')
   await row(page, 'svc-0142').getByRole('link', { name: /ver detalhes/i }).click()
   await expect(page).toHaveURL(/\/services\/svc-0142(?:\?|$)/)

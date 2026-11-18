@@ -20,7 +20,7 @@ async function mockAnalysis(page: Page) {
 
 test('catalog opens the selected application history and keeps Applications active', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'other-app', name: 'Outra aplicação' })])
-  await page.goto('/')
+  await page.goto('/applications')
   const navigation = page.getByRole('navigation', { name: 'Navegação principal' })
   await expect(navigation.getByRole('link', { name: 'Histórico', exact: true })).toHaveCount(0)
   await page.locator('[data-catalog-row-id="other-app"]').getByRole('link', { name: 'Histórico', exact: true }).click()
@@ -33,7 +33,7 @@ for (const width of [1366, 390]) {
   test(`help can advance, go back, close, restart and keep keyboard focus at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 844 })
     await mockCatalog(page, [application()])
-    await page.goto('/')
+    await page.goto('/applications')
     const trigger = page.getByRole('button', { name: 'Ajuda desta tela', exact: true })
     await trigger.click()
     const dialog = page.getByRole('dialog')
@@ -105,7 +105,7 @@ for (const locale of supportedLocales) {
   test(`help controls and content are translated in ${locale}`, async ({ page }) => {
     await page.addInitScript(value => localStorage.setItem('greener:locale', value), locale)
     await mockCatalog(page, [application()])
-    await page.goto('/')
+    await page.goto('/applications')
     const common: Record<string, string> = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8'))
     await page.getByRole('button', { name: common['help.open'], exact: true }).click()
     const dialog = page.getByRole('dialog')

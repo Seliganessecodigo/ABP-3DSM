@@ -53,6 +53,18 @@ async function mockSummary(page: Page, handler: (routeUrl: URL) => Promise<{ sta
   })
 }
 
+test('rota raiz abre o dashboard e marca sua navegação como ativa', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await mockSummary(page, (url) => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+
+  await page.goto('/')
+
+  await expect(page.getByRole('heading', { name: 'Dashboard ambiental' })).toBeVisible()
+  const navigation = page.getByRole('navigation', { name: 'Navegação principal' })
+  await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).not.toHaveAttribute('aria-current', 'page')
+})
+
 test('dashboard renders persisted temporal results and preserves missing intervals', async ({ page }, testInfo) => {
   await page.clock.install({ time: new Date('2026-10-08T12:00:00.000Z') })
   await mockCatalog(page, [application()])

@@ -3,6 +3,8 @@ import '../styles/shared.css'
 import foliageBackground from '../assets/foliage-background.svg'
 import greenErMark from '../assets/green-er-mark.png'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRightArrowLeft, faBars, faBookOpen, faChevronLeft, faEarthAmericas, faGear, faLayerGroup, faRankingStar, faTableCellsLarge, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelector } from './LanguageSelector.tsx'
 import { ThemeSelector } from './ThemeSelector.tsx'
@@ -22,7 +24,7 @@ function isMethodologyPath(pathname: string) {
 }
 
 function isDashboardPath(pathname: string) {
-  return pathname === '/dashboard' || pathname === '/dashboard/'
+  return pathname === '/' || pathname === '/dashboard' || pathname === '/dashboard/'
 }
 
 function isRegionalSimulationPath(pathname: string) {
@@ -128,27 +130,27 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   return <div className={layoutClasses(variant, login, desktopExpanded)}>
     <aside id="shared-sidebar" ref={sidebarRef} role={mobileMenuOpen ? 'dialog' : undefined} aria-modal={mobileMenuOpen || undefined} aria-label={mobileMenuOpen ? t('nav.main') : undefined} className={`sidebar${mobileMenuOpen ? ' sidebar-open' : ''}`} onTransitionEnd={(event) => { if (mobileMenuOpen && event.propertyName === 'transform') closeButtonRef.current?.focus() }}>
       <img className="sidebar-foliage" src={foliageBackground} width={222} height={180} alt="" loading="lazy" decoding="async" />
-      {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}>×</button>}
+      {mobileMenuOpen && <button ref={closeButtonRef} className="mobile-menu-close" type="button" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu}><FontAwesomeIcon icon={faXmark} aria-hidden="true" /></button>}
       <div className="sidebar-brand-row">
-        <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}>
+        <a className="brand" href={dashboardUrl} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}>
           <img className="brand-mark" src={greenErMark} width={32} height={32} alt="" />
           <span className="brand-name"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>
         </a>
         <button className="sidebar-collapse-toggle" type="button" aria-label={t(desktopExpanded ? 'nav.collapse' : 'nav.expand')} aria-expanded={desktopExpanded} onClick={() => setDesktopExpanded((expanded) => !expanded)}>
-          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m9.5 3.5-4.5 4.5 4.5 4.5" /></svg>
+          <FontAwesomeIcon icon={faChevronLeft} aria-hidden="true" />
         </button>
       </div>
       <nav aria-label={t('nav.main')}>
         <p className="nav-heading">{t('nav.monitoring')}</p>
-        <a href={dashboardUrl} aria-label={t('nav.dashboard')} {...activeNavigationProps(dashboardActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx=".5" /><rect x="12" y="3" width="5" height="5" rx=".5" /><rect x="3" y="12" width="5" height="5" rx=".5" /><rect x="12" y="12" width="5" height="5" rx=".5" /></svg><span className="nav-label">{t('nav.dashboard')}</span></a>
-        <a href="/" aria-label={t('nav.applications')} {...activeNavigationProps(applicationsActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m10 2.8 7 3.7-7 3.7-7-3.7 7-3.7Z" /><path d="m3 10 7 3.7 7-3.7M3 13.5l7 3.7 7-3.7" /></svg><span className="nav-label">{t('nav.applications')}</span></a>
+        <a href={dashboardUrl} aria-label={t('nav.dashboard')} {...activeNavigationProps(dashboardActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><FontAwesomeIcon className="nav-icon" icon={faTableCellsLarge} aria-hidden="true" /><span className="nav-label">{t('nav.dashboard')}</span></a>
+        <a href="/applications" aria-label={t('nav.applications')} {...activeNavigationProps(applicationsActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/applications') }}><FontAwesomeIcon className="nav-icon" icon={faLayerGroup} aria-hidden="true" /><span className="nav-label">{t('nav.applications')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
-        <button aria-label={t('nav.ranking')} disabled><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17h14M5 15v-4h3v4M9 15V7h3v8M13 15V4h3v11" /></svg><span className="nav-label">{t('nav.ranking')}</span></button>
-        <a href={comparisonUrl} aria-label={t('nav.comparison')} {...activeNavigationProps(comparisonActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 6h13l-2.5-2.5M17 14H4l2.5 2.5" /></svg><span className="nav-label">{t('nav.comparison')}</span></a>
-        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} {...activeNavigationProps(regionalSimulationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M3 10h14M10 3a11 11 0 0 1 0 14 11 11 0 0 1 0-14Z" /></svg><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
+        <button aria-label={t('nav.ranking')} disabled><FontAwesomeIcon className="nav-icon" icon={faRankingStar} aria-hidden="true" /><span className="nav-label">{t('nav.ranking')}</span></button>
+        <a href={comparisonUrl} aria-label={t('nav.comparison')} {...activeNavigationProps(comparisonActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><FontAwesomeIcon className="nav-icon" icon={faArrowRightArrowLeft} aria-hidden="true" /><span className="nav-label">{t('nav.comparison')}</span></a>
+        <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} {...activeNavigationProps(regionalSimulationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><FontAwesomeIcon className="nav-icon" icon={faEarthAmericas} aria-hidden="true" /><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
         <p className="nav-heading">{t('nav.system')}</p>
-        <a href="/methodology" aria-label={t('nav.methodology')} {...activeNavigationProps(methodologyActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><rect x="4" y="2.8" width="12" height="14.4" rx="1" /><path d="M7 6h6M7 9h6M7 12h4" /></svg><span className="nav-label">{t('nav.methodology')}</span></a>
-        <a href="/settings" {...activeNavigationProps(administrationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/settings') }}><svg className="nav-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="m8 2.8.5-1h3l.5 1 1.8 1 1.1-.1 1.5 2.6-.6.9v2l.6.9-1.5 2.6-1.1-.1-1.8 1-.5 1h-3l-.5-1-1.8-1-1.1.1-1.5-2.6.6-.9v-2l-.6-.9 1.5-2.6 1.1.1 1.8-1Z" transform="translate(0 1.2) scale(.95)" /><circle cx="10" cy="10" r="2.2" /></svg><span className="nav-label">{t('nav.settings')}</span></a>
+        <a href="/methodology" aria-label={t('nav.methodology')} {...activeNavigationProps(methodologyActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/methodology') }}><FontAwesomeIcon className="nav-icon" icon={faBookOpen} aria-hidden="true" /><span className="nav-label">{t('nav.methodology')}</span></a>
+        <a href="/settings" {...activeNavigationProps(administrationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/settings') }}><FontAwesomeIcon className="nav-icon" icon={faGear} aria-hidden="true" /><span className="nav-label">{t('nav.settings')}</span></a>
       </nav>
       <section className="sidebar-preferences" aria-labelledby="sidebar-preferences-heading">
         <p className="nav-heading" id="sidebar-preferences-heading">{t('nav.preferences')}</p>
@@ -158,6 +160,6 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}>☰</button><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span>{login && <div className="topbar-actions"><LanguageSelector /><a href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
+    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}><FontAwesomeIcon icon={faBars} aria-hidden="true" /></button><a className="topbar-brand" href={dashboardUrl} aria-label={t('nav.dashboard')} onClick={(event) => { event.preventDefault(); navigate(dashboardUrl) }}><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span></a>{login && <div className="topbar-actions"><LanguageSelector /><a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
   </div>
 }

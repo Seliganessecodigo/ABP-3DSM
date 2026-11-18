@@ -1,5 +1,7 @@
 import './LanguageSelector.css'
 import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronDown, faGlobe } from '@fortawesome/free-solid-svg-icons'
 import { localeNames, supportedLocales, type Locale } from '../i18n.ts'
 
 function LanguageFlag({ locale }: Readonly<{ locale: Locale }>) {
@@ -21,5 +23,5 @@ function LanguageFlag({ locale }: Readonly<{ locale: Locale }>) {
 export function LanguageSelector() {
   const { i18n, t } = useTranslation('common')
   const selectedLocale = (i18n.resolvedLanguage ?? 'en-US') as Locale
-  return <label className="language-control"><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2" /><path d="M2.8 10h14.4M10 2.8a11 11 0 0 1 0 14.4 11 11 0 0 1 0-14.4Z" /></svg><span className="language-label">{t('language.label')}</span><span className="language-code" aria-hidden="true"><span className="language-flag"><LanguageFlag locale={selectedLocale} /></span>{selectedLocale.split('-')[0].toUpperCase()}</span><svg className="language-chevron" aria-hidden="true" viewBox="0 0 12 12"><path d="m3 4.5 3 3 3-3" /></svg><select aria-label={t('language.label')} value={selectedLocale} onChange={(event) => void i18n.changeLanguage(event.target.value as Locale)}>{supportedLocales.map((locale) => <option key={locale} value={locale}>{localeNames[locale]}</option>)}</select></label>
+  return <label className="language-control"><FontAwesomeIcon className="language-icon" icon={faGlobe} aria-hidden="true" /><span className="language-label">{t('language.label')}</span><span className="language-code" aria-hidden="true"><span className="language-flag"><LanguageFlag locale={selectedLocale} /></span>{selectedLocale.split('-')[0].toUpperCase()}</span><FontAwesomeIcon className="language-chevron" icon={faChevronDown} aria-hidden="true" /><select aria-label={t('language.label')} value={selectedLocale} onChange={(event) => void i18n.changeLanguage(event.target.value as Locale)}>{supportedLocales.map((locale) => <option key={locale} value={locale}>{localeNames[locale]}</option>)}</select></label>
 }

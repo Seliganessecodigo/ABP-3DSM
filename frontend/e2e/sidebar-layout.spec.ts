@@ -3,7 +3,7 @@ import { mockCatalog } from './support/catalog.ts'
 
 test('sidebar cabe na viewport expandida e recolhida em telas de notebook', async ({ page }) => {
   await mockCatalog(page, [])
-  await page.goto('/')
+  await page.goto('/applications')
   for (const height of [900, 768, 720, 600]) {
     await page.setViewportSize({ width: 1366, height })
     for (const collapsed of [false, true]) {
@@ -21,7 +21,7 @@ test('sidebar cabe na viewport expandida e recolhida em telas de notebook', asyn
 
 test('bandeira acompanha o idioma e permanece visível ao recolher e no mobile', async ({ page }) => {
   await mockCatalog(page, [])
-  await page.goto('/')
+  await page.goto('/applications')
   const language = page.locator('.language-control select')
   for (const locale of ['pt-BR', 'en-US', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'ja-JP', 'ko-KR', 'ru-RU', 'hi-IN', 'id-ID', 'zh-CN']) {
     await language.selectOption(locale)
