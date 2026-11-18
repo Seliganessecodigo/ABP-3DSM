@@ -206,10 +206,10 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     ? 'none'
     : query.sort.direction === 'asc' ? 'ascending' : 'descending'
 
-  return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.header}>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className={`page-heading ${styles.header}`}>
       <div>
-        <p className={styles.eyebrow}>{t('eyebrow')}</p>
+        <p className="eyebrow">{t('eyebrow')}</p>
         <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
   { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },

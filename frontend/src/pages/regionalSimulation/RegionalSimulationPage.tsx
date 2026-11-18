@@ -321,9 +321,9 @@ export function RegionalSimulationPage() {
     setShowClearDialog(false)
   }
 
-  return <main className={styles.page}>
-    <header className={styles.header}>
-      <div><p className={styles.eyebrow}>{t('sectionLabel')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  return <main className={`content ${styles.page}`}>
+    <header className={`page-heading ${styles.header}`}>
+      <div><p className="eyebrow">{t('sectionLabel')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
         { title: t('simulationParameters'), description: t('helpParameters'), target: '[data-help="simulation-parameters"]' },
         { title: t('originalResult'), description: t('helpOriginal'), target: '[data-help="simulation-original"]' },
         { title: t('destinationFactorTitle'), description: t('helpFactor'), target: '[data-help="simulation-factor"]' },

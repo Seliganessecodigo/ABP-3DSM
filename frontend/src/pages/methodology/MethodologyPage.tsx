@@ -73,12 +73,12 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   const activeSummary = active && !active.draft.evaluationPeriod && (tab === 'energy' || tab === 'emissions') ? `${number(active.draft.value)} ${unit}` : activeText
   const savingUnavailable = <p className={styles.saveError} role="alert">{saveError ? t(saveError) : ''}</p>
   const save = () => { if (form.current?.reportValidity()) void state.save() }
-  return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.heading}><p className={styles.eyebrow}>{common('nav.system')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className="page-heading"><div><p className="eyebrow">{common('nav.system')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t(`${tab}.title`), description: common(`help.${tab === 'analysis' ? 'period' : tab}`), target: '[data-help="methodology-explanation"]' },
   { title: t(tab + '.editTitle'), description: t(tab + '.editDescription'), target: '[data-help="preference-edit"]' },
   { title: t('save'), description: t('saveNote'), target: '[data-help="preference-save"]' },
-]} /></div></header>
+]} /></div></div></header>
     <div className={styles.tabRow}>
       <div ref={tabList} className={styles.tabs} role="tablist" tabIndex={-1} aria-label={t('individual')} onKeyDown={(event) => {
         const next = nextTabForKey(event.key, tab)

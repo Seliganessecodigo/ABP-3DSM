@@ -13,7 +13,7 @@ import styles from './AccountsPage.module.css'
 export function AccountsPage({ navigate, embedded = false }: Readonly<{ navigate: (url: string) => void; embedded?: boolean }>) {
   const { user } = useAuthentication()
   const { t } = useTranslation('accounts')
-  if (user?.role !== 'ADMIN') return <main className="content" tabIndex={-1}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]} /></div><p className="notice">{t(user ? 'denied' : 'signIn')}</p>{!user && <a className="button" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('login')}</a>}</main>
+  if (user?.role !== 'ADMIN') return <main className="content" tabIndex={-1}><header className="page-heading"><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]} /></div></header><p className="notice">{t(user ? 'denied' : 'signIn')}</p>{!user && <a className="button" href="/login" onClick={event => { event.preventDefault(); navigate('/login') }}>{t('login')}</a>}</main>
   return <AccountsAdministration key={user.id} embedded={embedded} navigate={navigate} />
 }
 function AccountsAdministration({ embedded, navigate }: Readonly<{ embedded: boolean; navigate: (url: string) => void }>) {
@@ -33,7 +33,7 @@ function AccountsAdministration({ embedded, navigate }: Readonly<{ embedded: boo
   }
   const Container = embedded ? 'section' : 'main'
   return <Container className={embedded ? styles.page : `content ${styles.page}`} tabIndex={-1}>
-    <header className={styles.toolbar}><div>{!embedded && <p className="eyebrow">GreenER</p>}<div className="heading-title">{embedded ? <h2>{t('title')}</h2> : <h1>{t('title')}</h1>}{!embedded && <PageHelp steps={[
+    <header className={embedded ? styles.toolbar : `page-heading ${styles.pageHeading}`}><div>{!embedded && <p className="eyebrow">GreenER</p>}<div className="heading-title">{embedded ? <h2>{t('title')}</h2> : <h1>{t('title')}</h1>}{!embedded && <PageHelp steps={[
   { title: t('inviteTitle'), description: t('inviteDescription'), target: '[aria-labelledby="google-invitation-heading"]' },
   { title: t('listTitle'), description: t('existingAccountHint'), target: '[aria-labelledby="accounts-list-heading"]' },
 ]} />}</div></div><button type="button" className="button" onClick={() => { setSaved(false); setManagement({ account: null }) }}>{settings('createAccount')}</button></header>

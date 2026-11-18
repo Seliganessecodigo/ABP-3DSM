@@ -1,8 +1,6 @@
-.page { box-sizing: border-box; width: min(100%, 1760px); margin: 0 auto; padding: 32px clamp(20px, 3vw, 48px) 40px; color: var(--text-primary); }
-.header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 27px; }
-.header h1 { margin: 0 0 5px; font-size: clamp(25px, 3vw, 34px); line-height: 1.15; letter-spacing: -.035em; }
-.eyebrow { margin: 0 0 8px; color: var(--accent-default); font-size: 11px; font-weight: 750; letter-spacing: .08em; }
-.subtitle { margin: 0; color: var(--text-secondary); font-size: 15px; }
+.page { box-sizing: border-box; width: min(100%, 1760px); margin: 0 auto; color: var(--text-primary); }
+.header { align-items: flex-start; gap: 24px; margin-bottom: 24px; }
+.subtitle { margin: 0; color: var(--text-secondary); }
 .controls { display: grid; grid-template-columns: minmax(210px, 1.15fr) minmax(170px, .9fr) minmax(210px, 1.1fr) minmax(172px, .75fr); align-items: end; gap: 16px; margin-bottom: 20px; }
 .controlGroup { display: flex; min-width: 0; flex-direction: column; gap: 8px; color: var(--text-secondary); font-size: 12px; }
 .fieldLabel { color: var(--text-secondary); font-size: 11px; font-weight: 700; }
@@ -98,7 +96,6 @@
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 
 @media (max-width: 1100px) {
-  .page { padding-inline: 32px; }
   .controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .submit { grid-column: 1 / -1; justify-self: end; }
   .resultGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -116,11 +113,6 @@
   .submit { grid-column: auto; justify-self: stretch; }
 }
 @media (min-width: 1101px) and (max-height: 820px) {
-  .page { padding-block: 16px 24px; }
-  .header { align-items: center; margin-bottom: 14px; }
-  .header h1 { font-size: clamp(25px, 2.6vw, 31px); }
-  .eyebrow { margin-bottom: 5px; }
-  .subtitle { font-size: 14px; }
   .controls { gap: 12px; margin-bottom: 12px; }
   .controlGroup { gap: 5px; font-size: 12px; }
   .fieldLabel { font-size: 11px; }
@@ -170,10 +162,6 @@
   .dialogFooter { margin-top: 9px; }
 }
 @media (max-width: 700px) {
-  .page { padding: 24px 16px 30px; }
-  .header { align-items: flex-start; flex-direction: column; gap: 15px; }
-  .header > .button { align-self: flex-end; }
-  .subtitle { font-size: 14px; }
   .controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
   .controlGroup:first-child { grid-column: 1 / -1; }
   .submit { grid-column: 1 / -1; width: 100%; }

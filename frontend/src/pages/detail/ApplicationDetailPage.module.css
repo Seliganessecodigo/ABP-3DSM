@@ -13,7 +13,7 @@
 .detailTop { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; margin-bottom: 4px; }
 .detail-heading { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; row-gap: 0; margin: 0; }
 .titleLine { display: flex; flex-wrap: wrap; min-width: 0; align-items: center; gap: 8px; }
-.detail-heading h1 { min-width: 0; margin: 0; font-size: clamp(24px, 2.6vw, 28px); overflow-wrap: anywhere; }
+.detail-heading h1 { min-width: 0; margin: 0; font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: clamp(24px, 3vw, 31px); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; font-optical-sizing: none; overflow-wrap: anywhere; }
 .detail-heading :global(.state-badge) { flex: 0 0 auto; font-size: 12px; }
 .detail-heading .locationSummary { grid-column: 1; grid-row: 2; }
 .locationSummary { margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; overflow-wrap: anywhere; }
@@ -30,11 +30,10 @@
 .historyHeader { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 16px; row-gap: 26px; margin: 0 0 16px; }
 .historyHeading { grid-column: 1; }
 .historyInspectionHeading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px; }
-.historyHeading h1 { margin: 0; color: var(--text-primary); font-size: clamp(24px, 2.2vw, 30px); }
-.historyInspectionHeading h1 { margin: 0; color: var(--text-primary); font-size: clamp(24px, 2.2vw, 30px); }
+.historyHeading h1, .historyInspectionHeading h1 { margin: 0; color: var(--text-primary); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: clamp(24px, 3vw, 31px); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; font-optical-sizing: none; }
 .historyHeading p { margin: 6px 0 0; color: var(--text-secondary); font-size: 14px; }
 .historyInspectionHeading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; }
-.historyHeading .historyEyebrow, .historyInspectionHeading .historyEyebrow { margin: 0 0 8px; color: var(--accent-default); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.historyHeading .historyEyebrow, .historyInspectionHeading .historyEyebrow { margin: 0 0 4px; color: var(--accent-default); font-size: 10px; font-weight: 750; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; }
 .historyFilters { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(140px, .8fr) minmax(140px, .8fr) minmax(0, 1.4fr); align-items: start; gap: 12px; border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; background: var(--surface-card); }
 .historyFilters > :global(label), .historyFilters > :global(section) { min-width: 0; }
 .historyRange { display: grid; min-width: 0; gap: 6px; color: var(--text-secondary); font-size: 12px; }
@@ -98,7 +97,6 @@
   .historyContent.historyInspectionContent { padding: 16px 16px 24px; }
   .historyHeader { gap: 20px; margin-bottom: 16px; }
   .historyInspectionContent .historyHeader { gap: 8px; margin-bottom: 8px; }
-  .historyHeading h1, .historyInspectionHeading h1 { font-size: 26px; line-height: 1.2; }
   .historyHeading p { max-width: 30ch; line-height: 1.6; }
   .historyFilters { grid-row: 2; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; border: 0; padding: 0; background: transparent; }
   .historyActions { grid-row: 3; }
