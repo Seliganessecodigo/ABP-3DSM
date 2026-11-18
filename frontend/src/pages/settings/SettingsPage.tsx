@@ -26,8 +26,8 @@ export function SettingsPage({ navigate }: Readonly<{ navigate: (url: string) =>
   }
   let help = helpByTab[tab]
   if (!user || !permitted) help = [{ title: t('title'), description: t(user ? 'denied' : 'signIn') }]
-  return <main className={styles.page} tabIndex={-1}>
-    <header><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={help} /></div><p className={styles.description}>{t('description')}</p></header>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className="page-heading"><div><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={help} /></div><p className={styles.description}>{t('description')}</p></div></header>
     <nav className={styles.tabs} aria-label={t('areas')}>{allowed.map(item => <a key={item} href={`/settings?tab=${item}`} aria-current={tab === item ? 'page' : undefined} onClick={event => { event.preventDefault(); const params = new URLSearchParams(window.location.search); params.set('tab', item); navigate(`/settings?${params}`) }}>{t(`tabs.${item}`)}</a>)}</nav>
     <div className={styles.panel}>
       <SettingsContent user={user} permitted={permitted} tab={tab} navigate={navigate} />

@@ -133,8 +133,8 @@ export function RecalculationPreviewPage({ navigate }: Readonly<{ navigate: (url
     </section>
   }
 
-  return <main className={styles.page} tabIndex={-1}>
-    <header className={styles.heading}><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className="page-heading"><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('recalculateTitle'), description: t('recalculateDescription'), target: '[data-help="recalculation-form"]' },
   { title: t('resultTitle'), description: t('noSave'), target: '[data-help="recalculation-result"]' },
 ]} /></div></header>

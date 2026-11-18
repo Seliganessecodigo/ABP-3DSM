@@ -1,9 +1,4 @@
-@font-face { font-family: GreenERInter; font-style: normal; font-weight: 100 900; font-display: swap; src: url('../../assets/fonts/InterVariable.woff2') format('woff2'); }
-.page { width: 100%; min-width: 0; padding: 48px 4vw 32px clamp(28px, 4.75vw, 90px); font-family: GreenERInter, Inter, sans-serif; font-optical-sizing: none; }
-.heading { margin-bottom: 32px; }
-.eyebrow { margin: 0 0 14px; font-size: 15px; font-weight: 700; text-transform: uppercase; color: var(--accent-default); }
-.heading h1 { margin: 0 0 5px; font-size: clamp(30px, 2.33vw, 44px); line-height: 1.2; }
-.heading > p:last-child { margin: 0; font-size: 20px; line-height: 1.5; color: var(--text-secondary); }
+.page { width: 100%; min-width: 0; font-family: GreenERInter, Inter, sans-serif; font-optical-sizing: none; }
 .tabRow { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-bottom: 30px; }
 .tabRow > span { margin-left: auto; font-size: 15px; color: var(--text-secondary); }
 .tabs { display: flex; flex-wrap: wrap; max-width: 100%; gap: 19px; }
@@ -117,7 +112,6 @@
 .summary p { margin: 4px 0 0; font-size: 18px; line-height: 1.5; }
 .dialog .actions > button { flex: 1; padding-inline: 16px; }
 @media (max-width: 1799px) {
-  .page { padding: 32px 36px; }
   .tabs { gap: 10px; flex: 1; }
   .tabs button { flex: 1; padding-inline: 16px; font-size: 16px; }
   .tabRow > span { display: none; }
@@ -146,7 +140,6 @@
   .tabs button:nth-child(4) { width: 310px; }
 }
 @media (max-width: 1050px) {
-  .page { padding: 28px 24px; }
   .columns { grid-template-columns: minmax(0, 1fr); }
   .card { min-height: 0; }
   .preview { display: flex; grid-column: auto; }
@@ -154,14 +147,9 @@
   .card .previewFoot { width: 100%; }
   .tabs { display: grid; grid-template-columns: 1fr 1fr; }
   .tabRow { display: block; }
-  .heading > p:last-child { font-size: 17px; }
   .card .intro { margin-bottom: 24px; }
 }
 @media (max-width: 640px) {
-  .page { padding: 24px 16px; }
-  .heading { margin-bottom: 24px; }
-  .heading h1 { font-size: 30px; }
-  .eyebrow { font-size: 12px; }
   .card { padding: 20px; }
   .tabs button { padding: 12px 8px; font-size: 14px; }
   .card h2 { font-size: 22px; }
