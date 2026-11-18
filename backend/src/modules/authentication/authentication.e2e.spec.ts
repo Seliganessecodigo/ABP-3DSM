@@ -18,11 +18,12 @@ import { SsoAuthentication1791420000000 } from '../../database/migrations/179142
 import { UserPreferences1793200000000 } from '../../database/migrations/1793200000000-UserPreferences'
 import { AuditActorIdentity1793300000000 } from '../../database/migrations/1793300000000-AuditActorIdentity'
 import { UserAccountStatus1793400000000 } from '../../database/migrations/1793400000000-UserAccountStatus'
-import { PasswordRecovery1793500000000 } from '../../database/migrations/1793500000000-PasswordRecovery'
+import { PasswordRecovery1793700000000 } from '../../database/migrations/1793700000000-PasswordRecovery'
 import { MonitoringPauseControl1793500000000 } from '../../database/migrations/1793500000000-MonitoringPauseControl'
 import { EMAIL_DELIVERY, EmailDelivery } from './email-delivery'
 import { AuthenticationService } from './authentication.service'
 import { PasswordRecoveryService } from './password-recovery.service'
+import { AuthenticationPersistence } from './authentication.persistence'
 import { AUTH_CLOCK, AuthClock } from './clock'
 import { PasswordHasher } from './password-hasher.service'
 import {
@@ -143,7 +144,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
         UserPreferences1793200000000,
         AuditActorIdentity1793300000000,
         UserAccountStatus1793400000000,
-        PasswordRecovery1793500000000,
+        PasswordRecovery1793700000000,
         MonitoringPauseControl1793500000000,
         VersionMonitoringControl1793600000000,
       ],
@@ -163,6 +164,7 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
       .compile()
     app = testingModule.createNestApplication({ logger: false })
     await app.listen(0, '127.0.0.1')
+    app.get(PasswordRecoveryService).onModuleDestroy()
     process.env.GOOGLE_CLIENT_ID = 'test-google-client-id'
     process.env.GOOGLE_CLIENT_SECRET = 'test-google-client-secret'
     process.env.GOOGLE_CALLBACK_URL = `${await app.getUrl()}/auth/sso/google/callback`
@@ -547,6 +549,151 @@ describeWithDatabase('autenticação por HTTP com PostgreSQL', () => {
     expect(sentEmails).toHaveLength(1)
     const [delivered] = await database.query('SELECT "status" FROM password_recovery_outbox')
     expect(delivered.status).toBe('SENT')
+  })
+
+  async function postRecovery(path: string, body: unknown) {
+    return fetch(new URL(`/auth/password-recovery/${path}`, await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    })
+  }
+
+  async function issueRecovery() {
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    return postRecovery('request', { organization: organization.slug, email: 'analyst@example.test' })
+  }
+
+  async function deliveredRecoveryToken() {
+    expect((await issueRecovery()).status).toBe(202)
+    await app.get(PasswordRecoveryService).processOutbox()
+    return sentEmails.at(-1)!.text.match(/#token=([^\s]+)/)![1]
+  }
+
+  it('consome o mesmo token uma única vez sob conclusões concorrentes', async () => {
+    const token = await deliveredRecoveryToken()
+    const responses = await Promise.all([1, 2].map(() => postRecovery('complete', { token, password: 'concurrent password' })))
+    expect(responses.map(response => response.status).sort()).toEqual([204, 401])
+    expect((await login('analyst@example.test', 'concurrent password')).response.status).toBe(200)
+    const audit = await database.query(`SELECT * FROM audit_logs WHERE action = 'auth.password-recovery.completed' AND "entityId" = $1`, [userId])
+    for (const secret of [token, 'concurrent password', 'analyst@example.test']) expect(JSON.stringify(audit)).not.toContain(secret)
+  })
+
+  it('revalida expiração depois do hash antes de alterar credenciais', async () => {
+    const token = await deliveredRecoveryToken()
+    const hasher = app.get(PasswordHasher)
+    const originalHash = hasher.hash.bind(hasher)
+    const hashing = jest.spyOn(hasher, 'hash').mockImplementationOnce(async password => {
+      const result = await originalHash(password)
+      testNow = new Date(testNow.getTime() + 60 * 60 * 1000)
+      return result
+    })
+    try {
+      expect((await postRecovery('complete', { token, password: 'expired while hashing' })).status).toBe(401)
+      const [user] = await database.query('SELECT "passwordHash" FROM users WHERE id = $1', [userId])
+      expect(user.passwordHash).toBe(originalPasswordHash)
+    } finally { hashing.mockRestore() }
+  })
+
+  it('faz rollback de senha, consumo e sessões se a auditoria falhar', async () => {
+    const session = await login()
+    const token = await deliveredRecoveryToken()
+    const audit = jest.spyOn(app.get(AuditWriter), 'record').mockRejectedValueOnce(new Error('audit unavailable'))
+    try {
+      expect((await postRecovery('complete', { token, password: 'rollback password' })).status).toBe(500)
+    } finally { audit.mockRestore() }
+    const [user] = await database.query('SELECT "passwordHash" FROM users WHERE id = $1', [userId])
+    expect(user.passwordHash).toBe(originalPasswordHash)
+    const [stored] = await database.query('SELECT "consumedAt" FROM auth_tokens WHERE "tokenHash" = $1', [createHash('sha256').update(token).digest('hex')])
+    expect(stored.consumedAt).toBeNull()
+    const refresh = await fetch(new URL('/auth/sessions/refresh', await app.getUrl()), {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ refreshToken: session.body.refreshToken }),
+    })
+    expect(refresh.status).toBe(200)
+    expect((await postRecovery('complete', { token, password: 'retry password' })).status).toBe(204)
+  })
+
+  it('recusa token de conta bloqueada após a emissão sem alterar a senha', async () => {
+    const token = await deliveredRecoveryToken()
+    await database.query("UPDATE users SET status = 'BLOCKED' WHERE id = $1", [userId])
+    expect((await postRecovery('complete', { token, password: 'blocked password' })).status).toBe(401)
+    const [user] = await database.query('SELECT "passwordHash" FROM users WHERE id = $1', [userId])
+    expect(user.passwordHash).toBe(originalPasswordHash)
+  })
+
+  it('serializa emissões concorrentes e mantém apenas o token mais recente', async () => {
+    const responses = await Promise.all([issueRecovery(), issueRecovery()])
+    expect(responses.map(response => response.status)).toEqual([202, 202])
+    const tokens = await database.query(`SELECT id FROM auth_tokens WHERE kind = 'PASSWORD_RECOVERY' AND "revokedAt" IS NULL AND "userId" = $1`, [userId])
+    expect(tokens).toHaveLength(1)
+    await app.get(PasswordRecoveryService).processOutbox()
+    expect(sentEmails).toHaveLength(1)
+  })
+
+  it('encerra entregas vencidas ou consumidas sem reenviar e-mail', async () => {
+    const token = await deliveredRecoveryToken()
+    expect((await postRecovery('complete', { token, password: 'consumed password' })).status).toBe(204)
+    await database.query("UPDATE password_recovery_outbox SET status = 'PENDING'")
+    await app.get(PasswordRecoveryService).processOutbox()
+    expect(sentEmails).toHaveLength(1)
+    await issueRecovery()
+    testNow = new Date(testNow.getTime() + 60 * 60 * 1000)
+    await app.get(PasswordRecoveryService).processOutbox()
+    expect(sentEmails).toHaveLength(1)
+    expect(await database.query("SELECT id FROM password_recovery_outbox WHERE status = 'PENDING'")).toHaveLength(0)
+  })
+
+  it('preserva a resposta genérica em falha de configuração de entrega', async () => {
+    const base = process.env.APP_BASE_URL
+    delete process.env.APP_BASE_URL
+    try {
+      const response = await issueRecovery()
+      expect(response.status).toBe(202)
+      expect(await response.json()).toEqual({ code: 'PASSWORD_RECOVERY_REQUEST_ACCEPTED' })
+      expect(await database.query('SELECT id FROM password_recovery_outbox')).toHaveLength(0)
+    } finally { process.env.APP_BASE_URL = base }
+  })
+
+  it('retoma a outbox com uma nova instância e impede dois workers simultâneos', async () => {
+    await issueRecovery()
+    const nextWorker = new PasswordRecoveryService(
+      app.get(DataSource), app.get(PasswordHasher), app.get(AuditWriter), testClock, emailDelivery,
+    )
+    await Promise.all([app.get(PasswordRecoveryService).processOutbox(), nextWorker.processOutbox()])
+    expect(sentEmails).toHaveLength(1)
+    await nextWorker.processOutbox()
+    expect(sentEmails).toHaveLength(1)
+  })
+
+  it('recusa refresh iniciado antes da redefinição e gravado depois dela', async () => {
+    const session = await login()
+    const token = await deliveredRecoveryToken()
+    const persistence = app.get(AuthenticationPersistence)
+    const updateSession = persistence.updateSession.bind(persistence)
+    const rotation = jest.spyOn(persistence, 'updateSession').mockImplementationOnce(async (...args) => {
+      expect((await postRecovery('complete', { token, password: 'reset during refresh' })).status).toBe(204)
+      return updateSession(...args)
+    })
+    try {
+      const refresh = await fetch(new URL('/auth/sessions/refresh', await app.getUrl()), {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ refreshToken: session.body.refreshToken }),
+      })
+      expect(refresh.status).toBe(401)
+    } finally { rotation.mockRestore() }
+  })
+
+  it('preserva o autenticador e exige TOTP após redefinir senha de Admin', async () => {
+    const email = `recovery-admin-${Date.now()}@example.test`
+    await createSsoAdminSession(email)
+    const [organization] = await database.query('SELECT slug FROM organizations WHERE id = $1', [organizationId])
+    const [before] = await database.query('SELECT "totpSecretCiphertext", "totpKeyVersion", "totpLastUsedStep" FROM users WHERE email = $1', [email])
+    expect((await postRecovery('request', { organization: organization.slug, email })).status).toBe(202)
+    await app.get(PasswordRecoveryService).processOutbox()
+    const token = sentEmails.at(-1)!.text.match(/#token=([^\s]+)/)![1]
+    expect((await postRecovery('complete', { token, password: 'new admin password' })).status).toBe(204)
+    const [after] = await database.query('SELECT "totpSecretCiphertext", "totpKeyVersion", "totpLastUsedStep" FROM users WHERE email = $1', [email])
+    expect(after).toEqual(before)
+    const signedIn = await login(email, 'new admin password')
+    expect(signedIn.body.status).toBe('TOTP_REQUIRED')
+    expect(signedIn.body.accessToken).toBeUndefined()
   })
 
   it('autentica e retorna somente os dados públicos da conta', async () => {
