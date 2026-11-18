@@ -2,6 +2,8 @@ import { PageHelp } from '../../components/PageHelp.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRightArrowLeft, faBolt, faCalendarDays, faChevronDown, faCrosshairs, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
@@ -48,6 +50,7 @@ type ComparisonRow = Readonly<{
   label: string
   value: (application: ComparisonApplication) => string
   difference?: (application: ComparisonApplication) => string
+  icon?: typeof faBolt
 }>
 
 function positiveInteger(value: string | null, fallback: number): number {
@@ -154,6 +157,7 @@ export function ComparisonPage() {
   const { t: tDetail } = useTranslation('detail')
   const { applications, hasSnapshot, loading: catalogLoading, error: catalogError, retry: retryCatalog } = useApplicationCatalog()
   const [pageState, setPageState] = useState(() => readPageState(window.location.search))
+  const [catalogExpanded, setCatalogExpanded] = useState(() => readPageState(window.location.search).applicationIds.length < 2)
   const [attempt, setAttempt] = useState(0)
   const [requestState, setRequestState] = useState<RequestState | null>(null)
   const [announcement, setAnnouncement] = useState('')
@@ -284,8 +288,8 @@ export function ComparisonPage() {
     : t('noHistoricalLocation')
 
   const rows: ComparisonRow[] = [
-    { key: 'energy', label: t('energy'), value: (application) => measureText(application.energy.value, application.energy.unit, application.energy.reasons), difference: (application) => differenceText(application.differences.energy, locale, t, reasonLabel) },
-    { key: 'emissions', label: t('emissions'), value: (application) => measureText(application.emissions.value, application.emissions.unit, application.emissions.reasons, true), difference: (application) => differenceText(application.differences.emissions, locale, t, reasonLabel, true) },
+    { key: 'energy', icon: faBolt, label: t('energy'), value: (application) => measureText(application.energy.value, application.energy.unit, application.energy.reasons), difference: (application) => differenceText(application.differences.energy, locale, t, reasonLabel) },
+    { key: 'emissions', icon: faLeaf, label: t('emissions'), value: (application) => measureText(application.emissions.value, application.emissions.unit, application.emissions.reasons, true), difference: (application) => differenceText(application.differences.emissions, locale, t, reasonLabel, true) },
     { key: 'energyCoverage', label: t('energyCoverage'), value: (application) => coverageText(application.coverage.energy), difference: (application) => coverageDifference(application.differences.coverage.energyPercentagePoints) },
     { key: 'emissionsCoverage', label: t('emissionsCoverage'), value: (application) => coverageText(application.coverage.emissions), difference: (application) => coverageDifference(application.differences.coverage.emissionsPercentagePoints) },
     ...(['cpu', 'memory', 'disk', 'network'] as const).map((metric): ComparisonRow => ({
@@ -302,7 +306,7 @@ export function ComparisonPage() {
   if (catalogLoading && !hasSnapshot) return <LoadingState title={t('loadingCatalog')} layout="table" />
 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className="page-heading">
+    <header className={`page-heading ${styles.header}`}>
       <div><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
       { title: t('selectionHeading'), description: t('helpSelection'), target: '[data-help="comparison-selection"]' },
       { title: tDetail('periodTitle'), description: tCommon('help.period'), target: '[data-help="comparison-period"]' },
@@ -312,29 +316,40 @@ export function ComparisonPage() {
       { title: t('energyCoverage'), description: tCommon('help.coverage'), target: '[data-help="comparison-energyCoverage"]' },
     ]} /></div><p>{t('description')}</p></div>
     </header>
-    {catalogError && <RequestFeedback state="error"><p>{t('catalogError')}</p><button type="button" onClick={retryCatalog}>{tCommon('actions.retry')}</button></RequestFeedback>}
-    <section data-help="comparison-period" className={styles.period} aria-label={t('periodSection')}>
-      <PeriodSelector compact select selected={pageState.period} onSelect={selectPeriod}
-        title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
-        options={periodOptions.map((period) => ({ value: period, label: tDetail(`periods.${period}`) }))} />
-    </section>
+    {catalogError && <RequestFeedback state="error"><p>{t('catalogError')}</p><button className="button secondary" type="button" onClick={retryCatalog}>{tCommon('actions.retry')}</button></RequestFeedback>}
     <section data-help="comparison-selection" className={styles.selection} aria-labelledby="comparison-selection-heading">
-      <h2 id="comparison-selection-heading">{t('selectionHeading')}</h2>
-      <p>{t('selectionInstructions')}</p>
       {selectedIds.length >= 5 && <p role="status">{t('selectionLimit')}</p>}
       {announcement && <p role="status" aria-live="polite">{announcement}</p>}
       <ul className={styles.selectedList} aria-label={t('selectedApplications')}>
-        {selectedIds.map((id) => <li key={id}>
+        {selectedIds.map((id, index) => <li key={id} data-reference={id === referenceApplicationId}>
+          <span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + index)}</span>
           <span>{applicationName(id)}{missingIds.includes(id) ? ` · ${t('missingApplication')}` : ''}</span>
           <button type="button" aria-label={t('removeApplication', { name: applicationName(id) })} onClick={() => toggleApplication(id, false)}>×</button>
         </li>)}
       </ul>
+      <div className={styles.contextFields}>
+      <section data-help="comparison-period" className={styles.period} aria-label={t('periodSection')}>
+        <FontAwesomeIcon icon={faCalendarDays} className={styles.fieldIcon} aria-hidden="true" />
+        <PeriodSelector compact select selected={pageState.period} onSelect={selectPeriod}
+          title={tDetail('periodTitle')} invalidMessage={tDetail('periodInvalid')}
+          options={periodOptions.map((period) => ({ value: period, label: tDetail(`periods.${period}`) }))} />
+      </section>
       {selectedIds.length >= 2 && selectedIds.length <= 5 && <label data-help="comparison-reference" className={styles.reference}>
-        {t('reference')}<select className="form-control" value={referenceApplicationId ?? ''} onChange={(event) => selectReference(event.target.value)}>
+        <span><FontAwesomeIcon icon={faCrosshairs} aria-hidden="true" />{t('reference')}</span><select className="form-control" value={referenceApplicationId ?? ''} onChange={(event) => selectReference(event.target.value)}>
           {referenceApplicationId && !selectedIds.includes(referenceApplicationId) && <option value={referenceApplicationId}>{t('invalidId')}: {referenceApplicationId}</option>}
           {selectedIds.map((id) => <option key={id} value={id}>{applicationName(id)}</option>)}
         </select>
       </label>}
+      </div>
+      <details className={styles.catalog} open={catalogExpanded} onToggle={event => setCatalogExpanded(event.currentTarget.open)}>
+      <summary className={styles.catalogHeading}>
+        <span className={styles.sectionIcon}><FontAwesomeIcon icon={faLayerGroup} aria-hidden="true" /></span>
+        <h2 id="comparison-selection-heading">{t('selectionHeading')}</h2>
+        <span className={styles.selectionCount}>{formatNumber(selectedIds.length, locale)} / 5</span>
+        <FontAwesomeIcon icon={faChevronDown} className={styles.chevron} aria-hidden="true" />
+      </summary>
+      <div className={styles.catalogBody}>
+      <p className={styles.selectionInstructions}>{t('selectionInstructions')}</p>
       <div className={styles.filters}>
         <label className={styles.search}>
           <span>{t('searchLabel')}</span>
@@ -369,14 +384,14 @@ export function ComparisonPage() {
           <tbody>{result.items.map((application) => {
             const checked = selectedIds.includes(application.id)
             const disabled = !checked && selectedIds.length >= 5
-            return <tr key={application.id}>
-              <td><input type="checkbox" aria-label={t('selectApplication', { name: application.name, id: application.id })} checked={checked} disabled={disabled}
-                onChange={(event) => toggleApplication(application.id, event.target.checked)} /></td>
+            return <tr key={application.id} data-selected={checked}>
+              <td><label className={styles.selectionControl}><input type="checkbox" aria-label={t('selectApplication', { name: application.name, id: application.id })} checked={checked} disabled={disabled}
+                onChange={(event) => toggleApplication(application.id, event.target.checked)} /></label></td>
               <td><strong>{application.name}</strong><small>{application.id}</small></td>
               <td>{application.location?.country ?? tCommon('location.unknown')}</td>
               <td>{application.location?.regionCode ?? tCommon('location.unknown')}</td>
               <td>{application.location?.city ?? tCommon('location.cityUnknown')}</td>
-              <td>{stateLabel(application.state, tCommon)}</td>
+              <td><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></td>
               <td>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), listPresentation.timeZone)}</td>
             </tr>
           })}</tbody>
@@ -385,6 +400,8 @@ export function ComparisonPage() {
       {result.total > 0 && <Pagination page={result.page} pageCount={result.pageCount} label={t('pagination')}
         onPageChange={page => updateQuery({ ...query, page })} summary={tCatalog('range', { start: firstItem, end: lastItem, count: total })}
         pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => updateQuery({ ...query, page: 1, pageSize: value === 'all' ? 'all' : Number(value) }) }} />}
+      </div>
+      </details>
     </section>
     {selectedIds.length > 5 && <RequestFeedback state="error"><p>{t('tooManySelected')}</p></RequestFeedback>}
     {selectedIds.length > 0 && selectedIds.length < 2 && <p className={styles.notice} role="status">{t('selectAtLeastTwo')}</p>}
@@ -394,7 +411,8 @@ export function ComparisonPage() {
     {selectedIds.length >= 2 && selectedIds.length <= 5 && selectedIds.includes(referenceApplicationId ?? '') && pageState.period !== null &&
       <section className={styles.results} aria-labelledby="comparison-results-heading">
         <div className={styles.resultHeading}>
-          <h2 id="comparison-results-heading">{t('resultsHeading')}</h2>
+          <div className={styles.resultTitle}><span className={styles.sectionIcon}><FontAwesomeIcon icon={faArrowRightArrowLeft} aria-hidden="true" /></span><h2 id="comparison-results-heading">{t('resultsHeading')}</h2></div>
+          <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
         </div>
         {comparisonLoading && <LoadingState title={t('loadingComparison')} compact />}
         {comparisonError && <RequestFeedback state="error">
@@ -402,7 +420,7 @@ export function ComparisonPage() {
           <p>{comparisonError === 'APPLICATION_NOT_FOUND' ? t('applicationNotFound')
             : comparisonError === 'INVALID_ANALYSIS_REFERENCE_APPLICATION' ? t('invalidReferenceError')
               : t('comparisonError')}</p>
-          <button type="button" onClick={() => setAttempt((value) => value + 1)}>{tCommon('actions.retry')}</button>
+          <button className="button" type="button" onClick={() => setAttempt((value) => value + 1)}>{tCommon('actions.retry')}</button>
         </RequestFeedback>}
         {comparison && <>
           {comparison.status === 'empty' && <RequestFeedback state="empty"><p>{t('emptyComparison')}</p></RequestFeedback>}
@@ -410,18 +428,18 @@ export function ComparisonPage() {
           <div className={styles.desktopResults}>
             <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
-                <th scope="col" key={application.applicationId}>{application.name}{application.applicationId === referenceApplicationId && <small>{t('reference')}</small>}</th>)}</tr></thead>
-              <tbody>{rows.map((row) => <tr key={row.key} data-help={`comparison-${row.key}`}><th scope="row">{row.label}</th>{selectedApplications.map((application) =>
-                <td key={application.applicationId}><span>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
+                <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
+              <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}>{row.icon && <span className={styles.metricIcon}><FontAwesomeIcon icon={row.icon} aria-hidden="true" /></span>}{row.label}</span></th>{selectedApplications.map((application) =>
+                <td key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><span className={styles.metricValue}>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}</td>)}</tr>)}</tbody>
             </table>
           </div>
           <div className={styles.mobileResults}>
-            {rows.map((row) => <section key={row.key} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
-              <h3 id={`comparison-${row.key}`}>{row.label}</h3>
+            {rows.map((row) => <section key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
+              <h3 id={`comparison-${row.key}`} className={styles.indicatorLabel}>{row.icon && <span className={styles.metricIcon}><FontAwesomeIcon icon={row.icon} aria-hidden="true" /></span>}{row.label}</h3>
               {selectedApplications.map((application) => <div className={styles.mobileValue} key={application.applicationId}>
                 <strong>{application.name}{application.applicationId === referenceApplicationId ? ` · ${t('reference')}` : ''}</strong>
-                <span>{row.value(application)}</span>
+                <span className={styles.metricValue}>{row.value(application)}</span>
                 {row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}
               </div>)}

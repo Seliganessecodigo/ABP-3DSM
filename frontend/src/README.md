@@ -9,6 +9,8 @@
 Playwright aceita `PLAYWRIGHT_PORT` para usar outra porta quando a padrão 4173 estiver ocupada, inclusive em worktrees simultâneos. Metodologia carrega Inter local de `assets/fonts/`, com licença SIL OFL, para reproduzir as referências sem CDN em runtime.
 
 `App.tsx` é o ponto de composição: liga rota, layout e página, sem conter fluxo ou estado de uma tela.
+
+`pages/comparison/` mantém aplicações selecionadas, período e referência no topo. O catálogo é recolhível: começa aberto sem uma comparação e recolhido ao restaurar duas ou mais aplicações, sem remover seleção, busca, filtros ou paginação. A matriz destaca energia/CO₂e, identifica a referência por texto e oferece rolagem horizontal para até cinco aplicações; no mobile, usa cards por indicador. Os ícones decorativos reutilizam Font Awesome da sidebar, com cores dos temas existentes; nomes e valores continuam acessíveis por texto.
 `app/` contém a navegação e inicialização global. Providers globais ficam nessa camada quando mais de uma rota depende deles.
 
 O histórico é uma ação por aplicação no catálogo, ao lado de Detalhes; a sidebar mantém Aplicações ativa nas duas consultas. `/history` continua aceitando links diretos e preservando período, granularidade e fuso. `components/PageHelp` apresenta a ajuda sob demanda pelo botão “?” junto ao título: usa diálogo modal nativo, passos com título/descrição traduzidos pela página, destaque opcional de um alvo `data-help`, Escape e retorno do foco. Os textos e alvos de cada tutorial pertencem à página; os controles do diálogo usam o namespace compartilhado. Não abre automaticamente nem altera dados ou filtros.

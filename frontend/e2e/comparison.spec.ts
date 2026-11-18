@@ -88,7 +88,7 @@ function comparisonResponse(url: URL) {
     applications: applicationIds.map((id, index) => comparisonApplication(
       id,
       id === 'svc-0142' ? 'app-pagamentos' : id === 'svc-0121' ? 'app-checkout' : `app-${id}`,
-      3 - index,
+      5 - index,
       index === 0 ? 1200 : 600,
     )),
   }
@@ -108,7 +108,10 @@ test('restores selected applications and presents the backend comparison', async
       referenceApplicationId: url.searchParams.get('referenceApplicationId'),
       applications: [
         comparisonApplication('svc-0142', 'app-pagamentos', 3, 1200),
-        comparisonApplication('svc-0121', 'app-checkout', 2, 600),
+        comparisonApplication('svc-0121', 'app-checkout', 2, 600, {
+          energyDifference: { absolute: -1, unit: 'kWh', percentage: -33.33, reason: null },
+          emissionsDifference: { absolute: -600, unit: 'gCO2e', percentage: -50, reason: null },
+        }),
       ],
     } })
   })
@@ -116,17 +119,30 @@ test('restores selected applications and presents the backend comparison', async
   await page.goto('/comparison?applicationIds=svc-0142&applicationIds=svc-0121&period=7d')
 
   await expect(page.getByRole('heading', { name: 'Comparação de aplicações', exact: true })).toBeVisible()
+  const catalogToggle = page.locator('summary').filter({ hasText: 'Aplicações para comparar' })
+  await expect(page.getByRole('searchbox', { name: 'Buscar em todas as colunas' })).toBeHidden()
+  await catalogToggle.focus()
+  await page.keyboard.press('Enter')
   await expect(page.getByRole('checkbox', { name: /app-pagamentos/ })).toBeChecked()
   await expect(page.getByRole('checkbox', { name: /app-checkout/ })).toBeChecked()
+  await catalogToggle.focus()
+  await page.keyboard.press('Enter')
   await expect(page.getByRole('combobox', { name: 'Aplicação de referência' })).toHaveValue('svc-0142')
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toContainText('app-pagamentos')
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toContainText('0,6 kgCO₂e')
+  await expect(page.getByRole('table', { name: 'Comparação no período' }).getByRole('row', { name: /^Energia / })).toContainText('-1 kWh')
+  await expect(page.getByRole('table', { name: 'Comparação no período' }).getByRole('row', { name: /^Emissões estimadas / })).toContainText('-0,6 kgCO₂e')
+  const emissionsRow = await page.getByRole('table', { name: 'Comparação no período' }).getByRole('row', { name: /^Emissões estimadas / }).boundingBox()
+  expect(emissionsRow && emissionsRow.y + emissionsRow.height).toBeLessThan(page.viewportSize()!.height)
+  await page.getByRole('heading', { name: 'Comparação de aplicações', exact: true }).click()
+  await page.screenshot({ path: test.info().outputPath('comparison-desktop.png'), fullPage: true })
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toBeHidden()
   await expect(page.getByRole('heading', { name: 'Energia', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Emissões estimadas', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await page.screenshot({ path: test.info().outputPath('comparison-mobile.png'), fullPage: true })
 })
 
 test('starts without a comparison, requests automatically after two selections, and keeps filtered selections', async ({ page }) => {
@@ -162,7 +178,46 @@ test('starts without a comparison, requests automatically after two selections, 
   await expect(selectedApplications.getByRole('listitem')).toHaveCount(2)
   expect(new URL(page.url()).searchParams.getAll('applicationIds')).toEqual(['svc-0142', 'svc-0121'])
   expect(requests).toBe(1)
+  await selection.locator('summary').click()
+  await expect(selection.getByRole('searchbox')).toBeHidden()
+  await expect(page.getByRole('table', { name: 'Comparação no período' })).toBeVisible()
+  await selection.locator('summary').click()
+  await expect(selection.getByRole('searchbox')).toHaveValue('nao-existe')
+  await expect(selectedApplications.getByRole('listitem')).toHaveCount(2)
+  expect(requests).toBe(1)
 })
+
+for (const scenario of [
+  { width: 320, theme: 'light', locale: 'de-DE' },
+  { width: 834, theme: 'dark', locale: 'pt-BR' },
+  { width: 1440, theme: 'dark', locale: 'de-DE' },
+]) {
+  test(`five long application names remain readable at ${scenario.width}px in ${scenario.theme}/${scenario.locale}`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: scenario.width, height: 960 })
+    await page.addInitScript(({ theme, locale }) => {
+      localStorage.setItem('greener-theme', theme)
+      localStorage.setItem('greener:locale', locale)
+    }, scenario)
+    const catalog = Array.from({ length: 5 }, (_, index) => application({
+      id: `service-${index}`,
+      name: `processamento-de-pagamentos-internacionais-${index + 1}`,
+    }))
+    await mockCatalog(page, catalog)
+    await page.route(/\/analysis\/comparison(?:\?.*)?$/, route => {
+      const response = comparisonResponse(new URL(route.request().url()))
+      response.applications = response.applications.map((item, index) => ({ ...item, name: catalog[index].name }))
+      return route.fulfill({ json: response })
+    })
+    const params = new URLSearchParams({ period: '7d' })
+    catalog.forEach(item => params.append('applicationIds', item.id))
+    await page.goto(`/comparison?${params}`)
+    await expect(page.locator('html')).toHaveAttribute('data-theme', scenario.theme)
+    await expect(page.locator('[data-help="comparison-selection"] ul').getByRole('listitem')).toHaveCount(5)
+    await expect(page.locator('[data-help="comparison-energy"]:visible')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`comparison-${scenario.width}-${scenario.theme}.png`), fullPage: true })
+  })
+}
 
 test('deduplicates restored IDs and leaves an invalid reference editable without requesting results', async ({ page }) => {
   await page.clock.setFixedTime(new Date(period.to))
