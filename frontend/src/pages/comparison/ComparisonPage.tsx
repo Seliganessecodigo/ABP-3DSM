@@ -322,7 +322,7 @@ export function ComparisonPage() {
       {announcement && <p role="status" aria-live="polite">{announcement}</p>}
       <ul className={styles.selectedList} aria-label={t('selectedApplications')}>
         {selectedIds.map((id, index) => <li key={id} data-reference={id === referenceApplicationId}>
-          <span className={styles.applicationMarker} aria-hidden="true">{String.fromCharCode(65 + index)}</span>
+          <span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + index)}</span>
           <span>{applicationName(id)}{missingIds.includes(id) ? ` · ${t('missingApplication')}` : ''}</span>
           <button type="button" aria-label={t('removeApplication', { name: applicationName(id) })} onClick={() => toggleApplication(id, false)}>×</button>
         </li>)}
@@ -428,7 +428,7 @@ export function ComparisonPage() {
           <div className={styles.desktopResults}>
             <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
-                <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCharCode(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
+                <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
               <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}>{row.icon && <span className={styles.metricIcon}><FontAwesomeIcon icon={row.icon} aria-hidden="true" /></span>}{row.label}</span></th>{selectedApplications.map((application) =>
                 <td key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><span className={styles.metricValue}>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}</td>)}</tr>)}</tbody>
