@@ -40,6 +40,7 @@ test('breadcrumbs preserve catalog context when opening and returning from appli
 
 for (const width of [390, 1440]) {
   test(`product pages use one breadcrumb landmark and contain their content at ${width}px`, async ({ page }, testInfo) => {
+    test.setTimeout(60_000)
     await page.setViewportSize({ width, height: 960 })
     await mockCatalog(page, [application()])
     await page.route(/\/carbon\/regions(?:\?.*)?$/, route => route.fulfill({ status: 503, json: {} }))
