@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-type Route = { kind: 'recover-password' } | { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'settings' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
+type Route = { kind: 'recover-password' } | { kind: 'catalog' } | { kind: 'dashboard' } | { kind: 'ranking' } | { kind: 'comparison' } | { kind: 'history' } | { kind: 'regional-simulation' } | { kind: 'detail'; id: string } | { kind: 'methodology'; id: string | null } | { kind: 'administration' } | { kind: 'settings' } | { kind: 'login' } | { kind: 'sso-callback' } | { kind: 'setup-admin' } | { kind: 'confirm-email' }
 const staticRoutes: Partial<Record<string, Route>> = {
   '/recover-password': { kind: 'recover-password' },
   '/settings': { kind: 'settings' }, '/settings/': { kind: 'settings' },
@@ -9,6 +9,7 @@ const staticRoutes: Partial<Record<string, Route>> = {
   '/setup-admin': { kind: 'setup-admin' }, '/confirm-email': { kind: 'confirm-email' },
   '/sso/callback': { kind: 'sso-callback' }, '/login': { kind: 'login' },
   '/dashboard': { kind: 'dashboard' }, '/dashboard/': { kind: 'dashboard' },
+  '/ranking': { kind: 'ranking' }, '/ranking/': { kind: 'ranking' },
   '/comparison': { kind: 'comparison' }, '/comparison/': { kind: 'comparison' },
   '/history': { kind: 'history' }, '/history/': { kind: 'history' },
   '/regional-simulation': { kind: 'regional-simulation' }, '/regional-simulation/': { kind: 'regional-simulation' },

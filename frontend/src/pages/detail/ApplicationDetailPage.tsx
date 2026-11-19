@@ -148,7 +148,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const analysisBounds = selectedPeriod === null ? null : analysisRangeFor(analysisPeriod, new Date(analysisAnchor), customRange)
   const analysisState = environmentalStatus(selectedPeriod, unsupportedGranularity, environmentalAnalysis.status)
   const analysisPending = ['loading', 'refreshing'].includes(analysisState)
-  const backUrl = `/applications${window.location.search}`
+  const returnTo = searchParams.get('returnTo')
+  const backUrl = returnTo?.startsWith('/') && !returnTo.startsWith('//') ? returnTo : `/applications${window.location.search}`
   const historyUrlParams = new URLSearchParams(searchParams)
   historyUrlParams.delete('inspectionBucket')
   const historyUrl = `/history${historyUrlParams.size ? `?${historyUrlParams.toString()}` : ''}`

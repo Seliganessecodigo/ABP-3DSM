@@ -14,6 +14,7 @@ import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
 import { SettingsPage } from './pages/settings/SettingsPage.tsx'
 import { RegionalSimulationPage } from './pages/regionalSimulation/RegionalSimulationPage.tsx'
 import { ComparisonPage } from './pages/comparison/ComparisonPage.tsx'
+import { RankingPage } from './pages/ranking/RankingPage.tsx'
 
 function App() {
   return <AuthenticationProvider><Application /></AuthenticationProvider>
@@ -39,6 +40,7 @@ function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) 
     case 'recover-password': return <RecoverPasswordPage navigate={navigate} />
     case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
     case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
+    case 'ranking': return <RankingPage navigate={navigate} />
     case 'comparison': return <ComparisonPage navigate={navigate} />
     case 'history': return <HistoryPage key="history" navigate={navigate} />
     case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" navigate={navigate} />
