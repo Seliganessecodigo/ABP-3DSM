@@ -19,7 +19,7 @@ async function login(page: Page, role = 'ADMIN') {
   await page.locator('input[name=email]').fill(admin.email)
   await page.locator('input[name=password]').fill('test-password')
   await page.locator('form button[type=submit]').click()
-  await expect(page).toHaveURL(url => url.pathname === '/')
+  await expect(page).toHaveURL(url => url.pathname === '/dashboard')
   await page.getByRole('link', { name: 'Configurações', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Configurações', exact: true })).toBeVisible()
 }
