@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Supervisión",
   "title": "Panel ambiental",
-  "subtitle": "{{count}} aplicaciones en el ámbito actual",
   "period": "Periodo",
   "period.24h": "24 horas",
   "period.7d": "7 días",
@@ -41,7 +39,6 @@
   "donutDescription": "Composición de CO₂e de {{count}} aplicaciones, total {{total}}",
   "ascending": "Ascendente",
   "descending": "Descendente",
-  "comparisonPending": "La comparación con un periodo anterior no está disponible hasta que se definan y aprueben sus reglas.",
   "table.title": "Aplicaciones con resultados ({{count}})",
   "table.scopeNote": "{{count}} aplicaciones contribuyen al resumen; el contrato actual no devuelve filas sin resultados individuales.",
   "table.contributorsOnly": "La región mostrada es la actual de la aplicación. El filtro regional de los indicadores usa la región histórica de cada recopilación.",

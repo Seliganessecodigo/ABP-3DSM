@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Pemantauan",
   "title": "Dasbor lingkungan",
-  "subtitle": "{{count}} aplikasi dalam cakupan saat ini",
   "period": "Periode",
   "period.24h": "24 jam",
   "period.7d": "7 hari",
@@ -41,7 +39,6 @@
   "donutDescription": "Komposisi CO₂e untuk {{count}} aplikasi, total {{total}}",
   "ascending": "Menaik",
   "descending": "Menurun",
-  "comparisonPending": "Perbandingan dengan periode sebelumnya belum tersedia sampai aturannya ditetapkan dan disetujui.",
   "table.title": "Aplikasi dengan hasil ({{count}})",
   "table.scopeNote": "{{count}} aplikasi berkontribusi pada ringkasan; kontrak saat ini tidak mengembalikan baris tanpa hasil individual.",
   "table.contributorsOnly": "Wilayah yang ditampilkan adalah wilayah aplikasi saat ini. Filter wilayah indikator menggunakan wilayah historis setiap pengumpulan.",

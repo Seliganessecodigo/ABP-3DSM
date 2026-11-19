@@ -1,7 +1,5 @@
 {
-  "eyebrow": "モニタリング",
   "title": "環境ダッシュボード",
-  "subtitle": "現在の範囲に含まれるアプリケーション {{count}} 件",
   "period": "期間",
   "period.24h": "24 時間",
   "period.7d": "7 日間",
@@ -41,7 +39,6 @@
   "donutDescription": "アプリケーション {{count}} 件の CO₂e 構成、合計 {{total}}",
   "ascending": "昇順",
   "descending": "降順",
-  "comparisonPending": "比較ルールが定義・承認されるまで、前期間との比較は利用できません。",
   "table.title": "結果のあるアプリケーション ({{count}})",
   "table.scopeNote": "{{count}} 件がサマリーに寄与しています。現在の契約では個別結果のない行は返されません。",
   "table.contributorsOnly": "表示リージョンは現在のリージョンです。指標のリージョンフィルターは各収集時点の履歴リージョンを使用します。",

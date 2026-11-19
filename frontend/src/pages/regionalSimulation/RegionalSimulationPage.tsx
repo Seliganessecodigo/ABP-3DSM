@@ -326,7 +326,7 @@ export function RegionalSimulationPage({ navigate }: Readonly<{ navigate: (url: 
 
   return <main className={`content ${styles.page}`}>
     <header className={`page-heading ${styles.header}`}>
-      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><p className="eyebrow">{t('sectionLabel')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
         { title: t('simulationParameters'), description: t('helpParameters'), target: '[data-help="simulation-parameters"]' },
         { title: t('originalResult'), description: t('helpOriginal'), target: '[data-help="simulation-original"]' },
         { title: t('destinationFactorTitle'), description: t('helpFactor'), target: '[data-help="simulation-factor"]' },

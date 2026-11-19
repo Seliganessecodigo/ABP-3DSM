@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Monitoramento",
   "title": "Dashboard ambiental",
-  "subtitle": "{{count}} aplicações no escopo atual",
   "period": "Período",
   "period.24h": "24 horas",
   "period.7d": "7 dias",
@@ -41,7 +39,6 @@
   "donutDescription": "Composição de CO₂e de {{count}} aplicações, total {{total}}",
   "ascending": "Crescente",
   "descending": "Decrescente",
-  "comparisonPending": "Comparação com período anterior indisponível até a definição e aprovação das regras.",
   "table.title": "Aplicações com resultados ({{count}})",
   "table.scopeNote": "{{count}} aplicações contribuem para o resumo; linhas sem resultado individual não são retornadas pelo contrato atual.",
   "table.contributorsOnly": "A região exibida é a atual da aplicação. O filtro regional dos indicadores usa a região histórica de cada coleta.",

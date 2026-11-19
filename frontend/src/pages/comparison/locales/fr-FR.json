@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Analyse",
   "title": "Comparaison des applications",
-  "description": "Comparez les indicateurs des applications sur la même période.",
   "selectionHeading": "Applications à comparer",
   "selectionInstructions": "Sélectionnez deux à cinq applications. La recherche et les filtres ne retirent pas les applications déjà sélectionnées.",
   "selectionLimit": "La limite de cinq applications est atteinte. Retirez-en une pour en sélectionner une autre.",

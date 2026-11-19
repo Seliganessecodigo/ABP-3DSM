@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Monitoring",
   "title": "Environmental dashboard",
-  "subtitle": "{{count}} applications in the current scope",
   "period": "Period",
   "period.24h": "24 hours",
   "period.7d": "7 days",
@@ -41,7 +39,6 @@
   "donutDescription": "CO₂e composition for {{count}} applications, total {{total}}",
   "ascending": "Ascending",
   "descending": "Descending",
-  "comparisonPending": "Comparison with a previous period is unavailable until its rules are defined and approved.",
   "table.title": "Applications with results ({{count}})",
   "table.scopeNote": "{{count}} applications contribute to the summary; the current contract does not return rows without individual results.",
   "table.contributorsOnly": "The displayed region is the application's current region. Indicator region filters use each collection's historical region.",

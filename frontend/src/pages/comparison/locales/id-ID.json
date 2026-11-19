@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Analisis",
   "title": "Perbandingan aplikasi",
-  "description": "Bandingkan indikator aplikasi dalam periode yang sama.",
   "selectionHeading": "Aplikasi untuk dibandingkan",
   "selectionInstructions": "Pilih dua hingga lima aplikasi. Pencarian dan filter tidak menghapus aplikasi yang sudah dipilih.",
   "selectionLimit": "Batas lima aplikasi tercapai. Hapus satu untuk memilih aplikasi lain.",

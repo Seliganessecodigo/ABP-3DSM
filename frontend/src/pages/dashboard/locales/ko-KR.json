@@ -1,7 +1,5 @@
 {
-  "eyebrow": "모니터링",
   "title": "환경 대시보드",
-  "subtitle": "현재 범위의 애플리케이션 {{count}}개",
   "period": "기간",
   "period.24h": "24시간",
   "period.7d": "7일",
@@ -41,7 +39,6 @@
   "donutDescription": "애플리케이션 {{count}}개의 CO₂e 구성, 합계 {{total}}",
   "ascending": "오름차순",
   "descending": "내림차순",
-  "comparisonPending": "비교 규칙이 정의되고 승인되기 전에는 이전 기간과 비교할 수 없습니다.",
   "table.title": "결과가 있는 애플리케이션 ({{count}}개)",
   "table.scopeNote": "애플리케이션 {{count}}개가 요약에 기여합니다. 현재 계약은 개별 결과가 없는 행을 반환하지 않습니다.",
   "table.contributorsOnly": "표시된 지역은 애플리케이션의 현재 지역입니다. 지표의 지역 필터에는 각 수집 당시의 지역이 사용됩니다.",

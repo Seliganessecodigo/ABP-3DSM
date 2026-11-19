@@ -130,7 +130,7 @@ test('dashboard presents real summary values, separate coverage and contribution
   while (await page.getByRole('dialog').getByRole('heading').innerText() !== 'Série temporal') {
     await page.getByRole('dialog').getByRole('button', { name: 'Próximo', exact: true }).click()
   }
-  await expect(page.getByRole('dialog')).toContainText(/comparação com período anterior indisponível/i)
+  await expect(page.getByRole('dialog')).toContainText('Lacunas indicam ausência de dados; não representam zero.')
   await page.getByRole('dialog').getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)
   await expect(page.locator('tbody tr').nth(0)).toContainText('api-estoque')

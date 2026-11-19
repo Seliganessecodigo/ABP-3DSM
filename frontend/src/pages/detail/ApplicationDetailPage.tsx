@@ -246,7 +246,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         <div className={styles.historyInspectionHeading}>
           <div>
             <Breadcrumbs className={styles.breadcrumb} navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tDetail('historyTitle'), href: historyUrl, onNavigate: closeHistoryInspection }, { label: tDetail('historyInspectionHeading') }]} />
-            <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
+
             <div className="heading-title"><h1>{tDetail('historyInspectionHeading')}</h1>{pageHelp}</div>
             <p>{application?.name} · {displayTimeZone}</p>
           </div>
@@ -257,7 +257,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
       : <>
         <div className={styles.historyHeading}>
           <Breadcrumbs className={styles.breadcrumb} navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tDetail('historyTitle') }]} />
-          <p className={styles.historyEyebrow}>{tCommon('nav.monitoring')}</p>
+
           <div className="heading-title"><h1>{tDetail('historyTitle')}</h1>{pageHelp}</div>
         </div>
         <div className={styles.historyActions}>

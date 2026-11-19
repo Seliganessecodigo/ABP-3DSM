@@ -8,10 +8,10 @@ export function MethodologyExplanation({ tab }: Readonly<{ tab: PreferenceTab }>
   const { t } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const flow = tab === 'energy' || tab === 'emissions'
   return <section data-help="methodology-explanation" className={`${styles.card} ${styles.explanation}`} aria-labelledby="explanation-title">
-    <p className={styles.step}>{t('stepUnderstand')}</p><h2 id="explanation-title"><CardIcon icon={faBookOpen} size="small" inline />{t(`${tab}.title`)}</h2>
+    <h2 id="explanation-title"><CardIcon icon={faBookOpen} size="small" inline />{t(`${tab}.title`)}</h2>
     {flow ? <>
       <div className={styles.flow}>{[0, 1, 2].map((index) => <div key={index}><div className={styles.flowBox}><h3>{t(`${tab}.flow${index}Title`)}</h3><p>{t(`${tab}.flow${index}Description`)}</p></div>{index < 2 && <span className={styles.arrow} aria-hidden="true">↓</span>}</div>)}</div>
-      <h3>{t('needToKnow')}</h3><p>{t(`${tab}.explanation`)}</p>
+      <p>{t(`${tab}.explanation`)}</p>
     </> : <>
       <p className={styles.intro}>{t(`${tab}.explanation`)}</p>
       <div className={styles.explainerBoxes}><div className={styles.infoBox}><h3>{t(`${tab}.boxTitle`)}</h3><p>{t(`${tab}.boxDescription`)}</p></div>

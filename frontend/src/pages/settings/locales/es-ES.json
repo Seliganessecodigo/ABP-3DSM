@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Sistema",
   "title": "Configuración",
-  "description": "Gestiona tu cuenta, el monitoreo y los accesos a GreenER.",
   "areas": "Secciones de configuración",
   "tabs.monitoring": "Monitorización",
   "tabs.users": "Usuarios",
@@ -12,7 +10,6 @@
   "denied": "Solo los administradores pueden acceder a esta sección.",
   "accountDescription": "Los datos de tu cuenta son de solo lectura.",
   "appearance": "Apariencia e idioma",
-  "appearanceDescription": "Preferencias de esta interfaz.",
   "theme": "Tema",
   "theme.light": "Claro",
   "theme.dark": "Oscuro",
@@ -21,7 +18,6 @@
   "analysisPreferences": "Preferencias de análisis",
   "preferencesDescription": "Los límites de energía, CO₂e, cobertura y valores iniciales siguen en Metodología y mis preferencias.",
   "openPreferences": "Abrir metodología y mis preferencias",
-  "accountSecurity": "Las contraseñas, tokens y códigos de autenticación nunca se muestran aquí.",
   "signOut": "Cerrar sesión",
   "sessionExpired": "Tu sesión ha caducado. Inicia sesión de nuevo.",
   "loadFailed": "No se pudo completar la solicitud. Tus cambios se conservaron. Inténtalo de nuevo.",

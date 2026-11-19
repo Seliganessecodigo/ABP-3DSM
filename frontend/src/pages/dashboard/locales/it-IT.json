@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Monitoraggio",
   "title": "Dashboard ambientale",
-  "subtitle": "{{count}} applicazioni nell'ambito attuale",
   "period": "Periodo",
   "period.24h": "24 ore",
   "period.7d": "7 giorni",
@@ -41,7 +39,6 @@
   "donutDescription": "Composizione CO₂e di {{count}} applicazioni, totale {{total}}",
   "ascending": "Crescente",
   "descending": "Decrescente",
-  "comparisonPending": "Il confronto con il periodo precedente non è disponibile finché le regole non saranno definite e approvate.",
   "table.title": "Applicazioni con risultati ({{count}})",
   "table.scopeNote": "{{count}} applicazioni contribuiscono al riepilogo; il contratto attuale non restituisce righe senza risultati individuali.",
   "table.contributorsOnly": "La regione mostrata è quella attuale dell'applicazione. Il filtro regionale degli indicatori usa la regione storica di ogni raccolta.",

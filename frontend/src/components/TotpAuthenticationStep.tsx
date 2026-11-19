@@ -80,7 +80,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
   return <main className={loginStyles.page}>
     <img className={loginStyles.watermark} src={greenErMark} alt="" />
     <header className={loginStyles.heading}>
-      <p className={loginStyles.eyebrow}>{t('title')}</p>
+
       <h1>{t('heading')}</h1>
     </header>
     <section className={`${loginStyles.card} ${styles.totpCard}`} aria-labelledby="totp-heading">

@@ -1,7 +1,5 @@
 {
-  "eyebrow": "システム",
   "title": "設定",
-  "description": "アカウント、監視、GreenERへのアクセスを管理します。",
   "areas": "設定項目",
   "tabs.monitoring": "監視",
   "tabs.users": "ユーザー",
@@ -12,7 +10,6 @@
   "denied": "この項目には管理者のみアクセスできます。",
   "accountDescription": "アカウント情報は読み取り専用です。",
   "appearance": "表示と言語",
-  "appearanceDescription": "この画面の設定。",
   "theme": "テーマ",
   "theme.light": "ライト",
   "theme.dark": "ダーク",
@@ -21,7 +18,6 @@
   "analysisPreferences": "分析の設定",
   "preferencesDescription": "エネルギー、CO₂e、カバレッジのしきい値と分析の初期値は「方法論と個人設定」にあります。",
   "openPreferences": "方法論と個人設定を開く",
-  "accountSecurity": "パスワード、トークン、認証コードはここには表示されません。",
   "signOut": "ログアウト",
   "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
   "loadFailed": "リクエストを完了できませんでした。変更内容は保持されています。再試行してください。",

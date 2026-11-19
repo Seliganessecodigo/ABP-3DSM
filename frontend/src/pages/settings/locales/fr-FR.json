@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Système",
   "title": "Paramètres",
-  "description": "Gérez votre compte, la surveillance et les accès à GreenER.",
   "areas": "Sections des paramètres",
   "tabs.monitoring": "Surveillance",
   "tabs.users": "Utilisateurs",
@@ -12,7 +10,6 @@
   "denied": "Seuls les administrateurs peuvent accéder à cette section.",
   "accountDescription": "Les informations de votre compte sont en lecture seule.",
   "appearance": "Apparence et langue",
-  "appearanceDescription": "Préférences de cette interface.",
   "theme": "Thème",
   "theme.light": "Clair",
   "theme.dark": "Sombre",
@@ -21,7 +18,6 @@
   "analysisPreferences": "Préférences d’analyse",
   "preferencesDescription": "Les seuils d’énergie, de CO₂e, de couverture et les paramètres d’analyse restent dans Méthodologie et mes préférences.",
   "openPreferences": "Ouvrir méthodologie et mes préférences",
-  "accountSecurity": "Les mots de passe, jetons et codes d’authentification ne sont jamais affichés ici.",
   "signOut": "Se déconnecter",
   "sessionExpired": "Votre session a expiré. Reconnectez-vous.",
   "loadFailed": "La demande n’a pas pu être terminée. Vos modifications ont été conservées. Réessayez.",

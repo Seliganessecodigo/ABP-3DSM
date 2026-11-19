@@ -140,11 +140,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     return { position: end, stops: [...result.stops, `${color} ${result.position}% ${end}%`] }
   }, { position: 0, stops: [] as string[] }).stops.join(', ')
   const totalApplications = data.data ? Object.values(data.data.states).reduce((sum, count) => sum + count, 0) : 0
-  const summaryMeta = data.data && [
-    `${numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}`,
-    `${numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}`,
-    dateRangeLabel(data.data.period.from, data.data.period.to, locale),
-  ].join(' | ')
+  const summaryMeta = data.data && dateRangeLabel(data.data.period.from, data.data.period.to, locale)
 
   useEffect(() => {
     const url = dashboardQueryUrl({ ...query, page })
@@ -213,16 +209,15 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className={`page-heading ${styles.header}`}>
       <div>
-        <Breadcrumbs navigate={navigate} /><p className="eyebrow">{t('eyebrow')}</p>
+        <Breadcrumbs navigate={navigate} />
         <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
   { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
   { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="dashboard-emissions"]' },
   { title: t('coverage'), description: tCommon('help.coverage'), target: '#dashboard-coverage' },
-  { title: t('trendTitle'), description: [t('trend.note'), t('comparisonPending')].join("\n\n"), target: '[data-help="dashboard-trend"]' },
+  { title: t('trendTitle'), description: t('trend.note'), target: '[data-help="dashboard-trend"]' },
   { title: t('compositionTitle'), description: tCommon('help.composition'), target: '[data-help="dashboard-composition"]' },
 ]} /></div>
-        {data.data && <p className={styles.subtitle}>{t('subtitle', { count: totalApplications })}</p>}
         {summaryMeta && <p className={styles.summaryMeta}>{summaryMeta}</p>}
       </div>
       <button className={styles.refreshButton} type="button" aria-disabled={pending}

@@ -36,10 +36,10 @@ function AccountsAdministration({ embedded, navigate }: Readonly<{ embedded: boo
   }
   const Container = embedded ? 'section' : 'main'
   return <Container className={embedded ? styles.page : `content ${styles.page}`} tabIndex={-1}>
-    <header className={embedded ? styles.toolbar : `page-heading ${styles.pageHeading}`}><div>{!embedded && <p className="eyebrow">GreenER</p>}<div className="heading-title">{embedded ? <h2>{t('title')}</h2> : <h1>{t('title')}</h1>}{!embedded && <PageHelp steps={[
+    <header className={embedded ? styles.toolbar : `page-heading ${styles.pageHeading}`}><div className="heading-title">{embedded ? <h2>{t('title')}</h2> : <h1>{t('title')}</h1>}{!embedded && <PageHelp steps={[
   { title: t('inviteTitle'), description: t('inviteDescription'), target: '[aria-labelledby="google-invitation-heading"]' },
   { title: t('listTitle'), description: t('existingAccountHint'), target: '[aria-labelledby="accounts-list-heading"]' },
-]} />}</div></div><button type="button" className="button" onClick={() => { setSaved(false); setManagement({ account: null }) }}>{settings('createAccount')}</button></header>
+]} />}</div><button type="button" className="button" onClick={() => { setSaved(false); setManagement({ account: null }) }}>{settings('createAccount')}</button></header>
     {saved && <output>{settings('saved')}</output>}
     <section className={styles.panel} aria-labelledby="accounts-list-heading" aria-busy={loading}>
       <div className={styles.toolbar}><h2 id="accounts-list-heading"><CardIcon icon={faUsers} size="small" inline />{t('listTitle')}</h2><ActionButton appearance="secondary" pending={loading} onClick={reload}>{t('refresh')}</ActionButton></div>

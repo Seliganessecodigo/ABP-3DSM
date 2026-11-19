@@ -66,7 +66,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className="page-heading">
       <div>
-        <Breadcrumbs navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tCommon('nav.history') }]} /><p className="eyebrow">{tCatalog('eyebrow')}</p>
+        <Breadcrumbs navigate={navigate} items={[{ label: tCommon('nav.applications'), href: '/applications' }, { label: tCommon('nav.history') }]} />
         <div className="heading-title"><h1>{tDetail('historyTitle')}</h1><PageHelp steps={[
   { title: tCatalog('app'), description: tDetail('helpHistoryFilters'), target: '[data-help="history-selector"]' },
   { title: t('applicationsTitle'), description: tDetail('historyDescription'), target: '[aria-labelledby="history-applications-heading"]' },

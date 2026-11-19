@@ -311,14 +311,14 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
 
   return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className={`page-heading ${styles.header}`}>
-      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><p className="eyebrow">{t('eyebrow')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
       { title: t('selectionHeading'), description: t('helpSelection'), target: '[data-help="comparison-selection"]' },
       { title: tDetail('periodTitle'), description: tCommon('help.period'), target: '[data-help="comparison-period"]' },
       { title: t('reference'), description: t('helpReference'), target: '[data-help="comparison-reference"]' },
       { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="comparison-energy"]' },
       { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="comparison-emissions"]' },
       { title: t('energyCoverage'), description: tCommon('help.coverage'), target: '[data-help="comparison-energyCoverage"]' },
-    ]} /></div><p>{t('description')}</p></div>
+    ]} /></div></div>
     </header>
     {catalogError && <RequestFeedback state="error"><p>{t('catalogError')}</p><button className="button secondary" type="button" onClick={retryCatalog}>{tCommon('actions.retry')}</button></RequestFeedback>}
     <section data-help="comparison-selection" className={styles.selection} aria-labelledby="comparison-selection-heading">

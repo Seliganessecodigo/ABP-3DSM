@@ -12,7 +12,6 @@
 }
 .header { align-items: flex-start; margin-bottom: 24px; }
 .header h1 { margin: 0; }
-.subtitle { font-size: 13px; }
 .summaryMeta { font-size: 11px; }
 .refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
 .filterActions button, .filtersPanel fieldset button {

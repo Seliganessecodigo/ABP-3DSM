@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Überwachung",
   "title": "Umwelt-Dashboard",
-  "subtitle": "{{count}} Anwendungen im aktuellen Umfang",
   "period": "Zeitraum",
   "period.24h": "24 Stunden",
   "period.7d": "7 Tage",
@@ -41,7 +39,6 @@
   "donutDescription": "CO₂e-Anteile von {{count}} Anwendungen, Gesamt {{total}}",
   "ascending": "Aufsteigend",
   "descending": "Absteigend",
-  "comparisonPending": "Ein Vergleich mit dem vorherigen Zeitraum ist erst nach Definition und Freigabe der Regeln verfügbar.",
   "table.title": "Anwendungen mit Ergebnissen ({{count}})",
   "table.scopeNote": "{{count}} Anwendungen tragen zur Übersicht bei; der aktuelle Vertrag liefert keine Zeilen ohne Einzelergebnis.",
   "table.contributorsOnly": "Die angezeigte Region ist die aktuelle Region der Anwendung. Der Regionsfilter der Kennzahlen verwendet die historische Region jeder Erfassung.",

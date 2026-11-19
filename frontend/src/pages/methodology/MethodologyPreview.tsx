@@ -10,8 +10,7 @@ import styles from './Preferences.module.css'
 export function MethodologyPreview({ tab, drafts, savedTabs }: Readonly<{ tab: PreferenceTab; drafts: Record<PreferenceTab, PreferenceDraft>; savedTabs: readonly PreferenceTab[] }>) {
   const { t } = useTranslation('methodology', { keyPrefix: 'preferences' })
   return <section className={`${styles.card} ${styles.preview}`} aria-labelledby="preview-title">
-    <p className={styles.step}>{t('stepPreview')}</p>
-    <div className={styles.previewHeading}><h2 id="preview-title"><CardIcon icon={faChartLine} size="small" inline />{t(tab === 'analysis' ? 'analysisPreview' : 'warningsPreview')}</h2><span className={styles.badge}>{t('realData')}</span></div>
+    <h2 id="preview-title"><CardIcon icon={faChartLine} size="small" inline />{t(tab === 'analysis' ? 'analysisPreview' : 'warningsPreview')}</h2>
     {tab === 'analysis' && <p className={styles.previewDescription}>{t('analysis.previewNotice')}</p>}
     {tab === 'analysis' ? <AnalysisPreview draft={drafts.analysis} /> : <AlertPreview drafts={drafts} includedTabs={[...savedTabs, tab]} />}
     <p className={styles.previewFoot}>{t('previewReadOnly')}</p>

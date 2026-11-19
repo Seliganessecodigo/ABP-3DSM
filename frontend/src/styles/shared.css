@@ -21,9 +21,8 @@ select.form-control { appearance: none; padding-inline-end: 36px; background-ima
 .page-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-6); }
 .heading-title { display: flex; min-width: 0; align-items: center; gap: var(--space-3); }
 .heading-title > h1 { min-width: 0; margin-bottom: 0; }
-.eyebrow { margin: 0 0 4px; color: var(--accent-default); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: 10px; font-weight: 750; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; }
 .page-heading h1 { margin: 0; color: var(--text-primary); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: clamp(24px, 3vw, 31px); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; font-optical-sizing: none; }
-.page-heading p:not(.eyebrow) { margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.page-heading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
 .button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--accent-default); border-radius: 8px; padding: 0 16px; color: var(--accent-on-accent); background: var(--accent-default); text-decoration: none; font-size: 12px; font-weight: 650; cursor: pointer; }
 .button { transition: filter 120ms ease, transform 80ms ease; }
 .button:hover:not(:disabled) { filter: brightness(.92); }
