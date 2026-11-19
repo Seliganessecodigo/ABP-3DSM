@@ -43,7 +43,7 @@
   "noSources": "No source diagnosis is available. Absence does not mean healthy.",
   "source.services": "Metrics aggregator · service discovery",
   "source.metrics": "Metrics aggregator · observations",
-  "source.carbon-factor": "Carbon intensity service",
+  "source.carbon-factor": "Regional carbon factors",
   "sourceState.UNKNOWN": "No diagnosis",
   "sourceState.DEGRADED": "With failures",
   "sourceState.RECOVERING": "Recovering",
@@ -100,5 +100,14 @@
   "edit": "Edit",
   "review": "Review change",
   "noResults": "No results for the selected filters.",
-  "clear": "Clear search and filters"
+  "clear": "Clear search and filters",
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "confirmPassword": "Repeat new password",
+  "passwordLength": "Use 8 to 1,024 characters.",
+  "passwordChangeNote": "Confirm your current password. Changing it signs out all sessions. Google-only accounts have no local password.",
+  "passwordMismatch": "Passwords do not match.",
+  "passwordDenied": "Check your current password. Google-only accounts have no local password.",
+  "passwordFailed": "Could not change your password. Try again."
 }

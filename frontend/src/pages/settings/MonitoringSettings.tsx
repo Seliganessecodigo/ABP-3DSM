@@ -50,7 +50,7 @@ export function MonitoringSettings() {
     <dialog ref={dialog} className={styles.dialog} aria-labelledby="monitoring-confirmation-title" onCancel={e => { e.preventDefault(); if (!saving) setConfirming(null) }}>
       <form onSubmit={e => { e.preventDefault(); if (confirming !== null && reason.trim()) void changePaused(confirming, reason.trim()).then(ok => { if (ok) { setConfirming(null); setSaved(true) } }) }}>
         <h2 id="monitoring-confirmation-title">{t(confirming ? 'pauseTitle' : 'resumeTitle')}</h2><p>{t(confirming ? 'pauseDescription' : 'resumeDescription')}</p>
-        <label>{t('reason')}<textarea className="form-control" maxLength={512} required value={reason} disabled={saving} onChange={e => setReason(e.target.value)} /></label>
+        <label>{t('reason')}<textarea placeholder={t('reason')} className="form-control" maxLength={512} required value={reason} disabled={saving} onChange={e => setReason(e.target.value)} /></label>
         {saveError && <p className={styles.error} role="alert">{t(saveError)}</p>}
         <div className={styles.actions}><button ref={cancel} type="button" className="button secondary" disabled={saving} onClick={() => setConfirming(null)}>{t('cancel')}</button><ActionButton type="submit" pending={saving} disabled={!reason.trim()}>{t('confirm')}</ActionButton></div>
       </form>

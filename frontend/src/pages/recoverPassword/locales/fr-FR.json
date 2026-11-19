@@ -1,1 +1,15 @@
-{"title":"Récupération du mot de passe","description":"Si vous avez demandé une récupération, consultez votre boîte de réception pour connaître les prochaines étapes. Ce parcours est en préparation.","backToLogin":"Retour à la connexion"}
+{
+  "title": "Récupération du mot de passe",
+  "description": "Indiquez l’identifiant de votre organisation et votre e-mail pour recevoir un lien de récupération.",
+  "backToLogin": "Retour à la connexion",
+  "organization": "Identifiant de l’organisation",
+  "organizationHint": "Identifiant fourni par votre organisation",
+  "submit": "Envoyer le lien de récupération",
+  "complete": "Si les données correspondent à un compte éligible, vous recevrez un lien par e-mail. Vérifiez aussi les indésirables.",
+  "resetDescription": "Définissez un nouveau mot de passe pour votre compte.",
+  "resetSubmit": "Réinitialiser le mot de passe",
+  "invalidLink": "Ce lien a expiré ou a déjà été utilisé. Demandez un nouveau lien de récupération.",
+  "failed": "Impossible de terminer la récupération. Réessayez.",
+  "passwordMismatch": "Les mots de passe ne correspondent pas.",
+  "rateLimited": "Trop de tentatives. Patientez puis réessayez."
+}

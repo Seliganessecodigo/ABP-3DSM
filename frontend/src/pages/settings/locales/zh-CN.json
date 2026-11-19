@@ -43,7 +43,7 @@
   "noSources": "暂无来源诊断。缺少信息不代表运行正常。",
   "source.services": "指标聚合器 · 服务发现",
   "source.metrics": "指标聚合器 · 观测",
-  "source.carbon-factor": "碳强度服务",
+  "source.carbon-factor": "区域碳排放因子",
   "sourceState.UNKNOWN": "暂无诊断",
   "sourceState.DEGRADED": "存在故障",
   "sourceState.RECOVERING": "正在恢复",
@@ -100,5 +100,14 @@
   "edit": "编辑",
   "review": "检查更改",
   "noResults": "所选筛选条件下没有结果。",
-  "clear": "清除搜索和筛选"
+  "clear": "清除搜索和筛选",
+  "changePassword": "修改密码",
+  "currentPassword": "当前密码",
+  "newPassword": "新密码",
+  "confirmPassword": "再次输入新密码",
+  "passwordLength": "请输入8至1,024个字符。",
+  "passwordChangeNote": "请确认当前密码。修改后将退出所有会话。仅使用Google的账户没有本地密码。",
+  "passwordMismatch": "密码不一致。",
+  "passwordDenied": "请检查当前密码。仅使用Google的账户没有本地密码。",
+  "passwordFailed": "无法修改密码，请重试。"
 }

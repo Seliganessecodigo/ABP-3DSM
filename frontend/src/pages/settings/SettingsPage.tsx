@@ -1,3 +1,4 @@
+import { PasswordSettings } from './PasswordSettings.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faPalette, faSliders, faUser } from '@fortawesome/free-solid-svg-icons'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
@@ -63,6 +64,7 @@ function PersonalSettings({ navigate }: Readonly<{ navigate: (url: string) => vo
       <label>{t('language')}<select aria-label={t('language')} className="form-control" value={i18n.resolvedLanguage} onChange={e => { void i18n.changeLanguage(e.target.value) }}>{supportedLocales.map(locale => <option key={locale} value={locale}>{localeNames[locale]}</option>)}</select></label>
     </div></section>
     <section className={`${styles.section} ${styles.details}`}><h2><CardIcon icon={faSliders} size="small" inline />{t('analysisPreferences')}</h2><div><p>{t('preferencesDescription')}</p><a href="/methodology" onClick={e => { e.preventDefault(); navigate('/methodology') }}>{t('openPreferences')}</a></div></section>
+    <PasswordSettings navigate={navigate} />
     <div className={styles.section}><button className="button secondary" type="button" onClick={() => { void signOut().then(() => navigate('/')) }}>{t('signOut')}</button></div>
   </>
 }

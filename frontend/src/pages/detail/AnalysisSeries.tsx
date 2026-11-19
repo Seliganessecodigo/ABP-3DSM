@@ -531,17 +531,17 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
           <option value="">{labels.selectUnit}</option>
           {energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>
-        <label>{labels.energyMin}<input className="form-control" type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMin}<input placeholder={labels.energyMin} className="form-control" type="number" step="any" value={query.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMin: event.target.value })} /></label>
-        <label>{labels.energyMax}<input className="form-control" type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMax}<input placeholder={labels.energyMax} className="form-control" type="number" step="any" value={query.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => onQueryChange({ ...query, energyMax: event.target.value })} /></label>
         {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select className="form-control" value={emissionsUnit} onChange={event => onQueryChange({ ...query, emissionsUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>
           {emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>}
-        <label>{labels.emissionsMin}<input className="form-control" type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMin}<input placeholder={labels.emissionsMin} className="form-control" type="number" step="any" value={query.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMin: event.target.value })} /></label>
-        <label>{labels.emissionsMax}<input className="form-control" type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMax}<input placeholder={labels.emissionsMax} className="form-control" type="number" step="any" value={query.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => onQueryChange({ ...query, emissionsMax: event.target.value })} /></label>
       </div>
     </details>}
@@ -563,16 +563,16 @@ function SeriesFilters({ query, fromDraft, toDraft, energyUnits, emissionsUnits,
         <label>{labels.energyUnit}<select className="form-control" value={draftQuery.energyUnit} onChange={event => updateDraft({ energyUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>{energyUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>
-        <label>{labels.energyMin}<input className="form-control" type="number" step="any" value={draftQuery.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMin}<input placeholder={labels.energyMin} className="form-control" type="number" step="any" value={draftQuery.energyMin} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMin: event.target.value })} /></label>
-        <label>{labels.energyMax}<input className="form-control" type="number" step="any" value={draftQuery.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
+        <label>{labels.energyMax}<input placeholder={labels.energyMax} className="form-control" type="number" step="any" value={draftQuery.energyMax} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0}
           aria-invalid={invalidEnergyRange || undefined} onChange={event => updateDraft({ energyMax: event.target.value })} /></label>
         {emissionsUnits.length > 1 && <label>{labels.emissionsUnit}<select className="form-control" value={draftQuery.emissionsUnit} onChange={event => updateDraft({ emissionsUnit: event.target.value })}>
           <option value="">{labels.selectUnit}</option>{emissionsUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
         </select></label>}
-        <label>{labels.emissionsMin}<input className="form-control" type="number" step="any" value={draftQuery.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMin}<input placeholder={labels.emissionsMin} className="form-control" type="number" step="any" value={draftQuery.emissionsMin} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMin: event.target.value })} /></label>
-        <label>{labels.emissionsMax}<input className="form-control" type="number" step="any" value={draftQuery.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
+        <label>{labels.emissionsMax}<input placeholder={labels.emissionsMax} className="form-control" type="number" step="any" value={draftQuery.emissionsMax} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0}
           aria-invalid={invalidEmissionsRange || undefined} onChange={event => updateDraft({ emissionsMax: event.target.value })} /></label>
       </div>
       <footer className={styles.filterDialogFooter}><button type="button" onClick={() => { onClear(); closeFilters() }}>{labels.clearFilters}</button>

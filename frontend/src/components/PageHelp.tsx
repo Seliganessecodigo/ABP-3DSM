@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons'
 import styles from './PageHelp.module.css'
 
 export type HelpStep = Readonly<{ title: string; description: string; target?: string }>
@@ -51,7 +53,7 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
 
   return <>
     <button ref={trigger} type="button" className={styles.trigger} aria-label={t('help.open')} title={t('help.open')}
-      aria-haspopup="dialog" onClick={() => setStep(0)}>?</button>
+      aria-haspopup="dialog" onClick={() => setStep(0)}><FontAwesomeIcon icon={faCircleQuestion} aria-hidden="true" /></button>
     <dialog ref={dialog} className={styles.dialog} aria-labelledby={titleId} aria-describedby={descriptionId}
       onCancel={event => { event.preventDefault(); close() }} onClose={() => setStep(null)}
       onKeyDown={event => {

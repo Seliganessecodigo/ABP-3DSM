@@ -100,7 +100,7 @@ export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, on
       </div>}
       <form className={styles.form} onSubmit={(event) => void handleSubmit(event)} noValidate>
         <label htmlFor="totp-code">{t('totpCodeLabel')}</label>
-        <input
+        <input placeholder={'000000'}
           ref={codeRef}
           id="totp-code"
           name="code"

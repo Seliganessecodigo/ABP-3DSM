@@ -2,7 +2,6 @@ import { CardIcon } from '../../components/CardIcon.tsx'
 import { faShieldHalved } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import greenErMark from '../../assets/green-er-mark.png'
 import { useAccountSetup, type AccountSetupKind } from './useAccountSetup.ts'
 import styles from './LoginPage.module.css'
 
@@ -21,7 +20,6 @@ export function AccountSetupPage({ kind, navigate }: Readonly<{ kind: AccountSet
   if (state === 'pending') submitLabel = 'setupSubmitting'
 
   return <main className={styles.page}>
-    <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}><h1>{t('setupWelcome')}</h1></header>
     <section className={`${styles.card} ${styles.setupCard}`} aria-labelledby="account-setup-heading" aria-busy={state === 'pending'}>
       <h2 id="account-setup-heading" ref={heading} tabIndex={-1}><CardIcon icon={faShieldHalved} size="small" inline />{t(title)}</h2>
@@ -31,12 +29,12 @@ export function AccountSetupPage({ kind, navigate }: Readonly<{ kind: AccountSet
         <p>{t(invitation ? 'setupInvitationDescription' : 'setupConfirmationDescription')}</p>
         <form key={token} onSubmit={(event) => { event.preventDefault(); void submit(event.currentTarget) }}>
           {invitation ? <>
-            <label>{t('setupName')}<input className="form-control form-control--large" name="name" autoComplete="name" maxLength={160} required /></label>
-            <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="email" maxLength={320} required /></label>
+            <label>{t('setupName')}<input placeholder={t('setupName')} className="form-control form-control--large" name="name" autoComplete="name" maxLength={160} required /></label>
+            <label>{t('email')}<input placeholder={'email@example.com'} className="form-control form-control--large" name="email" type="email" autoComplete="email" maxLength={320} required /></label>
           </> : <>
-            <label>{t('setupNewPassword')}<input className="form-control form-control--large" name="password" type="password" autoComplete="new-password" minLength={8} maxLength={1024} aria-describedby="password-hint" required /></label>
+            <label>{t('setupNewPassword')}<input placeholder={t('setupNewPassword')} className="form-control form-control--large" name="password" type="password" autoComplete="new-password" minLength={8} maxLength={1024} aria-describedby="password-hint" required /></label>
             <p id="password-hint" className={styles.hint}>{t('setupPasswordLength')}</p>
-            <label>{t('setupConfirmPassword')}<input className="form-control form-control--large" name="confirmation" type="password" autoComplete="new-password" minLength={8} maxLength={1024} required /></label>
+            <label>{t('setupConfirmPassword')}<input placeholder={t('setupConfirmPassword')} className="form-control form-control--large" name="confirmation" type="password" autoComplete="new-password" minLength={8} maxLength={1024} required /></label>
           </>}
           {error && <p className={styles.error} role="alert">{t(error)}</p>}
           <button className={styles.submit} type="submit" disabled={state === 'pending'}>{t(submitLabel)}</button>

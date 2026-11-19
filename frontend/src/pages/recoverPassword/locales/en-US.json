@@ -1,1 +1,15 @@
-{"title":"Password recovery","description":"If you requested a recovery, check your inbox for the next steps. This flow is being prepared.","backToLogin":"Back to sign in"}
+{
+  "title": "Password recovery",
+  "description": "Enter your organization identifier and email to receive a recovery link.",
+  "backToLogin": "Back to sign in",
+  "organization": "Organization identifier",
+  "organizationHint": "Identifier provided by your organization",
+  "submit": "Send recovery link",
+  "complete": "If these details match an eligible account, you will receive a link by email. Check your spam folder too.",
+  "resetDescription": "Set a new password for your account.",
+  "resetSubmit": "Reset password",
+  "invalidLink": "This link has expired or was already used. Request a new recovery link.",
+  "failed": "Could not complete recovery. Try again.",
+  "passwordMismatch": "The passwords do not match.",
+  "rateLimited": "Too many attempts. Wait a while and try again."
+}

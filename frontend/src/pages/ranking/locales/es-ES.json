@@ -113,5 +113,7 @@
   "openDetails": "Abrir detalles de {{name}}",
   "region": "Región",
   "pagination": "Paginación",
-  "refresh": "Actualizar"
+  "refresh": "Actualizar",
+  "helpFilters": "Filtra por aplicación, estado o región. Los filtros de columna refinan valores y cobertura.",
+  "helpCompare": "Selecciona de dos a cinco aplicaciones para comparar en el mismo período."
 }

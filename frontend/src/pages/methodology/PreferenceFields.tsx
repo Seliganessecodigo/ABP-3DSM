@@ -11,11 +11,11 @@ export function PreferenceFields({ tab, draft, dirty, disabled, onUpdate }: Read
   return <fieldset disabled={disabled} className={styles.formFields}>
     {(tab === 'energy' || tab === 'emissions') && <>
       <label>{t('scope')}<select className="form-control form-control--large"><option>{t('perApplication')}</option></select></label>
-      <div className={styles.fields}><label>{t('limitEditing')}<input className="form-control form-control--large" type="number" min="0" step="any" required value={draft.value} onChange={(event) => onUpdate({ value: event.target.value })} /></label><label>{t('unit')}<select className="form-control form-control--large" defaultValue={unit} key={unit}><option>{unit}</option></select></label></div>
+      <div className={styles.fields}><label>{t('limitEditing')}<input placeholder={t('limitEditing')} className="form-control form-control--large" type="number" min="0" step="any" required value={draft.value} onChange={(event) => onUpdate({ value: event.target.value })} /></label><label>{t('unit')}<select className="form-control form-control--large" defaultValue={unit} key={unit}><option>{unit}</option></select></label></div>
       <label className={styles.toggle}><input type="checkbox" role="switch" checked={draft.enabled} onChange={(event) => onUpdate({ enabled: event.target.checked })} /><span aria-hidden="true" />{t('highlight')}</label>
     </>}
     {tab === 'coverage' && <>
-      <label>{t('referenceEditing')}<div className={styles.coverageField}><div><input className="form-control form-control--large" type="number" min="0" max="100" step="any" required value={draft.value} onChange={(event) => onUpdate({ value: event.target.value })} /><span>%</span></div>{dirty && <span className={styles.badge}>{t('editing')}</span>}</div></label>
+      <label>{t('referenceEditing')}<div className={styles.coverageField}><div><input placeholder={t('referenceEditing')} className="form-control form-control--large" type="number" min="0" max="100" step="any" required value={draft.value} onChange={(event) => onUpdate({ value: event.target.value })} /><span>%</span></div>{dirty && <span className={styles.badge}>{t('editing')}</span>}</div></label>
       <label className={styles.toggle}><input type="checkbox" role="switch" checked={draft.enabled} onChange={(event) => onUpdate({ enabled: event.target.checked })} /><span aria-hidden="true" />{t('coverageToggle')}</label>
       <p className={styles.formNote}>{t('coverageNote')}</p>
     </>}

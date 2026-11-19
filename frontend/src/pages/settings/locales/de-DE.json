@@ -43,7 +43,7 @@
   "noSources": "Keine Quellendiagnose verfügbar. Fehlende Daten bedeuten keinen fehlerfreien Zustand.",
   "source.services": "Metrikaggregator · Diensterkennung",
   "source.metrics": "Metrikaggregator · Beobachtungen",
-  "source.carbon-factor": "Dienst für CO₂-Intensität",
+  "source.carbon-factor": "Regionale CO₂-Faktoren",
   "sourceState.UNKNOWN": "Keine Diagnose",
   "sourceState.DEGRADED": "Mit Fehlern",
   "sourceState.RECOVERING": "Wiederherstellung läuft",
@@ -100,5 +100,14 @@
   "edit": "Bearbeiten",
   "review": "Änderung prüfen",
   "noResults": "Keine Ergebnisse für die ausgewählten Filter.",
-  "clear": "Suche und Filter löschen"
+  "clear": "Suche und Filter löschen",
+  "changePassword": "Passwort ändern",
+  "currentPassword": "Aktuelles Passwort",
+  "newPassword": "Neues Passwort",
+  "confirmPassword": "Neues Passwort wiederholen",
+  "passwordLength": "Verwenden Sie 8 bis 1.024 Zeichen.",
+  "passwordChangeNote": "Bestätigen Sie Ihr aktuelles Passwort. Die Änderung beendet alle Sitzungen. Reine Google-Konten haben kein lokales Passwort.",
+  "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+  "passwordDenied": "Prüfen Sie Ihr aktuelles Passwort. Reine Google-Konten haben kein lokales Passwort.",
+  "passwordFailed": "Das Passwort konnte nicht geändert werden. Versuchen Sie es erneut."
 }

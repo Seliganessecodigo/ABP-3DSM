@@ -7,7 +7,7 @@ import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRightArrowLeft, faBolt, faCalendarDays, faChevronDown, faCrosshairs, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRightArrowLeft, faBolt, faCalendarDays, faChevronDown, faCrosshairs, faLayerGroup, faLeaf, faBatteryHalf, faChartSimple, faMicrochip, faMemory, faHardDrive, faNetworkWired, faLocationDot, faHeartPulse } from '@fortawesome/free-solid-svg-icons'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
@@ -54,7 +54,8 @@ type ComparisonRow = Readonly<{
   label: string
   value: (application: ComparisonApplication) => string
   difference?: (application: ComparisonApplication) => string
-  icon?: typeof faBolt
+  icon: typeof faBolt
+  primary?: boolean
 }>
 
 function positiveInteger(value: string | null, fallback: number): number {
@@ -292,16 +293,16 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
     : t('noHistoricalLocation')
 
   const rows: ComparisonRow[] = [
-    { key: 'energy', icon: faBolt, label: t('energy'), value: (application) => measureText(application.energy.value, application.energy.unit, application.energy.reasons), difference: (application) => differenceText(application.differences.energy, locale, t, reasonLabel) },
-    { key: 'emissions', icon: faLeaf, label: t('emissions'), value: (application) => measureText(application.emissions.value, application.emissions.unit, application.emissions.reasons, true), difference: (application) => differenceText(application.differences.emissions, locale, t, reasonLabel, true) },
-    { key: 'energyCoverage', label: t('energyCoverage'), value: (application) => coverageText(application.coverage.energy), difference: (application) => coverageDifference(application.differences.coverage.energyPercentagePoints) },
-    { key: 'emissionsCoverage', label: t('emissionsCoverage'), value: (application) => coverageText(application.coverage.emissions), difference: (application) => coverageDifference(application.differences.coverage.emissionsPercentagePoints) },
+    { key: 'energy', primary: true, icon: faBolt, label: t('energy'), value: (application) => measureText(application.energy.value, application.energy.unit, application.energy.reasons), difference: (application) => differenceText(application.differences.energy, locale, t, reasonLabel) },
+    { key: 'emissions', primary: true, icon: faLeaf, label: t('emissions'), value: (application) => measureText(application.emissions.value, application.emissions.unit, application.emissions.reasons, true), difference: (application) => differenceText(application.differences.emissions, locale, t, reasonLabel, true) },
+    { key: 'energyCoverage', icon: faBatteryHalf, label: t('energyCoverage'), value: (application) => coverageText(application.coverage.energy), difference: (application) => coverageDifference(application.differences.coverage.energyPercentagePoints) },
+    { key: 'emissionsCoverage', icon: faChartSimple, label: t('emissionsCoverage'), value: (application) => coverageText(application.coverage.emissions), difference: (application) => coverageDifference(application.differences.coverage.emissionsPercentagePoints) },
     ...(['cpu', 'memory', 'disk', 'network'] as const).map((metric): ComparisonRow => ({
-      key: metric, label: t(metric), value: (application) => metricText(application.metrics[metric]),
+      key: metric, icon: { cpu: faMicrochip, memory: faMemory, disk: faHardDrive, network: faNetworkWired }[metric], label: t(metric), value: (application) => metricText(application.metrics[metric]),
       difference: (application) => differenceText(application.differences.metrics[metric], locale, t, reasonLabel),
     })),
-    { key: 'location', label: t('locations'), value: locationText },
-    { key: 'state', label: t('applicationState'), value: (application) => stateLabel(application.state, tCommon) },
+    { key: 'location', icon: faLocationDot, label: t('locations'), value: locationText },
+    { key: 'state', icon: faHeartPulse, label: t('applicationState'), value: (application) => stateLabel(application.state, tCommon) },
   ]
 
   const periodOptions = [...periodPresets, ...(pageState.period === 'month' || pageState.period === 'custom' ? [pageState.period] : [])]
@@ -357,12 +358,12 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
       <div className={styles.filters}>
         <label className={styles.search}>
           <span>{t('searchLabel')}</span>
-          <input className="form-control" type="search" value={query.search} onChange={(event) => updateSearch(event.target.value)} />
+          <input placeholder={t('searchLabel')} className="form-control" type="search" value={query.search} onChange={(event) => updateSearch(event.target.value)} />
         </label>
-        <label><span>{tCatalog('nameFilter')}</span><input className="form-control" value={query.filters?.name ?? ''} onChange={(event) => updateFilter({ name: event.target.value })} /></label>
-        <label><span>{tCatalog('countryFilter')}</span><input className="form-control" value={query.filters?.country ?? ''} onChange={(event) => updateFilter({ country: event.target.value })} /></label>
-        <label><span>{tCatalog('regionCodeFilter')}</span><input className="form-control" value={query.filters?.regionCode ?? ''} onChange={(event) => updateFilter({ regionCode: event.target.value })} /></label>
-        <label><span>{tCatalog('cityFilter')}</span><input className="form-control" value={query.filters?.city ?? ''} disabled={Boolean(query.filters?.cityIsMissing)} onChange={(event) => updateFilter({ city: event.target.value })} /></label>
+        <label><span>{tCatalog('nameFilter')}</span><input placeholder={tCatalog('nameFilter')} className="form-control" value={query.filters?.name ?? ''} onChange={(event) => updateFilter({ name: event.target.value })} /></label>
+        <label><span>{tCatalog('countryFilter')}</span><input placeholder={tCatalog('countryFilter')} className="form-control" value={query.filters?.country ?? ''} onChange={(event) => updateFilter({ country: event.target.value })} /></label>
+        <label><span>{tCatalog('regionCodeFilter')}</span><input placeholder={tCatalog('regionCodeFilter')} className="form-control" value={query.filters?.regionCode ?? ''} onChange={(event) => updateFilter({ regionCode: event.target.value })} /></label>
+        <label><span>{tCatalog('cityFilter')}</span><input placeholder={tCatalog('cityFilter')} className="form-control" value={query.filters?.city ?? ''} disabled={Boolean(query.filters?.cityIsMissing)} onChange={(event) => updateFilter({ city: event.target.value })} /></label>
         <label><span>{tCatalog('stateFilter')}</span><select className="form-control" value={query.filters?.state ?? 'ALL'} onChange={(event) => updateFilter({ state: event.target.value as ApplicationState | 'ALL' })}>
           {stateFilters.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
         </select></label>
@@ -434,14 +435,14 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
             <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
                 <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
-              <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}>{row.icon && <CardIcon icon={row.icon} />}{row.label}</span></th>{selectedApplications.map((application) =>
+              <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.primary)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}><CardIcon icon={row.icon} />{row.label}</span></th>{selectedApplications.map((application) =>
                 <td key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><span className={styles.metricValue}>{row.value(application)}</span>{row.difference && <small>{application.applicationId === referenceApplicationId
                   ? t('referenceBase') : `${t('difference')}: ${row.difference(application)}`}</small>}</td>)}</tr>)}</tbody>
             </table>
           </div>
           <div className={styles.mobileResults}>
-            {rows.map((row) => <section key={row.key} data-primary={Boolean(row.icon)} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
-              <h3 id={`comparison-${row.key}`} className={styles.indicatorLabel}>{row.icon && <CardIcon icon={row.icon} />}{row.label}</h3>
+            {rows.map((row) => <section key={row.key} data-primary={Boolean(row.primary)} data-help={`comparison-${row.key}`} className={styles.metricCard} aria-labelledby={`comparison-${row.key}`}>
+              <h3 id={`comparison-${row.key}`} className={styles.indicatorLabel}><CardIcon icon={row.icon} />{row.label}</h3>
               {selectedApplications.map((application) => <div className={styles.mobileValue} key={application.applicationId}>
                 <strong>{application.name}{application.applicationId === referenceApplicationId ? ` · ${t('reference')}` : ''}</strong>
                 <span className={styles.metricValue}>{row.value(application)}</span>
