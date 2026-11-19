@@ -1,7 +1,7 @@
 /* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { EntityManager, In, QueryDeepPartialEntity, Repository } from 'typeorm'
+import { EntityManager, Any, QueryDeepPartialEntity, Repository } from 'typeorm'
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationState } from '../../database/entities/application-state'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
@@ -42,7 +42,7 @@ export class ApplicationsRepository {
 
   findByIds(ids: readonly string[]) {
     if (ids.length === 0) return Promise.resolve([])
-    return this.applications.findBy({ id: In([...ids]) })
+    return this.applications.findBy({ id: Any([...ids]) })
   }
 
   findByIdForUpdate(manager: EntityManager, id: string) {

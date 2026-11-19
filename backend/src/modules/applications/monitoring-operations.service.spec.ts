@@ -7,7 +7,7 @@ describe('MonitoringOperationsService', () => {
   const scheduler = { isActive: true, interval: 60 }
   const cycles = { latest: jest.fn(), list: jest.fn() }
   const incidents = { healthByIntegration: jest.fn(), recentForHealth: jest.fn() }
-  const auditLogs = { list: jest.fn() }
+  const auditLogs = { listChanges: jest.fn() }
   const auditWriter = { record: jest.fn() }
   const applications = { monitoringHealth: jest.fn() }
   const manager = {}
@@ -65,10 +65,10 @@ describe('MonitoringOperationsService', () => {
     cycles.list.mockResolvedValue({ items: [{ id: 'cycle-2', durationMs: null }], total: 1, page: 1, limit: 20 })
     expect(await service.listCycles(1, 20)).toMatchObject({ items: [{ id: 'cycle-2', durationMs: null, overrunMs: null }] })
 
-    auditLogs.list.mockResolvedValue({ items: [{ id: 'audit-1', actor: 'admin', actorLabel: 'Admin', action: 'login', entityType: 'session', entityId: '1', before: null, after: null, reason: null, outcome: 'success', createdAt: new Date() }], pagination: { totalItems: 1 } })
+    auditLogs.listChanges.mockResolvedValue({ items: [{ id: 'audit-1', actor: 'admin', actorLabel: 'Admin', action: 'account.role.changed', entityType: 'user', entityId: '1', before: null, after: null, reason: null, outcome: 'success', createdAt: new Date() }], pagination: { totalItems: 1 } })
     const result = await service.listAuditFromPrincipal({ organizationId: 'org-1' } as never, { page: 1 } as never)
-    expect(auditLogs.list).toHaveBeenCalledWith('org-1', { page: 1 })
-    expect(result.items[0]).toMatchObject({ id: 'audit-1', actorType: 'user', action: 'login' })
+    expect(auditLogs.listChanges).toHaveBeenCalledWith('org-1', { page: 1 })
+    expect(result.items[0]).toMatchObject({ id: 'audit-1', actorType: 'user', action: 'account.role.changed' })
   })
 
   it('validates, idempotently changes, and atomically audits pause state', async () => {

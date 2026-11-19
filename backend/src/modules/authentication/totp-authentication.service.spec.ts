@@ -136,26 +136,9 @@ describe('TotpAuthenticationService audit integration', () => {
     )
   })
 
-  it('records TOTP login success inside the session transaction', async () => {
+  it('starts the TOTP session without writing routine login audit events', async () => {
     await service.verifyLogin('challenge-token', '123456')
-
-    expect(auditWriter.record).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({
-        action: 'auth.login.totp.succeeded',
-        actor: { type: 'user', userId: user.id },
-        outcome: 'success',
-      }),
-      manager,
-    )
-    expect(auditWriter.record).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({
-        action: 'auth.login.succeeded',
-        actor: { type: 'user', userId: user.id },
-        outcome: 'success',
-      }),
-    )
+    expect(auditWriter.record).not.toHaveBeenCalled()
   })
 
   it('records TOTP replacement success inside the replacement transaction', async () => {

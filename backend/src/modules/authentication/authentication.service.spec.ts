@@ -41,23 +41,17 @@ describe('AuthenticationService audit integration', () => {
     )
   })
 
-  it('records an unauthenticated actor when login credentials are rejected', async () => {
+  it('does not put rejected logins in the change audit', async () => {
     persistence.findUserByEmail.mockResolvedValue(null)
 
     await expect(
       service.login({ email: 'unknown@example.test', password: 'bad-password' }),
     ).rejects.toThrow()
 
-    expect(auditWriter.record).toHaveBeenCalledWith({
-      actor: { type: 'unauthenticated' },
-      action: 'auth.login.failed',
-      entityType: 'user',
-      entityId: 'unknown',
-      outcome: 'denied',
-    })
+    expect(auditWriter.record).not.toHaveBeenCalled()
   })
 
-  it('records an authenticated actor when SSO requires admin TOTP', async () => {
+  it('does not audit the SSO login challenge as an account change', async () => {
     const user = {
       id: 'user-1',
       status: UserAccountStatus.ACTIVE,
@@ -67,13 +61,7 @@ describe('AuthenticationService audit integration', () => {
 
     await service.completeSsoLogin(user)
 
-    expect(auditWriter.record).toHaveBeenCalledWith({
-      actor: { type: 'user', userId: user.id },
-      action: 'auth.sso.admin.totp.required',
-      entityType: 'user',
-      entityId: user.id,
-      outcome: 'success',
-    })
+    expect(auditWriter.record).not.toHaveBeenCalled()
     expect(totpAuthentication.beginAdminLogin).toHaveBeenCalledWith(user)
   })
 })

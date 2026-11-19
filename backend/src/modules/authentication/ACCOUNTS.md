@@ -54,7 +54,7 @@ Reprodução e credenciais demonstrativas de banco descartável estão em [test/
 
 ## Recuperação de senha
 
-US-20 (#160) adiciona recuperação por e-mail para contas `ACTIVE`, verificadas e com senha local. Consulte o contrato e a outbox em [README](../README.md). Contas SSO sem senha, desativadas ou não verificadas recebem a mesma resposta pública sem novo token. Tokens duram uma hora, são de uso único e apenas seu hash fica em `auth_tokens`. A conclusão altera o hash existente e revoga sessões de refresh dentro da transação, sem remover TOTP nem invalidar JWTs já emitidos. O placeholder `/recover-password` não processa o token.
+US-20 (#160) adiciona recuperação por e-mail para contas `ACTIVE`, verificadas e com senha local. Consulte o contrato e a outbox em [README](../README.md). Contas SSO sem senha, desativadas ou não verificadas recebem a mesma resposta pública sem novo token. Tokens duram uma hora, são de uso único e apenas seu hash fica em `auth_tokens`. A conclusão altera o hash existente e revoga sessões de refresh dentro da transação, sem remover TOTP nem invalidar JWTs já emitidos. A tela `/recover-password` solicita o link e processa o token temporário, capturado do fragmento e removido da URL.
 
 ## Troca da própria senha
 
@@ -63,3 +63,9 @@ US-20 (#160) adiciona recuperação por e-mail para contas `ACTIVE`, verificadas
 A alteração, a revogação de todas as sessões e credenciais temporárias pendentes e o evento `auth.password.changed` são atômicos. A auditoria não recebe senhas nem hashes. O frontend retorna ao login; contas exclusivamente Google não podem criar senha por este endpoint. A recuperação pública existente continua exigindo organização e e-mail e responde genericamente para não enumerar contas.
 
 A consulta administrativa `GET /monitoring/audit` exclui eventos rotineiros de login, desafio de login, renovação e encerramento de sessão antes da contagem e paginação. Os registros históricos continuam preservados; alterações de senha, autenticador, vínculo SSO, contas e configuração permanecem auditáveis.
+
+## Auditoria de alterações
+
+Login local, desafio TOTP/SSO, renovação e encerramento rotineiro de sessão não gravam eventos em `audit_logs`. Os dados necessários à autenticação (`lastAccessAt`, sessões, tentativas e proteção contra replay do TOTP) continuam sendo persistidos normalmente. Ativar, substituir ou recuperar o autenticador, trocar senha, alterar contas/permissões, emitir convites e alterar configuração continuam auditados.
+
+A consulta administrativa usa `AuditLogsRepository.listChanges` e o catálogo explícito `shared/audit/audit-activity.ts`. O recorte por ações auditáveis e organização é aplicado antes de busca, contagem e paginação. Consultas, operações sem mudança e etapas preparatórias de autenticação ficam fora da listagem, inclusive registros históricos e novos nomes de login. Os eventos históricos não são apagados. Novas ações de alteração devem ser registradas nesse catálogo; tentativas negadas ou falhas das alterações reconhecidas continuam consultáveis.

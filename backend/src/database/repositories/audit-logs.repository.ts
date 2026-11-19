@@ -1,3 +1,4 @@
+import { auditableChangeActions } from '../../shared/audit/audit-activity'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -46,16 +47,12 @@ export class AuditLogsRepository {
     return entity
   }
 
-  async list(organizationId: string, filters: AuditLogQuery) {
+  async listChanges(organizationId: string, filters: AuditLogQuery) {
     const query = this.repository.createQueryBuilder('audit')
       .innerJoin('audit.actorUser', 'actorUser')
       .where('actorUser.organizationId = :organizationId', { organizationId })
       .andWhere('audit.actorType = :actorType', { actorType: 'user' })
-      .andWhere('audit.action NOT IN (:...sessionActions)', { sessionActions: [
-        'auth.login.succeeded', 'auth.login.password.succeeded', 'auth.login.totp.succeeded',
-        'auth.login.failed', 'auth.sso.login.succeeded', 'auth.sso.admin.totp.required',
-        'auth.session.refreshed', 'auth.session.revoked',
-      ] })
+      .andWhere('audit.action IN (:...changeActions)', { changeActions: auditableChangeActions })
 
     const textColumns = {
       id: 'audit.id::text', actor: 'audit.actor', actorLabel: 'audit.actorLabel',
