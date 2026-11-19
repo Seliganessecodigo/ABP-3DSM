@@ -1,6 +1,6 @@
 # components
 
-`CardIcon` apresenta ícones decorativos Font Awesome em uma base discreta, com cores do tema e tamanhos `medium` e `small`. Use em títulos de cards e seções quando ajudar a identificar o assunto; preserve o título em texto. `inline` acrescenta o espaçamento antes do texto.
+`CardIcon` apresenta apenas o símbolo decorativo Font Awesome, sem fundo, borda ou caixa, com cores do tema e tamanhos `medium` (18 px) e `small` (16 px). Use junto a títulos quando ajudar a identificar o assunto; preserve o título em texto e evite criar superfícies decorativas ao redor do ícone. `inline` acrescenta o espaçamento antes do texto.
 
 `SortButton` compartilha o botão e as setas de ordenação: `none` (↕), `ascending` (↑) e `descending` (↓). A tabela mantém o estado, o handler e `aria-sort` no cabeçalho; `tableSortPresentation` converte o estado existente. O indicador é decorativo e o botão conserva a interação nativa por teclado.
 
