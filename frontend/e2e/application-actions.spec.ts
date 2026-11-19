@@ -12,6 +12,8 @@ for (const width of [1440, 390]) {
       ? page.locator('[data-catalog-row-id="svc-0142"]')
       : page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'app-pagamentos', exact: true }) })
     const actions = row.locator('[data-help="application-actions"]')
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await expect(actions.getByRole('link', { name: 'Comparação', exact: true })).toHaveCSS('transition-duration', '0s')
     await expect(actions.getByRole('button', { name: 'Ranking', exact: true })).toBeDisabled()
     await expect(actions.getByRole('link', { name: 'Comparação', exact: true }).locator('svg')).toHaveAttribute('data-icon', 'arrow-right-arrow-left')
     await expect(actions.getByRole('link', { name: 'Simulação regional', exact: true }).locator('svg')).toHaveAttribute('data-icon', 'earth-americas')
