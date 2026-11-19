@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Surveillance",
   "title": "Tableau de bord environnemental",
-  "subtitle": "{{count}} applications dans le périmètre actuel",
   "period": "Période",
   "period.24h": "24 heures",
   "period.7d": "7 jours",
@@ -41,7 +39,6 @@
   "donutDescription": "Composition CO₂e de {{count}} applications, total {{total}}",
   "ascending": "Croissant",
   "descending": "Décroissant",
-  "comparisonPending": "La comparaison avec une période précédente sera disponible après définition et approbation de ses règles.",
   "table.title": "Applications avec résultats ({{count}})",
   "table.scopeNote": "{{count}} applications contribuent au résumé ; le contrat actuel ne renvoie pas les lignes sans résultat individuel.",
   "table.contributorsOnly": "La région affichée est la région actuelle de l’application. Le filtre régional des indicateurs utilise la région historique de chaque collecte.",

@@ -22,7 +22,7 @@ export function AccountSetupPage({ kind, navigate }: Readonly<{ kind: AccountSet
 
   return <main className={styles.page}>
     <img className={styles.watermark} src={greenErMark} alt="" />
-    <header className={styles.heading}><p className={styles.eyebrow}>GreenER</p><h1>{t('setupWelcome')}</h1></header>
+    <header className={styles.heading}><h1>{t('setupWelcome')}</h1></header>
     <section className={`${styles.card} ${styles.setupCard}`} aria-labelledby="account-setup-heading" aria-busy={state === 'pending'}>
       <h2 id="account-setup-heading" ref={heading} tabIndex={-1}><CardIcon icon={faShieldHalved} size="small" inline />{t(title)}</h2>
       {invalid && <p role="alert">{t('setupInvalidLink')}</p>}

@@ -26,7 +26,6 @@
 .historyHeading h1, .historyInspectionHeading h1 { margin: 0; color: var(--text-primary); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: clamp(24px, 3vw, 31px); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; font-optical-sizing: none; }
 .historyHeading p { margin: 6px 0 0; color: var(--text-secondary); font-size: 14px; }
 .historyInspectionHeading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 13px; }
-.historyHeading .historyEyebrow, .historyInspectionHeading .historyEyebrow { margin: 0 0 4px; color: var(--accent-default); font-size: 10px; font-weight: 750; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; }
 .historyFilters { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(140px, .8fr) minmax(140px, .8fr) minmax(0, 1.4fr); align-items: start; gap: 12px; border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; background: var(--surface-card); }
 .historyFilters > :global(label), .historyFilters > :global(section) { min-width: 0; }
 .historyRange { display: grid; min-width: 0; gap: 6px; color: var(--text-secondary); font-size: 12px; }
@@ -34,7 +33,6 @@
 .historyRange output { display: flex; min-width: 0; width: 100%; height: 44px; align-items: center; border: 1px solid var(--border-default); border-radius: 8px; padding: 8px 12px; color: var(--text-primary); background: var(--surface-card); overflow-wrap: anywhere; }
 .historyRangeNote { grid-column: 1 / -1; margin: 0; color: var(--text-secondary); font-size: 12px; overflow-wrap: anywhere; }
 .historyHeading .historyMobileDescription { display: none; }
-.historyHeading .historyEyebrow { margin-bottom: 4px; }
 .historyContent .historyFilters select { width: 100%; min-width: 0; }
 .historyContent .historyFilters select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .historyActions { display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 8px; }

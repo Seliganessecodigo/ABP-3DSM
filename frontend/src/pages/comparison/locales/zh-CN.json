@@ -1,7 +1,5 @@
 {
-  "eyebrow": "分析",
   "title": "应用比较",
-  "description": "比较同一时间段内的应用指标。",
   "selectionHeading": "要比较的应用",
   "selectionInstructions": "选择 2 到 5 个应用。搜索和筛选不会取消已选应用。",
   "selectionLimit": "已达到最多选择 5 个应用的限制。请移除一个后再选择其他应用。",

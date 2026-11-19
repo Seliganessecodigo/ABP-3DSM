@@ -112,13 +112,12 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
   }
   return <main className={styles.page}>
     <img className={styles.watermark} src={greenErMark} alt="" />
-    <header className={styles.heading}><p className={styles.eyebrow}>{t('title')}</p><div className="heading-title"><h1>{t('heading')}</h1><PageHelp steps={[
+    <header className={styles.heading}><div className="heading-title"><h1>{t('heading')}</h1><PageHelp steps={[
   { title: t('heading'), description: t('description'), target: 'main form' },
   { title: t('totpChallengeHeading'), description: t('totpChallengeDescription'), target: 'main form' },
 ]} /></div></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading"><CardIcon icon={faLock} size="small" inline />{t('submit')}</h2>
-      <p>{t('description')}</p>
       <form onSubmit={(event) => void handleSubmit(event)}>
         <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
         <label>{t('password')}<input className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>

@@ -29,7 +29,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
   return <section className={`content ${styles.page}`} tabIndex={-1}>
     <Breadcrumbs navigate={navigate} items={[{ label: common('nav.applications'), href: '/applications' }, ...(application ? [{ label: application.name, href: backUrl }] : []), { label: t('title') }]} />
     <header className="page-heading">
-      <div><p className="eyebrow">{t('eyebrow')}</p><h1>{t('title')}</h1>
+      <div><h1>{t('title')}</h1>
         <p>{t('description', { application: application?.name ?? '' })}</p></div>
       {id && <a className="button secondary" href={backUrl} onClick={(event) => { event.preventDefault(); navigate(backUrl) }}>{t('back')}</a>}
     </header>
@@ -50,7 +50,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
     {status === 'error' && <section className="empty-state" role="alert"><h2>{t('error')}</h2><p>{t('errorDescription')}</p><ActionButton onClick={retry}>{common('actions.retry')}</ActionButton></section>}
     {data && collection && <>
       <section className={styles.indicator} aria-labelledby="methodology-indicator-title">
-        <div><p className={styles.kicker}>{t('indicator')}</p><h2 id="methodology-indicator-title"><CardIcon icon={faBolt} size="small" inline />{t('energyEstimate')}</h2><p>{application?.name}</p></div>
+        <div><h2 id="methodology-indicator-title"><CardIcon icon={faBolt} size="small" inline />{t('energyEstimate')}</h2><p>{application?.name}</p></div>
         <p className={styles.value}>{!energy || energy.valueKwh === null ? t('notCalculable') : <><strong>{number(energy.valueKwh)}</strong> kWh</>}</p>
         <span className={styles.status}>{energy?.valueKwh !== null && energy ? t('estimated') : t('notCalculable')}</span>
       </section>
@@ -58,7 +58,7 @@ export function RecordedMethodology({ id, navigate }: Readonly<{ id: string | nu
       {data.status === 'absent' && <section className="empty-state"><h2>{t('unavailable')}</h2><p>{t('unavailableDescription')}</p></section>}
       {method && <>
       <section className={styles.card} aria-labelledby="formula-heading">
-        <header><div><p className={styles.kicker}>{t('calculation')}</p><h2 id="formula-heading"><CardIcon icon={faBookOpen} size="small" inline />{t('formula')}</h2></div><span className={styles.tag}>{t('version')} {method.version}</span></header>
+        <header><h2 id="formula-heading"><CardIcon icon={faBookOpen} size="small" inline />{t('formula')}</h2><span className={styles.tag}>{t('version')} {method.version}</span></header>
           {method.formula.status === 'available' && method.formula.expression ? <pre className={styles.formula}><code>{method.formula.expression}</code></pre> : <p className={styles.note}>{t('unavailableDescription')}</p>}
           <p className={styles.note}>{t('formulaNote')}</p>
           <div className={styles.grid}>

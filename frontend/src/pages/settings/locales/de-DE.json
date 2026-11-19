@@ -1,7 +1,5 @@
 {
-  "eyebrow": "System",
   "title": "Einstellungen",
-  "description": "Verwalten Sie Ihr Konto, die Überwachung und den Zugriff auf GreenER.",
   "areas": "Einstellungsbereiche",
   "tabs.monitoring": "Überwachung",
   "tabs.users": "Benutzer",
@@ -12,7 +10,6 @@
   "denied": "Nur Administratoren können diesen Bereich öffnen.",
   "accountDescription": "Ihre Kontodaten sind schreibgeschützt.",
   "appearance": "Darstellung und Sprache",
-  "appearanceDescription": "Einstellungen dieser Oberfläche.",
   "theme": "Design",
   "theme.light": "Hell",
   "theme.dark": "Dunkel",
@@ -21,7 +18,6 @@
   "analysisPreferences": "Analyseeinstellungen",
   "preferencesDescription": "Grenzwerte für Energie, CO₂e, Abdeckung und Analysevorgaben bleiben unter Methodik und meine Einstellungen.",
   "openPreferences": "Methodik und meine Einstellungen öffnen",
-  "accountSecurity": "Passwörter, Tokens und Authentifizierungscodes werden hier niemals angezeigt.",
   "signOut": "Abmelden",
   "sessionExpired": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
   "loadFailed": "Die Anfrage konnte nicht abgeschlossen werden. Ihre Änderungen bleiben erhalten. Versuchen Sie es erneut.",

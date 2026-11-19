@@ -99,7 +99,7 @@ test('prévia pública usa o mesmo painel de avisos e não salva o rascunho', as
   await expect(row).not.toContainText('79 %')
   await page.getByRole('switch', { name: 'Destacar e avisar quando ultrapassar' }).click()
   await expect(page.getByRole('region', { name: 'Meus avisos ambientais', exact: true })).toContainText('Nenhum aviso habilitado')
-  await expect(page.getByText('Dados reais', { exact: true })).toBeVisible()
+  await expect(page.getByText('Esta prévia não salva preferências nem recalcula o histórico.', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Salvar minhas preferências' }).click()
   await expect(page.getByRole('alert')).toContainText('Entre na sua conta')
 })

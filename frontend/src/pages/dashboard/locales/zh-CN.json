@@ -1,7 +1,5 @@
 {
-  "eyebrow": "监控",
   "title": "环境仪表板",
-  "subtitle": "当前范围内的应用：{{count}} 个",
   "period": "时间段",
   "period.24h": "24 小时",
   "period.7d": "7 天",
@@ -41,7 +39,6 @@
   "donutDescription": "{{count}} 个应用的 CO₂e 构成，总计 {{total}}",
   "ascending": "升序",
   "descending": "降序",
-  "comparisonPending": "比较规则定义并获批前，无法与上一时间段进行比较。",
   "table.title": "有结果的应用（{{count}}）",
   "table.scopeNote": "{{count}} 个应用对摘要有贡献；当前契约不会返回没有单项结果的行。",
   "table.contributorsOnly": "显示的是应用当前区域。指标区域筛选使用每次采集时的历史区域。",

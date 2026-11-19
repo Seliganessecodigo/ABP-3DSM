@@ -1,7 +1,5 @@
 {
-  "eyebrow": "Analyse",
   "title": "Anwendungsvergleich",
-  "description": "Vergleichen Sie Anwendungsindikatoren im selben Zeitraum.",
   "selectionHeading": "Zu vergleichende Anwendungen",
   "selectionInstructions": "Wählen Sie zwei bis fünf Anwendungen aus. Suche und Filter entfernen keine bereits ausgewählten Anwendungen.",
   "selectionLimit": "Das Limit von fünf Anwendungen ist erreicht. Entfernen Sie eine, um eine weitere auszuwählen.",

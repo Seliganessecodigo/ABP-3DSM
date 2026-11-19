@@ -1,0 +1,144 @@
+{
+  "U1 eyebrow": {
+    "count": 2,
+    "examples": [
+      "frontend/src\\components\\AppShell.css:26",
+      "frontend/src\\pages\\methodology\\Preferences.module.css:105"
+    ]
+  },
+  "U2 decorative numbering": {
+    "count": 4,
+    "examples": [
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43"
+    ]
+  },
+  "U6 status string": {
+    "count": 67,
+    "examples": [
+      "frontend/src\\components\\PersonalAlerts.tsx:11",
+      "frontend/src\\i18n\\locales\\ru-RU.json:74",
+      "frontend/src\\pages\\comparison\\ComparisonPage.tsx:286",
+      "frontend/src\\pages\\comparison\\ComparisonPage.tsx:291",
+      "frontend/src\\pages\\detail\\AnalysisContributions.tsx:99",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:225",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:386",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:386",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:430",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:640",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:640",
+      "frontend/src\\pages\\detail\\AnalysisSeries.tsx:662",
+      "frontend/src\\pages\\detail\\ApplicationDetailPage.tsx:396",
+      "frontend/src\\pages\\detail\\EnvironmentalAnalysis.tsx:261",
+      "frontend/src\\pages\\detail\\EnvironmentalAnalysis.tsx:538",
+      "frontend/src\\pages\\detail\\factorPresentation.ts:9",
+      "frontend/src\\pages\\detail\\locales\\de-DE.json:118",
+      "frontend/src\\pages\\detail\\locales\\en-US.json:118",
+      "frontend/src\\pages\\detail\\locales\\es-ES.json:118",
+      "frontend/src\\pages\\detail\\locales\\fr-FR.json:118",
+      "frontend/src\\pages\\detail\\locales\\hi-IN.json:118",
+      "frontend/src\\pages\\detail\\locales\\id-ID.json:118",
+      "frontend/src\\pages\\detail\\locales\\it-IT.json:118",
+      "frontend/src\\pages\\detail\\locales\\ja-JP.json:118",
+      "frontend/src\\pages\\detail\\locales\\ko-KR.json:118",
+      "frontend/src\\pages\\detail\\locales\\pt-BR.json:118",
+      "frontend/src\\pages\\detail\\locales\\ru-RU.json:118",
+      "frontend/src\\pages\\detail\\locales\\zh-CN.json:118",
+      "frontend/src\\pages\\history\\HistoryPage.tsx:92",
+      "frontend/src\\pages\\methodology\\MethodologyPage.tsx:57",
+      "frontend/src\\pages\\methodology\\locales\\de-DE.json:104",
+      "frontend/src\\pages\\methodology\\locales\\en-US.json:93",
+      "frontend/src\\pages\\methodology\\locales\\en-US.json:104",
+      "frontend/src\\pages\\methodology\\locales\\es-ES.json:104",
+      "frontend/src\\pages\\methodology\\locales\\fr-FR.json:104",
+      "frontend/src\\pages\\methodology\\locales\\hi-IN.json:93",
+      "frontend/src\\pages\\methodology\\locales\\hi-IN.json:104",
+      "frontend/src\\pages\\methodology\\locales\\id-ID.json:93",
+      "frontend/src\\pages\\methodology\\locales\\id-ID.json:104",
+      "frontend/src\\pages\\methodology\\locales\\it-IT.json:104",
+      "frontend/src\\pages\\methodology\\locales\\ja-JP.json:93",
+      "frontend/src\\pages\\methodology\\locales\\ja-JP.json:104",
+      "frontend/src\\pages\\methodology\\locales\\ko-KR.json:93",
+      "frontend/src\\pages\\methodology\\locales\\ko-KR.json:104",
+      "frontend/src\\pages\\methodology\\locales\\pt-BR.json:93",
+      "frontend/src\\pages\\methodology\\locales\\pt-BR.json:104",
+      "frontend/src\\pages\\methodology\\locales\\ru-RU.json:93",
+      "frontend/src\\pages\\methodology\\locales\\ru-RU.json:104",
+      "frontend/src\\pages\\methodology\\locales\\zh-CN.json:93",
+      "frontend/src\\pages\\methodology\\locales\\zh-CN.json:104",
+      "frontend/src\\pages\\recalculationPreview\\RecalculationPreviewPage.tsx:161",
+      "frontend/src\\pages\\regionalSimulation\\RegionalSimulationPage.tsx:29",
+      "frontend/src\\pages\\regionalSimulation\\RegionalSimulationPage.tsx:88",
+      "frontend/src\\pages\\regionalSimulation\\RegionalSimulationPage.tsx:96",
+      "frontend/src\\pages\\settings\\AuditSettings.tsx:64",
+      "frontend/src\\pages\\settings\\locales\\de-DE.json:44",
+      "frontend/src\\pages\\settings\\locales\\en-US.json:44",
+      "frontend/src\\pages\\settings\\locales\\es-ES.json:44",
+      "frontend/src\\pages\\settings\\locales\\fr-FR.json:44",
+      "frontend/src\\pages\\settings\\locales\\hi-IN.json:44",
+      "frontend/src\\pages\\settings\\locales\\id-ID.json:44",
+      "frontend/src\\pages\\settings\\locales\\it-IT.json:44",
+      "frontend/src\\pages\\settings\\locales\\ja-JP.json:44",
+      "frontend/src\\pages\\settings\\locales\\ko-KR.json:44",
+      "frontend/src\\pages\\settings\\locales\\pt-BR.json:44",
+      "frontend/src\\pages\\settings\\locales\\ru-RU.json:44",
+      "frontend/src\\pages\\settings\\locales\\zh-CN.json:44"
+    ]
+  },
+  "U9 badge word": {
+    "count": 0,
+    "examples": []
+  },
+  "U10 status dot": {
+    "count": 0,
+    "examples": []
+  },
+  "U11 emoji": {
+    "count": 0,
+    "examples": []
+  },
+  "U11 icon tile": {
+    "count": 0,
+    "examples": []
+  },
+  "U12 chart-type title": {
+    "count": 0,
+    "examples": []
+  },
+  "U13 reading instructions": {
+    "count": 0,
+    "examples": []
+  },
+  "U15 chart scaffolding": {
+    "count": 0,
+    "examples": []
+  },
+  "U16 legend": {
+    "count": 0,
+    "examples": []
+  },
+  "unslop 13 em dash": {
+    "count": 16,
+    "examples": [
+      "frontend/src\\features\\analysis\\README.md:56",
+      "frontend/src\\features\\analysis\\README.md:57",
+      "frontend/src\\features\\analysis\\README.md:58",
+      "frontend/src\\features\\analysis\\README.md:59",
+      "frontend/src\\features\\analysis\\README.md:60",
+      "frontend/src\\features\\analysis\\README.md:61",
+      "frontend/src\\i18n\\locales\\ru-RU.json:74",
+      "frontend/src\\i18n\\locales\\ru-RU.json:78",
+      "frontend/src\\i18n\\locales\\ru-RU.json:80",
+      "frontend/src\\i18n\\locales\\ru-RU.json:80",
+      "frontend/src\\i18n\\locales\\ru-RU.json:80",
+      "frontend/src\\i18n\\locales\\ru-RU.json:83",
+      "frontend/src\\pages\\comparison\\locales\\ru-RU.json:55",
+      "frontend/src\\pages\\comparison\\locales\\ru-RU.json:55",
+      "frontend/src\\pages\\methodology\\locales\\ru-RU.json:43",
+      "frontend/src\\pages\\methodology\\locales\\ru-RU.json:137"
+    ]
+  },
+  "total": 89
+}

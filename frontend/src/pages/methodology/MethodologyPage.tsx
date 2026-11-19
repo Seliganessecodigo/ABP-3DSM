@@ -77,24 +77,21 @@ function MethodologyPreferences({ navigate }: Readonly<{ navigate: (url: string)
   const savingUnavailable = <p className={styles.saveError} role="alert">{saveError ? t(saveError) : ''}</p>
   const save = () => { if (form.current?.reportValidity()) void state.save() }
   return <main className={`content ${styles.page}`} tabIndex={-1}>
-    <header className="page-heading"><div><Breadcrumbs navigate={navigate} items={[{ label: common('nav.methodology') }]} /><p className="eyebrow">{common('nav.system')}</p><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+    <header className="page-heading"><div><Breadcrumbs navigate={navigate} items={[{ label: common('nav.methodology') }]} /><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t(`${tab}.title`), description: common(`help.${tab === 'analysis' ? 'period' : tab}`), target: '[data-help="methodology-explanation"]' },
   { title: t(tab + '.editTitle'), description: t(tab + '.editDescription'), target: '[data-help="preference-edit"]' },
   { title: t('save'), description: t('saveNote'), target: '[data-help="preference-save"]' },
 ]} /></div></div></header>
-    <div className={styles.tabRow}>
       <div ref={tabList} className={styles.tabs} role="tablist" tabIndex={-1} aria-label={t('individual')} onKeyDown={(event) => {
         const next = nextTabForKey(event.key, tab)
         if (next === null) return
         event.preventDefault(); state.switchTab(next)
         if (!dirty) tabList.current?.querySelector<HTMLButtonElement>(`#tab-${next}`)?.focus()
       }}>{preferenceTabs.map((item) => <button key={item} id={`tab-${item}`} type="button" role="tab" tabIndex={tab === item ? 0 : -1} aria-selected={tab === item} aria-controls="preference-panel" onClick={() => state.switchTab(item)}>{t(`tabs.${item}`)}</button>)}</div>
-      <span>{t('individual')}</span>
-    </div>
     <div id="preference-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className={styles.columns}>
       <MethodologyExplanation tab={tab} />
       <section data-help="preference-edit" className={`${styles.card} ${tab === 'energy' || tab === 'emissions' ? styles.limitCard : ''}`} aria-labelledby="edit-title">
-        <p className={styles.step}>{t('stepEdit')}</p><h2 id="edit-title"><CardIcon icon={faSliders} size="small" inline />{t(`${tab}.editTitle`)}</h2>
+        <h2 id="edit-title"><CardIcon icon={faSliders} size="small" inline />{t(`${tab}.editTitle`)}</h2>
         <div className={styles.activePreference}><span>{t('active')}</span><strong>{activeText}</strong></div>
         {state.loadState === 'error' && <div role="alert"><p>{t('loadError')}</p><ActionButton appearance="secondary" onClick={state.retry}>{common('actions.retry')}</ActionButton></div>}
         <form ref={form} onSubmit={(event) => { event.preventDefault(); save() }}>
