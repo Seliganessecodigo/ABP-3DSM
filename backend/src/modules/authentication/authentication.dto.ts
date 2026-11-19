@@ -177,3 +177,11 @@ export class TotpSetupRequiredResponseDto {
   @ApiProperty({ example: 300 })
   expiresIn!: number
 }
+
+export class ChangePasswordDto {
+  @ApiProperty({ maxLength: 1024, writeOnly: true })
+  currentPassword!: string
+
+  @ApiProperty({ minLength: 8, maxLength: 1024, writeOnly: true })
+  password!: string
+}

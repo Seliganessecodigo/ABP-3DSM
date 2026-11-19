@@ -51,6 +51,11 @@ export class AuditLogsRepository {
       .innerJoin('audit.actorUser', 'actorUser')
       .where('actorUser.organizationId = :organizationId', { organizationId })
       .andWhere('audit.actorType = :actorType', { actorType: 'user' })
+      .andWhere('audit.action NOT IN (:...sessionActions)', { sessionActions: [
+        'auth.login.succeeded', 'auth.login.password.succeeded', 'auth.login.totp.succeeded',
+        'auth.login.failed', 'auth.sso.login.succeeded', 'auth.sso.admin.totp.required',
+        'auth.session.refreshed', 'auth.session.revoked',
+      ] })
 
     const textColumns = {
       id: 'audit.id::text', actor: 'audit.actor', actorLabel: 'audit.actorLabel',

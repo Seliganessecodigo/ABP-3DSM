@@ -230,6 +230,10 @@ describeDatabase('monitoring operations through protected HTTP and PostgreSQL', 
     for (let index = 0; index < 6; index++) await add({ type: 'user', userId: admin.user.id }, `same-org-${index}`)
     await add({ type: 'user', userId: other.user.id }, 'other-org')
     await add({ type: 'system', componentId: 'scheduler' }, 'global')
+    for (const action of ['auth.login.succeeded', 'auth.login.password.succeeded', 'auth.login.totp.succeeded', 'auth.sso.login.succeeded', 'auth.session.refreshed', 'auth.session.revoked']) {
+      await audit.record({ actor: { type: 'user', userId: admin.user.id }, action, entityType: 'user', entityId: admin.user.id, outcome: 'success', reason: 'A??o de seguran?a' })
+    }
+
 
     const response = await fetch(`${fixture.url}/monitoring/audit?search=acao%20de%20seguranca&pageSize=all`, {
       headers: { authorization: `Bearer ${admin.token}` },

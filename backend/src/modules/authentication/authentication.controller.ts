@@ -37,6 +37,7 @@ import {
   AccountStatusResponseDto,
   AuthenticatedUserDto,
   ChangeAccountStatusDto,
+  ChangePasswordDto,
   ConfirmEmailDto,
   LoginDto,
   RefreshSessionDto,
@@ -80,6 +81,23 @@ export class AuthenticationController {
     private readonly accountLifecycle: AccountLifecycleService,
     private readonly passwordRecovery: PasswordRecoveryService,
   ) {}
+
+  @Post('password/change')
+  @HttpCode(204)
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Trocar a própria senha com confirmação da senha atual' })
+  @ApiBody({ type: ChangePasswordDto })
+  @ApiNoContentResponse({ description: 'Senha alterada e todas as sessões e credenciais temporárias revogadas' })
+  @ApiBadRequestResponse({ description: 'Senha fora dos limites aceitos' })
+  @ApiForbiddenResponse({ description: 'Senha atual incorreta ou conta sem senha local' })
+  @ApiUnauthorizedResponse({ description: 'Sessão inválida' })
+  async changePassword(@CurrentPrincipal() principal: AuthPrincipal, @Body() body: ChangePasswordDto): Promise<void> {
+    if (!body || typeof body.currentPassword !== 'string' || typeof body.password !== 'string' || !body.currentPassword || body.currentPassword.length > 1024 || body.password.length < 8 || body.password.length > 1024) {
+      throw new BadRequestException({ code: 'INVALID_PASSWORD_CHANGE' })
+    }
+    await this.authentication.changePassword(principal, body)
+  }
 
   @PublicRoute()
   @Post('password-recovery/request')

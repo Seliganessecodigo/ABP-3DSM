@@ -55,3 +55,11 @@ Reprodução e credenciais demonstrativas de banco descartável estão em [test/
 ## Recuperação de senha
 
 US-20 (#160) adiciona recuperação por e-mail para contas `ACTIVE`, verificadas e com senha local. Consulte o contrato e a outbox em [README](../README.md). Contas SSO sem senha, desativadas ou não verificadas recebem a mesma resposta pública sem novo token. Tokens duram uma hora, são de uso único e apenas seu hash fica em `auth_tokens`. A conclusão altera o hash existente e revoga sessões de refresh dentro da transação, sem remover TOTP nem invalidar JWTs já emitidos. O placeholder `/recover-password` não processa o token.
+
+## Troca da própria senha
+
+`POST /auth/password/change` exige sessão ativa de qualquer papel e recebe `{ currentPassword, password }`. A senha atual deve ser não vazia, com até 1.024 caracteres; a nova mantém o limite existente de 8 a 1.024 caracteres. O alvo é sempre o principal autenticado. Conta sem senha local, não confirmada, inativa ou senha atual incorreta retorna `403 PASSWORD_CHANGE_DENIED`; corpo inválido retorna `400 INVALID_PASSWORD_CHANGE`. Sucesso retorna `204`.
+
+A alteração, a revogação de todas as sessões e credenciais temporárias pendentes e o evento `auth.password.changed` são atômicos. A auditoria não recebe senhas nem hashes. O frontend retorna ao login; contas exclusivamente Google não podem criar senha por este endpoint. A recuperação pública existente continua exigindo organização e e-mail e responde genericamente para não enumerar contas.
+
+A consulta administrativa `GET /monitoring/audit` exclui eventos rotineiros de login, desafio de login, renovação e encerramento de sessão antes da contagem e paginação. Os registros históricos continuam preservados; alterações de senha, autenticador, vínculo SSO, contas e configuração permanecem auditáveis.
