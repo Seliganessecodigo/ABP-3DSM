@@ -113,5 +113,7 @@
   "openDetails": "Buka detail {{name}}",
   "region": "Wilayah",
   "pagination": "Paginasi",
-  "refresh": "Perbarui"
+  "refresh": "Perbarui",
+  "helpFilters": "Filter menurut aplikasi, status, atau wilayah. Filter kolom memperinci nilai dan cakupan.",
+  "helpCompare": "Pilih dua hingga lima aplikasi untuk dibandingkan pada periode yang sama."
 }

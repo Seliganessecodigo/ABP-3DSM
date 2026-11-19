@@ -375,7 +375,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         {filtersOpen && <form id="dashboard-table-filters" className={styles.filtersPanel} onSubmit={applyFilters}>
           <div className={styles.filterGrid}>
             <fieldset><legend>{t('filters.application')}</legend>
-              <label>{t('filters.text')}<input className="form-control" value={draftFilters.name} onChange={(event) => updateDraft('name', event.target.value)} /></label>
+              <label>{t('filters.text')}<input placeholder={t('filters.text')} className="form-control" value={draftFilters.name} onChange={(event) => updateDraft('name', event.target.value)} /></label>
               <button type="button" onClick={() => clearDraft(['name'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.state')}</legend>
@@ -386,29 +386,29 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               <button type="button" onClick={() => clearDraft(['state'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.region')}</legend>
-              <label>{t('filters.text')}<input className="form-control" value={draftFilters.region} onChange={(event) => updateDraft('region', event.target.value)} /></label>
+              <label>{t('filters.text')}<input placeholder={t('filters.text')} className="form-control" value={draftFilters.region} onChange={(event) => updateDraft('region', event.target.value)} /></label>
               <button type="button" onClick={() => clearDraft(['region'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('energy')} ({data.data.totals.energy.unit})</legend>
-              <label>{t('filters.minimum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.energyMin} onChange={(event) => updateDraft('energyMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.energyMax} onChange={(event) => updateDraft('energyMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimum')}<input placeholder={t('filters.minimum')} className="form-control" type="number" min="0" step="any" value={draftFilters.energyMin} onChange={(event) => updateDraft('energyMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximum')}<input placeholder={t('filters.maximum')} className="form-control" type="number" min="0" step="any" value={draftFilters.energyMax} onChange={(event) => updateDraft('energyMax', normalizeNumberInput(event.target.value))} /></label>
               <label className={styles.checkbox}><input type="checkbox" checked={draftFilters.energyMissing} onChange={(event) => updateDraft('energyMissing', event.target.checked)} />{t('filters.includeMissing')}</label>
               <button type="button" onClick={() => clearDraft(['energyMin', 'energyMax', 'energyMissing'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('emissions')} ({data.data.totals.emissions.unit})</legend>
-              <label>{t('filters.minimum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMin} onChange={(event) => updateDraft('emissionsMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximum')}<input className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMax} onChange={(event) => updateDraft('emissionsMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimum')}<input placeholder={t('filters.minimum')} className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMin} onChange={(event) => updateDraft('emissionsMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximum')}<input placeholder={t('filters.maximum')} className="form-control" type="number" min="0" step="any" value={draftFilters.emissionsMax} onChange={(event) => updateDraft('emissionsMax', normalizeNumberInput(event.target.value))} /></label>
               <label className={styles.checkbox}><input type="checkbox" checked={draftFilters.emissionsMissing} onChange={(event) => updateDraft('emissionsMissing', event.target.checked)} />{t('filters.includeMissing')}</label>
               <button type="button" onClick={() => clearDraft(['emissionsMin', 'emissionsMax', 'emissionsMissing'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.energyCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMin} onChange={(event) => updateDraft('energyCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMax} onChange={(event) => updateDraft('energyCoverageMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimumPercent')}<input placeholder={t('filters.minimumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMin} onChange={(event) => updateDraft('energyCoverageMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximumPercent')}<input placeholder={t('filters.maximumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMax} onChange={(event) => updateDraft('energyCoverageMax', normalizeNumberInput(event.target.value))} /></label>
               <button type="button" onClick={() => clearDraft(['energyCoverageMin', 'energyCoverageMax'])}>{t('filters.clearColumn')}</button>
             </fieldset>
             <fieldset><legend>{t('filters.emissionsCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMin} onChange={(event) => updateDraft('emissionsCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMax} onChange={(event) => updateDraft('emissionsCoverageMax', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.minimumPercent')}<input placeholder={t('filters.minimumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMin} onChange={(event) => updateDraft('emissionsCoverageMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximumPercent')}<input placeholder={t('filters.maximumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMax} onChange={(event) => updateDraft('emissionsCoverageMax', normalizeNumberInput(event.target.value))} /></label>
               <button type="button" onClick={() => clearDraft(['emissionsCoverageMin', 'emissionsCoverageMax'])}>{t('filters.clearColumn')}</button>
             </fieldset>
           </div>

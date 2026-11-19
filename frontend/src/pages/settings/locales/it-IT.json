@@ -43,7 +43,7 @@
   "noSources": "Nessuna diagnosi delle fonti. L’assenza non indica un funzionamento corretto.",
   "source.services": "Aggregatore di metriche · rilevamento servizi",
   "source.metrics": "Aggregatore di metriche · osservazioni",
-  "source.carbon-factor": "Servizio di intensità del carbonio",
+  "source.carbon-factor": "Fattori di carbonio regionali",
   "sourceState.UNKNOWN": "Nessuna diagnosi",
   "sourceState.DEGRADED": "Con errori",
   "sourceState.RECOVERING": "In ripristino",
@@ -100,5 +100,14 @@
   "edit": "Modifica",
   "review": "Verifica modifica",
   "noResults": "Nessun risultato per i filtri selezionati.",
-  "clear": "Cancella ricerca e filtri"
+  "clear": "Cancella ricerca e filtri",
+  "changePassword": "Cambia password",
+  "currentPassword": "Password attuale",
+  "newPassword": "Nuova password",
+  "confirmPassword": "Ripeti la nuova password",
+  "passwordLength": "Usa da 8 a 1.024 caratteri.",
+  "passwordChangeNote": "Conferma la password attuale. La modifica chiude tutte le sessioni. Gli account che usano solo Google non hanno una password locale.",
+  "passwordMismatch": "Le password non coincidono.",
+  "passwordDenied": "Controlla la password attuale. Gli account solo Google non hanno una password locale.",
+  "passwordFailed": "Impossibile cambiare la password. Riprova."
 }

@@ -26,6 +26,7 @@ describe('AuditLogsRepository.list', () => {
 
     expect(builder.where).toHaveBeenCalledWith('actorUser.organizationId = :organizationId', { organizationId: 'org-1' })
     expect(builder.andWhere).toHaveBeenCalledWith('audit.actorType = :actorType', { actorType: 'user' })
+    expect(builder.andWhere).toHaveBeenCalledWith('audit.action NOT IN (:...sessionActions)', { sessionActions: expect.arrayContaining(['auth.login.succeeded', 'auth.session.refreshed']) })
     expect(builder.andWhere.mock.calls.length).toBeGreaterThan(12)
     expect(builder.orderBy).toHaveBeenCalledWith('audit.actorLabel', 'ASC', 'NULLS LAST')
     expect(builder.addOrderBy).toHaveBeenCalledWith('audit.id', 'ASC')

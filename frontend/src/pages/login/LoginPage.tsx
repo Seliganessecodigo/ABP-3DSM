@@ -2,7 +2,6 @@ import { CardIcon } from '../../components/CardIcon.tsx'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { PageHelp } from '../../components/PageHelp.tsx'
 import styles from './LoginPage.module.css'
-import greenErMark from '../../assets/green-er-mark.png'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthenticationError, type TotpProvisioning } from '../../features/authentication/api.ts'
@@ -111,16 +110,16 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
     />
   }
   return <main className={styles.page}>
-    <img className={styles.watermark} src={greenErMark} alt="" />
     <header className={styles.heading}><div className="heading-title"><h1>{t('heading')}</h1><PageHelp steps={[
   { title: t('heading'), description: t('description'), target: 'main form' },
   { title: t('totpChallengeHeading'), description: t('totpChallengeDescription'), target: 'main form' },
 ]} /></div></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading"><CardIcon icon={faLock} size="small" inline />{t('submit')}</h2>
+      {new URLSearchParams(window.location.search).get('passwordChanged') === 'true' && <output>{t('passwordChanged')}</output>}
       <form onSubmit={(event) => void handleSubmit(event)}>
-        <label>{t('email')}<input className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
-        <label>{t('password')}<input className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>
+        <label>{t('email')}<input placeholder={'email@example.com'} className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
+        <label>{t('password')}<input placeholder={t('password')} className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>
         {error && <p className={styles.error} role="alert">{t(error)}</p>}
         <button className={styles.submit} type="submit" disabled={submitting}>{submitting ? t('submitting') : t('submit')}</button>
       </form>
@@ -128,6 +127,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
       {ssoEnabled && <div className={styles.sso}>
         <div className={styles.divider}><span>{t('ssoDivider')}</span></div>
         <button className={styles.google} type="button" onClick={() => void handleGoogleSignIn()} disabled={submitting}>
+          <svg aria-hidden="true" viewBox="0 0 48 48"><path fill="#4285F4" d="M43.6 24.46c0-1.36-.12-2.66-.35-3.92H24v7.42h11a9.4 9.4 0 0 1-4.08 6.17v5h6.6c3.87-3.56 6.08-8.8 6.08-14.67Z"/><path fill="#34A853" d="M24 44c5.5 0 10.12-1.82 13.5-4.87l-6.6-5c-1.83 1.23-4.18 1.97-6.9 1.97-5.32 0-9.83-3.59-11.44-8.42H5.75v5.18A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.56 27.68a12.3 12.3 0 0 1 0-7.36v-5.18H5.75a20 20 0 0 0 0 17.72Z"/><path fill="#EA4335" d="M24 11.9c3 0 5.7 1.03 7.82 3.05l5.87-5.87C34.12 5.75 29.5 4 24 4A20.4 20.4 0 0 0 5.75 15.14l6.81 5.18C14.17 15.49 18.68 11.9 24 11.9Z"/></svg>
           {googleButtonLabel(t, submitting, invitation)}
         </button>
       </div>}

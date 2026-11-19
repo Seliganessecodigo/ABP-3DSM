@@ -1,1 +1,15 @@
-{"title":"Pemulihan kata sandi","description":"Jika Anda meminta pemulihan, periksa kotak masuk untuk langkah berikutnya. Alur ini sedang disiapkan.","backToLogin":"Kembali ke halaman masuk"}
+{
+  "title": "Pemulihan kata sandi",
+  "description": "Masukkan identitas organisasi dan email untuk menerima tautan pemulihan.",
+  "backToLogin": "Kembali ke halaman masuk",
+  "organization": "Identitas organisasi",
+  "organizationHint": "Identitas yang diberikan organisasi",
+  "submit": "Kirim tautan pemulihan",
+  "complete": "Jika data cocok dengan akun yang memenuhi syarat, Anda akan menerima tautan melalui email. Periksa juga folder spam.",
+  "resetDescription": "Tetapkan kata sandi baru untuk akun Anda.",
+  "resetSubmit": "Atur ulang kata sandi",
+  "invalidLink": "Tautan ini kedaluwarsa atau sudah digunakan. Minta tautan pemulihan baru.",
+  "failed": "Pemulihan tidak dapat diselesaikan. Coba lagi.",
+  "passwordMismatch": "Kata sandi tidak cocok.",
+  "rateLimited": "Terlalu banyak percobaan. Tunggu sebentar dan coba lagi."
+}

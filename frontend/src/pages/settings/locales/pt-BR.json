@@ -43,7 +43,7 @@
   "noSources": "Não há diagnóstico das fontes. Ausência não significa saúde normal.",
   "source.services": "Agregador de Métricas · descoberta de serviços",
   "source.metrics": "Agregador de Métricas · observações",
-  "source.carbon-factor": "Serviço de Intensidade de Carbono",
+  "source.carbon-factor": "Fatores regionais de carbono",
   "sourceState.UNKNOWN": "Sem diagnóstico",
   "sourceState.DEGRADED": "Com falhas",
   "sourceState.RECOVERING": "Em recuperação",
@@ -100,5 +100,14 @@
   "edit": "Editar",
   "review": "Revisar alteração",
   "noResults": "Nenhum resultado para os filtros selecionados.",
-  "clear": "Limpar busca e filtros"
+  "clear": "Limpar busca e filtros",
+  "changePassword": "Trocar senha",
+  "currentPassword": "Senha atual",
+  "newPassword": "Nova senha",
+  "confirmPassword": "Repita a nova senha",
+  "passwordLength": "Use de 8 a 1.024 caracteres.",
+  "passwordChangeNote": "Confirme sua senha atual. Após a troca, todas as sessões serão encerradas. Contas que usam apenas Google não têm senha local.",
+  "passwordMismatch": "As senhas não coincidem.",
+  "passwordDenied": "Confira a senha atual. Contas que usam apenas Google não têm senha local.",
+  "passwordFailed": "Não foi possível trocar a senha. Tente novamente."
 }

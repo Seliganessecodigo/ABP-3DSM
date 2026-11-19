@@ -66,3 +66,7 @@ A rota /recover-password apresenta um placeholder estático traduzido nos doze i
 # Regional simulation page
 
 `pages/regionalSimulation/` implements the hypothetical regional-factor simulation. Application, destination region, and period (24h, 7d, 30d; default 7d) persist in the URL. Opening/reloading restores the selections without submitting; the POST runs only after an explicit action. Pending, empty, partial, and failed results remain distinct.
+
+`pages/recoverPassword/` coordena solicitação e conclusão da recuperação com token temporário. O token é capturado do fragmento e removido da URL; não vai para armazenamento do navegador. A apresentação reutiliza os estilos de autenticação em `pages/login/`. `pages/settings/PasswordSettings` permite trocar a própria senha local, confirma a senha atual e retorna ao login após revogar as sessões. Campos de texto, busca, senha, número e texto longo têm placeholders; datas mantêm a indicação nativa de formato e seletores mantêm opções de seleção explícitas.
+
+As ações do catálogo abrem o ranking com `filterApplicationId`, filtro de apresentação que preserva as posições no escopo. Os intervalos são resolvidos pela função existente `analysisRangeFor`, incluindo períodos personalizados. `NavigationLink` mantém navegação interna e cliques modificados nos links de metodologia e retorno da recuperação; `utils/formData.ts` lê somente campos textuais dos formulários de conta.

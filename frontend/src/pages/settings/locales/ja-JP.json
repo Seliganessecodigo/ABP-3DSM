@@ -43,7 +43,7 @@
   "noSources": "連携先の診断がありません。情報がないことは正常を意味しません。",
   "source.services": "メトリクス集約 · サービス検出",
   "source.metrics": "メトリクス集約 · 観測",
-  "source.carbon-factor": "炭素強度サービス",
+  "source.carbon-factor": "地域別炭素係数",
   "sourceState.UNKNOWN": "診断なし",
   "sourceState.DEGRADED": "障害あり",
   "sourceState.RECOVERING": "復旧中",
@@ -100,5 +100,14 @@
   "edit": "編集",
   "review": "変更内容を確認",
   "noResults": "選択したフィルターに該当する結果はありません。",
-  "clear": "検索とフィルターを解除"
+  "clear": "検索とフィルターを解除",
+  "changePassword": "パスワード変更",
+  "currentPassword": "現在のパスワード",
+  "newPassword": "新しいパスワード",
+  "confirmPassword": "新しいパスワードを再入力",
+  "passwordLength": "8～1,024文字で入力してください。",
+  "passwordChangeNote": "現在のパスワードを確認してください。変更するとすべてのセッションが終了します。Googleのみのアカウントにはローカルパスワードがありません。",
+  "passwordMismatch": "パスワードが一致しません。",
+  "passwordDenied": "現在のパスワードを確認してください。Googleのみのアカウントにはローカルパスワードがありません。",
+  "passwordFailed": "パスワードを変更できませんでした。再試行してください。"
 }

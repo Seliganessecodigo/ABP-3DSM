@@ -155,3 +155,19 @@ export function acceptAdminInvitation(input: { token: string; name: string; emai
 export function confirmAdminEmail(input: { token: string; password: string }, signal: AbortSignal): Promise<void> {
   return submitAccountSetup('email/confirm', input, signal)
 }
+
+export async function changePassword(request: (url: string, init?: RequestInit) => Promise<Response>, input: { currentPassword: string; password: string }, signal: AbortSignal): Promise<void> {
+  const response = await request(endpoint('password/change'), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input), signal,
+  })
+  if (!response.ok) throw new AuthenticationError(response.status)
+}
+
+export async function requestPasswordRecovery(input: { organization: string; email: string }, signal: AbortSignal): Promise<void> {
+  const value = await requestJson(endpoint('password-recovery/request'), { method: 'POST', body: JSON.stringify(input), signal })
+  if (!isRecord(value) || value.code !== 'PASSWORD_RECOVERY_REQUEST_ACCEPTED') throw new Error('Invalid password recovery response')
+}
+
+export async function completePasswordRecovery(input: { token: string; password: string }, signal: AbortSignal): Promise<void> {
+  await requestJson(endpoint('password-recovery/complete'), { method: 'POST', body: JSON.stringify(input), signal })
+}

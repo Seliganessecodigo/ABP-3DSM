@@ -1,3 +1,9 @@
+import { tableSortPresentation } from '../../utils/tableSortPresentation.ts'
+import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
+import { PageHelp } from '../../components/PageHelp.tsx'
+import { SortButton } from '../../components/SortButton.tsx'
+import { CardIcon } from '../../components/CardIcon.tsx'
+import { faRankingStar, faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActionButton } from '../../components/ActionButton.tsx'
@@ -6,6 +12,7 @@ import { getApplications, type Application } from '../../features/applications/a
 import { getEnvironmentalRanking, type EnvironmentalRanking, type EnvironmentalRankingQuery, type RankingDirection, type RankingMetric, type RankingState } from '../../features/analysis/environmentalRanking.ts'
 import styles from './RankingPage.module.css'
 
+const columnLabelKeys: Record<string, string> = { energy: 'energyUnit', emissions: 'emissionsUnit' }
 const states: readonly RankingState[] = ['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
 const pageSizes = [5, 10, 15, 20, 'all'] as const
 const textFilters = ['filterApplicationId', 'filterName', 'filterRegionCode', 'filterCountry', 'filterRegion', 'filterCity', 'filterStateReason', 'filterEnergyReason', 'filterEmissionsReason'] as const
@@ -236,17 +243,21 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       return next
     })
   }
-  const compareParams = new URLSearchParams({ from, to })
+  const compareParams = new URLSearchParams({ period: 'custom', from, to })
   for (const id of selected.keys()) compareParams.append('applicationIds', id)
   const compareHref = `/comparison?${compareParams.toString()}`
 
-  return <main className={styles.page}>
-    <header className={styles.header}>
-      <div><span className={styles.eyebrow}>{t('analysisEyebrow')}</span><h1>{t('title')}</h1><p>{t('description')}</p></div>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
+    <header className={`page-heading ${styles.header}`}>
+      <div><Breadcrumbs navigate={navigate} items={[{ label: t('title') }]} /><div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
+        { title: t('metric'), description: t('description'), target: '[data-help="ranking-controls"]' },
+        { title: t('filters'), description: t('helpFilters'), target: '[data-help="ranking-search"]' },
+        { title: t('compareSelected', { count: 2 }), description: t('helpCompare'), target: '[data-help="ranking-results"]' },
+      ]} /></div></div>
       <ActionButton type="button" appearance="secondary" onClick={() => setRetry(value => value + 1)}>{t('refresh')}</ActionButton>
     </header>
 
-    <form className={styles.controls} onSubmit={submitPeriod}>
+    <form data-help="ranking-controls" className={styles.controls} onSubmit={submitPeriod}>
       <div className={styles.metricControl} role="group" aria-label={t('metric')}>
         <span>{t('metric')}</span>
         <div>{(['energy', 'emissions'] as const).map(value => <button type="button" key={value} aria-pressed={metric === value} onClick={() => changeParam('metric', value)}>{value === 'energy' ? t('energyUnit') : t('emissionsUnit')}</button>)}</div>
@@ -268,7 +279,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       </select></label>
     </form>
 
-    <div className={styles.searchRow}>
+    <div data-help="ranking-search" className={styles.searchRow}>
       <form onSubmit={applySearch}>
         <label>{t('search')}<input className="form-control" type="search" value={searchDraft} onChange={event => setSearchDraft(event.target.value)} placeholder={t('searchHint')} /></label>
         <ActionButton type="submit">{t('search')}</ActionButton>
@@ -304,7 +315,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
 
     {filtersOpen && <form id="ranking-column-filters" className={styles.filterPanel} onSubmit={applyColumnFilters}>
       <div className={styles.filterGrid}>
-        {textFilters.map(key => <label key={key}>{fieldLabel(key)}<input className="form-control" value={filtersDraft[key] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [key]: event.target.value }))} /></label>)}
+        {textFilters.map(key => <label key={key}>{fieldLabel(key)}<input placeholder={fieldLabel(key)} className="form-control" value={filtersDraft[key] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [key]: event.target.value }))} /></label>)}
         <label>{fieldLabel('filterState')}<select className="form-control" value={filtersDraft.filterState ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, filterState: event.target.value }))}>
           <option value="">{t('anyValue')}</option>{states.map(state => <option key={state} value={state}>{t(stateKey(state))}</option>)}
         </select></label>
@@ -313,8 +324,8 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
         </select></label>
       </div>
       <div className={styles.numericFilterGrid}>{numericFilters.map(field => <fieldset className={styles.numericFilter} key={field}><legend>{fieldLabel(field)}</legend>
-          <label>{t('minimum')}<input className="form-control" type="number" min="0" step="any" value={filtersDraft[`${field}Min`] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [`${field}Min`]: event.target.value }))} /></label>
-          <label>{t('maximum')}<input className="form-control" type="number" min="0" step="any" value={filtersDraft[`${field}Max`] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [`${field}Max`]: event.target.value }))} /></label>
+          <label>{t('minimum')}<input placeholder={t('minimum')} className="form-control" type="number" min="0" step="any" value={filtersDraft[`${field}Min`] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [`${field}Min`]: event.target.value }))} /></label>
+          <label>{t('maximum')}<input placeholder={t('maximum')} className="form-control" type="number" min="0" step="any" value={filtersDraft[`${field}Max`] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [`${field}Max`]: event.target.value }))} /></label>
           <label>{t('missingValue')}<select className="form-control" value={filtersDraft[`${field}Missing`] ?? ''} onChange={event => setFiltersDraft(value => ({ ...value, [`${field}Missing`]: event.target.value }))}>
             <option value="">{t('anyValue')}</option><option value="true">{t('missingOnly')}</option><option value="false">{t('presentOnly')}</option>
           </select></label>
@@ -341,16 +352,15 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       {data.status === 'empty' && <RequestFeedback state="empty"><p>{t('empty')}</p></RequestFeedback>}
       {data.pagination.totalItems === 0 && data.status !== 'empty' && <RequestFeedback state="empty"><p>{t('noMatches')}</p></RequestFeedback>}
 
-      {rankedItems.length > 0 && <>
-        <section className={styles.tableCard} aria-labelledby="ranking-table-title">
-          <div className={styles.tableHeading}><h2 id="ranking-table-title">{t('rankedApplications', { count: data.presentation.rankedCount })}</h2><span>{t('relativeToMaximum')}</span></div>
+      {rankedItems.length > 0 && <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title">
+          <div className={styles.tableHeading}><h2 id="ranking-table-title"><CardIcon icon={faRankingStar} size="small" inline />{t('rankedApplications', { count: data.presentation.rankedCount })}</h2><span>{t('relativeToMaximum')}</span></div>
           <div className={styles.tableScroll}><table>
             <thead><tr>
               <th scope="col" aria-label={t('select')} />
               {([{ label: 'position', key: 'position' }, { label: 'application', key: 'name' }, { label: 'region', key: 'region' }, { label: metric, key: metric }, { label: 'coverage', key: metric === 'energy' ? 'energyCoverage' : 'emissionsCoverage' }] as const).map(({ label, key }) => {
-                const active = sortBy === key
-                return <th scope="col" key={key} aria-sort={active ? sortDirection === 'asc' ? 'ascending' : 'descending' : 'none'}>
-                  <button type="button" onClick={() => sortColumn(key)}>{label === 'energy' ? t('energyUnit') : label === 'emissions' ? t('emissionsUnit') : t(label)}{active ? sortDirection === 'asc' ? ' ↑' : ' ↓' : ''}</button>
+                const sort = tableSortPresentation(key, sortBy, sortDirection)
+                return <th scope="col" key={key} aria-sort={sort.ariaSort}>
+                  <SortButton state={sort.ariaSort} onClick={() => sortColumn(key)}>{t(columnLabelKeys[label] ?? label)}</SortButton>
                 </th>
               })}
               <th scope="col">{t('detail')}</th>
@@ -370,7 +380,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
                 <td>{item.location.regionCode ?? t('notAvailable')}<small>{[item.location.region, item.location.country, item.location.city].filter(Boolean).join(' · ')}</small></td>
                 <td><strong>{valueInDesignUnit === null ? t('notAvailable') : `${number(valueInDesignUnit, shownUnit)}`}</strong><span className={styles.metricBar} aria-hidden="true"><span style={{ width: `${Math.min(barWidth, 100)}%` }} /></span></td>
                 <td><strong>{percent(coverage)}</strong><small className={coverage < 1 ? styles.partial : styles.complete}>{coverage < 1 ? t('partial') : t('complete')}</small></td>
-                <td><a className={styles.detailLink} href={detailHref} aria-label={t('openDetails', { name: item.name })} onClick={event => { event.preventDefault(); navigate(detailHref) }}>◉</a></td>
+                <td><a className={styles.detailLink} href={detailHref} aria-label={t('openDetails', { name: item.name })} onClick={event => { event.preventDefault(); navigate(detailHref) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M2 10s2.8-5 8-5 8 5 8 5-2.8 5-8 5-8-5-8-5Z" /><circle cx="10" cy="10" r="2.2" /></svg></a></td>
               </tr>
             })}</tbody>
           </table></div>
@@ -395,11 +405,10 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
               </article>
             })}
           </div>
-        </section>
-      </>}
+        </section>}
 
       {unrankedItems.length > 0 && <section className={styles.unrankedCard} aria-labelledby="unranked-title">
-        <div className={styles.tableHeading}><h2 id="unranked-title">{t('unrankedApplications', { count: data.presentation.unrankedCount })}</h2><span>{t('unrankedHint')}</span></div>
+        <div className={styles.tableHeading}><h2 id="unranked-title"><CardIcon icon={faCircleExclamation} size="small" inline />{t('unrankedApplications', { count: data.presentation.unrankedCount })}</h2><span>{t('unrankedHint')}</span></div>
         <div className={styles.unrankedList}>{unrankedItems.map(item => {
           const reasons = [...item.energy.reasons, ...item.emissions.reasons]
           const reason = (item.stateReason !== 'METRICS_VALID' ? item.stateReason : null) ?? reasons.find(itemReason => itemReason.code !== 'METRICS_VALID')?.code
@@ -412,7 +421,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
         <span className={styles.paginationRange}>{t('itemsPerPage')}: {pageSize === 'all' ? t('allItems') : pageSize} · {t('showingRange', { from: rangeStart, to: rangeEnd, total: data.pagination.totalItems })}</span>
         <div className={styles.pagination}>
           <button type="button" className="button secondary" disabled={currentPage <= 1} onClick={() => changeParam('page', String(currentPage - 1))}>{t('previous')}</button>
-          <label>{t('page')} <input className="form-control form-control--compact" type="number" min="1" max={Math.max(totalPages, 1)} value={currentPage} onChange={event => changeParam('page', event.target.value === '1' ? null : event.target.value)} /></label>
+          <label>{t('page')} <input placeholder={t('page')} className="form-control form-control--compact" type="number" min="1" max={Math.max(totalPages, 1)} value={currentPage} onChange={event => changeParam('page', event.target.value === '1' ? null : event.target.value)} /></label>
           <span>{t('pageOf', { page: currentPage, total: totalPages })}</span>
           <button type="button" className="button secondary" disabled={currentPage >= totalPages} onClick={() => changeParam('page', String(currentPage + 1))}>{t('next')}</button>
         </div>

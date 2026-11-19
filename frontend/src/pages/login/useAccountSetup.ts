@@ -1,12 +1,8 @@
+import { textField } from '../../utils/formData.ts'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { acceptAdminInvitation, AuthenticationError, confirmAdminEmail } from '../../features/authentication/api.ts'
 
 export type AccountSetupKind = 'invitation' | 'confirmation'
-
-function textField(data: FormData, name: string): string {
-  const value = data.get(name)
-  return typeof value === 'string' ? value : ''
-}
 
 function errorKey(cause: unknown) {
   if (cause instanceof AuthenticationError) {

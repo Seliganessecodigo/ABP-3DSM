@@ -86,3 +86,5 @@ O contrato de consultas, criação e auditoria está em [ACCOUNTS.md](ACCOUNTS.m
 | POST /auth/password-recovery/complete | Público; token temporário de uso único; 204 no sucesso e 401 genérico para token inválido, expirado ou consumido |
 
 A solicitação só emite token para conta ativa, com e-mail verificado e senha local. Limite por conta: cinco emissões por janela de 15 minutos. A conclusão altera a senha e revoga refresh tokens, mantendo access JWTs existentes válidos pelo TTL atual.
+
+`POST /auth/password/change`: sessão ativa de qualquer papel; confirma senha local atual, altera apenas a própria conta e revoga todas as sessões. Retorna 204, 400 para corpo inválido, 401 para sessão inválida ou 403 para senha atual incorreta/conta sem senha local.

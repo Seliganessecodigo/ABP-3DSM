@@ -43,7 +43,7 @@
   "noSources": "소스 진단 정보가 없습니다. 정보가 없다고 정상은 아닙니다.",
   "source.services": "메트릭 집계기 · 서비스 검색",
   "source.metrics": "메트릭 집계기 · 관측",
-  "source.carbon-factor": "탄소 집약도 서비스",
+  "source.carbon-factor": "지역 탄소 계수",
   "sourceState.UNKNOWN": "진단 없음",
   "sourceState.DEGRADED": "오류 있음",
   "sourceState.RECOVERING": "복구 중",
@@ -100,5 +100,14 @@
   "edit": "편집",
   "review": "변경 검토",
   "noResults": "선택한 필터에 해당하는 결과가 없습니다.",
-  "clear": "검색 및 필터 지우기"
+  "clear": "검색 및 필터 지우기",
+  "changePassword": "비밀번호 변경",
+  "currentPassword": "현재 비밀번호",
+  "newPassword": "새 비밀번호",
+  "confirmPassword": "새 비밀번호 다시 입력",
+  "passwordLength": "8~1,024자를 입력하세요.",
+  "passwordChangeNote": "현재 비밀번호를 확인하세요. 변경하면 모든 세션이 종료됩니다. Google 전용 계정에는 로컬 비밀번호가 없습니다.",
+  "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+  "passwordDenied": "현재 비밀번호를 확인하세요. Google 전용 계정에는 로컬 비밀번호가 없습니다.",
+  "passwordFailed": "비밀번호를 변경하지 못했습니다. 다시 시도하세요."
 }

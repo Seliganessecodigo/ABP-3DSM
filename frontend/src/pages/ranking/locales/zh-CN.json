@@ -113,5 +113,7 @@
   "openDetails": "打开 {{name}} 的详情",
   "region": "区域",
   "pagination": "分页",
-  "refresh": "刷新"
+  "refresh": "刷新",
+  "helpFilters": "按应用、状态或区域筛选。列筛选器可细化数值和覆盖率。",
+  "helpCompare": "选择2至5个应用，在同一时段进行比较。"
 }

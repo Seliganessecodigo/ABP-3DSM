@@ -299,3 +299,38 @@ test('usuários envia filtros e ordenação antes de paginar e preserva ordem ao
   expect(queries.at(-1)?.get('sortDirection')).toBe('desc')
   expect(queries.at(-1)?.get('page')).toBe('1')
 })
+
+test('troca a senha em Minha conta, trata falhas e pede novo login', async ({ page }) => {
+  let writes = 0
+  let responseStatus = 403
+  await login(page, 'ANALYST')
+  await page.screenshot({ path: test.info().outputPath('minha-conta.png'), fullPage: true })
+  await page.route('**/api/auth/password/change', route => {
+    writes++
+    expect(route.request().headers().authorization).toBe('Bearer settings-token')
+    expect(route.request().postDataJSON()).toEqual({ currentPassword: 'old-password', password: 'new-password' })
+    return route.fulfill({ status: responseStatus })
+  })
+  await page.route('**/api/auth/sessions/logout', route => route.fulfill({ status: 204 }))
+  const form = page.getByRole('heading', { name: 'Trocar senha', exact: true }).locator('..').locator('..').locator('form')
+  const fill = async (confirmation = 'new-password') => {
+    await form.getByLabel('Senha atual', { exact: true }).fill('old-password')
+    await form.getByLabel('Nova senha', { exact: true }).fill('new-password')
+    await form.getByLabel('Repita a nova senha', { exact: true }).fill(confirmation)
+    await form.getByRole('button', { name: 'Trocar senha', exact: true }).click()
+  }
+  await fill('different-password')
+  await expect(form.getByRole('alert')).toHaveText('As senhas não coincidem.')
+  expect(writes).toBe(0)
+  await fill()
+  await expect(form.getByRole('alert')).toContainText('Confira a senha atual')
+  await expect(form.getByLabel('Senha atual', { exact: true })).toHaveValue('')
+  responseStatus = 503
+  await fill()
+  await expect(form.getByRole('alert')).toContainText('Não foi possível trocar a senha')
+  responseStatus = 204
+  await fill()
+  await expect(page).toHaveURL(/\/login\?passwordChanged=true/)
+  await expect(page.getByRole('status')).toHaveText('Senha alterada. Entre novamente.')
+  expect(writes).toBe(3)
+})

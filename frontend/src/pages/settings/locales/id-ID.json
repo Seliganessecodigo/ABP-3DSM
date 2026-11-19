@@ -43,7 +43,7 @@
   "noSources": "Diagnosis sumber tidak tersedia. Ketiadaan data tidak berarti kondisi sehat.",
   "source.services": "Agregator metrik · penemuan layanan",
   "source.metrics": "Agregator metrik · pengamatan",
-  "source.carbon-factor": "Layanan intensitas karbon",
+  "source.carbon-factor": "Faktor karbon regional",
   "sourceState.UNKNOWN": "Tanpa diagnosis",
   "sourceState.DEGRADED": "Mengalami kegagalan",
   "sourceState.RECOVERING": "Sedang pulih",
@@ -100,5 +100,14 @@
   "edit": "Edit",
   "review": "Tinjau perubahan",
   "noResults": "Tidak ada hasil untuk filter yang dipilih.",
-  "clear": "Hapus pencarian dan filter"
+  "clear": "Hapus pencarian dan filter",
+  "changePassword": "Ubah kata sandi",
+  "currentPassword": "Kata sandi saat ini",
+  "newPassword": "Kata sandi baru",
+  "confirmPassword": "Ulangi kata sandi baru",
+  "passwordLength": "Gunakan 8 hingga 1.024 karakter.",
+  "passwordChangeNote": "Konfirmasi kata sandi saat ini. Perubahan mengakhiri semua sesi. Akun khusus Google tidak memiliki kata sandi lokal.",
+  "passwordMismatch": "Kata sandi tidak cocok.",
+  "passwordDenied": "Periksa kata sandi saat ini. Akun khusus Google tidak memiliki kata sandi lokal.",
+  "passwordFailed": "Kata sandi tidak dapat diubah. Coba lagi."
 }

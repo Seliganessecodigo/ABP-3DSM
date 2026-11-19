@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   UnauthorizedException,
@@ -70,6 +71,29 @@ export class AuthenticationService {
     private readonly emailDelivery: EmailDelivery,
     private readonly totpAuthentication: TotpAuthenticationService,
   ) {}
+
+  async changePassword(principal: AuthPrincipal, input: { currentPassword: string; password: string }): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const users = manager.getRepository(UserEntity)
+      const user = await users.findOne({
+        where: { id: principal.userId, organizationId: principal.organizationId },
+        lock: { mode: 'pessimistic_write' },
+      })
+      if (user?.status !== UserAccountStatus.ACTIVE || !user.emailVerifiedAt ||
+        !user.passwordHash || !await this.passwordHasher.verify(user.passwordHash, input.currentPassword)) {
+        throw new ForbiddenException({ code: 'PASSWORD_CHANGE_DENIED' })
+      }
+      user.passwordHash = await this.passwordHasher.hash(input.password)
+      await users.save(user)
+      const now = this.clock.now()
+      await manager.getRepository(AuthSessionEntity).update({ userId: user.id, revokedAt: IsNull() }, { revokedAt: now })
+      await manager.getRepository(AuthTokenEntity).update({ userId: user.id, revokedAt: IsNull(), consumedAt: IsNull() }, { revokedAt: now })
+      await this.auditWriter.record({
+        actor: { type: 'user', userId: user.id },
+        action: 'auth.password.changed', entityType: 'user', entityId: user.id, outcome: 'success',
+      }, manager)
+    })
+  }
 
   async login(input: {
     email: string

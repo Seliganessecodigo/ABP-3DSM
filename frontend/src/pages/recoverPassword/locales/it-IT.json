@@ -1,1 +1,15 @@
-{"title":"Recupero della password","description":"Se hai richiesto il recupero, controlla la posta in arrivo per i prossimi passaggi. Questo flusso è in preparazione.","backToLogin":"Torna all'accesso"}
+{
+  "title": "Recupero della password",
+  "description": "Inserisci l’identificativo dell’organizzazione e la tua e-mail per ricevere un link di recupero.",
+  "backToLogin": "Torna all'accesso",
+  "organization": "Identificativo dell’organizzazione",
+  "organizationHint": "Identificativo fornito dalla tua organizzazione",
+  "submit": "Invia link di recupero",
+  "complete": "Se i dati corrispondono a un account idoneo, riceverai un link via e-mail. Controlla anche lo spam.",
+  "resetDescription": "Imposta una nuova password per il tuo account.",
+  "resetSubmit": "Reimposta password",
+  "invalidLink": "Questo link è scaduto o è già stato usato. Richiedi un nuovo link di recupero.",
+  "failed": "Impossibile completare il recupero. Riprova.",
+  "passwordMismatch": "Le password non coincidono.",
+  "rateLimited": "Troppi tentativi. Attendi e riprova."
+}

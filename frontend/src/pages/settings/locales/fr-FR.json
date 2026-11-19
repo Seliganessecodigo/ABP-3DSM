@@ -43,7 +43,7 @@
   "noSources": "Aucun diagnostic des sources. L’absence ne signifie pas un fonctionnement normal.",
   "source.services": "Agrégateur de métriques · découverte des services",
   "source.metrics": "Agrégateur de métriques · observations",
-  "source.carbon-factor": "Service d’intensité carbone",
+  "source.carbon-factor": "Facteurs carbone régionaux",
   "sourceState.UNKNOWN": "Aucun diagnostic",
   "sourceState.DEGRADED": "Avec des erreurs",
   "sourceState.RECOVERING": "En récupération",
@@ -100,5 +100,14 @@
   "edit": "Modifier",
   "review": "Vérifier la modification",
   "noResults": "Aucun résultat pour les filtres sélectionnés.",
-  "clear": "Effacer la recherche et les filtres"
+  "clear": "Effacer la recherche et les filtres",
+  "changePassword": "Changer le mot de passe",
+  "currentPassword": "Mot de passe actuel",
+  "newPassword": "Nouveau mot de passe",
+  "confirmPassword": "Répétez le nouveau mot de passe",
+  "passwordLength": "Utilisez 8 à 1 024 caractères.",
+  "passwordChangeNote": "Confirmez votre mot de passe actuel. Le changement ferme toutes les sessions. Les comptes utilisant uniquement Google n’ont pas de mot de passe local.",
+  "passwordMismatch": "Les mots de passe ne correspondent pas.",
+  "passwordDenied": "Vérifiez le mot de passe actuel. Les comptes utilisant uniquement Google n’ont pas de mot de passe local.",
+  "passwordFailed": "Impossible de changer le mot de passe. Réessayez."
 }

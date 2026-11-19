@@ -64,6 +64,26 @@ describeDatabase('US-20 #158: account administration with real JWT and isolated 
   function roleBody(role = 'VISITOR', expectedRole = 'ANALYST') { return { role, expectedRole, reason: 'Mudança de responsabilidades' } }
   function audit(entityId: string) { return fixture.database.getRepository(AuditLogEntity).find({ where: { entityId }, order: { createdAt: 'ASC' } }) }
 
+  it.each([false, true])('changes only the caller password and rolls back on audit failure: %s', async failAudit => {
+    const hasher = fixture.app.get(PasswordHasher)
+    const passwordHash = await hasher.hash('old-password')
+    await fixture.database.getRepository(UserEntity).update(admin.id, { passwordHash })
+    const anotherSession = await session(admin)
+    const credential = await fixture.database.getRepository(AuthTokenEntity).save({ userId: admin.id, organizationId: organization.id, email: admin.email,
+      tokenHash: randomBytes(32).toString('hex'), kind: AuthTokenKind.PASSWORD_RECOVERY, expiresAt: new Date(Date.now() + 600_000) })
+    if (failAudit) jest.spyOn(fixture.app.get(AuditWriter), 'record').mockRejectedValueOnce(new Error('audit unavailable'))
+    const response = await fetch(`${fixture.url}/auth/password/change`, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ currentPassword: 'old-password', password: 'new-password', userId: target.id }) })
+    expect(response.status).toBe(failAudit ? 500 : 204)
+    const stored = await fixture.database.getRepository(UserEntity).findOneByOrFail({ id: admin.id })
+    expect(await hasher.verify(stored.passwordHash!, failAudit ? 'old-password' : 'new-password')).toBe(true)
+    expect((await fixture.database.getRepository(AuthTokenEntity).findOneByOrFail({ id: credential.id })).revokedAt === null).toBe(failAudit)
+    expect((await fetch(`${fixture.url}/auth/me`, { headers: { authorization: `Bearer ${anotherSession}` } })).status).toBe(failAudit ? 200 : 401)
+    expect((await fixture.database.getRepository(UserEntity).findOneByOrFail({ id: target.id })).passwordHash).toBeNull()
+    const events = await fixture.database.getRepository(AuditLogEntity).findBy({ actorUserId: admin.id, action: 'auth.password.changed' })
+    expect(events).toHaveLength(failAudit ? 0 : 1)
+    expect(JSON.stringify(events)).not.toContain('new-password')
+  })
+
   it('publishes all routes and list parameters in OpenAPI without credential fields', () => {
     const doc = SwaggerModule.createDocument(fixture.app, new DocumentBuilder().addBearerAuth().build())
     expect(doc.paths['/auth/users'].get?.security).toEqual([{ bearer: [] }])

@@ -1,8 +1,6 @@
-.page { display: grid; gap: 10px; min-width: 0; padding: 8px 12px 20px; color: var(--text-primary); }
-.header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 4px 0 8px; }
-.header h1 { margin: 2px 0 4px; font-size: clamp(24px, 2.4vw, 34px); line-height: 1.1; }
-.header p { margin: 0; color: var(--text-secondary); font-size: 14px; }
-.eyebrow, .metricControl > span, .periodControl > span, .directionControl { color: var(--text-secondary); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.page { display: grid; gap: var(--space-4); min-width: 0; color: var(--text-primary); }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 0; padding: 0 0 8px; }
+.metricControl > span, .periodControl > span, .directionControl { color: var(--text-secondary); font-size: 11px; font-weight: 700; letter-spacing: normal; text-transform: none; }
 .controls { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(340px, 1.3fr) minmax(210px, 1fr); align-items: center; gap: 14px; padding: 10px 0 12px; border-bottom: 1px solid var(--border-default); }
 .metricControl, .periodControl { display: grid; gap: 6px; min-width: 0; }
 .metricControl > div { display: flex; min-width: 0; padding: 3px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); }
@@ -43,9 +41,9 @@
 .chips button { padding: 5px 9px; border: 1px solid var(--border-default); border-radius: 999px; color: var(--text-primary); background: var(--surface-card); cursor: pointer; }
 .coverageNotice { margin: 0; padding: 10px 12px; border: 1px solid var(--warning-foreground); border-radius: 8px; color: var(--warning-foreground); background: var(--warning-background); font-size: 12px; }
 .tableCard, .unrankedCard { min-width: 0; padding: 12px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); }
-.tableHeading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; color: var(--text-secondary); font-size: 11px; }
+.tableHeading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; color: var(--text-secondary); font-size: 11px; }
 .tableHeading h2 { margin: 0; color: var(--text-primary); font-size: 17px; }
-.tableScroll { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; }
+.tableScroll { overflow-x: auto; }
 .tableScroll table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12px; text-align: left; }
 .tableScroll th { padding: 9px 8px; color: var(--text-secondary); background: var(--background-page); white-space: nowrap; }
 .tableScroll th button { padding: 0; border: 0; color: inherit; background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
@@ -55,7 +53,7 @@
 .tableScroll td small { display: block; margin-top: 3px; color: var(--text-secondary); font-size: 10px; }
 .tableScroll input[type="checkbox"] { accent-color: var(--accent-default); }
 .mobileRankedList { display: none; }
-.mobileRankCard { display: grid; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); }
+.mobileRankCard { display: grid; gap: 8px; min-width: 0; padding: 16px 0; border-bottom: 1px solid var(--border-default); }
 .mobileSelected { background: color-mix(in srgb, var(--accent-default) 12%, var(--surface-card)); }
 .mobileRankTitle { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
 .mobileRankTitle input { flex: 0 0 auto; margin: 2px 0 0; accent-color: var(--accent-default); }
@@ -68,10 +66,10 @@
 .sortValue { padding: 0; border: 0; color: var(--text-primary); background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
 .metricBar { display: block; width: min(150px, 100%); height: 5px; margin-top: 5px; overflow: hidden; border-radius: 6px; background: var(--background-page); }
 .metricBar > span { display: block; height: 100%; border-radius: inherit; background: var(--accent-default); }
-.complete, .partial { font-size: 10px !important; }
-.complete { color: var(--accent-default) !important; }
-.partial { color: var(--warning-foreground) !important; }
-.detailLink { display: inline-grid; place-items: center; min-width: 28px; min-height: 28px; border-radius: 6px; color: var(--accent-default) !important; font-size: 17px; }
+.complete, .partial { font-size: 11px; }
+.tableScroll .complete, .complete { color: var(--accent-default); }
+.tableScroll .partial, .partial { color: var(--warning-foreground); }
+.detailLink { display: inline-grid; place-items: center; min-width: 28px; min-height: 28px; border-radius: 6px; color: var(--accent-default); font-size: 17px; }
 .detailLink svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 .paginationCard { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 12px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); color: var(--text-secondary); font-size: 11px; }
 .paginationRange { flex: 1; min-width: 180px; }
@@ -128,7 +126,7 @@
   .tableHeading > span { max-width: 45%; text-align: right; }
   .tableCard .tableHeading > span { display: none; }
   .tableScroll { display: none; }
-  .mobileRankedList { display: grid; gap: 8px; }
+  .mobileRankedList { display: grid; gap: 0; }
   .selectionBar { flex-wrap: wrap; gap: 8px; }
   .selectionBar > div { flex-basis: 100%; }
   .selectionBar [class*="button"] { flex: 1; text-align: center; }
@@ -139,3 +137,4 @@
   .paginationCard { align-items: start; }
   .pageSize { flex-basis: 100%; }
 }
+.tableScroll td a.detailLink { color: var(--accent-default); }
