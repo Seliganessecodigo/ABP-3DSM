@@ -528,9 +528,7 @@ test('menu destaca Aplicações e oferece as rotas disponíveis', async ({ page 
   await expect(navigation.getByRole('link', { name: 'Metodologia', exact: true })).toHaveAttribute('href', '/methodology')
   await expect(navigation.getByRole('link', { name: 'Configurações', exact: true })).toHaveAttribute('href', '/settings')
   await expect(navigation.getByRole('link', { name: 'Comparação', exact: true })).toHaveAttribute('href', '/comparison')
-  for (const name of ['Ranking']) {
-    await expect(navigation.getByRole('button', { name, exact: true })).toBeDisabled()
-  }
+  await expect(navigation.getByRole('link', { name: 'Ranking', exact: true })).toHaveAttribute('href', '/ranking')
   await expect(navigation.getByRole('link', { name: 'Simulação regional', exact: true })).toHaveAttribute('href', '/regional-simulation')
   await expect(page.getByRole('button', { name: /nova aplicação/i })).toHaveCount(0)
 })
@@ -558,11 +556,9 @@ test('menu móvel abre, fecha por X, Escape e clique fora, e restaura o foco', a
     .toHaveAttribute('href', '/settings')
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Comparação', exact: true }))
     .toHaveAttribute('href', '/comparison')
-  for (const name of ['Ranking']) {
-    const destination = page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('button', { name, exact: true })
-    await expect(destination).toBeVisible()
-    await expect(destination).toBeDisabled()
-  }
+  const ranking = page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Ranking', exact: true })
+  await expect(ranking).toBeVisible()
+  await expect(ranking).toHaveAttribute('href', '/ranking')
   await expect(page.getByRole('navigation', { name: 'Navegação principal', exact: true }).getByRole('link', { name: 'Simulação regional', exact: true }))
     .toHaveAttribute('href', '/regional-simulation')
 

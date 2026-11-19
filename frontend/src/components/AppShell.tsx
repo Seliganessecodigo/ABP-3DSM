@@ -39,8 +39,12 @@ function isComparisonPath(pathname: string) {
   return pathname === '/comparison' || pathname === '/comparison/'
 }
 
-function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean, simulation: boolean) {
-  return !methodology && !dashboard && !administration && !comparison && !simulation
+function isRankingPath(pathname: string) {
+  return pathname === '/ranking' || pathname === '/ranking/'
+}
+
+function isApplicationsActive(methodology: boolean, dashboard: boolean, administration: boolean, comparison: boolean, simulation: boolean, ranking: boolean) {
+  return !methodology && !dashboard && !administration && !comparison && !simulation && !ranking
 }
 
 function activeNavigationProps(active: boolean): Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'aria-current' | 'className'> {
@@ -60,9 +64,10 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const methodologyActive = isMethodologyPath(window.location.pathname)
   const dashboardActive = isDashboardPath(window.location.pathname)
   const comparisonActive = isComparisonPath(window.location.pathname)
+  const rankingActive = isRankingPath(window.location.pathname)
   const administrationActive = isAdministrationPath(window.location.pathname)
   const regionalSimulationActive = isRegionalSimulationPath(window.location.pathname)
-  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive, comparisonActive, regionalSimulationActive)
+  const applicationsActive = isApplicationsActive(methodologyActive, dashboardActive, administrationActive, comparisonActive, regionalSimulationActive, rankingActive)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
@@ -145,7 +150,7 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
         <a href={dashboardUrl} aria-label={t('nav.dashboard')} {...activeNavigationProps(dashboardActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(dashboardUrl) }}><FontAwesomeIcon className="nav-icon" icon={faTableCellsLarge} aria-hidden="true" /><span className="nav-label">{t('nav.dashboard')}</span></a>
         <a href="/applications" aria-label={t('nav.applications')} {...activeNavigationProps(applicationsActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/applications') }}><FontAwesomeIcon className="nav-icon" icon={faLayerGroup} aria-hidden="true" /><span className="nav-label">{t('nav.applications')}</span></a>
         <p className="nav-heading">{t('nav.analysis')}</p>
-        <button aria-label={t('nav.ranking')} disabled><FontAwesomeIcon className="nav-icon" icon={faRankingStar} aria-hidden="true" /><span className="nav-label">{t('nav.ranking')}</span></button>
+        <a href="/ranking" aria-label={t('nav.ranking')} {...activeNavigationProps(rankingActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/ranking') }}><FontAwesomeIcon className="nav-icon" icon={faRankingStar} aria-hidden="true" /><span className="nav-label">{t('nav.ranking')}</span></a>
         <a href={comparisonUrl} aria-label={t('nav.comparison')} {...activeNavigationProps(comparisonActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu(comparisonUrl) }}><FontAwesomeIcon className="nav-icon" icon={faArrowRightArrowLeft} aria-hidden="true" /><span className="nav-label">{t('nav.comparison')}</span></a>
         <a href="/regional-simulation" aria-label={t('nav.regionalSimulation')} {...activeNavigationProps(regionalSimulationActive)} onClick={(event) => { event.preventDefault(); navigateFromMenu('/regional-simulation') }}><FontAwesomeIcon className="nav-icon" icon={faEarthAmericas} aria-hidden="true" /><span className="nav-label">{t('nav.regionalSimulation')}</span></a>
         <p className="nav-heading">{t('nav.system')}</p>
