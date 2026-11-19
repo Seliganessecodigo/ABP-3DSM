@@ -1,9 +1,9 @@
-.series { min-width: 0; }
-.controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
-.controls > div { display: flex; gap: 4px; }
+.series { min-width: 0; display: grid; gap: var(--space-3); }
+.controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); }
+.controls > div { display: flex; gap: var(--space-2); }
 .controls button { min-height: 44px; padding: 6px 12px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); color: var(--text-secondary); font: inherit; cursor: pointer; }
 .controls button[aria-pressed='true'] { background: var(--control-hover); color: var(--accent-default); }
-.note { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.note { margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .chart { display: block; width: 100%; min-height: 180px; overflow: visible; }
 .chart text { fill: var(--text-secondary); font-size: 12px; }
 .axis, .gap { stroke: var(--text-secondary); }

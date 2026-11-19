@@ -39,5 +39,5 @@
   "regionPlaceholder": "Escribe una región...", "cityPlaceholder": "Escribe una ciudad...",
   "filterCombinationNote": "La búsqueda general y los filtros activos se combinan.",
   "clearPreservesSort": "Al borrar los filtros se conserva el orden actual.", "applyFilters": "Aplicar filtros",
-  "helpActions": "Use Detalles para consultar el estado y las métricas actuales. Use Historial para seguir la evolución de energía y CO₂e de la aplicación."
+  "helpActions": "Use Detalles para consultar el estado y las métricas actuales. Use Historial para seguir la evolución de energía y CO₂e de la aplicación. Comparación abre esta aplicación para seleccionar otra y comparar el mismo período. Simulación regional abre un escenario con esta aplicación. Clasificación aún no está disponible."
 }

@@ -18,6 +18,24 @@ async function mockAnalysis(page: Page) {
   })
 }
 
+test('rapid advancement near the last help step never leaves an empty modal blocking the page', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await page.goto('/applications')
+  await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+  await expect(dialog).toContainText('Passo 2 de 3')
+  await dialog.getByRole('button', { name: 'Próximo', exact: true }).evaluate((button: HTMLButtonElement) => {
+    button.click()
+    button.click()
+  })
+  await expect(dialog.getByRole('heading')).not.toBeEmpty()
+  await expect(dialog.getByRole('button', { name: 'Fechar ajuda', exact: true })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Ajuda desta tela', exact: true })).toBeFocused()
+})
+
 test('catalog opens the selected application history and keeps Applications active', async ({ page }) => {
   await mockCatalog(page, [application(), application({ id: 'other-app', name: 'Outra aplicação' })])
   await page.goto('/applications')
@@ -66,16 +84,23 @@ for (const width of [1366, 390]) {
   })
 }
 
-for (const path of ['/dashboard', '/comparison', '/services/svc-0142', '/history?applicationId=svc-0142', '/history', '/methodology', '/administration/calculations', '/login', '/administration/users']) {
-  test(`help is available on ${path}`, async ({ page }) => {
+for (const path of ['/dashboard', '/comparison', '/services/svc-0142', '/history?applicationId=svc-0142', '/history', '/methodology', '/administration/calculations', '/login', '/administration/users', '/regional-simulation']) {
+  test(`help completes every step and restores interaction on ${path}`, async ({ page }) => {
     await mockAnalysis(page)
     await page.goto(path)
-    await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
+    const trigger = page.getByRole('button', { name: 'Ajuda desta tela', exact: true })
+    await trigger.click()
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByRole('heading')).not.toBeEmpty()
-    await expect(dialog.locator('p')).not.toBeEmpty()
-    await dialog.getByRole('button', { name: 'Fechar ajuda', exact: true }).click()
+    for (let step = 0; step < 20; step++) {
+      await expect(dialog.getByRole('heading')).not.toBeEmpty()
+      await expect(dialog.locator('p')).not.toBeEmpty()
+      await expect(dialog.getByRole('button', { name: 'Fechar ajuda', exact: true })).toBeVisible()
+      const finish = dialog.getByRole('button', { name: 'Concluir', exact: true })
+      if (await finish.count()) { await finish.click(); break }
+      await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
+    }
     await expect(dialog).toBeHidden()
+    await expect(trigger).toBeFocused()
   })
 }
 

@@ -11,11 +11,12 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const descriptionId = useId()
-  const current = step === null ? null : steps[step]
+  const activeStep = step === null ? null : Math.min(step, steps.length - 1)
+  const current = activeStep === null ? null : steps[activeStep]
   const target = current?.target
 
   useEffect(() => {
-    if (step === null) return
+    if (activeStep === null) return
     const scope = trigger.current?.closest('main')
     let highlighted: HTMLElement | null = null
     const updateHighlight = () => {
@@ -32,12 +33,20 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
     dialog.current?.showModal()
     window.addEventListener('resize', updateHighlight)
     return () => { highlighted?.classList.remove(styles.highlight); window.removeEventListener('resize', updateHighlight) }
-  }, [step, target, steps])
+  }, [activeStep, target, steps])
 
   function close() {
     dialog.current?.close()
     setStep(null)
     trigger.current?.focus({ preventScroll: true })
+  }
+
+  function next() {
+    if (activeStep === steps.length - 1) {
+      close()
+      return
+    }
+    setStep(index => index === null ? null : Math.min(index + 1, steps.length - 1))
   }
 
   return <>
@@ -54,11 +63,11 @@ export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...Hel
         else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
       }}>
       {current && <>
-        <header><span>{t('help.step', { current: (step ?? 0) + 1, total: steps.length })}</span>
+        <header><span>{t('help.step', { current: (activeStep ?? 0) + 1, total: steps.length })}</span>
           <button type="button" className={styles.close} aria-label={t('help.close')} onClick={close}>×</button></header>
         <div aria-live="polite" aria-atomic="true"><h2 id={titleId}>{current.title}</h2><p id={descriptionId}>{current.description}</p></div>
-        <footer><button type="button" className="button secondary" disabled={step === 0} onClick={() => setStep(index => index === null ? null : index - 1)}>{t('help.previous')}</button>
-          <button type="button" className="button" onClick={() => step === steps.length - 1 ? close() : setStep(index => index === null ? null : index + 1)}>{t(step === steps.length - 1 ? 'help.finish' : 'help.next')}</button></footer>
+        <footer><button type="button" className="button secondary" disabled={activeStep === 0} onClick={() => setStep(index => index === null ? null : Math.max(0, Math.min(index, steps.length - 1) - 1))}>{t('help.previous')}</button>
+          <button type="button" className="button" onClick={next}>{t(activeStep === steps.length - 1 ? 'help.finish' : 'help.next')}</button></footer>
       </>}
     </dialog>
   </>
