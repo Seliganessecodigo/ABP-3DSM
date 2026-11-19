@@ -6,5 +6,4 @@ section.panel p, section.panel output { color: var(--text-secondary); font-size:
 .badges { display: grid; gap: 6px; margin-top: 6px; text-align: start; white-space: normal; }
 .badges > div { display: grid; gap: 4px; border-inline-start: 3px solid; padding: 8px; font-size: 12px; overflow-wrap: anywhere; }
 .warning { color: var(--warning-foreground); background: var(--warning-background); }
-.unknown { color: var(--text-secondary); background: var(--control-background); }
 .badges small { font-size: 11px; line-height: 1.5; }

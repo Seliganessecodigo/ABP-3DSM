@@ -230,10 +230,17 @@ describeDatabase('monitoring operations through protected HTTP and PostgreSQL', 
     for (let index = 0; index < 6; index++) await add({ type: 'user', userId: admin.user.id }, `same-org-${index}`)
     await add({ type: 'user', userId: other.user.id }, 'other-org')
     await add({ type: 'system', componentId: 'scheduler' }, 'global')
-    for (const action of ['auth.login.succeeded', 'auth.login.password.succeeded', 'auth.login.totp.succeeded', 'auth.sso.login.succeeded', 'auth.session.refreshed', 'auth.session.revoked']) {
-      await audit.record({ actor: { type: 'user', userId: admin.user.id }, action, entityType: 'user', entityId: admin.user.id, outcome: 'success', reason: 'A??o de seguran?a' })
+    for (const action of ['auth.login.succeeded', 'auth.login.password.succeeded', 'auth.login.totp.succeeded', 'auth.sso.login.succeeded', 'auth.session.refreshed', 'auth.session.revoked', 'auth.totp.setup.started', 'auth.totp.replacement.started', 'account.list', 'account.status.unchanged', 'auth.login.future-provider.succeeded']) {
+      await audit.record({ actor: { type: 'user', userId: admin.user.id }, action, entityType: 'user', entityId: admin.user.id, outcome: 'success', reason: 'Ação de segurança' })
     }
-
+    const unfiltered = await fetch(`${fixture.url}/monitoring/audit?pageSize=5`, {
+      headers: { authorization: `Bearer ${admin.token}` },
+    })
+    expect(unfiltered.status).toBe(200)
+    const changes = await unfiltered.json()
+    expect(changes.pagination).toMatchObject({ totalItems: 7, totalPages: 2, hasNextPage: true })
+    expect(changes.items).toHaveLength(5)
+    expect(changes.items.every((item: { action: string }) => item.action === 'account.role.changed')).toBe(true)
 
     const response = await fetch(`${fixture.url}/monitoring/audit?search=acao%20de%20seguranca&pageSize=all`, {
       headers: { authorization: `Bearer ${admin.token}` },

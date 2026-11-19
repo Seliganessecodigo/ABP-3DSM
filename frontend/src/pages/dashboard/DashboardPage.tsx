@@ -90,6 +90,7 @@ function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: nu
 
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const personalAlerts = usePersonalAlerts()
+  const personalAlertsById = new Map(personalAlerts.data?.applications.map(entry => [entry.applicationId, entry]))
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
   const { t: detailText } = useTranslation('detail')
@@ -428,7 +429,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               <thead><tr>{tableColumns.map(({ key, label }) => <th key={key} scope="col" aria-sort={sortState(key)}><SortButton state={sortState(key)} onClick={() => toggleSort(key)}>{t(label)}</SortButton>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
-                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === row.applicationId)} /></th>
+                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlertsById.get(row.applicationId)} /></th>
                 <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${row.state}`]}`}>{labels[row.state]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>

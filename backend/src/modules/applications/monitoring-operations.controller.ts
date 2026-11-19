@@ -46,7 +46,7 @@ export class MonitoringOperationsController {
   }
 
   @Get('audit')
-  @ApiOperation({ summary: 'Consultar eventos de auditoria da organização' })
+  @ApiOperation({ summary: 'Consultar alterações auditáveis da organização', description: 'Inclui alterações e tentativas relevantes de alteração. Exclui consultas, sessões, logins e desafios preparatórios; o filtro é aplicado antes da contagem e paginação.' })
   @ApiOkResponse({ type: MonitoringAuditPageDto })
   @ApiBadRequestResponse({ description: 'Filtro, ordenação ou paginação inválida' })
   audit(@CurrentPrincipal() principal: AuthPrincipal, @Query() query: MonitoringAuditQueryDto) {

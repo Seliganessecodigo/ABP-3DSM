@@ -35,3 +35,19 @@ describe('environmental summary responsiveness', () => {
     } finally { active = false }
   })
 })
+
+describe('environmental summary domain scope', () => {
+  it('loads only requested IDs and preserves missing readings rather than fabricating zero', async () => {
+    const app = { id: 'selected', name: 'Selected', state: ApplicationState.AVAILABLE }
+    const applications = { findAll: jest.fn().mockResolvedValue([app]), findByIds: jest.fn().mockResolvedValue([app]) }
+    const collections = { findEnvironmentalByApplicationsAndPeriod: jest.fn().mockResolvedValue([]) }
+    const events = { findMetadataHistory: jest.fn().mockResolvedValue([]) }
+    const service = new EnvironmentalAnalysisSummaryService(applications as unknown as ApplicationsRepository, collections as unknown as CollectionsRepository, events as unknown as ApplicationEventsRepository)
+    const result = await service.getSummary({ from: '2026-10-01T00:00:00Z', to: '2026-10-02T00:00:00Z', applicationIds: [' selected ', 'selected'], includeProvenance: 'false' }, { includeMissingApplications: true })
+    expect(applications.findAll).not.toHaveBeenCalled()
+    expect(applications.findByIds).toHaveBeenCalledWith(['selected'])
+    expect(result.applications).toHaveLength(1)
+    expect(result.applications[0].energy.value).toBeNull()
+    expect(result.totals.energy.value).toBeNull()
+  })
+})

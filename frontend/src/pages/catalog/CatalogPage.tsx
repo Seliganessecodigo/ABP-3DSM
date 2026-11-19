@@ -36,6 +36,7 @@ function sortPresentation(sort: CatalogQuery['sort'], column: CatalogSortColumn)
 
 export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const personalAlerts = usePersonalAlerts()
+  const personalAlertsById = new Map(personalAlerts.data?.applications.map(entry => [entry.applicationId, entry]))
   const { t: tCatalog, i18n } = useTranslation('catalog')
   const { t: tCommon } = useTranslation('common')
   const initial = useMemo(() => readQuery(), [])
@@ -144,7 +145,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const columnSort = (column: CatalogSortColumn) => sortPresentation(query.sort, column)
   const region = (item: (typeof applications)[number]) => item.location?.regionCode ?? tCommon('location.unknown')
   const displayCell = (item: (typeof applications)[number], column: CatalogSortColumn) => {
-    if (column === 'name') return <><strong>{item.name}</strong><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} /></>
+    if (column === 'name') return <><strong>{item.name}</strong><PersonalAlertBadges application={personalAlertsById.get(item.id)} /></>
     if (column === 'country') return item.location?.country ?? tCommon('location.unknown')
     if (column === 'regionCode') return region(item)
     if (column === 'city') return item.location ? item.location.city ?? tCommon('location.cityUnknown') : tCommon('location.unknown')
@@ -206,7 +207,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
         const sort = columnSort(column.key)
         return <th scope="col" key={column.key} aria-sort={sort.ariaSort}><SortButton state={sort.ariaSort} onClick={() => toggleSort(column.key)}>{columnLabel(column)}</SortButton></th>
       })}<th scope="col">{tCatalog('actions')}</th></tr></thead><tbody>{result.items.map((item) => <tr key={item.id} data-catalog-row-id={item.id}>{columns.map(({ key }) => <td key={key}>{displayCell(item, key)}</td>)}<td><div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}{analysisActions(item)}</div></td></tr>)}</tbody></table></div>
-      <div data-help="catalog-table" className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2><CardIcon icon={faLayerGroup} size="small" inline />{item.name}</h2><PersonalAlertBadges application={personalAlerts.data?.applications.find(entry => entry.applicationId === item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}{analysisActions(item)}</div></article>)}</div>
+      <div data-help="catalog-table" className={styles['mobile-cards']}>{result.items.map((item) => <article className={styles['mobile-card']} key={item.id}><h2><CardIcon icon={faLayerGroup} size="small" inline />{item.name}</h2><PersonalAlertBadges application={personalAlertsById.get(item.id)} />{columns.slice(1).map((column) => <div className={styles['mobile-field']} key={column.key}><strong>{columnLabel(column)}:</strong> {displayCell(item, column.key)}</div>)}<div data-help="application-actions" className={styles.rowActions}>{detailLink(item)}{historyLink(item)}{analysisActions(item)}</div></article>)}</div>
       <Pagination page={result.page} pageCount={result.pageCount} onPageChange={page => update({ page })}
         summary={tCatalog('range', { start: (result.page - 1) * (query.pageSize === 'all' ? result.total : query.pageSize) + 1, end: Math.min(result.page * (query.pageSize === 'all' ? result.total : query.pageSize), result.total), count: result.total })}
         pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => update({ pageSize: value === 'all' ? 'all' : Number(value) }) }} />

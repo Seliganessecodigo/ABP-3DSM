@@ -58,7 +58,7 @@
   "factorUnavailable": "Factor unavailable",
   "factorVersion": "Version {{version}}",
   "factorSource": "Source",
-  "greenerBackend": "Carbon intensity service via GreenER",
+  "greenerBackend": "Regional carbon factors via GreenER",
   "queriedAt": "Queried at",
   "timestampUnavailable": "Time not provided",
   "queryNotValidity": "The query time does not represent the factor's official validity period.",

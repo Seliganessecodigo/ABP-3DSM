@@ -152,7 +152,6 @@ export class TotpAuthenticationService {
       })
       return { user, secret, confirmation }
     })
-    await this.recordAudit(result.user.id, 'auth.totp.setup.started', result.user.id)
     return {
       setupToken: rawConfirmation,
       provisioningUri: this.totp.provisioningUri(result.secret, result.user.email),
@@ -214,17 +213,9 @@ export class TotpAuthenticationService {
       await tokens.save(challenge)
       await users.save(user)
       const session = await this.createSession(manager, user, now)
-      await this.auditWriter.record({
-        actor: { type: 'user', userId: user.id },
-        action: 'auth.login.totp.succeeded',
-        entityType: 'user',
-        entityId: user.id,
-        outcome: 'success',
-      }, manager)
       return { session, user }
     })
     if ('error' in result) throw result.error
-    await this.recordAudit(result.session.userId, 'auth.login.succeeded', result.session.userId)
     return this.sessionResponse(
       result.user,
       result.session.id,
@@ -275,7 +266,6 @@ export class TotpAuthenticationService {
       })
       return { user, secret }
     })
-    await this.recordAudit(principal.userId, 'auth.totp.replacement.started', principal.userId)
     return {
       confirmationToken: rawConfirmation,
       provisioningUri: this.totp.provisioningUri(result.secret, result.user.email),

@@ -109,13 +109,6 @@ export class AuthenticationService {
       !user.emailVerifiedAt ||
       !user.passwordHash
     ) {
-      await this.recordAudit(
-        'anonymous',
-        'auth.login.failed',
-        'user',
-        'unknown',
-        'denied',
-      )
       throw invalidCredentials()
     }
 
@@ -124,13 +117,6 @@ export class AuthenticationService {
       input.password,
     )
     if (!passwordVerification.valid) {
-      await this.recordAudit(
-        'anonymous',
-        'auth.login.failed',
-        'user',
-        'unknown',
-        'denied',
-      )
       throw invalidCredentials()
     }
 
@@ -139,13 +125,6 @@ export class AuthenticationService {
       await this.persistence.updateUser(user)
     }
     if (user.role === UserRole.ADMIN) {
-      await this.recordAudit(
-        user.id,
-        'auth.login.password.succeeded',
-        'user',
-        user.id,
-        'succeeded',
-      )
       return this.totpAuthentication.beginAdminLogin(user)
     }
 
@@ -162,13 +141,6 @@ export class AuthenticationService {
     })
     user.lastAccessAt = now
     await this.persistence.updateUser(user)
-    await this.recordAudit(
-      user.id,
-      'auth.login.succeeded',
-      'user',
-      user.id,
-      'succeeded',
-    )
     return this.tokenResponse(user, session.id, refreshToken)
   }
 
@@ -213,13 +185,6 @@ export class AuthenticationService {
       throw invalidCredentials()
     }
     session.lastActivityAt = now
-    await this.recordAudit(
-      session.userId,
-      'auth.session.refreshed',
-      'session',
-      session.id,
-      'succeeded',
-    )
     return this.tokenResponse(session.user, session.id, nextRefreshToken)
   }
 
@@ -294,13 +259,6 @@ export class AuthenticationService {
 
   async logout(principal: AuthPrincipal): Promise<void> {
     await this.persistence.revokeSession(principal.sessionId, this.clock.now())
-    await this.recordAudit(
-      principal.userId,
-      'auth.session.revoked',
-      'session',
-      principal.sessionId,
-      'succeeded',
-    )
   }
 
   async completeSsoLogin(user: UserEntity): Promise<AuthenticationLoginResponse> {
@@ -312,13 +270,6 @@ export class AuthenticationService {
       throw invalidCredentials()
     }
     if (user.role === UserRole.ADMIN) {
-      await this.recordAudit(
-        user.id,
-        'auth.sso.admin.totp.required',
-        'user',
-        user.id,
-        'succeeded',
-      )
       return this.totpAuthentication.beginAdminLogin(user)
     }
 
@@ -335,13 +286,6 @@ export class AuthenticationService {
     })
     user.lastAccessAt = now
     await this.persistence.updateUser(user)
-    await this.recordAudit(
-      user.id,
-      'auth.sso.login.succeeded',
-      'user',
-      user.id,
-      'succeeded',
-    )
     return this.tokenResponse(user, session.id, refreshToken)
   }
 

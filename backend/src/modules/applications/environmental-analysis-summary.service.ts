@@ -54,6 +54,21 @@ export class EnvironmentalAnalysisSummaryService {
     private readonly applicationEvents: ApplicationEventsRepository,
   ) {}
 
+  private async loadApplicationsInScope(states: readonly string[] | undefined, applicationIds: readonly string[] | undefined) {
+    const allApplications = applicationIds
+      ? await this.applications.findByIds(applicationIds)
+      : await this.applications.findAll()
+    const selectedIds = applicationIds ? new Set(applicationIds) : null
+    const selectedApplications = allApplications
+      .filter(
+        (application) =>
+          (!states || states.includes(application.state)) &&
+          (!selectedIds || selectedIds.has(application.id)),
+      )
+      .sort((left, right) => left.id.localeCompare(right.id))
+    return selectedApplications
+  }
+
   async getSummary(
     filters: EnvironmentalAnalysisSummaryFilters,
     options: { includeMissingApplications?: boolean } = {},
@@ -109,14 +124,7 @@ export class EnvironmentalAnalysisSummaryService {
     }
 
     try {
-      const allApplications = await this.applications.findAll()
-      const selectedApplications = allApplications
-        .filter(
-          (application) =>
-            (!states || states.includes(application.state)) &&
-            (!applicationIds || applicationIds.includes(application.id)),
-        )
-        .sort((left, right) => left.id.localeCompare(right.id))
+      const selectedApplications = await this.loadApplicationsInScope(states, applicationIds)
       const ids = selectedApplications.map(({ id }) => id)
       const [rows, history] = await Promise.all([
         this.collections.findEnvironmentalByApplicationsAndPeriod(

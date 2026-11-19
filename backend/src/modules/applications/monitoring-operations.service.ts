@@ -75,7 +75,7 @@ export class MonitoringOperationsService {
   }
 
   async listAudit(organizationId: string, filters: MonitoringAuditQuery) {
-    const result = await this.auditLogs.list(organizationId, filters)
+    const result = await this.auditLogs.listChanges(organizationId, filters)
     return {
       ...result,
       items: result.items.map((item) => ({
