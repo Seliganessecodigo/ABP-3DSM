@@ -46,3 +46,23 @@ test('token expirado mantém o erro claro e não mostra confirmação de sucesso
   await expect(page.getByRole('alert')).toContainText('expirou ou já foi utilizado')
   await expect(page.getByRole('status')).toHaveCount(0)
 })
+
+for (const width of [1440, 390]) {
+  test(`recuperação mantém navegação por teclado e formulário acessível em ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    const requests: string[] = []
+    page.on('request', request => { if (request.url().includes('/auth/password-recovery/')) requests.push(request.url()) })
+    await page.goto('/login')
+    await page.getByRole('button', { name: 'Esqueceu a senha?', exact: true }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/recover-password$/)
+    await expect(page.getByRole('heading', { name: 'Recuperação de senha', exact: true })).toBeVisible()
+    await expect(page.getByLabel('Identificador da organização', { exact: true })).toBeVisible()
+    await expect(page.getByLabel('E-mail institucional', { exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.getByRole('link', { name: 'Voltar para entrar', exact: true }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/\/login$/)
+    expect(requests).toEqual([])
+  })
+}
