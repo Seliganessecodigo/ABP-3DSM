@@ -7,7 +7,7 @@ Referências: revisão solicitada pelo usuário; ranking #74 e recuperação com
 | Área | Antes | Entrega |
 | --- | --- | --- |
 | Ajuda | Interrogação em botão com moldura | Ícone circular sem moldura; foco, diálogo nativo e conclusão preservados |
-| Ranking | Cabeçalho, ordenação e ações próprios; sem ajuda | Breadcrumb, PageHelp, SortButton e ícones compartilhados; lista móvel sem cards aninhados |
+| Ranking | Cabeçalho, ordenação e ações próprios; sem ajuda | Breadcrumb, PageHelp, SortButton e ícones compartilhados; lista móvel sem cards aninhados; ação por aplicação ativa, preservando período e posição no escopo |
 | Formulários | Vários campos vazios sem indicação | Placeholders em campos compatíveis; datas mantêm o formato nativo e seletores suas opções |
 | Detalhe | Botão de metodologia como item solto na grade | Link contextual no card de condição operacional |
 | Comparação | Dois indicadores com ícones | Dez ícones distintos; só energia e emissões mantêm o destaque de medidas principais |
@@ -20,7 +20,7 @@ Referências: revisão solicitada pelo usuário; ranking #74 e recuperação com
 
 - [Login desktop](login-1440.png), [celular](login-390.png) e [celular escuro](login-390-escuro.png).
 - [Recuperação](recuperacao-1440.png) e [Minha conta](minha-conta.png).
-- [Ranking desktop](ranking-1440.png) e [celular](ranking-390.png).
+- [Ranking desktop](ranking-1440.png) e [celular](ranking-390.png); [ações no desktop](acoes-1440.png) e [celular](acoes-390.png).
 - [Detalhe desktop](detail-operational-desktop.png) e [celular](detail-operational-mobile.png).
 - [Comparação desktop](comparison-desktop.png) e [celular](comparison-mobile.png).
 
@@ -40,3 +40,5 @@ O contador heurístico final encontrou 91 candidatos: 2 títulos de grupos/confi
 - Backend: npm ci, lint, typecheck, test:cov e build executados; 475 testes passaram e 214 dependentes de PostgreSQL foram ignorados localmente. O Docker local retornou erro 500; a validação de banco fica com a CI isolada.
 - Repetição focada: 18 testes de troca de senha, validação HTTP e consulta de auditoria passaram. LCOV cobriu 11/11 linhas executáveis adicionadas ao service de senha e 5/5 ao controller na coleta local.
 - Foram acrescentados testes com PostgreSQL para revogação, alvo autenticado, rollback quando a auditoria falha e exclusão de logins antes da paginação. O quality gate da PR deve validar o código novo com o banco disponível.
+
+A repetição final após os ajustes de acessibilidade aprovou os sete cenários de detalhe/conta e os dois cenários de ações por aplicação. O filtro `filterApplicationId` é de apresentação: mantém a posição calculada no escopo, sem restringi-lo a uma única aplicação. Os links preservam os períodos predefinidos e personalizados usando a função existente de intervalos.

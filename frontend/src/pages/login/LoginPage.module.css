@@ -28,3 +28,5 @@
 .google > svg { width: 20px; height: 20px; flex: 0 0 20px; }
 
 .google:hover:not(:disabled) { background: var(--control-hover); }
+
+.card > output { display: block; margin: 0 0 24px; color: var(--text-secondary); font-size: 14px; line-height: 1.5; }

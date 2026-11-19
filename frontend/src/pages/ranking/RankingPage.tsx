@@ -352,8 +352,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       {data.status === 'empty' && <RequestFeedback state="empty"><p>{t('empty')}</p></RequestFeedback>}
       {data.pagination.totalItems === 0 && data.status !== 'empty' && <RequestFeedback state="empty"><p>{t('noMatches')}</p></RequestFeedback>}
 
-      {rankedItems.length > 0 && <>
-        <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title">
+      {rankedItems.length > 0 && <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title">
           <div className={styles.tableHeading}><h2 id="ranking-table-title"><CardIcon icon={faRankingStar} size="small" inline />{t('rankedApplications', { count: data.presentation.rankedCount })}</h2><span>{t('relativeToMaximum')}</span></div>
           <div className={styles.tableScroll}><table>
             <thead><tr>
@@ -406,8 +405,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
               </article>
             })}
           </div>
-        </section>
-      </>}
+        </section>}
 
       {unrankedItems.length > 0 && <section className={styles.unrankedCard} aria-labelledby="unranked-title">
         <div className={styles.tableHeading}><h2 id="unranked-title"><CardIcon icon={faCircleExclamation} size="small" inline />{t('unrankedApplications', { count: data.presentation.unrankedCount })}</h2><span>{t('unrankedHint')}</span></div>

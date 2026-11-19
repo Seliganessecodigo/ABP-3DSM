@@ -1,3 +1,4 @@
+import { textField } from '../../utils/formData.ts'
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { AuthenticationError, completePasswordRecovery, requestPasswordRecovery } from '../../features/authentication/api.ts'
 
@@ -19,7 +20,7 @@ export function usePasswordRecovery() {
     event.preventDefault()
     const form = event.currentTarget
     const fields = new FormData(form)
-    const password = String(fields.get('password') ?? '')
+    const password = textField(fields, 'password')
     if (token && password !== fields.get('confirmation')) { setError('passwordMismatch'); return }
     const controller = new AbortController()
     request.current = controller
@@ -27,7 +28,7 @@ export function usePasswordRecovery() {
     setError('')
     try {
       if (token) await completePasswordRecovery({ token, password }, controller.signal)
-      else await requestPasswordRecovery({ organization: String(fields.get('organization') ?? '').trim(), email: String(fields.get('email') ?? '').trim() }, controller.signal)
+      else await requestPasswordRecovery({ organization: textField(fields, 'organization').trim(), email: textField(fields, 'email').trim() }, controller.signal)
       if (!controller.signal.aborted) { form.reset(); setComplete(token ? 'reset' : 'request'); setToken('') }
     } catch (cause) {
       if (!controller.signal.aborted) {

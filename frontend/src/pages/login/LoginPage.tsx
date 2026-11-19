@@ -116,7 +116,7 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
 ]} /></div></header>
     <section className={styles.card} aria-labelledby="login-heading">
       <h2 id="login-heading"><CardIcon icon={faLock} size="small" inline />{t('submit')}</h2>
-      {new URLSearchParams(window.location.search).get('passwordChanged') === 'true' && <p role="status">{t('passwordChanged')}</p>}
+      {new URLSearchParams(window.location.search).get('passwordChanged') === 'true' && <output>{t('passwordChanged')}</output>}
       <form onSubmit={(event) => void handleSubmit(event)}>
         <label>{t('email')}<input placeholder={'email@example.com'} className="form-control form-control--large" name="email" type="email" autoComplete="username" required /></label>
         <label>{t('password')}<input placeholder={t('password')} className="form-control form-control--large" name="password" type="password" autoComplete="current-password" required /></label>

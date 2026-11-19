@@ -1,3 +1,4 @@
+import { textField } from '../../utils/formData.ts'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { faKey } from '@fortawesome/free-solid-svg-icons'
@@ -18,8 +19,8 @@ export function PasswordSettings({ navigate }: Readonly<{ navigate: (url: string
     event.preventDefault()
     const form = event.currentTarget
     const fields = new FormData(form)
-    const currentPassword = String(fields.get('currentPassword') ?? '')
-    const password = String(fields.get('password') ?? '')
+    const currentPassword = textField(fields, 'currentPassword')
+    const password = textField(fields, 'password')
     if (password !== fields.get('confirmation')) { setError('passwordMismatch'); return }
     const controller = new AbortController()
     request.current = controller

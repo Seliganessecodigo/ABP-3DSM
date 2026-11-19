@@ -1,3 +1,4 @@
+import { NavigationLink } from '../../components/NavigationLink.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faKey } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
@@ -12,7 +13,7 @@ export function RecoverPasswordPage({ navigate }: Readonly<{ navigate: (url: str
   return <main className={styles.page}>
     <section className={`${styles.card} ${styles.setupCard}`} aria-labelledby="recovery-title">
       <h1 id="recovery-title"><CardIcon icon={faKey} inline />{t('title')}</h1>
-      {complete ? <p role="status">{complete === 'reset' ? login('passwordChanged') : t('complete')}</p> : <>
+      {complete ? <output>{complete === 'reset' ? login('passwordChanged') : t('complete')}</output> : <>
         <p>{token ? t('resetDescription') : t('description')}</p>
         <form onSubmit={event => void submit(event)}>
           {token ? <>
@@ -27,7 +28,7 @@ export function RecoverPasswordPage({ navigate }: Readonly<{ navigate: (url: str
           <button className={styles.submit} type="submit" disabled={pending}>{pending ? login('setupSubmitting') : submitLabel}</button>
         </form>
       </>}
-      <a className={styles.backLink} href="/login" onClick={event => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate('/login') }}>{t('backToLogin')}</a>
+      <NavigationLink className={styles.backLink} href="/login" navigate={navigate}>{t('backToLogin')}</NavigationLink>
     </section>
   </main>
 }
