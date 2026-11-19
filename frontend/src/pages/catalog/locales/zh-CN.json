@@ -39,5 +39,5 @@
   "regionPlaceholder": "输入区域...", "cityPlaceholder": "输入城市...",
   "filterCombinationNote": "全局搜索与当前筛选条件会共同生效。",
   "clearPreservesSort": "清除筛选条件不会改变当前排序。", "applyFilters": "应用筛选",
-  "helpActions": "在详情中查看当前状态和指标。在历史中查看应用的能源和CO₂e变化趋势。"
+  "helpActions": "在详情中查看当前状态和指标。在历史中查看应用的能源和CO₂e变化趋势。 比较会预选此应用，您可以再选择另一个应用并比较同一时间段。区域模拟会打开此应用的模拟场景。排名功能暂不可用。"
 }
