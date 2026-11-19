@@ -12,13 +12,13 @@ for (const width of [1366, 1920]) {
     const typography = () => ranking.evaluate(element => {
       const style = getComputedStyle(element)
       return { family: style.fontFamily, weight: style.fontWeight, size: style.fontSize }
-  })
-  const before = await typography()
-  await page.locator('.sidebar').getByRole('link', { name: 'Metodologia', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Metodologia e minhas preferências')
-  expect(await typography()).toEqual(before)
-  if (width == 1920) await page.screenshot({ path: test.info().outputPath("sidebar-metodologia-1920.png"), fullPage: true })
-  await page.locator('.sidebar').getByRole('link', { name: 'Aplicações', exact: true }).click()
-  expect(await typography()).toEqual(before)
+    })
+    const before = await typography()
+    await page.locator('.sidebar').getByRole('link', { name: 'Metodologia', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Metodologia e minhas preferências')
+    expect(await typography()).toEqual(before)
+    if (width === 1920) await page.screenshot({ path: test.info().outputPath('sidebar-metodologia-1920.png'), fullPage: true })
+    await page.locator('.sidebar').getByRole('link', { name: 'Aplicações', exact: true }).click()
+    expect(await typography()).toEqual(before)
   })
 }

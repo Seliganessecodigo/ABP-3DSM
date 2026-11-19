@@ -30,7 +30,7 @@ for (const [locale, title, simulate, cancel] of labels) {
       await page.getByRole('dialog').getByRole('button', { name: cancel, exact: true }).click()
       await page.setViewportSize({ width: 390, height: 844 })
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-      await page.screenshot({ path: test.info().outputPath('simulacao-russo-mobile.png'), fullPage: true })
+      await page.screenshot({ path: test.info().outputPath('simulacao-russo-mobile.png'), fullPage: true, animations: 'disabled' })
     }
   })
 }
