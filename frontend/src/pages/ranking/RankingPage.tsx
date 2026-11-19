@@ -243,7 +243,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       return next
     })
   }
-  const compareParams = new URLSearchParams({ from, to })
+  const compareParams = new URLSearchParams({ period: 'custom', from, to })
   for (const id of selected.keys()) compareParams.append('applicationIds', id)
   const compareHref = `/comparison?${compareParams.toString()}`
 

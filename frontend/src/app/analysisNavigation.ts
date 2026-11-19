@@ -13,6 +13,10 @@ export function analysisNavigationUrl(destination: '/dashboard' | '/history' | '
     const value = current.get(key)
     if (value !== null) next.set(key, value)
   }
+  // Ranking uses absolute dates; the other analysis pages require the custom-period marker.
+  if ((location.pathname === '/ranking' || location.pathname === '/ranking/') && next.has('from') && next.has('to')) {
+    next.set('period', 'custom')
+  }
   if (destination === '/history') {
     const detail = /^\/services\/([^/]+)$/.exec(location.pathname)
     let applicationId = current.get('applicationId')
