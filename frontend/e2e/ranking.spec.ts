@@ -93,6 +93,12 @@ test('ranking applies domain and presentation filters through the documented que
   await expect(help).toBeFocused()
   await page.screenshot({ path: test.info().outputPath('ranking-desktop.png'), fullPage: true })
 
+  const allBefore = requested.filter(url => url.searchParams.get('pageSize') === 'all').length
+  await page.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('all')
+  await expect.poll(() => requested.filter(url => url.searchParams.get('pageSize') === 'all').length).toBeGreaterThan(allBefore)
+  await expect(page.getByText('Carregando ranking…', { exact: true })).toHaveCount(0)
+  expect(requested.filter(url => url.searchParams.get('pageSize') === 'all').length - allBefore).toBe(1)
+
   await expect.poll(() => requested.length).toBeGreaterThan(0)
   expect(requested[0].searchParams.get('regionCodes')).toBe('BR-SP')
   expect(requested[0].searchParams.get('states')).toBe('AVAILABLE')

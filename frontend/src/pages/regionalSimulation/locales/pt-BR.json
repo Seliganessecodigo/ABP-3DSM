@@ -58,7 +58,7 @@
   "factorUnavailable": "Fator indisponível",
   "factorVersion": "Versão {{version}}",
   "factorSource": "Fonte",
-  "greenerBackend": "Serviço de intensidade de carbono do GreenER",
+  "greenerBackend": "Fatores regionais de carbono via GreenER",
   "queriedAt": "Consultado em",
   "timestampUnavailable": "Horário não informado",
   "queryNotValidity": "O horário da consulta não indica o período de validade oficial do fator.",

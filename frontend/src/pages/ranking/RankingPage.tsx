@@ -126,9 +126,10 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
     setLoading(true)
     setError(false)
     const completeQuery = { ...request, page: 1, pageSize: 'all' as const }
+    const tableRequest = getEnvironmentalRanking(request, controller.signal)
     void Promise.all([
-      getEnvironmentalRanking(request, controller.signal),
-      getEnvironmentalRanking(completeQuery, controller.signal),
+      tableRequest,
+      request.pageSize === 'all' ? tableRequest : getEnvironmentalRanking(completeQuery, controller.signal),
     ]).then(([table, chart]) => {
       if (!controller.signal.aborted) { setData(table); setChartData(chart) }
     }).catch(() => {

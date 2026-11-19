@@ -174,11 +174,11 @@ test('auditoria consulta filtros no servidor, apresenta antes/depois e preserva 
   const queries: URLSearchParams[] = []
   await page.route('**/api/monitoring/audit?*', route => {
     queries.push(new URL(route.request().url()).searchParams)
-    return route.fulfill({ json: { items: [{ id: 'event-1', actor: admin.id, actorLabel: admin.name, createdAt: '2026-11-17T17:20:00Z', action: 'monitoring.resume', entityType: 'monitoring', entityId: 'global', before: { paused: true }, after: { paused: false }, reason: 'Manutenção concluída', outcome: 'success' }], pagination: { page: 1, pageSize: queries.at(-1)?.get('pageSize') === 'all' ? 'all' : 10, totalItems: 1, totalPages: 1, hasNextPage: false } } })
+    return route.fulfill({ json: { items: [{ id: 'event-1', actor: admin.id, actorLabel: admin.name, createdAt: '2026-11-17T17:20:00Z', action: 'monitoring.resumed', entityType: 'monitoring', entityId: 'global', before: { paused: true }, after: { paused: false }, reason: 'Manutenção concluída', outcome: 'success' }], pagination: { page: 1, pageSize: queries.at(-1)?.get('pageSize') === 'all' ? 'all' : 10, totalItems: 1, totalPages: 1, hasNextPage: false } } })
   })
   await login(page)
   await page.getByRole('link', { name: 'Auditoria', exact: true }).click()
-  await expect(page.getByRole('cell', { name: 'monitoring.resume', exact: true })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'monitoring.resumed', exact: true })).toBeVisible()
   await page.getByRole('searchbox').fill('manutencao')
   await expect.poll(() => queries.at(-1)?.get('search')).toBe('manutencao')
   await page.getByLabel('Itens por página', { exact: true }).selectOption('all')

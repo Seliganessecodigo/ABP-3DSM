@@ -7,8 +7,8 @@ export function PersonalAlertBadges({ application }: Readonly<{ application?: Pe
   const { t, i18n } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const number = (value: number) => new Intl.NumberFormat(i18n.resolvedLanguage ?? 'pt-BR', { maximumFractionDigits: 3 }).format(value)
   const date = (value: string) => new Intl.DateTimeFormat(i18n.resolvedLanguage ?? 'pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(value))
-  return <div className={styles.badges}>{application?.evaluations.filter(item => item.status !== 'within').map(item => <div key={item.metric} className={item.status === 'exceeded' ? styles.warning : styles.unknown}>
-    <strong>{t(`alertMetric.${item.metric}`)} · {t(item.status === 'exceeded' ? 'alertExceeded' : 'alertInsufficient')}</strong>
+  return <div className={styles.badges}>{application?.evaluations.filter(item => item.status === 'exceeded').map(item => <div key={item.metric} className={styles.warning}>
+    <strong>{t(`alertMetric.${item.metric}`)} · {t('alertExceeded')}</strong>
     <span>{item.value === null ? t('alertMissing') : `${number(item.value)} ${item.unit}`} · {t('alertLimit', { value: number(item.threshold), unit: item.unit })}</span>
     <small>{date(item.from)} → {date(item.to)} UTC · {t('alertCoverage', { value: number(item.coveragePercent) })}</small>
   </div>)}</div>
@@ -16,7 +16,8 @@ export function PersonalAlertBadges({ application }: Readonly<{ application?: Pe
 export function PersonalAlertsPanel({ state, applicationId, preview = false }: Readonly<{ state: PersonalAlertsState; applicationId?: string; preview?: boolean }>) {
   const { t } = useTranslation('methodology', { keyPrefix: 'preferences' })
   if (!preview && !state.loading && !state.error && !state.data?.configured) return null
-  const applications = state.data?.applications.filter(item => (!applicationId || item.applicationId === applicationId) && item.evaluations.some(alert => alert.status !== 'within')) ?? []
+  const applications = state.data?.applications.filter(item => (!applicationId || item.applicationId === applicationId) && item.evaluations.some(alert => alert.status === 'exceeded')) ?? []
+  if (!preview && !state.loading && !state.error && applications.length === 0) return null
   return <section className={styles.panel} aria-label={t('personalAlerts')} aria-busy={state.loading}>
     <h2>{t('personalAlerts')}</h2>
     <p>{t(preview ? 'realPreview' : 'personalAlertsNote')}</p>
