@@ -79,7 +79,7 @@ export class AuthenticationService {
         where: { id: principal.userId, organizationId: principal.organizationId },
         lock: { mode: 'pessimistic_write' },
       })
-      if (!user || user.status !== UserAccountStatus.ACTIVE || !user.emailVerifiedAt ||
+      if (user?.status !== UserAccountStatus.ACTIVE || !user.emailVerifiedAt ||
         !user.passwordHash || !await this.passwordHasher.verify(user.passwordHash, input.currentPassword)) {
         throw new ForbiddenException({ code: 'PASSWORD_CHANGE_DENIED' })
       }
