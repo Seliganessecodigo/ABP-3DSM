@@ -30,10 +30,10 @@
   display: flex;
   align-items: end;
   flex-wrap: wrap;
-  gap: 8px 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
 }
-.periods { display: flex; flex-wrap: wrap; gap: 4px; }
+.periods { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .controls button { font-size: var(--control-font-size); line-height: 20px; }
 .periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true']{
   color: var(--accent-on-accent);
@@ -53,12 +53,12 @@
   border-radius: 10px;
   background: var(--surface-card);
 }
-.card { padding: 14px; }
-.card h2, .tableHeading h2 { margin: 0; font-size: 13px; }
+.card { padding: var(--space-4); }
+.card h2, .tableHeading h2 { margin: 0 0 var(--space-3); font-size: 13px; }
 .kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: var(--space-4);
 }
 .kpis > .card { min-height: 142px; }
 .metricValue { margin: 10px 0 6px; font-size: clamp(22px, 2vw, 28px); font-weight: 700; overflow-wrap: anywhere; }
@@ -79,8 +79,8 @@
 .stateUNAVAILABLE { color: var(--error-foreground); background: var(--error-background); }
 .stateNO_METRICS { color: var(--warning-foreground); background: var(--warning-background); }
 .stateREMOVED { color: var(--neutral-foreground); background: var(--neutral-background); }
-.dataAsOf { margin: 6px 0 10px; font-size: 10px; }
-.visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.dataAsOf { margin: var(--space-3) 0 var(--space-6); font-size: 10px; }
+.visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
 .visualizations > .card { min-height: 282px; }
 .pendingNote, .emptyNotice, .status, .warning, .error, .partialNotice {
   border-radius: 7px;
@@ -162,13 +162,13 @@
   .header { gap: 12px; }
   .summaryMeta { line-height: 1.5; }
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
-  .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
   .periods button { min-height: 44px; }
   .controls > label { min-width: 0; }
   .controls select { width: 100%; }
   .comparisonNote { grid-column: 1 / -1; margin: 0 0 8px; }
   .partialNotice { align-items: flex-start; flex-direction: column; gap: 6px; }
-  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
   .kpis > .card { min-height: 142px; padding: 12px; }
   .kpis > .card h2 { font-size: 12px; }
   .metricValue { font-size: clamp(19px, 6vw, 24px); }
@@ -176,7 +176,7 @@
   .coverageRing { width: 66px; }
   .coverageRing::before { width: 50px; }
   .coverageList { width: 100%; gap: 2px; font-size: 9px; }
-  .visualizations { grid-template-columns: 1fr; gap: 8px; }
+  .visualizations { grid-template-columns: 1fr; gap: var(--space-4); }
   .visualizations > .card { min-height: 0; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }

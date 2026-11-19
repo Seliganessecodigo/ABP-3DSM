@@ -1,5 +1,5 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
-import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf, faCalendarCheck } from '@fortawesome/free-solid-svg-icons'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
@@ -291,7 +291,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
         </article>
         <article id="dashboard-coverage" className={`${styles.card} ${styles.coverageCard}`}>
-          <h2><CardIcon icon={faChartPie} size="small" inline />{t('coverage')}</h2>
+          <h2><CardIcon icon={faCalendarCheck} size="small" inline />{t('coverage')}</h2>
           <div className={styles.coverageVisual}>
             <div className={styles.coverageRing} role="img" aria-label={`${t('emissionsCoverage')}: ${coverageLabel(data.data.coverage.emissions, locale)}`}
               style={{ background: `conic-gradient(var(--accent-default) ${data.data.coverage.emissions * 100}%, var(--control-hover) 0)` }}>

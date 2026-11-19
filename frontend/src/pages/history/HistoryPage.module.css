@@ -1,7 +1,7 @@
-.page { min-width: 0; min-height: 100%; padding: 20px 24px; overflow: auto; }
-.page > header { margin-bottom: 20px; }
+.page { min-width: 0; min-height: 100%; padding: var(--space-6); overflow: auto; }
+.page > header { margin-bottom: var(--space-6); }
 .page > header h1 { color: var(--text-primary); }
-.selector { margin-bottom: 24px; border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; background: var(--surface-card); }
+.selector { margin-bottom: var(--space-6); border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; background: var(--surface-card); }
 .controls { display: grid; grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr); align-items: end; gap: 16px; }
 .applicationFilter { display: grid; min-width: 0; gap: 6px; color: var(--text-secondary); font-size: 12px; font-weight: 650; }
 .applicationFilter select { width: 100%; }

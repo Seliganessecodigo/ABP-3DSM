@@ -53,6 +53,31 @@ async function mockSummary(page: Page, handler: (routeUrl: URL) => Promise<{ sta
   })
 }
 
+for (const width of [1440, 390]) {
+  test(`dashboard headings have space for their icons and distinguish period coverage at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 960 })
+    await mockCatalog(page, [application()])
+    await mockSummary(page, url => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+    await page.goto('/dashboard')
+    const coverage = page.getByRole('heading', { name: 'Cobertura do período', exact: true })
+    await expect(coverage.locator('svg')).toHaveAttribute('data-icon', 'calendar-check')
+    await expect(page.getByRole('heading', { name: 'Composição de CO₂e por aplicação', exact: true }).locator('svg')).toHaveAttribute('data-icon', 'chart-pie')
+    for (const heading of await page.locator('main h2:has(svg)').all()) {
+      const gap = await heading.evaluate(element => {
+        const icon = element.querySelector('svg')!
+        const text = [...element.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())!
+        const range = document.createRange()
+        range.setStart(text, 0)
+        range.setEnd(text, 1)
+        return range.getBoundingClientRect().left - icon.getBoundingClientRect().right
+      })
+      expect(gap, await heading.innerText()).toBeGreaterThanOrEqual(10)
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`dashboard-spacing-${width}.png`), fullPage: true })
+  })
+}
+
 test('rota raiz abre o dashboard e marca sua navegação como ativa', async ({ page }) => {
   await mockCatalog(page, [application()])
   await mockSummary(page, (url) => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
