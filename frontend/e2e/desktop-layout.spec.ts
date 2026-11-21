@@ -6,7 +6,7 @@ import { openDashboardApplications } from './support/dashboard.ts'
 const desktops = [{ width: 1024, height: 768 }, { width: 1280, height: 720 }, { width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 2560, height: 1440 }]
 
 async function mockDesktop(page: Page, temporalCoverage = 1) {
-  const applications = Array.from({ length: 24 }, (_, index) => application({ id: `desktop-${index}`, name: `Aplicação ${index + 1}` }))
+  const applications = Array.from({ length: 80 }, (_, index) => application({ id: `desktop-${index}`, name: `Aplicação ${index + 1}` }))
   await mockCatalog(page, applications)
   await mockPreferenceEffects(page)
   await page.route('**/analysis/summary?*', route => {
@@ -15,8 +15,8 @@ async function mockDesktop(page: Page, temporalCoverage = 1) {
     const end = new Date(Math.min(Date.parse(from) + 3600000, Date.parse(to))).toISOString()
     const energy = { value: 2, unit: 'kWh', reasons: [] }, emissions = { value: 85, unit: 'gCO2e', reasons: [] }, coverage = { energy: temporalCoverage, emissions: temporalCoverage }
     return route.fulfill({ json: { status: 'available', period: { from, to }, dataAsOf: to,
-      totals: { energy: { ...energy, value: 48 }, emissions: { ...emissions, value: 2040 } }, coverage,
-      states: { AVAILABLE: 24, UNAVAILABLE: 0, NO_METRICS: 0, REMOVED: 0 },
+      totals: { energy: { ...energy, value: 160 }, emissions: { ...emissions, value: 6800 } }, coverage,
+      states: { AVAILABLE: 80, UNAVAILABLE: 0, NO_METRICS: 0, REMOVED: 0 },
       applications: applications.map(app => ({ applicationId: app.id, name: app.name, state: app.state, energy, emissions, coverage })),
       provenance: { methodologies: [], factors: [], reasons: [] }, series: { granularity: params.get('granularity'), points: [{ bucketStart: from, bucketEnd: end, period: { from, to: end }, energy, emissions, coverage }] },
     } })
@@ -29,7 +29,7 @@ for (const viewport of desktops) {
     await mockDesktop(page, 0.75)
     await page.goto('/dashboard')
     const overview = page.getByRole('region', { name: 'Indicadores ambientais' })
-    await expect(overview).toContainText('48 kWh')
+    await expect(overview).toContainText('160 kWh')
     await expect(page.getByRole('img', { name: /Série temporal/ })).toBeVisible()
     await expect(page.getByRole('img', { name: /Série temporal/ })).toBeInViewport({ ratio: 1 })
     const positions = await overview.locator('> article').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().top))
@@ -121,7 +121,7 @@ for (const width of [1024, 1920]) {
       expect(sidebar!.height).toBe(768)
       if (path === '/applications') {
         await page.getByLabel('Itens por página', { exact: true }).selectOption('all')
-        await expect(page.locator('tbody tr')).toHaveCount(24)
+        await expect(page.locator('tbody tr')).toHaveCount(80)
         const table = page.getByRole('table').locator('..')
         expect(await table.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
       }
