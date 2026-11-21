@@ -149,5 +149,6 @@
   .workspace { min-height: 0; height: 100%; overflow: auto; scrollbar-gutter: stable; }
   .sidebar { overflow-y: auto; }
   .workspace > .content { padding: var(--workspace-space) var(--workspace-inset); }
+  body:has(dialog[open], [aria-modal='true']:not(dialog):not([hidden])) .workspace { overflow: hidden; }
 }
 @media (max-width: 640px) { .methodology-layout, .methodology-layout.sidebar-collapsed { --methodology-dialog-offset: 0px; } }
