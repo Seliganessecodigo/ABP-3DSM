@@ -138,3 +138,14 @@
   .pageSize { flex-basis: 100%; }
 }
 .tableScroll td a.detailLink { color: var(--accent-default); }
+
+@media (min-width: 1024px) {
+  .page { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: var(--workspace-space, 12px); }
+  .page > * { flex-shrink: 0; }
+  .controls { grid-template-columns: minmax(150px, 1fr) minmax(260px, 1.5fr) minmax(140px, .8fr); }
+  .directionControl { grid-column: auto; }
+  .tableCard { display: flex; flex-direction: column; flex: 1; min-height: 180px; }
+  .tableScroll { flex: 1; min-height: 80px; overflow: auto; }
+  .unrankedCard, .domainFilters, .filterPanel { max-height: 28dvh; overflow: auto; }
+  .tableScroll thead th { position: sticky; top: 0; z-index: 1; }
+}

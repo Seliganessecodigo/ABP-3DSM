@@ -12,3 +12,15 @@
 .tableWrap table { width: 100%; border-collapse: collapse; text-align: start; font-size: 12px; }
 .tableWrap th, .tableWrap td { padding: 10px 8px; border-bottom: 1px solid var(--border-default); }
 .tableWrap caption { text-align: start; padding: 8px; }
+.compactPlot { display: grid; grid-template-rows: auto minmax(160px, 1fr) auto; min-width: 0; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.plotPeriod { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; }
+.plotPeriod span:last-child { text-align: end; }
+@media (min-width: 1024px) {
+  .compact { flex: 1; min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+  .compact > .note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .compact .controls { gap: 8px; }
+  .compact .controls button { min-height: 36px; padding: 4px 8px; font-size: 12px; }
+  .compactPlot { min-height: 0; grid-template-rows: auto minmax(60px, 1fr) auto; }
+  .compact .chart { height: 100%; min-height: 60px; }
+  .compact .tableWrap { min-height: 0; max-height: none; }
+}
