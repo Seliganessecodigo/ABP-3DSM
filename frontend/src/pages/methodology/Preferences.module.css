@@ -113,7 +113,6 @@
   .card .previewDescription { grid-column: 1 / -1; }
   .preview .catalogPreview, .preview .chartBox { grid-row: span 3; }
   .card .previewCaption { margin: 0 0 24px; }
-  .card .previewFoot { margin-top: 0; align-self: end; }
   .catalogPreview table { font-size: 9px; }
   .catalogPreview th { font-size: 8px; }
   .catalogPreview :global(.state-badge), .rowWarnings { font-size: 8px; }
