@@ -9,13 +9,13 @@ export function PreferencePeriodFields({ tab, draft, onUpdate }: Readonly<{ tab:
     onUpdate({ evaluationPeriod: { ...period, [key]: value ? `${value}:00.000Z` : '' } })
   }
   return <>
-    <label>{t('evaluationPeriod')}<select className="form-control form-control--large" aria-label={t('evaluationPeriod')} value={period.kind} onChange={event => {
+    <label>{t('evaluationPeriod')}<select className="form-control" aria-label={t('evaluationPeriod')} value={period.kind} onChange={event => {
       const kind = preferencePeriodKinds.find(item => item === event.target.value)
       if (kind) onUpdate({ evaluationPeriod: { kind } })
     }}>{preferencePeriodKinds.map(kind => <option key={kind} value={kind}>{t(`evaluationPeriod.${kind}`)}</option>)}</select></label>
     {period.kind === 'custom' && <>
-      <label>{t('periodFrom')}<input className="form-control form-control--large" type="datetime-local" step="60" required value={dateValue(period.from)} onChange={event => updateDate('from', event.target.value)} /></label>
-      <label>{t('periodTo')}<input className="form-control form-control--large" type="datetime-local" step="60" required value={dateValue(period.to)} onChange={event => updateDate('to', event.target.value)} /></label>
+      <label>{t('periodFrom')}<input className="form-control" type="datetime-local" step="60" required value={dateValue(period.from)} onChange={event => updateDate('from', event.target.value)} /></label>
+      <label>{t('periodTo')}<input className="form-control" type="datetime-local" step="60" required value={dateValue(period.to)} onChange={event => updateDate('to', event.target.value)} /></label>
       <p>{t('periodBoundaries')}</p>
     </>}
   </>
