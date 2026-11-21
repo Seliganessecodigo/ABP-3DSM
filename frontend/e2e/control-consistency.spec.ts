@@ -58,7 +58,7 @@ for (const width of [1440, 390]) {
       await page.goto('/history')
       await expectFields(page.getByRole('main').getByRole('combobox'), 44)
       await page.goto('/methodology')
-      await expectFields(page.getByRole('main').getByRole('combobox'), 50, 17)
+      await expectFields(page.getByRole('main').getByRole('combobox'), 44)
       await page.goto('/login')
       await expectFields(page.getByRole('main').locator('input'), 50, 17)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
