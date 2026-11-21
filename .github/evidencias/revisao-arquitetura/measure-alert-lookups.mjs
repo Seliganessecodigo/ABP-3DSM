@@ -35,7 +35,7 @@ try {
   await page.locator('input[name=email]').fill('fixture@example.test')
   await page.locator('input[name=password]').fill('fixture-password')
   await page.locator('form button[type=submit]').click()
-  await expect(page).toHaveURL(url => url.pathname === '/')
+  await expect(page).toHaveURL(url => url.pathname === '/dashboard')
   await page.locator('.sidebar a[href="/applications"]').click()
   await expect(page.locator('[data-catalog-row-id]').first()).toContainText('Limite ultrapassado')
   await page.evaluate(() => { window.alertLookupProfile.lookups = 0; window.alertLookupProfile.comparisons = 0 })
