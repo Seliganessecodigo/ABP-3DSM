@@ -315,7 +315,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </section>
 
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
-      {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
+      {data.status === 'refreshing' && <div className={styles.refreshStatus}><LoadingState title={t('refreshing')} compact /></div>}
 
       <section className={styles.visualizations}>
         <article data-help="dashboard-trend" className={styles.card}>

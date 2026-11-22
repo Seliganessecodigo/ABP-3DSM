@@ -219,6 +219,7 @@
   .coverageRing::before { width: 76%; }
   .coverageRing strong { font-size: 12px; }
   .dataAsOf { margin: 0; }
+  .refreshStatus { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .visualizations { min-height: 0; gap: 12px; }
   .visualizations > .card { display: flex; flex-direction: column; min-height: 0; padding: 12px; overflow: auto; }
   .visualizations h2 { flex: 0 0 auto; }

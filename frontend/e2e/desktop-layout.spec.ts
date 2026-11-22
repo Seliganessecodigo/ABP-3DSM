@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { application, mockCatalog } from './support/catalog.ts'
+import { application, gate, mockCatalog } from './support/catalog.ts'
 import { mockPreferenceEffects } from './support/preferences.ts'
 import { openDashboardApplications } from './support/dashboard.ts'
 
@@ -121,6 +121,25 @@ test('o período personalizado mantém os filtros na mesma linha', async ({ page
   await page.getByRole('button', { name: '24 horas', exact: true }).click()
   await expect(page).toHaveURL(/period=24h/)
   await expect(page.getByRole('combobox', { name: 'Estado atual', exact: true })).toBeInViewport()
+})
+
+test('atualizar dados mantém a posição dos gráficos e dos indicadores', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await mockDesktop(page)
+  await page.goto('/dashboard')
+  const trend = page.locator('[data-help="dashboard-trend"]')
+  await expect(trend.getByRole('img')).toBeVisible()
+  const before = await trend.boundingBox()
+  const pending = gate()
+  await page.route('**/analysis/summary?*', async route => { await pending.wait; await route.fallback() })
+  try {
+    await page.getByRole('button', { name: 'Atualizar dados', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Atualizando…', exact: true })).toHaveAttribute('aria-busy', 'true')
+    const during = await trend.boundingBox()
+    expect(Math.abs(during!.y - before!.y)).toBeLessThanOrEqual(1)
+    expect(await page.locator('.workspace').evaluate(element => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1)
+  } finally { pending.release() }
+  await expect(page.getByRole('button', { name: 'Atualizar dados', exact: true })).toHaveAttribute('aria-busy', 'false')
 })
 
 for (const width of [1024, 1920]) {

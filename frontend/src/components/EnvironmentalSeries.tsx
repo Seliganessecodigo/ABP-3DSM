@@ -40,7 +40,7 @@ export function EnvironmentalSeries({ series, locale, compact = false }: Readonl
     {graphic}
     <div className={styles.plotPeriod}><span>{date(series.points[0].period.from)}</span><span>{date(series.points.at(-1)!.period.to)}</span></div>
   </div> : graphic
-  return <section className={`${styles.series}${compact ? ` ${styles.compact}` : ''}`} aria-label={t('trendTitle')}>
+  return <section className={`${styles.series} ${compact ? styles.compact : ''}`} aria-label={t('trendTitle')}>
     <div className={styles.controls}>
       <div>
         {(['emissions', 'energy'] as const).map((value) => <button type="button" key={value} aria-pressed={metric === value} onClick={() => setMetric(value)}>{t(value)}</button>)}
