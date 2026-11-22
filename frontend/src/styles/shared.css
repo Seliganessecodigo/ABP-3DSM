@@ -18,7 +18,7 @@ select.form-control { appearance: none; padding-inline-end: 36px; background-ima
   .form-control--compact { height: var(--control-height); min-height: var(--control-height); }
 }
 .content { width: 100%; min-width: 0; margin: 0 auto; padding: 24px clamp(24px, 3.1vw, 48px) 40px; }
-.page-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--workspace-space, var(--space-6)); }
+.page-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-6); }
 .heading-title { display: flex; min-width: 0; align-items: center; gap: var(--space-3); }
 .heading-title > h1 { min-width: 0; margin-bottom: 0; }
 .page-heading h1 { margin: 0; color: var(--text-primary); font-family: GreenERInter, Inter, ui-sans-serif, sans-serif; font-size: clamp(24px, 3vw, 31px); font-weight: 700; line-height: 1.2; letter-spacing: -.04em; font-optical-sizing: none; }

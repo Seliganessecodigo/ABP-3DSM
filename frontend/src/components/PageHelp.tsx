@@ -6,7 +6,7 @@ import styles from './PageHelp.module.css'
 
 export type HelpStep = Readonly<{ title: string; description: string; target?: string }>
 
-export function PageHelp({ steps, onOpen }: Readonly<{ steps: readonly [HelpStep, ...HelpStep[]]; onOpen?: () => void }>) {
+export function PageHelp({ steps }: Readonly<{ steps: readonly [HelpStep, ...HelpStep[]] }>) {
   const { t } = useTranslation('common')
   const [step, setStep] = useState<number | null>(null)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -53,7 +53,7 @@ export function PageHelp({ steps, onOpen }: Readonly<{ steps: readonly [HelpStep
 
   return <>
     <button ref={trigger} type="button" className={styles.trigger} aria-label={t('help.open')} title={t('help.open')}
-      aria-haspopup="dialog" onClick={() => { onOpen?.(); setStep(0) }}><FontAwesomeIcon icon={faCircleQuestion} aria-hidden="true" /></button>
+      aria-haspopup="dialog" onClick={() => setStep(0)}><FontAwesomeIcon icon={faCircleQuestion} aria-hidden="true" /></button>
     <dialog ref={dialog} className={styles.dialog} aria-labelledby={titleId} aria-describedby={descriptionId}
       onCancel={event => { event.preventDefault(); close() }} onClose={() => setStep(null)}
       onKeyDown={event => {
