@@ -18,6 +18,7 @@ export class EnvironmentalAnalysisSummaryController {
 
   @PublicRoute()
   @Get()
+  @ApiQuery({ name: 'includeCollectionSuccess', required: false, enum: ['true', 'false'], description: 'Include scheduled metrics collection success counts in the requested period and scope.' })
   @ApiOperation({ summary: 'Consultar resumo ambiental agregado por período' })
   @ApiQuery({ name: 'from', required: true, type: String, format: 'date-time' })
   @ApiQuery({ name: 'to', required: true, type: String, format: 'date-time' })
@@ -62,6 +63,7 @@ export class EnvironmentalAnalysisSummaryController {
     @Query() query: Record<string, string | string[] | undefined>,
   ): Promise<EnvironmentalAnalysisSummaryDto> {
     return this.summary.getSummary({
+      includeCollectionSuccess: query.includeCollectionSuccess === undefined ? undefined : (scalar(query.includeCollectionSuccess) ?? 'invalid'),
       includeProvenance: query.includeProvenance === undefined ? undefined : (scalar(query.includeProvenance) ?? 'invalid'),
       granularity:
         query.granularity === undefined

@@ -1,5 +1,7 @@
 # Organização do frontend
 
+O indicador de sucesso das coletas do Dashboard usa `collectionSuccess` retornado pelo backend, solicitado com `includeCollectionSuccess=true`. Mostra a taxa de tentativas registradas com métricas válidas e salvas, seus contadores e o primeiro registro do período. Ausência de tentativas ou do campo durante atualização de versões não vira 0%/100%. A cobertura temporal permanece nos dados e detalhes das análises; não é usada como taxa de sucesso. O componente local `pages/dashboard/CollectionSuccessCard` apresenta o agregado, sem calcular regras de coleta.
+
 Os padrões visuais de cards, tabelas ordenáveis e trilha de navegação usam `components/CardIcon`, `components/SortButton` e `components/Breadcrumbs`. Reutilize esses componentes ao ampliar as telas; estado, filtros, links de retorno e regras de ordenação continuam pertencendo à página. Consulte [components/README.md](components/README.md) para os contratos.
 
 `pages/catalog/ApplicationAnalysisActions` acrescenta atalhos de comparação e simulação regional por aplicação, com os ícones da sidebar. A comparação pré-seleciona a aplicação para adicionar outra; a simulação apenas abre o cenário, sem enviá-lo automaticamente. A ação de ranking permanece desabilitada até a página ser implementada. `app/analysisNavigation.ts` propaga somente parâmetros suportados por cada destino; os filtros da lista permanecem no catálogo.

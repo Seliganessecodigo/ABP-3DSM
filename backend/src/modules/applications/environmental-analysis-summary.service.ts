@@ -25,6 +25,7 @@ import type { PersistedEnvironmentalInterval } from '../calculations/persisted-e
 import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 
 export interface EnvironmentalAnalysisSummaryFilters {
+  readonly includeCollectionSuccess?: string
   readonly includeProvenance?: string
   readonly granularity?: string
   readonly from?: string
@@ -73,6 +74,9 @@ export class EnvironmentalAnalysisSummaryService {
     filters: EnvironmentalAnalysisSummaryFilters,
     options: { includeMissingApplications?: boolean } = {},
   ): Promise<EnvironmentalAnalysisSummaryDto> {
+    if (filters.includeCollectionSuccess !== undefined && !['true', 'false'].includes(filters.includeCollectionSuccess)) {
+      throw new BadRequestException({ code: 'INVALID_COLLECTION_SUCCESS_OPTION' })
+    }
     if (filters.includeProvenance !== undefined && !['true', 'false'].includes(filters.includeProvenance)) {
       throw new BadRequestException({ code: 'INVALID_ANALYSIS_PROVENANCE_FILTER' })
     }
@@ -126,7 +130,7 @@ export class EnvironmentalAnalysisSummaryService {
     try {
       const selectedApplications = await this.loadApplicationsInScope(states, applicationIds)
       const ids = selectedApplications.map(({ id }) => id)
-      const [rows, history] = await Promise.all([
+      const [rows, history, attemptCounts] = await Promise.all([
         this.collections.findEnvironmentalByApplicationsAndPeriod(
           ids,
           start,
@@ -134,6 +138,9 @@ export class EnvironmentalAnalysisSummaryService {
           { includeProvenance },
         ),
         this.applicationEvents.findMetadataHistory(ids),
+        filters.includeCollectionSuccess === 'true'
+          ? this.applicationEvents.collectionAttemptCounts(ids, start, end, regionCodes)
+          : undefined,
       ])
       const historyByApplication = groupBy(
         history,
@@ -301,6 +308,10 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopeDuration = duration * filteredApplications.length
       return {
+        ...(attemptCounts ? { collectionSuccess: {
+          ...attemptCounts,
+          rate: attemptCounts.total > 0 ? attemptCounts.successful / attemptCounts.total : null,
+        } } : {}),
         ...(!includeProvenance ? { provenanceIncluded: false } : {}),
         ...(granularity
           ? {

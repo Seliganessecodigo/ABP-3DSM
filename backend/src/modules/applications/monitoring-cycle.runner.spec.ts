@@ -18,6 +18,7 @@ describe("MonitoringCycleRunner", () => {
   let dependencies: {
     adapter: { fetchServices: jest.Mock; fetchMetrics: jest.Mock };
     settings: { get: jest.Mock };
+    events: { append: jest.Mock };
     cycles: { start: jest.Mock; finish: jest.Mock };
     discovery: { discover: jest.Mock };
     metadata: { reconcile: jest.Mock };
@@ -36,6 +37,7 @@ describe("MonitoringCycleRunner", () => {
 
   beforeEach(() => {
     dependencies = {
+      events: { append: jest.fn().mockResolvedValue({}) },
       adapter: {
         fetchServices: jest.fn().mockResolvedValue([service]),
         fetchMetrics: jest.fn().mockResolvedValue({
@@ -115,6 +117,7 @@ describe("MonitoringCycleRunner", () => {
       >[11],
       new MonitoringCycleLock(),
       dependencies.settings as never,
+      dependencies.events as never,
     );
   });
 
@@ -128,6 +131,57 @@ describe("MonitoringCycleRunner", () => {
     await runner.run();
     expect(dependencies.cycles.start).toHaveBeenCalledWith({ source: 'scheduled-monitoring', configurationVersion: 'version-1' });
     expect(dependencies.settings.get).toHaveBeenCalledTimes(3);
+  });
+
+  it('records one successful attempt even for a short measurement window and an already saved observation', async () => {
+    dependencies.adapter.fetchMetrics.mockResolvedValueOnce({ collectionIntervalSeconds: 9,
+      metrics: { cpuPercent: 10, memoryGb: 2, diskGb: 3, networkGb: 4 }, receivedAt });
+    await runner.run();
+    expect(dependencies.events.append).toHaveBeenCalledTimes(1);
+    expect(dependencies.events.append).toHaveBeenCalledWith(expect.objectContaining({
+      applicationId: 'app-1', cycleId: 'cycle-1', kind: 'collection_attempt', actor: 'system',
+      details: { succeeded: true, regionCode: null }, occurredAt: expect.any(Date),
+    }));
+    dependencies.collections.findByApplicationAndIntervalStart.mockResolvedValueOnce({
+      id: 'saved', collectedAt: receivedAt, calculationEvidence: { carbon: { factorSnapshot: {} } },
+    });
+    await runner.run();
+    expect(dependencies.events.append).toHaveBeenCalledTimes(2);
+    expect(dependencies.events.append.mock.calls[1][0].details.succeeded).toBe(true);
+    expect(dependencies.collections.append).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['UPSTREAM_TIMEOUT', 'INVALID_UPSTREAM_RESPONSE'] as const)('records a failed metrics attempt for %s', async code => {
+    dependencies.adapter.fetchMetrics.mockRejectedValueOnce(new IntegrationError(code));
+    await runner.run();
+    expect(dependencies.events.append).toHaveBeenCalledTimes(1);
+    expect(dependencies.events.append.mock.calls[0][0].details.succeeded).toBe(false);
+  });
+
+  it.each(['findByApplicationAndIntervalStart', 'append', 'persistEnvironmentalBundle'] as const)('does not count %s persistence errors as success', async operation => {
+    dependencies.collections[operation].mockRejectedValueOnce(new Error('database failure'));
+    await runner.run();
+    expect(dependencies.events.append.mock.calls[0][0].details.succeeded).toBe(false);
+  });
+
+  it('does not confuse a carbon-factor failure with failure to collect and save metrics', async () => {
+    dependencies.applications.findForCollection.mockResolvedValueOnce([{ id: 'app-1', regionCode: 'br-sudeste' }]);
+    dependencies.carbonFactors.capture.mockRejectedValueOnce(new IntegrationError('UPSTREAM_TIMEOUT'));
+    await runner.run();
+    expect(dependencies.events.append.mock.calls[0][0].details).toEqual({ succeeded: true, regionCode: 'br-sudeste' });
+  });
+
+  it('excludes cancelled requests and marks an attempt-recording failure in the cycle', async () => {
+    dependencies.adapter.fetchMetrics.mockRejectedValueOnce(new IntegrationError('REQUEST_CANCELLED'));
+    await runner.run();
+    expect(dependencies.events.append).not.toHaveBeenCalled();
+    dependencies.events.append.mockRejectedValueOnce(new Error('database failure'));
+    await runner.run();
+    expect(dependencies.cycles.finish).toHaveBeenLastCalledWith('cycle-1', expect.objectContaining({
+      status: MonitoringCycleStatus.PARTIAL, details: expect.objectContaining({
+        failures: expect.arrayContaining([expect.objectContaining({ integration: 'collection-attempt-persistence' })]),
+      }),
+    }));
   });
 
   it("reuses one validated snapshot and persists the source-defined interval and units", async () => {

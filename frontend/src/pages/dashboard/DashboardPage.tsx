@@ -1,5 +1,6 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
-import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf, faCalendarCheck } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { CollectionSuccessCard } from './CollectionSuccessCard.tsx'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
@@ -215,7 +216,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
   { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
   { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="dashboard-emissions"]' },
-  { title: t('coverage'), description: tCommon('help.coverage'), target: '#dashboard-coverage' },
+  { title: t('collectionSuccess.title'), description: t('collectionSuccess.help'), target: '#dashboard-collection-success' },
   { title: t('trendTitle'), description: t('trend.note'), target: '[data-help="dashboard-trend"]' },
   { title: t('compositionTitle'), description: tCommon('help.composition'), target: '[data-help="dashboard-composition"]' },
 ]} /></div>
@@ -271,7 +272,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       {data.data.status === 'available' && (data.data.coverage.energy < 1 || data.data.coverage.emissions < 1) &&
         <p className={styles.partialNotice} role="status">
           <span>{t('partialCoverage')}</span>
-          <a href="#dashboard-coverage">{t('coverage')}</a>
+          <a href="#dashboard-applications-heading">{t('coverage')}</a>
         </p>}
       {data.data.status === 'empty' && <p className={styles.emptyNotice} role="status">{t('empty')}</p>}
 
@@ -279,26 +280,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         <article data-help="dashboard-energy" className={styles.card}>
           <h2><CardIcon icon={faBolt} size="small" inline />{t('energy')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}</p>
-          <p className={styles.coverageLine}>{t('energyCoverage')}: {coverageLabel(data.data.coverage.energy, locale)}</p>
         </article>
         <article data-help="dashboard-emissions" className={styles.card}>
           <h2><CardIcon icon={faLeaf} size="small" inline />{t('emissions')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</p>
-          <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
         </article>
-        <article id="dashboard-coverage" className={`${styles.card} ${styles.coverageCard}`}>
-          <h2><CardIcon icon={faCalendarCheck} size="small" inline />{t('coverage')}</h2>
-          <div className={styles.coverageVisual}>
-            <div className={styles.coverageRing} role="img" aria-label={`${t('emissionsCoverage')}: ${coverageLabel(data.data.coverage.emissions, locale)}`}
-              style={{ background: `conic-gradient(var(--accent-default) ${data.data.coverage.emissions * 100}%, var(--control-hover) 0)` }}>
-              <strong>{coverageLabel(data.data.coverage.emissions, locale)}</strong>
-            </div>
-            <dl className={styles.coverageList}>
-              <div><dt>{t('energyCoverage')}</dt><dd>{coverageLabel(data.data.coverage.energy, locale)}</dd></div>
-              <div><dt>{t('emissionsCoverage')}</dt><dd>{coverageLabel(data.data.coverage.emissions, locale)}</dd></div>
-            </dl>
-          </div>
-        </article>
+        <CollectionSuccessCard summary={data.data.collectionSuccess} />
         <article className={styles.card}>
           <h2><CardIcon icon={faLayerGroup} size="small" inline />{t('applicationStates', { count: totalApplications })}</h2>
           <ul className={styles.stateList}>

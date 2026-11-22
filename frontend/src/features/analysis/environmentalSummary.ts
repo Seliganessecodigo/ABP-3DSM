@@ -3,6 +3,10 @@ import type { PeriodPreset } from './periodContext.ts'
 
 export type EnvironmentalSummaryState = 'AVAILABLE' | 'UNAVAILABLE' | 'NO_METRICS' | 'REMOVED'
 export type EnvironmentalSummaryMeasure = Readonly<{ value: number | null; unit: string }>
+export type CollectionSuccess = Readonly<{
+  successful: number; total: number; rate: number | null
+  firstAttemptAt: string | null; lastAttemptAt: string | null
+}>
 export type EnvironmentalSummaryApplication = Readonly<{
   applicationId: string
   name: string
@@ -12,6 +16,7 @@ export type EnvironmentalSummaryApplication = Readonly<{
   coverage: Readonly<{ energy: number; emissions: number }>
 }>
 export type EnvironmentalSummary = Readonly<{
+  collectionSuccess?: CollectionSuccess
   status: 'available' | 'empty'
   period: Readonly<{ from: string; to: string }>
   series?: Readonly<{ granularity: string; points: readonly EnvironmentalSummaryPoint[] }>
@@ -29,6 +34,7 @@ export type EnvironmentalSummaryPoint = Readonly<{
 }>
 
 export type EnvironmentalSummaryFilters = Readonly<{
+  includeCollectionSuccess?: boolean
   period: PeriodPreset
   granularity?: 'hour' | 'day' | 'month' | 'year'
   range?: Readonly<{ from: string; to: string }>
@@ -63,6 +69,27 @@ function readState(value: unknown): EnvironmentalSummaryState {
     throw new Error('Invalid application state in environmental summary')
   }
   return value
+}
+
+function readAttemptTimestamp(input: unknown, hasAttempts: boolean): string | null {
+  if (!hasAttempts && input === null) return null
+  if (!hasAttempts || typeof input !== 'string' || !Number.isFinite(Date.parse(input))) throw new Error('Invalid collection attempt timestamp')
+  return input
+}
+
+function readCollectionSuccess(value: unknown): CollectionSuccess | undefined {
+  if (value === undefined) return undefined
+  if (!isRecord(value) || typeof value.successful !== 'number' || !Number.isSafeInteger(value.successful) || value.successful < 0 ||
+    typeof value.total !== 'number' || !Number.isSafeInteger(value.total) || value.total < value.successful) {
+    throw new Error('Invalid collection success counts')
+  }
+  const expectedRate = value.total === 0 ? null : value.successful / value.total
+  const rate = value.rate === null ? null : readCoverage(value.rate, 'collection success')
+  if (expectedRate === null ? rate !== null : rate === null || Math.abs(rate - expectedRate) > 1e-9) throw new Error('Invalid collection success rate')
+  const firstAttemptAt = readAttemptTimestamp(value.firstAttemptAt, value.total > 0)
+  const lastAttemptAt = readAttemptTimestamp(value.lastAttemptAt, value.total > 0)
+  if (firstAttemptAt && lastAttemptAt && Date.parse(firstAttemptAt) > Date.parse(lastAttemptAt)) throw new Error('Unordered collection attempts')
+  return { successful: value.successful, total: value.total, rate, firstAttemptAt, lastAttemptAt }
 }
 
 export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readonly<{ from: string; to: string }>): EnvironmentalSummary {
@@ -111,6 +138,7 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
   })
 
   return {
+    collectionSuccess: readCollectionSuccess(value.collectionSuccess),
     series: readSeries(value.series, expectedPeriod),
     status: value.status,
     period: expectedPeriod,
@@ -160,6 +188,7 @@ function readSeriesPoint(point: unknown, expectedPeriod: Readonly<{ from: string
 export async function getEnvironmentalSummary(filters: EnvironmentalSummaryFilters, signal: AbortSignal): Promise<EnvironmentalSummary> {
   const range = analysisRangeFor(filters.period, new Date(filters.anchor), filters.range)
   const params = new URLSearchParams({ ...range, includeProvenance: 'false', granularity: filters.granularity ?? (filters.period === '24h' ? 'hour' : 'day') })
+  if (filters.includeCollectionSuccess) params.set('includeCollectionSuccess', 'true')
   if (filters.state) params.append('states', filters.state)
   if (filters.regionCode) params.append('regionCodes', filters.regionCode)
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')

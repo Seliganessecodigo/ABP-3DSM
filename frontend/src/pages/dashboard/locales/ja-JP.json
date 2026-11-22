@@ -85,5 +85,12 @@
   "trend.interval": "期間（UTC）",
   "trend.note": "UTCの期間ごとの値です。空白はデータ欠損を示し、ゼロではありません。",
   "helpFilters": "期間、集計単位、地域、状態を選択して集計範囲を設定します。同じ条件が指標とグラフに適用されます。",
-  "helpResults": "各アプリケーションのCO₂eの割合を比較できます。表から詳細を開いて調査できます。"
+  "helpResults": "各アプリケーションのCO₂eの割合を比較できます。表から詳細を開いて調査できます。",
+  "collectionSuccess.title": "収集成功率",
+  "collectionSuccess.successful": "成功",
+  "collectionSuccess.total": "記録済み試行",
+  "collectionSuccess.empty": "この期間に記録された収集はありません。",
+  "collectionSuccess.since": "{{date}}以降の記録",
+  "collectionSuccess.help": "予定されたメトリクス収集のうち、有効なデータを取得して保存した試行の割合です。HTTP再試行を含め、各アプリケーションの試行を1回として数えます。キャンセルは除外されます。選択した期間とフィルター内の記録済み試行のみを対象とし、エネルギーやCO₂eの時間的なカバレッジは示しません。",
+  "collectionSuccess.unavailable": "収集成功率を取得できません。"
 }

@@ -168,6 +168,46 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
     else process.env.DATABASE_URL = previousDatabaseUrl
   })
 
+  it('returns collection success from recorded attempts with exact period, application, state and historical-region filters', async () => {
+    const ids = [`attempt-a-${randomUUID()}`, `attempt-b-${randomUUID()}`]
+    await insertApplication(database, ids[0], 'AVAILABLE', 'br-norte')
+    await insertApplication(database, ids[1], 'UNAVAILABLE', 'br-sudeste')
+    const query = new URLSearchParams({ from, to, includeCollectionSuccess: 'true' })
+    ids.forEach(id => query.append('applicationIds', id))
+    const request = async () => {
+      const response = await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))
+      expect(response.status).toBe(200)
+      return await response.json() as EnvironmentalAnalysisSummaryDto
+    }
+    try {
+      expect((await request()).collectionSuccess).toEqual({ successful: 0, total: 0, rate: null, firstAttemptAt: null, lastAttemptAt: null })
+      const attempts = [
+        [ids[0], from, true, 'br-sudeste'],
+        [ids[0], '2026-10-01T03:00:10Z', false, 'br-sudeste'],
+        [ids[0], '2026-10-01T03:00:20Z', true, 'br-sudeste'],
+        [ids[0], '2026-10-01T03:00:30Z', true, 'br-norte'],
+        [ids[1], from, true, 'br-sudeste'],
+        [ids[0], to, false, 'br-sudeste'],
+        [ids[0], '2026-10-01T02:59:59Z', false, 'br-sudeste'],
+      ]
+      for (const [id, at, succeeded, regionCode] of attempts) {
+        await database.query(`INSERT INTO application_events ("applicationId", kind, "occurredAt", actor, details)
+          VALUES ($1, 'collection_attempt', $2, 'system', $3)`, [id, at, { succeeded, regionCode }])
+      }
+      expect((await request()).collectionSuccess).toMatchObject({ successful: 4, total: 5, rate: 0.8 })
+      query.set('states', 'AVAILABLE')
+      expect((await request()).collectionSuccess).toMatchObject({ successful: 3, total: 4, rate: 0.75 })
+      query.set('regionCodes', 'br-sudeste')
+      const scoped = await request()
+      expect(scoped.collectionSuccess).toMatchObject({ successful: 2, total: 3, rate: 2 / 3 })
+      expect(scoped.coverage).toEqual({ energy: 0, emissions: 0 })
+      query.set('applicationIds', 'unknown-attempt-app')
+      expect((await request()).collectionSuccess?.rate).toBeNull()
+      query.set('includeCollectionSuccess', 'invalid')
+      expect((await fetch(new URL(`/analysis/summary?${query}`, await app.getUrl()))).status).toBe(400)
+    } finally { await removeApplications(database, ids) }
+  })
+
   it('returns a public series with the same scope, totals and missing intervals', async () => {
     const ids = [`scope-one-${randomUUID()}`, `scope-two-${randomUUID()}`, `scope-invalid-${randomUUID()}`]
     await insertApplication(database, ids[0], 'AVAILABLE')

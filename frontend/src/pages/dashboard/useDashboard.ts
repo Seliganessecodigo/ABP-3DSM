@@ -42,7 +42,7 @@ export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'
     let timer: ReturnType<typeof setTimeout> | undefined
     const previous = successful.current?.key === key ? successful.current : null
     const lastAttemptAt = new Date().toISOString()
-    const requestFilters: EnvironmentalSummaryFilters = { period, anchor, state, regionCode, granularity, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}) }
+    const requestFilters: EnvironmentalSummaryFilters = { includeCollectionSuccess: true, period, anchor, state, regionCode, granularity, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}) }
     setSummary({ key, status: previous ? 'refreshing' : 'loading', data: previous?.data ?? null, lastAttemptAt })
 
     void getEnvironmentalSummary(requestFilters, controller.signal).then((data) => {
