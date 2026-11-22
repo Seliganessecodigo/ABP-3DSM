@@ -107,6 +107,22 @@ test('janelas baixas mantêm os controles acessíveis e a nova rota começa no t
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1)
 })
 
+test('o período personalizado mantém os filtros na mesma linha', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await mockDesktop(page)
+  await page.goto('/dashboard?period=custom&from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z')
+  await expect(page.getByRole('region', { name: 'Indicadores ambientais' })).toBeVisible()
+  const positions = []
+  for (const name of ['Granularidade em edição', 'Região histórica', 'Estado atual']) {
+    const bounds = await page.getByRole('combobox', { name, exact: true }).boundingBox()
+    positions.push(bounds!.y)
+  }
+  expect(Math.max(...positions) - Math.min(...positions)).toBeLessThanOrEqual(1)
+  await page.getByRole('button', { name: '24 horas', exact: true }).click()
+  await expect(page).toHaveURL(/period=24h/)
+  await expect(page.getByRole('combobox', { name: 'Estado atual', exact: true })).toBeInViewport()
+})
+
 for (const width of [1024, 1920]) {
   for (const path of ['/applications', '/comparison', '/ranking', '/regional-simulation', '/history', '/settings', '/login']) {
     test(`${path} preserva o enquadramento de desktop em ${width}px`, async ({ page }) => {

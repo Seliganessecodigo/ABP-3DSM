@@ -207,6 +207,7 @@
   .header, .controls { margin: 0; flex-shrink: 0; }
   .controls { display: grid; grid-template-columns: auto minmax(100px, .7fr) minmax(120px, 1fr) minmax(130px, 1fr); gap: 8px 12px; }
   .controls label { min-width: 0; }
+  .controls > p { grid-column: 1 / -1; order: 1; margin: 0; }
   .controls select { width: 100%; }
   .overview { display: grid; flex: 1; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr); gap: var(--workspace-space, 12px); }
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
