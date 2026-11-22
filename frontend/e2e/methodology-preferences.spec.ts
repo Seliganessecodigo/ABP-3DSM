@@ -6,6 +6,33 @@ import { mockPreferenceEffects } from './support/preferences.ts'
 test.beforeEach(async ({ page }) => { await mockPreferenceEffects(page) })
 
 const names = ['Energia', 'Emissões de CO₂e', 'Cobertura dos dados', 'Padrão das análises']
+
+for (const width of [1024, 1280, 1920]) {
+  test(`cards da mesma linha têm alturas iguais nas quatro abas em ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await mockCatalog(page, [])
+    await page.goto('/methodology')
+    await page.evaluate(() => document.fonts.ready)
+    for (const name of names) {
+      await page.getByRole('tab', { name, exact: true }).click()
+      await expect(page.getByRole('tabpanel')).not.toContainText('Avaliando dados reais…')
+      const cards = page.getByRole('tabpanel').locator(':scope > section')
+      await expect(cards).toHaveCount(3)
+      const bounds = await cards.evaluateAll(elements => elements.map(element => {
+        const { y, height } = element.getBoundingClientRect()
+        return { y, height }
+      }))
+      for (const card of bounds) {
+        const row = bounds.filter(other => Math.abs(other.y - card.y) <= 1)
+        expect(Math.max(...row.map(other => other.height)) - Math.min(...row.map(other => other.height))).toBeLessThanOrEqual(1)
+      }
+    }
+    await page.getByRole('tab', { name: names[0], exact: true }).click()
+    await expect(page.getByRole('tabpanel')).not.toContainText('Avaliando dados reais…')
+    await page.screenshot({ path: test.info().outputPath('metodologia.png'), fullPage: true })
+  })
+}
+
 const energy = { threshold: 10, unit: 'kWh', scope: 'application', referencePeriod: 'month', alertsEnabled: true }
 const initial = () => ({ energy: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { ...energy } }, emissions: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { ...energy, threshold: 2, unit: 'kgCO2e' } }, coverage: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { thresholdPercent: 80, alertsEnabled: true } }, analysis: { revision: 1, updatedAt: '2026-10-28T12:00:00Z', value: { periodDays: 30, granularity: 'day' } } })
 async function signIn(page: Page) {
