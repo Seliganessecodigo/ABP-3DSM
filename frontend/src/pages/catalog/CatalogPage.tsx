@@ -164,7 +164,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     navigate(href)
   }} />
 
-  return <main className="content" tabIndex={-1}>
+  return <main className={`content ${styles.page}`} tabIndex={-1}>
     <header className="page-heading"><div><Breadcrumbs navigate={navigate} items={[{ label: tCommon('nav.applications') }]} /><div className="heading-title"><h1>{tCatalog('title')}</h1><PageHelp steps={[
       { title: tCatalog('title'), description: tCatalog('description'), target: '[data-help="catalog-table"]' },
       { title: tCatalog('stateFilter'), description: tCommon('help.states'), target: '[data-help="catalog-filters"]' },

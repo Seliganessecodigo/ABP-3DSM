@@ -1,3 +1,4 @@
+import { openDashboardApplications } from './support/dashboard.ts'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { supportedLocales } from '../src/i18n/types.ts'
 import { application, mockCatalog } from './support/catalog.ts'
@@ -39,6 +40,7 @@ for (const width of [1440, 390]) {
       await expect(page.getByLabel('Região histórica')).toBeEnabled()
       await expectFields(page.getByLabel('Região histórica').or(page.getByLabel('Estado atual')), 44)
       await expect(page.getByRole('button', { name: '7 dias', exact: true })).toHaveCSS('height', '44px')
+      await openDashboardApplications(page)
       await expectFields(page.getByRole('searchbox'), 44)
       await expectFields(page.getByLabel('Itens por página'), width <= 640 ? 44 : 36, 12)
       await page.screenshot({ path: testInfo.outputPath('dashboard.png'), fullPage: true })
@@ -99,6 +101,7 @@ for (const width of [1366, 390]) {
     await mockDashboard(page)
     for (const path of ['/applications', '/dashboard', '/comparison']) {
       await page.goto(path)
+      if (path === '/dashboard') await openDashboardApplications(page)
       const pagination = page.getByRole('main').getByRole('navigation').last()
       await expect(pagination.getByRole('button', { name: 'Página anterior', exact: true })).toBeDisabled()
       await expect(pagination.getByRole('button', { name: 'Próxima página', exact: true })).toBeDisabled()

@@ -6,6 +6,8 @@ const viewports = [
   { width: 320, height: 740 },
   { width: 390, height: 844 },
   { width: 768, height: 1024 },
+  { width: 1024, height: 768 },
+  { width: 1280, height: 720 },
   { width: 1366, height: 768 },
   { width: 1920, height: 1080 },
   { width: 2560, height: 1440 },
@@ -75,8 +77,8 @@ for (const viewport of viewports) {
       const bounds = await page.getByRole('main').evaluate(main => {
         const rect = main.getBoundingClientRect()
         const workspace = main.parentElement!.getBoundingClientRect()
-        return { left: rect.left - workspace.left, right: workspace.right - rect.right, width: rect.width,
-          workspaceWidth: workspace.width, overflow: document.documentElement.scrollWidth - window.innerWidth }
+        return { left: rect.left - workspace.left, right: workspace.left + main.parentElement!.clientWidth - rect.right, width: rect.width,
+          workspaceWidth: main.parentElement!.clientWidth, overflow: document.documentElement.scrollWidth - window.innerWidth }
       })
       expect(bounds.overflow).toBeLessThanOrEqual(1)
       expect(bounds.width).toBeGreaterThanOrEqual(bounds.workspaceWidth - 1)

@@ -1,3 +1,7 @@
+.applicationDetails { min-width: 0; margin-top: 12px; }
+.applicationDetails > summary { min-height: 44px; padding: 12px 16px; border: 1px solid var(--border-default); border-radius: 8px; color: var(--accent-default); background: var(--surface-card); cursor: pointer; font-size: 13px; font-weight: 650; }
+.applicationDetails > summary:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.notices:empty { display: none; }
 .page {
   width: 100%;
   min-width: 0;
@@ -196,4 +200,59 @@
   .tableCard tbody td::before { content: attr(data-label); color: var(--text-secondary); font-size: 9px; text-align: left; }
   .tableCard tbody td .stateBadge { max-width: 100%; overflow-wrap: anywhere; }
   .scopeNote { font-size: 11px; }
+}
+
+@media (min-width: 1024px) {
+  .page { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: var(--workspace-space, 12px); }
+  .header, .controls { margin: 0; flex-shrink: 0; }
+  .controls { display: grid; grid-template-columns: auto minmax(100px, .7fr) minmax(120px, 1fr) minmax(130px, 1fr); gap: 8px 12px; }
+  .controls label { min-width: 0; }
+  .controls > p { grid-column: 1 / -1; order: 1; margin: 0; }
+  .controls select { width: 100%; }
+  .overview { display: grid; flex: 1; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr); gap: var(--workspace-space, 12px); }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .kpis > .card { min-height: clamp(124px, 15dvh, 192px); padding: clamp(10px, 1.4dvh, 16px); }
+  .card h2, .tableHeading h2 { font-size: clamp(13px, 1.2dvh, 16px); }
+  .metricValue { margin: 6px 0; font-size: clamp(22px, 2.8dvh, 28px); }
+  .coverageVisual { min-height: 0; gap: 8px; }
+  .coverageRing { width: clamp(52px, 8dvh, 76px); }
+  .coverageRing::before { width: 76%; }
+  .coverageRing strong { font-size: 12px; }
+  .dataAsOf { margin: 0; }
+  .refreshStatus { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .visualizations { min-height: 0; gap: 12px; }
+  .visualizations > .card { display: flex; flex-direction: column; min-height: 0; padding: 12px; overflow: auto; }
+  .visualizations h2 { flex: 0 0 auto; }
+  .page:has(.overview) > .notices { max-height: 14dvh; flex-shrink: 0; overflow: auto; }
+  .notices > * { margin-block: 0; }
+  .partialNotice { padding: 8px 12px; }
+  .composition { min-height: 0; flex: 1; grid-template-rows: minmax(80px, 1fr) auto; }
+  .donut { width: auto; height: min(100%, clamp(140px, 32dvh, 480px)); max-width: 100%; }
+  .donut::before { width: 64%; }
+  .donut strong { font-size: clamp(17px, 2.2dvh, 30px); }
+  .donut small { font-size: clamp(10px, 1dvh, 14px); }
+  .compositionLegend ul { max-height: clamp(48px, 9dvh, 96px); }
+  .compositionBars { grid-template-rows: minmax(0, 1fr); }
+  .compositionBars .compositionLegend { min-height: 0; height: 100%; overflow: auto; }
+  .compositionBars .compositionLegend ul { max-height: none; }
+  .applicationDetails { margin: 0; flex: 0 0 auto; }
+  .applicationDetails[open] { flex: 1; min-height: 200px; display: flex; flex-direction: column; }
+  .applicationDetails[open]::details-content { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+  .applicationDetails[open] > summary { flex-shrink: 0; }
+  .page:has(.applicationDetails[open]) .overview { flex: 0 0 auto; }
+  .page:has(.applicationDetails[open]) .visualizations { display: none; }
+  .page:has(.applicationDetails[open]) .kpis > .card { min-height: 0; padding: 8px 12px; }
+  .page:has(.applicationDetails[open]) .metricValue { margin: 4px 0; }
+  .page:has(.applicationDetails[open]) .coverageLine, .page:has(.applicationDetails[open]) .coverageRing { display: none; }
+  .page:has(.applicationDetails[open]) .stateList { display: flex; flex-wrap: wrap; gap: 4px; }
+  .page:has(.applicationDetails[open]) .stateBadge { padding: 2px 4px; }
+  .tableCard { display: flex; flex-direction: column; min-height: 0; flex: 1; margin-top: 8px; }
+  .tableHeading, .tableCard > nav, .filtersPanel { flex-shrink: 0; }
+  .tableHeading { margin-bottom: 4px; }
+  .tableActions .searchLabel { display: flex; align-items: center; gap: 8px; }
+  .tableActions .searchLabel input { width: min(180px, 20vw); min-width: 0; }
+  .scopeNote { margin-top: 4px; }
+  .tableScroll { flex: 1; min-height: 60px; overflow: auto; }
+  .tableScroll thead th { position: sticky; top: 0; z-index: 1; background: var(--surface-card); }
+  .filtersPanel { max-height: 30dvh; overflow: auto; }
 }
