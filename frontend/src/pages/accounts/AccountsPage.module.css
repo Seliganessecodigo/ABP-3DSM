@@ -21,8 +21,3 @@
 
 .filters { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
 .filters label { display: grid; gap: 8px; flex: 1; min-width: 160px; }
-
-@media (min-width: 1024px) {
-  .tableScroll { max-height: 48dvh; overflow: auto; }
-  .tableScroll thead th { position: sticky; top: 0; z-index: 1; background: var(--surface-card); }
-}

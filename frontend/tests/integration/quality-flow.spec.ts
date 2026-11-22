@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
 import { formatNumber } from '../../src/utils/formatNumber.ts'
-import { openDashboardApplications } from '../../e2e/support/dashboard.ts'
 
 test('dashboard → detail → history → back reconciles real persisted data and preserves context', async ({ page }) => {
   await page.clock.setFixedTime(new Date())
@@ -23,7 +22,6 @@ test('dashboard → detail → history → back reconciles real persisted data a
   expect(await dashboardSeries.locator('svg rect').count()).toBeGreaterThan(0)
 
   const detailResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/applications/quality-api/analysis')
-  await openDashboardApplications(page)
   await page.getByRole('link', { name: 'Ver detalhes: Quality api', exact: true }).click()
   await expect(page).toHaveURL(/\/services\/quality-api\?.*period=24h/)
   const detail = await (await detailResponse).json()

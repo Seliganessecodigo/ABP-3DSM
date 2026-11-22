@@ -1,4 +1,3 @@
-import { openDashboardApplications } from './support/dashboard.ts'
 import { expect, test, type Page } from '@playwright/test'
 import { application, gate, mockApi, mockCatalog } from './support/catalog.ts'
 
@@ -136,7 +135,6 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)
   await expect(page.locator('tbody tr').nth(0)).toContainText('api-estoque')
   await expect(page.locator('tbody tr').nth(1)).toContainText('api-checkout')
-  await openDashboardApplications(page)
   await expect(page.getByRole('link', { name: /ver detalhes: api-estoque/i })).toHaveAttribute('href', /\/services\/svc-1/)
 })
 
@@ -257,7 +255,6 @@ test('dashboard table search and pagination operate on the filtered set', async 
 
   await page.goto('/dashboard')
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(10)
-  await openDashboardApplications(page)
   await page.getByRole('searchbox', { name: 'Buscar aplicações' }).fill('sao-paulo')
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(1)
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toContainText('api-são-paulo')
@@ -280,7 +277,6 @@ test('mobile dashboard keeps compact indicators and readable application rows', 
   const indicators = page.getByRole('region', { name: 'Indicadores ambientais' })
   await expect(indicators.locator('article')).toHaveCount(4)
   await expect.poll(() => indicators.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(2)
-  await openDashboardApplications(page)
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toContainText('api-pagamentos')
   await expect(page.locator('tbody tr[data-dashboard-application-id]').getByText('8,4 gCO2e')).toBeVisible()
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)

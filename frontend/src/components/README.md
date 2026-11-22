@@ -24,5 +24,3 @@ Componentes de interface reutilizáveis entre páginas e funcionalidades, sem co
   <ActionButton onClick={retry} disabled={refreshing}>{t('retry')}</ActionButton>
 </RequestFeedback>
 ```
-
-`PageHelp` aceita `onOpen` opcional para preparar o contexto visual antes do primeiro passo. O Dashboard o usa para fechar a seção de aplicações e exibir os gráficos que o guia destaca. `EnvironmentalSeries` aceita `compact` para ajustar a área do gráfico ao painel, mantendo datas e unidades fora do SVG e preservando acesso à tabela de todos os pontos.
