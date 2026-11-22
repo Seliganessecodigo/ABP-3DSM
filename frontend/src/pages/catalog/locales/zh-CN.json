@@ -29,7 +29,7 @@
   "allRegions": "所有区域",
   "columnFilters": "按列筛选", "regionCode": "区域代码", "cityMissing": "未提供城市",
   "from": "核验开始时间", "to": "核验结束时间", "timeZone": "时区：{{timeZone}}",
-  "invalidDateRange": "开始时间必须早于或等于结束时间。", "clearFilters": "清除筛选",
+  "invalidDateRange": "请输入有效日期，且开始时间不得晚于结束时间。", "clearFilters": "清除筛选",
   "activeFilters": "当前筛选", "range": "共 {{count}} 个应用，显示 {{start}}–{{end}}",
   "pageSize": "每页项目数", "all": "全部", "nameFilter": "名称或标识符",
   "countryFilter": "国家", "regionCodeFilter": "区域代码", "cityFilter": "城市", "stateFilter": "状态",
