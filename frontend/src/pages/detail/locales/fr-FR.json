@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "Énergie avec CO₂e calculé",
   "periods.month": "Mois en cours (UTC)",
   "periods.custom": "Intervalle personnalisé",
-  "helpHistoryFilters": "Sélectionnez l’application, la période et la granularité. L’intervalle consulté et le fuseau figurent dans les filtres ; les indicateurs et le graphique utilisent la même période."
+  "helpHistoryFilters": "Sélectionnez l’application, la période et la granularité. L’intervalle consulté et le fuseau figurent dans les filtres ; les indicateurs et le graphique utilisent la même période.",
+  "analysisComparisonSummary": "Période précédente : {{from}} – {{to}}. Variation de l’énergie : {{difference}}.",
+  "analysisComparisonUnavailable": "Comparaison impossible : valeur manquante, référence nulle, unités ou couverture différentes."
 }

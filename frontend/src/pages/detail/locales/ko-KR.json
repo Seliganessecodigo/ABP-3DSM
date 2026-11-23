@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "CO₂e를 계산한 에너지",
   "periods.month": "이번 달 (UTC)",
   "periods.custom": "사용자 지정 구간",
-  "helpHistoryFilters": "애플리케이션, 기간, 집계 단위를 선택하세요. 조회 구간과 시간대는 필터에 표시되며 지표와 차트에 같은 기간이 적용됩니다."
+  "helpHistoryFilters": "애플리케이션, 기간, 집계 단위를 선택하세요. 조회 구간과 시간대는 필터에 표시되며 지표와 차트에 같은 기간이 적용됩니다.",
+  "analysisComparisonSummary": "이전 기간: {{from}} – {{to}}. 에너지 변화: {{difference}}.",
+  "analysisComparisonUnavailable": "비교할 수 없음: 값이 없거나 기준값이 0이거나 단위 또는 커버리지가 다릅니다."
 }

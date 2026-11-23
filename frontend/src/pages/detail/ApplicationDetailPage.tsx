@@ -307,7 +307,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         }}
         status={analysisState}
         contributions={environmentalAnalysis.contributions}
-        comparisonPoints={environmentalAnalysis.comparisonPoints}
+        comparison={environmentalAnalysis.comparison}
         onInspectContributions={analysisSource.loadContributions ? inspectHistoryInterval : undefined}
         onContributionPaginationChange={(page, pageSize) => {
           const bucketStart = environmentalAnalysis.contributions?.data?.bucket.start
@@ -382,6 +382,8 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           compareMetrics: tDetail('analysisCompareMetrics'),
           focusEvent: tDetail('analysisSeriesFocusEvent'),
           currentPeriod: tDetail('analysisCurrentPeriod'), previousPeriod: tDetail('analysisPreviousPeriod'),
+          comparisonSummary: (from: string, to: string, difference: string) => tDetail('analysisComparisonSummary', { from, to, difference }),
+          comparisonUnavailable: tDetail('analysisComparisonUnavailable'),
           tooltipCurrent: tDetail('analysisTooltipCurrent'), tooltipPrevious: tDetail('analysisTooltipPrevious'),
           seriesEventsHeading: tDetail('analysisSeriesEventsHeading'),
           seriesEventSummary: (event: AnalysisSeriesEvent) => {

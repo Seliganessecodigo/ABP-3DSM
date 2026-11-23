@@ -20,7 +20,7 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
         status: 'available', applicationId: 'svc-0142',
         period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') },
         granularity: 'hour',
-        totals: { energy: { value: 12.5, unit: 'kWh' }, emissions: { value: 4250, unit: 'gCO2e' } },
+        totals: { energy: { value: 12.5, unit: 'kWh', reasons: [] }, emissions: { value: 4250, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 0.75, emissions: 0.5 }, points, events: [],
       } })
       return
@@ -98,9 +98,10 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
     const url = new URL(route.request().url())
     ranges.push([url.searchParams.get('from'), url.searchParams.get('to')])
     if (url.pathname.endsWith('/series')) {
+      const previous = url.searchParams.get('from') !== from
       await route.fulfill({ json: {
-        status: 'available', applicationId: 'svc-0142', period: { from, to }, granularity: 'hour',
-        totals: { energy: { value: 12.5, unit: 'kWh' }, emissions: { value: 4250, unit: 'gCO2e' } },
+        status: 'available', applicationId: 'svc-0142', period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') }, granularity: 'hour',
+        totals: { energy: { value: previous ? 2 : 3, unit: 'kWh', reasons: [] }, emissions: { value: previous ? 680 : 1020, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 0.75, emissions: 0.5 }, points: [],
         events: [{ id: 'event-status-1', at: '2026-10-17T19:00:00.000Z', type: 'status_changed',
           details: { before: { state: 'AVAILABLE' }, after: { state: 'UNAVAILABLE' } } }],
@@ -109,8 +110,8 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
     }
     await route.fulfill({ json: {
       status: 'available', applicationId: 'svc-0142', period: { from, to },
-      energy: { value: 12.5, unit: 'kWh', reasons: [] },
-      emissions: { value: 4250, unit: 'gCO2e', reasons: [] },
+      energy: { value: 3, unit: 'kWh', reasons: [] },
+      emissions: { value: 1020, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 0.75, emissions: 0.5 },
       provenance: { methodologies: [], factors: [], reasons: [] },
     } })
@@ -123,6 +124,8 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
   await expect(analysis).toContainText('Status alterado')
   await expect(analysis).toContainText('Disponível')
   await expect(analysis).toContainText('Indisponível')
+  await expect(page.locator('main')).toContainText('+50% (3 kWh / 2 kWh)')
+  await expect(page.locator('main')).toContainText('03/10/2026')
   expect(ranges.sort()).toEqual([
     ['2026-10-03T20:00:37.456Z', from], [from, to], [from, to],
   ].sort())
