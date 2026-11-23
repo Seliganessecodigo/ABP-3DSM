@@ -45,3 +45,5 @@ npm run docs:build
 ## 関連ページ {#related}
 
 [品質と受け入れ](./product/quality) · [プロダクトバックログ](./roadmap)
+
+[提供計画と根拠](./plano-de-entregas)

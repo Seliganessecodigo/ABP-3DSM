@@ -10,9 +10,9 @@
 | Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
 | Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-## Geplante Erweiterungen {#planned}
+## Aktueller Stand und Abhängigkeiten {#planned}
 
-Geplant sind ein eigener Anwendungsvergleich, Simulation anderer Regionen, vollständige Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungssteuerung. Der Umfang des CSV-Exports braucht noch eine Entscheidung. Das Dashboard sortiert bereits nach Energie oder Emissionen. Prioritäten stehen im Backlog; diese Dokumentation legt keine Liefertermine fest.
+Vergleich, regionale Simulation, Rangliste, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung sind implementiert. Die Verwaltung erfordert Berechtigung; SSO und E-Mail-Versand benötigen Umgebungskonfiguration. CSV-Export sowie Aufbewahrungs-, Sicherungs- und Wiederherstellungsrichtlinien bleiben Produktabhängigkeiten.
 
 ## Schätzmodell {#method}
 

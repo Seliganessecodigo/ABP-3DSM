@@ -45,3 +45,5 @@ npm run docs:build
 ## संबंधित पठन {#related}
 
 [गुणवत्ता और स्वीकृति](./product/quality) · [उत्पाद बैकलॉग](./roadmap)
+
+[डिलीवरी योजना और प्रमाण](./plano-de-entregas)

@@ -22,9 +22,9 @@ Commencez par le résumé environnemental, repérez une application à examiner 
 | Absence explicite | Pannes, métriques manquantes et données anciennes se distinguent de zéro. |
 | Consultation publique | Lire les indicateurs est public ; sauvegarder des préférences et administrer des comptes exige une autorisation. |
 
-## Évolutions prévues {#planned}
+## État actuel et dépendances {#planned}
 
-Sont prévus : comparaison dédiée entre applications, simulation dans une autre région, gestion complète utilisateurs/rôles, récupération autonome du mot de passe, contrôles globaux de surveillance. Le périmètre de l’export CSV reste à définir. Le tableau de bord trie déjà par énergie ou émissions. Les priorités sont dans le backlog ; aucune date n’est fixée ici.
+Comparaison, simulation régionale, classement, gestion des utilisateurs et rôles, récupération du mot de passe et contrôles de surveillance sont implémentés. L’administration exige une autorisation ; SSO et courriels dépendent de la configuration. Export CSV et politiques de conservation, sauvegarde et restauration restent des dépendances produit.
 
 ## Critères d’acceptation {#acceptance}
 

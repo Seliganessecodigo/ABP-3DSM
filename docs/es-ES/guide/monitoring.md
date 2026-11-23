@@ -8,7 +8,7 @@ En el catálogo, busque por nombre, identificador o región y filtre por estado.
 
 ## Consultar el dashboard {#dashboard}
 
-En el dashboard, seleccione 24 horas, 7, 30 o 90 días, una región y un estado. Consulte energía, emisiones, cobertura y aplicaciones por estado. El gráfico muestra las proporciones de emisiones con barras o anillo. La tabla permite buscar, filtrar y ordenar por impacto; sus filtros cambian las filas, mientras los totales conservan el alcance seleccionado.
+En el dashboard, seleccione período, región y estado para consultar energía, CO₂e, éxito de las recopilaciones y aplicaciones por estado. El éxito es la proporción de intentos registrados que devolvieron métricas válidas y se guardaron; sin registros, la tasa no está disponible. Se muestra el primer registro del período. La cobertura temporal permanece en los análisis y la tabla, con avisos de datos parciales. Gráficos, búsqueda, filtros y paginación conservan el contexto.
 
 En la serie temporal, alterne entre energía y CO₂e o consulte la tabla de intervalos. La ventana de 24 horas se agrupa por hora; las demás, por día. Los intervalos siguen UTC y usan los mismos filtros que los indicadores. Los huecos permanecen sin valor.
 
@@ -22,13 +22,13 @@ El factor equivalente resume los factores regionales aplicados, ponderados por l
 
 En el historial, elija aplicación, período y agrupación por hora, día, mes o año. Use filtros y paginación para localizar intervalos y abra su composición para consultar observaciones incluidas y exclusiones. La zona horaria cambia la presentación de fechas; la agrupación permanece en UTC. La superposición del detalle compara la aplicación con el período anterior de igual duración.
 
-## Comparar con una vista previa de recálculo {#preview}
+## Vista previa heredada (fuera del alcance) {#preview}
 
-En la vista previa de recálculo, elija aplicación y fechas para comparar el original con una estimación del modelo actual y los factores actuales de las regiones observadas. El último día se incluye completo, en UTC. Se admiten hasta 30 días y 10.000 observaciones. La vista previa no se guarda ni cambia el historial. Las diferencias porcentuales aparecen si coinciden unidad y cobertura y el original es positivo.
+La vista previa de recálculo permanece en código heredado, fuera del alcance aceptado actual. Su presencia no autoriza cambios de metodología, fuentes o historial. Para comparar regiones con la misma energía, use la simulación regional.
 
 ## Personalizar el análisis {#preferences}
 
-En Metodología, explore energía, emisiones, cobertura y análisis. Las demostraciones usan datos de ejemplo identificados en pantalla. Inicie sesión para guardar umbrales de presentación y opciones iniciales de período y agrupación. Cada persona cambia solo sus preferencias; los cálculos y la configuración global se conservan. Ante un conflicto al guardar, recargue la preferencia antes de reintentar. Las opciones ya elegidas en la dirección del análisis prevalecen sobre las guardadas.
+En Metodología, explore energía, emisiones, cobertura y valores iniciales del análisis. Las vistas previas consultan datos reales e identifican ausencias o fallos; no cambian el historial ni la fórmula. Inicie sesión para guardar límites personales y opciones iniciales. Las fechas, filtros y agrupaciones explícitas en la dirección prevalecen sobre los valores guardados.
 
 ## Iniciar sesión {#access}
 
@@ -54,6 +54,10 @@ La cobertura es la proporción del período con observaciones válidas. Energía
 ## Diagnóstico {#support}
 
 Al informar un problema, indique aplicación, período, filtros, hora con zona y acción. Describa resultado esperado y observado. Las capturas ayudan si no contienen credenciales ni datos privados.
+
+## Otros análisis y configuración {#other}
+
+El ranking ordena resultados por energía o CO₂e del período. La comparación reúne aplicaciones y una referencia; la simulación regional mantiene la energía y presenta un escenario separado. En Configuración, usuarios autorizados acceden a monitorización, cuentas y auditoría de cambios. La cuenta personal permite cambiar la contraseña; el login ofrece recuperación mediante token temporal.
 
 ## Lecturas relacionadas {#related}
 

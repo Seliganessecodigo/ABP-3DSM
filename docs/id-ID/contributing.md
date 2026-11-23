@@ -45,3 +45,5 @@ npm run docs:build
 ## Bacaan terkait {#related}
 
 [Kualitas dan penerimaan](./product/quality) · [Backlog produk](./roadmap)
+
+[Rencana dan bukti](./plano-de-entregas)

@@ -19,10 +19,13 @@ GreenER membantu memantau aplikasi dan memahami estimasi konsumsi energi serta e
 | Dashboard lingkungan | [Baca dashboard](../guide/monitoring#dashboard) |
 | Detail aplikasi | [Selidiki detail](../guide/monitoring#detail) |
 | Riwayat dan komposisi | [Jelajahi riwayat](../guide/monitoring#history) |
-| Pratinjau hitung ulang | [Bandingkan dengan pratinjau hitung ulang](../guide/monitoring#preview) |
+| Pratinjau lama (di luar cakupan) | [Bandingkan dengan pratinjau hitung ulang](../guide/monitoring#preview) |
 | Preferensi pribadi | [Personalisasi analisis](../guide/monitoring#preferences) |
 | Masuk dan faktor kedua | [Masuk](../guide/monitoring#access) |
-| Urutan berdasarkan dampak | [Baca dashboard](../guide/monitoring#dashboard) |
+| Peringkat lingkungan | [Peringkat lingkungan](../guide/monitoring#other) |
+| Perbandingan aplikasi | [Perbandingan aplikasi](../guide/monitoring#other) |
+| Simulasi regional | [Simulasi regional](../guide/monitoring#other) |
+| Akun dan pemulihan kata sandi | [Akun dan pemulihan kata sandi](../guide/monitoring#other) |
 
 ## Alur analisis {#journey}
 
@@ -34,9 +37,9 @@ Model sederhana mengestimasi energi dari CPU, memori, disk dan jaringan selama i
 
 Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi memiliki cakupan terpisah: energi dapat diestimasi tanpa faktor untuk menghitung emisi. Bandingkan periode, satuan dan cakupan yang kompatibel. Cakupan rendah berarti analisis parsial, bukan bukti konsumsi berkurang.
 
-## Pengembangan terencana {#planned}
+## Status saat ini dan dependensi {#planned}
 
-Direncanakan perbandingan khusus antaraplikasi, simulasi wilayah lain, pengelolaan lengkap pengguna/peran, pemulihan kata sandi mandiri, kontrol monitoring global. Cakupan ekspor CSV perlu diputuskan. Pengurutan energi atau emisi sudah tersedia. Prioritas ada di backlog; dokumentasi ini tidak menetapkan tanggal pengiriman.
+Perbandingan, simulasi regional, peringkat, pengelolaan pengguna dan peran, pemulihan kata sandi serta kendali pemantauan telah diimplementasikan. Administrasi memerlukan izin; SSO dan pengiriman email bergantung pada konfigurasi lingkungan. Ekspor CSV serta kebijakan retensi, pencadangan dan pemulihan masih memerlukan keputusan produk.
 
 ## Bacaan terkait {#related}
 

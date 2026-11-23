@@ -19,10 +19,13 @@ GreenER帮助监控应用，理解其估算能源消耗及二氧化碳当量排�
 | 环境仪表板 | [查看仪表板](../guide/monitoring#dashboard) |
 | 应用详情 | [调查应用详情](../guide/monitoring#detail) |
 | 历史与组成 | [浏览历史](../guide/monitoring#history) |
-| 重算预览 | [比较重算预览](../guide/monitoring#preview) |
+| 旧版预览（范围之外） | [比较重算预览](../guide/monitoring#preview) |
 | 个人偏好 | [个性化分析](../guide/monitoring#preferences) |
 | 登录与第二因素 | [登录账户](../guide/monitoring#access) |
-| 按影响排序 | [查看仪表板](../guide/monitoring#dashboard) |
+| 环境排名 | [环境排名](../guide/monitoring#other) |
+| 应用比较 | [应用比较](../guide/monitoring#other) |
+| 区域模拟 | [区域模拟](../guide/monitoring#other) |
+| 账户与密码找回 | [账户与密码找回](../guide/monitoring#other) |
 
 ## 分析流程 {#journey}
 
@@ -34,9 +37,9 @@ GreenER帮助监控应用，理解其估算能源消耗及二氧化碳当量排�
 
 覆盖率是期间内有有效观测支持的比例。能源和排放分别计算覆盖率：缺少碳因子时仍可能有能源估算。请比较期间、单位和覆盖率兼容的结果。低覆盖率表示分析不完整，不证明消耗下降。
 
-## 计划改进 {#planned}
+## 当前状态与依赖项 {#planned}
 
-计划包括专门的多应用比较、其他地区模拟、完整用户和角色管理、自助密码恢复、全局监控控制。CSV导出范围仍需决策。仪表板已支持按能源或排放排序。优先级由待办管理，本文档不设这些改进的交付日期。
+比较、区域模拟、排名、用户与角色管理、密码恢复和监控控制均已实现。管理操作需要授权；SSO和邮件发送依赖环境配置。CSV导出以及保留、备份和恢复策略仍属于待确定的产品事项。
 
 ## 相关阅读 {#related}
 

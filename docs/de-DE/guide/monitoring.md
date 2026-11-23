@@ -8,7 +8,7 @@ Suchen Sie im Katalog nach Name, Kennung oder Region und filtern Sie nach Status
 
 ## Dashboard lesen {#dashboard}
 
-Wählen Sie im Dashboard 24 Stunden, 7, 30 oder 90 Tage, Region und Status. Prüfen Sie Energie, Emissionen, Abdeckung und Anzahl nach Status. Das Diagramm zeigt Emissionsanteile als Balken oder Ring. Tabellenfilter, Suche und Impact-Sortierung ändern die sichtbaren Zeilen; die Gesamtsummen behalten den ausgewählten Umfang.
+Wählen Sie im Dashboard Zeitraum, Region und Zustand für Energie, CO₂e, Erfassungserfolg und Anwendungen nach Zustand. Erfassungserfolg ist der Anteil aufgezeichneter Versuche mit gültigen gespeicherten Metriken; ohne Aufzeichnungen ist die Quote nicht verfügbar. Der erste Eintrag im Zeitraum wird angezeigt. Zeitliche Abdeckung bleibt in Analysen und Tabelle mit Hinweisen auf Teildaten erhalten. Diagramme, Suche, Filter und Seitennavigation behalten den Kontext bei.
 
 Wechseln Sie in der Zeitreihe zwischen Energie und CO₂e oder öffnen Sie die Intervalltabelle. Das 24-Stunden-Fenster wird stündlich gruppiert, die übrigen täglich. Die Intervalle folgen UTC und denselben Filtern wie die Kennzahlen. Lücken bleiben ohne Wert.
 
@@ -22,13 +22,13 @@ Der äquivalente Faktor fasst die angewendeten regionalen Faktoren zusammen, gew
 
 Wählen Sie im Verlauf Anwendung, Zeitraum und stündliche, tägliche, monatliche oder jährliche Gruppierung. Filter und Seiten helfen beim Finden von Intervallen; deren Zusammensetzung zeigt einbezogene Beobachtungen und Ausschlüsse. Die Zeitzone ändert die Datumsanzeige, die Gruppierung bleibt UTC. Die Detailüberlagerung vergleicht dieselbe Anwendung mit dem gleich langen Vorzeitraum.
 
-## Mit einer Neuberechnungsvorschau vergleichen {#preview}
+## Historische Vorschau (außerhalb des Umfangs) {#preview}
 
-Wählen Sie in der Neuberechnungsvorschau Anwendung und Datum, um das Original mit aktuellem Modell und aktuellen CO₂-Faktoren der beobachteten Regionen zu vergleichen. Der letzte Tag wird vollständig in UTC einbezogen. Höchstens 30 Tage und 10.000 Beobachtungen sind erlaubt. Die Vorschau wird nicht gespeichert und ändert keinen Verlauf. Prozentdifferenzen erfordern gleiche Einheiten und Abdeckung sowie einen positiven Originalwert.
+Die Neuberechnungsvorschau bleibt als Altcode außerhalb des derzeit akzeptierten Umfangs erhalten. Ihre Existenz erlaubt keine Änderung von Methodik, Quellen oder Verlauf. Verwenden Sie die regionale Simulation für Vergleiche mit gleicher Energie.
 
 ## Analyse anpassen {#preferences}
 
-Methodik bietet Energie, Emissionen, Abdeckung und Analyse. Beispiele sind auf dem Bildschirm gekennzeichnet. Melden Sie sich an, um Anzeigegrenzen sowie anfänglichen Zeitraum und Gruppierung zu speichern. Jede Person ändert nur eigene Einstellungen; Berechnungen und globale Konfiguration bleiben erhalten. Bei Speicherkonflikten laden Sie die Einstellung vor dem nächsten Versuch neu. Bereits in der Analyseadresse gewählte Optionen haben Vorrang.
+Unter Methodik finden Sie Energie, Emissionen, Abdeckung und Analysevorgaben. Vorschauen nutzen echte Daten und kennzeichnen fehlende Ergebnisse oder Fehler; Verlauf und Formel bleiben unverändert. Melden Sie sich an, um persönliche Grenzwerte und Vorgaben zu speichern. Explizite Daten, Filter und Gruppierungen in der Adresse haben Vorrang.
 
 ## Anmelden {#access}
 
@@ -54,6 +54,10 @@ Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie un
 ## Diagnose {#support}
 
 Nennen Sie bei Problemen Anwendung, Zeitraum, Filter, Uhrzeit mit Zeitzone und Aktion. Beschreiben Sie erwartetes und beobachtetes Ergebnis. Screenshots helfen, sofern sie keine Zugangsdaten oder privaten Daten enthalten.
+
+## Weitere Analysen und Einstellungen {#other}
+
+Die Rangliste ordnet Ergebnisse nach Energie oder CO₂e im Zeitraum. Der Vergleich umfasst Anwendungen und eine Referenz; die regionale Simulation behält die Energie bei und zeigt ein getrenntes Szenario. Berechtigte Benutzer finden Überwachung, Konten und Änderungsprüfung in den Einstellungen. Im persönlichen Konto kann das Passwort geändert werden; die Anmeldung bietet Wiederherstellung per temporärem Token.
 
 ## Weiterführende Seiten {#related}
 

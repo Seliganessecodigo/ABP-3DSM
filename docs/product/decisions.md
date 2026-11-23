@@ -10,9 +10,9 @@ Mudanças de escopo e regras de uso devem registrar o problema, o resultado espe
 | Ausência explícita | Falhas, falta de métricas e dados antigos permanecem distintos de zero. |
 | Consulta pública | Ler indicadores não exige login; salvar preferências e administrar contas exige acesso autorizado. |
 
-## Evoluções planejadas {#planned}
+## Estado atual e dependências {#planned}
 
-Estão planejados a comparação dedicada entre aplicações, a simulação em outra região, a gestão completa de usuários e papéis, a recuperação de senha por autoatendimento, os controles globais de monitoramento. A exportação CSV depende de definição de escopo. O dashboard já permite ordenar aplicações por energia ou emissões. As prioridades são mantidas no backlog; esta documentação não estabelece datas para essas evoluções.
+Comparação, simulação regional, ranking, gestão de usuários e papéis, recuperação de senha e controles de monitoramento estão implementados. A administração exige acesso autorizado; SSO e envio de e-mails dependem da configuração do ambiente. A exportação CSV e políticas de retenção, backup e recuperação continuam dependências de produto.
 
 ## Modelo de estimativa {#method}
 

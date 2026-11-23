@@ -19,10 +19,13 @@ GreenER ayuda a monitorizar aplicaciones y comprender su consumo estimado de ene
 | Dashboard ambiental | [Consultar el dashboard](../guide/monitoring#dashboard) |
 | Detalle de aplicación | [Investigar el detalle](../guide/monitoring#detail) |
 | Historial y composición | [Explorar el historial](../guide/monitoring#history) |
-| Vista previa de recálculo | [Comparar con una vista previa de recálculo](../guide/monitoring#preview) |
+| Vista previa heredada (fuera del alcance) | [Comparar con una vista previa de recálculo](../guide/monitoring#preview) |
 | Preferencias personales | [Personalizar el análisis](../guide/monitoring#preferences) |
 | Login y segundo factor | [Iniciar sesión](../guide/monitoring#access) |
-| Ordenación por impacto | [Consultar el dashboard](../guide/monitoring#dashboard) |
+| Ranking ambiental | [Ranking ambiental](../guide/monitoring#other) |
+| Comparación de aplicaciones | [Comparación de aplicaciones](../guide/monitoring#other) |
+| Simulación regional | [Simulación regional](../guide/monitoring#other) |
+| Cuentas y recuperación de contraseña | [Cuentas y recuperación de contraseña](../guide/monitoring#other) |
 
 ## Recorrido de análisis {#journey}
 
@@ -34,9 +37,9 @@ La energía se estima con un modelo simplificado de CPU, memoria, disco y red du
 
 La cobertura es la proporción del período con observaciones válidas. Energía y emisiones tienen coberturas separadas: puede haber energía estimada sin factor de carbono para calcular emisiones. Compare períodos, unidades y coberturas compatibles. Una cobertura baja indica análisis parcial, no reducción demostrada del consumo.
 
-## Mejoras previstas {#planned}
+## Estado actual y dependencias {#planned}
 
-Se prevén comparación dedicada entre aplicaciones, simulación en otra región, gestión completa de usuarios y roles, recuperación autónoma de contraseña, controles globales de monitorización. La exportación CSV requiere definir su alcance. El dashboard ya ordena por energía o emisiones. El backlog mantiene las prioridades; esta documentación no fija fechas para estas mejoras.
+La comparación, simulación regional, ranking, gestión de usuarios y roles, recuperación de contraseña y controles de monitorización están implementados. La administración exige autorización; SSO y correo dependen de la configuración del entorno. La exportación CSV y las políticas de retención, copia de seguridad y recuperación siguen siendo dependencias de producto.
 
 ## Lecturas relacionadas {#related}
 

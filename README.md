@@ -8,7 +8,7 @@ Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia 
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
+O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, comparação, ranking, simulação regional, metodologia e gestão de contas estão disponíveis. Recuperação de senha, SSO e controles administrativos dependem das permissões e da configuração do ambiente. A prévia antiga de recálculo permanece como implementação legada, fora do escopo aprovado. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
 
 Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
 
@@ -55,6 +55,10 @@ Acesse http://localhost:4174. Para gerar e visualizar os arquivos HTML de produ�
 O build verifica a equivalência de seções, tabelas, links e exemplos nos doze idiomas. Execute `npm run docs:check` para fazer essa conferência isoladamente.
 
 A publicação do HTML no GitHub Pages está configurada no workflow. Na primeira publicação, o repositório precisa usar **GitHub Actions** como origem em **Settings → Pages**. O Markdown continua versionado e acessível pelos links acima.
+
+## Evidências de entrega
+
+Consulte o [plano de entregas](docs/plano-de-entregas.md), os [registros das três sprints](docs/sprints/sprint-1.md) e a [matriz detalhada da rubrica](docs/evidence/rubrica/matriz.md). A consolidação usa a base remota `develop` em `240a2c2` e distingue contribuições incorporadas, critérios comprovados e atividades ainda sem evidência de execução. Revisões, avaliação com usuários e cortes oficiais não são presumidos a partir do fechamento de uma issue.
 
 ## Executar a aplicação
 

@@ -8,7 +8,7 @@ In the catalog, search by name, identifier or region and filter by application s
 
 ## Read the dashboard {#dashboard}
 
-On the dashboard, select 24 hours, 7, 30 or 90 days, a region and a state. Review energy, emissions, coverage and application counts by state. The chart shows emissions shares as bars or a donut. Search, filter and sort the table by impact; table filters change the displayed rows while summary totals retain the selected scope.
+On the dashboard, choose a period, region and state to view energy, CO₂e, collection success and applications by state. Collection success is the share of recorded attempts that returned valid metrics and were saved; without records, the rate is unavailable. The indicator shows the first record in the period. Temporal coverage remains in analyses and the table, with partial-data warnings. Charts, search, filters and pagination retain the selected context.
 
 In the time series, switch between energy and CO₂e or open the interval table. The 24-hour window uses hourly grouping; other windows use daily grouping. Intervals follow UTC and use the same filters as the indicators. Gaps remain without values.
 
@@ -22,13 +22,13 @@ The equivalent factor summarizes the applied regional factors, weighted by energ
 
 In history, choose an application, a period and hourly, daily, monthly or yearly grouping. Use filters and pagination to find intervals, then open an interval's composition to inspect included observations and exclusions. The timezone changes date display; grouping remains UTC. The detail overlay compares the application with the preceding period of equal duration.
 
-## Compare with a recalculation preview {#preview}
+## Legacy preview (out of scope) {#preview}
 
-In recalculation preview, select an application and dates to compare the original result with an estimate using the current model and current carbon factors for the observed regions. The last selected day is included in full, in UTC. Queries accept up to 30 days and 10,000 observations. The preview is not saved and never changes history. Percentage differences appear when units and coverage match and the original value is positive.
+The recalculation preview remains in legacy code outside the currently accepted scope. Its presence does not authorize changes to methodology, sources or history. Use regional simulation to compare regions with the same energy.
 
 ## Personalize analysis {#preferences}
 
-In Methodology, explore energy, emissions, coverage and analysis tabs. Demonstrations use sample data labeled on screen. Sign in to save presentation thresholds and initial period and grouping options. Each person changes only their own preferences; calculations and global settings remain preserved. If saving conflicts, reload the preference before retrying. Options already selected in the analysis address take priority over saved preferences.
+In Methodology, explore energy, emissions, coverage and analysis defaults. Previews query real data and identify missing results or failures; they do not change history or formulas. Sign in to save personal thresholds and initial options. Explicit dates, filters and grouping in the address take precedence over saved defaults.
 
 ## Sign in {#access}
 
@@ -54,6 +54,10 @@ Coverage is the proportion of a period supported by valid observations. Energy a
 ## Diagnosis {#support}
 
 When reporting a problem, provide the application, period, filters, time with timezone and action taken. Describe expected and observed outcomes. Screenshots help when they contain no credentials or private data.
+
+## Other analyses and settings {#other}
+
+Ranking orders results by energy or CO₂e for the period. Comparison combines applications and a reference; regional simulation keeps energy unchanged and presents a separate scenario. In Settings, authorized users access monitoring, accounts and change auditing. The personal account allows password changes; login offers recovery with a temporary token.
 
 ## Related reading {#related}
 

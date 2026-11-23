@@ -15,10 +15,12 @@
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## 期间与历史 {#queries}
@@ -30,7 +32,8 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@
 来源指标没有测量时间；区间由接收时间减`collection_interval_seconds`得出。因子查询时间不证明有效期，未发布来源和有效性保持未知。能源、因子、排放存8位小数，覆盖率4位，无中间舍入。保留独立覆盖率及原始快照。
 
 ## 时间序列与计算说明 {#environmental-presentation}
+
+使用`includeCollectionSuccess=true`时，汇总包含`collectionSuccess`，其中有`successful`、`total`、`rate`、`firstAttemptAt`和`lastAttemptAt`。该比例统计所选时间段和筛选内，获得有效指标并保存的已记录定期采集尝试；没有尝试时，`rate`为`null`。HTTP重试不增加分母，取消的尝试不计入。记录从此功能部署时开始，不推测补录历史。
 
 在 `/analysis/summary` 中，可选参数 `granularity` 返回与总计使用相同时段和筛选条件的 `series.points`。每个时段汇总各应用的持久化结果，并保留独立覆盖率。缺失值保持为 `null`。
 
@@ -50,6 +55,8 @@
 
 | HTTP | URI | 访问 |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@
 
 | HTTP | URI | 访问 |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,6 +86,10 @@
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
 同组织Admin可提交`expectedStatus`及原因，将账户改为`ACTIVE`、`BLOCKED`或`DEACTIVATED`。封禁/停用撤销所有会话；重新激活必须重新登录。保护自身账户及最后一位活跃Admin。预期状态冲突409，已达目标为幂等成功。共享审计将成功与变更同事务写入，拒绝在回滚事务之外写入，明确操作者且不含秘密。该路由不提供完整角色管理或密码恢复。
 
@@ -87,13 +99,13 @@
 
 ## 通过 API 管理账户 {#accounts}
 
-只有同一组织中处于有效状态的 Admin 可以查询、创建账户或更改角色。创建时提交 `name`、`email`、`role` 和 `reason`，不接收密码，也不自动验证邮箱。账户持有人通过现有邮箱确认流程设置密码，确认邮件需另行请求发送。管理界面和密码找回仍属于独立交付项。
+Admin可在同一组织内邀请账户并管理角色，须提供原因，同时保护最后一位管理员。设置页面汇集这些操作。密码恢复采用不泄露账户存在性的响应、一次性临时令牌和会话撤销；邮件发送需要配置SMTP。
 
 列表先应用搜索和筛选，再排序和分页。默认每页10条，可选5、10、15、20条，以及返回全部筛选结果的 `all`。翻译后的标签应转换为枚举代码，本地日期应转换为带时区偏移的 RFC 3339。缺失值在升序和降序中均排在最后，相同值按标识符排序。
 
 更改角色需要 `expectedRole` 和 `reason`。更改会撤销会话和临时 TOTP 凭据，保留审计记录，并禁止移除自己的访问权限或最后一个邮箱已确认的有效 Admin。未确认邮箱的账户不能替代该管理员。赋予 Admin 角色后仍须完成 TOTP 验证。
 
-## 比较重算预览 {#preview}
+## 旧版预览（范围之外） {#preview}
 
 在`/administration/calculations`选择应用和日期，比较原始值与预览。结束日期包含完整UTC日；API接收`[from,to)`。公开预览使用当前模型及历史地区的当前因子，不保存结果。上限30天、10,000条观测。响应有`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。因子故障保留可算能源，CO₂e不可用。百分比要求单位/覆盖率一致且参考值为正。
 

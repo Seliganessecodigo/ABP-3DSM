@@ -15,10 +15,12 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## Períodos e histórico {#queries}
@@ -30,7 +32,8 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ Esta referência orienta integrações com a API GreenER. O contrato completo de
 As métricas não incluem horário de medição na origem. O intervalo é derivado do recebimento menos `collection_interval_seconds`. O horário de consulta do fator não comprova vigência; fonte e validade não publicadas permanecem desconhecidas. Energia, fator e emissões persistem oito casas decimais; cobertura, quatro. Não há arredondamento intermediário. Energia e emissões preservam coberturas separadas e snapshots originais.
 
 ## Série e explicação do cálculo {#environmental-presentation}
+
+Com `includeCollectionSuccess=true`, o resumo inclui `collectionSuccess`, com `successful`, `total`, `rate`, `firstAttemptAt` e `lastAttemptAt`. A taxa considera tentativas agendadas registradas de métricas válidas e salvas no período/filtros; sem tentativas, `rate` é `null`. Retentativas HTTP não multiplicam o denominador; cancelamentos são excluídos. O registro começa na implantação dessa capacidade, sem backfill inferido.
 
 Em `/analysis/summary`, o parâmetro opcional `granularity` inclui `series.points` no mesmo período e filtros dos totais. Cada intervalo soma os resultados persistidos das aplicações e mantém coberturas independentes. Valores ausentes permanecem `null`.
 
@@ -50,6 +55,8 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 
 | HTTP | URI | Acesso |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 
 | HTTP | URI | Acesso |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,6 +86,10 @@ O dashboard e as consultas ambientais são públicos. Em `/login`, use e-mail/se
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
 A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLOCKED` e `DEACTIVATED`, com `expectedStatus` e motivo obrigatório. Bloqueio/desativação revogam todas as sessões; reativação exige novo login. Há proteção da própria conta e do último Admin ativo. Estado esperado divergente retorna 409; estado desejado já alcançado é sucesso idempotente. A auditoria compartilhada grava sucesso na transação da alteração e negações fora da transação revertida, com ator explícito e sem segredos. Gestão completa de papéis e recuperação de senha não estão entregues por essa rota.
 
@@ -87,13 +99,13 @@ A API permite a Admin da mesma organização alterar contas entre `ACTIVE`, `BLO
 
 ## Administrar contas pela API {#accounts}
 
-Somente Admin ativo da mesma organização pode listar e criar contas ou alterar papéis. A criação recebe `name`, `email`, `role` e `reason`, sem senha nem confirmação automática de e-mail. O titular define a senha no fluxo existente de confirmação; o envio da confirmação é solicitado separadamente. A tela de gestão e a recuperação de senha continuam em entregas próprias.
+Admin pode criar contas por convite e gerenciar papéis na mesma organização, com motivo e proteções de último administrador. A interface reúne essas ações em Configurações. Recuperação de senha usa resposta não enumerável, token temporário de uso único e revogação de sessões; entrega de e-mail depende de SMTP configurado.
 
 A listagem aplica busca e filtros antes de ordenar e paginar. O padrão é 10 itens, com opções 5, 10, 15, 20 e `all` para o conjunto filtrado completo. Rótulos traduzidos devem ser convertidos em códigos de enum e datas locais em RFC 3339 com fuso. Valores ausentes ficam ao final da ordenação em ambas as direções; empates usam o identificador.
 
 Alterar papel exige `expectedRole` e `reason`. A mudança revoga sessões e credenciais TOTP temporárias, preserva a auditoria e impede retirar o próprio acesso ou o último Admin ativo com e-mail confirmado. Contas ainda não confirmadas não substituem esse administrador. A atribuição de Admin mantém a exigência de TOTP.
 
-## Comparar com uma prévia de recálculo {#preview}
+## Prévia legada (fora do escopo) {#preview}
 
 Em `/administration/calculations`, selecione aplicação e datas para comparar original e prévia. A data final da UI é inclusiva em dias UTC; a API recebe `[from,to)`. A prévia é pública, usa o modelo atual e consulta fatores atuais para as regiões históricas, sem salvar ou substituir resultados. Limites: 30 dias e 10.000 observações. A resposta contém `original`, `preview`, `warnings` e `status` (`available`, `empty` ou `partial`). Falha do fator preserva energia calculável e informa CO₂e indisponível. Percentuais exigem unidades e coberturas iguais e referência positiva.
 

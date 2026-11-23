@@ -45,3 +45,5 @@ npm run docs:build
 ## Letture correlate {#related}
 
 [Qualità e accettazione](./product/quality) · [Backlog del prodotto](./roadmap)
+
+[Piano e prove](./plano-de-entregas)

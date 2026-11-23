@@ -22,9 +22,9 @@ Partite dal riepilogo ambientale, individuate un’applicazione da approfondire 
 | Assenza esplicita | Errori, metriche mancanti e dati precedenti restano distinti da zero. |
 | Consultazione pubblica | Leggere indicatori è pubblico; salvare preferenze e amministrare account richiede autorizzazione. |
 
-## Evoluzioni previste {#planned}
+## Stato attuale e dipendenze {#planned}
 
-Sono previsti confronto dedicato tra applicazioni, simulazione in altra regione, gestione completa utenti/ruoli, recupero password autonomo, controlli globali del monitoraggio. L’ambito dell’esportazione CSV resta da definire. La dashboard già ordina per energia o emissioni. Le priorità restano nel backlog; qui non sono definite date di consegna.
+Confronto, simulazione regionale, classifica, gestione di utenti e ruoli, recupero password e controlli di monitoraggio sono implementati. L’amministrazione richiede autorizzazione; SSO e posta dipendono dalla configurazione. Esportazione CSV e politiche di conservazione, backup e ripristino restano dipendenze di prodotto.
 
 ## Criteri di accettazione {#acceptance}
 

@@ -15,10 +15,12 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## अवधि और इतिहास {#queries}
@@ -30,7 +32,8 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 स्रोत metrics में मापन समय नहीं; प्राप्ति से `collection_interval_seconds` घटाकर अंतराल है। factor query समय वैधता सिद्ध नहीं करता; अप्रकाशित स्रोत/वैधता अज्ञात हैं। ऊर्जा/factor/उत्सर्जन 8 दशमलव, कवरेज4; मध्य rounding नहीं। अलग कवरेज और मूल snapshots सुरक्षित हैं।
 
 ## समय श्रृंखला और गणना की व्याख्या {#environmental-presentation}
+
+`includeCollectionSuccess=true` पर सारांश में `collectionSuccess` आता है, जिसमें `successful`, `total`, `rate`, `firstAttemptAt` और `lastAttemptAt` हैं। दर चुनी अवधि व फ़िल्टर में मान्य मेट्रिक सहेजने वाले दर्ज निर्धारित प्रयास गिनती है; प्रयास न होने पर `rate` का मान `null` है। HTTP पुनःप्रयास हर में नहीं जुड़ते और रद्द प्रयास बाहर रहते हैं। रिकॉर्डिंग इस क्षमता के परिनियोजन से शुरू होती है; पुराना डेटा अनुमान से नहीं भरा जाता।
 
 `/analysis/summary` में वैकल्पिक `granularity` पैरामीटर कुल योग के समान अवधि और फ़िल्टर वाले `series.points` जोड़ता है। प्रत्येक अंतराल अनुप्रयोगों के सहेजे गए परिणामों को जोड़ता है और स्वतंत्र कवरेज बनाए रखता है। अनुपलब्ध मान `null` रहते हैं।
 
@@ -50,6 +55,8 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 
 | HTTP | URI | प्रवेश |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 
 | HTTP | URI | प्रवेश |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,6 +86,10 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
 उसी संगठन का Admin `expectedStatus` और कारण देकर `ACTIVE`, `BLOCKED`, `DEACTIVATED` में बदलाव करता है। ब्लॉक/निष्क्रियता सभी सत्र रद्द करते हैं; पुनर्सक्रियता में नया लॉगिन चाहिए। अपना खाता और अंतिम सक्रिय Admin सुरक्षित हैं। अपेक्षित स्थिति संघर्ष पर 409; लक्ष्य पहले प्राप्त हो तो idempotent सफलता। साझा audit सफलता को बदलाव के transaction में, अस्वीकृति को rollback से बाहर लिखता है; स्पष्ट कर्ता, कोई रहस्य नहीं। यह मार्ग पूर्ण भूमिका प्रबंधन या पासवर्ड पुनर्प्राप्ति नहीं देता।
 
@@ -87,13 +99,13 @@ GreenER API एकीकरण संदर्भ। पूर्ण प्र�
 
 ## API से खातों का प्रबंधन {#accounts}
 
-केवल उसी संगठन का सक्रिय Admin खातों की सूची देख सकता है, खाते बना सकता है या भूमिकाएँ बदल सकता है। खाता बनाने के लिए `name`, `email`, `role` और `reason` दिए जाते हैं; पासवर्ड नहीं लिया जाता और ईमेल अपने आप सत्यापित नहीं होता। खाताधारक मौजूदा ईमेल पुष्टि प्रक्रिया में पासवर्ड तय करता है; पुष्टि ईमेल भेजने का अनुरोध अलग से किया जाता है। प्रबंधन स्क्रीन और पासवर्ड पुनर्प्राप्ति अलग कार्य हैं।
+Admin उसी संगठन में खाते आमंत्रित और भूमिकाएँ प्रबंधित कर सकता है, कारण तथा अंतिम प्रशासक की सुरक्षा के साथ। सेटिंग में ये क्रियाएँ मिलती हैं। रिकवरी खाते की मौजूदगी न बताने वाला उत्तर, एकबारगी अस्थायी टोकन और सत्र रद्द करना उपयोग करती है; ईमेल के लिए SMTP कॉन्फ़िगरेशन चाहिए।
 
 सूची में खोज और फ़िल्टर लगाने के बाद क्रम और पृष्ठ तय होते हैं। डिफ़ॉल्ट 10 आइटम हैं; 5, 10, 15, 20 और पूरा फ़िल्टर किया गया समूह पाने के लिए `all` उपलब्ध हैं। अनूदित लेबल को एनम कोड में और स्थानीय तारीखों को समय क्षेत्र सहित RFC 3339 में बदलना चाहिए। अनुपस्थित मान दोनों क्रमों में अंत में रहते हैं; समान मानों का क्रम पहचानकर्ता से तय होता है।
 
 भूमिका बदलने के लिए `expectedRole` और `reason` आवश्यक हैं। बदलाव सत्रों और अस्थायी TOTP प्रमाणों को रद्द करता है, ऑडिट सुरक्षित रखता है और अपना पहुँच अधिकार या सत्यापित ईमेल वाले अंतिम सक्रिय Admin का अधिकार हटाने से रोकता है। अपुष्ट खाते उस प्रशासक का स्थान नहीं लेते। Admin भूमिका दिए जाने पर भी TOTP आवश्यक रहता है।
 
-## पुनर्गणना पूर्वावलोकन से तुलना {#preview}
+## पुराना पूर्वावलोकन (दायरे से बाहर) {#preview}
 
 `/administration/calculations` में ऐप और तारीख चुनकर मूल/पूर्वावलोकन तुलना करें। अंतिम तारीख में पूरा UTC दिन शामिल है; API `[from,to)` लेती है। सार्वजनिक पूर्वावलोकन वर्तमान मॉडल और ऐतिहासिक क्षेत्रों के वर्तमान कारक लेता है, परिणाम सहेजता नहीं। सीमा 30 दिन और 10,000 प्रेक्षण। उत्तर: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`)। कारक विफलता में गणनीय ऊर्जा बचती है, CO₂e अनुपलब्ध रहता है। प्रतिशत हेतु समान इकाई/कवरेज और धनात्मक संदर्भ चाहिए।
 

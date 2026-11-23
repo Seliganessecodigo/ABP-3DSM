@@ -10,9 +10,9 @@ Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria pe
 | Ketiadaan eksplisit | Kegagalan, metrik hilang dan data lama dibedakan dari nol. |
 | Kueri publik | Membaca indikator tidak perlu masuk; menyimpan preferensi dan mengelola akun memerlukan izin. |
 
-## Pengembangan terencana {#planned}
+## Status saat ini dan dependensi {#planned}
 
-Direncanakan perbandingan khusus antaraplikasi, simulasi wilayah lain, pengelolaan lengkap pengguna/peran, pemulihan kata sandi mandiri, kontrol monitoring global. Cakupan ekspor CSV perlu diputuskan. Pengurutan energi atau emisi sudah tersedia. Prioritas ada di backlog; dokumentasi ini tidak menetapkan tanggal pengiriman.
+Perbandingan, simulasi regional, peringkat, pengelolaan pengguna dan peran, pemulihan kata sandi serta kendali pemantauan telah diimplementasikan. Administrasi memerlukan izin; SSO dan pengiriman email bergantung pada konfigurasi lingkungan. Ekspor CSV serta kebijakan retensi, pencadangan dan pemulihan masih memerlukan keputusan produk.
 
 ## Model estimasi {#method}
 

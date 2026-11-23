@@ -45,3 +45,5 @@ npm run docs:build
 ## Related reading {#related}
 
 [Quality and acceptance](./product/quality) · [Product backlog](./roadmap)
+
+[Delivery plan and evidence](./plano-de-entregas)

@@ -19,10 +19,13 @@ GreenER helps monitor applications and understand their estimated energy consump
 | Environmental dashboard | [Read the dashboard](../guide/monitoring#dashboard) |
 | Application details | [Investigate application details](../guide/monitoring#detail) |
 | History and composition | [Explore history](../guide/monitoring#history) |
-| Recalculation preview | [Compare with a recalculation preview](../guide/monitoring#preview) |
+| Legacy preview (out of scope) | [Compare with a recalculation preview](../guide/monitoring#preview) |
 | Personal preferences | [Personalize analysis](../guide/monitoring#preferences) |
 | Login and second factor | [Sign in](../guide/monitoring#access) |
-| Sorting by impact | [Read the dashboard](../guide/monitoring#dashboard) |
+| Environmental ranking | [Environmental ranking](../guide/monitoring#other) |
+| Application comparison | [Application comparison](../guide/monitoring#other) |
+| Regional simulation | [Regional simulation](../guide/monitoring#other) |
+| Accounts and password recovery | [Accounts and password recovery](../guide/monitoring#other) |
 
 ## Analysis journey {#journey}
 
@@ -34,9 +37,9 @@ Energy is estimated by a simplified model using CPU, memory, disk and network du
 
 Coverage is the proportion of a period supported by valid observations. Energy and emissions have separate coverage: estimated energy may exist even when a carbon factor is missing for emissions. Compare compatible periods, units and coverage. Low coverage signals partial analysis, not proven lower consumption.
 
-## Planned improvements {#planned}
+## Current status and dependencies {#planned}
 
-Planned improvements include dedicated cross-application comparison, simulation in another region, complete user and role management, self-service password recovery, global monitoring controls. CSV export requires a scope decision. The dashboard already sorts applications by energy or emissions. Priorities are maintained in the backlog; this documentation sets no delivery dates for these improvements.
+Comparison, regional simulation, ranking, user and role management, password recovery and monitoring controls are implemented. Administration requires authorized access; SSO and email delivery depend on environment configuration. CSV export and retention, backup and recovery policies remain product dependencies.
 
 ## Related reading {#related}
 

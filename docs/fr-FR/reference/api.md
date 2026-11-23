@@ -15,10 +15,12 @@ Référence d’intégration à l’API GreenER. L’environnement publie types,
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## Périodes et historique {#queries}
@@ -30,7 +32,8 @@ Référence d’intégration à l’API GreenER. L’environnement publie types,
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ Référence d’intégration à l’API GreenER. L’environnement publie types,
 Les métriques n’incluent pas l’heure de mesure source. L’intervalle dérive de la réception moins `collection_interval_seconds`. L’heure de requête du facteur ne prouve pas sa validité ; source/validité non publiées restent inconnues. Énergie, facteur, émissions : huit décimales ; couverture : quatre. Pas d’arrondi intermédiaire. Couvertures séparées et snapshots originaux conservés.
 
 ## Série et explication du calcul {#environmental-presentation}
+
+Avec `includeCollectionSuccess=true`, le résumé inclut `collectionSuccess`, avec `successful`, `total`, `rate`, `firstAttemptAt` et `lastAttemptAt`. Le taux compte les tentatives planifiées enregistrées avec des métriques valides sauvegardées dans la période et les filtres ; sans tentative, `rate` est `null`. Les nouvelles tentatives HTTP ne multiplient pas le dénominateur ; les annulations sont exclues. Les enregistrements commencent au déploiement de cette capacité, sans historique reconstitué par supposition.
 
 Dans `/analysis/summary`, le paramètre facultatif `granularity` ajoute `series.points` avec la même période et les mêmes filtres que les totaux. Chaque intervalle additionne les résultats persistés des applications et conserve des couvertures indépendantes. Les valeurs manquantes restent `null`.
 
@@ -50,6 +55,8 @@ Tableau de bord et consultations environnementales publics. `/login` accepte e-m
 
 | HTTP | URI | Accès |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ Tableau de bord et consultations environnementales publics. `/login` accepte e-m
 
 | HTTP | URI | Accès |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,6 +86,10 @@ Tableau de bord et consultations environnementales publics. `/login` accepte e-m
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
 Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
 
@@ -87,13 +99,13 @@ Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DE
 
 ## Administrer les comptes par l’API {#accounts}
 
-Seul un Admin actif de la même organisation peut consulter et créer des comptes ou modifier les rôles. La création reçoit `name`, `email`, `role` et `reason`, sans mot de passe ni confirmation automatique de l’adresse e-mail. Le titulaire définit son mot de passe dans le parcours de confirmation existant ; l’envoi de la confirmation est demandé séparément. L’écran de gestion et la récupération du mot de passe restent des livraisons distinctes.
+Admin peut inviter des comptes et gérer les rôles dans la même organisation, avec motif et protection du dernier administrateur. Paramètres regroupe ces actions. La récupération utilise une réponse non énumérable, un jeton temporaire à usage unique et la révocation des sessions ; les courriels nécessitent SMTP configuré.
 
 La liste applique la recherche et les filtres avant le tri et la pagination. La valeur par défaut est de 10 éléments, avec les options 5, 10, 15, 20 et `all` pour tout le jeu filtré. Les libellés traduits doivent être convertis en codes d’énumération et les dates locales en RFC 3339 avec décalage horaire. Les valeurs absentes restent à la fin dans les deux sens ; les égalités sont départagées par identifiant.
 
 Modifier un rôle exige `expectedRole` et `reason`. Le changement révoque les sessions et les justificatifs TOTP temporaires, préserve l’audit et empêche de retirer son propre accès ou le dernier Admin actif dont l’e-mail est confirmé. Les comptes non confirmés ne remplacent pas cet administrateur. L’attribution du rôle Admin conserve l’exigence TOTP.
 
-## Comparer avec un aperçu de recalcul {#preview}
+## Aperçu historique (hors périmètre) {#preview}
 
 Dans `/administration/calculations`, comparer original et aperçu par application et dates. Le dernier jour inclut la journée UTC entière ; l’API reçoit `[from,to)`. Aperçu public avec modèle actuel et facteurs actuels des régions historiques, sans sauvegarde. Limites : 30 jours et 10 000 observations. Réponse : `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Un facteur indisponible conserve l’énergie calculable. Les pourcentages exigent unités/couvertures égales et référence positive.
 

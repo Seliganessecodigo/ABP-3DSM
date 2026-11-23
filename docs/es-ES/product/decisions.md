@@ -10,9 +10,9 @@ Los cambios de alcance y reglas registran problema, resultado esperado y criteri
 | Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
 | Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
 
-## Mejoras previstas {#planned}
+## Estado actual y dependencias {#planned}
 
-Se prevén comparación dedicada entre aplicaciones, simulación en otra región, gestión completa de usuarios y roles, recuperación autónoma de contraseña, controles globales de monitorización. La exportación CSV requiere definir su alcance. El dashboard ya ordena por energía o emisiones. El backlog mantiene las prioridades; esta documentación no fija fechas para estas mejoras.
+La comparación, simulación regional, ranking, gestión de usuarios y roles, recuperación de contraseña y controles de monitorización están implementados. La administración exige autorización; SSO y correo dependen de la configuración del entorno. La exportación CSV y las políticas de retención, copia de seguridad y recuperación siguen siendo dependencias de producto.
 
 ## Modelo de estimación {#method}
 

@@ -19,18 +19,18 @@ const labels = {
 }
 
 const documentationLabels = {
-  'pt-BR': { vision: 'Visão e escopo', usage: 'Guia de uso', methodology: 'Metodologia e dados', quality: 'Qualidade e aceite', decisions: 'Decisões e dependências', api: 'Referência da API', operations: 'Operação e diagnóstico' },
-  'en-US': { vision: 'Vision and scope', usage: 'User guide', methodology: 'Methodology and data', quality: 'Quality and acceptance', decisions: 'Decisions and dependencies', api: 'API reference', operations: 'Operations and diagnosis' },
-  'es-ES': { vision: 'Visión y alcance', usage: 'Guía de uso', methodology: 'Metodología y datos', quality: 'Calidad y aceptación', decisions: 'Decisiones y dependencias', api: 'Referencia de la API', operations: 'Operación y diagnóstico' },
-  'fr-FR': { vision: 'Vision et périmètre', usage: 'Guide d’utilisation', methodology: 'Méthodologie et données', quality: 'Qualité et acceptation', decisions: 'Décisions et dépendances', api: 'Référence de l’API', operations: 'Exploitation et diagnostic' },
-  'de-DE': { vision: 'Vision und Umfang', usage: 'Benutzerhandbuch', methodology: 'Methodik und Daten', quality: 'Qualität und Abnahme', decisions: 'Entscheidungen und Abhängigkeiten', api: 'API-Referenz', operations: 'Betrieb und Diagnose' },
-  'it-IT': { vision: 'Visione e ambito', usage: 'Guida all’uso', methodology: 'Metodologia e dati', quality: 'Qualità e accettazione', decisions: 'Decisioni e dipendenze', api: 'Riferimento API', operations: 'Operazione e diagnosi' },
-  'ja-JP': { vision: 'ビジョンと範囲', usage: '利用ガイド', methodology: '方法論とデータ', quality: '品質と受け入れ', decisions: '決定と依存事項', api: 'APIリファレンス', operations: '運用と診断' },
-  'zh-CN': { vision: '愿景与范围', usage: '使用指南', methodology: '方法与数据', quality: '质量与验收', decisions: '决策与依赖', api: 'API参考', operations: '运维与诊断' },
-  'ko-KR': { vision: '비전과 범위', usage: '사용 안내', methodology: '방법론과 데이터', quality: '품질과 인수 기준', decisions: '결정과 의존성', api: 'API 참조', operations: '운영과 진단' },
-  'ru-RU': { vision: 'Видение и границы', usage: 'Руководство пользователя', methodology: 'Методология и данные', quality: 'Качество и приёмка', decisions: 'Решения и зависимости', api: 'Справочник API', operations: 'Эксплуатация и диагностика' },
-  'hi-IN': { vision: 'दृष्टि और दायरा', usage: 'उपयोग मार्गदर्शिका', methodology: 'पद्धति और डेटा', quality: 'गुणवत्ता और स्वीकृति', decisions: 'निर्णय और निर्भरताएँ', api: 'API संदर्भ', operations: 'संचालन और निदान' },
-  'id-ID': { vision: 'Visi dan cakupan', usage: 'Panduan penggunaan', methodology: 'Metodologi dan data', quality: 'Kualitas dan penerimaan', decisions: 'Keputusan dan dependensi', api: 'Referensi API', operations: 'Operasi dan diagnosis' },
+  'pt-BR': { plan: 'Plano e evidências', vision: 'Visão e escopo', usage: 'Guia de uso', methodology: 'Metodologia e dados', quality: 'Qualidade e aceite', decisions: 'Decisões e dependências', api: 'Referência da API', operations: 'Operação e diagnóstico' },
+  'en-US': { plan: 'Delivery plan and evidence', vision: 'Vision and scope', usage: 'User guide', methodology: 'Methodology and data', quality: 'Quality and acceptance', decisions: 'Decisions and dependencies', api: 'API reference', operations: 'Operations and diagnosis' },
+  'es-ES': { plan: 'Plan y evidencias', vision: 'Visión y alcance', usage: 'Guía de uso', methodology: 'Metodología y datos', quality: 'Calidad y aceptación', decisions: 'Decisiones y dependencias', api: 'Referencia de la API', operations: 'Operación y diagnóstico' },
+  'fr-FR': { plan: 'Plan et preuves', vision: 'Vision et périmètre', usage: 'Guide d’utilisation', methodology: 'Méthodologie et données', quality: 'Qualité et acceptation', decisions: 'Décisions et dépendances', api: 'Référence de l’API', operations: 'Exploitation et diagnostic' },
+  'de-DE': { plan: 'Lieferplan und Nachweise', vision: 'Vision und Umfang', usage: 'Benutzerhandbuch', methodology: 'Methodik und Daten', quality: 'Qualität und Abnahme', decisions: 'Entscheidungen und Abhängigkeiten', api: 'API-Referenz', operations: 'Betrieb und Diagnose' },
+  'it-IT': { plan: 'Piano e prove', vision: 'Visione e ambito', usage: 'Guida all’uso', methodology: 'Metodologia e dati', quality: 'Qualità e accettazione', decisions: 'Decisioni e dipendenze', api: 'Riferimento API', operations: 'Operazione e diagnosi' },
+  'ja-JP': { plan: '提供計画と根拠', vision: 'ビジョンと範囲', usage: '利用ガイド', methodology: '方法論とデータ', quality: '品質と受け入れ', decisions: '決定と依存事項', api: 'APIリファレンス', operations: '運用と診断' },
+  'zh-CN': { plan: '交付计划与证据', vision: '愿景与范围', usage: '使用指南', methodology: '方法与数据', quality: '质量与验收', decisions: '决策与依赖', api: 'API参考', operations: '运维与诊断' },
+  'ko-KR': { plan: '제공 계획 및 증거', vision: '비전과 범위', usage: '사용 안내', methodology: '방법론과 데이터', quality: '품질과 인수 기준', decisions: '결정과 의존성', api: 'API 참조', operations: '운영과 진단' },
+  'ru-RU': { plan: 'План поставки и доказательства', vision: 'Видение и границы', usage: 'Руководство пользователя', methodology: 'Методология и данные', quality: 'Качество и приёмка', decisions: 'Решения и зависимости', api: 'Справочник API', operations: 'Эксплуатация и диагностика' },
+  'hi-IN': { plan: 'डिलीवरी योजना और प्रमाण', vision: 'दृष्टि और दायरा', usage: 'उपयोग मार्गदर्शिका', methodology: 'पद्धति और डेटा', quality: 'गुणवत्ता और स्वीकृति', decisions: 'निर्णय और निर्भरताएँ', api: 'API संदर्भ', operations: 'संचालन और निदान' },
+  'id-ID': { plan: 'Rencana dan bukti', vision: 'Visi dan cakupan', usage: 'Panduan penggunaan', methodology: 'Metodologi dan data', quality: 'Kualitas dan penerimaan', decisions: 'Keputusan dan dependensi', api: 'Referensi API', operations: 'Operasi dan diagnosis' },
 }
 
 function localeConfig(text: (typeof labels)[keyof typeof labels], lang: keyof typeof documentationLabels) {
@@ -82,6 +82,7 @@ function localeConfig(text: (typeof labels)[keyof typeof labels], lang: keyof ty
             { text: content.api, link: link('/reference/api') },
             { text: content.operations, link: link('/operations') },
             { text: text.contributing, link: link('/contributing') },
+            { text: content.plan, link: link('/plano-de-entregas') },
           ],
         },
       ],

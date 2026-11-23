@@ -1,0 +1,2479 @@
+{
+  "source": "GitHub Project 2",
+  "url": "https://github.com/orgs/Seliganessecodigo/projects/2",
+  "consultedOn": "2026-11-22",
+  "timeZone": "America/Sao_Paulo",
+  "base": "240a2c26ecd2eb1b0adc184f4efe01799bab8a50",
+  "meaning": "Current field values before reconciliation; not proof of original sprint planning.",
+  "tasks": [
+    {
+      "projectItemId": 270819900,
+      "number": 154,
+      "title": "[Backend] US-04 / Task — Implementar coleta periódica e persistência de métricas",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/154",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:04:53Z",
+      "closedAt": "2026-10-15T22:57:34Z"
+    },
+    {
+      "projectItemId": 271946802,
+      "number": 243,
+      "title": "[Backend] US-05 / Task — Implementar isolamento de falhas e recuperação por aplicação e fonte",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/243",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-14T22:58:58Z",
+      "closedAt": "2026-10-19T21:24:44Z"
+    },
+    {
+      "projectItemId": 270819360,
+      "number": 213,
+      "title": "[Design] US-17 / Task — Definir temas claro e escuro no Figma",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/213",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "Sprint 1",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-13T12:13:32Z",
+      "closedAt": "2026-10-15T23:28:40Z"
+    },
+    {
+      "projectItemId": 271947119,
+      "number": 247,
+      "title": "[Design] US-01 / Task — Prototipar catálogo e detalhe operacional com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/247",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 1",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:04Z",
+      "closedAt": "2026-10-18T04:12:27Z"
+    },
+    {
+      "projectItemId": 270819364,
+      "number": 214,
+      "title": "[Frontend] US-17 / Task — Implementar temas e seletor de preferência",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/214",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-13T12:13:34Z",
+      "closedAt": "2026-10-17T23:10:54Z"
+    },
+    {
+      "projectItemId": 271946285,
+      "number": 242,
+      "title": "[Frontend] US-03 / Task — Implementar apresentação compartilhada de estado, motivo e frescor",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/242",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-14T22:58:56Z",
+      "closedAt": "2026-10-19T03:19:32Z"
+    },
+    {
+      "projectItemId": 270821217,
+      "number": 26,
+      "title": "[Frontend] US-01 / Task — Implementar catálogo conforme Figma com busca, filtros e ordenação",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/26",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:18:16Z",
+      "closedAt": "2026-10-18T04:16:34Z"
+    },
+    {
+      "projectItemId": 270819904,
+      "number": 157,
+      "title": "[Backend] US-06 / Task — Disponibilizar detalhe operacional e evidências de métricas",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/157",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:04:57Z",
+      "closedAt": "2026-10-15T22:55:44Z"
+    },
+    {
+      "projectItemId": 270821233,
+      "number": 45,
+      "title": "[Frontend] US-06 / Task — Implementar bloco de evidências de métricas atuais e históricas",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/45",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj",
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:18:37Z",
+      "closedAt": "2026-10-19T03:05:28Z"
+    },
+    {
+      "projectItemId": 270821228,
+      "number": 37,
+      "title": "[Frontend] US-04 / Task — Atualizar catálogo e detalhe sem perder contexto",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/37",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:18:28Z",
+      "closedAt": "2026-10-15T22:59:15Z"
+    },
+    {
+      "projectItemId": 271946894,
+      "number": 244,
+      "title": "[Frontend] US-05 / Task — Mostrar falhas parciais e recuperação por aplicação ou fonte",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/244",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-14T22:58:59Z",
+      "closedAt": "2026-10-19T03:19:43Z"
+    },
+    {
+      "projectItemId": 270820660,
+      "number": 119,
+      "title": "[Backend] RNF-04 / Task — Implementar mecanismo compartilhado de auditoria",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/119",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "NÃO FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:47:18Z",
+      "closedAt": "2026-11-06T13:39:51Z"
+    },
+    {
+      "projectItemId": 270821235,
+      "number": 49,
+      "title": "[Backend] US-07 / Task — Calcular energia estimada em kWh por intervalo e período",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/49",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:18:42Z",
+      "closedAt": "2026-10-19T05:03:05Z"
+    },
+    {
+      "projectItemId": 270819923,
+      "number": 165,
+      "title": "[Backend] US-08 / Task — Integrar regiões e snapshots de intensidade de carbono",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/165",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:08:47Z",
+      "closedAt": "2026-10-19T03:01:19Z"
+    },
+    {
+      "projectItemId": 270821241,
+      "number": 53,
+      "title": "[Backend] US-08 / Task — Implementar cálculo de CO₂e com fator consultado e resultado parcial",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/53",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:18:46Z",
+      "closedAt": "2026-10-19T02:54:20Z"
+    },
+    {
+      "projectItemId": 270819919,
+      "number": 164,
+      "title": "[Backend] US-07 / Task — Persistir resultados calculados de forma imutável e idempotente",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/164",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:08:38Z",
+      "closedAt": "2026-10-19T04:00:59Z"
+    },
+    {
+      "projectItemId": 271947764,
+      "number": 254,
+      "title": "[Design] US-09 / Task — Prototipar metodologia com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/254",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj",
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 2",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:15Z",
+      "closedAt": "2026-10-21T23:52:42Z"
+    },
+    {
+      "projectItemId": 270821247,
+      "number": 58,
+      "title": "[Backend] US-09 / Task — Disponibilizar metadados da metodologia aplicada",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/58",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj",
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:18:51Z",
+      "closedAt": "2026-10-19T23:08:06Z"
+    },
+    {
+      "projectItemId": 271947194,
+      "number": 248,
+      "title": "[Design] US-10 / Task — Prototipar dashboard ambiental com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/248",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 2",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:05Z",
+      "closedAt": "2026-10-27T22:41:50Z"
+    },
+    {
+      "projectItemId": 270819901,
+      "number": 156,
+      "title": "[Backend] US-10 / Task — Disponibilizar resumo ambiental agregado por período",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/156",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 2",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-06T17:04:56Z",
+      "closedAt": "2026-10-21T01:13:22Z"
+    },
+    {
+      "projectItemId": 270819401,
+      "number": 235,
+      "title": "[Backend] US-11 / Task — Disponibilizar detalhe ambiental por aplicação e período",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/235",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-13T23:05:34Z",
+      "closedAt": "2026-10-19T17:40:43Z"
+    },
+    {
+      "projectItemId": 271947276,
+      "number": 249,
+      "title": "[Design] US-11 / Task — Prototipar detalhe ambiental com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/249",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 1",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:07Z",
+      "closedAt": "2026-10-17T23:10:00Z"
+    },
+    {
+      "projectItemId": 270819942,
+      "number": 174,
+      "title": "[Backend] US-12 / Task — Implementar séries históricas, eventos e composição de agregados",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/174",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon",
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-06T17:20:05Z",
+      "closedAt": "2026-10-19T18:10:07Z"
+    },
+    {
+      "projectItemId": 271947377,
+      "number": 250,
+      "title": "[Design] US-12 / Task — Prototipar histórico ambiental com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/250",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 2",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:09Z",
+      "closedAt": "2026-10-27T22:41:41Z"
+    },
+    {
+      "projectItemId": 270821245,
+      "number": 57,
+      "title": "[Frontend] US-09 / Task — Implementar metodologia e explicações dos indicadores",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/57",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:18:50Z",
+      "closedAt": "2026-10-23T13:29:32Z"
+    },
+    {
+      "projectItemId": 270821248,
+      "number": 61,
+      "title": "[Frontend] US-10 / Task — Implementar dashboard ambiental com filtros, indicadores e composição",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/61",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:18:54Z",
+      "closedAt": "2026-10-30T18:06:25Z"
+    },
+    {
+      "projectItemId": 270821250,
+      "number": 65,
+      "title": "[Frontend] US-11 / Task — Implementar detalhe com energia, CO₂e e evidências",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/65",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves",
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:18:59Z",
+      "closedAt": "2026-10-20T03:40:19Z"
+    },
+    {
+      "projectItemId": 270821255,
+      "number": 69,
+      "title": "[Frontend] US-12 / Task — Implementar histórico com filtros, eventos e inspeção de intervalos",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/69",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:19:03Z",
+      "closedAt": "2026-11-03T23:16:57Z"
+    },
+    {
+      "projectItemId": 270820618,
+      "number": 90,
+      "title": "[Backend] US-18 / Task — Implementar autenticação JWT e proteção de credenciais",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/90",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:19:26Z",
+      "closedAt": "2026-10-30T18:06:07Z"
+    },
+    {
+      "projectItemId": 270820624,
+      "number": 91,
+      "title": "[Backend] US-18 / Task — Implementar autorização de rotas públicas e administrativas",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/91",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:19:27Z",
+      "closedAt": "2026-11-06T00:55:56Z"
+    },
+    {
+      "projectItemId": 270819907,
+      "number": 158,
+      "title": "[Backend] US-20 / Task — Listar, criar contas e atribuir papéis",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/158",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-06T17:06:03Z",
+      "closedAt": "2026-11-09T02:36:19Z"
+    },
+    {
+      "projectItemId": 271947919,
+      "number": 256,
+      "title": "[Design] US-18 / Task — Prototipar login e navegação administrativa com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/256",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 2",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:18Z",
+      "closedAt": "2026-10-27T22:41:33Z"
+    },
+    {
+      "projectItemId": 271946961,
+      "number": 245,
+      "title": "[Backend] US-20 / Task — Bloquear, reativar e desativar contas com revogação",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/245",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-14T22:59:01Z",
+      "closedAt": "2026-11-08T17:33:20Z"
+    },
+    {
+      "projectItemId": 270819933,
+      "number": 170,
+      "title": "[Frontend] US-18 / Task — Implementar login, sessão e navegação autorizada",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/170",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-06T17:11:05Z",
+      "closedAt": "2026-10-30T18:05:12Z"
+    },
+    {
+      "projectItemId": 270819924,
+      "number": 166,
+      "title": "[Infra] RNF-05 / Task — Provisionar e publicar staging com rollback",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/166",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "NÃO FUNCIONAL",
+        "infra",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-06T17:08:57Z",
+      "closedAt": "2026-10-30T18:06:55Z"
+    },
+    {
+      "projectItemId": 270820673,
+      "number": 129,
+      "title": "[Qualidade] RNF-06 / Task — Verificar fluxo completo e recuperação no CI",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/129",
+      "state": "closed",
+      "stateReason": "completed",
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "NÃO FUNCIONAL",
+        "Sprint 2"
+      ],
+      "createdAt": "2026-10-01T02:47:28Z",
+      "closedAt": "2026-11-06T01:40:39Z"
+    },
+    {
+      "projectItemId": 271947505,
+      "number": 251,
+      "title": "[Design] US-13 / Task — Prototipar ranking ambiental com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/251",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 3",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:10Z",
+      "closedAt": "2026-11-16T10:42:07Z"
+    },
+    {
+      "projectItemId": 270819944,
+      "number": 175,
+      "title": "[Backend] US-13 / Task — Implementar ranking ambiental agregado e rastreável",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/175",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-06T17:20:15Z",
+      "closedAt": "2026-11-16T10:16:15Z"
+    },
+    {
+      "projectItemId": 270820610,
+      "number": 74,
+      "title": "[Frontend] US-13 / Task — Implementar ranking com filtros, indicadores e itens não classificáveis",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/74",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:19:09Z",
+      "closedAt": "2026-11-19T12:58:51Z"
+    },
+    {
+      "projectItemId": 271947582,
+      "number": 252,
+      "title": "[Design] US-14 / Task — Prototipar comparação de aplicações com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/252",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 3",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:12Z",
+      "closedAt": "2026-11-16T10:42:00Z"
+    },
+    {
+      "projectItemId": 270819950,
+      "number": 178,
+      "title": "[Backend] US-14 / Task — Implementar comparação de aplicações no mesmo recorte",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/178",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-06T17:23:35Z",
+      "closedAt": "2026-11-16T10:15:11Z"
+    },
+    {
+      "projectItemId": 270820612,
+      "number": 78,
+      "title": "[Frontend] US-14 / Task — Implementar fluxo completo de comparação de aplicações",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/78",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-01T02:19:13Z",
+      "closedAt": "2026-11-19T12:58:34Z"
+    },
+    {
+      "projectItemId": 270819892,
+      "number": 133,
+      "title": "[UX] RNF-07 — Experiência, acessibilidade e processo / Task — Realizar avaliação de usabilidade e melhorias",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/133",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves",
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "NÃO FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-01T02:47:32Z",
+      "closedAt": "2026-11-18T10:38:06Z"
+    },
+    {
+      "projectItemId": 271947854,
+      "number": 255,
+      "title": "[Design] US-19 / Task — Prototipar configuração, saúde e auditoria com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/255",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 3",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:16Z",
+      "closedAt": "2026-11-18T10:18:12Z"
+    },
+    {
+      "projectItemId": 270820628,
+      "number": 95,
+      "title": "[Backend] US-19 / Task — Implementar configuração versionada com validação e auditoria",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/95",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-01T02:19:32Z",
+      "closedAt": "2026-11-18T13:16:11Z"
+    },
+    {
+      "projectItemId": 270819930,
+      "number": 167,
+      "title": "[Backend] US-19 / Task — Disponibilizar consultas de saúde operacional e auditoria",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/167",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-06T17:09:07Z",
+      "closedAt": "2026-11-17T15:30:27Z"
+    },
+    {
+      "projectItemId": 270820626,
+      "number": 94,
+      "title": "[Frontend] US-19 / Task — Implementar configurações administrativas e controles do monitoramento",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/94",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-01T02:19:31Z",
+      "closedAt": "2026-11-18T10:35:51Z"
+    },
+    {
+      "projectItemId": 271947039,
+      "number": 246,
+      "title": "[Frontend] US-19 / Task — Implementar consultas de saúde operacional e auditoria",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/246",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-14T22:59:02Z",
+      "closedAt": "2026-11-18T10:35:20Z"
+    },
+    {
+      "projectItemId": 270819915,
+      "number": 160,
+      "title": "[Backend] US-20 / Task — Recuperar senha com token temporário",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/160",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs",
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-06T17:06:05Z",
+      "closedAt": "2026-11-18T13:15:22Z"
+    },
+    {
+      "projectItemId": 270819397,
+      "number": 234,
+      "title": "[Design] US-20 / Task — Prototipar gestão de usuários e recuperação de acesso com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/234",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 3",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-13T22:46:24Z",
+      "closedAt": "2026-11-12T17:52:48Z"
+    },
+    {
+      "projectItemId": 270819917,
+      "number": 161,
+      "title": "[Frontend] US-20 / Task — Administrar contas, papéis e transições de acesso",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/161",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-06T17:06:07Z",
+      "closedAt": "2026-11-18T10:35:27Z"
+    },
+    {
+      "projectItemId": 271947671,
+      "number": 253,
+      "title": "[Design] US-15 / Task — Prototipar simulação regional com estados e responsividade",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/253",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 3",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-14T22:59:13Z",
+      "closedAt": "2026-11-16T10:41:52Z"
+    },
+    {
+      "projectItemId": 270820616,
+      "number": 86,
+      "title": "[Backend] US-15 / Task — Implementar simulação regional com energia constante",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/86",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 3",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:19:22Z",
+      "closedAt": "2026-11-09T22:38:39Z"
+    },
+    {
+      "projectItemId": 270820614,
+      "number": 85,
+      "title": "[Frontend] US-15 / Task — Implementar fluxo completo de simulação regional",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/85",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-01T02:19:21Z",
+      "closedAt": "2026-11-17T15:30:47Z"
+    },
+    {
+      "projectItemId": 270982817,
+      "number": 101,
+      "title": "[Frontend] RNF-01 — Tecnologias obrigatórias / Task — Configurar frontend React com TypeScript",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/101",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "NÃO FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:38:48Z",
+      "closedAt": "2026-10-06T17:06:49Z"
+    },
+    {
+      "projectItemId": 270982823,
+      "number": 102,
+      "title": "[Backend] RNF-01 — Tecnologias obrigatórias / Task — Configurar backend NestJS com TypeScript",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/102",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "NÃO FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:38:49Z",
+      "closedAt": "2026-10-06T17:06:50Z"
+    },
+    {
+      "projectItemId": 270982851,
+      "number": 111,
+      "title": "[Infra] RNF-03 / Task — Configurar PostgreSQL, TypeORM e migrations iniciais",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/111",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "NÃO FUNCIONAL",
+        "infra",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:39:01Z",
+      "closedAt": "2026-10-06T17:06:52Z"
+    },
+    {
+      "projectItemId": 270820654,
+      "number": 113,
+      "title": "[Backend] RNF-03 / Task — Implementar schema e repositories do histórico",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/113",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "NÃO FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:47:12Z",
+      "closedAt": "2026-10-14T04:25:14Z"
+    },
+    {
+      "projectItemId": 270982901,
+      "number": 118,
+      "title": "[Infra] RNF-04 — Segurança e acesso / Task — Gerenciar segredos fora do repositório",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/118",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "NÃO FUNCIONAL",
+        "infra",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:47:17Z",
+      "closedAt": "2026-10-06T17:06:55Z"
+    },
+    {
+      "projectItemId": 270982980,
+      "number": 123,
+      "title": "[Infra] RNF-05 / Task — Orquestrar frontend, backend e banco com Docker Compose",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/123",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "NÃO FUNCIONAL",
+        "infra",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-01T02:47:22Z",
+      "closedAt": "2026-10-06T17:07:00Z"
+    },
+    {
+      "projectItemId": 270983070,
+      "number": 135,
+      "title": "[Infra] Configurar CI para build e validações do GreenER",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/135",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "NÃO FUNCIONAL",
+        "infra",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-05T22:19:59Z",
+      "closedAt": "2026-10-06T17:07:03Z"
+    },
+    {
+      "projectItemId": 270983118,
+      "number": 155,
+      "title": "[Backend] Integração / Task — Definir contratos e resiliência das APIs auxiliares",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/155",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "NÃO FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:04:55Z",
+      "closedAt": "2026-10-07T21:20:11Z"
+    },
+    {
+      "projectItemId": 270998655,
+      "number": 162,
+      "title": "[Backend] US-01 / Task — Disponibilizar catálogo e consulta de aplicações",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/162",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:07:53Z",
+      "closedAt": "2026-10-07T21:20:12Z"
+    },
+    {
+      "projectItemId": 270819918,
+      "number": 163,
+      "title": "[Backend] US-03 / Task — Classificar estado e razão operacional da aplicação",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/163",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "brenoasj"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:08:22Z",
+      "closedAt": "2026-10-14T00:07:47Z"
+    },
+    {
+      "projectItemId": 270998670,
+      "number": 171,
+      "title": "[Backend] US-02 / Task — Registrar eventos de entrada, ausência confirmada e retorno",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/171",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-06T17:11:21Z",
+      "closedAt": "2026-10-07T21:20:17Z"
+    },
+    {
+      "projectItemId": 270819358,
+      "number": 212,
+      "title": "[Frontend] US-16 / Task — Implementar internacionalização e seletor de idioma",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/212",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-13T12:13:31Z",
+      "closedAt": "2026-10-14T04:26:52Z"
+    },
+    {
+      "projectItemId": 272099400,
+      "number": 260,
+      "title": "[Design] RNF-07 / Task — Consolidar componentes compartilhados e estados de interação no Figma",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/260",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "Sprint 1",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-15T03:29:49Z",
+      "closedAt": "2026-10-18T04:11:33Z"
+    },
+    {
+      "projectItemId": 272099413,
+      "number": 261,
+      "title": "[Frontend] RNF-02 / Task — Implementar a base visual compartilhada de ações e feedback",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/261",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-15T03:29:52Z",
+      "closedAt": "2026-10-19T04:02:09Z"
+    },
+    {
+      "projectItemId": 272099432,
+      "number": 262,
+      "title": "[Frontend] US-10 / Task — Compartilhar seleção de período e preservar contexto entre análises",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/262",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-15T03:29:55Z",
+      "closedAt": "2026-10-19T05:02:33Z"
+    },
+    {
+      "projectItemId": 272099457,
+      "number": 263,
+      "title": "[Backend] US-12 / Task — Gerar prévia de recálculo com configuração atual sem alterar o histórico",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/263",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL"
+      ],
+      "createdAt": "2026-10-15T03:29:58Z",
+      "closedAt": "2026-10-24T10:53:57Z"
+    },
+    {
+      "projectItemId": 272099479,
+      "number": 264,
+      "title": "[Frontend] US-12 / Task — Solicitar prévia de recálculo e comparar com o original",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/264",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "lucas-cecon"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-15T03:30:00Z",
+      "closedAt": "2026-11-04T22:06:21Z"
+    },
+    {
+      "projectItemId": 272099517,
+      "number": 265,
+      "title": "[Frontend] US-20 / Task — Implementar solicitação e redefinição de senha",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/265",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "GianlucaAlves"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 3"
+      ],
+      "createdAt": "2026-10-15T03:30:03Z",
+      "closedAt": "2026-11-20T19:24:19Z"
+    },
+    {
+      "projectItemId": 272764242,
+      "number": 271,
+      "title": "[Design] EP00 / Task — Prototipar sidebar compartilhada e navegação responsiva",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/271",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "guioliv3"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FUNCIONAL",
+        "Sprint 1",
+        "DESIGN"
+      ],
+      "createdAt": "2026-10-15T16:14:01Z",
+      "closedAt": "2026-10-15T21:27:18Z"
+    },
+    {
+      "projectItemId": 272764556,
+      "number": 272,
+      "title": "[Frontend] EP00 / Task — Implementar sidebar compartilhada e navegação responsiva",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/272",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      },
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL",
+        "Sprint 1"
+      ],
+      "createdAt": "2026-10-15T16:14:23Z",
+      "closedAt": "2026-10-18T04:02:17Z"
+    },
+    {
+      "projectItemId": 279214674,
+      "number": 316,
+      "title": "[Backend] US-18 / Task — Implementar autenticação local com Argon2id e segundo fator TOTP",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/316",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL",
+        "ready-for-agent"
+      ],
+      "createdAt": "2026-10-22T01:31:20Z",
+      "closedAt": "2026-10-30T18:05:32Z"
+    },
+    {
+      "projectItemId": 279214872,
+      "number": 317,
+      "title": "[Backend] US-18 / Task — Integrar autenticação SSO com provedor de identidade confiável",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/317",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "BACKEND",
+        "FUNCIONAL"
+      ],
+      "createdAt": "2026-10-22T01:31:34Z",
+      "closedAt": "2026-10-30T18:05:43Z"
+    },
+    {
+      "projectItemId": 279224033,
+      "number": 318,
+      "title": "[Frontend] US-18 / Task — Implementar cadastro e desafio de segundo fator TOTP",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/318",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL"
+      ],
+      "createdAt": "2026-10-22T01:42:50Z",
+      "closedAt": "2026-10-30T18:05:25Z"
+    },
+    {
+      "projectItemId": 279224179,
+      "number": 319,
+      "title": "[Frontend] US-18 / Task — Implementar entrada SSO e retorno à sessão GreenER",
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/319",
+      "state": "closed",
+      "stateReason": "completed",
+      "assignees": [
+        "Vitaixs"
+      ],
+      "sprint": null,
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "estimate": null,
+      "size": null,
+      "labels": [
+        "TASK",
+        "FRONTEND",
+        "FUNCIONAL"
+      ],
+      "createdAt": "2026-10-22T01:43:00Z",
+      "closedAt": "2026-10-30T18:05:49Z"
+    }
+  ]
+}

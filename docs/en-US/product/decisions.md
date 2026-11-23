@@ -10,9 +10,9 @@ Changes to scope and usage rules should record the problem, expected outcome and
 | Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
 | Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-## Planned improvements {#planned}
+## Current status and dependencies {#planned}
 
-Planned improvements include dedicated cross-application comparison, simulation in another region, complete user and role management, self-service password recovery, global monitoring controls. CSV export requires a scope decision. The dashboard already sorts applications by energy or emissions. Priorities are maintained in the backlog; this documentation sets no delivery dates for these improvements.
+Comparison, regional simulation, ranking, user and role management, password recovery and monitoring controls are implemented. Administration requires authorized access; SSO and email delivery depend on environment configuration. CSV export and retention, backup and recovery policies remain product dependencies.
 
 ## Estimation model {#method}
 

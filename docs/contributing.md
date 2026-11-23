@@ -45,3 +45,5 @@ npm run docs:build
 ## Leitura relacionada {#related}
 
 [Qualidade e aceite](./product/quality) · [Backlog do produto](./roadmap)
+
+[Plano e evidências](./plano-de-entregas)

@@ -19,10 +19,13 @@ GreenER unterstützt die Überwachung von Anwendungen und das Verständnis ihres
 | Umweltdashboard | [Dashboard lesen](../guide/monitoring#dashboard) |
 | Anwendungsdetails | [Details untersuchen](../guide/monitoring#detail) |
 | Verlauf und Zusammensetzung | [Verlauf erkunden](../guide/monitoring#history) |
-| Neuberechnungsvorschau | [Mit einer Neuberechnungsvorschau vergleichen](../guide/monitoring#preview) |
+| Historische Vorschau (außerhalb des Umfangs) | [Mit einer Neuberechnungsvorschau vergleichen](../guide/monitoring#preview) |
 | Persönliche Einstellungen | [Analyse anpassen](../guide/monitoring#preferences) |
 | Anmeldung und zweiter Faktor | [Anmelden](../guide/monitoring#access) |
-| Sortierung nach Wirkung | [Dashboard lesen](../guide/monitoring#dashboard) |
+| Umweltranking | [Umweltranking](../guide/monitoring#other) |
+| Anwendungsvergleich | [Anwendungsvergleich](../guide/monitoring#other) |
+| Regionale Simulation | [Regionale Simulation](../guide/monitoring#other) |
+| Konten und Passwortwiederherstellung | [Konten und Passwortwiederherstellung](../guide/monitoring#other) |
 
 ## Analyseablauf {#journey}
 
@@ -34,9 +37,9 @@ Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte u
 
 Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-## Geplante Erweiterungen {#planned}
+## Aktueller Stand und Abhängigkeiten {#planned}
 
-Geplant sind ein eigener Anwendungsvergleich, Simulation anderer Regionen, vollständige Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungssteuerung. Der Umfang des CSV-Exports braucht noch eine Entscheidung. Das Dashboard sortiert bereits nach Energie oder Emissionen. Prioritäten stehen im Backlog; diese Dokumentation legt keine Liefertermine fest.
+Vergleich, regionale Simulation, Rangliste, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung sind implementiert. Die Verwaltung erfordert Berechtigung; SSO und E-Mail-Versand benötigen Umgebungskonfiguration. CSV-Export sowie Aufbewahrungs-, Sicherungs- und Wiederherstellungsrichtlinien bleiben Produktabhängigkeiten.
 
 ## Weiterführende Seiten {#related}
 

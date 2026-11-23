@@ -45,3 +45,5 @@ npm run docs:build
 ## Связанные страницы {#related}
 
 [Качество и приёмка](./product/quality) · [Бэклог продукта](./roadmap)
+
+[План поставки и доказательства](./plano-de-entregas)
