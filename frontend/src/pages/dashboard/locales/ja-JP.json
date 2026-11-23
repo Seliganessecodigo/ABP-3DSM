@@ -36,6 +36,7 @@
   "compositionEmpty": "この期間に CO₂e の結果があるアプリケーションはありません。",
   "compositionSharesUnavailable": "この合計の割合は計算できません。個別の値は引き続き表示されます。",
   "total": "合計",
+  "otherApplications": "その他のアプリケーション ({{count}})",
   "donutDescription": "アプリケーション {{count}} 件の CO₂e 構成、合計 {{total}}",
   "ascending": "昇順",
   "descending": "降順",
