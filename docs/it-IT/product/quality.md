@@ -1,6 +1,6 @@
 # Qualità e accettazione
 
-Il prodotto deve permettere di trovare un’applicazione, distinguere zero da assenza e risalire da un indicatore a periodo, unità, copertura e metodo. Le consultazioni conservano contesto e comunicano caricamento, vuoto, errore e dati precedenti. Si valutano tastiera, focus visibile, testo oltre al colore, dispositivi mobili e 12 lingue.
+L’interfaccia collega gli indicatori a periodo, unità, copertura e metodologia, conservando filtri e contesto di navigazione. Caricamento, vuoto, errore e dati obsoleti sono gestiti esplicitamente. Tastiera, focus visibile, testo oltre al colore, dispositivi mobili, temi e 12 lingue fanno parte dell’esperienza.
 
 ## Criteri di accettazione {#acceptance}
 
@@ -18,12 +18,16 @@ La copertura è la proporzione del periodo con osservazioni valide. Energia ed e
 
 ## Criteri di validazione {#assessment}
 
-Modifiche a perimetro e regole registrano problema, risultato atteso e criteri di accettazione nelle storie pertinenti. Review e valutazioni di usabilità raccolgono difficoltà, feedback e migliorie. Retention, backup/ripristino, obiettivi operativi e quote esterne richiedono ancora decisioni.
+Epic, storie e attività organizzano il prodotto con criteri verificabili e riferimenti al codice. Issue, pull request e commit collegano requisiti, implementazione e test; la documentazione raccoglie architettura, contratti, operazioni ed evidenze in un insieme versionato.
 
 ## Verifiche {#engineering}
+
+Per la base documentata, la CI ha approvato 542 test frontend, 705 backend e tre flussi integrati, oltre a lint, controllo dei tipi, build, migrazioni e gate SonarQube Cloud. Il sito offre 12 lingue con verifica automatica dell’equivalenza di contenuti, contratti e collegamenti.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
 
 [Contribuire](../contributing)
 
 ## Letture correlate {#related}
 
-[Decisioni e dipendenze](../product/decisions) · [Contribuire](../contributing)
+[Principi di ingegneria](../product/decisions) · [Contribuire](../contributing)

@@ -1,6 +1,6 @@
-# Keputusan dan dependensi
+# Prinsip rekayasa
 
-Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
+Epic, cerita dan tugas mengatur produk dengan kriteria terverifikasi dan referensi kode. Issue, pull request dan commit menghubungkan persyaratan, implementasi dan pengujian; dokumentasi berversi menghimpun arsitektur, kontrak, operasi dan bukti.
 
 ## Aturan produk {#rules}
 
@@ -10,9 +10,9 @@ Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria pe
 | Ketiadaan eksplisit | Kegagalan, metrik hilang dan data lama dibedakan dari nol. |
 | Kueri publik | Membaca indikator tidak perlu masuk; menyimpan preferensi dan mengelola akun memerlukan izin. |
 
-## Pengembangan terencana {#planned}
+## Kemampuan terintegrasi {#planned}
 
-Direncanakan perbandingan khusus antaraplikasi, simulasi wilayah lain, pengelolaan lengkap pengguna/peran, pemulihan kata sandi mandiri, kontrol monitoring global. Cakupan ekspor CSV perlu diputuskan. Pengurutan energi atau emisi sudah tersedia. Prioritas ada di backlog; dokumentasi ini tidak menetapkan tanggal pengiriman.
+Platform menyediakan perbandingan aplikasi, peringkat lingkungan, simulasi regional, pengelolaan pengguna dan peran, pemulihan kata sandi serta kontrol pemantauan. JWT, Google SSO dan faktor kedua TOTP melindungi alur administratif, sementara kueri lingkungan tetap publik.
 
 ## Model estimasi {#method}
 
@@ -20,7 +20,7 @@ Model sederhana mengestimasi energi dari CPU, memori, disk dan jaringan selama i
 
 ## Kriteria penerimaan {#acceptance}
 
-Produk harus memungkinkan menemukan aplikasi, membedakan nol dari ketiadaan dan melacak indikator ke periode, satuan, cakupan dan metode. Kueri mempertahankan konteks navigasi dan menjelaskan pemuatan, kosong, kegagalan dan data lama. Evaluasi mencakup keyboard, fokus terlihat, teks selain warna, seluler dan 12 bahasa.
+Antarmuka menghubungkan indikator dengan periode, satuan, cakupan dan metodologi sambil mempertahankan filter serta konteks navigasi. Status pemuatan, kosong, kegagalan dan data usang ditangani secara eksplisit. Keyboard, fokus terlihat, teks selain warna, perangkat seluler, tema dan 12 bahasa merupakan bagian dari pengalaman pengguna.
 
 ## Bacaan terkait {#related}
 

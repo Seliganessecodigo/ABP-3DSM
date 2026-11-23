@@ -1,6 +1,6 @@
-# Decisions and dependencies
+# Engineering principles
 
-Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
+Epics, stories and tasks organize the product around verifiable criteria and code references. Issues, pull requests and commits connect requirements, implementation and tests; the documentation brings architecture, contracts, operations and evidence into a versioned collection.
 
 ## Product rules {#rules}
 
@@ -10,9 +10,9 @@ Changes to scope and usage rules should record the problem, expected outcome and
 | Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
 | Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-## Planned improvements {#planned}
+## Integrated capabilities {#planned}
 
-Planned improvements include dedicated cross-application comparison, simulation in another region, complete user and role management, self-service password recovery, global monitoring controls. CSV export requires a scope decision. The dashboard already sorts applications by energy or emissions. Priorities are maintained in the backlog; this documentation sets no delivery dates for these improvements.
+The platform offers application comparison, environmental ranking, regional simulation, user and role management, password recovery and monitoring controls. JWT authentication, Google SSO and a TOTP second factor protect administrative workflows, while environmental queries remain public.
 
 ## Estimation model {#method}
 
@@ -20,7 +20,7 @@ Energy is estimated by a simplified model using CPU, memory, disk and network du
 
 ## Acceptance criteria {#acceptance}
 
-The product must let people find an application, distinguish zero from missing data and trace an indicator to its period, unit, coverage and methodology. Queries must preserve navigation context and communicate loading, empty results, failures and older data. Assessment includes keyboard use, visible focus, text beyond color, mobile devices and all 12 languages.
+The interface connects indicators to their period, unit, coverage and methodology while preserving filters and navigation context. Loading, empty, failure and stale-data states receive explicit handling. Keyboard navigation, visible focus, text beyond color, mobile devices, themes and 12 languages are part of the user experience.
 
 ## Related reading {#related}
 

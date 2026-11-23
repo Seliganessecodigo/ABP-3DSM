@@ -15,10 +15,12 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## 期間と履歴 {#queries}
@@ -30,7 +32,8 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 元の測定時刻はなく、受信時刻から`collection_interval_seconds`を引いて区間を導出します。係数照会時刻は有効期間ではなく、未公開の出典・有効性は不明です。エネルギー・係数・排出は小数8桁、カバー率4桁で保存し、中間丸めは行いません。別々のカバー率と原本snapshotを保持します。
 
 ## 時系列と計算の説明 {#environmental-presentation}
+
+`includeCollectionSuccess=true`を指定すると、サマリーに`collectionSuccess`が含まれ、その中に`successful`、`total`、`rate`、`firstAttemptAt`、`lastAttemptAt`があります。対象期間とフィルター内で、有効なメトリクスを保存した記録済み定期収集の試行を集計します。試行がなければ`rate`は`null`です。HTTP再試行は分母を増やさず、キャンセルは除外します。この機能の導入以降を記録し、過去の記録を推測して補完しません。
 
 `/analysis/summary` の任意パラメーター `granularity` を指定すると、合計と同じ期間・フィルターの `series.points` が含まれます。各期間はアプリケーションの保存済み結果を合計し、指標別のカバレッジを維持します。欠損値は `null` のままです。
 
@@ -50,6 +55,8 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 
 | HTTP | URI | アクセス |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 
 | HTTP | URI | アクセス |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,8 +86,12 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。役割管理全体やパスワード復旧はこのAPIの範囲外です。
+同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -87,13 +99,13 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 
 ## API でアカウントを管理する {#accounts}
 
-同じ組織の有効な Admin のみが、アカウントの一覧表示、作成、ロール変更を行えます。作成時は `name`、`email`、`role`、`reason` を指定し、パスワードの設定やメールの自動確認は行いません。本人が既存のメール確認フローでパスワードを設定します。確認メールの送信は別途要求します。管理画面とパスワード回復は別の開発項目です。
+Adminは同じ組織のアカウントを招待し、理由を記録してロールを管理できます。最後の管理者は保護され、操作は設定画面にまとめられています。パスワード回復はアカウントの存在を明かさない応答、一回限りの一時トークン、セッションの失効を用います。メール送信にはSMTP設定が必要です。
 
 一覧では検索とフィルターを適用してから並べ替えとページ分割を行います。初期値は10件で、5、10、15、20件、および絞り込み後の全件を返す `all` を選べます。翻訳済みラベルは列挙コードに、現地日時はオフセット付き RFC 3339 に変換してください。欠損値は昇順・降順とも末尾に配置し、同値の場合は識別子で順序を決めます。
 
 ロール変更には `expectedRole` と `reason` が必要です。変更時はセッションと一時 TOTP 資格情報を失効させ、監査を保持し、自分自身のアクセスやメール確認済みの最後の有効な Admin を失う変更を防ぎます。メール未確認のアカウントはその管理者の代わりにはなりません。Admin を割り当てても TOTP は必須です。
 
-## 再計算プレビューと比較する {#preview}
+## 計算プレビュー {#preview}
 
 `/administration/calculations`でアプリと日付を選び原本とプレビューを比較。終了日はUTCの一日全体を含み、APIは`[from,to)`。公開操作で現行モデルと過去地域の現在係数を使用し、保存しません。上限30日・10,000観測。応答は`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。係数障害でも算出可能なエネルギーを保持。百分率は同じ単位・カバー率と正の基準値が必要です。
 

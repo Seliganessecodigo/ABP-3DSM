@@ -4,7 +4,7 @@ Bagian ini untuk pengembangan dan operasi: lingkungan lokal, kontrak dan pemerik
 
 ## Kriteria validasi {#workflow}
 
-Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
+Epic, cerita dan tugas mengatur produk dengan kriteria terverifikasi dan referensi kode. Issue, pull request dan commit menghubungkan persyaratan, implementasi dan pengujian; dokumentasi berversi menghimpun arsitektur, kontrak, operasi dan bukti.
 
 ```text
 develop → tipo/numero-descricao / tipo/descricao → PR develop
@@ -14,7 +14,7 @@ Refs #N
 
 ## Pemeriksaan {#quality}
 
-CI memeriksa build dokumentasi, lint/test/build frontend, lint/typecheck/test PostgreSQL/cakupan/build/migration backend dan alur browser terintegrasi nyata. `TEST_DATABASE_URL` harus PostgreSQL terisolasi; tanpa variabel, Jest melewati suite database dan browser integrasi gagal. SonarQube wajib untuk PR ke `develop`: cakupan baru ≥80%, duplikasi ≤3%, rating A, seluruh hotspot ditinjau. Otomatisasi tidak mengganti evaluasi kegunaan/penerimaan produk.
+CI memeriksa build dokumentasi, lint/test/build frontend, lint/typecheck/test PostgreSQL/cakupan/build/migration backend dan alur browser terintegrasi nyata. `TEST_DATABASE_URL` harus PostgreSQL terisolasi; tanpa variabel, Jest melewati suite database dan browser integrasi gagal. SonarQube wajib untuk PR ke `develop`: cakupan baru ≥80%, duplikasi ≤3%, rating A, seluruh hotspot ditinjau.
 
 ```sh
 npm ci --prefix docs
@@ -34,7 +34,7 @@ npm run test:integration --prefix frontend
 
 ## Dokumentasi teknis {#documentation}
 
-Produk harus memungkinkan menemukan aplikasi, membedakan nol dari ketiadaan dan melacak indikator ke periode, satuan, cakupan dan metode. Kueri mempertahankan konteks navigasi dan menjelaskan pemuatan, kosong, kegagalan dan data lama. Evaluasi mencakup keyboard, fokus terlihat, teks selain warna, seluler dan 12 bahasa.
+Antarmuka menghubungkan indikator dengan periode, satuan, cakupan dan metodologi sambil mempertahankan filter serta konteks navigasi. Status pemuatan, kosong, kegagalan dan data usang ditangani secara eksplisit. Keyboard, fokus terlihat, teks selain warna, perangkat seluler, tema dan 12 bahasa merupakan bagian dari pengalaman pengguna.
 
 ```sh
 npm ci --prefix docs
@@ -45,3 +45,5 @@ npm run docs:build
 ## Bacaan terkait {#related}
 
 [Kualitas dan penerimaan](./product/quality) · [Backlog produk](./roadmap)
+
+[Rencana dan bukti](./plano-de-entregas)

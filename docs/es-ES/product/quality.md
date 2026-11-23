@@ -1,6 +1,6 @@
 # Calidad y aceptación
 
-El producto debe permitir localizar una aplicación, distinguir cero de ausencia y rastrear un indicador hasta período, unidad, cobertura y metodología. Las consultas conservan contexto y comunican carga, vacío, fallo y datos antiguos. La evaluación incluye teclado, foco visible, texto además de color, móviles y los 12 idiomas.
+La interfaz vincula los indicadores con su período, unidad, cobertura y metodología, conservando filtros y contexto de navegación. Los estados de carga, vacío, fallo y datos desactualizados tienen tratamiento explícito. Teclado, foco visible, texto además de color, dispositivos móviles, temas y 12 idiomas forman parte de la experiencia.
 
 ## Criterios de aceptación {#acceptance}
 
@@ -18,12 +18,16 @@ La cobertura es la proporción del período con observaciones válidas. Energía
 
 ## Criterios de validación {#assessment}
 
-Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
+Épicas, historias y tareas organizan el producto con criterios verificables y referencias al código. Issues, pull requests y commits conectan requisitos, implementación y pruebas; la documentación reúne arquitectura, contratos, operación y evidencias en un conjunto versionado.
 
 ## Comprobaciones {#engineering}
+
+En la base documentada, la CI aprobó 542 pruebas de frontend, 705 de backend y tres flujos integrados, además de lint, tipado, builds, migraciones y el gate SonarQube Cloud. El sitio ofrece 12 idiomas con comprobación automática de equivalencia de contenido, contratos y enlaces.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
 
 [Contribuir](../contributing)
 
 ## Lecturas relacionadas {#related}
 
-[Decisiones y dependencias](../product/decisions) · [Contribuir](../contributing)
+[Principios de ingeniería](../product/decisions) · [Contribuir](../contributing)

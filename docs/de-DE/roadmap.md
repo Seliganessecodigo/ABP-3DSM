@@ -22,13 +22,13 @@ Beginnen Sie mit der Umweltübersicht, wählen Sie eine auffällige Anwendung un
 | Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
 | Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-## Geplante Erweiterungen {#planned}
+## Integrierte Fähigkeiten {#planned}
 
-Geplant sind ein eigener Anwendungsvergleich, Simulation anderer Regionen, vollständige Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungssteuerung. Der Umfang des CSV-Exports braucht noch eine Entscheidung. Das Dashboard sortiert bereits nach Energie oder Emissionen. Prioritäten stehen im Backlog; diese Dokumentation legt keine Liefertermine fest.
+Die Plattform bietet Anwendungsvergleich, Umweltranking, regionale Simulation, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung. JWT, Google SSO und ein zweiter TOTP-Faktor schützen administrative Abläufe; Umweltabfragen bleiben öffentlich.
 
 ## Abnahmekriterien {#acceptance}
 
-Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
+Epics, Stories und Aufgaben strukturieren das Produkt mit überprüfbaren Kriterien und Codeverweisen. Issues, Pull Requests und Commits verbinden Anforderungen, Implementierung und Tests; die versionierte Dokumentation vereint Architektur, Verträge, Betrieb und Nachweise.
 
 ## Weiterführende Seiten {#related}
 

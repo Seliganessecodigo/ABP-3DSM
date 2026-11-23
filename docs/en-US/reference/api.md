@@ -15,10 +15,12 @@ This reference supports GreenER API integrations. The environment publishes comp
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## Periods and history {#queries}
@@ -30,7 +32,8 @@ This reference supports GreenER API integrations. The environment publishes comp
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ This reference supports GreenER API integrations. The environment publishes comp
 Source metrics have no measurement timestamp. The interval derives from receipt minus `collection_interval_seconds`. Factor query time does not establish validity; unpublished source and validity remain unknown. Energy, factor and emissions persist eight decimal places; coverage four. No intermediate rounding occurs. Energy and emissions retain separate coverage and original snapshots.
 
 ## Series and calculation explanation {#environmental-presentation}
+
+With `includeCollectionSuccess=true`, the summary includes `collectionSuccess`, with `successful`, `total`, `rate`, `firstAttemptAt` and `lastAttemptAt`. The rate counts recorded scheduled attempts with valid, saved metrics within the period/filters; without attempts, `rate` is `null`. HTTP retries do not multiply the denominator; cancellations are excluded. Recording starts when this capability is deployed, without inferred backfill.
 
 In `/analysis/summary`, the optional `granularity` parameter includes `series.points` with the same period and filters as the totals. Each interval sums persisted application results and keeps independent coverage. Missing values remain `null`.
 
@@ -50,6 +55,8 @@ Dashboard and environmental queries are public. At `/login`, use email/password 
 
 | HTTP | URI | Access |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ Dashboard and environmental queries are public. At `/login`, use email/password 
 
 | HTTP | URI | Access |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,8 +86,12 @@ Dashboard and environmental queries are public. At `/login`, use email/password 
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets. This route does not deliver full role management or password recovery.
+An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -87,13 +99,13 @@ An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED
 
 ## Administer accounts through the API {#accounts}
 
-Only an active Admin in the same organization can list and create accounts or change roles. Creation accepts `name`, `email`, `role` and `reason`, without a password or automatic email verification. The account holder sets a password through the existing confirmation flow; confirmation delivery is requested separately. The management screen and password recovery remain separate deliveries.
+Admins can invite accounts and manage roles within the same organization, with a reason and last-admin protections. Settings groups these actions. Password recovery uses a non-enumerating response, a temporary single-use token and session revocation; email delivery requires configured SMTP.
 
 Listing applies search and filters before sorting and pagination. The default is 10 items, with options 5, 10, 15, 20 and `all` for the complete filtered set. Translated labels must be mapped to enum codes and local dates to RFC 3339 with an offset. Missing values sort last in both directions; ties use the identifier.
 
 Role changes require `expectedRole` and `reason`. A change revokes sessions and temporary TOTP credentials, preserves audit records and prevents removing your own access or the last active Admin with a confirmed email. Unconfirmed accounts do not replace that administrator. Assigning Admin retains the TOTP requirement.
 
-## Compare with a recalculation preview {#preview}
+## Calculation preview {#preview}
 
 At `/administration/calculations`, select an application and dates to compare original and preview. The UI end date includes the whole UTC day; the API receives `[from,to)`. Preview is public, uses the current model and current factors for historical regions, and saves or replaces no results. Limits: 30 days and 10,000 observations. Response fields are `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Factor failure preserves calculable energy while CO₂e remains unavailable. Percentages require matching units/coverage and a positive reference.
 

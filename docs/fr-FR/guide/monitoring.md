@@ -8,7 +8,7 @@ Dans le catalogue, recherchez par nom, identifiant ou région et filtrez par ét
 
 ## Lire le tableau de bord {#dashboard}
 
-Dans le tableau de bord, choisissez 24 heures, 7, 30 ou 90 jours, une région et un état. Consultez énergie, émissions, couverture et répartition par état. Le graphique présente les parts d’émissions en barres ou anneau. Recherche, filtres et tri par impact concernent les lignes du tableau ; les totaux conservent le périmètre sélectionné.
+Dans le tableau de bord, choisissez période, région et état pour consulter énergie, CO₂e, réussite des collectes et applications par état. La réussite correspond aux tentatives enregistrées ayant obtenu et sauvegardé des métriques valides ; sans enregistrement, le taux est indisponible. Le premier enregistrement de la période est indiqué. La couverture temporelle reste dans les analyses et le tableau, avec des avertissements sur les données partielles. Graphiques, recherche, filtres et pagination conservent le contexte.
 
 Dans la série temporelle, alternez entre énergie et CO₂e ou consultez le tableau des intervalles. La fenêtre de 24 heures utilise un regroupement horaire ; les autres, un regroupement quotidien. Les intervalles suivent UTC et les mêmes filtres que les indicateurs. Les lacunes restent sans valeur.
 
@@ -22,13 +22,13 @@ Le facteur équivalent résume les facteurs régionaux appliqués, pondérés pa
 
 Dans l’historique, choisissez application, période et regroupement par heure, jour, mois ou année. Filtres et pagination permettent de trouver un intervalle, puis sa composition présente observations incluses et exclusions. Le fuseau change l’affichage des dates ; le regroupement reste UTC. La superposition du détail compare l’application à la période précédente de même durée.
 
-## Comparer avec un aperçu de recalcul {#preview}
+## Aperçu du calcul {#preview}
 
-Dans l’aperçu de recalcul, choisissez application et dates pour comparer l’original à une estimation avec le modèle actuel et les facteurs actuels des régions observées. Le dernier jour est entièrement inclus en UTC. Limites : 30 jours et 10 000 observations. L’aperçu n’est pas sauvegardé et ne modifie pas l’historique. Les écarts en pourcentage exigent unités et couvertures identiques et une valeur originale positive.
+La comparaison entre applications exige périodes, unités et couvertures compatibles. La simulation régionale conserve l’énergie observée, change le facteur du scénario et sépare les résultats des indicateurs officiels.
 
 ## Personnaliser l’analyse {#preferences}
 
-Dans Méthodologie, explorez énergie, émissions, couverture et analyse. Les démonstrations utilisent des exemples signalés à l’écran. Connectez-vous pour sauvegarder seuils d’affichage et options initiales de période et regroupement. Chacun modifie uniquement ses préférences ; calculs et configuration générale sont conservés. En cas de conflit, rechargez la préférence avant de réessayer. Les choix déjà présents dans l’adresse de l’analyse sont prioritaires.
+Dans Méthodologie, explorez énergie, émissions, couverture et paramètres initiaux. Les aperçus consultent des données réelles et signalent absences ou erreurs ; ils ne changent ni historique ni formule. Connectez-vous pour enregistrer vos seuils et options. Dates, filtres et regroupements explicites dans l’adresse prévalent sur les valeurs enregistrées.
 
 ## Se connecter {#access}
 
@@ -54,6 +54,10 @@ La couverture est la proportion de la période étayée par des observations val
 ## Diagnostic {#support}
 
 Signalez application, période, filtres, heure avec fuseau et action effectuée. Décrivez résultat attendu et observé. Les captures aident si elles ne contiennent ni identifiants secrets ni données privées.
+
+## Autres analyses et paramètres {#other}
+
+Le classement ordonne les résultats par énergie ou CO₂e sur la période. La comparaison réunit des applications et une référence ; la simulation régionale conserve l’énergie et présente un scénario séparé. Les utilisateurs autorisés accèdent à la surveillance, aux comptes et à l’audit des modifications dans Paramètres. Le compte personnel permet de changer le mot de passe ; la connexion propose une récupération par jeton temporaire.
 
 ## Lectures associées {#related}
 

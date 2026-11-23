@@ -1,6 +1,6 @@
 # Vision und Umfang
 
-GreenER unterstützt die Überwachung von Anwendungen und das Verständnis ihres geschätzten Energieverbrauchs und ihrer Kohlendioxidäquivalent-Emissionen (CO₂e). Kennzahlen, Standort und Verlauf helfen, die Umweltwirkung digitaler Dienste zu untersuchen.
+GreenER vereint kontinuierliche Überwachung, Energie- und CO₂e-Schätzungen sowie Umweltanalysen in einer integrierten Plattform. Dynamischer Katalog, Dashboard, Verlauf, Ranking, Vergleich und regionale Simulation verbinden den Überblick mit der Untersuchung einzelner Anwendungen; Kennzahlen lassen sich bis zu Quelldaten und Methodik zurückverfolgen.
 
 ## Zielgruppen {#readers}
 
@@ -19,10 +19,12 @@ GreenER unterstützt die Überwachung von Anwendungen und das Verständnis ihres
 | Umweltdashboard | [Dashboard lesen](../guide/monitoring#dashboard) |
 | Anwendungsdetails | [Details untersuchen](../guide/monitoring#detail) |
 | Verlauf und Zusammensetzung | [Verlauf erkunden](../guide/monitoring#history) |
-| Neuberechnungsvorschau | [Mit einer Neuberechnungsvorschau vergleichen](../guide/monitoring#preview) |
 | Persönliche Einstellungen | [Analyse anpassen](../guide/monitoring#preferences) |
 | Anmeldung und zweiter Faktor | [Anmelden](../guide/monitoring#access) |
-| Sortierung nach Wirkung | [Dashboard lesen](../guide/monitoring#dashboard) |
+| Umweltranking | [Umweltranking](../guide/monitoring#other) |
+| Anwendungsvergleich | [Anwendungsvergleich](../guide/monitoring#other) |
+| Regionale Simulation | [Regionale Simulation](../guide/monitoring#other) |
+| Konten und Passwortwiederherstellung | [Konten und Passwortwiederherstellung](../guide/monitoring#other) |
 
 ## Analyseablauf {#journey}
 
@@ -34,9 +36,9 @@ Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte u
 
 Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-## Geplante Erweiterungen {#planned}
+## Integrierte Fähigkeiten {#planned}
 
-Geplant sind ein eigener Anwendungsvergleich, Simulation anderer Regionen, vollständige Benutzer-/Rollenverwaltung, Passwortselbsthilfe, globale Überwachungssteuerung. Der Umfang des CSV-Exports braucht noch eine Entscheidung. Das Dashboard sortiert bereits nach Energie oder Emissionen. Prioritäten stehen im Backlog; diese Dokumentation legt keine Liefertermine fest.
+Die Plattform bietet Anwendungsvergleich, Umweltranking, regionale Simulation, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung. JWT, Google SSO und ein zweiter TOTP-Faktor schützen administrative Abläufe; Umweltabfragen bleiben öffentlich.
 
 ## Weiterführende Seiten {#related}
 

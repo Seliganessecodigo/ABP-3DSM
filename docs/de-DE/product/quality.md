@@ -1,6 +1,6 @@
 # Qualität und Abnahme
 
-Das Produkt muss Anwendungen auffindbar machen, Null von fehlenden Daten unterscheiden und Kennzahlen auf Zeitraum, Einheit, Abdeckung und Methodik zurückführen. Abfragen erhalten Navigationskontext und kennzeichnen Laden, Leere, Fehler und ältere Daten. Bewertet werden Tastatur, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte und alle 12 Sprachen.
+Die Oberfläche verknüpft Kennzahlen mit Zeitraum, Einheit, Abdeckung und Methodik und erhält Filter sowie Navigationskontext. Lade-, Leer-, Fehler- und veraltete Datenzustände werden ausdrücklich behandelt. Tastaturbedienung, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte, Themes und 12 Sprachen gehören zur Nutzungserfahrung.
 
 ## Abnahmekriterien {#acceptance}
 
@@ -18,12 +18,16 @@ Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie un
 
 ## Validierungskriterien {#assessment}
 
-Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
+Epics, Stories und Aufgaben strukturieren das Produkt mit überprüfbaren Kriterien und Codeverweisen. Issues, Pull Requests und Commits verbinden Anforderungen, Implementierung und Tests; die versionierte Dokumentation vereint Architektur, Verträge, Betrieb und Nachweise.
 
 ## Prüfungen {#engineering}
+
+Für die dokumentierte Basis bestand die CI 542 Frontend-Tests, 705 Backend-Tests und drei integrierte Abläufe sowie Lint, Typprüfung, Builds, Migrationen und das SonarQube-Cloud-Gate. Die Website bietet 12 Sprachen mit automatischer Prüfung gleicher Inhalte, Verträge und Links.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
 
 [Mitwirken](../contributing)
 
 ## Weiterführende Seiten {#related}
 
-[Entscheidungen und Abhängigkeiten](../product/decisions) · [Mitwirken](../contributing)
+[Entwicklungsprinzipien](../product/decisions) · [Mitwirken](../contributing)

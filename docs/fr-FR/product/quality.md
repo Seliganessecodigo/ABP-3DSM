@@ -1,6 +1,6 @@
 # Qualité et acceptation
 
-Le produit doit permettre de trouver une application, distinguer zéro de l’absence et relier un indicateur à sa période, son unité, sa couverture et sa méthode. Les consultations préservent le contexte et indiquent chargement, vide, panne et données anciennes. L’évaluation inclut clavier, focus visible, texte au-delà des couleurs, mobiles et 12 langues.
+L’interface associe les indicateurs à leur période, unité, couverture et méthodologie, tout en conservant les filtres et le contexte de navigation. Chargement, absence de résultats, erreurs et données anciennes sont traités explicitement. Clavier, focus visible, texte en complément des couleurs, mobile, thèmes et 12 langues font partie de l’expérience.
 
 ## Critères d’acceptation {#acceptance}
 
@@ -18,12 +18,16 @@ La couverture est la proportion de la période étayée par des observations val
 
 ## Critères de validation {#assessment}
 
-Les changements de périmètre et de règles consignent problème, résultat attendu et critères d’acceptation dans les récits concernés. Revues et évaluations d’utilisabilité enregistrent difficultés, retours et améliorations. Rétention, sauvegarde/reprise, objectifs opérationnels et quotas externes restent à définir.
+Épopées, récits et tâches structurent le produit avec des critères vérifiables et des références au code. Issues, pull requests et commits relient exigences, implémentation et tests ; la documentation rassemble architecture, contrats, exploitation et preuves dans un ensemble versionné.
 
 ## Vérifications {#engineering}
+
+Pour la base documentée, la CI a validé 542 tests frontend, 705 tests backend et trois parcours intégrés, ainsi que lint, typage, builds, migrations et le gate SonarQube Cloud. Le site propose 12 langues avec vérification automatique de l’équivalence du contenu, des contrats et des liens.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
 
 [Contribuer](../contributing)
 
 ## Lectures associées {#related}
 
-[Décisions et dépendances](../product/decisions) · [Contribuer](../contributing)
+[Principes d’ingénierie](../product/decisions) · [Contribuer](../contributing)

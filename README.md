@@ -2,15 +2,21 @@
 
 **[Acessar a documentação completa em HTML](https://seliganessecodigo.github.io/ABP-3DSM/)**
 
-Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia e emissões equivalentes de CO₂ (CO₂e).
+Plataforma de monitoramento e análise ambiental de aplicações, desenvolvida no projeto universitário ABP-3DSM, que integra métricas operacionais, estimativas de energia e emissões equivalentes de CO₂ (CO₂e).
 
 ## Visão geral
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O GreenER monitora aplicações e estima energia e CO₂e. Catálogo, dashboard, detalhe, histórico, prévia de recálculo, metodologia e login estão disponíveis. A interface e a documentação oferecem doze idiomas: `pt-BR`, `en-US`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `ja-JP`, `zh-CN`, `ko-KR`, `ru-RU`, `hi-IN` e `id-ID`. O frontend usa inglês como fallback.
+O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem.
 
 Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
+
+## Engenharia e qualidade
+
+React 19 e TypeScript sustentam a interface; NestJS organiza a API em módulos e camadas, com injeção de dependências; TypeORM e PostgreSQL preservam os dados com migrations versionadas. Integrações validadas, auditoria transacional e snapshots de cálculo dão suporte à consistência dos indicadores.
+
+Na base documentada, a CI aprovou 542 testes de frontend, 705 de backend e três fluxos integrados, além de lint, tipagem, builds, migrations e gate SonarQube Cloud. O site oferece 12 idiomas com verificação automática de equivalência de conteúdo, contratos e links. Confira a [execução de referência](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486).
 
 ## Épicos
 
@@ -26,7 +32,7 @@ Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a 
 
 O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês, chinês simplificado, coreano, russo, hindi e indonésio.
 
-Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos doze idiomas.
+Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [princípios de engenharia](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos doze idiomas.
 
 | Idioma | Fonte Markdown |
 | --- | --- |
@@ -55,6 +61,10 @@ Acesse http://localhost:4174. Para gerar e visualizar os arquivos HTML de produ�
 O build verifica a equivalência de seções, tabelas, links e exemplos nos doze idiomas. Execute `npm run docs:check` para fazer essa conferência isoladamente.
 
 A publicação do HTML no GitHub Pages está configurada no workflow. Na primeira publicação, o repositório precisa usar **GitHub Actions** como origem em **Settings → Pages**. O Markdown continua versionado e acessível pelos links acima.
+
+## Evidências de entrega
+
+O [plano de entregas](docs/plano-de-entregas.md) e os [registros das sprints](docs/sprints/sprint-1.md) conectam os 27 critérios da rubrica às contribuições dos cinco integrantes, ao código e às verificações automatizadas. A [matriz detalhada](docs/evidence/rubrica/matriz.md) reúne as evidências técnicas e funcionais.
 
 ## Executar a aplicação
 

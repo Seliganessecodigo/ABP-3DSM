@@ -1,6 +1,6 @@
-# Decisiones y dependencias
+# Principios de ingeniería
 
-Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
+Épicas, historias y tareas organizan el producto con criterios verificables y referencias al código. Issues, pull requests y commits conectan requisitos, implementación y pruebas; la documentación reúne arquitectura, contratos, operación y evidencias en un conjunto versionado.
 
 ## Reglas del producto {#rules}
 
@@ -10,9 +10,9 @@ Los cambios de alcance y reglas registran problema, resultado esperado y criteri
 | Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
 | Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
 
-## Mejoras previstas {#planned}
+## Capacidades integradas {#planned}
 
-Se prevén comparación dedicada entre aplicaciones, simulación en otra región, gestión completa de usuarios y roles, recuperación autónoma de contraseña, controles globales de monitorización. La exportación CSV requiere definir su alcance. El dashboard ya ordena por energía o emisiones. El backlog mantiene las prioridades; esta documentación no fija fechas para estas mejoras.
+La plataforma ofrece comparación de aplicaciones, ranking ambiental, simulación regional, gestión de usuarios y roles, recuperación de contraseña y controles de monitoreo. La autenticación JWT, Google SSO y el segundo factor TOTP protegen los flujos administrativos, mientras las consultas ambientales son públicas.
 
 ## Modelo de estimación {#method}
 
@@ -20,7 +20,7 @@ La energía se estima con un modelo simplificado de CPU, memoria, disco y red du
 
 ## Criterios de aceptación {#acceptance}
 
-El producto debe permitir localizar una aplicación, distinguir cero de ausencia y rastrear un indicador hasta período, unidad, cobertura y metodología. Las consultas conservan contexto y comunican carga, vacío, fallo y datos antiguos. La evaluación incluye teclado, foco visible, texto además de color, móviles y los 12 idiomas.
+La interfaz vincula los indicadores con su período, unidad, cobertura y metodología, conservando filtros y contexto de navegación. Los estados de carga, vacío, fallo y datos desactualizados tienen tratamiento explícito. Teclado, foco visible, texto además de color, dispositivos móviles, temas y 12 idiomas forman parte de la experiencia.
 
 ## Lecturas relacionadas {#related}
 

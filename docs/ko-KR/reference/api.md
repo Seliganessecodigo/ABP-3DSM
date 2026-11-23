@@ -15,10 +15,12 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## 기간과 이력 {#queries}
@@ -30,7 +32,8 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 원본 측정 시각이 없으므로 수신 시각에서 `collection_interval_seconds`를 빼 구간을 구합니다. 계수 조회 시각은 유효기간이 아니며 비공개 출처·유효성은 미상입니다. 에너지/계수/배출은 소수8자리, 커버리지4자리로 저장하고 중간 반올림은 없습니다. 별도 커버리지와 원본 snapshot을 보존합니다.
 
 ## 시계열 및 계산 설명 {#environmental-presentation}
+
+`includeCollectionSuccess=true`를 사용하면 요약에 `collectionSuccess`가 포함되며 `successful`, `total`, `rate`, `firstAttemptAt`, `lastAttemptAt`을 제공합니다. 선택한 기간과 필터 내에서 유효한 지표를 저장한 기록된 정기 수집 시도를 집계하며 시도가 없으면 `rate`는 `null`입니다. HTTP 재시도는 분모를 늘리지 않고 취소는 제외합니다. 기록은 이 기능 배포부터 시작하며 과거 기록을 추정해 채우지 않습니다.
 
 `/analysis/summary`의 선택 매개변수 `granularity`는 합계와 같은 기간 및 필터를 사용하는 `series.points`를 포함합니다. 각 구간은 애플리케이션의 저장된 결과를 합산하고 독립적인 커버리지를 유지합니다. 누락된 값은 `null`로 유지됩니다.
 
@@ -50,6 +55,8 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 
 | HTTP | URI | 접근 |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 
 | HTTP | URI | 접근 |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,8 +86,12 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-같은 조직 Admin은 `expectedStatus`와 사유를 보내 계정을 `ACTIVE`, `BLOCKED`, `DEACTIVATED`로 변경합니다. 차단/비활성화는 모든 세션을 폐기하고 재활성화는 새 로그인을 요구합니다. 본인과 마지막 활성 Admin을 보호합니다. 기대 상태 충돌은 409, 이미 달성한 상태는 멱등 성공입니다. 공유 감사는 성공을 변경과 같은 트랜잭션에, 거부를 롤백 밖에 기록하며 행위자를 명시하고 비밀을 제외합니다. 전체 역할 관리/비밀번호 복구는 이 경로의 범위가 아닙니다.
+같은 조직 Admin은 `expectedStatus`와 사유를 보내 계정을 `ACTIVE`, `BLOCKED`, `DEACTIVATED`로 변경합니다. 차단/비활성화는 모든 세션을 폐기하고 재활성화는 새 로그인을 요구합니다. 본인과 마지막 활성 Admin을 보호합니다. 기대 상태 충돌은 409, 이미 달성한 상태는 멱등 성공입니다. 공유 감사는 성공을 변경과 같은 트랜잭션에, 거부를 롤백 밖에 기록하며 행위자를 명시하고 비밀을 제외합니다.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -87,13 +99,13 @@ GreenER API 통합 참조입니다. 전체 타입·선택 필드·제한은 환�
 
 ## API로 계정 관리 {#accounts}
 
-동일 조직의 활성 Admin만 계정 조회, 생성, 역할 변경을 수행할 수 있습니다. 생성 시 `name`, `email`, `role`, `reason`을 받으며 비밀번호를 받거나 이메일을 자동 확인하지 않습니다. 계정 소유자가 기존 이메일 확인 절차에서 비밀번호를 설정하며, 확인 메일 발송은 별도로 요청합니다. 관리 화면과 비밀번호 복구는 별도 개발 항목입니다.
+Admin은 같은 조직의 계정을 초대하고 사유를 기록하여 역할을 관리할 수 있으며 마지막 관리자 보호가 적용됩니다. 설정 화면에서 이 작업을 제공합니다. 비밀번호 복구는 계정 존재 여부를 드러내지 않는 응답, 일회용 임시 토큰 및 세션 취소를 사용합니다. 이메일에는 SMTP 설정이 필요합니다.
 
 목록은 검색과 필터를 적용한 후 정렬하고 페이지를 나눕니다. 기본값은 10개이며 5, 10, 15, 20개 또는 필터링된 전체 목록을 반환하는 `all`을 선택할 수 있습니다. 번역된 레이블은 열거형 코드로, 현지 날짜는 시간대 오프셋이 있는 RFC 3339로 변환해야 합니다. 누락된 값은 양방향 정렬에서 마지막에 배치하고 동일한 값은 식별자로 순서를 정합니다.
 
 역할 변경에는 `expectedRole`과 `reason`이 필요합니다. 변경 시 세션과 임시 TOTP 자격 증명을 폐기하고 감사 기록을 보존하며, 본인의 접근 권한이나 이메일이 확인된 마지막 활성 Admin을 제거하지 못하게 합니다. 이메일 미확인 계정은 해당 관리자를 대신할 수 없습니다. Admin을 부여해도 TOTP 인증은 필수입니다.
 
-## 재계산 미리보기와 비교하기 {#preview}
+## 계산 미리보기 {#preview}
 
 `/administration/calculations`에서 앱과 날짜를 골라 원본/미리보기를 비교합니다. 종료일은 UTC 하루 전체를 포함하며 API는 `[from,to)`를 받습니다. 공개 작업으로 현재 모델과 과거 지역의 현재 계수를 사용하고 저장하지 않습니다. 한도는 30일, 관측 10,000개입니다. `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`)를 반환합니다. 계수 실패 시 계산 가능한 에너지는 보존하고 CO₂e는 미제공합니다. 백분율은 같은 단위/커버리지와 양수 기준이 필요합니다.
 

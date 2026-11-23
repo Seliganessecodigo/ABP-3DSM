@@ -15,10 +15,12 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## Periode dan riwayat {#queries}
@@ -30,7 +32,8 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@ Referensi integrasi API GreenER. Tipe, field opsional dan batas lengkap di `/ope
 Metrik sumber tidak memiliki waktu pengukuran; interval dari penerimaan dikurangi `collection_interval_seconds`. Waktu kueri faktor bukan masa berlaku; sumber/validitas tidak diterbitkan tetap tak diketahui. Energi/faktor/emisi 8 desimal, cakupan4; tanpa pembulatan antara. Cakupan terpisah dan snapshot asli dipertahankan.
 
 ## Deret waktu dan penjelasan perhitungan {#environmental-presentation}
+
+Dengan `includeCollectionSuccess=true`, ringkasan menyertakan `collectionSuccess` dengan `successful`, `total`, `rate`, `firstAttemptAt` dan `lastAttemptAt`. Tingkatnya menghitung percobaan terjadwal tercatat dengan metrik valid tersimpan dalam periode/filter; tanpa percobaan, `rate` bernilai `null`. Percobaan ulang HTTP tidak menambah penyebut; pembatalan dikecualikan. Pencatatan dimulai saat fitur diterapkan, tanpa mengasumsikan pengisian riwayat lama.
 
 Pada `/analysis/summary`, parameter opsional `granularity` menyertakan `series.points` dengan periode dan filter yang sama dengan total. Setiap interval menjumlahkan hasil aplikasi yang tersimpan dan mempertahankan cakupan independen. Nilai yang tidak tersedia tetap `null`.
 
@@ -50,6 +55,8 @@ Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata san
 
 | HTTP | URI | Akses |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@ Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata san
 
 | HTTP | URI | Akses |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,8 +86,12 @@ Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata san
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
+Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -87,13 +99,13 @@ Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATE
 
 ## Mengelola akun melalui API {#accounts}
 
-Hanya Admin aktif dalam organisasi yang sama yang dapat melihat dan membuat akun atau mengubah peran. Pembuatan menerima `name`, `email`, `role`, dan `reason`, tanpa kata sandi atau verifikasi email otomatis. Pemilik akun menetapkan kata sandi melalui alur konfirmasi yang sudah ada; pengiriman konfirmasi diminta secara terpisah. Layar pengelolaan dan pemulihan kata sandi tetap menjadi pekerjaan tersendiri.
+Admin dapat mengundang akun dan mengelola peran dalam organisasi yang sama, dengan alasan dan perlindungan admin terakhir. Pengaturan menyatukan tindakan ini. Pemulihan menggunakan respons yang tidak mengungkap keberadaan akun, token sementara sekali pakai dan pencabutan sesi; email memerlukan SMTP terkonfigurasi.
 
 Daftar menerapkan pencarian dan filter sebelum pengurutan dan paginasi. Nilai bawaan adalah 10 item, dengan pilihan 5, 10, 15, 20, serta `all` untuk seluruh hasil filter. Label terjemahan harus dipetakan ke kode enum dan tanggal lokal ke RFC 3339 dengan offset zona waktu. Nilai yang tidak ada berada di akhir pada kedua arah pengurutan; nilai yang sama diurutkan berdasarkan pengenal.
 
 Perubahan peran memerlukan `expectedRole` dan `reason`. Perubahan mencabut sesi dan kredensial TOTP sementara, mempertahankan audit, serta mencegah penghapusan akses sendiri atau Admin aktif terakhir dengan email terkonfirmasi. Akun yang belum dikonfirmasi tidak menggantikan administrator tersebut. Pemberian peran Admin tetap mewajibkan TOTP.
 
-## Bandingkan dengan pratinjau hitung ulang {#preview}
+## Pratinjau perhitungan {#preview}
 
 Di `/administration/calculations`, pilih aplikasi/tanggal untuk membandingkan asli/pratinjau. Tanggal akhir mencakup seluruh hari UTC; API menerima `[from,to)`. Pratinjau publik menggunakan model saat ini dan faktor saat ini untuk wilayah historis, tanpa menyimpan. Batas: 30 hari, 10.000 observasi. Respons: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Kegagalan faktor mempertahankan energi yang dapat dihitung, CO₂e tidak tersedia. Persentase memerlukan satuan/cakupan sama dan acuan positif.
 

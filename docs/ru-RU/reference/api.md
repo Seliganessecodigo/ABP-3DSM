@@ -15,10 +15,12 @@
 | GET | `/applications/{id}/analysis/series` | — |
 | GET | `/applications/{id}/analysis/series/contributions` | — |
 | GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
 | GET | `/analysis/comparison` | — |
 | GET | `/monitoring/incidents` | — |
 | GET | `/carbon/regions` | — |
 | GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
 | POST | `/applications/{id}/analysis/recalculation-preview` | — |
 
 ## Периоды и история {#queries}
@@ -30,7 +32,8 @@
 | `/applications/{id}/analysis` | `from`, `to` |
 | `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
 | `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
-| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity` |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
 | `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
 | `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
@@ -39,6 +42,8 @@
 Источник метрик не даёт время измерения; интервал — приём минус `collection_interval_seconds`. Время запроса фактора не определяет срок действия; неопубликованные источник/валидность неизвестны. Энергия/фактор/выбросы: 8 десятичных знаков, покрытие 4, без промежуточного округления. Сохраняются раздельные покрытия и исходные снимки.
 
 ## Временной ряд и объяснение расчёта {#environmental-presentation}
+
+При `includeCollectionSuccess=true` сводка включает `collectionSuccess` с полями `successful`, `total`, `rate`, `firstAttemptAt` и `lastAttemptAt`. Показатель учитывает записанные плановые попытки с корректными сохранёнными метриками в выбранном периоде и фильтрах; без попыток `rate` равен `null`. Повторные HTTP-запросы не увеличивают знаменатель; отмены исключаются. Запись начинается с развёртывания функции без предполагаемого заполнения прошлого.
 
 В `/analysis/summary` необязательный параметр `granularity` добавляет `series.points` с теми же периодом и фильтрами, что и итоги. Каждый интервал суммирует сохранённые результаты приложений и сохраняет независимое покрытие. Отсутствующие значения остаются `null`.
 
@@ -50,6 +55,8 @@
 
 | HTTP | URI | Доступ |
 | --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
 | POST | `/auth/login` | `email + password` |
 | GET | `/auth/sso/google` | `PKCE` |
 | GET | `/auth/sso/google/callback` | `state + cookie` |
@@ -66,6 +73,7 @@
 
 | HTTP | URI | Доступ |
 | --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
 | GET | `/auth/me` | `JWT` |
 | POST | `/auth/sessions/logout` | `JWT` |
 | POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
@@ -78,8 +86,12 @@
 | GET | `/auth/users` | `JWT + ADMIN` |
 | POST | `/auth/users` | `JWT + ADMIN` |
 | PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-Admin той же организации меняет состояние между `ACTIVE`, `BLOCKED`, `DEACTIVATED`, передавая `expectedStatus` и причину. Блокировка/деактивация отзывают все сессии; активация требует нового входа. Защищены собственная запись и последний активный Admin. Конфликт ожидания — 409; уже достигнутая цель — идемпотентный успех. Общий аудит пишет успех в транзакции изменения, отказы вне отката, явно указывает субъекта и исключает секреты. Полное управление ролями и восстановление пароля этим маршрутом не предоставляются.
+Admin той же организации меняет состояние между `ACTIVE`, `BLOCKED`, `DEACTIVATED`, передавая `expectedStatus` и причину. Блокировка/деактивация отзывают все сессии; активация требует нового входа. Защищены собственная запись и последний активный Admin. Конфликт ожидания — 409; уже достигнутая цель — идемпотентный успех. Общий аудит пишет успех в транзакции изменения, отказы вне отката, явно указывает субъекта и исключает секреты.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -87,13 +99,13 @@ Admin той же организации меняет состояние меж�
 
 ## Управление учётными записями через API {#accounts}
 
-Только активный Admin той же организации может просматривать и создавать учётные записи или менять роли. При создании передаются `name`, `email`, `role` и `reason`, без пароля и автоматического подтверждения почты. Владелец задаёт пароль в существующем процессе подтверждения; отправка письма запрашивается отдельно. Экран управления и восстановление пароля остаются отдельными задачами.
+Admin может приглашать учётные записи и управлять ролями своей организации, указывая причину; последний администратор защищён. Действия доступны в Настройках. Восстановление использует ответ без раскрытия наличия учётной записи, временный одноразовый токен и отзыв сессий; для писем требуется настроенный SMTP.
 
 Поиск и фильтры применяются до сортировки и разбиения на страницы. По умолчанию выводится 10 записей; доступны 5, 10, 15, 20 и `all` для полного отфильтрованного набора. Переведённые названия нужно преобразовывать в коды перечислений, а местные даты — в RFC 3339 со смещением часового пояса. Пропуски находятся в конце при обоих направлениях сортировки; равные значения упорядочиваются по идентификатору.
 
 Изменение роли требует `expectedRole` и `reason`. Оно отзывает сеансы и временные учётные данные TOTP, сохраняет аудит и запрещает лишать доступа себя или последнего активного Admin с подтверждённой почтой. Неподтверждённые записи не заменяют этого администратора. Назначение Admin сохраняет обязательность TOTP.
 
-## Сравнить с предпросмотром пересчёта {#preview}
+## Предпросмотр расчёта {#preview}
 
 В `/administration/calculations` выберите приложение и даты, сравните оригинал/предпросмотр. Конечная дата включает весь день UTC; API принимает `[from,to)`. Публичный предпросмотр использует текущую модель и текущие коэффициенты исторических регионов, ничего не сохраняет. Лимиты: 30 дней, 10 000 наблюдений. Ответ: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Ошибка коэффициента сохраняет вычислимую энергию, CO₂e недоступен. Проценты требуют равных единиц/покрытия и положительной базы.
 

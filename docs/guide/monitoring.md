@@ -8,7 +8,7 @@ No catálogo, pesquise por nome, identificador ou região e filtre pelo estado d
 
 ## Consultar o dashboard {#dashboard}
 
-No dashboard, selecione um período de 24 horas, 7, 30 ou 90 dias, uma região e um estado. Consulte energia, emissões, cobertura e distribuição das aplicações por estado. O gráfico mostra a participação nas emissões em barras ou rosca. A tabela permite buscar, filtrar e ordenar por impacto; seus filtros alteram as linhas exibidas, mantendo os totais do resumo no recorte selecionado.
+No dashboard, selecione período, região e estado para consultar energia, CO₂e, sucesso das coletas e aplicações por estado. Sucesso das coletas é a proporção das tentativas registradas que retornaram métricas válidas e foram salvas; sem registros, a taxa fica indisponível. O indicador informa o primeiro registro do período. Cobertura temporal continua nas análises e na tabela, com avisos sobre dados parciais. Gráficos, busca, filtros e paginação preservam o contexto selecionado.
 
 Na série temporal, alterne entre energia e CO₂e ou consulte a tabela de intervalos. A janela de 24 horas usa agrupamento por hora; as demais usam agrupamento diário. Os intervalos seguem UTC e usam os mesmos filtros dos indicadores. Lacunas permanecem sem valor.
 
@@ -22,13 +22,13 @@ O fator equivalente resume os fatores regionais aplicados, ponderados pela energ
 
 No histórico, escolha uma aplicação, um período e o agrupamento por hora, dia, mês ou ano. Use os filtros e a paginação para localizar intervalos e abra a composição de um intervalo para consultar observações incluídas e exclusões. O fuso altera a apresentação das datas; o agrupamento permanece em UTC. No detalhe, a sobreposição permite comparar a aplicação com o período anterior de mesma duração.
 
-## Comparar com uma prévia de recálculo {#preview}
+## Prévia de cálculo {#preview}
 
-Na prévia de recálculo, selecione a aplicação e as datas para comparar o resultado original com uma estimativa pelo modelo atual e pelos fatores de carbono atuais das regiões observadas. O último dia selecionado é incluído por completo, em UTC. A consulta aceita até 30 dias e 10.000 observações. A prévia não é salva e não altera o histórico. Diferenças percentuais aparecem quando unidade e cobertura coincidem e o valor original é positivo.
+A comparação entre aplicações deve usar período, unidades e coberturas compatíveis. A simulação regional mantém a energia observada, altera o fator de carbono do cenário e apresenta o resultado separado dos indicadores oficiais.
 
 ## Personalizar a análise {#preferences}
 
-Em Metodologia, explore as abas de energia, emissões, cobertura e análise. As demonstrações usam dados de exemplo, identificados na tela. Entre na sua conta para salvar limites de apresentação e opções iniciais de período e agrupamento. Cada pessoa altera apenas suas preferências; os cálculos e a configuração geral permanecem preservados. Se houver conflito ao salvar, recarregue a preferência antes de tentar novamente. Opções já escolhidas no endereço da análise têm prioridade sobre as preferências salvas.
+Em Metodologia, explore energia, emissões, cobertura e padrões das análises. As prévias consultam dados reais e identificam ausência ou falha; não alteram o histórico nem a fórmula. Entre na conta para salvar limites pessoais e opções iniciais. Datas, filtros e agrupamentos explícitos no endereço prevalecem sobre os padrões salvos.
 
 ## Entrar na sua conta {#access}
 
@@ -54,6 +54,10 @@ Cobertura é a proporção do período sustentada por observações válidas. En
 ## Diagnóstico {#support}
 
 Ao comunicar um problema, informe a aplicação, o período, os filtros, a hora com fuso e a ação realizada. Descreva o resultado esperado e o observado. Capturas de tela ajudam quando não contêm credenciais ou dados privados.
+
+## Outras análises e configurações {#other}
+
+O ranking ordena resultados por energia ou CO₂e no período. A comparação reúne aplicações e uma referência; a simulação regional mantém a energia e apresenta um cenário separado. Em Configurações, usuários autorizados acessam monitoramento, contas e auditoria de alterações. A conta pessoal permite trocar a senha; o login oferece recuperação por token temporário.
 
 ## Leitura relacionada {#related}
 

@@ -14,7 +14,7 @@ Refs #N
 
 ## जाँच {#quality}
 
-CI दस्तावेज़ build, frontend lint/test/build, backend lint/typecheck/PostgreSQL test/coverage/build/migration और वास्तविक browser integration जाँचता है। `TEST_DATABASE_URL` अलग PostgreSQL पर हो; बिना इसके Jest DB सूट छूटते हैं और integrated browser विफल होता है। `develop` PR के SonarQube में नया coverage ≥80%, duplication ≤3%, rating A और सभी hotspots की समीक्षा अनिवार्य है। स्वचालित जाँच उपयोगिता/उत्पाद स्वीकृति का विकल्प नहीं।
+CI दस्तावेज़ build, frontend lint/test/build, backend lint/typecheck/PostgreSQL test/coverage/build/migration और वास्तविक browser integration जाँचता है। `TEST_DATABASE_URL` अलग PostgreSQL पर हो; बिना इसके Jest DB सूट छूटते हैं और integrated browser विफल होता है। `develop` PR के SonarQube में नया coverage ≥80%, duplication ≤3%, rating A और सभी hotspots की समीक्षा अनिवार्य है।
 
 ```sh
 npm ci --prefix docs
@@ -45,3 +45,5 @@ npm run docs:build
 ## संबंधित पठन {#related}
 
 [गुणवत्ता और स्वीकृति](./product/quality) · [उत्पाद बैकलॉग](./roadmap)
+
+[डिलीवरी योजना और प्रमाण](./plano-de-entregas)

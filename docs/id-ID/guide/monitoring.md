@@ -8,7 +8,7 @@ Di katalog, cari nama, pengenal atau wilayah dan filter status aplikasi. Jelajah
 
 ## Baca dashboard {#dashboard}
 
-Di dashboard pilih 24 jam, 7, 30 atau 90 hari, wilayah dan status. Periksa energi, emisi, cakupan dan jumlah per status. Grafik menunjukkan bagian emisi sebagai batang atau donat. Pencarian, filter dan urutan dampak mengubah baris tabel; total ringkasan mempertahankan lingkup terpilih.
+Di dashboard, pilih periode, wilayah dan status untuk melihat energi, CO₂e, keberhasilan pengumpulan serta aplikasi per status. Keberhasilan adalah proporsi percobaan tercatat yang memperoleh metrik valid dan tersimpan; tanpa catatan, tingkatnya tidak tersedia. Catatan pertama dalam periode ditampilkan. Cakupan waktu tetap ada dalam analisis dan tabel dengan peringatan data parsial. Grafik, pencarian, filter dan halaman mempertahankan konteks.
 
 Pada deret waktu, beralihlah antara energi dan CO₂e atau buka tabel interval. Jendela 24 jam dikelompokkan per jam; jendela lainnya per hari. Interval mengikuti UTC dan filter yang sama dengan indikator. Celah tetap tanpa nilai.
 
@@ -22,13 +22,13 @@ Faktor ekuivalen merangkum faktor regional yang diterapkan, dibobot menurut ener
 
 Di riwayat pilih aplikasi, periode dan pengelompokan jam, hari, bulan atau tahun. Filter dan halaman membantu mencari interval; buka komposisinya untuk observasi yang disertakan dan pengecualian. Zona waktu hanya mengubah tampilan tanggal; kelompok tetap UTC. Overlay detail membandingkan aplikasi yang sama dengan periode sebelumnya berdurasi sama.
 
-## Bandingkan dengan pratinjau hitung ulang {#preview}
+## Pratinjau perhitungan {#preview}
 
-Di pratinjau hitung ulang pilih aplikasi dan tanggal untuk membandingkan hasil asli dengan model saat ini dan faktor karbon saat ini dari wilayah yang diamati. Hari terakhir dihitung penuh dalam UTC. Maksimum 30 hari dan 10.000 observasi. Pratinjau tidak disimpan dan tidak mengubah riwayat. Selisih persentase muncul jika satuan/cakupan sama dan nilai asli positif.
+Perbandingan aplikasi memakai periode, satuan dan cakupan kompatibel. Simulasi wilayah mempertahankan energi diamati, mengubah faktor skenario dan memisahkan hasil dari indikator resmi.
 
 ## Personalisasi analisis {#preferences}
 
-Di Metodologi jelajahi energi, emisi, cakupan dan analisis. Demonstrasi memakai data contoh yang ditandai di layar. Masuk untuk menyimpan ambang tampilan dan periode/pengelompokan awal. Setiap orang hanya mengubah preferensi sendiri; perhitungan dan pengaturan global tetap. Jika penyimpanan konflik, muat ulang preferensi sebelum mencoba lagi. Pilihan dalam alamat analisis mengungguli preferensi tersimpan.
+Di Metodologi, jelajahi energi, emisi, cakupan dan bawaan analisis. Pratinjau menggunakan data nyata dan menandai ketiadaan atau kegagalan; riwayat dan rumus tidak diubah. Masuk untuk menyimpan ambang pribadi dan opsi awal. Tanggal, filter dan pengelompokan eksplisit pada alamat mengesampingkan bawaan tersimpan.
 
 ## Masuk {#access}
 
@@ -54,6 +54,10 @@ Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi 
 ## Diagnosis {#support}
 
 Saat melaporkan masalah, sebutkan aplikasi, periode, filter, waktu dengan zona dan tindakan. Jelaskan hasil harapan dan aktual. Tangkapan layar membantu jika tanpa kredensial atau data pribadi.
+
+## Analisis dan pengaturan lainnya {#other}
+
+Peringkat mengurutkan hasil berdasarkan energi atau CO₂e dalam periode. Perbandingan mencakup aplikasi dan acuan; simulasi regional mempertahankan energi dan menampilkan skenario terpisah. Pengguna berizin mengakses pemantauan, akun dan audit perubahan di Pengaturan. Akun pribadi dapat mengganti kata sandi; halaman masuk menyediakan pemulihan melalui token sementara.
 
 ## Bacaan terkait {#related}
 

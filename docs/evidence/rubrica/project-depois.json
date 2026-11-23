@@ -1,0 +1,184 @@
+{
+  "source": "GitHub Project 2",
+  "url": "https://github.com/orgs/Seliganessecodigo/projects/2",
+  "consultedOn": "2026-11-22",
+  "timeZone": "America/Sao_Paulo",
+  "meaning": "Current states after reconciliation; scoped to changed items and the unresolved design item. All 124 project items were paginated to verify these values.",
+  "items": [
+    {
+      "projectItemId": 271946802,
+      "number": 243,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/243",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 271946285,
+      "number": 242,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/242",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 270819923,
+      "number": 165,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/165",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 271947276,
+      "number": 249,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/249",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 270821245,
+      "number": 57,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/57",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 270821255,
+      "number": 69,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/69",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 270819924,
+      "number": 166,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/166",
+      "state": "open",
+      "stateReason": "reopened",
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "sprint": {
+        "id": "54cf5c95",
+        "title": "Sprint 2",
+        "start_date": "2026-10-19",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 270819892,
+      "number": 133,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/133",
+      "state": "open",
+      "stateReason": "reopened",
+      "status": {
+        "id": "f75ad846",
+        "name": "Backlog",
+        "color": "GREEN"
+      },
+      "sprint": {
+        "id": "d2c335bc",
+        "title": "Sprint 3",
+        "start_date": "2026-11-02",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 272764556,
+      "number": 272,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/272",
+      "state": "closed",
+      "stateReason": "completed",
+      "status": {
+        "id": "98236657",
+        "name": "Done",
+        "color": "ORANGE"
+      },
+      "sprint": {
+        "id": "381c7c80",
+        "title": "Sprint 1",
+        "start_date": "2026-10-05",
+        "duration": 14
+      }
+    },
+    {
+      "projectItemId": 314557927,
+      "number": 489,
+      "url": "https://github.com/Seliganessecodigo/ABP-3DSM/issues/489",
+      "state": "open",
+      "stateReason": null,
+      "status": {
+        "id": "47fc9ee4",
+        "name": "In progress",
+        "color": "YELLOW"
+      },
+      "sprint": null
+    }
+  ]
+}

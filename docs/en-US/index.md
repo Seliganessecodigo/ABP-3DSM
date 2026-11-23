@@ -1,6 +1,6 @@
 # GreenER
 
-GreenER helps monitor applications and understand their estimated energy consumption and carbon dioxide equivalent emissions (CO₂e). It brings together indicators, location and history to support assessment of the environmental impact of digital services.
+GreenER brings continuous monitoring, energy and CO₂e estimates, and environmental analysis into one integrated platform. A dynamic catalog, dashboard, history, ranking, comparison and regional simulation connect the overview to investigation of individual applications, with indicators traceable to their source data and methodology.
 
 ## Where to start {#start}
 
@@ -17,6 +17,10 @@ Start with the environmental summary, identify an application that needs attenti
 ## Language and appearance {#languages}
 
 Use the selector to choose from 12 languages. Your choice stays in this browser. The dark-mode switch changes appearance; before an explicit choice, the interface follows the system. If browser storage is blocked, these preferences may be lost on reload. Changing language formats dates and numbers while preserving observation instants.
+
+## Integrated product and engineering {#engineering}
+
+React 19 and TypeScript support the interface; NestJS structures the API into modules and layers with dependency injection; TypeORM and PostgreSQL preserve data through versioned migrations. Validated integrations, transactional auditing and calculation snapshots support consistent indicators.
 
 ## Related reading {#related}
 

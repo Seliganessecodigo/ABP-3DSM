@@ -8,7 +8,7 @@ Nel catalogo cercate per nome, identificatore o regione e filtrate per stato. Sc
 
 ## Leggere la dashboard {#dashboard}
 
-Nella dashboard scegliete 24 ore, 7, 30 o 90 giorni, regione e stato. Consultate energia, emissioni, copertura e conteggi per stato. Il grafico mostra quote di emissioni a barre o anello. Ricerca, filtri e ordinamento per impatto modificano le righe della tabella; i totali mantengono il perimetro selezionato.
+Nel dashboard, scegli periodo, regione e stato per consultare energia, CO₂e, successo delle raccolte e applicazioni per stato. Il successo è la quota di tentativi registrati con metriche valide e salvate; senza registrazioni il tasso non è disponibile. È mostrata la prima registrazione del periodo. La copertura temporale resta nelle analisi e nella tabella, con avvisi sui dati parziali. Grafici, ricerca, filtri e paginazione conservano il contesto.
 
 Nella serie temporale, alterna tra energia e CO₂e o consulta la tabella degli intervalli. La finestra di 24 ore usa un raggruppamento orario; le altre, giornaliero. Gli intervalli seguono UTC e gli stessi filtri degli indicatori. Le lacune restano senza valore.
 
@@ -22,13 +22,13 @@ Il fattore equivalente riassume i fattori regionali applicati, ponderati per l�
 
 Nello storico scegliete applicazione, periodo e raggruppamento per ora, giorno, mese o anno. Filtri e paginazione individuano intervalli; la composizione mostra osservazioni incluse ed esclusioni. Il fuso cambia la visualizzazione delle date, ma il raggruppamento resta UTC. La sovrapposizione del dettaglio confronta la stessa applicazione con il periodo precedente di pari durata.
 
-## Confrontare con un’anteprima di ricalcolo {#preview}
+## Anteprima del calcolo {#preview}
 
-Nell’anteprima di ricalcolo scegliete applicazione e date per confrontare l’originale con modello attuale e fattori attuali delle regioni osservate. L’ultimo giorno è incluso interamente in UTC. Limiti: 30 giorni e 10.000 osservazioni. L’anteprima non viene salvata e non cambia lo storico. Le differenze percentuali richiedono unità/coperture uguali e originale positivo.
+Il confronto tra applicazioni richiede periodi, unità e coperture compatibili. La simulazione regionale mantiene energia osservata, cambia il fattore dello scenario e separa i risultati dagli indicatori ufficiali.
 
 ## Personalizzare l’analisi {#preferences}
 
-In Metodologia esplorate energia, emissioni, copertura e analisi. Le dimostrazioni usano esempi segnalati sullo schermo. Accedete per salvare soglie di presentazione e opzioni iniziali di periodo e raggruppamento. Ogni persona cambia solo le proprie preferenze; calcoli e configurazione globale restano invariati. In caso di conflitto ricaricate la preferenza prima di riprovare. Le opzioni già presenti nell’indirizzo dell’analisi hanno priorità.
+In Metodologia esplora energia, emissioni, copertura e impostazioni iniziali. Le anteprime consultano dati reali e segnalano assenze o errori; non modificano cronologia né formula. Accedi per salvare soglie personali e opzioni. Date, filtri e raggruppamenti espliciti nell’indirizzo prevalgono sui valori salvati.
 
 ## Accedere {#access}
 
@@ -54,6 +54,10 @@ La copertura è la proporzione del periodo con osservazioni valide. Energia ed e
 ## Diagnosi {#support}
 
 Segnalate applicazione, periodo, filtri, ora con fuso e azione eseguita. Descrivete esito atteso e osservato. Le catture aiutano se prive di credenziali e dati privati.
+
+## Altre analisi e impostazioni {#other}
+
+La classifica ordina i risultati per energia o CO₂e nel periodo. Il confronto riunisce applicazioni e un riferimento; la simulazione regionale mantiene l’energia e mostra uno scenario separato. Gli utenti autorizzati accedono a monitoraggio, account e audit delle modifiche in Impostazioni. L’account personale consente di cambiare password; il login offre recupero tramite token temporaneo.
 
 ## Letture correlate {#related}
 

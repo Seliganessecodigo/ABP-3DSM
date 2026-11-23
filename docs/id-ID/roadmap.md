@@ -22,13 +22,13 @@ Mulai dari ringkasan lingkungan, cari aplikasi yang perlu perhatian dan buka det
 | Ketiadaan eksplisit | Kegagalan, metrik hilang dan data lama dibedakan dari nol. |
 | Kueri publik | Membaca indikator tidak perlu masuk; menyimpan preferensi dan mengelola akun memerlukan izin. |
 
-## Pengembangan terencana {#planned}
+## Kemampuan terintegrasi {#planned}
 
-Direncanakan perbandingan khusus antaraplikasi, simulasi wilayah lain, pengelolaan lengkap pengguna/peran, pemulihan kata sandi mandiri, kontrol monitoring global. Cakupan ekspor CSV perlu diputuskan. Pengurutan energi atau emisi sudah tersedia. Prioritas ada di backlog; dokumentasi ini tidak menetapkan tanggal pengiriman.
+Platform menyediakan perbandingan aplikasi, peringkat lingkungan, simulasi regional, pengelolaan pengguna dan peran, pemulihan kata sandi serta kontrol pemantauan. JWT, Google SSO dan faktor kedua TOTP melindungi alur administratif, sementara kueri lingkungan tetap publik.
 
 ## Kriteria penerimaan {#acceptance}
 
-Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
+Epic, cerita dan tugas mengatur produk dengan kriteria terverifikasi dan referensi kode. Issue, pull request dan commit menghubungkan persyaratan, implementasi dan pengujian; dokumentasi berversi menghimpun arsitektur, kontrak, operasi dan bukti.
 
 ## Bacaan terkait {#related}
 

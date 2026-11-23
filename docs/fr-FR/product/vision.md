@@ -1,6 +1,6 @@
 # Vision et périmètre
 
-GreenER aide à suivre les applications et à comprendre leur consommation d’énergie estimée et leurs émissions équivalentes de dioxyde de carbone (CO₂e). Indicateurs, localisation et historique permettent d’étudier l’impact environnemental des services numériques.
+GreenER réunit surveillance continue, estimations d’énergie et de CO₂e et analyse environnementale dans une plateforme intégrée. Catalogue dynamique, tableau de bord, historique, classement, comparaison et simulation régionale relient la vue générale à l’étude de chaque application, avec des indicateurs traçables jusqu’aux données et à la méthodologie d’origine.
 
 ## Publics concernés {#readers}
 
@@ -19,10 +19,12 @@ GreenER aide à suivre les applications et à comprendre leur consommation d’�
 | Tableau de bord environnemental | [Lire le tableau de bord](../guide/monitoring#dashboard) |
 | Détail de l’application | [Examiner le détail](../guide/monitoring#detail) |
 | Historique et composition | [Explorer l’historique](../guide/monitoring#history) |
-| Aperçu de recalcul | [Comparer avec un aperçu de recalcul](../guide/monitoring#preview) |
 | Préférences personnelles | [Personnaliser l’analyse](../guide/monitoring#preferences) |
 | Connexion et second facteur | [Se connecter](../guide/monitoring#access) |
-| Tri par impact | [Lire le tableau de bord](../guide/monitoring#dashboard) |
+| Classement environnemental | [Classement environnemental](../guide/monitoring#other) |
+| Comparaison des applications | [Comparaison des applications](../guide/monitoring#other) |
+| Simulation régionale | [Simulation régionale](../guide/monitoring#other) |
+| Comptes et récupération de mot de passe | [Comptes et récupération de mot de passe](../guide/monitoring#other) |
 
 ## Parcours d’analyse {#journey}
 
@@ -34,9 +36,9 @@ L’énergie est estimée par un modèle simplifié utilisant CPU, mémoire, dis
 
 La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
 
-## Évolutions prévues {#planned}
+## Capacités intégrées {#planned}
 
-Sont prévus : comparaison dédiée entre applications, simulation dans une autre région, gestion complète utilisateurs/rôles, récupération autonome du mot de passe, contrôles globaux de surveillance. Le périmètre de l’export CSV reste à définir. Le tableau de bord trie déjà par énergie ou émissions. Les priorités sont dans le backlog ; aucune date n’est fixée ici.
+La plateforme propose comparaison d’applications, classement environnemental, simulation régionale, gestion des utilisateurs et des rôles, récupération de mot de passe et contrôles de surveillance. JWT, Google SSO et le second facteur TOTP protègent les parcours administratifs, tandis que les consultations environnementales restent publiques.
 
 ## Lectures associées {#related}
 

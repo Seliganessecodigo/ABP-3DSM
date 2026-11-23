@@ -1,6 +1,6 @@
 # Visione e ambito
 
-GreenER aiuta a monitorare applicazioni e comprendere consumi energetici stimati ed emissioni equivalenti di anidride carbonica (CO₂e). Riunisce indicatori, posizione e storico per analizzare l’impatto ambientale dei servizi digitali.
+GreenER riunisce monitoraggio continuo, stime di energia e CO₂e e analisi ambientale in una piattaforma integrata. Catalogo dinamico, dashboard, storico, classifica, confronto e simulazione regionale collegano la visione generale all’analisi delle singole applicazioni, con indicatori tracciabili fino ai dati e alla metodologia di origine.
 
 ## Destinatari {#readers}
 
@@ -19,10 +19,12 @@ GreenER aiuta a monitorare applicazioni e comprendere consumi energetici stimati
 | Dashboard ambientale | [Leggere la dashboard](../guide/monitoring#dashboard) |
 | Dettaglio applicazione | [Esaminare il dettaglio](../guide/monitoring#detail) |
 | Storico e composizione | [Esplorare lo storico](../guide/monitoring#history) |
-| Anteprima di ricalcolo | [Confrontare con un’anteprima di ricalcolo](../guide/monitoring#preview) |
 | Preferenze personali | [Personalizzare l’analisi](../guide/monitoring#preferences) |
 | Accesso e secondo fattore | [Accedere](../guide/monitoring#access) |
-| Ordinamento per impatto | [Leggere la dashboard](../guide/monitoring#dashboard) |
+| Classifica ambientale | [Classifica ambientale](../guide/monitoring#other) |
+| Confronto delle applicazioni | [Confronto delle applicazioni](../guide/monitoring#other) |
+| Simulazione regionale | [Simulazione regionale](../guide/monitoring#other) |
+| Account e recupero password | [Account e recupero password](../guide/monitoring#other) |
 
 ## Percorso di analisi {#journey}
 
@@ -34,9 +36,9 @@ Un modello semplificato stima energia da CPU, memoria, disco e rete nell’inter
 
 La copertura è la proporzione del periodo con osservazioni valide. Energia ed emissioni hanno coperture separate: può esserci energia stimata senza fattore per calcolare emissioni. Confrontate periodi, unità e coperture compatibili. Copertura bassa indica analisi parziale, non una riduzione dimostrata dei consumi.
 
-## Evoluzioni previste {#planned}
+## Capacità integrate {#planned}
 
-Sono previsti confronto dedicato tra applicazioni, simulazione in altra regione, gestione completa utenti/ruoli, recupero password autonomo, controlli globali del monitoraggio. L’ambito dell’esportazione CSV resta da definire. La dashboard già ordina per energia o emissioni. Le priorità restano nel backlog; qui non sono definite date di consegna.
+La piattaforma offre confronto delle applicazioni, classifica ambientale, simulazione regionale, gestione di utenti e ruoli, recupero password e controlli di monitoraggio. JWT, Google SSO e il secondo fattore TOTP proteggono i flussi amministrativi, mentre le consultazioni ambientali restano pubbliche.
 
 ## Letture correlate {#related}
 

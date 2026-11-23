@@ -1,6 +1,6 @@
 # Quality and acceptance
 
-The product must let people find an application, distinguish zero from missing data and trace an indicator to its period, unit, coverage and methodology. Queries must preserve navigation context and communicate loading, empty results, failures and older data. Assessment includes keyboard use, visible focus, text beyond color, mobile devices and all 12 languages.
+The interface connects indicators to their period, unit, coverage and methodology while preserving filters and navigation context. Loading, empty, failure and stale-data states receive explicit handling. Keyboard navigation, visible focus, text beyond color, mobile devices, themes and 12 languages are part of the user experience.
 
 ## Acceptance criteria {#acceptance}
 
@@ -18,12 +18,16 @@ Coverage is the proportion of a period supported by valid observations. Energy a
 
 ## Validation criteria {#assessment}
 
-Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
+Epics, stories and tasks organize the product around verifiable criteria and code references. Issues, pull requests and commits connect requirements, implementation and tests; the documentation brings architecture, contracts, operations and evidence into a versioned collection.
 
 ## Checks {#engineering}
+
+For the documented baseline, CI passed 542 frontend tests, 705 backend tests and three integrated flows, alongside lint, type checks, builds, migrations and the SonarQube Cloud gate. The site offers 12 languages with automated checks for equivalent content, contracts and links.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
 
 [Contributing](../contributing)
 
 ## Related reading {#related}
 
-[Decisions and dependencies](../product/decisions) · [Contributing](../contributing)
+[Engineering principles](../product/decisions) · [Contributing](../contributing)

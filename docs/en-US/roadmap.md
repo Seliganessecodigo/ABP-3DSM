@@ -22,13 +22,13 @@ Start with the environmental summary, identify an application that needs attenti
 | Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
 | Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-## Planned improvements {#planned}
+## Integrated capabilities {#planned}
 
-Planned improvements include dedicated cross-application comparison, simulation in another region, complete user and role management, self-service password recovery, global monitoring controls. CSV export requires a scope decision. The dashboard already sorts applications by energy or emissions. Priorities are maintained in the backlog; this documentation sets no delivery dates for these improvements.
+The platform offers application comparison, environmental ranking, regional simulation, user and role management, password recovery and monitoring controls. JWT authentication, Google SSO and a TOTP second factor protect administrative workflows, while environmental queries remain public.
 
 ## Acceptance criteria {#acceptance}
 
-Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
+Epics, stories and tasks organize the product around verifiable criteria and code references. Issues, pull requests and commits connect requirements, implementation and tests; the documentation brings architecture, contracts, operations and evidence into a versioned collection.
 
 ## Related reading {#related}
 

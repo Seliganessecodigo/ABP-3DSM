@@ -4,7 +4,7 @@ Esta parte está destinada a desarrollo y operación. Presenta entorno local, co
 
 ## Criterios de validación {#workflow}
 
-Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
+Épicas, historias y tareas organizan el producto con criterios verificables y referencias al código. Issues, pull requests y commits conectan requisitos, implementación y pruebas; la documentación reúne arquitectura, contratos, operación y evidencias en un conjunto versionado.
 
 ```text
 develop → tipo/numero-descricao / tipo/descricao → PR develop
@@ -14,7 +14,7 @@ Refs #N
 
 ## Comprobaciones {#quality}
 
-CI valida documentación, lint/test/build frontend, lint/typecheck/tests PostgreSQL/cobertura/build/migrations backend y flujo integrado real en navegador. `TEST_DATABASE_URL` requiere PostgreSQL aislado; sin ella, Jest omite suites de banco y el navegador integrado falla. SonarQube obligatorio en PR a `develop`: cobertura nueva ≥ 80%, duplicación ≤ 3%, ratings A y hotspots 100% revisados. No sustituye evaluación de usabilidad ni aceptación.
+CI valida documentación, lint/test/build frontend, lint/typecheck/tests PostgreSQL/cobertura/build/migrations backend y flujo integrado real en navegador. `TEST_DATABASE_URL` requiere PostgreSQL aislado; sin ella, Jest omite suites de banco y el navegador integrado falla. SonarQube obligatorio en PR a `develop`: cobertura nueva ≥ 80%, duplicación ≤ 3%, ratings A y hotspots 100% revisados.
 
 ```sh
 npm ci --prefix docs
@@ -34,7 +34,7 @@ npm run test:integration --prefix frontend
 
 ## Documentación técnica {#documentation}
 
-El producto debe permitir localizar una aplicación, distinguir cero de ausencia y rastrear un indicador hasta período, unidad, cobertura y metodología. Las consultas conservan contexto y comunican carga, vacío, fallo y datos antiguos. La evaluación incluye teclado, foco visible, texto además de color, móviles y los 12 idiomas.
+La interfaz vincula los indicadores con su período, unidad, cobertura y metodología, conservando filtros y contexto de navegación. Los estados de carga, vacío, fallo y datos desactualizados tienen tratamiento explícito. Teclado, foco visible, texto además de color, dispositivos móviles, temas y 12 idiomas forman parte de la experiencia.
 
 ```sh
 npm ci --prefix docs
@@ -45,3 +45,5 @@ npm run docs:build
 ## Lecturas relacionadas {#related}
 
 [Calidad y aceptación](./product/quality) · [Backlog del producto](./roadmap)
+
+[Plan y evidencias](./plano-de-entregas)

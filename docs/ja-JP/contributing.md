@@ -4,7 +4,7 @@
 
 ## 検証基準 {#workflow}
 
-範囲や利用ルールを変える際は、問題、期待結果、受け入れ基準を対象ストーリーに記録します。レビューと使いやすさ評価では困難、意見、改善を記録します。保存期間、バックアップ・復元、運用目標、外部サービスの割当量は決定が必要です。
+エピック、ユーザーストーリー、タスクを検証可能な基準とコード参照で整理しています。Issue、プルリクエスト、コミットが要件・実装・テストを結び、バージョン管理された文書がアーキテクチャ、契約、運用、根拠をまとめています。
 
 ```text
 develop → tipo/numero-descricao / tipo/descricao → PR develop
@@ -14,7 +14,7 @@ Refs #N
 
 ## 検証 {#quality}
 
-CIは文書build、frontendのlint/test/build、backendのlint/typecheck/PostgreSQLテスト/カバレッジ/build/migration、実backend利用のブラウザー統合フローを検証。`TEST_DATABASE_URL`は隔離DBを指定し、未設定時JestのDBスイートはスキップ、ブラウザー統合は失敗。`develop`向けSonarQubeは新規網羅率80%以上、重複3%以下、評価A、hotspot全件レビューが必須。自動テストは使いやすさ評価や製品受け入れを代替しません。
+CIは文書build、frontendのlint/test/build、backendのlint/typecheck/PostgreSQLテスト/カバレッジ/build/migration、実backend利用のブラウザー統合フローを検証。`TEST_DATABASE_URL`は隔離DBを指定し、未設定時JestのDBスイートはスキップ、ブラウザー統合は失敗。`develop`向けSonarQubeは新規網羅率80%以上、重複3%以下、評価A、hotspot全件レビューが必須。
 
 ```sh
 npm ci --prefix docs
@@ -34,7 +34,7 @@ npm run test:integration --prefix frontend
 
 ## 技術文書 {#documentation}
 
-アプリを見つけ、ゼロと欠損を区別し、指標から期間、単位、カバー率、方法論まで追跡できることが必要です。参照では移動時の条件を保持し、読み込み、空、失敗、古いデータを伝えます。評価にはキーボード、可視フォーカス、色以外の文字情報、モバイル、12言語を含めます。
+画面は指標を期間、単位、カバレッジ、方法論に結び付け、フィルターとナビゲーションの文脈を保持します。読み込み、空、障害、古いデータの状態を明示し、キーボード、見えるフォーカス、色に加えたテキスト、モバイル、テーマ、12言語に対応しています。
 
 ```sh
 npm ci --prefix docs
@@ -45,3 +45,5 @@ npm run docs:build
 ## 関連ページ {#related}
 
 [品質と受け入れ](./product/quality) · [プロダクトバックログ](./roadmap)
+
+[提供計画と根拠](./plano-de-entregas)
