@@ -38,6 +38,21 @@ test('analysis period uses the same exact rolling UTC interval as detail', () =>
   })
 })
 
+test('collection success is independent of temporal coverage and preserves no-attempt and failed-attempt states', () => {
+  const counts = { successful: 3, total: 4, rate: 0.75, firstAttemptAt: period.from, lastAttemptAt: period.from }
+  expect(parseEnvironmentalSummary(summary({ collectionSuccess: counts }), period).collectionSuccess).toEqual(counts)
+  expect(parseEnvironmentalSummary(summary(), period).collectionSuccess).toBeUndefined()
+  for (const invalid of [null, {}, { successful: 0, total: 0, rate: null, firstAttemptAt: period.from, lastAttemptAt: period.from }]) {
+    expect(() => parseEnvironmentalSummary(summary({ collectionSuccess: invalid }), period)).toThrow()
+  }
+  expect(parseEnvironmentalSummary(summary({ collectionSuccess: { successful: 0, total: 0, rate: null, firstAttemptAt: null, lastAttemptAt: null } }), period).collectionSuccess?.rate).toBeNull()
+  expect(parseEnvironmentalSummary(summary({ collectionSuccess: { ...counts, successful: 0, rate: 0 } }), period).collectionSuccess?.rate).toBe(0)
+  for (const override of [
+    { successful: -1 }, { successful: 5 }, { total: 3.5 }, { rate: 1 }, { rate: null },
+    { firstAttemptAt: 'invalid' }, { lastAttemptAt: null }, { firstAttemptAt: period.to },
+  ]) expect(() => parseEnvironmentalSummary(summary({ collectionSuccess: { ...counts, ...override } }), period)).toThrow()
+})
+
 test('summary preserves null readings, independent coverage and zero-valued states', () => {
   const response = summary({
     totals: {

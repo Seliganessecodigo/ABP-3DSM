@@ -161,6 +161,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
       ),
       new MonitoringCycleLock(),
       new MonitoringSettingsRepository(database.getRepository(MonitoringSettingsEntity)),
+      events,
     );
   });
 
@@ -231,6 +232,12 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     });
     expect(cycles).toHaveLength(2);
     expect(cycles.map(({ persistedCount }) => persistedCount)).toEqual([1, 0]);
+    const attempts = await database.getRepository(ApplicationEventEntity).find({ where: { kind: 'collection_attempt' } });
+    expect(attempts).toHaveLength(2);
+    expect(attempts.map(attempt => attempt.details)).toEqual([
+      { succeeded: true, regionCode: 'br-sudeste' }, { succeeded: true, regionCode: 'br-sudeste' },
+    ]);
+    expect(new Set(attempts.map(attempt => attempt.cycleId))).toEqual(new Set(cycles.map(cycle => cycle.id)));
     const statusEvents = await database
       .getRepository(ApplicationEventEntity)
       .find({
@@ -931,6 +938,8 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         .map(({ kind }) => kind)
         .sort(),
     ).toEqual([
+      "collection_attempt",
+      "collection_attempt",
       "discovered",
       "removed",
       "returned",

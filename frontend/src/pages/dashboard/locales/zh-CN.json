@@ -85,5 +85,12 @@
   "trend.interval": "时段（UTC）",
   "trend.note": "按UTC时段显示数值。空缺表示数据缺失，而非零。",
   "helpFilters": "选择时间范围、粒度、区域和状态以定义汇总范围。同样的条件适用于指标和图表。",
-  "helpResults": "比较各应用的CO₂e占比。可以从表格打开应用详情以进一步查看。"
+  "helpResults": "比较各应用的CO₂e占比。可以从表格打开应用详情以进一步查看。",
+  "collectionSuccess.title": "采集成功率",
+  "collectionSuccess.successful": "成功",
+  "collectionSuccess.total": "已记录的尝试",
+  "collectionSuccess.empty": "此时间段内没有采集记录。",
+  "collectionSuccess.since": "自 {{date}} 起的记录",
+  "collectionSuccess.help": "计划的指标采集尝试中，返回有效数据并成功保存的比例。每个应用的每次尝试计为一次，包括其HTTP重试。取消的尝试不计入。仅统计所选时间段和筛选范围内已记录的尝试；此指标不表示能源或CO₂e的时间覆盖率。",
+  "collectionSuccess.unavailable": "采集成功率不可用。"
 }

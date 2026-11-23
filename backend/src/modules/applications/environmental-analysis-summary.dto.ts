@@ -57,7 +57,26 @@ export class EnvironmentalAnalysisSummarySeriesDto {
   points!: readonly EnvironmentalAnalysisSeriesPointDto[]
 }
 
+export class CollectionSuccessDto {
+  @ApiProperty({ minimum: 0 })
+  successful!: number
+
+  @ApiProperty({ minimum: 0 })
+  total!: number
+
+  @ApiProperty({ type: Number, nullable: true, minimum: 0, maximum: 1, description: 'Valid metrics persisted / completed recorded attempts; null when no attempts exist.' })
+  rate!: number | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  firstAttemptAt!: string | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  lastAttemptAt!: string | null
+}
+
 export class EnvironmentalAnalysisSummaryDto {
+  @ApiProperty({ type: CollectionSuccessDto, required: false })
+  collectionSuccess?: CollectionSuccessDto
   @ApiProperty({ type: Boolean, required: false, description: 'False when provenance was explicitly excluded from this response.' })
   provenanceIncluded?: boolean
 
