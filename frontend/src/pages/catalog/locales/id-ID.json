@@ -32,7 +32,7 @@
   "from": "Diperiksa sejak",
   "to": "Diperiksa hingga",
   "timeZone": "Zona waktu: {{timeZone}}",
-  "invalidDateRange": "Tanggal awal harus sebelum atau sama dengan tanggal akhir.",
+  "invalidDateRange": "Masukkan tanggal yang valid dan tanggal awal sebelum atau sama dengan tanggal akhir.",
   "clearFilters": "Hapus filter",
   "activeFilters": "Filter aktif",
   "range": "Menampilkan {{start}}–{{end}} dari {{count}} aplikasi",

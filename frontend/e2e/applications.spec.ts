@@ -498,7 +498,7 @@ test('cidade ausente pode ser filtrada explicitamente e intervalo invertido é r
   const to = page.getByLabel(/verificada até/i)
   await from.fill('2026-10-09T14:30')
   await to.fill('2026-10-09T13:00')
-  await expect(page.getByRole('alert')).toContainText(/data inicial.*anterior/i)
+  await expect(page.getByRole('alert')).toHaveText('Informe datas válidas e início anterior ou igual ao fim.')
   await expect(row(page, 'svc-sem-cidade')).toBeVisible()
 })
 
@@ -514,7 +514,7 @@ test('opção Todas exibe todo o conjunto filtrado em uma página', async ({ pag
 test('intervalo invertido vindo da URL é rejeitado sem parecer que não há aplicações', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/applications?from=2026-10-09T20%3A00%3A00.000Z&to=2026-10-09T18%3A00%3A00.000Z')
-  await expect(page.getByRole('alert')).toContainText(/data inicial.*anterior/i)
+  await expect(page.getByRole('alert')).toHaveText('Informe datas válidas e início anterior ou igual ao fim.')
   await expect(row(page, 'svc-0142')).toBeVisible()
 })
 

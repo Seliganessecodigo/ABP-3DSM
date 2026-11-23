@@ -36,6 +36,7 @@
   "compositionEmpty": "此时间段没有应用提供 CO₂e 结果。",
   "compositionSharesUnavailable": "无法计算此总值的占比；仍会显示各项数值。",
   "total": "总计",
+  "otherApplications": "其他应用 ({{count}})",
   "donutDescription": "{{count}} 个应用的 CO₂e 构成，总计 {{total}}",
   "ascending": "升序",
   "descending": "降序",

@@ -32,7 +32,7 @@
   "from": "확인 시작일",
   "to": "확인 종료일",
   "timeZone": "시간대: {{timeZone}}",
-  "invalidDateRange": "시작일은 종료일보다 늦을 수 없습니다.",
+  "invalidDateRange": "유효한 날짜를 입력하고 시작일은 종료일 이하여야 합니다.",
   "clearFilters": "필터 초기화",
   "activeFilters": "적용된 필터",
   "range": "애플리케이션 {{count}}개 중 {{start}}–{{end}}개 표시",

@@ -81,6 +81,7 @@
 .dataAsOf { margin: var(--space-3) 0 var(--space-6); font-size: 10px; }
 .visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
 .visualizations > .card { min-height: 282px; }
+.compositionCard { position: relative; }
 .pendingNote, .emptyNotice, .status, .warning, .error, .partialNotice {
   border-radius: 7px;
   padding: 12px;
@@ -96,7 +97,7 @@
 .sectionHeading { align-items: flex-start; }
 .modeButtons, .compositionSort { display: flex; gap: 6px; }
 .modeButtons button, .compositionSort button { min-height: 36px; padding: 6px 10px; }
-.composition { display: grid; grid-template-rows: minmax(160px, 1fr) auto; align-items: center; gap: 10px; margin-top: 8px; }
+.composition { display: grid; grid-template-rows: auto auto; align-items: center; gap: 12px; margin-top: 8px; }
 .donut {
   position: relative;
   width: min(100%, 166px);
@@ -104,29 +105,83 @@
   display: grid;
   place-items: center;
   justify-self: center;
-  border-radius: 50%;
 }
-.donut::before {
-  content: '';
-  position: absolute;
-  width: 104px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--surface-card);
-}
-.donut > span { position: relative; z-index: 1; display: grid; justify-items: center; max-width: 108px; text-align: center; }
+.donut svg { width: 100%; height: 100%; overflow: visible; }
+.donutSegment { cursor: pointer; transition: opacity 180ms ease; }
+.donutSegment:focus { outline: none; }
+.donutSegment:focus-visible { filter: brightness(1.12) drop-shadow(0 0 5px var(--accent-default)) !important; }
+.donut > span { position: absolute; display: grid; justify-items: center; max-width: 112px; text-align: center; }
 .donut small { color: var(--text-secondary); font-size: 10px; }
-.donut strong { overflow-wrap: anywhere; font-size: 17px; }
+.donutSelectedName { max-width: 108px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.donut strong { overflow-wrap: anywhere; font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.donutUnit { font-size: 13px; line-height: 1.2; }
 .compositionLegend { min-width: 0; }
-.compositionLegend ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; max-height: 72px; overflow: auto; padding: 0; margin: 8px 0 0; list-style: none; }
-.legendRow, .barRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 6px; font-size: 10px; }
-.legendName { grid-column: 1 / -1; min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.compositionLegend ul { display: grid; gap: 4px; padding: 0; margin: 0; list-style: none; }
+.legendRow, .barRow { min-width: 0; font-size: 11px; }
+.applicationButton { display: grid; grid-template-columns: minmax(0, 1fr) max-content max-content; align-items: center; gap: 8px; width: 100%; min-width: 0; border: 0; border-radius: 6px; padding: 5px 4px; background: transparent; color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
+.applicationButton:hover:not(:disabled), .applicationButton[aria-pressed='true'] { background: var(--control-hover); }
+.applicationButton[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--accent-default); }
+.applicationButton:disabled { cursor: default; }
+.applicationButton > strong { color: var(--text-secondary); font-size: 10px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.legendShare { font-variant-numeric: tabular-nums; }
+.legendName { min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; }
+.applicationName { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .legendSwatch { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; }
-.compositionBars { grid-template-rows: 1fr; }
-.compositionBars .compositionLegend ul { grid-template-columns: 1fr; max-height: 210px; }
-.compositionBars .barRow { grid-template-columns: minmax(90px, 1fr) minmax(50px, 1.5fr) auto auto; font-size: 11px; }
-.barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); }
-.barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; }
+.moreSwatches { display: inline-flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.moreSwatches .legendSwatch { width: 6px; height: 6px; }
+.moreApplications { position: relative; z-index: 2; margin-top: 4px; border-top: 1px solid var(--border-default); }
+.moreApplications summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 0 4px; cursor: pointer; font-size: 11px; list-style: none; }
+.moreApplications summary::-webkit-details-marker { display: none; }
+.moreApplications summary .legendName::before { content: '+'; font-weight: 700; }
+.moreApplications[open] summary .legendName::before { content: '−'; }
+.moreApplications summary strong { font-variant-numeric: tabular-nums; }
+.moreApplications ul {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  max-height: 136px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: var(--surface-card);
+  box-shadow: 0 8px 20px rgb(0 30 20 / 14%);
+}
+.compositionBars { grid-template-rows: auto; align-items: start; }
+.compositionBars .compositionSort { margin-bottom: 10px; }
+.compositionBars .compositionLegend > ul { grid-template-columns: minmax(0, 1.2fr) minmax(70px, 1.5fr) max-content max-content; gap: 2px 8px; max-height: 240px; overflow-y: auto; overflow-x: hidden; }
+.compositionBars .barRow, .compositionBars .applicationButton { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; }
+.compositionBars .applicationButton { min-height: 26px; padding: 3px 4px; }
+.barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); transition: height 160ms ease, box-shadow 160ms ease; }
+.barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; transition: filter 160ms ease; }
+.compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 14px; box-shadow: 0 0 0 2px var(--accent-default), 0 3px 8px rgb(0 30 20 / 22%); }
+.compositionBars .applicationButton[aria-pressed='true'] .barTrack span { filter: saturate(1.2) brightness(1.08); }
+.compositionTooltip {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 5px;
+  width: max-content;
+  max-width: min(220px, calc(100% - 24px));
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--surface-card);
+  box-shadow: 0 8px 20px rgb(0 30 20 / 20%);
+  color: var(--text-primary);
+  font-size: 11px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+}
+.compositionTooltipBelow { transform: translateX(-50%); }
+.compositionTooltipName { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 650; overflow-wrap: anywhere; }
+.compositionTooltipValues { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.compositionTooltipValues strong { font-weight: 650; }
+.compositionTooltipValues > span { color: var(--text-secondary); }
+@media (prefers-reduced-motion: reduce) { .donutSegment, .barTrack, .barTrack span { transition: none; } }
 .tableCard { margin-top: 10px; padding: 14px; }
 .tableHeading { align-items: center; margin-bottom: 8px; }
 .tableHeading p { max-width: 680px; }
@@ -179,8 +234,16 @@
   .visualizations > .card { min-height: 0; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }
-  .compositionLegend ul { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
-  .compositionBars .compositionLegend ul { grid-template-columns: 1fr; }
+  .compositionTooltipDonut { width: 110px; gap: 3px; padding: 6px 7px; font-size: 10px; }
+  .compositionTooltipDonut .compositionTooltipValues { display: grid; gap: 2px; white-space: normal; }
+  .compositionLegend ul { max-height: none; }
+  .compositionBars .compositionLegend > ul { grid-template-columns: minmax(0, 1fr) max-content max-content; gap: 4px 8px; max-height: min(400px, 60vh); }
+  .compositionBars .applicationButton { row-gap: 5px; padding: 5px 4px; }
+  .compositionBars .legendName { grid-column: 1; grid-row: 1; }
+  .compositionBars .applicationButton > strong { grid-column: 2; grid-row: 1; }
+  .compositionBars .legendShare { grid-column: 3; grid-row: 1; }
+  .compositionBars .barTrack { grid-column: 1 / -1; grid-row: 2; height: 8px; }
+  .compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 12px; }
   .tableHeading { align-items: flex-start; flex-direction: column; }
   .tableActions { width: 100%; align-items: stretch; flex-direction: column; gap: 8px; }
   .searchLabel { min-width: 0; }

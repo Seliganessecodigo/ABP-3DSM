@@ -36,6 +36,7 @@
   "compositionEmpty": "इस अवधि में किसी ऐप्लिकेशन का CO₂e परिणाम नहीं है।",
   "compositionSharesUnavailable": "इस कुल के लिए हिस्सेदारी की गणना नहीं हो सकती; अलग-अलग मान उपलब्ध हैं।",
   "total": "कुल",
+  "otherApplications": "अन्य ऐप्लिकेशन ({{count}})",
   "donutDescription": "{{count}} ऐप्लिकेशन का CO₂e विभाजन, कुल {{total}}",
   "ascending": "आरोही",
   "descending": "अवरोही",
