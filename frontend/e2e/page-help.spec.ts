@@ -10,7 +10,7 @@ async function mockAnalysis(page: Page) {
     const period = { from: url.searchParams.get('from'), to: url.searchParams.get('to') }
     const common = { status: 'available', applicationId: 'svc-0142', period }
     if (url.pathname.endsWith('/series')) return route.fulfill({ json: { ...common, granularity: url.searchParams.get('granularity'),
-      totals: { energy: { value: 4, unit: 'kWh' }, emissions: { value: 430, unit: 'gCO2e' } }, coverage: { energy: 0.96, emissions: 0.96 },
+      totals: { energy: { value: 4, unit: 'kWh', reasons: [] }, emissions: { value: 430, unit: 'gCO2e', reasons: [] } }, coverage: { energy: 0.96, emissions: 0.96 },
       points: [{ id: 'point-1', bucketStart: period.from, bucketEnd: period.to, period, energy: { value: 4, unit: 'kWh', reasons: [] }, emissions: { value: 430, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0.96, emissions: 0.96 } }], events: [] } })
     await route.fulfill({ json: { ...common, energy: { value: 4, unit: 'kWh', reasons: [] },
       emissions: { value: 430, unit: 'gCO2e', reasons: [] }, coverage: { energy: 0.96, emissions: 0.96 },

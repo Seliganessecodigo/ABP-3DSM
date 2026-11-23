@@ -37,7 +37,7 @@ test.beforeEach(async ({ page }) => {
     if (url.pathname.endsWith('/series')) {
       await route.fulfill({ json: {
         status: 'available', applicationId: 'svc-0142', period, granularity: url.searchParams.get('granularity'),
-        totals: { energy: { value: 3, unit: 'kWh' }, emissions: { value: 1200, unit: 'gCO2e' } },
+        totals: { energy: { value: 3, unit: 'kWh', reasons: [] }, emissions: { value: 1200, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 0.75, emissions: 0.75 },
         points: [
           { bucketStart: '2026-10-27T00:00:00.000Z', bucketEnd: '2026-10-27T01:00:00.000Z',
@@ -91,8 +91,8 @@ test('history selection shows the environmental series and keeps its context', a
   await expect(graphMode).toHaveAttribute('aria-pressed', 'true')
   await expect(series.locator('[data-series-bar]')).toHaveCount(0)
   await expect(series.locator('figure svg [role="button"]')).toHaveCount(4)
-  await expect(series.getByText('Energia (kWh)', { exact: true })).toBeVisible()
-  await expect(series.getByText('CO₂e (gCO2e)', { exact: true })).toBeVisible()
+  await expect(series.getByText('Período atual: Energia (kWh)', { exact: true })).toBeVisible()
+  await expect(series.getByText('Período atual: CO₂e (gCO2e)', { exact: true })).toBeVisible()
   await expect(series.getByRole('button', { name: /Energia.*kWh/ }).first()).toBeVisible()
   await expect(series.getByRole('button', { name: /CO₂e.*gCO2e/ }).first()).toBeVisible()
   await expect(series.getByRole('table')).toContainText('Sem observações disponíveis')
