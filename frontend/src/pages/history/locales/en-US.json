@@ -1,0 +1,12 @@
+{
+  "eyebrow": "Investigate a period",
+  "startTitle": "Which application would you like to analyze?",
+  "startDescription": "Explore energy and emissions over time and inspect the collections behind each result.",
+  "selectApplication": "Select an application",
+  "evolution": "Energy and CO₂e over time",
+  "events": "Events recorded in the period",
+  "evidence": "Collections and original methodology",
+  "applicationsTitle": "Choose an application to get started",
+  "openHistory": "View history",
+  "currentState": "Current status: {{state}}"
+}

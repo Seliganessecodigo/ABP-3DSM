@@ -13,7 +13,7 @@ import {
 import { ApplicationsRepository } from "./applications.repository";
 import { DiscoveryService } from "./discovery.service";
 import { MetadataSyncService } from "./metadata-sync.service";
-import { RemovalService } from "./removal.service";
+import { RemovalService, type RemovalReconciliation } from "./removal.service";
 import { ReturnService } from "./return.service";
 import { StatusClassificationService } from "./status-classification.service";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
@@ -30,6 +30,8 @@ import {
   type EnergyObservationInput,
 } from "../calculations/energy-calculation";
 import { calculateCarbonEmission } from "../calculations/carbon-emission";
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
+import { ApplicationEventsRepository } from "../../database/repositories/application-events.repository";
 
 interface CycleCounts {
   discoveredCount: number;
@@ -67,6 +69,8 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     private readonly incidents: MonitoringIncidentsService,
     private readonly carbonFactors: CarbonFactorService,
     private readonly cycleLock: MonitoringCycleLock,
+    private readonly settings: MonitoringSettingsRepository,
+    private readonly events: ApplicationEventsRepository,
   ) {}
 
   async run(): Promise<void> {
@@ -124,7 +128,11 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
   }
 
   private async runCycle(signal: AbortSignal): Promise<void> {
-    const cycle = await this.cycles.start({ source: "scheduled-monitoring" });
+    const configuration = await this.settings.get();
+    if (!configuration) throw new Error("Monitoring settings are unavailable");
+    if (configuration.paused) return;
+    // This snapshot is the cycle boundary; later changes apply to subsequent cycles.
+    const cycle = await this.cycles.start({ source: "scheduled-monitoring", configurationVersion: configuration.configurationVersion });
     const counts: CycleCounts = {
       discoveredCount: 0,
       processedCount: 0,
@@ -167,35 +175,34 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       );
       await this.metadata.reconcile(cycle.id, snapshot);
       await this.returns.reconcile(cycle.id, snapshot);
-      await this.removal.reconcile(cycle.id, snapshot);
-      const incidentPersisted = await this.incidents.recordSuccess(
-        {
-          source: "metrics-aggregator",
-          applicationId: null,
-          integration: MonitoringIntegration.SERVICES,
-        },
+      const reconciliation = await this.removal.reconcile(
         cycle.id,
-        new Date(),
+        snapshot,
+        signal,
       );
-      if (!incidentPersisted) {
-        processing.failures.push({
-          applicationId: null,
-          errorCode: "DATABASE_WRITE_FAILED",
-          integration: "incident-persistence",
-        });
+      if (reconciliation.retainedServices.length > 0) {
+        await this.metadata.reconcile(
+          cycle.id,
+          reconciliation.retainedServices,
+        );
       }
+      await this.recordCatalogReconciliation(
+        reconciliation,
+        cycle.id,
+        processing,
+      );
     } catch (error) {
+      if (signal.aborted || this.isCancellation(error)) {
+        await this.finishCancelled(cycle.id, counts);
+        return;
+      }
       await this.finish(cycle.id, counts, MonitoringCycleStatus.FAILED, error);
       throw error;
     }
 
     let targets: ApplicationEntity[];
     try {
-      const eligible = await this.applications.findForCollection();
-      const eligibleIds = new Set(snapshot.map((service) => service.id));
-      targets = eligible.filter((application) =>
-        eligibleIds.has(application.id),
-      );
+      targets = await this.applications.findForCollection();
     } catch (error) {
       await this.finish(cycle.id, counts, MonitoringCycleStatus.FAILED, error);
       throw error;
@@ -230,6 +237,37 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     });
   }
 
+  private async recordCatalogReconciliation(
+    result: RemovalReconciliation,
+    cycleId: string,
+    processing: ApplicationProcessingState,
+  ): Promise<void> {
+    processing.failures.push(
+      ...result.failures.map(({ applicationId, error }) => ({
+        applicationId,
+        errorCode: this.getErrorCode(error),
+        integration: "services",
+      })),
+    );
+    const failure = result.failures[0];
+    const identity = {
+      source: "metrics-aggregator",
+      applicationId: null,
+      integration: MonitoringIntegration.SERVICES,
+    };
+    const persisted = failure
+      ? await this.incidents.recordFailure(
+          identity,
+          this.getSafeReason(failure.error, MonitoringIntegration.SERVICES),
+          cycleId,
+          new Date(),
+          this.getHttpAttempts(failure.error),
+        )
+      : await this.incidents.recordSuccess(identity, cycleId, new Date());
+    if (!persisted)
+      this.addPersistenceFailure(null, "incident-persistence", processing);
+  }
+
   private async processApplication(
     application: ApplicationEntity,
     cycleId: string,
@@ -237,6 +275,28 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     counts: CycleCounts,
     processing: ApplicationProcessingState,
   ): Promise<void> {
+    if (signal.aborted) return;
+    const attemptedAt = new Date();
+    const succeeded = await this.collectApplication(application, cycleId, signal, counts, processing);
+    if (succeeded === null) return;
+    try {
+      await this.events.append({
+        applicationId: application.id, cycleId, kind: "collection_attempt", actor: "system",
+        occurredAt: attemptedAt, details: { succeeded, regionCode: application.regionCode ?? null },
+      });
+    } catch {
+      this.addPersistenceFailure(application.id, "collection-attempt-persistence", processing);
+      this.logPersistenceFailure(application.id, cycleId, "record-collection-attempt");
+    }
+  }
+
+  private async collectApplication(
+    application: ApplicationEntity,
+    cycleId: string,
+    signal: AbortSignal,
+    counts: CycleCounts,
+    processing: ApplicationProcessingState,
+  ): Promise<boolean | null> {
     let observation:
       Awaited<ReturnType<MetricsAggregatorAdapter["fetchMetrics"]>> | undefined;
     let metricsError: unknown;
@@ -246,19 +306,19 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
       metricsError = error;
     }
 
-    if (signal.aborted || this.isCancellation(metricsError)) return;
+    if (signal.aborted || this.isCancellation(metricsError)) return null;
     if (metricsError) {
       await this.captureCarbonFactor(application, cycleId, signal, processing);
-      if (signal.aborted) return;
+      if (signal.aborted) return null;
       await this.recordMetricsFailure(
         application,
         metricsError,
         cycleId,
         processing,
       );
-      return;
+      return false;
     }
-    if (!observation) return;
+    if (!observation) return false;
     const intervalStart = new Date(
       observation.receivedAt.getTime() -
         observation.collectionIntervalSeconds * 1000,
@@ -272,9 +332,17 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         intervalStart,
       );
     } catch {
-      this.addPersistenceFailure(application.id, "metrics-persistence", processing);
-      this.logPersistenceFailure(application.id, cycleId, "find-metric-observation");
-      return;
+      this.addPersistenceFailure(
+        application.id,
+        "metrics-persistence",
+        processing,
+      );
+      this.logPersistenceFailure(
+        application.id,
+        cycleId,
+        "find-metric-observation",
+      );
+      return false;
     }
     let carbonFactor: CarbonRegionEntity | null = null;
     if (existing?.calculationEvidence) {
@@ -287,8 +355,8 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         processing,
       );
     }
-    if (signal.aborted) return;
-    await this.persistObservation(
+    if (signal.aborted) return null;
+    return this.persistObservation(
       application,
       observation,
       carbonFactor,
@@ -430,7 +498,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
     cycleId: string,
     counts: CycleCounts,
     processing: ApplicationProcessingState,
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const intervalEnd = observation.receivedAt;
       const intervalStart = new Date(
@@ -510,7 +578,10 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
             : null,
           calculationEvidence: { version: 1 as const, energy, carbon },
         };
-        await this.collections.persistEnvironmentalBundle(collection.id, bundle);
+        await this.collections.persistEnvironmentalBundle(
+          collection.id,
+          bundle,
+        );
       }
       processing.hasUsefulResult = true;
       await this.statuses.record(
@@ -543,6 +614,7 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
           "incident-persistence",
           processing,
         );
+      return true;
     } catch {
       processing.failures.push({
         applicationId: application.id,
@@ -554,11 +626,12 @@ export class MonitoringCycleRunner implements OnApplicationShutdown {
         cycleId,
         "persist-metric-observation",
       );
+      return false;
     }
   }
 
   private addPersistenceFailure(
-    applicationId: string,
+    applicationId: string | null,
     integration: string,
     processing: ApplicationProcessingState,
   ): void {

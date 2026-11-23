@@ -1,3 +1,8 @@
+import { MonitoringSettingsRepository } from "../../database/repositories/monitoring-settings.repository";
+import { MonitoringSettingsEntity } from "../../database/entities/monitoring-settings.entity";
+import { MonitoringControlVersionEntity } from "../../database/entities/monitoring-control-version.entity";
+import { MonitoringPauseControl1793500000000 } from "../../database/migrations/1793500000000-MonitoringPauseControl";
+import { VersionMonitoringControl1793600000000 } from "../../database/migrations/1793600000000-VersionMonitoringControl";
 import { DataSource } from "typeorm";
 import { ApplicationEntity } from "../../database/entities/application.entity";
 import { ApplicationEventEntity } from "../../database/entities/application-event.entity";
@@ -9,6 +14,7 @@ import { RecalculationEntity } from "../../database/entities/recalculation.entit
 import { AuditLogEntity } from "../../database/entities/audit-log.entity";
 import { MonitoringIncidentEntity } from "../../database/entities/monitoring-incident.entity";
 import { UserEntity } from "../../database/entities/user.entity";
+import { OrganizationEntity } from "../../database/entities/organization.entity";
 import { InitialSchema1791240000000 } from "../../database/migrations/1791240000000-InitialSchema";
 import { CompleteMonitoringPersistence1791250000000 } from "../../database/migrations/1791250000000-CompleteMonitoringPersistence";
 import { AddApplicationLocation1791260000000 } from "../../database/migrations/1791260000000-AddApplicationLocation";
@@ -65,6 +71,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
   let carbonIntensity: { fetchIntensity: jest.Mock };
   let upstream: {
     fetchServices: jest.Mock<Promise<ServiceSummary[]>, []>;
+    fetchService: jest.Mock;
     fetchMetrics: jest.Mock;
   };
 
@@ -73,6 +80,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
       type: "postgres",
       url: testDatabaseUrl,
       entities: [
+        MonitoringSettingsEntity, MonitoringControlVersionEntity,
         ApplicationEntity,
         ApplicationEventEntity,
         CollectionEntity,
@@ -82,6 +90,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         RecalculationEntity,
         AuditLogEntity,
         UserEntity,
+        OrganizationEntity,
         MonitoringIncidentEntity,
       ],
       migrations: [
@@ -93,6 +102,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         ApplicationOperationalStatus1791360000000,
         MonitoringIncidents1791370000000,
         CollectionCalculationEvidence1791380000000,
+        MonitoringPauseControl1793500000000, VersionMonitoringControl1793600000000,
       ],
       synchronize: false,
     });
@@ -125,6 +135,7 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     };
     upstream = {
       fetchServices: jest.fn(),
+      fetchService: jest.fn(),
       fetchMetrics: jest.fn(),
     };
     const adapter = upstream as unknown as MetricsAggregatorAdapter;
@@ -149,6 +160,8 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         new CarbonRegionsRepository(database.getRepository(CarbonRegionEntity)),
       ),
       new MonitoringCycleLock(),
+      new MonitoringSettingsRepository(database.getRepository(MonitoringSettingsEntity)),
+      events,
     );
   });
 
@@ -162,6 +175,10 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
       `DELETE FROM carbon_regions WHERE code = 'br-sudeste'`,
     );
     upstream.fetchServices.mockReset();
+    upstream.fetchService.mockReset();
+    upstream.fetchService.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
     upstream.fetchMetrics.mockReset();
     upstream.fetchServices.mockResolvedValue([service("a")]);
     upstream.fetchMetrics.mockResolvedValue({
@@ -215,6 +232,12 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     });
     expect(cycles).toHaveLength(2);
     expect(cycles.map(({ persistedCount }) => persistedCount)).toEqual([1, 0]);
+    const attempts = await database.getRepository(ApplicationEventEntity).find({ where: { kind: 'collection_attempt' } });
+    expect(attempts).toHaveLength(2);
+    expect(attempts.map(attempt => attempt.details)).toEqual([
+      { succeeded: true, regionCode: 'br-sudeste' }, { succeeded: true, regionCode: 'br-sudeste' },
+    ]);
+    expect(new Set(attempts.map(attempt => attempt.cycleId))).toEqual(new Set(cycles.map(cycle => cycle.id)));
     const statusEvents = await database
       .getRepository(ApplicationEventEntity)
       .find({
@@ -441,7 +464,8 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
     await expect(
       collectionStore.persistEnvironmentalBundle(pending.id, {
         ...bundle,
-        calculationEvidence: null as unknown as typeof bundle.calculationEvidence,
+        calculationEvidence:
+          null as unknown as typeof bundle.calculationEvidence,
       }),
     ).rejects.toThrow("INVALID_ENVIRONMENTAL_BUNDLE");
     const unchangedPending = await database
@@ -914,6 +938,8 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         .map(({ kind }) => kind)
         .sort(),
     ).toEqual([
+      "collection_attempt",
+      "collection_attempt",
       "discovered",
       "removed",
       "returned",
@@ -925,6 +951,56 @@ describeDatabase("monitoring cycle with isolated PostgreSQL", () => {
         where: { applicationId: "cycle-test-a" },
       }),
     ).toHaveLength(2);
+  });
+
+  it("distinguishes the four states without removing an omitted service that is still registered", async () => {
+    await runner.run();
+    const store = database.getRepository(ApplicationEntity);
+    const id = "cycle-test-a";
+    expect((await store.findOneByOrFail({ id })).state).toBe(
+      ApplicationState.AVAILABLE,
+    );
+    const history = await collectionStore.findHistoryByApplication(id);
+
+    upstream.fetchServices.mockResolvedValue([]);
+    upstream.fetchService.mockResolvedValue({
+      ...service("a"),
+      name: "Registered application",
+      location: { ...service("a").location, city: "Campinas" },
+    });
+    upstream.fetchMetrics.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 500),
+    );
+    await runner.run();
+    expect(await store.findOneByOrFail({ id })).toMatchObject({
+      state: ApplicationState.UNAVAILABLE,
+      removedAt: null,
+      lastObservationAt: receivedAt,
+      isStale: true,
+      name: "Registered application",
+      city: "Campinas",
+    });
+
+    upstream.fetchMetrics.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
+    await runner.run();
+    expect(await store.findOneByOrFail({ id })).toMatchObject({
+      state: ApplicationState.NO_METRICS,
+      removedAt: null,
+      lastObservationAt: receivedAt,
+    });
+
+    upstream.fetchService.mockRejectedValue(
+      new IntegrationError("UPSTREAM_UNAVAILABLE", 404),
+    );
+    upstream.fetchMetrics.mockClear();
+    await runner.run();
+    expect((await store.findOneByOrFail({ id })).state).toBe(
+      ApplicationState.REMOVED,
+    );
+    expect(upstream.fetchMetrics).not.toHaveBeenCalled();
+    expect(await collectionStore.findHistoryByApplication(id)).toEqual(history);
   });
 
   it("does not confirm removal if the services snapshot is invalid", async () => {

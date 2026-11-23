@@ -1,0 +1,15 @@
+{
+  "title": "Recuperação de senha",
+  "description": "Informe o identificador da organização e seu e-mail para receber um link de recuperação.",
+  "backToLogin": "Voltar para entrar",
+  "organization": "Identificador da organização",
+  "organizationHint": "Identificador informado pela sua organização",
+  "submit": "Enviar link de recuperação",
+  "complete": "Se os dados corresponderem a uma conta elegível, você receberá um link por e-mail. Confira também a pasta de spam.",
+  "resetDescription": "Defina uma nova senha para sua conta.",
+  "resetSubmit": "Redefinir senha",
+  "invalidLink": "Este link expirou ou já foi utilizado. Solicite uma nova recuperação.",
+  "failed": "Não foi possível concluir a recuperação. Tente novamente.",
+  "passwordMismatch": "As senhas não coincidem.",
+  "rateLimited": "Muitas tentativas. Aguarde um pouco e tente novamente."
+}

@@ -1,41 +1,170 @@
-# GreenER APIリファレンス
+# APIリファレンス
 
-2026年10月15日の`develop`で確認したルートです。ローカルSwaggerは`http://localhost:3000/docs`、スキーマは`/openapi.json`。完全なDTOは接続先環境のOpenAPIを確認してください。
+GreenER API連携の参照です。完全な型、任意項目、上限は環境の`/openapi.json`、Swaggerは`/docs`。カタログ・履歴は保存データを読み、プレビュー・炭素ルートは炭素強度の情報源を照会する場合があります。
 
-## 既存の読み取り
+## 公開クエリ {#public}
 
-| メソッド・ルート | 結果 |
+| HTTP | URI | アクセス |
+| --- | --- | --- |
+| GET | `/health` | — |
+| GET | `/applications` | — |
+| GET | `/applications/{id}` | — |
+| GET | `/applications/{id}/collections/latest` | — |
+| GET | `/applications/{id}/collections/{collectionId}` | — |
+| GET | `/applications/{id}/analysis` | — |
+| GET | `/applications/{id}/analysis/series` | — |
+| GET | `/applications/{id}/analysis/series/contributions` | — |
+| GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
+| GET | `/analysis/comparison` | — |
+| GET | `/monitoring/incidents` | — |
+| GET | `/carbon/regions` | — |
+| GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
+| POST | `/applications/{id}/analysis/recalculation-preview` | — |
+
+## 期間と履歴 {#queries}
+
+`from`と`to`はタイムゾーン付きRFC 3339です。`[from,to)`をUTCに正規化します。系列は`hour`、`day`、`month`、`year`、上限10,000点で超過を拒否します。保存値を重複時間で按分し、最新`collectedAt`、次にID辞書順で優先します。優先観測で算出できない場合に古い値へ戻しません。
+
+| URI | パラメーター |
 | --- | --- |
-| GET /health | サービスのHTTPヘルス応答。 |
-| GET /applications | 永続化済み一覧。`[]`も有効。 |
-| GET /applications/{id} | アプリ、状態、時刻、所在地。 |
-| GET /applications/{id}/collections/latest | 最終有効観測と運用コンテキスト。 |
-| GET /applications/{id}/collections/{collectionId} | 当該アプリの観測。collectionIdはUUID。 |
-| GET /openapi.json | 機械可読の契約。 |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
-読み取りは収集や環境計算を起動しません。検索・ページ分割は現在フロントエンド側です。サーバーページ分割パラメーターは定義されていません。
+`GET /analysis/comparison` は2～5個の重複しないIDと選択した基準アプリケーションを必須とします。同じ期間のエネルギー、排出量、個別のカバレッジ、メトリクス、過去の場所snapshotを返します。差分はアプリケーション値－基準値です。百分率には正の基準値が必要です。欠損値は明示され、状態は `empty`、`partial`、`complete` のいずれかです。
 
-## ローカル要求
+元の測定時刻はなく、受信時刻から`collection_interval_seconds`を引いて区間を導出します。係数照会時刻は有効期間ではなく、未公開の出典・有効性は不明です。エネルギー・係数・排出は小数8桁、カバー率4桁で保存し、中間丸めは行いません。別々のカバー率と原本snapshotを保持します。
 
-~~~sh
-curl --fail-with-body http://localhost:3000/health
-curl --fail-with-body http://localhost:3000/applications
-~~~
+## 時系列と計算の説明 {#environmental-presentation}
 
-返却されたアプリIDをURLエンコードして使います。連番やアプリIDのUUID形式を仮定しません。DTOには`id`、`name`、`state`、`firstSeenAt`、`lastCheckedAt`、`removedAt`、`location`があります。理由、鮮度、計算可否もバックエンドにありますが、UIはすべてを消費していません。都市はnull可、旧レコードの不完全な所在地は`location: null`です。
+`includeCollectionSuccess=true`を指定すると、サマリーに`collectionSuccess`が含まれ、その中に`successful`、`total`、`rate`、`firstAttemptAt`、`lastAttemptAt`があります。対象期間とフィルター内で、有効なメトリクスを保存した記録済み定期収集の試行を集計します。試行がなければ`rate`は`null`です。HTTP再試行は分母を増やさず、キャンセルは除外します。この機能の導入以降を記録し、過去の記録を推測して補完しません。
 
-## エラー
+`/analysis/summary` の任意パラメーター `granularity` を指定すると、合計と同じ期間・フィルターの `series.points` が含まれます。各期間はアプリケーションの保存済み結果を合計し、指標別のカバレッジを維持します。欠損値は `null` のままです。
 
-| HTTP / コード | 意味 |
+`/applications/{id}/analysis` の `calculation.energyKwh` は排出量を計算できた区間のエネルギーです。`calculation.intensity` は、その排出量を対応するエネルギーで割った等価排出係数（gCO₂e/kWh）です。エネルギーがゼロまたは欠損の場合、係数は未定義です。過去の結果と係数は保持されます。
+
+## ログインする {#login}
+
+ダッシュボードと環境参照は公開。`/login`でメール/パスワード、または有効化済みGoogleを使用。AdminはGoogle後も6桁TOTPの設定/確認が必要。Analyst/Visitorに管理権限は付与しません。UIセッションはメモリ内で、再読み込み後は再ログイン。backendはJWT、セッション、現在の役割と状態を確認し、認証不正は401、権限不足は403。新規ルートは既定で保護します。
+
+| HTTP | URI | アクセス |
+| --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## 保護された操作 {#protected}
+
+| HTTP | URI | アクセス |
+| --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
+
+同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。
+
+```json
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
+```
+
+## API でアカウントを管理する {#accounts}
+
+Adminは同じ組織のアカウントを招待し、理由を記録してロールを管理できます。最後の管理者は保護され、操作は設定画面にまとめられています。パスワード回復はアカウントの存在を明かさない応答、一回限りの一時トークン、セッションの失効を用います。メール送信にはSMTP設定が必要です。
+
+一覧では検索とフィルターを適用してから並べ替えとページ分割を行います。初期値は10件で、5、10、15、20件、および絞り込み後の全件を返す `all` を選べます。翻訳済みラベルは列挙コードに、現地日時はオフセット付き RFC 3339 に変換してください。欠損値は昇順・降順とも末尾に配置し、同値の場合は識別子で順序を決めます。
+
+ロール変更には `expectedRole` と `reason` が必要です。変更時はセッションと一時 TOTP 資格情報を失効させ、監査を保持し、自分自身のアクセスやメール確認済みの最後の有効な Admin を失う変更を防ぎます。メール未確認のアカウントはその管理者の代わりにはなりません。Admin を割り当てても TOTP は必須です。
+
+## 計算プレビュー {#preview}
+
+`/administration/calculations`でアプリと日付を選び原本とプレビューを比較。終了日はUTCの一日全体を含み、APIは`[from,to)`。公開操作で現行モデルと過去地域の現在係数を使用し、保存しません。上限30日・10,000観測。応答は`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。係数障害でも算出可能なエネルギーを保持。百分率は同じ単位・カバー率と正の基準値が必要です。
+
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## 分析を自分用に設定する {#preferences}
+
+`/methodology` でアプリケーションごとのエネルギー・排出量上限、カバレッジ基準、分析の初期設定を指定します。直近24時間、7日、30日、90日、UTCの当月、または開始を含み終了を含まない任意の期間を選択できます。プレビューは保存せずに実データを読み取り、アプリケーションとダッシュボードと同じ警告パネルを使用します。保存にはログインが必要で、自分のアカウントだけに適用されます。計算、履歴、稼働状態は変わりません。警告には画面のフィルターとは独立した各上限の期間が使われます。分析の初期設定は、ダッシュボードと詳細画面のURLに指定がない項目だけを補います。部分的なデータが上限未満でも遵守を証明しません。欠損はゼロではありません。
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
+
+| tab | value |
 | --- | --- |
-| 400 / INVALID_APPLICATION_ID | ルート上で空・不正なID。収集UUID不正も400。 |
-| 404 / APPLICATION_NOT_FOUND | 未知のアプリ。 |
-| 404 / COLLECTION_NOT_FOUND | 当該アプリに観測がない。 |
-| 503 / CATALOG_UNAVAILABLE | 一覧読み取り失敗。 |
-| 503 / APPLICATION_EVIDENCE_UNAVAILABLE | 証拠読み取り失敗。 |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
 
-構造化コードとHTTPを使い、文言を翻訳契約にしません。失敗を空やゼロへ置換しません。
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
 
-## 統合境界
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
-外部源はバックエンドだけが呼びます。[版管理された契約](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md)を参照。将来のエネルギー・認証・管理APIはここで公開しません。JWT管理は[EP06](../backlog/ep06)の要件であり、提供済みとは仮定しません。URL・CORS・診断は[運用](../operations)、区間は[方法論](../product/methodology)へ。
+## エラー処理 {#errors}
+
+HTTP状態と構造化コードで処理し、メッセージを翻訳契約としません。`null`は欠損でゼロではありません。空一覧は有効で、照会失敗と区別します。各操作の文脈でコードを解釈します。
+
+| HTTP | コード |
+| --- | --- |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
+
+## HTTP契約 {#contracts}
+
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
+
+## 関連ページ {#related}
+
+[運用と診断](../operations) · [方法論とデータ](../product/methodology)

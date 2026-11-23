@@ -78,6 +78,26 @@ describe('database repositories', () => {
     expect(mock.save).not.toHaveBeenCalled()
   })
 
+  it('appends audit records through the caller transaction when provided', async () => {
+    const { repository, mock } = createRepository<AuditLogEntity>()
+    const transactionRepository = createRepository<AuditLogEntity>()
+    const manager = {
+      getRepository: jest.fn().mockReturnValue(transactionRepository.repository),
+    }
+    const auditLogs = new AuditLogsRepository(repository)
+
+    await auditLogs.append(
+      { actor: 'monitoring-scheduler', actorType: 'system' },
+      manager as never,
+    )
+
+    expect(manager.getRepository).toHaveBeenCalledWith(AuditLogEntity)
+    expect(transactionRepository.mock.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ actor: 'monitoring-scheduler' }),
+    )
+    expect(mock.insert).not.toHaveBeenCalled()
+  })
+
   it('appends recalculation records', async () => {
     const { repository, mock } = createRepository<RecalculationEntity>()
     const recalculations = new RecalculationsRepository(repository)
@@ -98,7 +118,7 @@ describe('database repositories', () => {
     mock.findOneByOrFail.mockResolvedValue({
       id: generatedId,
       startedAt,
-      details: null,
+      details: { configurationVersion: 'immutable-control-version' },
     })
     mock.save.mockImplementation(async (cycle) => cycle)
 
@@ -125,8 +145,24 @@ describe('database repositories', () => {
         status: MonitoringCycleStatus.SUCCEEDED,
         discoveredCount: 2,
         finishedAt: finished.finishedAt,
+        details: { configurationVersion: 'immutable-control-version' },
       }),
     )
+  })
+
+  it.each([
+    { before: null, after: null, expected: null },
+    { before: { source: 'legacy' }, after: { error: 'FAILED' }, expected: { error: 'FAILED' } },
+    { before: { configurationVersion: 'original' }, after: { error: 'FAILED', configurationVersion: 'replacement' }, expected: { error: 'FAILED', configurationVersion: 'original' } },
+  ])('preserves the initial control version when finishing a cycle: $before', async ({ before, after, expected }) => {
+    const { repository, mock } = createRepository<MonitoringCycleEntity>()
+    mock.findOneByOrFail.mockResolvedValue({ id: generatedId, startedAt: new Date(), details: before })
+    mock.save.mockImplementation(async value => value)
+    const result = await new MonitoringCyclesRepository(repository).finish(generatedId, {
+      status: MonitoringCycleStatus.FAILED, discoveredCount: 0, processedCount: 0,
+      failedCount: 1, persistedCount: 0, details: after,
+    })
+    expect(result.details).toEqual(expected)
   })
 
   it('adds immutable carbon factor versions and finds the effective version', async () => {

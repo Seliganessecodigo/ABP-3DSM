@@ -18,6 +18,7 @@ import { ApplicationDto } from './application.dto'
 import { ApplicationsService } from './applications.service'
 import { CollectionEvidenceService } from './collection-evidence.service'
 import { CollectionEvidenceDto } from './collection.dto'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('applications')
 @Controller('applications')
@@ -27,6 +28,7 @@ export class ApplicationsController {
     private readonly evidence: CollectionEvidenceService,
   ) {}
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Listar aplicações conhecidas pelo GreenER' })
   @ApiOkResponse({ type: ApplicationDto, isArray: true })
@@ -35,6 +37,7 @@ export class ApplicationsController {
     return this.applications.list()
   }
 
+  @PublicRoute()
   @Get(':id')
   @ApiOperation({ summary: 'Consultar aplicação conhecida pelo ID' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -52,6 +55,7 @@ export class ApplicationsController {
     return this.applications.getById(id)
   }
 
+  @PublicRoute()
   @Get(':id/collections/latest')
   @ApiOperation({ summary: 'Consultar a observação válida mais recente' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -89,6 +93,7 @@ export class ApplicationsController {
     return this.evidence.getLatest(id)
   }
 
+  @PublicRoute()
   @Get(':id/collections/:collectionId')
   @ApiOperation({ summary: 'Consultar observação armazenada pelo ID' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })

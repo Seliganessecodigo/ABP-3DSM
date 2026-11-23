@@ -1,45 +1,82 @@
 # Operación y diagnóstico
 
-Mecanismos existentes, sin SLA de producción. Instalación: [Primeros pasos](./getting-started); contrato: [API](./reference/api).
+Esta parte está destinada a desarrollo y operación. Presenta entorno local, contratos y comprobaciones. Para aprender a utilizar el producto, consulte la guía de uso.
 
-## Configuración
+## Configuración {#environment}
 
-| Configuración | Uso |
-| --- | --- |
-| FRONTEND_PORT / API_PORT / POSTGRES_PORT | Puertos publicados por Compose. |
-| DATABASE_URL | Backend host/nube; Compose utiliza servicio interno `postgres`. |
-| METRICS_AGGREGATOR_URL / CARBON_INTENSITY_URL | Fuentes exclusivas del backend. |
-| CORS_ORIGIN | Origen frontend permitido; corresponde al acceso real. |
-| VITE_API_URL | URL incorporada al build o entorno de desarrollo frontend. |
-| MONITORING_SCHEDULE_INTERVAL_SECONDS | Scheduler backend, predeterminado 60 segundos. |
-| MONITORING_METRICS_CONCURRENCY | Concurrencia por proceso, inicialmente 2; no cota externa. |
+```text
+FRONTEND_PORT=5173
+API_PORT=3000
+POSTGRES_PORT=5432
+DATABASE_URL
+METRICS_AGGREGATOR_URL
+CARBON_INTENSITY_URL
+CORS_ORIGIN
+VITE_API_URL
+MONITORING_SCHEDULE_INTERVAL_SECONDS=60
+MONITORING_METRICS_CONCURRENCY=2
+```
 
-Parámetros de monitorización: enteros positivos. Compose no pasa automáticamente esas dos claves desde `.env`; para sobrescribirlas necesita mapeo explícito. Credenciales del ejemplo son solo locales.
+## Monitorización automática {#monitoring}
 
-## Comprobar entorno
+La monitorización comienza tras el primer intervalo e impide ciclos solapados por proceso. Intervalo/concurrencia deben ser enteros positivos. Compose no pasa automáticamente `MONITORING_SCHEDULE_INTERVAL_SECONDS` y `MONITORING_METRICS_CONCURRENCY` de `.env` a API: requieren mapeo explícito. `/health` verifica HTTP, no descubrimiento ni cálculo. Revise catálogo, evidencias y logs. Fallos de origen no confirman eliminación; recuperación tras tres observaciones válidas consecutivas.
 
-~~~sh
+La primera ausencia en un snapshot completo y válido confirma eliminación. Cada llamada externa tiene plazo total de 30 segundos y como máximo tres intentos HTTP contando el inicial; solo se reintentan fallos temporales.
+
+## Iniciar sesión {#authentication}
+
+Node.js 24+, npm y Docker Compose v2. Copie `.env.example` a `.env`; ejecute `npm run dev`. Compose aplica migrations e intenta descubrimiento; fallo de origen no impide iniciar API. Configure SMTP para invitaciones/confirmaciones. Primer Admin: script `organizations:create-invitation` en `backend/`, con `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. Sin Admin universal de producción.
+
+El primer acceso por el sitio tiene dos pasos: abrir la invitación en `/setup-admin`, introducir nombre y correo y después abrir la confirmación en `/confirm-email` para crear la contraseña. A continuación, inicia sesión y configura el autenticador obligatorio del Admin. Los enlaces inválidos, caducados o usados indican cómo solicitar otro; los tokens se eliminan de la URL y solo permanecen en la memoria de la página. Tras recargar, abre el enlace original del correo. SMTP debe entregar a un buzón real; las direcciones `.test` son ejemplos. En Azure, el operador envía la primera invitación desde la consola del backend configurado con `npm run organizations:create-invitation:prod`; la persona invitada completa el registro en el sitio. `APP_BASE_URL` debe apuntar al frontend publicado. `frontend/public/staticwebapp.config.json` permite acceder directamente a las rutas alojadas.
+
+En **Usuarios** (`/administration/users`), el administrador consulta las cuentas de la organización y envía invitaciones para Google. **Vincular mi cuenta de Google** rellena el formulario con sus datos; confirma el envío y abre el enlace con la cuenta de Google del mismo correo. La coincidencia del correo no vincula identidades automáticamente. Las cuentas nuevas aparecen tras aceptar; las invitaciones pendientes no son cuentas. Reenviar revoca la invitación anterior. Las cuentas existentes conservan nombre, rol y contraseña; los administradores siguen necesitando TOTP. Staging lee `VITE_GOOGLE_SSO_ENABLED` de las variables de GitHub: activa `true` solo tras configurar credenciales y URLs del backend. `GOOGLE_CALLBACK_URL` usa la dirección pública de la API más `/auth/sso/google/callback`; `SSO_RETURN_URL`, la del frontend más `/sso/callback`.
+
+```text
+AUTH_JWT_SECRET
+AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
+AUTH_TOTP_ENCRYPTION_KEY_VERSION / AUTH_TOTP_ENCRYPTION_KEYS
+APP_BASE_URL
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/sso/google/callback
+SSO_RETURN_URL=http://localhost:5173/sso/callback
+VITE_GOOGLE_SSO_ENABLED=true
+SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
+SMTP_USER / SMTP_PASSWORD
+```
+
+Registre en Google Cloud la URI exacta de `GOOGLE_CALLBACK_URL`. `VITE_GOOGLE_SSO_ENABLED=true` solo habilita el botón; no configura backend ni crea cuentas: la vinculación requiere invitación. `GOOGLE_CLIENT_SECRET`, JWT, pepper y claves TOTP son secretos del backend; use valores independientes y conserve versiones necesarias. SMTP entrega invitaciones/confirmaciones. Soporte usa `authentication:recover-admin-totp` tras validar autoridad organizativa; revoca sesiones y genera auditoría.
+
+```text
+ORGANIZATION_NAME
+ORGANIZATION_SLUG
+ORGANIZATION_REPRESENTATIVE_EMAIL
+ADMIN_EMAIL
+NEW_RECOVERY_REPRESENTATIVE_EMAIL
+SUPPORT_OPERATOR_ID
+SUPPORT_RECOVERY_REASON
+```
+
+```sh
+npm run organizations:create-invitation --prefix backend
+npm run authentication:recover-admin-totp --prefix backend
+```
+
+## Diagnóstico {#diagnosis}
+
+```sh
 docker compose ps
 docker compose logs --tail=100 api
 docker compose exec api npm run applications:discover
-~~~
+```
 
-Descubrimiento manual repetible sin duplicar identidades. Scheduler comienza tras primer intervalo; bloqueo de superposición por proceso, no entre réplicas. Polling de UI y recopilación son independientes.
+## Publicación y recuperación {#release}
 
-`/health` no prueba catálogo lleno, fuente accesible ni cálculo posible. Comprobar `/applications`, evidencias y logs del ciclo.
+Staging parte de `develop` tras CI: API en Azure App Service, frontend en Static Web Apps, con comprobación de endpoints tras API. Documentación en GitHub Pages con `DOCS_BASE=/ABP-3DSM/`. Identifique la etapa fallida antes de repetir. No hay restauración automática de base. `npm run dev:down` conserva volumen; eliminarlo borra datos locales.
 
-## Diagnóstico
+## Lecturas relacionadas {#related}
 
-| Síntoma | Comprobar |
-| --- | --- |
-| Containers no inician | Docker, puertos, variables, migrations. |
-| UI abre; catálogo falla | URL en build, CORS, API, banco. |
-| Catálogo vacío | Descubrimiento y agregador; vacío no es error HTTP. |
-| Datos antiguos | Hora de observación, fallo del intento y resumen del ciclo. |
-| Pipeline falla; API responde | Etapa de calidad, paquete, deploy o smoke; publicación puede preceder fallo posterior. |
+[Primeros pasos](./getting-started) · [Referencia de la API](./reference/api)
 
-## Publicación y recuperación
+## Diagnosticar respuestas lentas {#response-performance}
 
-Staging parte de `develop`, depende de CI y separa API (Azure App Service) y frontend (Static Web Apps). Smoke test consulta endpoints tras publicar API. Antes de repetir, registrar run, SHA, etapa y diagnóstico.
-
-Pages usa VitePress y `DOCS_BASE=/ABP-3DSM/`; build local no prueba publicación. Workflows no demuestran restauración automática de banco. Antes de rollback/migration destructiva comprobar compatibilidad y backup recuperable. Retención/ensayos de restauración son [pendencias](./product/decisions). `npm run dev:down` conserva volumen; eliminarlo elimina el banco local.
+Compara el tiempo hasta el primer byte, el tamaño de respuesta y el plan de ejecución antes de atribuir la lentitud a la base de datos. El Dashboard consulta `/analysis/summary` con `includeProvenance=false`: conserva valores, cobertura y serie, e indica `provenanceIncluded=false` sin listas de trazabilidad. La consulta completa sigue siendo la predeterminada. La proyección compacta no transfiere factores de cada recogida; el cálculo ordena los intervalos y evita otra ordenación en la base de datos.

@@ -1,0 +1,15 @@
+{
+  "title": "Recuperación de contraseña",
+  "description": "Indica el identificador de la organización y tu correo para recibir un enlace de recuperación.",
+  "backToLogin": "Volver a iniciar sesión",
+  "organization": "Identificador de la organización",
+  "organizationHint": "Identificador facilitado por tu organización",
+  "submit": "Enviar enlace de recuperación",
+  "complete": "Si los datos corresponden a una cuenta elegible, recibirás un enlace por correo. Revisa también la carpeta de spam.",
+  "resetDescription": "Define una nueva contraseña para tu cuenta.",
+  "resetSubmit": "Restablecer contraseña",
+  "invalidLink": "Este enlace caducó o ya fue utilizado. Solicita otro enlace de recuperación.",
+  "failed": "No se pudo completar la recuperación. Inténtalo de nuevo.",
+  "passwordMismatch": "Las contraseñas no coinciden.",
+  "rateLimited": "Demasiados intentos. Espera un momento e inténtalo de nuevo."
+}

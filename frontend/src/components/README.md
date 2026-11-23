@@ -1,5 +1,13 @@
 # components
 
+`CardIcon` apresenta apenas o símbolo decorativo Font Awesome, sem fundo, borda ou caixa, com cores do tema e tamanhos `medium` (18 px) e `small` (16 px). Use junto a títulos quando ajudar a identificar o assunto; preserve o título em texto e evite criar superfícies decorativas ao redor do ícone. `inline` acrescenta o espaçamento antes do texto.
+
+Os espaçamentos compartilhados ficam em `index.css`: `--space-1/2/3/4/6/8` correspondem a 4/8/12/16/24/32 px. Use 8 px entre controles relacionados, 12 px entre ícone e texto e entre título e conteúdo, 16 px entre blocos próximos e 24/32 px entre seções. As telas com encaixe em uma janela mantêm sua densidade própria. O SVG de `CardIcon` cabe na área do símbolo, sem avançar sobre o espaço do texto.
+
+`SortButton` compartilha o botão e as setas de ordenação: `none` (↕), `ascending` (↑) e `descending` (↓). A tabela mantém o estado, o handler e `aria-sort` no cabeçalho; `tableSortPresentation` converte o estado existente. O indicador é decorativo e o botão conserva a interação nativa por teclado.
+
+`Breadcrumbs` recebe `items` com rótulos traduzidos e links dos ancestrais, além de `navigate`. Acrescenta Dashboard, preservando o contexto de análise suportado pela navegação existente, e identifica o último item com `aria-current="page"`. A página fornece os links de retorno com seus filtros e, quando necessário, `onNavigate` para fechar uma inspeção. O componente preserva cliques modificados para abrir outra aba.
+
 Componentes de interface reutilizáveis entre páginas e funcionalidades, sem concentrar regras de domínio.
 
 `AppShell` compõe a navegação compartilhada. A sidebar permanece expandida ou recolhida no desktop enquanto a aplicação está montada; em telas de até 640 px, a navegação abre como drawer e mantém idioma e destinos disponíveis no próprio painel. Novos destinos só devem ser habilitados quando suas rotas estiverem implementadas.

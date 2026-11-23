@@ -1,0 +1,80 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
+import { getEnvironmentalSummary, type EnvironmentalSummary, type EnvironmentalSummaryFilters } from '../../features/analysis/environmentalSummary.ts'
+import { APPLICATION_POLL_INTERVAL_MS } from '../../features/applications/polling.ts'
+
+type SummaryStatus = 'loading' | 'refreshing' | 'available' | 'empty' | 'error' | 'invalid-period'
+type SummaryState = Readonly<{
+  key: string
+  status: SummaryStatus
+  data: EnvironmentalSummary | null
+  lastAttemptAt: string | null
+}>
+type SuccessfulSummary = Readonly<{ key: string; data: EnvironmentalSummary }>
+
+function currentAnchor(): string {
+  return new Date().toISOString()
+}
+
+export function useDashboard(filters: Omit<EnvironmentalSummaryFilters, 'anchor'> | null) {
+  const period = filters?.period ?? null
+  const granularity = filters?.granularity
+  const rangeFrom = filters?.range?.from
+  const rangeTo = filters?.range?.to
+  const state = filters?.state ?? null
+  const regionCode = filters?.regionCode ?? ''
+  const [anchor, setAnchor] = useState(currentAnchor)
+  const key = period === null ? 'invalid-period' : JSON.stringify([period, state, regionCode, granularity, rangeFrom, rangeTo])
+  const [summary, setSummary] = useState<SummaryState>({
+    key, status: filters === null ? 'invalid-period' : 'loading', data: null, lastAttemptAt: null,
+  })
+  const catalog = useApplicationCatalog()
+  const [attempt, setAttempt] = useState(0)
+  const successful = useRef<SuccessfulSummary | null>(null)
+  const current = summary.key === key ? summary : {
+    key, status: filters === null ? 'invalid-period' as const : 'loading' as const, data: null, lastAttemptAt: null,
+  }
+
+  useEffect(() => {
+    if (period === null) return
+    const controller = new AbortController()
+    let active = true
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const previous = successful.current?.key === key ? successful.current : null
+    const lastAttemptAt = new Date().toISOString()
+    const requestFilters: EnvironmentalSummaryFilters = { includeCollectionSuccess: true, period, anchor, state, regionCode, granularity, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}) }
+    setSummary({ key, status: previous ? 'refreshing' : 'loading', data: previous?.data ?? null, lastAttemptAt })
+
+    void getEnvironmentalSummary(requestFilters, controller.signal).then((data) => {
+      if (!active || controller.signal.aborted) return
+      successful.current = { key, data }
+      setSummary({ key, status: data.status, data, lastAttemptAt })
+    }).catch(() => {
+      if (!active || controller.signal.aborted) return
+      setSummary({ key, status: 'error', data: previous?.data ?? null, lastAttemptAt })
+    }).finally(() => {
+      if (active && !controller.signal.aborted) {
+        timer = setTimeout(() => {
+          setAnchor(currentAnchor())
+          setAttempt((value) => value + 1)
+        }, APPLICATION_POLL_INTERVAL_MS)
+      }
+    })
+    return () => {
+      active = false
+      if (timer !== undefined) clearTimeout(timer)
+      controller.abort()
+    }
+  }, [anchor, attempt, key, period, regionCode, state, granularity, rangeFrom, rangeTo])
+
+  const refresh = useCallback(() => {
+    setAnchor(currentAnchor())
+    setAttempt((value) => value + 1)
+  }, [])
+  const refreshAll = () => {
+    refresh()
+    catalog.refresh()
+  }
+  return { ...current, applications: { items: catalog.applications, loading: catalog.loading, error: catalog.error },
+    refresh, refreshAll }
+}

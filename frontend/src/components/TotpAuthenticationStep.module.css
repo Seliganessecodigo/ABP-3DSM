@@ -1,0 +1,11 @@
+.totpCard h2:focus { outline: 2px solid var(--focus-ring); outline-offset: 4px; }
+.provisioning { display: grid; justify-items: center; gap: 14px; margin: 18px 0; }
+.qrFrame { display: grid; place-items: center; border-radius: 8px; padding: 14px; background: #fff; }
+.manual { width: 100%; color: var(--text-primary); font-size: 12px; }
+.manual summary { cursor: pointer; font-weight: 650; }
+.manual p { color: var(--text-secondary); line-height: 1.5; }
+.manual code { display: block; overflow-wrap: anywhere; margin-bottom: 10px; border: 1px solid var(--border-control); border-radius: 6px; padding: 9px; background: var(--control-background); }
+.copyMessage { margin: 7px 0 0; }
+.totpCard .form { gap: 14px; }
+.totpCard .codeInput { min-width: 0; font-size: 16px; letter-spacing: .25em; }
+.cancel { margin-top: 15px; border: 0; padding: 5px 0; color: var(--accent-default); background: transparent; font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }

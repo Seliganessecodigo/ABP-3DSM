@@ -4,7 +4,7 @@ Referência para quem implementar os adapters do GreenER. O contrato publicado p
 
 ## Origem e atualização desta referência
 
-Especificações OpenAPI consultadas em 2026-10-06:
+Especificações OpenAPI consultadas em 2026-10-06; contrato do Agregador de Métricas reconferido em 2026-11-16 (versão 0.1.0):
 
 | Serviço | Documentação | OpenAPI | Versão declarada |
 | --- | --- | --- | --- |
@@ -41,7 +41,8 @@ collection_interval_seconds é o intervalo de coleta informado pela origem. A re
 
 ### Ausência, remoção e falhas
 
-- Uma resposta 200 completa e válida de GET /services representa o registro atual. Um serviço previamente conhecido que não aparece nessa resposta deixou de estar presente no registro da origem; registrar essa ausência/remoção observada e preservar todo o histórico.
+- Uma resposta 200 completa e válida de GET /services representa o registro naquele instante. O GreenER trata a ausência de um serviço conhecido como candidata à remoção e confirma com GET /services/{id}. Somente ausência na lista e HTTP 404 nessa consulta individual permitem registrar remoção. Uma resposta individual 200 válida indica que o serviço permanece registrado, inclusive quando a lista consultada anteriormente já mudou. Isso reforça a confirmação sem criar um número arbitrário de tentativas ou um prazo de exclusão.
+- Timeout, HTTP 500 ou resposta inválida na consulta individual não confirmam remoção. A falha fica registrada no ciclo e no incidente de catálogo; os serviços sem remoção confirmada continuam na coleta de métricas, que distingue disponível, indisponível e sem métricas. A confirmação usa o mesmo deadline/retry do adapter e respeita cancelamento, fora da transação de persistência. Serviços presentes na lista não exigem a consulta adicional.
 - Erro HTTP, timeout, JSON inválido ou item que não valida contra o schema não é uma lista completa válida e não pode remover serviços.
 - GET /metrics/{service_id} documenta 404 para serviço removido ou métricas inexistentes. Portanto, 404 nessa rota não distingue remoção de falta de métricas e, sozinho, não deve remover a aplicação.
 - GET /metrics/{service_id} documenta 500 quando o serviço está listado mas indisponível ou quando o exportador está indisponível. Preservar a última observação válida e classificar a coleta atual como falha/stale; não gravar zero.

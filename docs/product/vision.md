@@ -1,43 +1,45 @@
-# Visão e escopo do produto
+# Visão e escopo
 
-O GreenER ajuda a responder três perguntas: quais aplicações estão sendo acompanhadas, que evidências existem sobre seu consumo e como interpretar sua energia e emissões estimadas. O produto reúne descoberta, métricas, contexto regional e histórico para apoiar investigação e priorização.
+O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem.
 
-## Para quem
+## Para quem {#readers}
 
 | Público | Necessidade |
 | --- | --- |
-| Gestão de infraestrutura | Reconhecer aplicações e acompanhar mudanças do ambiente. |
-| Análise operacional e ambiental | Investigar períodos, comparar resultados compatíveis e entender lacunas. |
-| Operação administrativa | Alterar parâmetros e acesso com autorização e rastreabilidade. |
-| Equipe de desenvolvimento e avaliação | Reproduzir o ambiente e demonstrar critérios de aceite. |
+| Gestão de infraestrutura | Identificar aplicações e acompanhar mudanças no ambiente. |
+| Análise ambiental e operacional | Investigar consumo, emissões e qualidade dos dados de um período. |
+| Desenvolvimento e avaliação | Verificar o comportamento do produto e reproduzir seus resultados. |
 
-Esses públicos descrevem necessidades; a matriz completa de papéis e permissões ainda depende de [decisão de produto](./decisions).
+## Recursos disponíveis {#features}
 
-## Escopo e disponibilidade
-
-Referência da documentação: 15/10/2026, código de `develop`. Cada ambiente pode executar uma revisão diferente; uma issue encerrada não comprova disponibilidade em produção.
-
-| Capacidade | Situação documentada |
+| Recurso | Referência |
 | --- | --- |
-| Catálogo, busca/filtro de estado, navegação e oito idiomas | Implementados na interface. |
-| Descoberta, eventos de ciclo de vida, coleta periódica e persistência | Implementados no backend. |
-| Estado operacional e consulta de evidências de coletas | Expostos pela API; a apresentação completa nas telas tem tasks próprias. |
-| Dashboard ambiental, energia/CO₂e, séries, ranking e comparação | Escopo planejado; não são prometidos como funções disponíveis. |
-| Temas, autenticação, administração, simulação regional e prévia de recálculo | Escopo planejado, com dependências registradas no backlog. |
+| Catálogo e busca | [Encontrar uma aplicação](../guide/monitoring#catalog) |
+| Monitoramento automático | [Interpretar os dados](../guide/monitoring#data) |
+| Dashboard ambiental | [Consultar o dashboard](../guide/monitoring#dashboard) |
+| Detalhe da aplicação | [Investigar o detalhe](../guide/monitoring#detail) |
+| Histórico e composição | [Explorar o histórico](../guide/monitoring#history) |
+| Preferências pessoais | [Personalizar a análise](../guide/monitoring#preferences) |
+| Login e segundo fator | [Entrar na sua conta](../guide/monitoring#access) |
+| Ranking ambiental | [Ranking ambiental](../guide/monitoring#other) |
+| Comparação de aplicações | [Comparação de aplicações](../guide/monitoring#other) |
+| Simulação regional | [Simulação regional](../guide/monitoring#other) |
+| Contas e recuperação de senha | [Contas e recuperação de senha](../guide/monitoring#other) |
 
-## Jornadas e valor
+## Jornada de análise {#journey}
 
-1. Localizar uma aplicação no catálogo e abrir seu detalhe: confirmar identidade, localização e estado.
-2. Investigar uma mudança: distinguir última tentativa, última observação válida e ausência de dados.
-3. No escopo ambiental planejado, selecionar um período, ler resultados com cobertura e metodologia e comparar aplicações no mesmo recorte.
-4. Na administração planejada, alterar parâmetros autorizados sem reescrever resultados históricos.
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-O [guia de uso](../guide/monitoring) descreve a experiência existente; os [épicos](../roadmap) detalham o comportamento esperado.
+## Limites de uso {#limits}
 
-## Limites do produto
+A energia é uma estimativa de um modelo simplificado, calculada a partir de CPU, memória, disco e rede durante o intervalo observado. A potência estimada é convertida em energia conforme a duração. As emissões resultam da energia multiplicada pela intensidade de carbono da região. Os coeficientes pertencem ao modelo acadêmico; não representam medição elétrica direta nem fatores regionais oficiais. Os resultados preservam a metodologia e o fator usados em sua origem.
 
-Estimativas ambientais não são medição elétrica direta nem prova de economia causada por uma ação. Não há indicador de eficiência por transação sem dados de trabalho produzido. Exportação CSV, personalização de colunas e comparação com período anterior não entram no MVP apenas por aparecerem no protótipo. Mapa é opcional.
+Cobertura é a proporção do período sustentada por observações válidas. Energia e emissões têm coberturas separadas: pode existir energia estimada mesmo quando falta um fator de carbono para calcular emissões. Compare períodos, unidades e coberturas compatíveis. Um percentual de cobertura baixo sinaliza uma análise parcial, não uma redução comprovada de consumo.
 
-## Como avaliar o resultado
+## Capacidades integradas {#planned}
 
-Nas reviews, verificar se as pessoas encontram a aplicação, distinguem zero de ausência e rastreiam um resultado até período, unidade e evidências. Registrar tarefas avaliadas, dificuldades, feedback e mudanças em [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) e [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Metas de tempo, satisfação e desempenho exigem baseline e aprovação; esta documentação não estabelece números arbitrários.
+A plataforma oferece comparação entre aplicações, ranking ambiental, simulação regional, gestão de usuários e papéis, recuperação de senha e controles de monitoramento. Autenticação com JWT, Google SSO e segundo fator TOTP protege os fluxos administrativos, enquanto as consultas ambientais permanecem públicas.
+
+## Leitura relacionada {#related}
+
+[Guia de uso](../guide/monitoring) · [Metodologia e dados](../product/methodology) · [Backlog do produto](../roadmap)

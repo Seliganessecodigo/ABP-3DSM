@@ -1,43 +1,64 @@
-# Usar el catálogo e investigar una aplicación
+# Guía de uso
 
-Esta guía cubre catálogo y detalle operativo existentes. Dashboard ambiental, análisis y administración siguen planificados en las [épicas](../roadmap).
+Empiece por el resumen ambiental, identifique una aplicación que requiera atención y abra su detalle. Use el historial para investigar el período y la metodología para entender las estimaciones. Considere siempre la cobertura antes de comparar resultados.
 
-## Encontrar una aplicación
+## Encontrar una aplicación {#catalog}
 
-1. Abra el frontend; para uso local, siga [Primeros pasos](../getting-started).
-2. Busque por nombre, ID, código regional o región y combine el filtro de estado.
-3. Use la paginación. Antes de interpretar cero coincidencias como catálogo vacío, quite los filtros.
-4. Abra el detalle y confirme ID y ubicación. Ciudad nula es válida; ubicación histórica incompleta significa desconocida.
+En el catálogo, busque por nombre, identificador o región y filtre por estado. Navegue por las páginas de la tabla y abra una aplicación para consultar sus datos. Si no hay coincidencias, revise los filtros. La dirección conserva la búsqueda y la paginación para compartir o retomar la consulta.
 
-La URL conserva `q`, `state` y `page`. Guarde el enlace para recuperar el contexto. Los filtros actuales se ejecutan en el frontend sobre la lista de la API.
+## Consultar el dashboard {#dashboard}
 
-## Actualizaciones
+En el dashboard, seleccione período, región y estado para consultar energía, CO₂e, éxito de las recopilaciones y aplicaciones por estado. El éxito es la proporción de intentos registrados que devolvieron métricas válidas y se guardaron; sin registros, la tasa no está disponible. Se muestra el primer registro del período. La cobertura temporal permanece en los análisis y la tabla, con avisos de datos parciales. Gráficos, búsqueda, filtros y paginación conservan el contexto.
 
-Catálogo y detalle consultan al abrir y programan la siguiente consulta 60 segundos después de terminar cada intento. El polling es independiente de la recopilación del backend y del intervalo del agregador; actualizar la pantalla no garantiza una nueva observación.
+En la serie temporal, alterne entre energía y CO₂e o consulte la tabla de intervalos. La ventana de 24 horas se agrupa por hora; las demás, por día. Los intervalos siguen UTC y usan los mismos filtros que los indicadores. Los huecos permanecen sin valor.
 
-La interfaz informa horas del intento y de la respuesta válida. Un fallo posterior conserva los datos anteriores, que no constituyen una observación nueva. La actualización manual del catálogo permite reintentar sin recargar. Salir cancela consultas pendientes.
+## Investigar el detalle {#detail}
 
-## Interpretar situaciones
+Abra el detalle para comprobar identidad, ubicación, estado y horas de actualización. Examine métricas y resultados ambientales del mismo período. La metodología registrada muestra el modelo, los parámetros y el factor de carbono utilizados sin modificar el resultado. Si falta la ciudad, el resto de la ubicación sigue siendo útil.
 
-| Situación | Significado / acción |
+El factor equivalente resume los factores regionales aplicados, ponderados por la energía con emisiones calculadas. La explicación usa esa energía, que puede ser menor que el total si faltan factores en parte del período. Consulte la metodología para consultar valores y fuentes por región. La tarjeta del factor mantiene la misma altura que los demás indicadores, sin expansión interna.
+
+## Explorar el historial {#history}
+
+En el historial, elija aplicación, período y agrupación por hora, día, mes o año. Use filtros y paginación para localizar intervalos y abra su composición para consultar observaciones incluidas y exclusiones. La zona horaria cambia la presentación de fechas; la agrupación permanece en UTC. La superposición del detalle compara la aplicación con el período anterior de igual duración.
+
+## Vista previa del cálculo {#preview}
+
+La comparación entre aplicaciones exige períodos, unidades y coberturas compatibles. La simulación regional mantiene energía observada, cambia el factor del escenario y separa el resultado de los indicadores oficiales.
+
+## Personalizar el análisis {#preferences}
+
+En Metodología, explore energía, emisiones, cobertura y valores iniciales del análisis. Las vistas previas consultan datos reales e identifican ausencias o fallos; no cambian el historial ni la fórmula. Inicie sesión para guardar límites personales y opciones iniciales. Las fechas, filtros y agrupaciones explícitas en la dirección prevalecen sobre los valores guardados.
+
+## Iniciar sesión {#access}
+
+Catálogo, dashboard y consultas ambientales no requieren login. Para guardar preferencias, use correo y contraseña o Google cuando esté habilitado y su cuenta esté vinculada por invitación. Los administradores también confirman un código de seis dígitos del autenticador. Recargar termina la sesión de la interfaz y exige entrar de nuevo. Los permisos administrativos dependen del rol de la cuenta.
+
+## Idioma y apariencia {#appearance}
+
+El selector ofrece 12 idiomas; la elección queda en este navegador. El interruptor de modo oscuro cambia la apariencia y, antes de una elección explícita, sigue al sistema. Si el almacenamiento está bloqueado, puede perder las preferencias al recargar. El idioma cambia el formato de fechas y números sin alterar los instantes observados.
+
+## Interpretar los datos {#data}
+
+Cero significa que existe una observación válida con ese valor. Una laguna indica que faltan datos utilizables, no consumo cero. Tras un fallo de actualización puede conservarse la última lectura válida con su hora original. Compruebe actualización y cobertura antes de decidir. Las pantallas consultan datos 60 segundos después de cada intento; eso no garantiza una medición nueva en cada actualización.
+
+| Estado | Significado |
 | --- | --- |
-| Catálogo vacío | La API no devolvió aplicaciones; revisar descubrimiento inicial. |
-| Sin coincidencias | Ajustar filtros; puede haber otras aplicaciones. |
-| Fallo inicial | No hay datos válidos; reintentar y revisar operación. |
-| Fallo después de éxito | Conservar lectura anterior y consultar su hora. |
-| Aplicación no encontrada | Comprobar ID/enlace; no equivale a aplicación conocida retirada. |
-| Aplicación retirada | Identidad e historial se conservan; snapshot válido confirmó ausencia. |
+| Disponible | La aplicación devolvió métricas utilizables. |
+| No disponible | El intento actual falló; puede existir historial válido. |
+| Sin métricas | La aplicación es conocida, pero el intento no tiene métricas utilizables. |
+| Eliminada | Su ausencia se confirmó en el catálogo de origen; se conservan identidad e historial. |
 
-## Estado, idioma y soporte
+La cobertura es la proporción del período con observaciones válidas. Energía y emisiones tienen coberturas separadas: puede haber energía estimada sin factor de carbono para calcular emisiones. Compare períodos, unidades y coberturas compatibles. Una cobertura baja indica análisis parcial, no reducción demostrada del consumo.
 
-`AVAILABLE`, `UNAVAILABLE`, `NO_METRICS` y `REMOVED` son estados operativos. Frescura, motivo y calculabilidad son dimensiones distintas. Una aplicación disponible puede carecer de factor de carbono; una no disponible puede tener historial válido. Las evidencias ya existen en la API; el bloque completo de métricas/frescura tiene tareas de UI. Consulte [Metodología](../product/methodology).
+## Diagnóstico {#support}
 
-El selector ofrece ocho idiomas y guarda la preferencia en este navegador. Cambiar idioma no cambia identidades ni instantes.
+Al informar un problema, indique aplicación, período, filtros, hora con zona y acción. Describa resultado esperado y observado. Las capturas ayudan si no contienen credenciales ni datos privados.
 
-Al comunicar un problema, incluya entorno, ID, filtros, fecha/hora con zona, acción y resultado esperado/observado. Evite credenciales/datos privados en capturas y siga [Operación](../operations).
+## Otros análisis y configuración {#other}
 
-## Preferencia de tema
+El ranking ordena resultados por energía o CO₂e del período. La comparación reúne aplicaciones y una referencia; la simulación regional mantiene la energía y presenta un escenario separado. En Configuración, usuarios autorizados acceden a monitorización, cuentas y auditoría de cambios. La cuenta personal permite cambiar la contraseña; el login ofrece recuperación mediante token temporal.
 
-En las preferencias de navegación, use el interruptor **Modo oscuro**: desactivado aplica claro; activado aplica oscuro. En la primera visita, GreenER sigue la apariencia del sistema, incluidos sus cambios durante el uso, hasta que accione el interruptor. Después prevalece su elección explícita; esta interfaz no ofrece una acción para volver a seguir el sistema.
+## Lecturas relacionadas {#related}
 
-La elección se aplica al catálogo, detalle y diseño global sin cambiar filtros ni datos. Se guarda en este navegador con la clave `greener-theme` para la próxima visita. Si el almacenamiento está bloqueado, la elección funciona durante la sesión, pero puede perderse al recargar.
+[Metodología y datos](../product/methodology) · [Referencia de la API](../reference/api)

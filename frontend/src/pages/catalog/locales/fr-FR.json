@@ -1,7 +1,7 @@
 {
-  "eyebrow": "Suivi",
   "title": "Applications",
   "description": "Catalogue des applications suivies et de leur état actuel.",
+  "login": "Se connecter",
   "refresh": "Actualiser le catalogue",
   "searchLabel": "Rechercher des applications par nom, identifiant ou région",
   "searchPlaceholder": "Rechercher par nom, identifiant ou région...",
@@ -29,7 +29,7 @@
   "updated": "Catalogue actualisé",
   "columnFilters": "Filtres par colonne", "regionCode": "Code régional", "cityMissing": "Ville non renseignée",
   "from": "Vérifiée depuis", "to": "Vérifiée jusqu’au", "timeZone": "Fuseau horaire : {{timeZone}}",
-  "invalidDateRange": "La date de début doit précéder ou égaler la date de fin.", "clearFilters": "Effacer les filtres",
+  "invalidDateRange": "Saisissez des dates valides et un début antérieur ou égal à la fin.", "clearFilters": "Effacer les filtres",
   "activeFilters": "Filtres actifs", "range": "{{start}}–{{end}} sur {{count}} applications",
   "pageSize": "Éléments par page", "all": "Toutes", "nameFilter": "Nom ou identifiant",
   "countryFilter": "Pays", "regionCodeFilter": "Code régional", "cityFilter": "Ville", "stateFilter": "État",
@@ -37,5 +37,6 @@
   "namePlaceholder": "Saisissez une partie du nom ou de l’identifiant...", "countryPlaceholder": "Saisissez un pays...",
   "regionPlaceholder": "Saisissez une région...", "cityPlaceholder": "Saisissez une ville...",
   "filterCombinationNote": "La recherche générale et les filtres actifs sont combinés.",
-  "clearPreservesSort": "Effacer les filtres conserve le tri actuel.", "applyFilters": "Appliquer les filtres"
+  "clearPreservesSort": "Effacer les filtres conserve le tri actuel.", "applyFilters": "Appliquer les filtres",
+  "helpActions": "Utilisez Détails pour consulter l’état et les métriques actuels. Utilisez Historique pour suivre l’évolution de l’énergie et du CO₂e de l’application. Comparaison ouvre cette application pour en sélectionner une autre et comparer la même période. Simulation régionale ouvre un scénario avec cette application. Le classement n’est pas encore disponible."
 }

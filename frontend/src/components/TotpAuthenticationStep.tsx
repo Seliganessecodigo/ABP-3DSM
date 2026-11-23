@@ -1,0 +1,124 @@
+import QRCode from 'react-qr-code'
+import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { AuthenticationError } from '../features/authentication/api.ts'
+import styles from './TotpAuthenticationStep.module.css'
+import loginStyles from '../pages/login/LoginPage.module.css'
+import greenErMark from '../assets/green-er-mark.png'
+
+type Props = Readonly<{
+  kind: 'setup' | 'challenge'
+  provisioningUri?: string
+  onSubmitCode: (code: string) => Promise<void>
+  onCancel: () => void
+  onExpired: () => void
+}>
+
+function getTotpErrorKey(cause: unknown, isSetup: boolean) {
+  if (!(cause instanceof AuthenticationError)) return 'totpGenericError'
+  if (cause.code === 'INVALID_TOTP_CODE') return isSetup ? 'totpSetupInvalidCode' : 'totpChallengeInvalidCode'
+  if (cause.status === 403) return 'forbidden'
+  if (cause.code === 'TOTP_CHALLENGE_RATE_LIMITED') return 'totpRateLimited'
+  if (cause.code === 'TOTP_CHALLENGE_DELAYED') return 'totpDelayed'
+  return 'totpGenericError'
+}
+
+function getSubmitLabel(t: (key: string) => string, submitting: boolean, isSetup: boolean) {
+  if (submitting) return t('totpSubmitting')
+  if (isSetup) return t('totpSetupSubmit')
+  return t('totpChallengeSubmit')
+}
+
+export function TotpAuthenticationStep({ kind, provisioningUri, onSubmitCode, onCancel, onExpired }: Props) {
+  const { t } = useTranslation('login')
+  const [code, setCode] = useState('')
+  const [error, setError] = useState('')
+  const [copyMessage, setCopyMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const codeRef = useRef<HTMLInputElement>(null)
+  const manualSecret = provisioningUri ? new URL(provisioningUri).searchParams.get('secret') ?? '' : ''
+  const isSetup = kind === 'setup'
+
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError('')
+    if (!/^\d{6}$/.test(code)) {
+      setError('totpInvalidFormat')
+      codeRef.current?.focus()
+      return
+    }
+    setSubmitting(true)
+    try {
+      await onSubmitCode(code)
+    } catch (cause) {
+      if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CHALLENGE') {
+        onExpired()
+      } else {
+        if (cause instanceof AuthenticationError && cause.code === 'INVALID_TOTP_CODE') setCode('')
+        setError(getTotpErrorKey(cause, isSetup))
+        codeRef.current?.focus()
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function copyManualSecret() {
+    try {
+      await navigator.clipboard.writeText(manualSecret)
+      setCopyMessage('totpCopied')
+    } catch {
+      setCopyMessage('totpCopyFailed')
+    }
+  }
+
+  return <main className={loginStyles.page}>
+    <img className={loginStyles.watermark} src={greenErMark} alt="" />
+    <header className={loginStyles.heading}>
+
+      <h1>{t('heading')}</h1>
+    </header>
+    <section className={`${loginStyles.card} ${styles.totpCard}`} aria-labelledby="totp-heading">
+      <h2 id="totp-heading" ref={headingRef} tabIndex={-1}>{t(isSetup ? 'totpSetupHeading' : 'totpChallengeHeading')}</h2>
+      <p>{t(isSetup ? 'totpSetupDescription' : 'totpChallengeDescription')}</p>
+      {isSetup && provisioningUri && <div className={styles.provisioning}>
+        <div className={styles.qrFrame} role="img" aria-label={t('totpQrLabel')}>
+          <QRCode value={provisioningUri} size={208} title={t('totpQrLabel')} aria-hidden="true" />
+        </div>
+        <details className={styles.manual}>
+          <summary>{t('totpManualSetup')}</summary>
+          <p>{t('totpManualWarning')}</p>
+          <code>{manualSecret}</code>
+          <button className="button secondary" type="button" onClick={() => void copyManualSecret()}>{t('totpCopySecret')}</button>
+          {copyMessage && <output className={styles.copyMessage}>{t(copyMessage)}</output>}
+        </details>
+      </div>}
+      <form className={styles.form} onSubmit={(event) => void handleSubmit(event)} noValidate>
+        <label htmlFor="totp-code">{t('totpCodeLabel')}</label>
+        <input placeholder={'000000'}
+          ref={codeRef}
+          id="totp-code"
+          name="code"
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          className={`form-control form-control--large ${styles.codeInput}`}
+          value={code}
+          onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          aria-describedby={error ? 'totp-error' : undefined}
+        />
+        {error && <p className={loginStyles.error} id="totp-error" role="alert">{t(error)}</p>}
+        <button className="button" type="submit" disabled={submitting}>
+          {getSubmitLabel(t, submitting, isSetup)}
+        </button>
+      </form>
+      <button className={styles.cancel} type="button" onClick={onCancel}>{t('totpBackToLogin')}</button>
+    </section>
+  </main>
+}

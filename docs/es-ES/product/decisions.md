@@ -1,36 +1,27 @@
-# Decisiones, dependencias y fuentes
+# Principios de ingeniería
 
-El registro hace visibles las decisiones sin aprobar funcionalidades por omisión. PDF v1.1 es referencia histórica; Markdown evoluciona por PR y se alinea con issues cuando cambia el comportamiento.
+Épicas, historias y tareas organizan el producto con criterios verificables y referencias al código. Issues, pull requests y commits conectan requisitos, implementación y pruebas; la documentación reúne arquitectura, contratos, operación y evidencias en un conjunto versionado.
 
-## Decisiones confirmadas
+## Reglas del producto {#rules}
 
-| ID | Decisión | Consecuencia |
-| --- | --- | --- |
-| D01 | Recálculo como vista previa sin guardar. | Original intacto; vista previa fuera de totales/historial. US-12, #263/#264. |
-| D02 | Primera ausencia en snapshot completo y válido confirma retirada. | Error de fuente/404 de métricas no retira. US-02, #171. |
-| D03 | Recepción GreenER no es timestamp de origen. | Identificar intervalos derivados, no inventar vigencia. #154/#155. |
-| D04 | RNFs transversales y fundamentos/calidad en EP00. | Tasks terminadas no eximen calidad futura. |
-| D05 | Simulación regional conserva energía. | El escenario no altera mediciones ni resultados oficiales. US-15. |
-| D06 | Los fallos de monitorización tienen un incidente por identidad y se recuperan tras tres observaciones válidas consecutivas. | Límite total de 30 s por llamada externa, hasta tres intentos HTTP contando el inicial y reintentos solo ante fallos transitorios; los ciclos no se solapan y se conservan las observaciones válidas. #243. |
-| D07 | Consultas con zona explícita normalizada a UTC, [from,to), buckets UTC por hora/día/mes/año, referencia única de ventana y rechazo sobre 10.000 puntos. | #174/#235. |
-| D08 | Las series usan resultados guardados prorrateados, sin recalcular historia; conflictos por recopilación reciente/ID ascendente; conservar huecos y snapshots. | #164/#174/#235. |
+| Regla | Significado |
+| --- | --- |
+| Historial preservado | Cambiar preferencias o generar una vista previa no reemplaza originales. |
+| Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
+| Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
 
-D01 y EP00 se confirmaron el 15/10/2026; las demás reglas constan en backlog y contratos versionados.
+## Capacidades integradas {#planned}
 
-## Pendientes
+La plataforma ofrece comparación de aplicaciones, ranking ambiental, simulación regional, gestión de usuarios y roles, recuperación de contraseña y controles de monitoreo. La autenticación JWT, Google SSO y el segundo factor TOTP protegen los flujos administrativos, mientras las consultas ambientales son públicas.
 
-| Tema | Decisión necesaria | Entregas |
-| --- | --- | --- |
-| Recálculo | Permisos, límites de volumen/período y factor. | #91/#263/#264 |
-| Acceso/cuentas | Papeles, bootstrap, sesión, contraseña y recuperación. | #90/#91/#158/#160/#245 |
-| Fuentes/operación | Confirmar cuotas y límites de concurrencia con los responsables de las API. La política de timeout/retry/retrasos de #243 está aprobada. | #155/#243 |
-| Continuidad | Retención, backup/restauración, disponibilidad/rendimiento. | #110/#120/#125/#166 |
-| Extras Figma | CSV, columnas, período anterior, eficiencia por transacción. | #61/#248/#252 |
+## Modelo de estimación {#method}
 
-El PO decide alcance/comportamiento con responsables técnicos; contratos externos requieren proveedor. No se asignan fechas ni personas por suposición.
+La energía se estima con un modelo simplificado de CPU, memoria, disco y red durante el intervalo observado. La potencia se convierte en energía según la duración. Las emisiones multiplican energía por intensidad de carbono regional. Los coeficientes pertenecen al modelo académico, no son mediciones eléctricas ni factores regionales oficiales. Los resultados conservan su metodología y factor originales.
 
-## Fuentes y cambios
+## Criterios de aceptación {#acceptance}
 
-Markdown: visión y reglas. Issues: criterios, tasks, dependencias y discusión. Projects: prioridad, estado, Sprint, fechas y PRs; no prueba implementación. Figma: intención visual/handoff; números ilustrativos no son contratos. OpenAPI/código: revisión ejecutable. Contratos externos: schemas/unidades con versión y fecha.
+La interfaz vincula los indicadores con su período, unidad, cobertura y metodología, conservando filtros y contexto de navegación. Los estados de carga, vacío, fallo y datos desactualizados tienen tratamiento explícito. Teclado, foco visible, texto además de color, dispositivos móviles, temas y 12 idiomas forman parte de la experiencia.
 
-Ante conflicto, explicitarlo, resolver con el responsable y actualizar fuentes afectadas juntas. Figma no autoriza inventar endpoints. Issue/PR debe registrar decisión, motivo, alternativas relevantes, impacto en historias/datos/compatibilidad y evidencia. Decisiones arquitectónicas duraderas requieren ADR. Consulte [backlog](../roadmap) y [calidad](./quality).
+## Lecturas relacionadas {#related}
+
+[Backlog del producto](../roadmap) · [Metodología y datos](../product/methodology)

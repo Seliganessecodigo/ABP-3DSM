@@ -2,14 +2,53 @@ import { useRoute } from './app/useRoute.ts'
 import { AppShell } from './components/AppShell.tsx'
 import { CatalogPage } from './pages/catalog/CatalogPage.tsx'
 import { ApplicationDetailPage } from './pages/detail/ApplicationDetailPage.tsx'
+import { HistoryPage } from './pages/history/HistoryPage.tsx'
+import { MethodologyPage } from './pages/methodology/MethodologyPage.tsx'
+import { DashboardPage } from './pages/dashboard/DashboardPage.tsx'
+import { LoginPage } from './pages/login/LoginPage.tsx'
+import { SsoCallbackPage } from './pages/login/SsoCallbackPage.tsx'
+import { AccountSetupPage } from './pages/login/AccountSetupPage.tsx'
+import { RecalculationPreviewPage } from './pages/recalculationPreview/RecalculationPreviewPage.tsx'
+import { RecoverPasswordPage } from './pages/recoverPassword/RecoverPasswordPage.tsx'
+import { AuthenticationProvider } from './app/AuthenticationProvider.tsx'
+import { SettingsPage } from './pages/settings/SettingsPage.tsx'
+import { RegionalSimulationPage } from './pages/regionalSimulation/RegionalSimulationPage.tsx'
+import { ComparisonPage } from './pages/comparison/ComparisonPage.tsx'
+import { RankingPage } from './pages/ranking/RankingPage.tsx'
 
 function App() {
+  return <AuthenticationProvider><Application /></AuthenticationProvider>
+}
+
+function Application() {
   const { route, navigate } = useRoute()
-  return <AppShell navigate={navigate} variant={route.kind === 'detail' ? 'detail' : 'default'}>
-    {route.kind === 'detail'
-      ? <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
-      : <CatalogPage key="catalog" navigate={navigate} />}
+  const login = ['recover-password', 'login', 'sso-callback', 'setup-admin', 'confirm-email'].includes(route.kind)
+  let variant: 'default' | 'detail' | 'methodology' = 'default'
+  if (route.kind === 'detail' || route.kind === 'history') variant = 'detail'
+  if (route.kind === 'methodology' && !route.id) variant = 'methodology'
+  return <AppShell navigate={navigate} variant={variant} login={login}>
+    <RoutedPage route={route} navigate={navigate} />
   </AppShell>
+}
+
+function RoutedPage({ route, navigate }: Readonly<ReturnType<typeof useRoute>>) {
+  switch (route.kind) {
+    case 'settings': return <SettingsPage navigate={navigate} />
+    case 'setup-admin': return <AccountSetupPage key="invitation" kind="invitation" navigate={navigate} />
+    case 'confirm-email': return <AccountSetupPage key="confirmation" kind="confirmation" navigate={navigate} />
+    case 'login': return <LoginPage navigate={navigate} />
+    case 'recover-password': return <RecoverPasswordPage navigate={navigate} />
+    case 'sso-callback': return <SsoCallbackPage navigate={navigate} />
+    case 'dashboard': return <DashboardPage key="dashboard" navigate={navigate} />
+    case 'ranking': return <RankingPage navigate={navigate} />
+    case 'comparison': return <ComparisonPage navigate={navigate} />
+    case 'history': return <HistoryPage key="history" navigate={navigate} />
+    case 'regional-simulation': return <RegionalSimulationPage key="regional-simulation" navigate={navigate} />
+    case 'detail': return <ApplicationDetailPage key={route.id} id={route.id} navigate={navigate} />
+    case 'methodology': return <MethodologyPage key={route.id ?? 'index'} id={route.id} navigate={navigate} />
+    case 'administration': return <RecalculationPreviewPage navigate={navigate} />
+    default: return <CatalogPage key="catalog" navigate={navigate} />
+  }
 }
 
 export default App

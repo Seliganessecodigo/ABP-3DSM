@@ -1,0 +1,43 @@
+.series { min-width: 0; display: grid; gap: var(--space-3); }
+.controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; }
+.filter, .view { display: flex; flex-wrap: wrap; gap: 4px; }
+.controls button { min-height: 36px; padding: 6px 10px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); color: var(--text-secondary); font: inherit; font-size: 12px; cursor: pointer; }
+.controls button:hover { background: var(--control-hover); }
+.controls button[aria-pressed='true'] { border-color: var(--accent-default); background: var(--accent-default); color: var(--accent-on-accent); }
+.controls button:focus-visible, .bar:focus-visible { outline: 2px solid var(--accent-default); outline-offset: 2px; }
+.note { margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.legendItem { display: inline-flex; align-items: center; gap: 5px; color: var(--text-primary); font-size: 11px; font-weight: 650; }
+.legendItem small { color: var(--text-secondary); font-size: 10px; font-weight: 400; }
+.swatch { display: inline-block; width: 9px; height: 9px; flex: 0 0 auto; border-radius: 3px; background: var(--accent-default); }
+[data-metric='energy'] > .swatch, [data-metric='energy'] > i { background: #a4c75a; }
+.plotWrap { min-width: 0; overflow-x: auto; }
+.plot { position: relative; min-width: 480px; }
+.chart { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--text-secondary); font-size: 10px; font-variant-numeric: tabular-nums; }
+.chart .axisTitle { fill: var(--text-primary); font-size: 11px; font-weight: 600; }
+.gridLine { stroke: var(--border-default); stroke-dasharray: 3 4; }
+.bar { fill: var(--accent-default); cursor: crosshair; transition: filter 120ms ease, opacity 120ms ease; }
+.bar[data-metric='energy'] { fill: #a4c75a; }
+.bar:hover, .bar[data-active='true'] { filter: drop-shadow(0 0 5px var(--accent-default)) brightness(1.08); }
+.tooltip { position: absolute; z-index: 2; top: 32px; display: grid; gap: 5px; min-width: 160px; padding: 9px 11px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-raised); box-shadow: 0 6px 18px rgb(0 30 20 / 14%); color: var(--text-primary); font-size: 11px; pointer-events: none; transform: translateX(-50%); }
+.tooltip strong { font-size: 11px; }
+.tooltip span { display: flex; align-items: center; gap: 5px; }
+.tableWrap { max-height: 200px; overflow: auto; border: 1px solid var(--border-default); border-radius: 8px; scrollbar-color: var(--border-control) transparent; scrollbar-width: thin; }
+.tableWrap table { width: 100%; min-width: 320px; border-collapse: separate; border-spacing: 0; text-align: start; font-size: 11px; }
+.tableWrap caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.tableWrap thead th { position: sticky; top: 0; z-index: 1; padding: 9px 12px; border-bottom: 1px solid var(--border-default); background: var(--surface-raised); color: var(--text-secondary); font-weight: 650; white-space: nowrap; }
+.tableWrap thead th:first-child { text-align: left; }
+.tableWrap thead th:not(:first-child) { text-align: right; }
+.columnHeading { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.columnHeading small { margin-left: 3px; color: var(--text-secondary); font-size: 10px; font-weight: 400; }
+.tableWrap tbody th, .tableWrap tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-default); }
+.tableWrap tbody tr:last-child th, .tableWrap tbody tr:last-child td { border-bottom: 0; }
+.tableWrap tbody tr:nth-child(even) { background: var(--background-page); }
+.tableWrap tbody tr:hover { background: var(--control-hover); }
+.tableWrap tbody th { color: var(--text-primary); font-weight: 550; text-align: left; }
+.interval { display: grid; gap: 1px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.interval > span { color: var(--text-secondary); line-height: 1; }
+.tableWrap tbody td { color: var(--text-primary); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tableWrap tbody td[data-missing='true'] { color: var(--text-secondary); }
+.tableValue { font-weight: 600; }

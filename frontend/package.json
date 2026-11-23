@@ -10,13 +10,17 @@
     "preview": "vite preview",
     "test": "playwright test",
     "test:e2e": "playwright test --project=chromium",
-    "test:unit": "playwright test --project=unit"
+    "test:unit": "playwright test --project=unit",
+    "test:integration": "playwright test --config playwright.integration.config.ts"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/react-fontawesome": "^3.5.0",
     "i18next": "^26.4.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-i18next": "^17.0.16"
+    "react-i18next": "^17.0.16",
+    "react-qr-code": "^2.2.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

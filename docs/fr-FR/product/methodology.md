@@ -1,48 +1,53 @@
-# Méthodologie et sens des données
+# Méthodologie et données
 
-Les données gardent leur sens : absence, erreur et données périmées ne valent pas zéro. L’énergie est estimée par le modèle simplifié à paramètres versionnés ; ce n’est pas une mesure électrique réelle et ses paramètres ne sont pas un facteur régional officiel. La relation de conversion CO₂e est implémentée dans #49/#53.
+L’énergie est estimée par un modèle simplifié utilisant CPU, mémoire, disque et réseau durant l’intervalle. La puissance estimée devient énergie selon la durée. Les émissions sont l’énergie multipliée par l’intensité carbone régionale. Les coefficients appartiennent au modèle académique ; ce ne sont ni des mesures électriques directes ni des facteurs régionaux officiels. Les résultats conservent méthode et facteur d’origine.
 
-## Vocabulaire et unités
+## Interpréter les données {#vocabulary}
 
-| Concept | Sens |
+| Concept | Signification |
 | --- | --- |
-| Application | Identité stable ; nom/localisation peuvent changer. |
-| Observation/collecte | Métriques persistées liées à une application et un intervalle. |
-| Cycle | Exécution de découverte, réconciliation et collecte ; pas une mesure individuelle. |
-| Énergie | Quantité cumulée en kWh, distincte de la puissance. |
-| Intensité carbone | Facteur régional fourni en gCO₂e/kWh. |
-| CO₂e | Émissions équivalentes avec unité et facteur identifiés. |
-| Couverture | Part de la période demandée étayée par des preuves valides, calculée séparément pour énergie et CO₂e. |
-| Stale | Ancienne observation valide conservée, pas réussite de la tentative actuelle. |
+| Application | Service doté d’une identité stable dans le catalogue. |
+| Observation | Ensemble de métriques associé à un intervalle. |
+| Énergie | Quantité estimée sur une période, en kWh. |
+| Intensité carbone | Facteur régional, en gCO₂e/kWh. |
+| Émissions | Quantité équivalente de CO₂ avec unité précisée. |
+| Couverture | Part de la période étayée par des preuves valides. |
 
-L’agrégateur documente CPU en %, mémoire, disque et réseau en GB. Ce ne sont pas des kWh ; conversion, modèle, coefficients et hypothèses doivent être documentés.
+## Modèle d’estimation {#model}
 
-## Temps et provenance
-
-La source ne publie pas d’horodatage de mesure. GreenER conserve la réception et dérive `[receivedAt - collection_interval_seconds, receivedAt]` sans prouver les instants exacts de la mesure d’origine.
-
-Dernière tentative, observation valide et mise à jour du registre sont distinctes. La consultation d’un facteur ne prouve pas sa validité officielle. Le snapshot conserve valeur, identité interne, contrat et heure de consultation ; bibliographie/validité non publiées restent inconnues.
-
-## Règles temporelles environnementales
-
-Les requêtes utilisent des timestamps ISO à fuseau explicite normalisés en UTC et [from,to). Les buckets UTC horaires/journaliers/mensuels/annuels ne comptent que le chevauchement, y compris aux bords partiels. Presets 24h/7d/30d/90d : fenêtres mobiles exactes avec ancre commune KPI/série. Limite : 10 000 points ; rejet au-delà, sans troncature ni changement de granularité. La série répartit les résultats enregistrés sans recalculer les observations ; chevauchements départagés par collectedAt récent puis ID lexical croissant, sans repli si la métrique manque. Pas d’arrondi supplémentaire ; couvertures et snapshots restent distincts et préservés.
-
-## Énergie et émissions
-
-La relation dimensionnelle implémentée est :
-
-    CO₂e [g] = énergie [kWh] × intensité [gCO₂e/kWh]
-
-Exemple pédagogique : 2 kWh × 100 gCO₂e/kWh = 200 gCO₂e = 0,2 kgCO₂e. Ni facteurs approuvés ni mesures du produit. Cette relation ne définit pas l’estimation d’énergie à partir de CPU/mémoire/disque/réseau.
-
-Sans facteur, une énergie valide reste valide mais CO₂e peut être non calculable. Zéro exige une preuve valide.
-
-## Historique et scénarios
-
-| Résultat | Règle |
+| Paramètre | Valeur |
 | --- | --- |
-| Original | Conserver observations, configuration, méthodologie et facteur utilisés. |
-| Aperçu de recalcul | Configuration actuelle identifiée, sans enregistrement/remplacement ; permissions, limites et facteur à définir. |
-| Simulation régionale | Énergie constante, autre facteur, séparée des résultats officiels. |
+| CPU (100%) | 100 W |
+| Mémoire | 0.375 W/GB |
+| Disque | 0.01 W/GB |
+| Réseau | 0.02 W/GB |
 
-Totaux, classements et comparaisons exigent des périodes et couvertures compatibles. Les lacunes ne deviennent pas zéro et les pourcentages exigent un dénominateur valide. La sémantique approuvée est ci-dessus. En persistance, énergie, émissions en grammes et facteur ont huit décimales ; la couverture, fraction de zéro à un, en a quatre. Les calculs ne arrondissent pas les intermédiaires et les snapshots JSON gardent leur représentation d’origine.
+```text
+P [W] = P_CPU + P_RAM + P_disk + P_network
+E [kWh] = P [W] × Δt [h] / 1000
+CO₂e [g] = E [kWh] × I [gCO₂e/kWh]
+```
+
+## Comprendre la couverture {#coverage}
+
+La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
+
+Zéro signifie qu’une observation valide justifie cette valeur. Une lacune indique des données inutilisables ou absentes, pas une consommation nulle. Après un échec de mise à jour, la dernière lecture valide peut rester affichée avec son horaire initial. Vérifiez actualisation et couverture avant de décider. Les écrans interrogent les données 60 secondes après chaque tentative ; cela ne garantit pas une nouvelle mesure.
+
+## Périodes et historique {#history}
+
+| Règle | Signification |
+| --- | --- |
+| Historique conservé | Modifier les préférences ou générer un aperçu ne remplace pas les originaux. |
+| Absence explicite | Pannes, métriques manquantes et données anciennes se distinguent de zéro. |
+| Consultation publique | Lire les indicateurs est public ; sauvegarder des préférences et administrer des comptes exige une autorisation. |
+
+Dans l’aperçu de recalcul, choisissez application et dates pour comparer l’original à une estimation avec le modèle actuel et les facteurs actuels des régions observées. Le dernier jour est entièrement inclus en UTC. Limites : 30 jours et 10 000 observations. L’aperçu n’est pas sauvegardé et ne modifie pas l’historique. Les écarts en pourcentage exigent unités et couvertures identiques et une valeur originale positive.
+
+## Lectures associées {#related}
+
+[Guide d’utilisation](../guide/monitoring) · [Référence de l’API](../reference/api)
+
+## Préférences appliquées aux données réelles {#personal-preferences}
+
+Dans `/methodology`, configurez les limites d’énergie et d’émissions par application, le seuil de couverture et les paramètres initiaux d’analyse. Choisissez les dernières 24 heures, 7, 30 ou 90 jours, le mois UTC courant ou un intervalle personnalisé avec début inclus et fin exclue. L’aperçu consulte les données réelles sans enregistrer et utilise le même panneau d’avertissements que les applications et le Dashboard. L’enregistrement nécessite une connexion et concerne uniquement votre compte ; les calculs, l’historique et les états opérationnels restent inchangés. Les avertissements utilisent la période de chaque limite indépendamment des filtres. Les paramètres initiaux complètent uniquement les options absentes de l’URL du Dashboard et du détail. Des données partielles sous la limite ne prouvent pas son respect ; une absence ne signifie jamais zéro.

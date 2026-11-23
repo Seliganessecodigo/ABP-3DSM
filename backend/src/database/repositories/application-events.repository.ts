@@ -1,3 +1,4 @@
+/* eslint no-await-in-loop: "error" */
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntityManager, QueryDeepPartialEntity, Repository } from 'typeorm'
@@ -17,12 +18,33 @@ export interface PersistedApplicationMetadataEvent {
   readonly details: Record<string, unknown> | null
 }
 
+// Event inserts share the caller's transaction and stay below PostgreSQL's parameter limit.
+const EVENT_INSERT_BATCH_SIZE = 1_000
+
 @Injectable()
 export class ApplicationEventsRepository {
   constructor(
     @InjectRepository(ApplicationEventEntity)
     private readonly repository: Repository<ApplicationEventEntity>,
   ) {}
+
+  async collectionAttemptCounts(applicationIds: readonly string[], from: bigint, to: bigint, regionCodes?: readonly string[]) {
+    if (applicationIds.length === 0) return { successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null }
+    const [counts] = await this.repository.manager.query<{
+      successful: number; total: number; firstAttemptAt: string | null; lastAttemptAt: string | null
+    }[]>(
+      `SELECT COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE details->>'succeeded' = 'true')::int AS successful,
+        to_char(MIN("occurredAt") AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "firstAttemptAt",
+        to_char(MAX("occurredAt") AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "lastAttemptAt"
+      FROM application_events
+      WHERE kind = 'collection_attempt' AND "applicationId" = ANY($1::text[])
+        AND "occurredAt" >= $2::timestamptz AND "occurredAt" < $3::timestamptz
+        AND ($4::text[] IS NULL OR details->>'regionCode' = ANY($4::text[]))`,
+      [applicationIds, formatUtcTimestamp(floorToMicrosecond(from)), formatUtcTimestamp(ceilToMicrosecond(to)), regionCodes ?? null],
+    )
+    return counts
+  }
 
   async append(
     event: Partial<ApplicationEventEntity>,
@@ -45,6 +67,19 @@ export class ApplicationEventsRepository {
       ApplicationEventEntity,
       event as QueryDeepPartialEntity<ApplicationEventEntity>,
     )
+  }
+
+  async appendManyInTransaction(
+    manager: EntityManager,
+    events: readonly Partial<ApplicationEventEntity>[],
+  ): Promise<void> {
+    for (let offset = 0; offset < events.length; offset += EVENT_INSERT_BATCH_SIZE) {
+      // eslint-disable-next-line no-await-in-loop -- Submit the next batch only after success on the same transactional connection.
+      await manager.insert(
+        ApplicationEventEntity,
+        events.slice(offset, offset + EVENT_INSERT_BATCH_SIZE) as QueryDeepPartialEntity<ApplicationEventEntity>[],
+      )
+    }
   }
 
   findAnalysisEventsByApplicationAndPeriod(

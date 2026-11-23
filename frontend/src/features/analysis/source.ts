@@ -6,6 +6,7 @@ export type AnalysisReading =
   | Readonly<{ status: 'unavailable' | 'not-calculable'; reason: AnalysisPresentationReason }>
 
 export type AnalysisViewModel = Readonly<{
+  calculation?: Readonly<{ energyKwh: number | null; intensity: number | null }>
   energy: AnalysisReading
   emissions: AnalysisReading
   energyCoverage: AnalysisReading
@@ -48,6 +49,7 @@ export type AnalysisSeriesPoint = Readonly<{
   id: string
   timestamp: string
   bucketEnd?: string
+  coverage?: Readonly<{ energy: number; emissions: number }>
   energy: AnalysisReading
   emissions: AnalysisReading
 }>
@@ -84,6 +86,13 @@ export type AnalysisSeriesEvent = Readonly<{
 export type AnalysisSeriesResult =
   | Readonly<{ status: 'available'; points: readonly AnalysisSeriesPoint[]; events?: readonly AnalysisSeriesEvent[] }>
   | Readonly<{ status: 'unavailable'; reason: AnalysisPresentationReason }>
+
+export type AnalysisComparisonSeries = Readonly<{
+  points: readonly AnalysisSeriesPoint[]
+  period: Readonly<{ from: string; to: string }>
+  totals: Readonly<{ energy: AnalysisReading; emissions: AnalysisReading }>
+  coverage: Readonly<{ energy: number; emissions: number }>
+}>
 
 export type AnalysisGranularityOption = Readonly<{ value: string; label: string }>
 export type AnalysisGranularityCapabilities =
@@ -124,7 +133,7 @@ export type AnalysisMethodologyResult =
   | Readonly<{ status: 'available'; entries: readonly AnalysisMethodology[] }>
   | Readonly<{ status: 'unavailable'; reason: AnalysisPresentationReason }>
 
-export type AnalysisContext = Readonly<{ period: string; granularity?: string; anchor?: string }>
+export type AnalysisContext = Readonly<{ period: string; granularity?: string; anchor?: string; range?: Readonly<{ from: string; to: string }> }>
 
 export type AnalysisSourceResult =
   | Readonly<{ status: 'available'; data: AnalysisViewModel }>
@@ -133,7 +142,7 @@ export type AnalysisSourceResult =
 
 export interface AnalysisSource {
   load(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisSourceResult>
-  loadComparisonSeries?(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]>
+  loadComparisonSeries?(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisComparisonSeries>
   loadContributions?(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
     pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage>
 }
@@ -158,6 +167,15 @@ function readMeasure(value: unknown, empty = false): AnalysisReading {
     : { status: 'available', value: value.value, unit: value.unit }
 }
 
+function readSeriesMeasure(value: unknown, empty: boolean): AnalysisReading {
+  const reading = readMeasure(value, empty)
+  assertRecord(value, 'analysis series measure')
+  const reasons = readReasonCodes(value.reasons, 'analysis series measure reasons')
+  return reading.status === 'not-calculable' && reasons.some(({ code }) => code === 'NO_OBSERVATION')
+    ? { status: 'unavailable', reason: 'noObservation' }
+    : reading
+}
+
 function readCoverage(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new Error('Invalid analysis coverage')
   return value
@@ -171,8 +189,10 @@ function readSeries(value: unknown, applicationId: string) {
     assertRecord(entry, 'analysis point')
     if (typeof entry.bucketStart !== 'string' || !Number.isFinite(Date.parse(entry.bucketStart)) ||
       typeof entry.bucketEnd !== 'string' || !Number.isFinite(Date.parse(entry.bucketEnd))) throw new Error('Invalid analysis point')
+    assertRecord(entry.coverage, 'analysis point coverage')
     return { id: entry.bucketStart, timestamp: entry.bucketStart, bucketEnd: entry.bucketEnd,
-      energy: readMeasure(entry.energy, value.status === 'empty'), emissions: readMeasure(entry.emissions, value.status === 'empty') }
+      coverage: { energy: readCoverage(entry.coverage.energy), emissions: readCoverage(entry.coverage.emissions) },
+      energy: readSeriesMeasure(entry.energy, value.status === 'empty'), emissions: readSeriesMeasure(entry.emissions, value.status === 'empty') }
   })
   const eventTypes = ['status_changed', 'removed', 'returned', 'region_changed', 'methodology_changed', 'factor_version_changed']
   const events = value.events.map((entry): AnalysisSeriesEvent => {
@@ -185,10 +205,21 @@ function readSeries(value: unknown, applicationId: string) {
     return { id: entry.id, at: entry.at, type: entry.type as AnalysisSeriesEvent['type'],
       details: { before: entry.details.before as Record<string, unknown> | null, after: entry.details.after as Record<string, unknown> | null } }
   })
-  return { points, events }
+  assertRecord(value.period, 'analysis series period')
+  if (typeof value.period.from !== 'string' || !Number.isFinite(Date.parse(value.period.from)) ||
+    typeof value.period.to !== 'string' || !Number.isFinite(Date.parse(value.period.to))) throw new Error('Invalid analysis series period')
+  assertRecord(value.coverage, 'analysis series coverage')
+  return { points, events, period: { from: value.period.from, to: value.period.to },
+    totals: { energy: readSeriesMeasure(value.totals.energy, value.status === 'empty'), emissions: readSeriesMeasure(value.totals.emissions, value.status === 'empty') },
+    coverage: { energy: readCoverage(value.coverage.energy), emissions: readCoverage(value.coverage.emissions) } }
 }
 
-function rangeFor(period: string, now: Date) {
+export function analysisRangeFor(period: string, now: Date, range?: Readonly<{ from: string; to: string }>) {
+  if (period === 'custom') {
+    if (!range || !Number.isFinite(Date.parse(range.from)) || !Number.isFinite(Date.parse(range.to)) || Date.parse(range.to) <= Date.parse(range.from)) throw new Error('Invalid custom analysis period')
+    return { from: range.from, to: range.to }
+  }
+  if (period === 'month') return { from: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString(), to: now.toISOString() }
   const duration = ({ '24h': 24, '7d': 168, '30d': 720, '90d': 2160 } as const)[period as '24h' | '7d' | '30d' | '90d']
   if (duration === undefined) throw new Error('Invalid analysis period')
   const to = now.toISOString()
@@ -232,7 +263,7 @@ function readContributionMeasure(value: unknown, name: string) {
 
 async function loadContributions(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
   pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage> {
-  const range = rangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
+  const range = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date(), context.range)
   const query = new URLSearchParams({ ...range, granularity: context.granularity ?? 'hour', bucketStart,
     page: String(page), pageSize: String(pageSize) })
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')
@@ -311,8 +342,9 @@ async function getJson(url: string, signal: AbortSignal): Promise<unknown> {
   return response.json() as Promise<unknown>
 }
 
-async function loadEnvironmentalAnalysis(applicationId: string, period: string, granularity: string | null, anchor: string | undefined, signal: AbortSignal): Promise<AnalysisSourceResult> {
-  const range = rangeFor(period, anchor ? new Date(anchor) : new Date())
+async function loadEnvironmentalAnalysis(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisSourceResult> {
+  const { period, granularity, anchor } = context
+  const range = analysisRangeFor(period, anchor ? new Date(anchor) : new Date(), context.range)
   const selectedGranularity = granularity ?? 'hour'
   const [summary, series] = await Promise.all([
     getJson(endpoint(applicationId, '', range), signal),
@@ -358,7 +390,16 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
     return [{ model: value.key, version: value.version,
       parameters: Object.fromEntries(Object.entries(value.parameters).map(([key, parameter]) => [key, parameter as number])) }]
   })
+  let calculation: AnalysisViewModel['calculation']
+  if (summary.calculation !== undefined) {
+    assertRecord(summary.calculation, 'calculation')
+    const valid = (value: unknown): value is number | null => value === null || typeof value === 'number' && Number.isFinite(value) && value >= 0
+    if (!valid(summary.calculation.energyKwh) || !valid(summary.calculation.intensity)) throw new Error('Invalid equivalent factor')
+    if (summary.calculation.intensity !== null && (summary.calculation.energyKwh === null || summary.calculation.energyKwh <= 0)) throw new Error('Equivalent factor requires matching energy')
+    calculation = { energyKwh: summary.calculation.energyKwh, intensity: summary.calculation.intensity }
+  }
   const data: AnalysisViewModel = {
+    calculation,
     energy: readMeasure(summary.energy, summary.status === 'empty'), emissions: readMeasure(summary.emissions, summary.status === 'empty'),
     energyCoverage: { status: 'available', value: readCoverage(summary.coverage.energy), unit: 'fraction' },
     emissionsCoverage: { status: 'available', value: readCoverage(summary.coverage.emissions), unit: 'fraction' },
@@ -371,15 +412,15 @@ async function loadEnvironmentalAnalysis(applicationId: string, period: string, 
   return summary.status === 'empty' ? { status: 'empty', data } : { status: 'available', data }
 }
 
-async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]> {
-  const currentRange = rangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date())
-  const previousRange = rangeFor(context.period, new Date(currentRange.from))
+async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisComparisonSeries> {
+  const currentRange = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date(), context.range)
+  const previousRange = { from: new Date(Date.parse(currentRange.from) - (Date.parse(currentRange.to) - Date.parse(currentRange.from))).toISOString(), to: currentRange.from }
   const response = await getJson(endpoint(applicationId, '/series', previousRange, context.granularity ?? 'hour'), signal)
-  return readSeries(response, applicationId).points
+  return readSeries(response, applicationId)
 }
 
 export const environmentalAnalysisSource: AnalysisSource = {
-  load: (applicationId, context, signal) => loadEnvironmentalAnalysis(applicationId, context.period, context.granularity ?? null, context.anchor, signal),
+  load: loadEnvironmentalAnalysis,
   loadComparisonSeries,
   loadContributions,
 }

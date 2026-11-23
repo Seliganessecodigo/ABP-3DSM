@@ -14,6 +14,105 @@
   margin: 0;
 }
 
+.historySection {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  gap: 12px;
+}
+.mobileHeading { display: none; }
+
+.historySection > h2 {
+  color: var(--text-primary);
+  font-size: 20px;
+}
+
+.historySection > p {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.historyTableScroll {
+  overflow-x: auto;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text-primary);
+}
+
+.historyTable th,
+.historyTable td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-default);
+  text-align: left;
+}
+
+.historyTable th {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.historyTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.historyTable tbody tr[aria-current='true'] {
+  background: var(--control-hover);
+}
+
+.historyTable button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 0;
+  color: var(--accent-default);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.historyTable button:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.historyDetails {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--surface-card);
+}
+
+.historyDetails > h3 {
+  color: var(--text-primary);
+  font-size: 16px;
+}
+.selectedSummary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.selectedSummary > div { display: grid; gap: 6px; color: var(--text-secondary); font-size: 12px; }
+.selectedSummary > div > p:first-child { color: var(--text-primary); font-size: 14px; }
+.selectedSummary > a { min-width: 205px; justify-content: flex-start; }
+.auditDetails { color: var(--text-secondary); font-size: 12px; }
+.auditDetails > summary { width: fit-content; min-height: 36px; padding-block: 8px; color: var(--accent-default); cursor: pointer; overflow-wrap: anywhere; }
+.auditDetails .list { margin-top: 12px; }
+
+.historyDetails .list li {
+  border: 0;
+  padding: 0;
+}
+
+.historyDetails h4 {
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
 .totals,
 .list li {
   display: grid;
@@ -62,4 +161,71 @@
   margin: 0;
   color: var(--text-primary);
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .desktopHeading { display: none; }
+  .mobileHeading { display: inline; }
+  .historyTableScroll {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .historyTable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .historyTable,
+  .historyTable tbody,
+  .historyTable tbody tr {
+    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+    gap: 12px;
+  }
+
+  .historyTable tbody tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 16px 12px;
+    background: var(--surface-card);
+  }
+
+  .historyTable tbody tr[aria-current='true'] { background: var(--surface-card); }
+
+  .historyTable tbody td {
+    display: block;
+    border: 0;
+    padding: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .historyTable tbody td::before {
+    content: none;
+  }
+
+  .historyTable tbody td:last-child {
+    display: block;
+    grid-column: 2 / -1;
+    justify-self: end;
+  }
+  .historySection { gap: 8px; }
+  .historySection > h2 { font-size: 18px; }
+  .historySection > p { display: none; }
+  .historyTable tbody { gap: 4px; }
+  .historyTable tbody tr { gap: 2px; padding: 6px 8px; }
+  .historyTable tbody td { font-size: 11px; color: var(--text-secondary); }
+  .historyTable tbody td:first-child { grid-column: 1 / -1; font-size: 13px; font-weight: 650; color: var(--text-primary); }
+  .historyTable tbody td:nth-child(5) { grid-column: 1; align-self: center; color: var(--accent-default); }
+  .historyDetails { gap: 4px; margin-top: 0; padding: 8px; }
+  .selectedSummary { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .selectedSummary > a { width: 100%; }
+  .selectedSummary > div { gap: 2px; line-height: 1.2; }
+  .selectedSummary > div > p:first-child { font-size: 14px; }
 }

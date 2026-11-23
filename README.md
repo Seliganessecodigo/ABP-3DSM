@@ -1,12 +1,22 @@
 # GreenER
 
-Plataforma acadêmica para acompanhar aplicações e estimar consumo de energia e emissões equivalentes de CO₂ (CO₂e).
+**[Acessar a documentação completa em HTML](https://seliganessecodigo.github.io/ABP-3DSM/)**
+
+Plataforma de monitoramento e análise ambiental de aplicações, desenvolvida no projeto universitário ABP-3DSM, que integra métricas operacionais, estimativas de energia e emissões equivalentes de CO₂ (CO₂e).
 
 ## Visão geral
 
 O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
 
-O frontend oferece catálogo e detalhe de aplicações; o backend disponibiliza descoberta, coleta periódica, estado operacional e consulta de evidências persistidas. A apresentação completa dessas evidências, os cálculos ambientais, o dashboard, as análises e a administração têm entregas próprias no backlog. A [visão do produto](docs/product/vision.md) distingue disponibilidade por camada e escopo planejado.
+O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem.
+
+Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
+
+## Engenharia e qualidade
+
+React 19 e TypeScript sustentam a interface; NestJS organiza a API em módulos e camadas, com injeção de dependências; TypeORM e PostgreSQL preservam os dados com migrations versionadas. Integrações validadas, auditoria transacional e snapshots de cálculo dão suporte à consistência dos indicadores.
+
+Na base documentada, a CI aprovou 542 testes de frontend, 705 de backend e três fluxos integrados, além de lint, tipagem, builds, migrations e gate SonarQube Cloud. O site oferece 12 idiomas com verificação automática de equivalência de conteúdo, contratos e links. Confira a [execução de referência](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486).
 
 ## Épicos
 
@@ -20,9 +30,9 @@ O frontend oferece catálogo e detalhe de aplicações; o backend disponibiliza 
 
 ## Documentação multilíngue
 
-O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês e chinês simplificado.
+O conteúdo-fonte está em Markdown neste repositório. O site estático oferece navegação, pesquisa e seletor para português brasileiro, inglês, espanhol, francês, alemão, italiano, japonês, chinês simplificado, coreano, russo, hindi e indonésio.
 
-Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [decisões pendentes](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos oito idiomas.
+Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), pelo [guia de uso](docs/guide/monitoring.md) e pela [metodologia dos dados](docs/product/methodology.md). A documentação também cobre [qualidade e aceite](docs/product/quality.md), [princípios de engenharia](docs/product/decisions.md), [API](docs/reference/api.md) e [operação](docs/operations.md), com páginas equivalentes nos doze idiomas.
 
 | Idioma | Fonte Markdown |
 | --- | --- |
@@ -34,6 +44,10 @@ Para conhecer o produto, comece pela [visão e escopo](docs/product/vision.md), 
 | [Italiano](docs/it-IT/index.md) | [Per iniziare](docs/it-IT/getting-started.md) · [Architettura](docs/it-IT/architecture.md) · [Epic](docs/it-IT/roadmap.md) · [Contribuire](docs/it-IT/contributing.md) |
 | [日本語](docs/ja-JP/index.md) | [はじめに](docs/ja-JP/getting-started.md) · [アーキテクチャ](docs/ja-JP/architecture.md) · [エピック](docs/ja-JP/roadmap.md) · [コントリビューション](docs/ja-JP/contributing.md) |
 | [简体中文](docs/zh-CN/index.md) | [开始使用](docs/zh-CN/getting-started.md) · [架构](docs/zh-CN/architecture.md) · [史诗任务](docs/zh-CN/roadmap.md) · [参与贡献](docs/zh-CN/contributing.md) |
+| [한국어](docs/ko-KR/index.md) | [시작하기](docs/ko-KR/getting-started.md) · [아키텍처](docs/ko-KR/architecture.md) · [제품 백로그](docs/ko-KR/roadmap.md) |
+| [Русский](docs/ru-RU/index.md) | [Начало работы](docs/ru-RU/getting-started.md) · [Архитектура](docs/ru-RU/architecture.md) · [Бэклог продукта](docs/ru-RU/roadmap.md) |
+| [हिन्दी](docs/hi-IN/index.md) | [शुरुआत करें](docs/hi-IN/getting-started.md) · [आर्किटेक्चर](docs/hi-IN/architecture.md) · [उत्पाद बैकलॉग](docs/hi-IN/roadmap.md) |
+| [Bahasa Indonesia](docs/id-ID/index.md) | [Memulai](docs/id-ID/getting-started.md) · [Arsitektur](docs/id-ID/architecture.md) · [Backlog produk](docs/id-ID/roadmap.md) |
 
 Para abrir o site localmente, instale as dependências da documentação e inicie o servidor:
 
@@ -44,7 +58,13 @@ npm run docs:dev
 
 Acesse http://localhost:4174. Para gerar e visualizar os arquivos HTML de produção, use `npm run docs:build` e `npm run docs:preview`.
 
+O build verifica a equivalência de seções, tabelas, links e exemplos nos doze idiomas. Execute `npm run docs:check` para fazer essa conferência isoladamente.
+
 A publicação do HTML no GitHub Pages está configurada no workflow. Na primeira publicação, o repositório precisa usar **GitHub Actions** como origem em **Settings → Pages**. O Markdown continua versionado e acessível pelos links acima.
+
+## Evidências de entrega
+
+O [plano de entregas](docs/plano-de-entregas.md) e os [registros das sprints](docs/sprints/sprint-1.md) conectam os 27 critérios da rubrica às contribuições dos cinco integrantes, ao código e às verificações automatizadas. A [matriz detalhada](docs/evidence/rubrica/matriz.md) reúne as evidências técnicas e funcionais.
 
 ## Executar a aplicação
 

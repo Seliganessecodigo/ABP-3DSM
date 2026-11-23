@@ -1,0 +1,18 @@
+$kind: http-request
+name: Análise oficial antes
+order: 4000
+method: GET
+url: '{{base_url}}/applications/{{applicationId}}/analysis?from={{from}}&to={{to}}'
+queryParams:
+  - key: from
+    value: '{{from}}'
+  - key: to
+    value: '{{to}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('consulta análise oficial do período', function () {
+        pm.response.to.have.status(200);
+      });
+      pm.collectionVariables.set('task86OriginalAnalysis', pm.response.text());

@@ -25,7 +25,11 @@ export function readQuery(): CatalogQuery & { timeZone: string; dateRangeInvalid
   const size = params.get('size') ?? '10'
   const from = params.get('from') ?? ''
   const to = params.get('to') ?? ''
-  const dateRangeInvalid = Boolean(from && to && Date.parse(from) > Date.parse(to))
+  const fromTime = from ? Date.parse(from) : null
+  const toTime = to ? Date.parse(to) : null
+  const dateRangeInvalid = (from !== '' && (fromTime === null || !Number.isFinite(fromTime))) ||
+    (to !== '' && (toTime === null || !Number.isFinite(toTime))) ||
+    (fromTime !== null && toTime !== null && fromTime > toTime)
   const filters: CatalogColumnFilters = {
     name: params.get('name') ?? '', country: params.get('country') ?? '',
     regionCode: params.get('regionCode') ?? params.get('region') ?? '', city: params.get('city') ?? '',
@@ -66,5 +70,5 @@ export function makeUrl(query: CatalogQuery & { timeZone: string }): string {
   if (filters.lastCheckedTo) params.set('to', filters.lastCheckedTo)
   if (query.timeZone) params.set('tz', query.timeZone)
   const queryString = params.toString()
-  return queryString ? '/?' + queryString : '/'
+  return queryString ? '/applications?' + queryString : '/applications'
 }

@@ -1,41 +1,45 @@
-# Produktvision und Umfang
+# Vision und Umfang
 
-GreenER beantwortet drei Fragen: Welche Anwendungen werden überwacht, welche Belege stützen ihren Verbrauch und wie sind geschätzte Energie und Emissionen zu verstehen? Erkennung, Metriken, regionaler Kontext und Historie unterstützen Untersuchung und Priorisierung.
+GreenER vereint kontinuierliche Überwachung, Energie- und CO₂e-Schätzungen sowie Umweltanalysen in einer integrierten Plattform. Dynamischer Katalog, Dashboard, Verlauf, Ranking, Vergleich und regionale Simulation verbinden den Überblick mit der Untersuchung einzelner Anwendungen; Kennzahlen lassen sich bis zu Quelldaten und Methodik zurückverfolgen.
 
-## Zielgruppen
+## Zielgruppen {#readers}
 
 | Zielgruppe | Bedarf |
 | --- | --- |
-| Infrastrukturmanagement | Anwendungen und Änderungen der Umgebung erkennen. |
-| Betriebs- und Umweltanalyse | Zeiträume untersuchen, vergleichbare Ergebnisse vergleichen und Lücken verstehen. |
-| Administration | Parameter und Zugriff autorisiert und nachvollziehbar ändern. |
-| Entwicklung und Bewertung | Umgebung reproduzieren und Akzeptanzkriterien demonstrieren. |
+| Infrastrukturverwaltung | Anwendungen erkennen und Änderungen der Umgebung verfolgen. |
+| Umwelt- und Betriebsanalyse | Verbrauch, Emissionen und Datenqualität eines Zeitraums untersuchen. |
+| Entwicklung und Bewertung | Produktverhalten prüfen und Ergebnisse nachvollziehen. |
 
-Das sind Nutzerbedürfnisse; die vollständige Berechtigungsmatrix ist eine [offene Entscheidung](./decisions).
+## Verfügbare Funktionen {#features}
 
-## Umfang und Verfügbarkeit
-
-Referenz: `develop`-Quellstand vom 15.10.2026. Umgebungen können andere Revisionen ausführen; ein geschlossenes Issue beweist keine Produktionsverfügbarkeit.
-
-| Funktion | Dokumentierter Stand |
+| Funktion | Referenz |
 | --- | --- |
-| Katalog, Suche/Zustandsfilter, Navigation, acht Sprachen | In der Oberfläche implementiert. |
-| Erkennung, Lebenszyklusereignisse, regelmäßige Sammlung, Speicherung | Im Backend implementiert. |
-| Betriebszustand und Abfrage von Erfassungsbelegen | Per API vorhanden; vollständige UI-Darstellung hat eigene Tasks. |
-| Umweltdashboard, Energie/CO₂e, Zeitreihen, Rangliste, Vergleich | Geplanter Umfang. |
-| Themes, Authentifizierung, Administration, regionale Simulation, Neuberechnungsvorschau | Geplant mit Backlog-Abhängigkeiten. |
+| Katalog und Suche | [Eine Anwendung finden](../guide/monitoring#catalog) |
+| Automatische Überwachung | [Daten verstehen](../guide/monitoring#data) |
+| Umweltdashboard | [Dashboard lesen](../guide/monitoring#dashboard) |
+| Anwendungsdetails | [Details untersuchen](../guide/monitoring#detail) |
+| Verlauf und Zusammensetzung | [Verlauf erkunden](../guide/monitoring#history) |
+| Persönliche Einstellungen | [Analyse anpassen](../guide/monitoring#preferences) |
+| Anmeldung und zweiter Faktor | [Anmelden](../guide/monitoring#access) |
+| Umweltranking | [Umweltranking](../guide/monitoring#other) |
+| Anwendungsvergleich | [Anwendungsvergleich](../guide/monitoring#other) |
+| Regionale Simulation | [Regionale Simulation](../guide/monitoring#other) |
+| Konten und Passwortwiederherstellung | [Konten und Passwortwiederherstellung](../guide/monitoring#other) |
 
-## Abläufe und Nutzen
+## Analyseablauf {#journey}
 
-1. Anwendung finden, Detail öffnen und Identität, Ort und Zustand prüfen.
-2. Änderungen anhand des letzten Versuchs, der letzten gültigen Beobachtung und fehlender Daten untersuchen.
-3. Im geplanten Umweltumfang Zeitraum, Abdeckung und Methodik prüfen und denselben Ausschnitt vergleichen.
-4. In der geplanten Administration autorisierte Parameter ändern, ohne Historie umzuschreiben.
+Beginnen Sie mit der Umweltübersicht, wählen Sie eine auffällige Anwendung und öffnen Sie ihre Details. Untersuchen Sie den Zeitraum im Verlauf und die Schätzung in der Methodik. Berücksichtigen Sie vor jedem Vergleich die Abdeckung.
 
-Das [Handbuch](../guide/monitoring) beschreibt vorhandenes Verhalten; die [Epics](../roadmap) beschreiben den Sollumfang.
+## Nutzungsgrenzen {#limits}
 
-## Grenzen und Bewertung
+Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte und Netzwerk im Beobachtungsintervall. Geschätzte Leistung wird über die Dauer in Energie umgerechnet. Emissionen ergeben sich aus Energie mal regionaler CO₂-Intensität. Die Koeffizienten gehören zum akademischen Modell, nicht zu direkter Strommessung oder offiziellen Regionalfaktoren. Ergebnisse erhalten ursprüngliche Methodik und Faktoren.
 
-Schätzungen sind keine direkte Strommessung und kein Beweis kausaler Einsparungen. Effizienz pro Transaktion benötigt Arbeitslastdaten. CSV, konfigurierbare Spalten und Vorperiodenvergleich gehören nicht allein wegen Figma zum MVP. Eine Karte ist optional.
+Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-In Reviews prüfen: Anwendung auffindbar, Null von fehlenden Daten unterscheidbar, Ergebnis bis Zeitraum, Einheit und Belegen nachvollziehbar. Schwierigkeiten, Feedback und Änderungen in [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133)/[#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134) erfassen. Zeit-, Zufriedenheits- und Leistungsziele benötigen Ausgangswerte und Freigabe.
+## Integrierte Fähigkeiten {#planned}
+
+Die Plattform bietet Anwendungsvergleich, Umweltranking, regionale Simulation, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung. JWT, Google SSO und ein zweiter TOTP-Faktor schützen administrative Abläufe; Umweltabfragen bleiben öffentlich.
+
+## Weiterführende Seiten {#related}
+
+[Benutzerhandbuch](../guide/monitoring) · [Methodik und Daten](../product/methodology) · [Produkt-Backlog](../roadmap)

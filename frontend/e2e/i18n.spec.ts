@@ -1,9 +1,9 @@
-﻿import { expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { application, mockCatalog, row } from './support/catalog.ts'
 
 test('troca o idioma, persiste a preferência e atualiza o atributo lang', async ({ page }) => {
   await mockCatalog(page, [])
-  await page.goto('/')
+  await page.goto('/applications')
   const selector = page.getByRole('combobox', { name: 'Idioma' })
   await selector.selectOption('en-US')
   await expect(page.getByRole('heading', { level: 1, name: 'Applications' })).toBeVisible()
@@ -26,7 +26,7 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
     { locale: 'zh-CN', title: '应用程序', available: '可用', details: '查看详情', identity: '标识信息和状态', location: '位置' },
   ]
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/applications', { waitUntil: 'domcontentloaded' })
   const languageSelector = page.getByRole('combobox').filter({ has: page.locator('option[value="en-US"]') })
   for (const item of cases) {
     await languageSelector.selectOption(item.locale)
@@ -34,10 +34,10 @@ test('catálogo e detalhe estão traduzidos nos oito idiomas', async ({ page }) 
     await expect(page.getByRole('heading', { level: 1, name: item.title, exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: new RegExp(`^${item.available} \\(`) })).toBeVisible()
     await row(page, 'svc-0142').getByRole('link', { name: item.details, exact: false }).click()
-    await page.locator('#analysis-details summary').click()
+
     await expect(page.getByRole('heading', { name: item.identity, exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: item.location, exact: true })).toBeVisible()
-    await page.goto('/')
+    await page.goto('/applications', { waitUntil: 'domcontentloaded' })
   }
 })
 
@@ -54,7 +54,7 @@ test('controles do menu móvel são acessíveis nos oito idiomas', async ({ page
   ]
   await page.setViewportSize({ width: 390, height: 844 })
   await mockCatalog(page, [application()])
-  await page.goto('/')
+  await page.goto('/applications')
   await page.getByRole('button', { name: 'Abrir menu', exact: true }).click()
 
   for (const [index, item] of cases.entries()) {
@@ -66,4 +66,3 @@ test('controles do menu móvel são acessíveis nos oito idiomas', async ({ page
     await expect(opener).toHaveAttribute('aria-expanded', 'false')
   }
 })
-

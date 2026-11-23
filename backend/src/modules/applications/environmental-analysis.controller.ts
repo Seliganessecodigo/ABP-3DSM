@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -13,6 +14,10 @@ import { EnvironmentalAnalysisDto } from './environmental-analysis.dto'
 import { EnvironmentalAnalysisPeriodQueryDto } from './environmental-analysis-period-query.dto'
 import { EnvironmentalAnalysisService } from './environmental-analysis.service'
 import {
+  EnvironmentalRecalculationPreviewDto,
+  EnvironmentalRecalculationPreviewRequestDto,
+} from './environmental-recalculation-preview.dto'
+import {
   EnvironmentalAnalysisSeriesContributionsDto,
   EnvironmentalAnalysisSeriesDto,
 } from './environmental-analysis-series.dto'
@@ -20,12 +25,54 @@ import {
   EnvironmentalAnalysisSeriesContributionsQueryDto,
   EnvironmentalAnalysisSeriesQueryDto,
 } from './environmental-analysis-series-query.dto'
+import { RegionalSimulationRequestDto, RegionalSimulationResultDto } from './regional-simulation.dto'
+import { PublicRoute } from '../authentication/public-route.decorator'
 
 @ApiTags('applications')
 @Controller('applications/:id/analysis')
 export class EnvironmentalAnalysisController {
   constructor(private readonly analysis: EnvironmentalAnalysisService) {}
 
+  @PublicRoute()
+  @Post('recalculation-preview')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Gerar prévia ambiental sem alterar o histórico' })
+  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
+  @ApiBody({ type: EnvironmentalRecalculationPreviewRequestDto })
+  @ApiOkResponse({ type: EnvironmentalRecalculationPreviewDto })
+  @ApiBadRequestResponse({ description: 'ID ou período inválido' })
+  @ApiNotFoundResponse({ description: 'Aplicação não encontrada' })
+  @ApiServiceUnavailableResponse({ description: 'Prévia ambiental indisponível' })
+  previewRecalculation(
+    @Param("id") id: string,
+    @Body() request: EnvironmentalRecalculationPreviewRequestDto,
+  ): Promise<EnvironmentalRecalculationPreviewDto> {
+    return this.analysis.previewRecalculation(id, request.from, request.to)
+  }
+
+  @PublicRoute()
+  @Post('regional-simulation')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Simular emissões em outra região mantendo a energia observada' })
+  @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
+  @ApiBody({ type: RegionalSimulationRequestDto })
+  @ApiOkResponse({ type: RegionalSimulationResultDto })
+  @ApiBadRequestResponse({ description: 'Aplicação, destino, período ou limite inválido' })
+  @ApiNotFoundResponse({ description: 'Aplicação não encontrada' })
+  @ApiServiceUnavailableResponse({ description: 'Dados persistidos indisponíveis' })
+  simulateRegionalChange(
+    @Param('id') id: string,
+    @Body() request: RegionalSimulationRequestDto,
+  ): Promise<RegionalSimulationResultDto> {
+    return this.analysis.simulateRegionalChange(
+      id,
+      request.from,
+      request.to,
+      request.destinationRegionCode,
+    )
+  }
+
+  @PublicRoute()
   @Get('series')
   @ApiOperation({ summary: 'Consultar série ambiental persistida por granularidade' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -43,6 +90,7 @@ export class EnvironmentalAnalysisController {
     return this.analysis.getSeriesByPeriod(id, query.from, query.to, query.granularity)
   }
 
+  @PublicRoute()
   @Get('series/contributions')
   @ApiOperation({ summary: 'Consultar contribuições persistidas de um bucket da série ambiental' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })
@@ -71,6 +119,7 @@ export class EnvironmentalAnalysisController {
     )
   }
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: 'Consultar resultados ambientais persistidos por período' })
   @ApiParam({ name: 'id', schema: { type: 'string', minLength: 1 } })

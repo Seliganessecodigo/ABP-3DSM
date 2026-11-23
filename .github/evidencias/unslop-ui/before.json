@@ -1,0 +1,74 @@
+{
+  "U1 eyebrow": {
+    "count": 7,
+    "examples": [
+      "frontend/src\\components\\AppShell.css:26",
+      "frontend/src\\pages\\detail\\ApplicationDetailPage.module.css:29",
+      "frontend/src\\pages\\login\\LoginPage.module.css:6",
+      "frontend/src\\pages\\methodology\\MethodologyPage.module.css:5",
+      "frontend/src\\pages\\methodology\\Preferences.module.css:111"
+    ]
+  },
+  "U2 decorative numbering": {
+    "count": 4,
+    "examples": [
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43",
+      "frontend/src\\pages\\detail\\seriesQuery.ts:43"
+    ]
+  },
+  "U6 status string": {
+    "count": 68,
+    "examples": [
+      "frontend/src\\components\\PersonalAlerts.tsx:11",
+      "frontend/src\\i18n\\locales\\ru-RU.json:74",
+      "frontend/src\\pages\\comparison\\ComparisonPage.tsx:286",
+      "frontend/src\\pages\\comparison\\ComparisonPage.tsx:291",
+      "frontend/src\\pages\\dashboard\\DashboardPage.tsx:147"
+    ]
+  },
+  "U9 badge word": {
+    "count": 0,
+    "examples": []
+  },
+  "U10 status dot": {
+    "count": 0,
+    "examples": []
+  },
+  "U11 emoji": {
+    "count": 0,
+    "examples": []
+  },
+  "U11 icon tile": {
+    "count": 0,
+    "examples": []
+  },
+  "U12 chart-type title": {
+    "count": 0,
+    "examples": []
+  },
+  "U13 reading instructions": {
+    "count": 0,
+    "examples": []
+  },
+  "U15 chart scaffolding": {
+    "count": 0,
+    "examples": []
+  },
+  "U16 legend": {
+    "count": 0,
+    "examples": []
+  },
+  "unslop 13 em dash": {
+    "count": 16,
+    "examples": [
+      "frontend/src\\features\\analysis\\README.md:56",
+      "frontend/src\\features\\analysis\\README.md:57",
+      "frontend/src\\features\\analysis\\README.md:58",
+      "frontend/src\\features\\analysis\\README.md:59",
+      "frontend/src\\features\\analysis\\README.md:60"
+    ]
+  },
+  "total": 95
+}

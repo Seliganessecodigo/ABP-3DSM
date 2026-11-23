@@ -1,0 +1,206 @@
+﻿{
+    "productionSha":  "c17ab84ec919911b173529150f900a9b6f578570",
+    "startTime":  1795403980952,
+    "numPassedTests":  23,
+    "numFailedTests":  0,
+    "numPendingTests":  0,
+    "success":  true,
+    "suites":  [
+                   {
+                       "name":  "environmental-analysis-series.database.spec.ts",
+                       "status":  "passed",
+                       "assertions":  [
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL CT-028 S1–S5: reconcilia sobreposições, rateio, null, desempate e paginação na fixture exata",
+                                              "status":  "passed",
+                                              "duration":  694,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL groups saved results into UTC hourly buckets and reconciles partial edges with the period total",
+                                              "status":  "passed",
+                                              "duration":  38,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL rejects 10,001 hourly points and accepts the 10,000-point maximum",
+                                              "status":  "passed",
+                                              "duration":  416,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL rejects an enormous hourly horizon without enumerating its buckets",
+                                              "status":  "passed",
+                                              "duration":  17,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL uses UTC month and year boundaries for empty series crossing leap and year boundaries",
+                                              "status":  "passed",
+                                              "duration":  32,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL preserves nanosecond half-open edges at an exact hourly boundary",
+                                              "status":  "passed",
+                                              "duration":  31,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL documenta parâmetros aceitos e responses no OpenAPI",
+                                              "status":  "passed",
+                                              "duration":  224,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL retorna 503 em vez de transformar uma falha de consulta em série vazia",
+                                              "status":  "passed",
+                                              "duration":  124,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL publica os parâmetros e responses das rotas de série e contribuições no OpenAPI",
+                                              "status":  "passed",
+                                              "duration":  11,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL returns operational events and version changes against the persisted predecessor outside the requested window",
+                                              "status":  "passed",
+                                              "duration":  94,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL paginates a bucket stably without changing full-bucket totals and supports every approved page size",
+                                              "status":  "passed",
+                                              "duration":  236,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL reconcilia rateio original, lacunas e medida ausente nas contribuições do recorte parcial",
+                                              "status":  "passed",
+                                              "duration":  48,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL rejeita contexto inválido e distingue aplicação inexistente de aplicação vazia",
+                                              "status":  "passed",
+                                              "duration":  96,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "GET /applications/:id/analysis/series com PostgreSQL preserves snapshots for a collection with no calculated results in paginated contributions",
+                                              "status":  "passed",
+                                              "duration":  41,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          }
+                                      ]
+                   },
+                   {
+                       "name":  "persisted-environmental-period.spec.ts",
+                       "status":  "passed",
+                       "assertions":  [
+                                          {
+                                              "fullName":  "equivalent factor presentation projects compact measures with the same values and reasons as detailed evidence",
+                                              "status":  "passed",
+                                              "duration":  25,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "equivalent factor presentation excludes energy without emissions from the equivalent factor",
+                                              "status":  "passed",
+                                              "duration":  1,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "equivalent factor presentation weights factors by matched energy rather than counting snapshots",
+                                              "status":  "passed",
+                                              "duration":  2,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "equivalent factor presentation preserves missing data and an undefined factor for zero energy",
+                                              "status":  "passed",
+                                              "duration":  1,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "equivalent factor presentation does not derive a misleading factor when persisted emissions have no corresponding energy",
+                                              "status":  "passed",
+                                              "duration":  1,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "aggregatePersistedEnvironmentalPeriod uses the latest overlapping saved collection without falling back for a missing measure",
+                                              "status":  "passed",
+                                              "duration":  3,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "aggregatePersistedEnvironmentalPeriod normalizes offset-equivalent counted bounds to UTC",
+                                              "status":  "passed",
+                                              "duration":  1,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "aggregatePersistedEnvironmentalPeriod breaks collectedAt ties by lexical collection ID independent of input order",
+                                              "status":  "passed",
+                                              "duration":  1,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          },
+                                          {
+                                              "fullName":  "aggregatePersistedEnvironmentalPeriod restores the next active overlap when nested winners expire",
+                                              "status":  "passed",
+                                              "duration":  2,
+                                              "failureMessages":  [
+
+                                                                  ]
+                                          }
+                                      ]
+                   }
+               ]
+}

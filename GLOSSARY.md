@@ -23,3 +23,104 @@ The number of consecutive valid observations for the same incident identity and 
 ## Stale observation
 
 Previously valid data that remains available but is older than the latest monitoring attempt. A failure or missing value is not represented as zero.
+
+**Environmental temporal coverage**:
+The fraction of the requested period supported by usable results, calculated independently for energy and CO₂e across the selected application scope. It describes time coverage, not the number or share of applications.
+_Avoid_: Application coverage, data share
+
+**Monitored application**:
+A software system registered in GreenER whose state, metrics, and location are observed over time.
+
+**Reference application**:
+A selected monitored application used as the basis for calculating differences against the other selected applications. It does not imply greater efficiency or environmental preference.
+
+**Environmental ranking**:
+An ordering of applications by absolute energy consumption or CO₂e for a shared period and domain-filtered scope. It identifies contribution magnitude and does not measure efficiency.
+
+**Ranked application**:
+An application with a usable value for the selected ranking measure in the requested period. A valid value of zero is rankable.
+
+**Unranked application**:
+An application without a usable value for the selected ranking measure in the requested period. It remains visible with a reason, but has no numerical position or participation.
+
+**Ranking position**:
+The application's ordinal place in the environmental ranking. Applications with equal measure values share a competitive position; presentation choices do not redefine the position.
+
+**Environmental participation**:
+The share of the calculable total for the selected measure contributed by an application, calculated against available values in the full domain-filtered scope. It is undefined when the aggregate denominator is absent or zero.
+
+**Recalculation preview**:
+An unsaved estimate that applies the current calculation configuration to preserved observations for a selected application and period, presented separately from the original result. It does not replace or contribute to official history, charts, or totals.
+_Avoid_: Recalculated history, saved preview
+
+**Regional simulation**:
+An unsaved estimate that keeps observed energy constant while applying a current destination carbon factor, compared with emissions calculated from the factor snapshots preserved by the collections. It does not change official results or establish migration feasibility.
+_Avoid_: Regional forecast, migration result
+
+**Destination carbon factor**:
+The carbon intensity returned for the selected destination region by a current GreenER query. Its query time records when GreenER asked the source and does not establish official validity.
+_Avoid_: Historical destination factor, effective destination factor
+
+## SSO
+
+**Login SSO**:
+Autenticação no GreenER por um provedor de identidade confiável. O provedor confirma a identidade; organização, papel, estado e autorização continuam definidos pelo GreenER.
+
+**Identidade externa**:
+Identificador estável emitido por um provedor, representado pelo par issuer e subject. O e-mail não é chave de vínculo.
+
+**Convite SSO**:
+Autorização de uso único criada por Admin ativo para vincular uma identidade SSO a uma conta GreenER existente ou provisionar uma conta nova com papel explícito.
+
+**Código de handoff**:
+Código temporário de uso único que o callback entrega à UI. A UI troca o código por uma sessão GreenER usando o verificador PKCE; tokens de sessão não aparecem na URL.
+
+Vocabulário do produto para alinhar conceitos entre autenticação, organizações e permissões.
+
+## Autenticação
+
+**Conta ativa**:
+Conta GreenER que não está bloqueada nem desativada e pode iniciar autenticação conforme as demais políticas de acesso.
+
+**Recuperação de senha**:
+Fluxo pelo qual a pessoa titular comprova a posse de um meio de contato cadastrado e define uma nova senha para sua conta.
+
+**Token de recuperação de senha**:
+Prova temporária e de uso único que autoriza definir uma nova senha sem revelar a senha atual.
+
+**Bloqueio de conta**:
+Suspensão temporária do acesso à conta, por exemplo durante uma investigação de risco. Pode ser encerrada por uma reativação explícita.
+_Evitar_: desativação
+
+**Desativação de conta**:
+Estado atribuído quando a conta deixa de precisar de acesso. A conta é preservada e pode ser reativada explicitamente se voltar a precisar de acesso.
+
+**Reativação de conta**:
+Retorno explícito de uma conta bloqueada ou desativada ao estado ativo.
+
+**Administrador**:
+Pessoa usuária com papel `ADMIN` em uma organização GreenER.
+
+**Segundo fator (2FA)**:
+Etapa adicional de autenticação que exige comprovação além da senha. Nesta decisão de produto, o papel Administrador exige TOTP.
+
+**Autenticador TOTP**:
+Aplicativo ou dispositivo que gera códigos temporários de uso único a partir de um segredo compartilhado e do horário atual.
+
+**Cadastro do autenticador TOTP**:
+Vínculo inicial entre uma conta GreenER elegível e um autenticador compatível, ativado somente depois que a pessoa confirma um código válido.
+
+**Desafio TOTP**:
+Etapa temporária após o primeiro fator de autenticação, na qual a pessoa comprova posse do autenticador antes de receber uma sessão GreenER com acesso normal. O primeiro fator pode ser senha local ou identidade SSO.
+
+**Representante da organização**:
+Contato autorizado pela organização para receber o convite inicial do primeiro Administrador e validar recuperações de autenticador. Essa indicação não cria uma conta GreenER e pode ser substituída pelo suporte após validação independente da nova autoridade e registro de auditoria.
+
+**Operador externo**:
+Pessoa identificada fora das contas GreenER que executa uma recuperação privilegiada, como a recuperação do autenticador TOTP de um Administrador.
+
+## Auditoria
+
+**Evento de auditoria**:
+Registro histórico de uma ação relevante, com autoria, instante, alvo e resultado, usado para explicar mudanças e tentativas sem expor credenciais ou segredos.
+_Avoid_: Log de auditoria, histórico de alterações

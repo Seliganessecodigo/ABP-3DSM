@@ -1,0 +1,15 @@
+{
+  "title": "Passwort zurücksetzen",
+  "description": "Geben Sie die Organisationskennung und Ihre E-Mail ein, um einen Wiederherstellungslink zu erhalten.",
+  "backToLogin": "Zurück zur Anmeldung",
+  "organization": "Organisationskennung",
+  "organizationHint": "Von Ihrer Organisation bereitgestellte Kennung",
+  "submit": "Wiederherstellungslink senden",
+  "complete": "Wenn die Angaben zu einem berechtigten Konto passen, erhalten Sie einen Link per E-Mail. Prüfen Sie auch den Spamordner.",
+  "resetDescription": "Legen Sie ein neues Passwort für Ihr Konto fest.",
+  "resetSubmit": "Passwort zurücksetzen",
+  "invalidLink": "Dieser Link ist abgelaufen oder wurde bereits verwendet. Fordern Sie einen neuen Wiederherstellungslink an.",
+  "failed": "Die Wiederherstellung konnte nicht abgeschlossen werden. Versuchen Sie es erneut.",
+  "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+  "rateLimited": "Zu viele Versuche. Warten Sie etwas und versuchen Sie es erneut."
+}

@@ -1,43 +1,45 @@
-# Product vision and scope
+# Vision and scope
 
-GreenER addresses three questions: which applications are monitored, what evidence supports their consumption, and how to interpret estimated energy and emissions. Discovery, metrics, regional context and history support investigation and prioritization.
+GreenER brings continuous monitoring, energy and CO₂e estimates, and environmental analysis into one integrated platform. A dynamic catalog, dashboard, history, ranking, comparison and regional simulation connect the overview to investigation of individual applications, with indicators traceable to their source data and methodology.
 
-## Audiences
+## Who it is for {#readers}
 
 | Audience | Need |
 | --- | --- |
 | Infrastructure management | Identify applications and track changes in the environment. |
-| Operational and environmental analysis | Investigate periods, compare compatible results and understand gaps. |
-| Administrative operations | Change parameters and access with authorization and traceability. |
-| Development and assessment team | Reproduce the environment and demonstrate acceptance criteria. |
+| Environmental and operational analysis | Investigate consumption, emissions and data quality for a period. |
+| Development and assessment | Check product behavior and reproduce its results. |
 
-These audiences describe needs; the full role and permission matrix is a [pending product decision](./decisions).
+## Available features {#features}
 
-## Scope and availability
-
-Documentation baseline: 2026-10-15, `develop` source. Environments may run different revisions; a closed issue does not establish production availability.
-
-| Capability | Documented position |
+| Feature | Reference |
 | --- | --- |
-| Catalog, search/state filter, navigation and eight languages | Implemented in the interface. |
-| Discovery, lifecycle events, periodic collection and persistence | Implemented in the backend. |
-| Operational status and collection evidence queries | Exposed by the API; complete UI presentation has separate tasks. |
-| Environmental dashboard, energy/CO₂e, series, ranking and comparison | Planned scope; not advertised as available features. |
-| Themes, authentication, administration, regional simulation and recalculation preview | Planned scope, with backlog dependencies. |
+| Catalog and search | [Find an application](../guide/monitoring#catalog) |
+| Automatic monitoring | [Interpret the data](../guide/monitoring#data) |
+| Environmental dashboard | [Read the dashboard](../guide/monitoring#dashboard) |
+| Application details | [Investigate application details](../guide/monitoring#detail) |
+| History and composition | [Explore history](../guide/monitoring#history) |
+| Personal preferences | [Personalize analysis](../guide/monitoring#preferences) |
+| Login and second factor | [Sign in](../guide/monitoring#access) |
+| Environmental ranking | [Environmental ranking](../guide/monitoring#other) |
+| Application comparison | [Application comparison](../guide/monitoring#other) |
+| Regional simulation | [Regional simulation](../guide/monitoring#other) |
+| Accounts and password recovery | [Accounts and password recovery](../guide/monitoring#other) |
 
-## Journeys and value
+## Analysis journey {#journey}
 
-1. Find an application and open its detail to confirm identity, location and status.
-2. Investigate a change by distinguishing the latest attempt, last valid observation and missing data.
-3. In the planned environmental scope, select a period, read coverage and methodology, and compare applications within the same context.
-4. In planned administration, change authorized parameters without rewriting historical results.
+Start with the environmental summary, identify an application that needs attention and open its details. Use history to investigate the period and methodology to understand how values were estimated. Always consider coverage before comparing results.
 
-The [user guide](../guide/monitoring) covers existing behavior; [epics](../roadmap) describe expected capabilities.
+## Usage limits {#limits}
 
-## Product boundaries
+Energy is estimated by a simplified model using CPU, memory, disk and network during the observation interval. Estimated power becomes energy according to duration. Emissions equal energy multiplied by regional carbon intensity. Coefficients belong to the academic model; they are neither direct electricity measurements nor official regional factors. Results retain the methodology and factor used at their origin.
 
-Environmental estimates are neither direct electricity measurements nor proof of savings caused by an action. Efficiency per transaction requires workload data. CSV export, configurable columns and previous-period comparisons do not enter the MVP solely because they appear in a prototype. A map is optional.
+Coverage is the proportion of a period supported by valid observations. Energy and emissions have separate coverage: estimated energy may exist even when a carbon factor is missing for emissions. Compare compatible periods, units and coverage. Low coverage signals partial analysis, not proven lower consumption.
 
-## Assessing outcomes
+## Integrated capabilities {#planned}
 
-At reviews, check whether people can locate an application, distinguish zero from missing data, and trace a result to its period, unit and evidence. Record evaluated tasks, difficulties, feedback and changes in [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) and [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Time, satisfaction and performance targets need a baseline and approval; this documentation sets no arbitrary numbers.
+The platform offers application comparison, environmental ranking, regional simulation, user and role management, password recovery and monitoring controls. JWT authentication, Google SSO and a TOTP second factor protect administrative workflows, while environmental queries remain public.
+
+## Related reading {#related}
+
+[User guide](../guide/monitoring) · [Methodology and data](../product/methodology) · [Product backlog](../roadmap)

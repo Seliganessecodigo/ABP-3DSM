@@ -1,47 +1,82 @@
 # Operations and diagnosis
 
-This guide describes existing mechanisms, not a production SLA. Use [Getting started](./getting-started) for installation and [API reference](./reference/api) for contracts.
+This part of the documentation is for development and operations. It covers the local environment, contracts and checks. To learn how to use the product, read the user guide.
 
-## Configuration boundaries
+## Configuration {#environment}
 
-| Setting | Responsibility |
-| --- | --- |
-| FRONTEND_PORT / API_PORT / POSTGRES_PORT | Compose's published ports. |
-| DATABASE_URL | Host/cloud backend; Compose's internal URL uses service `postgres`. |
-| METRICS_AGGREGATOR_URL / CARBON_INTENSITY_URL | Sources used only by the backend. |
-| CORS_ORIGIN | Allowed frontend origin; match the address actually used. |
-| VITE_API_URL | API URL embedded at frontend build time or supplied in development. |
-| MONITORING_SCHEDULE_INTERVAL_SECONDS | Backend scheduler interval; default 60 seconds. |
-| MONITORING_METRICS_CONCURRENCY | Per-process concurrency; initial default 2, not a source-published quota. |
+```text
+FRONTEND_PORT=5173
+API_PORT=3000
+POSTGRES_PORT=5432
+DATABASE_URL
+METRICS_AGGREGATOR_URL
+CARBON_INTENSITY_URL
+CORS_ORIGIN
+VITE_API_URL
+MONITORING_SCHEDULE_INTERVAL_SECONDS=60
+MONITORING_METRICS_CONCURRENCY=2
+```
 
-Both monitoring values must be positive integers. Current Compose does not automatically forward those two `.env` keys into the container; overriding them there requires explicit environment mapping. Example credentials are local-only, never shared-environment credentials.
+## Automatic monitoring {#monitoring}
 
-## Check the local environment
+Monitoring starts after the first interval and prevents overlapping cycles per process. Interval and concurrency must be positive integers. Compose does not automatically forward `MONITORING_SCHEDULE_INTERVAL_SECONDS` and `MONITORING_METRICS_CONCURRENCY` from `.env` to the API; overrides need explicit mapping. `/health` checks HTTP response, not discovery or calculation. Check catalog, evidence and logs. Source failures do not confirm removal; incidents recover after three consecutive valid observations.
 
-~~~sh
+The first absence in a complete valid snapshot confirms removal. Each external call has a 30-second total deadline and at most three HTTP attempts including the initial one; only transient failures are retried.
+
+## Sign in {#authentication}
+
+Use Node.js 24+, npm and Docker Compose v2. Copy `.env.example` to `.env` and run `npm run dev`. Compose applies migrations and attempts discovery before API startup; source failure does not prevent startup. Configure SMTP for invitations and confirmations. Provision the first Admin with `organizations:create-invitation` in `backend/`, setting `ORGANIZATION_NAME`, `ORGANIZATION_SLUG`, `ORGANIZATION_REPRESENTATIVE_EMAIL`. There is no universal production Admin account.
+
+First access on the website has two steps: open the invitation at `/setup-admin`, enter your name and email, then open the confirmation at `/confirm-email` to create your password. Next, sign in and set up the required Admin authenticator. Invalid, expired or used links explain how to request a replacement; tokens are removed from the URL and remain only in page memory. After a page reload, reopen the original email link. SMTP must deliver to a real mailbox; `.test` addresses are illustrative only. On Azure, the operator issues the first invitation from the configured backend console with `npm run organizations:create-invitation:prod`; the invited person completes registration on the website. `APP_BASE_URL` must point to the published frontend. `frontend/public/staticwebapp.config.json` enables direct access to hosted routes.
+
+In **Users** (`/administration/users`), an Admin can list organization accounts and send Google sign-in invitations. **Link my Google Account** fills the form with the Admin’s details; confirm sending and open the email link using the Google Account with the same email address. Matching email addresses alone never links identities. New accounts appear after acceptance; pending invitations are not listed as accounts. Resending revokes the previous invitation, and existing accounts retain their name, role and password. Admins still require TOTP. Staging deployment reads `VITE_GOOGLE_SSO_ENABLED` from GitHub variables: set it to `true` only after configuring backend credentials and URLs. Set `GOOGLE_CALLBACK_URL` to the public API address plus `/auth/sso/google/callback` and `SSO_RETURN_URL` to the public frontend address plus `/sso/callback`.
+
+```text
+AUTH_JWT_SECRET
+AUTH_PASSWORD_PEPPER / AUTH_PASSWORD_PEPPER_VERSION / AUTH_PASSWORD_PEPPER_KEYS
+AUTH_TOTP_ENCRYPTION_KEY_VERSION / AUTH_TOTP_ENCRYPTION_KEYS
+APP_BASE_URL
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/sso/google/callback
+SSO_RETURN_URL=http://localhost:5173/sso/callback
+VITE_GOOGLE_SSO_ENABLED=true
+SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_FROM
+SMTP_USER / SMTP_PASSWORD
+```
+
+Register the exact `GOOGLE_CALLBACK_URL` in Google Cloud. Setting `VITE_GOOGLE_SSO_ENABLED=true` only enables the button; it neither configures the backend nor provisions accounts: linking requires an invitation. `GOOGLE_CLIENT_SECRET`, JWT, pepper and TOTP keys are backend secrets; use independent non-development values and retain versions needed for reading. Email confirmation and invitations require SMTP. Support runs `authentication:recover-admin-totp` only after independently verifying organizational authority; recovery revokes sessions and is audited.
+
+```text
+ORGANIZATION_NAME
+ORGANIZATION_SLUG
+ORGANIZATION_REPRESENTATIVE_EMAIL
+ADMIN_EMAIL
+NEW_RECOVERY_REPRESENTATIVE_EMAIL
+SUPPORT_OPERATOR_ID
+SUPPORT_RECOVERY_REASON
+```
+
+```sh
+npm run organizations:create-invitation --prefix backend
+npm run authentication:recover-admin-totp --prefix backend
+```
+
+## Diagnosis {#diagnosis}
+
+```sh
 docker compose ps
 docker compose logs --tail=100 api
 docker compose exec api npm run applications:discover
-~~~
+```
 
-Manual discovery is repeatable without duplicate identities. The scheduler starts after its first interval; overlap protection is per process, not distributed across replicas. UI polling and collection are independent clocks.
+## Deployment and recovery {#release}
 
-A responding `/health` does not prove a populated catalog, reachable source or calculable environmental indicator. Also check `/applications`, available evidence and cycle logs.
+Staging deploys from `develop` after CI: API to Azure App Service and frontend to Static Web Apps, with endpoint checks after the API. Documentation deploys to GitHub Pages with `DOCS_BASE=/ABP-3DSM/`. Identify the failing stage before retrying a deployment. This flow provides no automatic database restore. `npm run dev:down` preserves the volume; removing the volume deletes local data.
 
-## Diagnose by symptom
+## Related reading {#related}
 
-| Symptom | Check |
-| --- | --- |
-| Containers fail to start | Docker, port conflicts, variables and migration logs. |
-| UI loads but catalog fails | Build-time API URL, CORS, API response and database access. |
-| Catalog returns empty | Initial discovery and aggregator connectivity; empty is not an HTTP error. |
-| Old data remains visible | Observation time, current attempt failure and cycle summary. |
-| Pipeline fails but API responds | Identify quality, package, deployment or smoke-test failure; a stage may deploy before a later stage fails. |
+[Getting started](./getting-started) · [API reference](./reference/api)
 
-## Deployment and recovery
+## Diagnosing slow responses {#response-performance}
 
-Staging runs from `develop` and depends on CI. Separate jobs package the API for Azure App Service and the frontend for Static Web Apps; a smoke test checks endpoints after API deployment. Record run, SHA, stage and diagnosis before rerunning.
-
-The website uses VitePress and the Pages workflow with `DOCS_BASE=/ABP-3DSM/`. A successful local build does not prove publication completed.
-
-These workflows demonstrate no automatic database restoration. Before rollback or destructive migration, check compatibility and a recoverable backup. Retention and restore drills remain [explicit dependencies](./product/decisions). `npm run dev:down` preserves the volume; deleting volumes removes the local database.
+Compare time to first byte, response size and the execution plan before blaming the database. The Dashboard requests `/analysis/summary` with `includeProvenance=false`: readings, coverage and series remain intact, while the response reports `provenanceIncluded=false` and excludes provenance lists. Full queries remain the default. The compact projection does not transfer each collection’s factors; the summary sorts intervals during calculation and avoids a second database sort.

@@ -1,0 +1,274 @@
+.page {
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  color: var(--text-primary);
+}
+.header, .sectionHeading, .tableHeading, .tableActions, .filterActions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.header { align-items: flex-start; margin-bottom: 24px; }
+.header h1 { margin: 0; }
+.summaryMeta { font-size: 11px; }
+.refreshButton, .controls button, .tableActions > button, .modeButtons button, .compositionSort button,
+.filterActions button, .filtersPanel fieldset button {
+  min-height: var(--control-height);
+  border: 1px solid var(--border-default);
+  border-radius: var(--control-radius);
+  padding: 8px 12px;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  cursor: pointer;
+}
+.refreshButton { color: var(--accent-on-accent); background: var(--accent-default); border-color: var(--accent-default); font-weight: 650; white-space: nowrap; }
+.refreshButton[aria-disabled='true']{ cursor: not-allowed; opacity: .65; }
+.controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.periods { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.controls button { font-size: var(--control-font-size); line-height: 20px; }
+.periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true']{
+  color: var(--accent-on-accent);
+  background: var(--accent-default);
+  border-color: var(--accent-default);
+}
+.controls label, .searchLabel, .filtersPanel label{
+  display: grid;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.controls select, .tableActions input, .filtersPanel input:not([type='checkbox']), .filtersPanel select{ max-width: 100%; }
+.card, .tableCard {
+  min-width: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  background: var(--surface-card);
+}
+.card { padding: var(--space-4); }
+.card h2, .tableHeading h2 { margin: 0 0 var(--space-3); font-size: 13px; }
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.kpis > .card { min-height: 142px; }
+.metricValue { margin: 10px 0 6px; font-size: clamp(22px, 2vw, 28px); font-weight: 700; overflow-wrap: anywhere; }
+.coverageLine, .dataAsOf, .tableHeading p, .scopeNote { margin: 8px 0 0; color: var(--text-secondary); font-size: 12px; }
+.coverageVisual { display: flex; min-height: 91px; align-items: center; justify-content: center; gap: 14px; margin-top: 4px; }
+.coverageRing { position: relative; width: 76px; aspect-ratio: 1; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; }
+.coverageRing::before { content: ''; position: absolute; width: 58px; aspect-ratio: 1; border-radius: 50%; background: var(--surface-card); }
+.coverageRing strong { z-index: 1; font-size: 14px; }
+.coverageList { display: grid; gap: 6px; min-width: 0; margin: 0; font-size: 11px; }
+.coverageList div, .stateList li { display: flex; justify-content: space-between; gap: 12px; }
+.coverageList dt { color: var(--text-secondary); }
+.coverageList dd { margin: 0; font-weight: 700; }
+.stateList { display: grid; gap: 5px; padding: 0; margin: 8px 0 0; list-style: none; }
+.stateList li { align-items: center; }
+.stateBadge { display: inline-flex; align-items: center; gap: 5px; border-radius: 12px; padding: 3px 7px; font-size: 10px; font-weight: 700; }
+.stateBadge strong { font: inherit; }
+.stateAVAILABLE { color: var(--success-foreground); background: var(--success-background); }
+.stateUNAVAILABLE { color: var(--error-foreground); background: var(--error-background); }
+.stateNO_METRICS { color: var(--warning-foreground); background: var(--warning-background); }
+.stateREMOVED { color: var(--neutral-foreground); background: var(--neutral-background); }
+.dataAsOf { margin: var(--space-3) 0 var(--space-6); font-size: 10px; }
+.visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
+.visualizations > .card { min-height: 282px; }
+.trendCard { height: 390px; align-self: start; }
+.compositionCard { position: relative; }
+.pendingNote, .emptyNotice, .status, .warning, .error, .partialNotice {
+  border-radius: 7px;
+  padding: 12px;
+  color: var(--text-secondary);
+  background: var(--control-hover);
+}
+.pendingNote { margin-top: 18px; }
+.partialNotice, .warning { color: var(--warning-foreground); background: var(--warning-background); }
+.partialNotice { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 10px 0; border: 1px solid var(--warning-foreground); font-size: 12px; font-weight: 600; }
+.partialNotice a { flex: 0 0 auto; color: inherit; text-decoration: underline; }
+.error { color: var(--error-foreground); background: var(--error-background); }
+.emptyNotice { text-align: center; }
+.sectionHeading { align-items: flex-start; }
+.modeButtons, .compositionSort { display: flex; gap: 6px; }
+.modeButtons button, .compositionSort button { min-height: 36px; padding: 6px 10px; }
+.composition { display: grid; grid-template-rows: auto auto; align-items: center; gap: 12px; margin-top: 8px; }
+.donut {
+  position: relative;
+  width: min(100%, 166px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+}
+.donut svg { width: 100%; height: 100%; overflow: visible; }
+.donutSegment { cursor: pointer; transition: opacity 180ms ease; }
+.donutSegment:focus { outline: none; }
+.donutSegment:focus-visible { filter: brightness(1.12) drop-shadow(0 0 5px var(--accent-default)) !important; }
+.donut > span { position: absolute; display: grid; justify-items: center; max-width: 112px; text-align: center; }
+.donut small { color: var(--text-secondary); font-size: 10px; }
+.donutSelectedName { max-width: 108px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.donut strong { overflow-wrap: anywhere; font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.donutUnit { font-size: 13px; line-height: 1.2; }
+.compositionLegend { min-width: 0; }
+.compositionLegend ul { display: grid; gap: 4px; padding: 0; margin: 0; list-style: none; }
+.legendRow, .barRow { min-width: 0; font-size: 11px; }
+.applicationButton { display: grid; grid-template-columns: minmax(0, 1fr) max-content max-content; align-items: center; gap: 8px; width: 100%; min-width: 0; border: 0; border-radius: 6px; padding: 5px 4px; background: transparent; color: var(--text-primary); font: inherit; text-align: left; cursor: pointer; }
+.applicationButton:hover:not(:disabled), .applicationButton[aria-pressed='true'] { background: var(--control-hover); }
+.applicationButton[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--accent-default); }
+.applicationButton:disabled { cursor: default; }
+.applicationButton > strong { color: var(--text-secondary); font-size: 10px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.legendShare { font-variant-numeric: tabular-nums; }
+.legendName { min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; white-space: nowrap; }
+.applicationName { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.legendSwatch { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; }
+.moreSwatches { display: inline-flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.moreSwatches .legendSwatch { width: 6px; height: 6px; }
+.moreApplications { position: relative; z-index: 2; margin-top: 4px; border-top: 1px solid var(--border-default); }
+.moreApplications summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 0 4px; cursor: pointer; font-size: 11px; list-style: none; }
+.moreApplications summary::-webkit-details-marker { display: none; }
+.moreApplications summary .legendName::before { content: '+'; font-weight: 700; }
+.moreApplications[open] summary .legendName::before { content: '−'; }
+.moreApplications summary strong { font-variant-numeric: tabular-nums; }
+.moreApplications ul {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  max-height: 136px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: var(--surface-card);
+  box-shadow: 0 8px 20px rgb(0 30 20 / 14%);
+}
+.compositionBars { grid-template-rows: auto; align-items: start; }
+.barControls { display: grid; gap: 7px; margin-bottom: 8px; }
+.barFilters { display: flex; flex-wrap: wrap; gap: 6px; }
+.barFilters button { min-height: 32px; border: 1px solid var(--border-default); border-radius: 7px; padding: 5px 8px; background: var(--surface-card); color: var(--text-primary); font: inherit; font-size: 11px; cursor: pointer; }
+.barFilters button[aria-pressed='true'] { border-color: var(--accent-default); background: var(--accent-default); color: var(--accent-on-accent); }
+.barFilters button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.compositionBars .compositionSort button { min-height: 30px; font-size: 10px; }
+.barAxis { margin: 0 4px 6px; color: var(--text-secondary); font-size: 10px; }
+.compositionBars .compositionLegend > ul { max-height: 240px; overflow-y: auto; overflow-x: hidden; }
+.compositionBars .applicationButton { grid-template-columns: minmax(70px, .7fr) minmax(0, 1.8fr); gap: 8px; min-height: 27px; padding: 4px 6px; }
+.compositionBars .applicationButton[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--accent-default), 0 3px 10px rgb(0 30 20 / 17%); }
+.barMetrics { display: grid; min-width: 0; gap: 3px; }
+.barMetric { display: grid; grid-template-columns: 48px minmax(20px, 1fr) minmax(85px, auto); align-items: center; gap: 5px; min-width: 0; }
+.barMetricLabel { color: var(--text-secondary); font-size: 9px; }
+.barMetricValue { color: var(--text-primary); font-size: 9px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: repeating-linear-gradient(to right, var(--control-hover) 0, var(--control-hover) calc(25% - 1px), var(--border-default) calc(25% - 1px), var(--border-default) 25%); transition: height 160ms ease, box-shadow 160ms ease; }
+.barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; transition: filter 160ms ease; }
+.compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 12px; box-shadow: 0 0 0 1px var(--accent-default), 0 3px 8px rgb(0 30 20 / 22%); }
+.compositionBars .applicationButton[aria-pressed='true'] .barTrack span { filter: saturate(1.2) brightness(1.08); }
+.compositionTooltip {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 5px;
+  width: max-content;
+  max-width: min(220px, calc(100% - 24px));
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--surface-card);
+  box-shadow: 0 8px 20px rgb(0 30 20 / 20%);
+  color: var(--text-primary);
+  font-size: 11px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+}
+.compositionTooltipBelow { transform: translateX(-50%); }
+.compositionTooltipName { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 650; overflow-wrap: anywhere; }
+.compositionTooltipValues { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.compositionTooltipValues strong { font-weight: 650; }
+.compositionTooltipValues > span { color: var(--text-secondary); }
+@media (prefers-reduced-motion: reduce) { .donutSegment, .barTrack, .barTrack span { transition: none; } }
+.tableCard { margin-top: 10px; padding: 14px; }
+.tableHeading { align-items: center; margin-bottom: 8px; }
+.tableHeading p { max-width: 680px; }
+.tableActions { align-items: end; }
+.searchLabel { min-width: min(250px, 35vw); }
+.tableActions input { width: 100%; }
+.filtersPanel { margin: 12px 0; border: 1px solid var(--border-default); border-radius: 8px; padding: 12px; background: var(--background-page); }
+.filterGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.filtersPanel fieldset { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; min-width: 0; border: 1px solid var(--border-default); border-radius: 7px; padding: 10px; }
+.filtersPanel legend { padding: 0 4px; font-size: 12px; font-weight: 650; }
+.filtersPanel input:not([type='checkbox']), .filtersPanel select { width: 100%; min-width: 90px; }
+.filtersPanel fieldset button { min-height: 34px; padding: 5px 8px; font-size: 11px; }
+.filtersPanel .checkbox { display: flex; align-items: center; gap: 6px; min-height: 36px; }
+.filterActions { justify-content: flex-end; margin-top: 12px; }
+.tableScroll { overflow-x: auto; }
+.tableCard table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+.tableCard th, .tableCard td { padding: 6px 8px; border-bottom: 1px solid var(--border-default); white-space: nowrap; }
+.tableCard th { color: var(--text-secondary); font-weight: 600; }
+.tableCard tbody th { color: var(--text-primary); }
+.tableCard td a { color: var(--accent-default); font-weight: 650; }
+.tableCard tbody th a { color: var(--text-primary); font-weight: 700; text-decoration: none; }
+.tableCard tbody th a:hover { color: var(--accent-default); text-decoration: underline; }
+.comparisonNote { margin: 0; color: var(--text-secondary); font-size: 10px; }
+
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filterGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .page { padding: 16px 12px 28px; }
+  .header { align-items: flex-start; flex-wrap: wrap; }
+  .header { gap: 12px; }
+  .summaryMeta { line-height: 1.5; }
+  .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
+  .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
+  .periods button { min-height: 44px; }
+  .controls > label { min-width: 0; }
+  .controls select { width: 100%; }
+  .comparisonNote { grid-column: 1 / -1; margin: 0 0 8px; }
+  .partialNotice { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .kpis > .card { min-height: 142px; padding: 12px; }
+  .kpis > .card h2 { font-size: 12px; }
+  .metricValue { font-size: clamp(19px, 6vw, 24px); }
+  .coverageVisual { min-height: 0; flex-direction: column; gap: 6px; }
+  .coverageRing { width: 66px; }
+  .coverageRing::before { width: 50px; }
+  .coverageList { width: 100%; gap: 2px; font-size: 9px; }
+  .visualizations { grid-template-columns: 1fr; gap: var(--space-4); }
+  .visualizations > .card { min-height: 0; }
+  .trendCard { height: auto; min-height: 282px; }
+  .composition { grid-template-rows: auto auto; }
+  .donut { width: min(42vw, 140px); }
+  .compositionTooltipDonut { width: 110px; gap: 3px; padding: 6px 7px; font-size: 10px; }
+  .compositionTooltipDonut .compositionTooltipValues { display: grid; gap: 2px; white-space: normal; }
+  .compositionLegend ul { max-height: none; }
+  .compositionBars .compositionLegend > ul { grid-template-columns: minmax(0, 1fr) max-content max-content; gap: 4px 8px; max-height: min(400px, 60vh); }
+  .compositionBars .applicationButton { row-gap: 5px; padding: 5px 4px; }
+  .compositionBars .legendName { grid-column: 1; grid-row: 1; }
+  .compositionBars .applicationButton > strong { grid-column: 2; grid-row: 1; }
+  .compositionBars .legendShare { grid-column: 3; grid-row: 1; }
+  .compositionBars .barTrack { grid-column: 1 / -1; grid-row: 2; height: 8px; }
+  .compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 12px; }
+  .tableHeading { align-items: flex-start; flex-direction: column; }
+  .tableActions { width: 100%; align-items: stretch; flex-direction: column; gap: 8px; }
+  .searchLabel { min-width: 0; }
+  .tableActions > button { min-height: 44px; }
+  .filterGrid { grid-template-columns: 1fr; }
+  .tableScroll { overflow: visible; }
+  .tableCard table, .tableCard tbody { display: block; }
+  .tableCard thead { display: none; }
+  .tableCard tbody { display: grid; gap: 8px; }
+  .tableCard tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--border-default); border-radius: 8px; padding: 6px; background: var(--surface-card); }
+  .tableCard tbody th, .tableCard tbody td { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 6px; border: 0; padding: 6px 4px; white-space: normal; text-align: right; }
+  .tableCard tbody th { justify-content: flex-start; overflow-wrap: anywhere; text-align: left; }
+  .tableCard tbody td::before { content: attr(data-label); color: var(--text-secondary); font-size: 9px; text-align: left; }
+  .tableCard tbody td .stateBadge { max-width: 100%; overflow-wrap: anywhere; }
+  .scopeNote { font-size: 11px; }
+}

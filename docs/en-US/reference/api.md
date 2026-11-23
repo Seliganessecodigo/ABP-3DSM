@@ -1,45 +1,170 @@
-# GreenER API reference
+# API reference
 
-Routes below were checked against `develop` source on 2026-10-15. Local Swagger is at `http://localhost:3000/docs` and the schema at `/openapi.json`. Use the target environment's OpenAPI for complete DTOs.
+This reference supports GreenER API integrations. The environment publishes complete types, optional fields and limits at `/openapi.json`; Swagger is at `/docs`. Catalog and history queries read persisted data. Recalculation preview and carbon routes may query the carbon intensity source.
 
-## Existing read routes
+## Public queries {#public}
 
-| Method and route | Result |
+| HTTP | URI | Access |
+| --- | --- | --- |
+| GET | `/health` | — |
+| GET | `/applications` | — |
+| GET | `/applications/{id}` | — |
+| GET | `/applications/{id}/collections/latest` | — |
+| GET | `/applications/{id}/collections/{collectionId}` | — |
+| GET | `/applications/{id}/analysis` | — |
+| GET | `/applications/{id}/analysis/series` | — |
+| GET | `/applications/{id}/analysis/series/contributions` | — |
+| GET | `/analysis/summary` | — |
+| GET | `/analysis/ranking` | — |
+| GET | `/analysis/comparison` | — |
+| GET | `/monitoring/incidents` | — |
+| GET | `/carbon/regions` | — |
+| GET | `/carbon/regions/{code}/intensity` | — |
+| POST | `/applications/{id}/analysis/regional-simulation` | — |
+| POST | `/applications/{id}/analysis/recalculation-preview` | — |
+
+## Periods and history {#queries}
+
+`from` and `to` require RFC 3339 with an explicit timezone. `[from,to)` is normalized to UTC. Series accept `hour`, `day`, `month`, `year`, with up to 10,000 points; excess is rejected. Saved results are prorated by overlap. Conflicts use the latest `collectedAt`, then ascending lexical ID, without falling back to an earlier observation if the winner cannot support a metric.
+
+| URI | Parameter |
 | --- | --- |
-| GET /health | Service HTTP health response. |
-| GET /applications | Persisted catalog array; `[]` is valid. |
-| GET /applications/{id} | Known application with state, timestamps and location. |
-| GET /applications/{id}/collections/latest | Most recent valid observation and operational context. |
-| GET /applications/{id}/collections/{collectionId} | Observation scoped to its application; collectionId is a UUID. |
-| GET /openapi.json | Machine-readable contract. |
+| `/applications/{id}/analysis` | `from`, `to` |
+| `/applications/{id}/analysis/series` | `from`, `to`, `granularity` |
+| `/applications/{id}/analysis/series/contributions` | `from`, `to`, `granularity`, `bucketStart`, `page`, `pageSize` (5/10/15/20/all) |
+| `/analysis/summary` | `from`, `to`; `states`, `regionCodes`, `applicationIds`, `granularity`, `includeProvenance`, `includeCollectionSuccess` |
+| `/analysis/ranking` | `from`, `to`, `metric`, `direction`; `page`, `pageSize` |
+| `/analysis/comparison` | `from`, `to`, `applicationIds` (2–5 IDs), `referenceApplicationId` |
+| `/monitoring/incidents` | `applicationId`, `source`, `integration`, `status` (OPEN/RECOVERING/RESOLVED), `page=1`, `limit=20` |
 
-These reads use persisted data and trigger neither collection nor environmental calculation. Catalog search and pagination currently run in the frontend; no server pagination parameters are documented on these routes.
+`GET /analysis/comparison` requires 2–5 unique IDs and a selected reference. It returns energy, emissions, independent coverage, metrics and historical location snapshots for the same period. Differences are application minus reference; percentages require a positive reference. Missing values remain explicit, and the status is `empty`, `partial` or `complete`.
 
-## Local requests
+Source metrics have no measurement timestamp. The interval derives from receipt minus `collection_interval_seconds`. Factor query time does not establish validity; unpublished source and validity remain unknown. Energy, factor and emissions persist eight decimal places; coverage four. No intermediate rounding occurs. Energy and emissions retain separate coverage and original snapshots.
 
-~~~sh
-curl --fail-with-body http://localhost:3000/health
-curl --fail-with-body http://localhost:3000/applications
-~~~
+## Series and calculation explanation {#environmental-presentation}
 
-Use an ID returned by the catalog for detail requests and URL-encode the path segment. Do not assume sequential IDs or UUID application IDs.
+With `includeCollectionSuccess=true`, the summary includes `collectionSuccess`, with `successful`, `total`, `rate`, `firstAttemptAt` and `lastAttemptAt`. The rate counts recorded scheduled attempts with valid, saved metrics within the period/filters; without attempts, `rate` is `null`. HTTP retries do not multiply the denominator; cancellations are excluded. Recording starts when this capability is deployed, without inferred backfill.
 
-The application DTO includes `id`, `name`, `state`, `firstSeenAt`, `lastCheckedAt`, `removedAt` and `location`. The backend also exposes reason, freshness and calculability; the current UI does not consume every field. City may be null; incomplete legacy records can have `location: null`.
+In `/analysis/summary`, the optional `granularity` parameter includes `series.points` with the same period and filters as the totals. Each interval sums persisted application results and keeps independent coverage. Missing values remain `null`.
 
-## Errors and absence
+In `/applications/{id}/analysis`, `calculation.energyKwh` is the energy of segments with calculated emissions; `calculation.intensity` is the equivalent factor in gCO₂e/kWh, obtained by dividing those emissions by the corresponding energy. For zero or missing energy, the factor remains null. Historical results and factors are preserved.
 
-| HTTP / code | Interpretation |
+## Sign in {#login}
+
+Dashboard and environmental queries are public. At `/login`, use email/password or Google when enabled. Admin must set up or confirm a six-digit TOTP before a session, including after Google. Analyst and Visitor receive no administrative authorization. The frontend holds sessions in memory; reloading requires login again. The backend checks JWT, session, current role and account status; missing/invalid credentials return 401, insufficient role 403. New routes are protected by default.
+
+| HTTP | URI | Access |
+| --- | --- | --- |
+| POST | `/auth/password-recovery/request` | — |
+| POST | `/auth/password-recovery/complete` | `token + password` |
+| POST | `/auth/login` | `email + password` |
+| GET | `/auth/sso/google` | `PKCE` |
+| GET | `/auth/sso/google/callback` | `state + cookie` |
+| POST | `/auth/sso/handoff/exchange` | `code + PKCE` |
+| POST | `/auth/totp/setup` | `setupToken` |
+| POST | `/auth/totp/setup/confirm` | `setupToken + TOTP` |
+| POST | `/auth/totp/challenge` | `challengeToken + TOTP` |
+| POST | `/auth/sessions/refresh` | `refreshToken` |
+| POST | `/auth/invitations/accept` | `token` |
+| POST | `/auth/email/confirm` | `token + password` |
+| POST | `/auth/email/confirmation/resend` | `organization + email` |
+
+## Protected operations {#protected}
+
+| HTTP | URI | Access |
+| --- | --- | --- |
+| POST | `/auth/password/change` | `JWT + currentPassword + password` |
+| GET | `/auth/me` | `JWT` |
+| POST | `/auth/sessions/logout` | `JWT` |
+| POST | `/auth/totp/replacement` | `JWT + password + TOTP` |
+| POST | `/auth/totp/replacement/confirm` | `JWT + confirmationToken + TOTP` |
+| GET | `/me/preferences` | `JWT` |
+| PUT | `/me/preferences/{tab}` | `JWT` |
+| POST | `/auth/sso/invitations` | `JWT + ADMIN` |
+| DELETE | `/auth/sso/identities/{userId}` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/status` | `JWT + ADMIN` |
+| GET | `/auth/users` | `JWT + ADMIN` |
+| POST | `/auth/users` | `JWT + ADMIN` |
+| PATCH | `/auth/users/{userId}/role` | `JWT + ADMIN` |
+| GET | `/monitoring/health` | `JWT + ADMIN` |
+| GET | `/monitoring/cycles` | `JWT + ADMIN` |
+| GET | `/monitoring/audit` | `JWT + ADMIN` |
+| PATCH | `/monitoring/control` | `JWT + ADMIN` |
+
+An Admin in the same organization can change accounts between `ACTIVE`, `BLOCKED`, `DEACTIVATED`, supplying `expectedStatus` and a reason. Blocking/deactivation revokes every session; reactivation requires a fresh login. Self-protection and the last active Admin are enforced. A mismatched expected state returns 409; an already reached target is idempotent success. Shared audit writes success in the mutation transaction and denials outside rolled-back transactions, with an explicit actor and no secrets.
+
+```json
+{ "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
+```
+
+## Administer accounts through the API {#accounts}
+
+Admins can invite accounts and manage roles within the same organization, with a reason and last-admin protections. Settings groups these actions. Password recovery uses a non-enumerating response, a temporary single-use token and session revocation; email delivery requires configured SMTP.
+
+Listing applies search and filters before sorting and pagination. The default is 10 items, with options 5, 10, 15, 20 and `all` for the complete filtered set. Translated labels must be mapped to enum codes and local dates to RFC 3339 with an offset. Missing values sort last in both directions; ties use the identifier.
+
+Role changes require `expectedRole` and `reason`. A change revokes sessions and temporary TOTP credentials, preserves audit records and prevents removing your own access or the last active Admin with a confirmed email. Unconfirmed accounts do not replace that administrator. Assigning Admin retains the TOTP requirement.
+
+## Calculation preview {#preview}
+
+At `/administration/calculations`, select an application and dates to compare original and preview. The UI end date includes the whole UTC day; the API receives `[from,to)`. Preview is public, uses the current model and current factors for historical regions, and saves or replaces no results. Limits: 30 days and 10,000 observations. Response fields are `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Factor failure preserves calculable energy while CO₂e remains unavailable. Percentages require matching units/coverage and a positive reference.
+
+```json
+{ "from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z" }
+```
+
+```text
+{ status: "available" | "empty" | "partial", original, preview, warnings }
+```
+
+## Personalize analysis {#preferences}
+
+In `/methodology`, configure per-application energy and emissions limits, coverage thresholds and analysis defaults. Choose the last 24 hours, 7, 30 or 90 days, the current UTC month or a custom interval with an inclusive start and exclusive end. The preview reads real data without saving and uses the same warning panel as applications and the Dashboard. Saving requires login and affects only your account; calculations, history and operational states remain intact. Warnings use each limit’s period independently of page filters. Analysis defaults fill only missing URL options on the Dashboard and detail pages. Partial data below a limit does not prove compliance; missing data never means zero.
+
+```text
+GET /me/preferences → { energy, emissions, coverage, analysis }
+null | { value, revision, updatedAt }
+PUT /me/preferences/{tab} ← { expectedRevision, value }
+expectedRevision: 0 → create
+threshold ≥ 0; finite number; thresholdPercent: 0–100
+unknown fields / partial bodies / numeric strings → 400
+```
+
+| tab | value |
 | --- | --- |
-| 400 / INVALID_APPLICATION_ID | Empty/invalid ID under route validation. An invalid collection UUID also yields 400. |
-| 404 / APPLICATION_NOT_FOUND | Unknown application. |
-| 404 / COLLECTION_NOT_FOUND | Observation not found for this application. |
-| 503 / CATALOG_UNAVAILABLE | Catalog read failure. |
-| 503 / APPLICATION_EVIDENCE_UNAVAILABLE | Evidence read failure. |
+| energy | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kWh"}` |
+| emissions | `{threshold, alertsEnabled, scope: "application", period: {kind}, unit: "kgCO2e"}` |
+| coverage | `{thresholdPercent, alertsEnabled, period: {kind}}`; 0–100 |
+| analysis | `{period: {kind}, granularity: "hour" / "day"}` |
 
-Use structured codes and HTTP status; messages are not a translation contract. Never replace failures with an empty list or zero indicators.
+```json
+{ "period": { "kind": "custom", "from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z" } }
+```
 
-## Integration boundaries
+```text
+period.kind = 24h | 7d | 30d | 90d | month | custom
+GET /me/preferences/alerts (JWT)
+POST /me/preferences/alerts/preview (public, read-only)
+{ energy, emissions, coverage } -> { configured, evaluatedAt, applications }
+```
 
-Only the backend calls auxiliary sources. Source contracts and units are in the [versioned reference](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md). This page does not publish future energy, authentication or administration endpoints. JWT-protected administration is an [EP06](../backlog/ep06) requirement, not an assumed available API.
+## Error handling {#errors}
 
-See [Operations](../operations) for URL, CORS and diagnosis, and [Methodology](../product/methodology) for intervals and metric interpretation.
+Handle errors through HTTP status and structured codes; message text is not a translation contract. `null` means missing and must not become zero. An empty list is a valid response, distinct from query failure. Interpret the codes below in the context of each operation.
+
+| HTTP | Code |
+| --- | --- |
+| 400 | `INVALID_ANALYSIS_PERIOD` |
+| 404 | `APPLICATION_NOT_FOUND / COLLECTION_NOT_FOUND` |
+| 503 | `CATALOG_UNAVAILABLE / APPLICATION_EVIDENCE_UNAVAILABLE / APPLICATION_ANALYSIS_UNAVAILABLE` |
+| 400 | `RECALCULATION_PREVIEW_PERIOD_LIMIT_EXCEEDED / RECALCULATION_PREVIEW_OBSERVATION_LIMIT_EXCEEDED` |
+| 503 | `APPLICATION_RECALCULATION_PREVIEW_UNAVAILABLE` |
+| 400 / 409 / 503 | `INVALID_PREFERENCE / PREFERENCE_CONFLICT / PREFERENCES_UNAVAILABLE` |
+
+## HTTP contract {#contracts}
+
+[AUTHORIZATION_MATRIX.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/authentication/AUTHORIZATION_MATRIX.md) · [EXTERNAL_API_CONTRACTS.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/integrations/EXTERNAL_API_CONTRACTS.md) · [preferences/README.md](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/backend/src/modules/preferences/README.md)
+
+## Related reading {#related}
+
+[Operations and diagnosis](../operations) · [Methodology and data](../product/methodology)

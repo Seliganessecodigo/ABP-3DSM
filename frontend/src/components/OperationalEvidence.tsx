@@ -1,6 +1,11 @@
+import { tableSortPresentation } from '../utils/tableSortPresentation.ts'
+import { CardIcon } from './CardIcon.tsx'
+import { faMicrochip } from '@fortawesome/free-solid-svg-icons'
+import { SortButton } from './SortButton.tsx'
 import type { CollectionEvidence, MetricStatus } from '../features/applications/api.ts'
 import styles from './OperationalEvidence.module.css'
 import { ActionButton } from './ActionButton.tsx'
+import { LoadingState } from './LoadingState.tsx'
 
 export type MetricKey = keyof CollectionEvidence['metrics']
 export type OperationalEvidenceQuery = {
@@ -28,12 +33,6 @@ function formatMetricValue(value: number | null, unit: string | null, formatNumb
   return `${formatNumber(value)}${suffix}`
 }
 
-function sortPresentation(query: OperationalEvidenceQuery['sort'], column: OperationalEvidenceQuery['sort']['column']):
-  Readonly<{ ariaSort: 'ascending' | 'descending' | 'none'; indicator: string }> {
-  if (query.column !== column) return { ariaSort: 'none', indicator: '' }
-  if (query.direction === 'asc') return { ariaSort: 'ascending', indicator: ' \u2191' }
-  return { ariaSort: 'descending', indicator: ' \u2193' }
-}
 
 export function OperationalEvidence({ evidence, loading, notFound, selected, error, refreshing, calculability,
   labels, formatDate, formatNumber, onRefresh, locale, query, onQueryChange, compact = false }: Readonly<{
@@ -71,14 +70,15 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
     ...query,
     sort: { column, direction: query.sort.column === column && query.sort.direction === 'asc' ? 'desc' : 'asc' },
   })
-  const metricSort = sortPresentation(query.sort, 'metric')
-  const statusSort = sortPresentation(query.sort, 'status')
+  const metricSort = tableSortPresentation('metric', query.sort.column, query.sort.direction)
+  const statusSort = tableSortPresentation('status', query.sort.column, query.sort.direction)
+  const controlClassName = compact ? 'form-control form-control--compact' : 'form-control'
   return <section className={`${styles.card}${compact ? ` ${styles.compact}` : ''}`} aria-label={labels.heading}>
-    <header className={styles.heading}><h2>{labels.title}</h2>
-      <ActionButton aria-label={labels.refresh} onClick={onRefresh} disabled={refreshing}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.5 9a7 7 0 0 1 11.6-2L20 12M4 12l2.9 5a7 7 0 0 0 11.6-2" /></svg></ActionButton>
+    <header className={styles.heading}><h2><CardIcon icon={faMicrochip} size="small" inline />{labels.title}</h2>
+      <ActionButton aria-label={labels.refresh} onClick={onRefresh} pending={refreshing || loading}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.5 9a7 7 0 0 1 11.6-2L20 12M4 12l2.9 5a7 7 0 0 0 11.6-2" /></svg></ActionButton>
     </header>
     {!compact && <p>{labels.calculability}: {calculability}</p>}
-    {loading && !evidence && <p role="status">{labels.loading}</p>}
+    {loading && !evidence && <LoadingState title={labels.loading} compact />}
     {error && !evidence && <div role="alert"><p>{labels.error}</p><ActionButton onClick={onRefresh}>{labels.retry}</ActionButton></div>}
     {notFound && !evidence && <p role="status">{selected ? labels.selectionUnavailable : labels.empty}</p>}
     {evidence && <>
@@ -91,14 +91,14 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
         <div><dt>{labels.received}</dt><dd>{formatDate(evidence.collectedAt)}</dd></div>
       </dl>
       <div className={styles.filters}>
-        <label className={styles.search}>{labels.searchLabel}<input type="search" placeholder={labels.searchPlaceholder} value={query.search} onChange={(event) => onQueryChange({ ...query, search: event.target.value })} /></label>
-        <label className={styles.filter}>{labels.metricFilter}<select value={query.metric} onChange={(event) => onQueryChange({ ...query, metric: metricKeys.find((key) => key === event.target.value) ?? '' })}><option value="">{labels.allMetrics}</option>{metricKeys.map((key) => <option key={key} value={key}>{labels.metrics[key]}</option>)}</select></label>
-        <label className={styles.filter}>{labels.statusFilter}<select value={query.status} onChange={(event) => onQueryChange({ ...query, status: (['available', 'missing', 'invalid'] as const).find((status) => status === event.target.value) ?? '' })}><option value="">{labels.allStatuses}</option><option value="available">{labels.available}</option><option value="missing">{labels.missing}</option><option value="invalid">{labels.invalid}</option></select></label>
+        <label className={styles.search}>{labels.searchLabel}<input className={controlClassName} type="search" placeholder={labels.searchPlaceholder} value={query.search} onChange={(event) => onQueryChange({ ...query, search: event.target.value })} /></label>
+        <label className={styles.filter}>{labels.metricFilter}<select className={controlClassName} value={query.metric} onChange={(event) => onQueryChange({ ...query, metric: metricKeys.find((key) => key === event.target.value) ?? '' })}><option value="">{labels.allMetrics}</option>{metricKeys.map((key) => <option key={key} value={key}>{labels.metrics[key]}</option>)}</select></label>
+        <label className={styles.filter}>{labels.statusFilter}<select className={controlClassName} value={query.status} onChange={(event) => onQueryChange({ ...query, status: (['available', 'missing', 'invalid'] as const).find((status) => status === event.target.value) ?? '' })}><option value="">{labels.allStatuses}</option><option value="available">{labels.available}</option><option value="missing">{labels.missing}</option><option value="invalid">{labels.invalid}</option></select></label>
         <button type="button" className={styles.clearFilters} disabled={!query.search && !query.metric && !query.status} onClick={() => onQueryChange({ ...query, search: '', metric: '', status: '' })}>{labels.clearFilters}</button>
       </div>
       <div className={styles.filteredCount}><output aria-live="polite">{labels.filteredCount(rows.length, metricKeys.length)}</output></div>
       </details>
-      <table className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('metric')}>{labels.metric}<span aria-hidden="true">{metricSort.indicator}</span></button></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><button type="button" className={styles.sortButton} onClick={() => toggleSort('status')}>{labels.status}<span aria-hidden="true">{statusSort.indicator}</span></button></th></tr></thead>
+      <table className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><SortButton state={metricSort.ariaSort} onClick={() => toggleSort('metric')}>{labels.metric}</SortButton></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><SortButton state={statusSort.ariaSort} onClick={() => toggleSort('status')}>{labels.status}</SortButton></th></tr></thead>
         <tbody>{rows.map((key) => {
           const metric = evidence.metrics[key]
           const status = statusLabel(key)

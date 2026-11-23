@@ -1,41 +1,45 @@
-# Vision et périmètre du produit
+# Vision et périmètre
 
-GreenER répond à trois questions : quelles applications sont suivies, quelles preuves étayent leur consommation et comment interpréter énergie et émissions estimées. Découverte, métriques, contexte régional et historique facilitent investigation et priorisation.
+GreenER réunit surveillance continue, estimations d’énergie et de CO₂e et analyse environnementale dans une plateforme intégrée. Catalogue dynamique, tableau de bord, historique, classement, comparaison et simulation régionale relient la vue générale à l’étude de chaque application, avec des indicateurs traçables jusqu’aux données et à la méthodologie d’origine.
 
-## Publics
+## Publics concernés {#readers}
 
 | Public | Besoin |
 | --- | --- |
-| Gestion d’infrastructure | Identifier les applications et les changements de l’environnement. |
-| Analyse opérationnelle et environnementale | Étudier des périodes, comparer des résultats compatibles et comprendre les lacunes. |
-| Administration | Modifier paramètres et accès avec autorisation et traçabilité. |
-| Développement et évaluation | Reproduire l’environnement et démontrer les critères d’acceptation. |
+| Gestion d’infrastructure | Identifier les applications et suivre les changements de l’environnement. |
+| Analyse environnementale et opérationnelle | Étudier consommation, émissions et qualité des données d’une période. |
+| Développement et évaluation | Vérifier le comportement du produit et reproduire ses résultats. |
 
-Ces publics ne constituent pas la matrice définitive des permissions, encore [à définir](./decisions).
+## Fonctions disponibles {#features}
 
-## Périmètre et disponibilité
-
-Référence : code `develop` au 15/10/2026. Chaque environnement peut exécuter une révision différente ; une issue fermée ne prouve pas la disponibilité en production.
-
-| Capacité | Situation |
+| Fonction | Référence |
 | --- | --- |
-| Catalogue, recherche/filtre d’état, navigation et huit langues | Implémentés dans l’interface. |
-| Découverte, événements du cycle de vie, collecte périodique et persistance | Implémentés dans le backend. |
-| État opérationnel et preuves des collectes | Exposés par l’API ; présentation complète confiée à des tâches UI. |
-| Tableau de bord environnemental, énergie/CO₂e, séries, classement et comparaison | Périmètre prévu. |
-| Thèmes, authentification, administration, simulation régionale et aperçu de recalcul | Prévus avec dépendances dans le backlog. |
+| Catalogue et recherche | [Trouver une application](../guide/monitoring#catalog) |
+| Surveillance automatique | [Interpréter les données](../guide/monitoring#data) |
+| Tableau de bord environnemental | [Lire le tableau de bord](../guide/monitoring#dashboard) |
+| Détail de l’application | [Examiner le détail](../guide/monitoring#detail) |
+| Historique et composition | [Explorer l’historique](../guide/monitoring#history) |
+| Préférences personnelles | [Personnaliser l’analyse](../guide/monitoring#preferences) |
+| Connexion et second facteur | [Se connecter](../guide/monitoring#access) |
+| Classement environnemental | [Classement environnemental](../guide/monitoring#other) |
+| Comparaison des applications | [Comparaison des applications](../guide/monitoring#other) |
+| Simulation régionale | [Simulation régionale](../guide/monitoring#other) |
+| Comptes et récupération de mot de passe | [Comptes et récupération de mot de passe](../guide/monitoring#other) |
 
-## Parcours et valeur
+## Parcours d’analyse {#journey}
 
-1. Trouver une application, ouvrir son détail et vérifier identité, localisation et état.
-2. Étudier un changement en distinguant dernière tentative, dernière observation valide et absence.
-3. Dans le périmètre environnemental prévu, choisir une période, lire couverture/méthodologie et comparer le même contexte.
-4. Dans l’administration prévue, modifier les paramètres autorisés sans réécrire l’historique.
+Commencez par le résumé environnemental, repérez une application à examiner et ouvrez son détail. Utilisez l’historique pour étudier la période et la méthodologie pour comprendre les estimations. Tenez toujours compte de la couverture avant de comparer.
 
-Le [guide](../guide/monitoring) décrit l’existant ; les [épopées](../roadmap), le comportement attendu.
+## Limites d’utilisation {#limits}
 
-## Limites et évaluation
+L’énergie est estimée par un modèle simplifié utilisant CPU, mémoire, disque et réseau durant l’intervalle. La puissance estimée devient énergie selon la durée. Les émissions sont l’énergie multipliée par l’intensité carbone régionale. Les coefficients appartiennent au modèle académique ; ce ne sont ni des mesures électriques directes ni des facteurs régionaux officiels. Les résultats conservent méthode et facteur d’origine.
 
-Les estimations ne sont ni des mesures électriques directes ni une preuve d’économies causées par une action. L’efficacité par transaction exige des données de travail produit. CSV, colonnes configurables et période précédente ne font pas automatiquement partie du MVP parce qu’ils figurent dans Figma. La carte est facultative.
+La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
 
-En review, vérifier la recherche d’applications, la distinction zéro/absence et la traçabilité vers période, unité et preuves. Enregistrer difficultés, retours et changements dans [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133) et [#134](https://github.com/Seliganessecodigo/ABP-3DSM/issues/134). Les objectifs de durée, satisfaction et performance nécessitent une référence et une approbation.
+## Capacités intégrées {#planned}
+
+La plateforme propose comparaison d’applications, classement environnemental, simulation régionale, gestion des utilisateurs et des rôles, récupération de mot de passe et contrôles de surveillance. JWT, Google SSO et le second facteur TOTP protègent les parcours administratifs, tandis que les consultations environnementales restent publiques.
+
+## Lectures associées {#related}
+
+[Guide d’utilisation](../guide/monitoring) · [Méthodologie et données](../product/methodology) · [Backlog du produit](../roadmap)

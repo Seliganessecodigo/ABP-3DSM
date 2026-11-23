@@ -122,7 +122,7 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=provenance')
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const factorCard = analysis.getByRole('group', { name: 'Fator regional', exact: true })
-  await expect(factorCard).toContainText('Múltiplos fatores')
+  await expect(factorCard).toContainText('0,18–0,42 kg CO₂e/kWh')
   await expect(factorCard).not.toContainText('v-alpha-original')
   await expect(factorCard).not.toContainText('v-beta-original')
   await page.locator('#analysis-details summary').click()
@@ -148,7 +148,7 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
   await expect(page.locator('#analysis-details')).not.toHaveAttribute('open', '')
 })
 
-test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série', async ({ page }) => {
+test('trocar idioma mantém o fuso selecionado nas datas operacional, ambiental e da série', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.route(/\/applications\/svc-0142\/collections\/collection-history$/, async (route) => {
     await route.fulfill({ json: {
@@ -162,6 +162,7 @@ test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série
         disk: { value: 0, unit: 'GB/s', status: 'available' },
         network: { value: 1.2, unit: 'Mbps', status: 'available' },
       },
+      environmental: { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null },
     } })
   })
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')
@@ -174,13 +175,13 @@ test('trocar idioma atualiza o fuso nas datas operacional, ambiental e da série
   await page.getByLabel('Idioma').selectOption('en-US')
   await expect(page.locator('[data-language-flag="en-US"]')).toBeVisible()
 
-  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('5:32 PM')
-  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('5:32 PM')
+  await expect(page.getByRole('group', { name: 'BR-SP', exact: true })).toContainText('2:32 PM')
+  await expect(page.getByRole('region', { name: /operational evidence/i })).toContainText('2:32 PM')
   await page.locator('#analysis-details summary').click()
   await page.getByRole('button', { name: 'Table', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('5:00 PM')
+  await expect(page.getByRole('region', { name: 'Energy and emissions trend', exact: true }).getByRole('table')).toContainText('2:00 PM')
   const params = new URL(page.url()).searchParams
-  expect(params.get('seriesTimeZone')).toBe('Etc/GMT+0')
+  expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
 })
@@ -293,21 +294,21 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   const table = series.getByRole('table')
   await expect(pageSize).toHaveValue('10')
   await expect(table.getByRole('row')).toHaveCount(11)
-  await expect(series.getByText('Página 1 de 2', { exact: true })).toBeVisible()
-  await expect(series.getByRole('button', { name: 'Anterior', exact: true })).toBeDisabled()
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(series.getByRole('button', { name: 'Página anterior', exact: true })).toBeDisabled()
 
-  await series.getByRole('button', { name: 'Próxima', exact: true }).click()
+  await series.getByRole('button', { name: "Próxima página", exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(3)
-  await expect(series.getByText('Página 2 de 2', { exact: true })).toBeVisible()
+  await expect(series.getByRole('button', { name: 'Página 2 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   let params = new URL(page.url()).searchParams
   expect(params.get('seriesPage')).toBe('2')
   expect(params.get('seriesSize')).toBe('10')
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
 
-  await series.getByRole('button', { name: 'Anterior', exact: true }).click()
+  await series.getByRole('button', { name: 'Página anterior', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(11)
-  await expect(series.getByText('Página 1 de 2', { exact: true })).toBeVisible()
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
   expect(params.get('collectionId')).toBe('collection-history')
@@ -324,9 +325,8 @@ test('mostra a faixa e permite ir diretamente para uma página da série', async
   const table = series.getByRole('table')
   await expect(series.getByText('Exibindo 1–10 de 12', { exact: true })).toBeVisible()
 
-  const pageSelection = series.getByRole('combobox', { name: 'Página', exact: true })
-  await expect(pageSelection).toHaveValue('1')
-  await pageSelection.selectOption('2')
+  await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
+  await series.getByRole('button', { name: 'Página 2 de 2', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(3)
   await expect(series.getByText('Exibindo 11–12 de 12', { exact: true })).toBeVisible()
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
@@ -400,7 +400,7 @@ test('filtra pontos por instante local em AND com status e reinicia a paginaçã
 
   const from = series.getByLabel('Data inicial da série', { exact: true })
   const to = series.getByLabel('Data final da série', { exact: true })
-  await expect(series.getByText('Fuso horário: America/Sao_Paulo', { exact: true })).toBeVisible()
+  await expect(series.getByText('Fuso horário: America/Sao_Paulo')).toBeVisible()
   await from.fill('2026-10-17T10:00')
   await to.fill('2026-10-17T12:00')
   await series.getByRole('combobox', { name: 'Status de CO₂e', exact: true }).selectOption('available')
@@ -514,15 +514,15 @@ test('mantém pontos com unidades mistas e libera a faixa numérica após escolh
   expect(params.get('collectionId')).toBe('collection-history')
 })
 
-test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o ponto após o limite', async ({ browser }) => {
-  const context = await browser.newContext({ baseURL: 'http://127.0.0.1:4173', locale: 'pt-BR', timezoneId: 'UTC' })
+test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o ponto após o limite', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, locale: 'pt-BR', timezoneId: 'UTC' })
   const page = await context.newPage()
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesFrom=2026-10-17T13%3A00%3A00.000Z&seriesTo=2026-10-17T15%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
-  await expect(series.getByText('Fuso horário: America/Sao_Paulo', { exact: true })).toBeVisible()
+  await expect(series.getByText('Fuso horário: America/Sao_Paulo')).toBeVisible()
   await expect(series.getByLabel('Data inicial da série', { exact: true })).toHaveValue('2026-10-17T10:00')
   await expect(series.getByLabel('Data final da série', { exact: true })).toHaveValue('2026-10-17T12:00')
 

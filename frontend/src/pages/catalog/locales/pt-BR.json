@@ -1,7 +1,7 @@
 {
-  "eyebrow": "Monitoramento",
   "title": "Aplicações",
   "description": "Catálogo das aplicações monitoradas e sua situação atual.",
+  "login": "Entrar",
   "refresh": "Atualizar catálogo",
   "searchLabel": "Buscar aplicações por nome, identificador ou região",
   "searchPlaceholder": "Buscar por nome, identificador ou região...",
@@ -33,7 +33,7 @@
   "from": "Verificada a partir de",
   "to": "Verificada até",
   "timeZone": "Fuso horário: {{timeZone}}",
-  "invalidDateRange": "A data inicial deve ser anterior ou igual à data final.",
+  "invalidDateRange": "Informe datas válidas e início anterior ou igual ao fim.",
   "clearFilters": "Limpar filtros",
   "activeFilters": "Filtros ativos",
   "range": "Exibindo {{start}}–{{end}} de {{count}} aplicações",
@@ -52,5 +52,6 @@
   "cityPlaceholder": "Digite uma cidade...",
   "filterCombinationNote": "A busca geral e os filtros ativos são combinados.",
   "clearPreservesSort": "Limpar filtros preserva a ordenação atual.",
-  "applyFilters": "Aplicar filtros"
+  "applyFilters": "Aplicar filtros",
+  "helpActions": "Use Detalhes para consultar a situação e as métricas atuais. Use Histórico para acompanhar a evolução de energia e CO₂e da aplicação. Comparação abre esta aplicação para escolher outra e comparar no mesmo período. Simulação regional abre um cenário com esta aplicação. Ranking ainda não está disponível."
 }

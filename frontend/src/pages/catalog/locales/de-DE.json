@@ -1,7 +1,7 @@
 {
-  "eyebrow": "Überwachung",
   "title": "Anwendungen",
   "description": "Verzeichnis der überwachten Anwendungen und ihres aktuellen Status.",
+  "login": "Anmelden",
   "refresh": "Verzeichnis aktualisieren",
   "searchLabel": "Anwendungen nach Name, Kennung oder Region suchen",
   "searchPlaceholder": "Nach Name, Kennung oder Region suchen...",
@@ -29,7 +29,7 @@
   "updated": "Verzeichnis aktualisiert",
   "columnFilters": "Spaltenfilter", "regionCode": "Regionscode", "cityMissing": "Stadt nicht angegeben",
   "from": "Geprüft ab", "to": "Geprüft bis", "timeZone": "Zeitzone: {{timeZone}}",
-  "invalidDateRange": "Das Startdatum muss vor oder am Enddatum liegen.", "clearFilters": "Filter zurücksetzen",
+  "invalidDateRange": "Geben Sie gültige Daten ein; der Start muss vor oder am Ende liegen.", "clearFilters": "Filter zurücksetzen",
   "activeFilters": "Aktive Filter", "range": "{{start}}–{{end}} von {{count}} Anwendungen",
   "pageSize": "Einträge pro Seite", "all": "Alle", "nameFilter": "Name oder Kennung",
   "countryFilter": "Land", "regionCodeFilter": "Regionscode", "cityFilter": "Stadt", "stateFilter": "Status",
@@ -37,5 +37,6 @@
   "namePlaceholder": "Teil eines Namens oder einer Kennung...", "countryPlaceholder": "Land eingeben...",
   "regionPlaceholder": "Region eingeben...", "cityPlaceholder": "Stadt eingeben...",
   "filterCombinationNote": "Allgemeine Suche und aktive Filter werden kombiniert.",
-  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden"
+  "clearPreservesSort": "Beim Löschen der Filter bleibt die Sortierung erhalten.", "applyFilters": "Filter anwenden",
+  "helpActions": "Unter Details sehen Sie den aktuellen Zustand und die Messwerte. Unter Verlauf verfolgen Sie Energie und CO₂e der Anwendung im Zeitverlauf. Vergleich öffnet diese Anwendung, um eine weitere auszuwählen und denselben Zeitraum zu vergleichen. Regionale Simulation öffnet ein Szenario mit dieser Anwendung. Die Rangliste ist noch nicht verfügbar."
 }

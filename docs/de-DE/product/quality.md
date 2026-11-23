@@ -1,38 +1,33 @@
-# Übergreifende Anforderungen und Abnahme
+# Qualität und Abnahme
 
-[EP00](../backlog/ep00) organisiert Grundlagen und Qualität. Ein RNF gilt dauerhaft; sein Task liefert ein endliches Artefakt. Datenbankeinrichtung beendet nicht die Integritätspflicht.
+Die Oberfläche verknüpft Kennzahlen mit Zeitraum, Einheit, Abdeckung und Methodik und erhält Filter sowie Navigationskontext. Lade-, Leer-, Fehler- und veraltete Datenzustände werden ausdrücklich behandelt. Tastaturbedienung, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte, Themes und 12 Sprachen gehören zur Nutzungserfahrung.
 
-## Qualitätsnachweise
+## Abnahmekriterien {#acceptance}
 
-| Anforderung | Nachweis |
+| Regel | Bedeutung |
 | --- | --- |
-| RNF-01 — Technologien | Buildfähiges React/TypeScript und NestJS/TypeScript. |
-| RNF-02 — Verantwortung | UI zeigt; Backend entscheidet; Adapter validieren; Repositories speichern. |
-| RNF-03 — Historie | Migrationen/Tests für Identität, Integrität, Versionsbewahrung. |
-| RNF-04 — Sicherheit | Geheimnisse außerhalb Git, Autorisierung im Backend. |
-| RNF-05 — Reproduzierbarkeit | Dokumentierte Umgebung, prüfbare CI, validierte Veröffentlichung. |
-| RNF-06 — Fehler | Erfolg, leer, Fehler, fehlend, stale unterscheidbar. |
-| RNF-07 — Nutzung | Tastatur, Fokus, Kontrast, Text/Icons statt nur Farbe, responsive, acht Sprachen. |
+| Erhaltener Verlauf | Einstellungen und Vorschauen ersetzen keine Originalergebnisse. |
+| Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
+| Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-Zugriffsmatrix, Aufbewahrung, Wiederherstellung und numerische Verfügbarkeits-/Leistungsziele bleiben offen. Kein SLA und keine Barrierefreiheitszertifizierung.
+## Daten verstehen {#integrity}
 
-## Abnahmeszenarien
+Nullverbrauch bedeutet, dass eine gültige Beobachtung diesen Wert belegt. Eine Lücke bedeutet fehlende nutzbare Daten, keinen Nullverbrauch. Nach Aktualisierungsfehlern kann die letzte gültige Messung mit ursprünglichem Zeitpunkt erhalten bleiben. Prüfen Sie Aktualität und Abdeckung vor Entscheidungen. Die Anzeige fragt 60 Sekunden nach jedem Versuch erneut ab; eine neue Messung ist damit nicht garantiert.
 
-| Ausgangslage / Aktion | Erwartung | Referenz |
-| --- | --- | --- |
-| Bekannte Anwendung fehlt im vollständigen gültigen Snapshot | Entfernung erfassen, Historie bewahren. | US-02 |
-| Quellfehler oder ungültige Nutzlast | Keine Entfernung bestätigen, keine Null erfinden. | US-02/05 |
-| Gültige Beobachtung, nächster Versuch schlägt fehl | Beobachtung bewahren, Aktualität unterscheiden. | US-03/04 |
-| Gültige Energie, kein Faktor | CO₂e nicht erfinden, Energie nicht verwerfen. | US-07/08 |
-| Neuberechnungsvorschau | Original unverändert, Vorschau nicht gespeichert. | US-12 |
-| Administrative Aktion ohne Recht | Backend verweigert Änderung. | US-18/19/20 |
+Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-Geplante Funktionen brauchen Implementierung und Tests vor Lieferankündigung.
+## Validierungskriterien {#assessment}
 
-## Bereitschaft, Abschluss und Gate
+Epics, Stories und Aufgaben strukturieren das Produkt mit überprüfbaren Kriterien und Codeverweisen. Issues, Pull Requests und Commits verbinden Anforderungen, Implementierung und Tests; die versionierte Dokumentation vereint Architektur, Verträge, Betrieb und Nachweise.
 
-Vor Beginn: Ergebnis, Verbraucher, Kriterien, Vertrag und echte Abhängigkeiten benennen. Offene Koeffizienten/Rechte werden nicht zu technischen Annahmen. Design braucht Zustände, Navigation und überprüfbare Übergabe.
+## Prüfungen {#engineering}
 
-Abschluss: Kriterien demonstrieren, Code prüfen, relevante Fehler testen, Vertrag/Dokumentation und Belege aktualisieren. Offene PR beendet kein Issue. Planning/Review/Feedback gehören zu #134.
+Für die dokumentierte Basis bestand die CI 542 Frontend-Tests, 705 Backend-Tests und drei integrierte Abläufe sowie Lint, Typprüfung, Builds, Migrationen und das SonarQube-Cloud-Gate. Die Website bietet 12 Sprachen mit automatischer Prüfung gleicher Inhalte, Verträge und Links.
 
-PRs nach `develop`: passende Checks und SonarQube Cloud, neue Abdeckung ≥ 80%, Duplikation ≤ 3%, A-Ratings, 100% Hotspots geprüft. Ausführbares Backend: Tests/LCOV. Siehe [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) und [Mitwirken](../contributing). CI ersetzt weder funktionale Abnahme noch Nutzbarkeitstest.
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
+
+[Mitwirken](../contributing)
+
+## Weiterführende Seiten {#related}
+
+[Entwicklungsprinzipien](../product/decisions) · [Mitwirken](../contributing)

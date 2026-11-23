@@ -1,0 +1,12 @@
+{
+  "eyebrow": "按时段分析",
+  "startTitle": "您想分析哪个应用？",
+  "startDescription": "探索能源和排放的变化，并查看每个结果所依据的采集记录。",
+  "selectApplication": "选择应用",
+  "evolution": "能源和CO₂e的变化",
+  "events": "时段内记录的事件",
+  "evidence": "采集记录与原始计算方法",
+  "applicationsTitle": "选择应用以开始",
+  "openHistory": "查看历史",
+  "currentState": "当前状态：{{state}}"
+}

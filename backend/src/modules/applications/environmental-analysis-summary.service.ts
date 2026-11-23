@@ -3,6 +3,7 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common'
+import { setImmediate } from 'node:timers/promises'
 import { ApplicationsRepository } from './applications.repository'
 import { CollectionsRepository } from '../../database/repositories/collections.repository'
 import {
@@ -15,9 +16,18 @@ import {
   formatUtcTimestamp,
   summarizePersistedEnvironmentalPeriod,
 } from '../calculations/persisted-environmental-period'
+import { aggregateEnvironmentalScopeSeries } from '../calculations/environmental-scope-series'
+import {
+  countEnvironmentalSeriesBuckets,
+  type EnvironmentalSeriesGranularity,
+} from '../calculations/persisted-environmental-series'
+import type { PersistedEnvironmentalInterval } from '../calculations/persisted-environmental-period'
 import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
 
 export interface EnvironmentalAnalysisSummaryFilters {
+  readonly includeCollectionSuccess?: string
+  readonly includeProvenance?: string
+  readonly granularity?: string
   readonly from?: string
   readonly to?: string
   readonly states?: string | readonly string[]
@@ -26,6 +36,17 @@ export interface EnvironmentalAnalysisSummaryFilters {
 }
 
 const stateValues = Object.values(ApplicationState)
+
+// Schedule one projection at a time, leaving room for lightweight HTTP requests.
+function scheduledApplications<T>(applications: readonly T[]): AsyncIterable<T> {
+  return {
+    [Symbol.asyncIterator]() {
+      const iterator = applications[Symbol.iterator]()
+      return { next: () => setImmediate(iterator.next()) }
+    },
+  }
+}
+
 @Injectable()
 export class EnvironmentalAnalysisSummaryService {
   constructor(
@@ -34,9 +55,32 @@ export class EnvironmentalAnalysisSummaryService {
     private readonly applicationEvents: ApplicationEventsRepository,
   ) {}
 
+  private async loadApplicationsInScope(states: readonly string[] | undefined, applicationIds: readonly string[] | undefined) {
+    const allApplications = applicationIds
+      ? await this.applications.findByIds(applicationIds)
+      : await this.applications.findAll()
+    const selectedIds = applicationIds ? new Set(applicationIds) : null
+    const selectedApplications = allApplications
+      .filter(
+        (application) =>
+          (!states || states.includes(application.state)) &&
+          (!selectedIds || selectedIds.has(application.id)),
+      )
+      .sort((left, right) => left.id.localeCompare(right.id))
+    return selectedApplications
+  }
+
   async getSummary(
     filters: EnvironmentalAnalysisSummaryFilters,
+    options: { includeMissingApplications?: boolean } = {},
   ): Promise<EnvironmentalAnalysisSummaryDto> {
+    if (filters.includeCollectionSuccess !== undefined && !['true', 'false'].includes(filters.includeCollectionSuccess)) {
+      throw new BadRequestException({ code: 'INVALID_COLLECTION_SUCCESS_OPTION' })
+    }
+    if (filters.includeProvenance !== undefined && !['true', 'false'].includes(filters.includeProvenance)) {
+      throw new BadRequestException({ code: 'INVALID_ANALYSIS_PROVENANCE_FILTER' })
+    }
+    const includeProvenance = filters.includeProvenance !== 'false'
     const start =
       typeof filters.from === 'string'
         ? parseZonedTimestampNanoseconds(filters.from)
@@ -49,6 +93,25 @@ export class EnvironmentalAnalysisSummaryService {
       throw new BadRequestException({ code: 'INVALID_ANALYSIS_PERIOD' })
     }
 
+    const granularity = filters.granularity
+    if (
+      granularity !== undefined &&
+      !['hour', 'day', 'month', 'year'].includes(granularity)
+    ) {
+      throw new BadRequestException({ code: 'INVALID_ANALYSIS_GRANULARITY' })
+    }
+    if (
+      granularity &&
+      countEnvironmentalSeriesBuckets(
+        filters.from!,
+        filters.to!,
+        granularity as EnvironmentalSeriesGranularity,
+      ) > 10_000
+    ) {
+      throw new BadRequestException({
+        code: 'ANALYSIS_SERIES_POINT_LIMIT_EXCEEDED',
+      })
+    }
     const states = parseValues(filters.states, 'INVALID_ANALYSIS_STATE_FILTER')
     const regionCodes = parseValues(
       filters.regionCodes,
@@ -65,22 +128,19 @@ export class EnvironmentalAnalysisSummaryService {
     }
 
     try {
-      const allApplications = await this.applications.findAll()
-      const selectedApplications = allApplications
-        .filter(
-          (application) =>
-            (!states || states.includes(application.state)) &&
-            (!applicationIds || applicationIds.includes(application.id)),
-        )
-        .sort((left, right) => left.id.localeCompare(right.id))
+      const selectedApplications = await this.loadApplicationsInScope(states, applicationIds)
       const ids = selectedApplications.map(({ id }) => id)
-      const [rows, history] = await Promise.all([
+      const [rows, history, attemptCounts] = await Promise.all([
         this.collections.findEnvironmentalByApplicationsAndPeriod(
           ids,
           start,
           end,
+          { includeProvenance },
         ),
         this.applicationEvents.findMetadataHistory(ids),
+        filters.includeCollectionSuccess === 'true'
+          ? this.applicationEvents.collectionAttemptCounts(ids, start, end, regionCodes)
+          : undefined,
       ])
       const historyByApplication = groupBy(
         history,
@@ -143,7 +203,9 @@ export class EnvironmentalAnalysisSummaryService {
         EnvironmentalAnalysisSummaryDto['provenance']['factors'][number]
       >()
 
-      for (const application of filteredApplications) {
+      const scopedObservations: (readonly PersistedEnvironmentalInterval[])[] =
+        []
+      for await (const application of scheduledApplications(filteredApplications)) {
         statesCount[application.state] += 1
         const observations = (
           rowsByApplication.get(application.id) ?? []
@@ -159,6 +221,7 @@ export class EnvironmentalAnalysisSummaryService {
             regionCodes.includes(regionAtCollection)
           )
         })
+        if (granularity) scopedObservations.push(observations)
         for (const row of observations) {
           const collectedAt = parseZonedTimestampNanoseconds(row.collectedAt)
           if (
@@ -172,6 +235,7 @@ export class EnvironmentalAnalysisSummaryService {
           periodFrom,
           periodTo,
           observations,
+          { includeProvenance },
         )
         const { energy, emissions, coverage } = summary
         if (energy.value !== null) {
@@ -230,7 +294,7 @@ export class EnvironmentalAnalysisSummaryService {
               : factor,
           )
         }
-        if (energy.value !== null || emissions.value !== null) {
+        if (options.includeMissingApplications || energy.value !== null || emissions.value !== null) {
           applications.push({
             applicationId: application.id,
             name: application.name,
@@ -244,6 +308,24 @@ export class EnvironmentalAnalysisSummaryService {
 
       const scopeDuration = duration * filteredApplications.length
       return {
+        ...(attemptCounts ? { collectionSuccess: {
+          ...attemptCounts,
+          rate: attemptCounts.total > 0 ? attemptCounts.successful / attemptCounts.total : null,
+        } } : {}),
+        ...(!includeProvenance ? { provenanceIncluded: false } : {}),
+        ...(granularity
+          ? {
+              series: {
+                granularity: granularity as EnvironmentalSeriesGranularity,
+                points: aggregateEnvironmentalScopeSeries(
+                  periodFrom,
+                  periodTo,
+                  granularity as EnvironmentalSeriesGranularity,
+                  scopedObservations,
+                ),
+              },
+            }
+          : {}),
         status: hasEnergy || hasEmissions ? 'available' : 'empty',
         period: { from: periodFrom, to: periodTo },
         dataAsOf:

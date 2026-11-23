@@ -1,0 +1,6 @@
+{
+  "applications": 500,
+  "rows": 500,
+  "lookups": 2000,
+  "comparisons": 501000
+}

@@ -9,12 +9,14 @@ import {
 import { MonitoringIncidentFilters } from "../../database/repositories/monitoring-incidents.repository";
 import { MonitoringIncidentsService } from "./monitoring-incidents.service";
 import { MonitoringIncidentPageDto } from "./monitoring-incident.dto";
+import { PublicRoute } from "../authentication/public-route.decorator";
 
 @ApiTags("monitoring incidents")
 @Controller("monitoring/incidents")
 export class MonitoringIncidentsController {
   constructor(private readonly incidents: MonitoringIncidentsService) {}
 
+  @PublicRoute()
   @Get()
   @ApiOperation({ summary: "Listar incidentes atuais e encerrados" })
   @ApiQuery({ name: "applicationId", required: false })

@@ -1,3 +1,4 @@
+import { EnvironmentalAnalysisSeriesPointDto } from './environmental-analysis-series.dto'
 import { ApiProperty } from '@nestjs/swagger'
 import {
   EnvironmentalAnalysisCoverageDto,
@@ -48,7 +49,40 @@ export class EnvironmentalAnalysisSummaryStatesDto {
   REMOVED!: number
 }
 
+export class EnvironmentalAnalysisSummarySeriesDto {
+  @ApiProperty({ enum: ['hour', 'day', 'month', 'year'] })
+  granularity!: 'hour' | 'day' | 'month' | 'year'
+
+  @ApiProperty({ type: EnvironmentalAnalysisSeriesPointDto, isArray: true })
+  points!: readonly EnvironmentalAnalysisSeriesPointDto[]
+}
+
+export class CollectionSuccessDto {
+  @ApiProperty({ minimum: 0 })
+  successful!: number
+
+  @ApiProperty({ minimum: 0 })
+  total!: number
+
+  @ApiProperty({ type: Number, nullable: true, minimum: 0, maximum: 1, description: 'Valid metrics persisted / completed recorded attempts; null when no attempts exist.' })
+  rate!: number | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  firstAttemptAt!: string | null
+
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
+  lastAttemptAt!: string | null
+}
+
 export class EnvironmentalAnalysisSummaryDto {
+  @ApiProperty({ type: CollectionSuccessDto, required: false })
+  collectionSuccess?: CollectionSuccessDto
+  @ApiProperty({ type: Boolean, required: false, description: 'False when provenance was explicitly excluded from this response.' })
+  provenanceIncluded?: boolean
+
+  @ApiProperty({ type: EnvironmentalAnalysisSummarySeriesDto, required: false })
+  series?: EnvironmentalAnalysisSummarySeriesDto
+
   @ApiProperty({ enum: ['available', 'empty'] })
   status!: 'available' | 'empty'
 

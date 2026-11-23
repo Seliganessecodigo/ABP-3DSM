@@ -1,38 +1,33 @@
-# Requisiti trasversali e accettazione
+# Qualità e accettazione
 
-[EP00](../backlog/ep00) organizza fondamenti e qualità. RNF permanente, task con artefatto finito: completare database non termina l’obbligo di integrità.
+L’interfaccia collega gli indicatori a periodo, unità, copertura e metodologia, conservando filtri e contesto di navigazione. Caricamento, vuoto, errore e dati obsoleti sono gestiti esplicitamente. Tastiera, focus visibile, testo oltre al colore, dispositivi mobili, temi e 12 lingue fanno parte dell’esperienza.
 
-## Evidenze di qualità
+## Criteri di accettazione {#acceptance}
 
-| Requisito | Evidenza |
+| Regola | Significato |
 | --- | --- |
-| RNF-01 — Tecnologie | React/TypeScript e NestJS/TypeScript compilabili. |
-| RNF-02 — Responsabilità | UI presenta; backend decide; adapter validano; repository persistono. |
-| RNF-03 — Storico | Migration/test di identità, integrità e versioni conservate. |
-| RNF-04 — Sicurezza | Segreti fuori Git; autorizzazione nel backend. |
-| RNF-05 — Riproducibilità | Ambiente documentato, CI verificabile, pubblicazione validata. |
-| RNF-06 — Errori | Successo, vuoto, errore, assenza, stale distinguibili. |
-| RNF-07 — Esperienza | Tastiera, focus, contrasto, testo/icone oltre colore, responsive, otto lingue. |
+| Storico conservato | Preferenze e anteprime non sostituiscono originali. |
+| Assenza esplicita | Errori, metriche mancanti e dati precedenti restano distinti da zero. |
+| Consultazione pubblica | Leggere indicatori è pubblico; salvare preferenze e amministrare account richiede autorizzazione. |
 
-Matrice accessi, conservazione, ripristino e obiettivi numerici disponibilità/prestazioni pendenti. Nessun SLA o certificazione accessibilità dichiarati.
+## Interpretare i dati {#integrity}
 
-## Scenari di dimostrazione
+Zero significa che un’osservazione valida sostiene quel valore. Una lacuna indica dati utilizzabili mancanti, non consumo nullo. Dopo un errore può restare l’ultima lettura valida con il suo orario originale. Verificate aggiornamento e copertura prima di decidere. Le schermate richiedono informazioni 60 secondi dopo ogni tentativo; non garantisce una nuova misura a ogni aggiornamento.
 
-| Dato / quando | Risultato | Riferimento |
-| --- | --- | --- |
-| Applicazione conosciuta assente da snapshot completo valido | Registrare rimozione, mantenere storico. | US-02 |
-| Fonte in errore o payload invalido | Non confermare rimozione né inventare zero. | US-02/05 |
-| Osservazione valida e tentativo seguente fallito | Conservare osservazione, distinguere freschezza. | US-03/04 |
-| Energia valida senza fattore | Non inventare CO₂e né scartare energia. | US-07/08 |
-| Richiesta anteprima ricalcolo | Originale intatto, anteprima non persistita. | US-12 |
-| Operazione amministrativa senza permesso | Backend nega modifica. | US-18/19/20 |
+La copertura è la proporzione del periodo con osservazioni valide. Energia ed emissioni hanno coperture separate: può esserci energia stimata senza fattore per calcolare emissioni. Confrontate periodi, unità e coperture compatibili. Copertura bassa indica analisi parziale, non una riduzione dimostrata dei consumi.
 
-Funzioni pianificate necessitano implementazione/test prima di dichiararle consegnate.
+## Criteri di validazione {#assessment}
 
-## Prontezza, conclusione e gate
+Epic, storie e attività organizzano il prodotto con criteri verificabili e riferimenti al codice. Issue, pull request e commit collegano requisiti, implementazione e test; la documentazione raccoglie architettura, contratti, operazioni ed evidenze in un insieme versionato.
 
-Prima di iniziare: consegna, consumatori, criteri, contratto, dipendenze reali. Coefficienti/permessi pendenti non diventano ipotesi tecniche. Design con stati, navigazione e handoff verificabili.
+## Verifiche {#engineering}
 
-Conclusione: criteri dimostrati, review, test di errori rilevanti, contratto/documentazione e prove aggiornati. PR aperta non conclude issue. Planning/review/feedback in #134.
+Per la base documentata, la CI ha approvato 542 test frontend, 705 backend e tre flussi integrati, oltre a lint, controllo dei tipi, build, migrazioni e gate SonarQube Cloud. Il sito offre 12 lingue con verifica automatica dell’equivalenza di contenuti, contratti e collegamenti.
 
-PR verso `develop`: check pertinenti e SonarQube Cloud, copertura nuova ≥ 80%, duplicazione ≤ 3%, rating A, 100% hotspot revisionati. Backend eseguibile richiede test/LCOV. Vedere [CI](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/.github/quality-gates.md) e [Contribuire](../contributing). CI non sostituisce accettazione funzionale o valutazione usabilità.
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
+
+[Contribuire](../contributing)
+
+## Letture correlate {#related}
+
+[Principi di ingegneria](../product/decisions) · [Contribuire](../contributing)

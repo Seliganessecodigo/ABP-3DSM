@@ -3,8 +3,7 @@ import { application, mockCatalog } from './support/catalog.ts'
 
 test('detalhe consulta resumo e série no mesmo período e mostra os dados ambientais recebidos', async ({ page }) => {
   const initialTo = '2026-10-17T20:00:00.000Z'
-  await page.clock.install({ time: new Date(initialTo) })
-  await page.clock.pauseAt(new Date(initialTo))
+  await page.clock.setFixedTime(new Date(initialTo))
   const requests: URL[] = []
   await page.route(/\/applications\/svc-0142\/analysis(?:\/series)?(?:\?.*)?$/, async (route) => {
     const url = new URL(route.request().url())
@@ -15,13 +14,13 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
       const points = [4, 6].map((value, index) => {
         const bucketStart = new Date(Date.parse(from) + index * 60 * 60 * 1000).toISOString()
         return { bucketStart, bucketEnd: new Date(Date.parse(bucketStart) + 60 * 60 * 1000).toISOString(),
-          energy: { value, unit: 'kWh', reasons: [] }, emissions: { value: value * 340, unit: 'gCO2e', reasons: [] } }
+          energy: { value, unit: 'kWh', reasons: [] }, emissions: { value: value * 340, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } }
       })
       await route.fulfill({ json: {
         status: 'available', applicationId: 'svc-0142',
         period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') },
         granularity: 'hour',
-        totals: { energy: { value: 12.5, unit: 'kWh' }, emissions: { value: 4250, unit: 'gCO2e' } },
+        totals: { energy: { value: 12.5, unit: 'kWh', reasons: [] }, emissions: { value: 4250, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 0.75, emissions: 0.5 }, points, events: [],
       } })
       return
@@ -51,12 +50,8 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
   await expect(analysis.getByRole('group', { name: 'CO₂e', exact: true })).toContainText(/4[.,]250\s*gCO2e/)
   await expect(page.getByRole('group', { name: 'Cobertura de energia', exact: true })).toContainText(/75\s*%/)
   await expect(page.getByRole('group', { name: 'Cobertura de emissões', exact: true })).toContainText(/50\s*%/)
-  await page.locator('#analysis-details summary').click()
-  await expect(page.getByText('2026.1', { exact: true })).toBeVisible()
-  await expect(page.getByText('2.1', { exact: true })).toBeVisible()
-  const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
-  await expect(series.getByText('Período anterior', { exact: true })).toBeVisible()
-  await expect(series.locator('svg polyline[class*="previousSeries"]')).toHaveCount(1)
+  await expect(page.getByRole('figure')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Explorar histórico' })).toBeVisible()
   expect(requests.map((url) => [url.searchParams.get('from'), url.searchParams.get('to')]).sort()).toEqual([
     ['2026-10-03T20:00:00.000Z', '2026-10-10T20:00:00.000Z'],
     ['2026-10-10T20:00:00.000Z', '2026-10-17T20:00:00.000Z'],
@@ -103,9 +98,10 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
     const url = new URL(route.request().url())
     ranges.push([url.searchParams.get('from'), url.searchParams.get('to')])
     if (url.pathname.endsWith('/series')) {
+      const previous = url.searchParams.get('from') !== from
       await route.fulfill({ json: {
-        status: 'available', applicationId: 'svc-0142', period: { from, to }, granularity: 'hour',
-        totals: { energy: { value: 12.5, unit: 'kWh' }, emissions: { value: 4250, unit: 'gCO2e' } },
+        status: 'available', applicationId: 'svc-0142', period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') }, granularity: 'hour',
+        totals: { energy: { value: previous ? 2 : 3, unit: 'kWh', reasons: [] }, emissions: { value: previous ? 680 : 1020, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 0.75, emissions: 0.5 }, points: [],
         events: [{ id: 'event-status-1', at: '2026-10-17T19:00:00.000Z', type: 'status_changed',
           details: { before: { state: 'AVAILABLE' }, after: { state: 'UNAVAILABLE' } } }],
@@ -114,20 +110,22 @@ test('mostra eventos retornados pela série sem arredondar os limites do períod
     }
     await route.fulfill({ json: {
       status: 'available', applicationId: 'svc-0142', period: { from, to },
-      energy: { value: 12.5, unit: 'kWh', reasons: [] },
-      emissions: { value: 4250, unit: 'gCO2e', reasons: [] },
+      energy: { value: 3, unit: 'kWh', reasons: [] },
+      emissions: { value: 1020, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 0.75, emissions: 0.5 },
       provenance: { methodologies: [], factors: [], reasons: [] },
     } })
   })
   await mockCatalog(page, [application()])
-  await page.goto('/services/svc-0142?period=7d')
+  await page.goto('/history?applicationId=svc-0142&period=7d')
 
   await expect.poll(() => ranges.length).toBe(3)
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis).toContainText('Status alterado')
   await expect(analysis).toContainText('Disponível')
   await expect(analysis).toContainText('Indisponível')
+  await expect(page.locator('main')).toContainText('+50% (3 kWh / 2 kWh)')
+  await expect(page.locator('main')).toContainText('03/10/2026')
   expect(ranges.sort()).toEqual([
     ['2026-10-03T20:00:37.456Z', from], [from, to], [from, to],
   ].sort())
@@ -165,7 +163,7 @@ test('mantém eventos persistidos quando resumo e série não têm observações
     } })
   })
   await mockCatalog(page, [application()])
-  await page.goto('/services/svc-0142?period=24h')
+  await page.goto('/history?applicationId=svc-0142&period=24h')
 
   await expect.poll(() => ranges.length).toBe(2)
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
@@ -209,13 +207,19 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
     const url = new URL(route.request().url())
     if (url.pathname.endsWith('/series/contributions')) {
       contributionsRequests.push(url)
+      const requestedPage = Number(url.searchParams.get('page') ?? '1')
+      const requestedPageSize = url.searchParams.get('pageSize') ?? '10'
+      const pageSize = requestedPageSize === 'all' ? 'all' : Number(requestedPageSize)
+      const totalPages = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(intervalContributions.length / pageSize))
+      const start = pageSize === 'all' ? 0 : (requestedPage - 1) * pageSize
+      const end = pageSize === 'all' ? intervalContributions.length : start + pageSize
       await route.fulfill({ json: {
         applicationId: 'svc-0142', period: { from, to }, granularity: 'hour',
         bucket: { start: bucketStart, end: bucketEnd, period: { from: bucketStart, to: bucketEnd } },
         totals: { energy: { value: 77.5, unit: 'kWh', reasons: [] }, emissions: { value: 26350, unit: 'gCO2e', reasons: [] } },
         coverage: { energy: 1, emissions: 1 },
-        pagination: { page: 1, pageSize: 10, totalItems: 12, totalPages: 2, hasNextPage: true },
-        contributions: intervalContributions.slice(0, 10), exclusions: [{ collectionId: null,
+        pagination: { page: requestedPage, pageSize, totalItems: 12, totalPages, hasNextPage: requestedPage < totalPages },
+        contributions: intervalContributions.slice(start, end), exclusions: [{ collectionId: null,
           interval: { from: '2026-10-17T18:55:00.000Z', to: bucketStart },
           energyReasons: [{ code: 'NO_OBSERVATION' }], emissionsReasons: [{ code: 'CARBON_FACTOR_UNAVAILABLE' }] }],
       } })
@@ -240,11 +244,9 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
     } })
   })
   await mockCatalog(page, [application()])
-  await page.goto('/services/svc-0142?period=7d')
-  await page.getByRole('button', { name: 'Tabela', exact: true }).click()
+  await page.goto('/history?applicationId=svc-0142&period=7d')
 
-  const point = page.getByRole('row').filter({ hasText: /77,5\s*kWh/ })
-  await point.getByRole('button', { name: 'Inspecionar contribuições', exact: true }).click()
+  await page.getByRole('table').getByRole('button', { name: 'Inspecionar', exact: true }).click()
 
   await expect.poll(() => contributionsRequests.length).toBe(1)
   const contributionsRequest = contributionsRequests[0]
@@ -252,10 +254,12 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   expect(contributionsRequest.searchParams.get('to')).toBe(to)
   expect(contributionsRequest.searchParams.get('granularity')).toBe('hour')
   expect(contributionsRequest.searchParams.get('bucketStart')).toBe(bucketStart)
+  expect(contributionsRequest.searchParams.get('page') ?? '1').toBe('1')
   expect(contributionsRequest.searchParams.get('pageSize') ?? '10').toBe('10')
-  const inspection = page.getByRole('region', { name: 'Contribuições do intervalo selecionado', exact: true })
+  const inspection = page.getByRole('region', { name: 'Contribuições que compõem o agregado', exact: true })
+  await inspection.locator('details > summary').click()
   await expect(inspection.getByText('factor-original-1', { exact: true })).toBeVisible()
-  await expect(inspection.getByText('methodology-original-1', { exact: true })).toBeVisible()
+  await expect(inspection.getByRole('region', { name: 'Detalhes da contribuição', exact: true }).getByText('methodology-original-1', { exact: true })).toBeVisible()
   await expect(inspection).toContainText('factor-snapshot-1')
   await expect(inspection).toContainText('BR-SP')
   await expect(inspection).toContainText('Brasil')
@@ -265,12 +269,25 @@ test('inspeciona as contribuições originais do ponto selecionado', async ({ pa
   await expect(inspection).toContainText('01/01/2026')
   await expect(inspection).toContainText('31/12/2026')
   await expect(inspection).toContainText('cpuWattsAt100Percent')
-  const firstContribution = inspection.getByRole('listitem').first()
-  await expect(firstContribution.getByRole('heading', { name: 'Coleta: collection-1', exact: true })).toBeVisible()
+  const firstContribution = inspection.getByRole('region', { name: 'Detalhes da contribuição', exact: true })
+  await expect(firstContribution).toContainText('collection-1')
   await expect(firstContribution).toContainText('1 kWh')
   await expect(firstContribution).toContainText('0,5 kWh')
   await expect(firstContribution).toContainText('50%')
-  await expect(inspection).toContainText('Sem observações disponíveis')
-  await expect(inspection).toContainText('Fator de carbono indisponível')
   await expect(page.getByText('Página 1 de 2', { exact: true })).toBeVisible()
+  await inspection.getByRole('button', { name: "Próxima página", exact: true }).click()
+  await expect(page.getByText('Página 2 de 2', { exact: true })).toBeVisible()
+  await expect(inspection.getByText('factor-original-11', { exact: true })).toBeVisible()
+  expect(contributionsRequests).toHaveLength(2)
+  expect(contributionsRequests[1]?.searchParams.get('page')).toBe('2')
+
+  await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('5')
+  await expect(page.getByText('Página 1 de 3', { exact: true })).toBeVisible()
+  await inspection.getByRole('button', { name: "Próxima página", exact: true }).click()
+  await expect(inspection.getByText('factor-original-6', { exact: true })).toBeVisible()
+  await inspection.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('all')
+  await expect(page.getByText('Página 1 de 1', { exact: true })).toBeVisible()
+  await expect(inspection.getByRole('table').getByRole('row')).toHaveCount(13)
+  await inspection.getByRole('button', { name: 'Abrir', exact: true }).last().click()
+  await expect(inspection.getByText('factor-original-12', { exact: true })).toBeVisible()
 })

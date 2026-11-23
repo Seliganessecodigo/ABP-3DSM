@@ -1,38 +1,27 @@
----
-layout: home
-isHome: false
-hero:
-  name: GreenER
-  text: Energia e impacto ambiental, com contexto
-  tagline: Acompanhe aplicações e entenda as estimativas de energia e CO₂e.
-  actions:
-    - theme: brand
-      text: Primeiros passos
-      link: /getting-started
-    - theme: alt
-      text: Explorar os épicos
-      link: /roadmap
-features:
-  - title: Acompanhamento
-    details: Descoberta e monitoramento de aplicações com estados claros.
-  - title: Rastreabilidade
-    details: Métricas, períodos e limitações fazem parte da leitura dos indicadores.
-  - title: Acesso multilíngue
-    details: Documentação e interface disponíveis em oito idiomas.
----
+# GreenER
 
-## Sobre o projeto
+O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem.
 
-GreenER é um projeto acadêmico de Desenvolvimento de Software Multiplataforma da Fatec Jacareí. Seu objetivo é ajudar a acompanhar aplicações, estimar o consumo de energia e apresentar emissões equivalentes de CO₂ (CO₂e).
+## Por onde começar {#start}
 
-## Estado e caminhos de leitura
+Comece pelo resumo ambiental, identifique uma aplicação que merece atenção e consulte seu detalhe. Use o histórico para investigar o período e a metodologia para entender como os valores foram estimados. Considere sempre a cobertura antes de comparar resultados.
 
-A documentação distingue comportamento disponível, escopo planejado e decisões pendentes. O catálogo e o detalhe têm interface; o backend também dispõe de coleta periódica e consultas de evidências. A presença de uma rota não significa que toda a experiência correspondente esteja entregue na UI.
+## Para quem {#readers}
 
-- [Visão e escopo](./product/vision)
-- [Guia de uso](./guide/monitoring)
-- [Metodologia e dados](./product/methodology)
-- [Qualidade e aceite](./product/quality)
-- [Decisões e dependências](./product/decisions)
-- [Referência da API](./reference/api)
-- [Operação e diagnóstico](./operations)
+| Público | Necessidade |
+| --- | --- |
+| Gestão de infraestrutura | Identificar aplicações e acompanhar mudanças no ambiente. |
+| Análise ambiental e operacional | Investigar consumo, emissões e qualidade dos dados de um período. |
+| Desenvolvimento e avaliação | Verificar o comportamento do produto e reproduzir seus resultados. |
+
+## Idioma e aparência {#languages}
+
+Use o seletor para escolher entre os 12 idiomas. A escolha fica neste navegador. O interruptor de modo escuro permite alternar a aparência; antes de uma escolha explícita, a interface acompanha o sistema. Se o navegador bloquear o armazenamento, essas preferências podem ser perdidas ao recarregar. Trocar o idioma muda a apresentação das datas e números, preservando os instantes observados.
+
+## Produto integrado e engenharia {#engineering}
+
+React 19 e TypeScript sustentam a interface; NestJS organiza a API em módulos e camadas, com injeção de dependências; TypeORM e PostgreSQL preservam os dados com migrations versionadas. Integrações validadas, auditoria transacional e snapshots de cálculo dão suporte à consistência dos indicadores.
+
+## Leitura relacionada {#related}
+
+[Visão e escopo](./product/vision) · [Guia de uso](./guide/monitoring) · [Metodologia e dados](./product/methodology)

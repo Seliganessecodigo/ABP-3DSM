@@ -1,38 +1,27 @@
----
-layout: home
-isHome: false
-hero:
-  name: GreenER
-  text: Energie und Umweltauswirkungen im Kontext
-  tagline: Anwendungen überwachen und Energie- sowie CO₂e-Schätzungen verstehen.
-  actions:
-    - theme: brand
-      text: Erste Schritte
-      link: /de-DE/getting-started
-    - theme: alt
-      text: Epics entdecken
-      link: /de-DE/roadmap
-features:
-  - title: Überwachung
-    details: Anwendungen entdecken und mit klaren Statusangaben überwachen.
-  - title: Nachvollziehbarkeit
-    details: Messwerte, Zeiträume und Einschränkungen geben Indikatoren den nötigen Kontext.
-  - title: Mehrsprachiger Zugang
-    details: Dokumentation und Benutzeroberfläche sind in acht Sprachen verfügbar.
----
+# GreenER
 
-## Über das Projekt
+GreenER vereint kontinuierliche Überwachung, Energie- und CO₂e-Schätzungen sowie Umweltanalysen in einer integrierten Plattform. Dynamischer Katalog, Dashboard, Verlauf, Ranking, Vergleich und regionale Simulation verbinden den Überblick mit der Untersuchung einzelner Anwendungen; Kennzahlen lassen sich bis zu Quelldaten und Methodik zurückverfolgen.
 
-GreenER ist ein akademisches Projekt im Studiengang Multiplatform Software Development an der Fatec Jacareí in Brasilien. Ziel ist es, Anwendungen zu überwachen, ihren Energieverbrauch zu schätzen und CO₂-Äquivalent-Emissionen (CO₂e) darzustellen.
+## Wo beginnen {#start}
 
-## Stand und Lesepfade
+Beginnen Sie mit der Umweltübersicht, wählen Sie eine auffällige Anwendung und öffnen Sie ihre Details. Untersuchen Sie den Zeitraum im Verlauf und die Schätzung in der Methodik. Berücksichtigen Sie vor jedem Vergleich die Abdeckung.
 
-Dokumentation trennt vorhandenes Verhalten, geplanten Umfang, offene Entscheidungen. Katalog/Detail haben UI; Backend bietet auch regelmäßige Sammlung und Belegabfragen. Eine API-Route bedeutet nicht vollständige UI-Lieferung.
+## Zielgruppen {#readers}
 
-- [Vision und Umfang](./product/vision)
-- [Benutzerhandbuch](./guide/monitoring)
-- [Methodik und Daten](./product/methodology)
-- [Qualität und Abnahme](./product/quality)
-- [Entscheidungen und Abhängigkeiten](./product/decisions)
-- [API-Referenz](./reference/api)
-- [Betrieb und Diagnose](./operations)
+| Zielgruppe | Bedarf |
+| --- | --- |
+| Infrastrukturverwaltung | Anwendungen erkennen und Änderungen der Umgebung verfolgen. |
+| Umwelt- und Betriebsanalyse | Verbrauch, Emissionen und Datenqualität eines Zeitraums untersuchen. |
+| Entwicklung und Bewertung | Produktverhalten prüfen und Ergebnisse nachvollziehen. |
+
+## Sprache und Darstellung {#languages}
+
+Wählen Sie im Menü zwischen 12 Sprachen; die Auswahl bleibt in diesem Browser. Der Dunkelmodus ändert die Darstellung; vor einer ausdrücklichen Auswahl folgt sie dem System. Gesperrter Browserspeicher kann Einstellungen beim Neuladen verlieren. Die Sprache formatiert Zahlen und Daten, ohne Beobachtungszeitpunkte zu ändern.
+
+## Integriertes Produkt und Entwicklung {#engineering}
+
+React 19 und TypeScript tragen die Oberfläche; NestJS gliedert die API mit Dependency Injection in Module und Schichten; TypeORM und PostgreSQL erhalten Daten durch versionierte Migrationen. Validierte Integrationen, transaktionale Auditierung und Berechnungssnapshots stützen konsistente Kennzahlen.
+
+## Weiterführende Seiten {#related}
+
+[Vision und Umfang](./product/vision) · [Benutzerhandbuch](./guide/monitoring) · [Methodik und Daten](./product/methodology)
