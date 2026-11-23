@@ -140,12 +140,17 @@ test('valida cobertura e alterna indicador/tabela/gráfico da prévia de anális
   await page.getByRole('tab', { name: names[3], exact: true }).click()
   await expect(page.getByRole('img', { name: /Série temporal/ })).toBeVisible()
   await page.getByRole('button', { name: 'Tabela', exact: true }).click()
+  await page.getByRole('button', { name: 'Energia', exact: true }).click()
   await expect(page.getByRole('cell', { name: '2 kWh', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'CO₂e', exact: true }).click()
   await expect(page.getByRole('cell', { name: '85 gCO2e', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Gráfico', exact: true }).click()
+  const chart = page.getByRole('img', { name: /Série temporal/ })
+  await expect(chart).toHaveAccessibleName(/CO₂e \(gCO2e\)/)
+  await expect(chart.locator('rect[data-metric="emissions"]')).toHaveCount(1)
+  await expect(chart.locator('rect[data-metric="energy"]')).toHaveCount(0)
   await page.getByLabel('Período de aplicação', { exact: true }).selectOption('30d')
-  await expect(page.getByRole('img', { name: /Série temporal/ })).toBeVisible()
+  await expect(chart).toBeVisible()
 })
 
 for (const viewport of [{ width: 1894, height: 1004 }, { width: 1366, height: 768 }, { width: 2560, height: 1440 }, { width: 390, height: 844 }, { width: 320, height: 740 }]) test(`quatro abas sem overflow em ${viewport.width}px`, async ({ page }, testInfo) => {
