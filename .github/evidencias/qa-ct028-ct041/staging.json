@@ -1,0 +1,142 @@
+{
+  "at": "2026-11-23T03:15:22.738Z",
+  "base": "https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net",
+  "results": [
+    {
+      "path": "/openapi.json",
+      "status": 200,
+      "durationMs": 886,
+      "body": {
+        "info": {
+          "title": "GreenER API",
+          "description": "",
+          "version": "1.0.0",
+          "contact": {}
+        },
+        "paths": [
+          "/applications/{id}/analysis/recalculation-preview",
+          "/applications/{id}/analysis/regional-simulation",
+          "/applications/{id}/analysis/series",
+          "/applications/{id}/analysis/series/contributions",
+          "/applications/{id}/analysis",
+          "/analysis/summary",
+          "/analysis/ranking",
+          "/analysis/comparison"
+        ]
+      }
+    },
+    {
+      "path": "/applications",
+      "status": 200,
+      "durationMs": 95,
+      "body": {
+        "count": 8,
+        "firstId": "inventory-sync"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z",
+      "status": 400,
+      "durationMs": 42,
+      "body": {
+        "code": "INVALID_ANALYSIS_GRANULARITY"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=minute",
+      "status": 400,
+      "durationMs": 39,
+      "body": {
+        "code": "INVALID_ANALYSIS_GRANULARITY"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=2026-11-01T00%3A00%3A00&to=2026-11-01T01%3A00%3A00Z&granularity=hour",
+      "status": 400,
+      "durationMs": 27,
+      "body": {
+        "code": "INVALID_ANALYSIS_PERIOD"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=invalid&to=2026-11-01T01%3A00%3A00Z&granularity=hour",
+      "status": 400,
+      "durationMs": 26,
+      "body": {
+        "code": "INVALID_ANALYSIS_PERIOD"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=2026-11-01T01%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour",
+      "status": 400,
+      "durationMs": 29,
+      "body": {
+        "code": "INVALID_ANALYSIS_PERIOD"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour",
+      "status": 400,
+      "durationMs": 24,
+      "body": {
+        "code": "INVALID_ANALYSIS_PERIOD"
+      }
+    },
+    {
+      "path": "/applications/qa-ct041-missing-20261123/analysis/series?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour",
+      "status": 404,
+      "durationMs": 28,
+      "body": {
+        "code": "APPLICATION_NOT_FOUND"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A30%3A00Z",
+      "status": 400,
+      "durationMs": 28,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_BUCKET"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A00%3A00Z&page=0",
+      "status": 400,
+      "durationMs": 29,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_PAGINATION"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A00%3A00Z&page=-1",
+      "status": 400,
+      "durationMs": 30,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_PAGINATION"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A00%3A00Z&page=1.5",
+      "status": 400,
+      "durationMs": 31,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_PAGINATION"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A00%3A00Z&pageSize=6",
+      "status": 400,
+      "durationMs": 25,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_PAGINATION"
+      }
+    },
+    {
+      "path": "/applications/inventory-sync/analysis/series/contributions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-01T01%3A00%3A00Z&granularity=hour&bucketStart=2026-11-01T00%3A00%3A00Z&pageSize=all&page=2",
+      "status": 400,
+      "durationMs": 31,
+      "body": {
+        "code": "INVALID_ANALYSIS_SERIES_PAGINATION"
+      }
+    }
+  ]
+}

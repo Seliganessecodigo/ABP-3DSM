@@ -173,6 +173,65 @@ describeWithDatabase('GET /applications/:id/analysis/series com PostgreSQL', () 
     else process.env.DATABASE_URL = previousDatabaseUrl
   })
 
+  it('CT-028 S1–S5: reconcilia sobreposições, rateio, null, desempate e paginação na fixture exata', async () => {
+    const id = `ct028-${randomUUID()}`
+    await database.query('INSERT INTO applications (id, name, state) VALUES ($1, $1, $2)', [id, 'AVAILABLE'])
+    const from = '2026-11-01T00:00:00Z'
+    const middle = '2026-11-01T01:00:00Z'
+    const to = '2026-11-01T02:00:00Z'
+    const get = async (route: string, extra: Record<string, string> = {}) => {
+      const query = new URLSearchParams({ from, to, ...extra })
+      const response = await fetch(`${await app.getUrl()}${route}?${query}`)
+      expect(response.status).toBe(200)
+      return response.json()
+    }
+    try {
+      const c1 = await insertCollection(database, { applicationId: id, from, to, energy: 2, emissions: 20 })
+      const c2 = await insertCollection(database, { applicationId: id, from: middle, to, energy: 3, emissions: 30 })
+      await database.query('UPDATE collections SET "collectedAt" = $2 WHERE id = $1', [c2, '2026-11-01T03:00:00Z'])
+      const route = `/applications/${id}/analysis`
+      const period = await get(route)
+      expect(period.energy.value).toBe(4)
+      const series = await get(`${route}/series`, { granularity: 'hour' })
+      expect(series.points.map((point: { energy: { value: number } }) => point.energy.value)).toEqual([1, 3])
+      const partial = await get(route, { from: '2026-11-01T00:30:00Z', to: '2026-11-01T01:30:00Z' })
+      expect(partial.energy.value).toBe(2)
+      for (const pageSize of ['5', '10', '15', '20', 'all']) {
+        let sum = 0
+        for (const bucketStart of [from, middle]) {
+          const drilldown = await get(`${route}/series/contributions`, { granularity: 'hour', bucketStart, pageSize })
+          sum += drilldown.contributions.reduce((total: number, item: { energy: { value: number } }) => total + item.energy.value, 0)
+          expect(drilldown.pagination.totalItems).toBe(1)
+        }
+        expect(sum).toBe(4)
+      }
+      const summary = await get('/analysis/summary', { applicationIds: id, granularity: 'hour' })
+      expect(summary.totals.energy.value).toBe(4)
+      expect(summary.coverage).toEqual(period.coverage)
+      await database.query('UPDATE collections SET "carbonGrams" = NULL WHERE id = $1', [c2])
+      const missing = await get(route)
+      expect(missing.energy.value).toBe(4)
+      expect(missing.emissions.value).toBe(10)
+      expect(missing.coverage).toEqual({ energy: 1, emissions: 0.5 })
+      await database.query('UPDATE collections SET "collectedAt" = $2 WHERE id = $1', [c1, '2026-11-01T03:00:00Z'])
+      const winner = [c1, c2].sort()[0]
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const tie = await get(`${route}/series/contributions`, { granularity: 'hour', bucketStart: middle })
+        expect(tie.contributions.map((item: {collectionId: string}) => item.collectionId)).toEqual([winner])
+      }
+      const empty = await get(route, { from: '2026-10-31T23:00:00Z', to: from })
+      expect(empty.energy.value).toBeNull()
+      expect(empty.emissions.value).toBeNull()
+      const gap = await get(route, { from: '2026-10-31T23:00:00Z', to })
+      expect(gap.coverage.energy).toBeCloseTo(2 / 3)
+      console.log('CT-028: 00–01 C1=1 kWh; 01–02 C2=3 kWh; total=4; recorte=2; emissão null: 10g/cobertura 0.5; desempate 3x; paginações 5/10/15/20/all; vazio null; lacuna 2/3')
+    } finally {
+      await database.query('DELETE FROM application_events WHERE "applicationId" = $1', [id])
+      await database.query('DELETE FROM collections WHERE "applicationId" = $1', [id])
+      await database.query('DELETE FROM applications WHERE id = $1', [id])
+    }
+  })
+
   it('groups saved results into UTC hourly buckets and reconciles partial edges with the period total', async () => {
     const from = '2026-10-01T02:45:00+02:00'
     const to = '2026-10-01T04:15:00+02:00'
@@ -873,6 +932,8 @@ describeWithDatabase('GET /applications/:id/analysis/series com PostgreSQL', () 
     }
 
     const invalidSeriesQueries = [
+      new URLSearchParams({ from: seriesQuery.get('from')!, to: seriesQuery.get('to')! }),
+      new URLSearchParams({ ...Object.fromEntries(seriesQuery), from: '2026-10-02T00:00:00Z' }),
       new URLSearchParams({ ...Object.fromEntries(seriesQuery), from: '2026-10-01T00:00:00' }),
       new URLSearchParams({ ...Object.fromEntries(seriesQuery), granularity: 'minute' }),
     ]
