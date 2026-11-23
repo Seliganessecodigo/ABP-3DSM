@@ -36,7 +36,7 @@ const tableColumns: ReadonlyArray<Readonly<{ key: DashboardSortColumn; label: st
   { key: 'emissionsCoverage', label: 'table.emissionsCoverage' },
 ]
 const pageSizes: readonly DashboardPageSize[] = [5, 10, 15, 20, 'all']
-const compositionColors = ['#0b7658', '#36a87c', '#70c4a1', '#91bda9', '#557d6c'] as const
+const compositionColors = ['#0b7658', '#36a87c', '#70c4a1', '#91bda9', '#557d6c', '#aacb58', '#22965e', '#6e9b94'] as const
 const filterDefaults: DashboardTableFilters = {
   name: '', state: 'ALL', region: '', energyMin: '', energyMax: '', energyMissing: false,
   emissionsMin: '', emissionsMax: '', emissionsMissing: false,
@@ -53,7 +53,8 @@ function coverageLabel(value: number, locale: string): string {
 }
 
 function compositionColor(index: number): string {
-  return compositionColors[index % compositionColors.length]
+  if (index < compositionColors.length) return compositionColors[index]
+  return `hsl(${85 + ((index - compositionColors.length) * 137.508) % 100} 45% 42%)`
 }
 
 function timeLabel(value: string, locale: string): string {
@@ -103,6 +104,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
   const [compositionDirection, setCompositionDirection] = useState<'asc' | 'desc'>('desc')
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
   const period = query.period
   const data = useDashboard(summaryFilters(query))
   const refresh = data.refresh
@@ -131,15 +133,62 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const canDrawComposition = data.data?.totals.emissions.value !== null &&
     data.data?.totals.emissions.value !== undefined && emissionSum > 0 &&
     emissionApplications.every((application) => (application.emissions.value ?? 0) >= 0)
-  const chartApplications = [...emissionApplications].sort((left, right) => {
+  const rankedApplications = [...emissionApplications].sort((left, right) => {
     const difference = (left.emissions.value ?? 0) - (right.emissions.value ?? 0)
-    return (compositionDirection === 'asc' ? difference : -difference) || left.applicationId.localeCompare(right.applicationId, locale)
+    return -difference || left.applicationId.localeCompare(right.applicationId, locale)
   })
-  const donutStops = chartApplications.reduce((result, application, index) => {
-    const end = result.position + ((application.emissions.value ?? 0) / emissionSum) * 100
-    const color = compositionColor(index)
-    return { position: end, stops: [...result.stops, `${color} ${result.position}% ${end}%`] }
-  }, { position: 0, stops: [] as string[] }).stops.join(', ')
+  const applicationColors = new Map(rankedApplications.map((application, index) => [application.applicationId, compositionColor(index)]))
+  const chartApplications = compositionMode === 'bars' && compositionDirection === 'asc'
+    ? [...rankedApplications].sort((left, right) => (left.emissions.value ?? 0) - (right.emissions.value ?? 0) || left.applicationId.localeCompare(right.applicationId, locale))
+    : rankedApplications
+  const selectedApplication = canDrawComposition
+    ? chartApplications.find((application) => application.applicationId === selectedApplicationId && (application.emissions.value ?? 0) > 0)
+    : undefined
+  const otherApplications = chartApplications.slice(3)
+  const otherEmissions = otherApplications.reduce((sum, application) => sum + (application.emissions.value ?? 0), 0)
+  const donutValues = chartApplications.map((application) => application.emissions.value ?? 0)
+  const positiveDonutValues = donutValues.filter((value) => value > 0)
+  const gapPercent = positiveDonutValues.length > 1
+    ? Math.min(0.8, Math.min(...positiveDonutValues) / emissionSum * 100 / 3)
+    : 0
+  const capPercent = 26 / (4 * Math.PI * 80) * 100
+  const donutSegments = donutValues.reduce<{
+    position: number
+    segments: Array<{ applicationId: string; color: string; start: number; length: number; rounded: boolean; compact: boolean }>
+  }>((result, value, index) => {
+    if (value <= 0 || emissionSum <= 0) return result
+    const share = value / emissionSum * 100
+    const rounded = positiveDonutValues.length > 1 && share > 2 * capPercent + gapPercent
+    const compact = positiveDonutValues.length > 1 && !rounded
+    const inset = rounded ? capPercent : 0
+    const segment = {
+      applicationId: chartApplications[index].applicationId,
+      color: applicationColors.get(chartApplications[index].applicationId) ?? compositionColor(index),
+      start: result.position + inset + gapPercent / 2,
+      length: share - 2 * inset - gapPercent,
+      rounded,
+      compact,
+    }
+    return { position: result.position + share, segments: [...result.segments, segment] }
+  }, { position: 0, segments: [] }).segments
+  const compositionRows = chartApplications.map((application, index) => {
+    const value = application.emissions.value ?? 0
+    const share = canDrawComposition ? value / emissionSum : 0
+    const color = applicationColors.get(application.applicationId) ?? compositionColor(index)
+    return <li key={application.applicationId} className={compositionMode === 'bars' ? styles.barRow : styles.legendRow}>
+      <button type="button" className={styles.applicationButton} aria-pressed={selectedApplication?.applicationId === application.applicationId}
+        disabled={!canDrawComposition || value <= 0}
+        onClick={() => setSelectedApplicationId((current) => current === application.applicationId ? null : application.applicationId)}>
+        <span className={styles.legendName}>
+          <span className={styles.legendSwatch} style={{ backgroundColor: color }} />
+          <span className={styles.applicationName} title={application.name}>{application.name}</span>
+        </span>
+        {compositionMode === 'bars' && <span className={styles.barTrack}><span style={{ width: `${share * 100}%`, backgroundColor: color }} /></span>}
+        <strong>{numberLabel(value, application.emissions.unit, locale, t('notAvailable'))}</strong>
+        {canDrawComposition && <span className={styles.legendShare}>{coverageLabel(share, locale)}</span>}
+      </button>
+    </li>
+  })
   const totalApplications = data.data ? Object.values(data.data.states).reduce((sum, count) => sum + count, 0) : 0
   const summaryMeta = data.data && dateRangeLabel(data.data.period.from, data.data.period.to, locale)
 
@@ -329,12 +378,44 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           {emissionApplications.length === 0
             ? <p className={styles.emptyNotice}>{t('compositionEmpty')}</p>
             : <div className={`${styles.composition} ${compositionMode === 'bars' ? styles.compositionBars : ''}`}>
-              {compositionMode === 'donut' && canDrawComposition && <div className={styles.donut}
-                style={{ background: `conic-gradient(${donutStops})` }} role="img" aria-label={t('donutDescription', {
+              {compositionMode === 'donut' && canDrawComposition && data.data.totals.emissions.value !== null && <div className={styles.donut}
+                role="img" aria-label={`${selectedApplication ? `${selectedApplication.name}: ${numberLabel(selectedApplication.emissions.value, selectedApplication.emissions.unit, locale, t('notAvailable'))} (${coverageLabel((selectedApplication.emissions.value ?? 0) / emissionSum, locale)}). ` : ''}${t('donutDescription', {
                   count: emissionApplications.length,
                   total: numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable')),
-                })}>
-                <span><small>{t('total')}</small><strong>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</strong></span>
+                })}`}>
+                <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                  <g transform="rotate(-90 100 100)">
+                    {donutSegments.map((segment) => {
+                      const isSelected = selectedApplication?.applicationId === segment.applicationId
+                      const angle = (segment.start + segment.length / 2) * 2 * Math.PI / 100
+                      const offset = isSelected ? 4 : 0
+                      const transform = `translate(${offset * Math.cos(angle)} ${offset * Math.sin(angle)})`
+                      if (segment.compact) {
+                        const centerX = 100 + 80 * Math.cos(angle)
+                        const centerY = 100 + 80 * Math.sin(angle)
+                        const width = segment.length * 2 * Math.PI * 80 / 100
+                        return <g key={segment.applicationId} className={styles.donutSegment}
+                          opacity={selectedApplication && !isSelected ? 0.28 : 1} transform={transform}>
+                          <rect x={centerX - width / 2} y={centerY - 13} width={width} height="26"
+                            rx={Math.min(5, width / 2)} fill={segment.color}
+                            transform={`rotate(${angle * 180 / Math.PI + 90} ${centerX} ${centerY})`} />
+                        </g>
+                      }
+                      return <g key={segment.applicationId} className={styles.donutSegment}
+                        opacity={selectedApplication && !isSelected ? 0.28 : 1} transform={transform}>
+                        <circle cx="100" cy="100" r="80" pathLength="100"
+                          fill="none" stroke={segment.color} strokeWidth="26" strokeLinecap={segment.rounded ? 'round' : 'butt'}
+                          strokeDasharray={`${segment.length} ${100 - segment.length}`} strokeDashoffset={-segment.start} />
+                      </g>
+                    })}
+                  </g>
+                </svg>
+                <span>
+                  <small className={selectedApplication ? styles.donutSelectedName : undefined} title={selectedApplication?.name}>{selectedApplication?.name ?? t('total')}</small>
+                  <strong>{formatNumber(selectedApplication?.emissions.value ?? data.data.totals.emissions.value, locale)}</strong>
+                  <span className={styles.donutUnit}>{selectedApplication?.emissions.unit ?? data.data.totals.emissions.unit}</span>
+                  {selectedApplication && <small>{coverageLabel((selectedApplication.emissions.value ?? 0) / emissionSum, locale)}</small>}
+                </span>
               </div>}
               {!canDrawComposition && <p className={styles.pendingNote}>{t('compositionSharesUnavailable')}</p>}
               <div className={styles.compositionLegend}>
@@ -343,17 +424,20 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                   <button type="button" aria-pressed={compositionDirection === 'desc'} onClick={() => setCompositionDirection('desc')}>{t('descending')}</button>
                 </div>}
                 <ul>
-                  {chartApplications.map((application, index) => {
-                    const value = application.emissions.value ?? 0
-                    const share = canDrawComposition ? value / emissionSum * 100 : 0
-                    return <li key={application.applicationId} className={compositionMode === 'bars' ? styles.barRow : styles.legendRow}>
-                      <span className={styles.legendName}><span className={styles.legendSwatch} style={{ backgroundColor: compositionColor(index) }} />{application.name}</span>
-                      {compositionMode === 'bars' && <span className={styles.barTrack}><span style={{ width: `${share}%`, backgroundColor: compositionColor(index) }} /></span>}
-                      <strong>{numberLabel(value, application.emissions.unit, locale, t('notAvailable'))}</strong>
-                      {canDrawComposition && <span>{coverageLabel(share / 100, locale)}</span>}
-                    </li>
-                  })}
+                  {compositionMode === 'bars' ? compositionRows : compositionRows.slice(0, 3)}
                 </ul>
+                {compositionMode === 'donut' && otherApplications.length > 0 && <details className={styles.moreApplications}>
+                  <summary>
+                    <span className={styles.legendName}>
+                      <span className={styles.moreSwatches} aria-hidden="true">
+                        {otherApplications.slice(0, 5).map((application, index) => <span key={application.applicationId} className={styles.legendSwatch} style={{ backgroundColor: applicationColors.get(application.applicationId) ?? compositionColor(index + 3) }} />)}
+                      </span>
+                      {t('otherApplications', { count: otherApplications.length })}
+                    </span>
+                    {canDrawComposition && <strong>{coverageLabel(otherEmissions / emissionSum, locale)}</strong>}
+                  </summary>
+                  <ul>{compositionRows.slice(3)}</ul>
+                </details>}
               </div>
             </div>}
         </article>

@@ -138,6 +138,76 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.getByRole('link', { name: /ver detalhes: api-estoque/i })).toHaveAttribute('href', /\/services\/svc-1/)
 })
 
+test('composition gives every application a distinct arc and keeps the legend compact', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await mockSummary(page, (url) => ({ json: summaryResponse(url, [
+    contribution('svc-1', 'primeira', 40),
+    contribution('svc-2', 'segunda', 30),
+    contribution('svc-3', 'terceira', 20),
+    contribution('svc-4', 'quarta', 3),
+    contribution('svc-5', 'quinta', 2),
+    contribution('svc-6', 'sexta', 2),
+    contribution('svc-7', 'sétima', 2),
+    contribution('svc-8', 'oitava', 1),
+  ]) }))
+
+  await page.goto('/dashboard')
+  const composition = page.locator('[data-help="dashboard-composition"]')
+  await expect(composition.getByRole('img')).toHaveAttribute('aria-label', /8 aplicações, total 100 gCO2e/)
+  const arcs = composition.locator('svg circle, svg rect')
+  await expect(arcs).toHaveCount(8)
+  expect(new Set(await arcs.evaluateAll((elements) => elements.map((element) => element.getAttribute('stroke') ?? element.getAttribute('fill')))).size).toBe(8)
+  await expect(composition.locator('svg circle[stroke-linecap="round"]')).toHaveCount(3)
+  await expect(composition.locator('svg rect[rx]')).toHaveCount(5)
+  await expect(composition.getByText('primeira')).toBeVisible()
+  await expect(composition.getByText('quarta')).toBeHidden()
+  await expect(composition.locator('details summary')).toContainText('Outras aplicações (5)')
+  await expect(composition.locator('details summary')).toContainText('10%')
+
+  const firstApplication = composition.getByRole('button', { name: /primeira/ })
+  await firstApplication.click()
+  await expect(firstApplication).toHaveAttribute('aria-pressed', 'true')
+  await expect(composition.getByRole('img')).toHaveAttribute('aria-label', /^primeira: 40 gCO2e \(40%\)/)
+  await expect(composition.locator('svg g[opacity="0.28"]')).toHaveCount(7)
+  await firstApplication.click()
+  await expect(composition.locator('svg g[opacity="0.28"]')).toHaveCount(0)
+
+  const cardHeight = await composition.evaluate((element) => element.getBoundingClientRect().height)
+  await composition.locator('details summary').click()
+  expect(await composition.evaluate((element) => element.getBoundingClientRect().height)).toBe(cardHeight)
+  expect(await composition.locator('details ul').evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
+  await expect(composition.getByText('quarta')).toBeVisible()
+  await expect(composition.locator('details')).toContainText('oitava')
+  await expect(composition.locator('details')).toContainText('3 gCO2e')
+  await expect(composition.locator('details')).toContainText('1 gCO2e')
+  await composition.getByRole('button', { name: /quarta/ }).click()
+  await expect(composition.getByRole('img')).toHaveAttribute('aria-label', /^quarta: 3 gCO2e \(3%\)/)
+
+  await composition.getByRole('button', { name: 'Ver barras' }).click()
+  await expect(composition.locator('details')).toHaveCount(0)
+  await expect(composition.getByText('quinta')).toBeVisible()
+  await expect(composition.getByRole('button', { name: /quarta/ })).toHaveAttribute('aria-pressed', 'true')
+  const barPositions = await composition.locator('li[class*="barRow"]').evaluateAll((rows) => rows.map((row) => {
+    const track = row.querySelector('[class*="barTrack"]')?.getBoundingClientRect()
+    const value = row.querySelector('strong')?.getBoundingClientRect()
+    return { trackX: track?.left ?? 0, valueX: value?.left ?? 0, trackY: track ? track.top + track.height / 2 : 0, valueY: value ? value.top + value.height / 2 : 0 }
+  }))
+  expect(Math.max(...barPositions.map((row) => row.trackX)) - Math.min(...barPositions.map((row) => row.trackX))).toBeLessThan(1)
+  expect(Math.max(...barPositions.map((row) => row.valueX)) - Math.min(...barPositions.map((row) => row.valueX))).toBeLessThan(1)
+  expect(barPositions.every((row) => Math.abs(row.trackY - row.valueY) < 2)).toBe(true)
+  await composition.getByRole('button', { name: 'Crescente', exact: true }).click()
+  await composition.getByRole('button', { name: 'Ver rosca' }).click()
+  await expect(composition.getByText('primeira')).toBeVisible()
+  await expect(composition.getByText('quinta')).toBeHidden()
+  await expect(composition.getByRole('img')).toHaveAttribute('aria-label', /^quarta: 3 gCO2e \(3%\)/)
+
+  await page.setViewportSize({ width: 375, height: 812 })
+  await composition.getByRole('button', { name: 'Ver barras' }).click()
+  const mobileBars = composition.locator('li[class*="barRow"]').first().locator('..')
+  expect(await mobileBars.evaluate((list) => list.scrollHeight <= list.clientHeight)).toBe(true)
+  expect(await composition.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true)
+})
+
 test('summary filter preserves the period and applies the historical region filter to the API', async ({ page }) => {
   let catalogRequests = 0
   page.on('request', (request) => {

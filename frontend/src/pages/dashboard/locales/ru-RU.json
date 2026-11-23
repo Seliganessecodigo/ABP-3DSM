@@ -36,6 +36,7 @@
   "compositionEmpty": "Ни у одного приложения нет результата CO₂e за этот период.",
   "compositionSharesUnavailable": "Для этого итога невозможно рассчитать доли; отдельные значения доступны.",
   "total": "Итого",
+  "otherApplications": "Другие приложения ({{count}})",
   "donutDescription": "Состав CO₂e для {{count}} приложений, всего {{total}}",
   "ascending": "По возрастанию",
   "descending": "По убыванию",

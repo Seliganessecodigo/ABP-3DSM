@@ -36,6 +36,7 @@
   "compositionEmpty": "Tidak ada aplikasi dengan hasil CO₂e untuk periode ini.",
   "compositionSharesUnavailable": "Proporsi tidak dapat dihitung untuk total ini; nilai individual tetap tersedia.",
   "total": "Total",
+  "otherApplications": "Aplikasi lainnya ({{count}})",
   "donutDescription": "Komposisi CO₂e untuk {{count}} aplikasi, total {{total}}",
   "ascending": "Menaik",
   "descending": "Menurun",

@@ -36,6 +36,7 @@
   "compositionEmpty": "Aucune application n’a de résultat CO₂e pour cette période.",
   "compositionSharesUnavailable": "Les parts ne peuvent pas être calculées pour ce total ; les valeurs individuelles restent disponibles.",
   "total": "Total",
+  "otherApplications": "Autres applications ({{count}})",
   "donutDescription": "Composition CO₂e de {{count}} applications, total {{total}}",
   "ascending": "Croissant",
   "descending": "Décroissant",
