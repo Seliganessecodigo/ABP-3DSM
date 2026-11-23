@@ -33,7 +33,7 @@
   "from": "Verified from",
   "to": "Verified through",
   "timeZone": "Time zone: {{timeZone}}",
-  "invalidDateRange": "The start date must be on or before the end date.",
+  "invalidDateRange": "Enter valid dates with a start date on or before the end date.",
   "clearFilters": "Clear filters",
   "activeFilters": "Active filters",
   "range": "Showing {{start}}–{{end}} of {{count}} applications",

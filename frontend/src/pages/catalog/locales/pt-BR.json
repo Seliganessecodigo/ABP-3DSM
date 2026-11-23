@@ -33,7 +33,7 @@
   "from": "Verificada a partir de",
   "to": "Verificada até",
   "timeZone": "Fuso horário: {{timeZone}}",
-  "invalidDateRange": "A data inicial deve ser anterior ou igual à data final.",
+  "invalidDateRange": "Informe datas válidas e início anterior ou igual ao fim.",
   "clearFilters": "Limpar filtros",
   "activeFilters": "Filtros ativos",
   "range": "Exibindo {{start}}–{{end}} de {{count}} aplicações",

@@ -29,7 +29,7 @@
   "updated": "Catálogo actualizado",
   "columnFilters": "Filtros por columna", "regionCode": "Código regional", "cityMissing": "Ciudad no indicada",
   "from": "Verificada desde", "to": "Verificada hasta", "timeZone": "Zona horaria: {{timeZone}}",
-  "invalidDateRange": "La fecha inicial debe ser anterior o igual a la fecha final.", "clearFilters": "Borrar filtros",
+  "invalidDateRange": "Introduce fechas válidas y un inicio anterior o igual al final.", "clearFilters": "Borrar filtros",
   "activeFilters": "Filtros activos", "range": "Mostrando {{start}}–{{end}} de {{count}} aplicaciones",
   "pageSize": "Elementos por página", "all": "Todas", "nameFilter": "Nombre o identificador",
   "countryFilter": "País", "regionCodeFilter": "Código regional", "cityFilter": "Ciudad", "stateFilter": "Estado",
