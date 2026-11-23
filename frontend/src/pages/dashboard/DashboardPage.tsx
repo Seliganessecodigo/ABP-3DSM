@@ -105,6 +105,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
   const [compositionDirection, setCompositionDirection] = useState<'asc' | 'desc'>('desc')
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
+  const [hoveredComposition, setHoveredComposition] = useState<{ applicationId: string; left: number; top: number; below: boolean } | null>(null)
   const period = query.period
   const data = useDashboard(summaryFilters(query))
   const refresh = data.refresh
@@ -144,6 +145,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const selectedApplication = canDrawComposition
     ? chartApplications.find((application) => application.applicationId === selectedApplicationId && (application.emissions.value ?? 0) > 0)
     : undefined
+  const hoveredApplication = hoveredComposition && chartApplications.find((application) => application.applicationId === hoveredComposition.applicationId)
   const otherApplications = chartApplications.slice(3)
   const otherEmissions = otherApplications.reduce((sum, application) => sum + (application.emissions.value ?? 0), 0)
   const donutValues = chartApplications.map((application) => application.emissions.value ?? 0)
@@ -154,7 +156,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const capPercent = 26 / (4 * Math.PI * 80) * 100
   const donutSegments = donutValues.reduce<{
     position: number
-    segments: Array<{ applicationId: string; color: string; start: number; length: number; rounded: boolean; compact: boolean }>
+    segments: Array<{ applicationId: string; name: string; value: number; unit: string; color: string; start: number; length: number; rounded: boolean; compact: boolean }>
   }>((result, value, index) => {
     if (value <= 0 || emissionSum <= 0) return result
     const share = value / emissionSum * 100
@@ -163,6 +165,9 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     const inset = rounded ? capPercent : 0
     const segment = {
       applicationId: chartApplications[index].applicationId,
+      name: chartApplications[index].name,
+      value,
+      unit: chartApplications[index].emissions.unit,
       color: applicationColors.get(chartApplications[index].applicationId) ?? compositionColor(index),
       start: result.position + inset + gapPercent / 2,
       length: share - 2 * inset - gapPercent,
@@ -171,6 +176,41 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     }
     return { position: result.position + share, segments: [...result.segments, segment] }
   }, { position: 0, segments: [] }).segments
+  function selectCompositionApplication(applicationId: string) {
+    setSelectedApplicationId((current) => current === applicationId ? null : applicationId)
+  }
+  function showCompositionTooltip(applicationId: string, card: HTMLElement, clientX: number, clientY: number) {
+    const cardRect = card.getBoundingClientRect()
+    const halfWidth = Math.min(110, cardRect.width / 2 - 12)
+    const below = clientY - cardRect.top < 150
+    setHoveredComposition({
+      applicationId,
+      left: Math.min(Math.max(clientX - cardRect.left, halfWidth), cardRect.width - halfWidth),
+      top: clientY - cardRect.top + (below ? 8 : -8),
+      below,
+    })
+  }
+  function showBarTooltip(applicationId: string, bar: HTMLElement) {
+    const card = bar.closest<HTMLElement>('[data-help="dashboard-composition"]')
+    if (!card) return
+    const barRect = bar.getBoundingClientRect()
+    showCompositionTooltip(applicationId, card, barRect.left + barRect.width / 2, barRect.top + barRect.height / 2)
+  }
+  function showDonutTooltip(applicationId: string, segment: SVGGElement, clientX: number) {
+    const card = segment.closest<HTMLElement>('[data-help="dashboard-composition"]')
+    const svgRect = segment.ownerSVGElement?.getBoundingClientRect()
+    if (!card || !svgRect) return
+    const cardRect = card.getBoundingClientRect()
+    const halfWidth = Math.min(svgRect.width <= 150 ? 58 : 110, cardRect.width / 2 - 12)
+    const side = clientX >= svgRect.left + svgRect.width / 2 ? 1 : -1
+    const desiredLeft = (side === 1 ? svgRect.right + 78 : svgRect.left - 78) - cardRect.left
+    setHoveredComposition({
+      applicationId,
+      left: Math.min(Math.max(desiredLeft, halfWidth), cardRect.width - halfWidth),
+      top: svgRect.top - cardRect.top + svgRect.height / 2 - 25,
+      below: true,
+    })
+  }
   const compositionRows = chartApplications.map((application, index) => {
     const value = application.emissions.value ?? 0
     const share = canDrawComposition ? value / emissionSum : 0
@@ -178,12 +218,25 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     return <li key={application.applicationId} className={compositionMode === 'bars' ? styles.barRow : styles.legendRow}>
       <button type="button" className={styles.applicationButton} aria-pressed={selectedApplication?.applicationId === application.applicationId}
         disabled={!canDrawComposition || value <= 0}
-        onClick={() => setSelectedApplicationId((current) => current === application.applicationId ? null : application.applicationId)}>
+        onFocus={(event) => {
+          if (compositionMode === 'bars' && event.currentTarget.matches(':focus-visible')) {
+            const bar = event.currentTarget.querySelector<HTMLElement>('[data-bar-track]')
+            if (bar) showBarTooltip(application.applicationId, bar)
+          }
+        }}
+        onBlur={() => setHoveredComposition(null)}
+        onClick={() => selectCompositionApplication(application.applicationId)}>
         <span className={styles.legendName}>
           <span className={styles.legendSwatch} style={{ backgroundColor: color }} />
           <span className={styles.applicationName} title={application.name}>{application.name}</span>
         </span>
-        {compositionMode === 'bars' && <span className={styles.barTrack}><span style={{ width: `${share * 100}%`, backgroundColor: color }} /></span>}
+        {compositionMode === 'bars' && <span className={styles.barTrack} data-bar-track
+          onPointerEnter={(event) => {
+            if (event.pointerType !== 'touch') showBarTooltip(application.applicationId, event.currentTarget)
+          }}
+          onPointerLeave={() => setHoveredComposition(null)}>
+          <span style={{ width: `${share * 100}%`, backgroundColor: color }} />
+        </span>}
         <strong>{numberLabel(value, application.emissions.unit, locale, t('notAvailable'))}</strong>
         {canDrawComposition && <span className={styles.legendShare}>{coverageLabel(share, locale)}</span>}
       </button>
@@ -365,12 +418,15 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <h2><CardIcon icon={faChartLine} size="small" inline />{t('trendTitle')}</h2>
           <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
-        <article data-help="dashboard-composition" className={styles.card}>
+        <article data-help="dashboard-composition" className={`${styles.card} ${styles.compositionCard}`}>
           <div className={styles.sectionHeading}>
             <h2><CardIcon icon={faChartPie} size="small" inline />{t('compositionTitle')}</h2>
             <div className={styles.modeButtons}>
               <button type="button" aria-pressed={compositionMode === 'bars'}
-                onClick={() => setCompositionMode(compositionMode === 'donut' ? 'bars' : 'donut')}>
+                onClick={() => {
+                  setHoveredComposition(null)
+                  setCompositionMode(compositionMode === 'donut' ? 'bars' : 'donut')
+                }}>
                 {compositionMode === 'donut' ? t('bars') : t('donut')}
               </button>
             </div>
@@ -379,33 +435,72 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
             ? <p className={styles.emptyNotice}>{t('compositionEmpty')}</p>
             : <div className={`${styles.composition} ${compositionMode === 'bars' ? styles.compositionBars : ''}`}>
               {compositionMode === 'donut' && canDrawComposition && data.data.totals.emissions.value !== null && <div className={styles.donut}
-                role="img" aria-label={`${selectedApplication ? `${selectedApplication.name}: ${numberLabel(selectedApplication.emissions.value, selectedApplication.emissions.unit, locale, t('notAvailable'))} (${coverageLabel((selectedApplication.emissions.value ?? 0) / emissionSum, locale)}). ` : ''}${t('donutDescription', {
+                role="group" aria-label={`${selectedApplication ? `${selectedApplication.name}: ${numberLabel(selectedApplication.emissions.value, selectedApplication.emissions.unit, locale, t('notAvailable'))} (${coverageLabel((selectedApplication.emissions.value ?? 0) / emissionSum, locale)}). ` : ''}${t('donutDescription', {
                   count: emissionApplications.length,
                   total: numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable')),
                 })}`}>
-                <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <svg viewBox="0 0 200 200">
+                  <defs>
+                    {donutSegments.map((segment, index) => <radialGradient key={segment.applicationId} id={`composition-shade-${index}`}
+                      gradientUnits="userSpaceOnUse" cx="100" cy="100" r="93">
+                      <stop offset="70%" stopColor={`color-mix(in srgb, ${segment.color} 88%, black)`} />
+                      <stop offset="85%" stopColor={segment.color} />
+                      <stop offset="100%" stopColor={`color-mix(in srgb, ${segment.color} 82%, white)`} />
+                    </radialGradient>)}
+                  </defs>
                   <g transform="rotate(-90 100 100)">
-                    {donutSegments.map((segment) => {
+                    {donutSegments.map((segment, index) => {
                       const isSelected = selectedApplication?.applicationId === segment.applicationId
+                      const isHovered = hoveredComposition?.applicationId === segment.applicationId
                       const angle = (segment.start + segment.length / 2) * 2 * Math.PI / 100
-                      const offset = isSelected ? 4 : 0
+                      const offset = isSelected ? 6 : 0
                       const transform = `translate(${offset * Math.cos(angle)} ${offset * Math.sin(angle)})`
-                      if (segment.compact) {
-                        const centerX = 100 + 80 * Math.cos(angle)
-                        const centerY = 100 + 80 * Math.sin(angle)
-                        const width = segment.length * 2 * Math.PI * 80 / 100
-                        return <g key={segment.applicationId} className={styles.donutSegment}
-                          opacity={selectedApplication && !isSelected ? 0.28 : 1} transform={transform}>
-                          <rect x={centerX - width / 2} y={centerY - 13} width={width} height="26"
-                            rx={Math.min(5, width / 2)} fill={segment.color}
+                      const selectedStyle = isSelected ? {
+                        filter: `saturate(1.12) drop-shadow(0 3px 5px color-mix(in srgb, ${segment.color} 68%, transparent))`,
+                      } : isHovered ? { filter: `brightness(1.12) drop-shadow(0 2px 4px ${segment.color})` } : undefined
+                      const centerX = 100 + 80 * Math.cos(angle)
+                      const centerY = 100 + 80 * Math.sin(angle)
+                      const width = segment.length * 2 * Math.PI * 80 / 100
+                      const startAngle = segment.start * 2 * Math.PI / 100
+                      const endAngle = (segment.start + segment.length) * 2 * Math.PI / 100
+                      const arcPath = `M ${100 + 80 * Math.cos(startAngle)} ${100 + 80 * Math.sin(startAngle)} A 80 80 0 ${segment.length > 50 ? 1 : 0} 1 ${100 + 80 * Math.cos(endAngle)} ${100 + 80 * Math.sin(endAngle)}`
+                      return <g key={segment.applicationId} className={styles.donutSegment} style={selectedStyle}
+                        role="button" tabIndex={0} aria-pressed={isSelected}
+                        aria-label={`${segment.name}: ${numberLabel(segment.value, segment.unit, locale, t('notAvailable'))} (${coverageLabel(segment.value / emissionSum, locale)})`}
+                        opacity={selectedApplication && !isSelected && !isHovered ? 0.42 : 1} transform={transform}
+                        onClick={() => selectCompositionApplication(segment.applicationId)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            selectCompositionApplication(segment.applicationId)
+                          }
+                        }}
+                        onPointerEnter={(event) => {
+                          if (event.pointerType !== 'touch') showDonutTooltip(segment.applicationId, event.currentTarget, event.clientX)
+                        }}
+                        onPointerLeave={() => setHoveredComposition(null)}
+                        onFocus={(event) => {
+                          if (!event.currentTarget.matches(':focus-visible')) return
+                          const svgRect = event.currentTarget.ownerSVGElement?.getBoundingClientRect()
+                          if (!svgRect) return
+                          const radius = 80 * svgRect.width / 200
+                          showDonutTooltip(segment.applicationId, event.currentTarget,
+                            svgRect.left + svgRect.width / 2 + radius * Math.sin(angle))
+                        }}
+                        onBlur={() => setHoveredComposition(null)}>
+                        {segment.compact ? <>
+                          <rect x={centerX - width / 2} y={centerY - (isSelected ? 16 : 13)} width={width} height={isSelected ? 32 : 26}
+                            rx={Math.min(5, width / 2)} fill={`url(#composition-shade-${index})`}
                             transform={`rotate(${angle * 180 / Math.PI + 90} ${centerX} ${centerY})`} />
-                        </g>
-                      }
-                      return <g key={segment.applicationId} className={styles.donutSegment}
-                        opacity={selectedApplication && !isSelected ? 0.28 : 1} transform={transform}>
-                        <circle cx="100" cy="100" r="80" pathLength="100"
-                          fill="none" stroke={segment.color} strokeWidth="26" strokeLinecap={segment.rounded ? 'round' : 'butt'}
-                          strokeDasharray={`${segment.length} ${100 - segment.length}`} strokeDashoffset={-segment.start} />
+                          <rect x={centerX - Math.max(14, width) / 2} y={centerY - 18} width={Math.max(14, width)} height="36"
+                            fill="transparent" pointerEvents="all"
+                            transform={`rotate(${angle * 180 / Math.PI + 90} ${centerX} ${centerY})`} />
+                          {isSelected && <circle cx={100 + 103 * Math.cos(angle)} cy={100 + 103 * Math.sin(angle)} r="4.5"
+                            fill={segment.color} stroke="var(--surface-card)" strokeWidth="2" />}
+                        </> : segment.length >= 99.99
+                          ? <circle cx="100" cy="100" r="80" fill="none" stroke={`url(#composition-shade-${index})`} strokeWidth={isSelected ? 32 : 26} />
+                          : <path d={arcPath} fill="none" stroke={`url(#composition-shade-${index})`}
+                            strokeWidth={isSelected ? 32 : 26} strokeLinecap={segment.rounded ? 'round' : 'butt'} />}
                       </g>
                     })}
                   </g>
@@ -423,7 +518,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                   <button type="button" aria-pressed={compositionDirection === 'asc'} onClick={() => setCompositionDirection('asc')}>{t('ascending')}</button>
                   <button type="button" aria-pressed={compositionDirection === 'desc'} onClick={() => setCompositionDirection('desc')}>{t('descending')}</button>
                 </div>}
-                <ul>
+                <ul onScroll={() => setHoveredComposition(null)}>
                   {compositionMode === 'bars' ? compositionRows : compositionRows.slice(0, 3)}
                 </ul>
                 {compositionMode === 'donut' && otherApplications.length > 0 && <details className={styles.moreApplications}>
@@ -440,6 +535,18 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                 </details>}
               </div>
             </div>}
+          {hoveredComposition && hoveredApplication && <div role="tooltip"
+            className={`${styles.compositionTooltip} ${hoveredComposition.below ? styles.compositionTooltipBelow : ''} ${compositionMode === 'donut' ? styles.compositionTooltipDonut : ''}`}
+            style={{ left: hoveredComposition.left, top: hoveredComposition.top }}>
+            <span className={styles.compositionTooltipName}>
+              <span className={styles.legendSwatch} style={{ backgroundColor: applicationColors.get(hoveredApplication.applicationId) }} />
+              {hoveredApplication.name}
+            </span>
+            <span className={styles.compositionTooltipValues}>
+              <strong>{numberLabel(hoveredApplication.emissions.value, hoveredApplication.emissions.unit, locale, t('notAvailable'))}</strong>
+              <span>{coverageLabel((hoveredApplication.emissions.value ?? 0) / emissionSum, locale)}</span>
+            </span>
+          </div>}
         </article>
       </section>
 
