@@ -104,6 +104,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const [draftFilters, setDraftFilters] = useState<DashboardTableFilters>(query.filters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [compositionMode, setCompositionMode] = useState<'donut' | 'bars'>('donut')
+  const [barMetric, setBarMetric] = useState<'emissions' | 'energy' | 'both'>('emissions')
   const [compositionDirection, setCompositionDirection] = useState<'asc' | 'desc'>('desc')
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
   const [hoveredComposition, setHoveredComposition] = useState<{ applicationId: string; left: number; top: number; below: boolean } | null>(null)
@@ -139,13 +140,17 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     const difference = (left.emissions.value ?? 0) - (right.emissions.value ?? 0)
     return -difference || left.applicationId.localeCompare(right.applicationId, locale)
   })
+  const energySum = (data.data?.applications ?? []).reduce((sum, application) => sum + (application.energy.value ?? 0), 0)
   const applicationColors = new Map(rankedApplications.map((application, index) => [application.applicationId, compositionColor(index)]))
-  const chartApplications = compositionMode === 'bars' && compositionDirection === 'asc'
-    ? [...rankedApplications].sort((left, right) => (left.emissions.value ?? 0) - (right.emissions.value ?? 0) || left.applicationId.localeCompare(right.applicationId, locale))
+  const barApplications = (data.data?.applications ?? []).filter((application) =>
+    barMetric === 'both' ? application.emissions.value !== null || application.energy.value !== null : application[barMetric].value !== null)
+  const sortMetric = barMetric === 'energy' ? 'energy' : 'emissions'
+  const chartApplications = compositionMode === 'bars'
+    ? [...barApplications].sort((left, right) =>
+      ((left[sortMetric].value ?? 0) - (right[sortMetric].value ?? 0)) * (compositionDirection === 'asc' ? 1 : -1)
+      || left.applicationId.localeCompare(right.applicationId, locale))
     : rankedApplications
-  const selectedApplication = canDrawComposition
-    ? chartApplications.find((application) => application.applicationId === selectedApplicationId && (application.emissions.value ?? 0) > 0)
-    : undefined
+  const selectedApplication = chartApplications.find((application) => application.applicationId === selectedApplicationId)
   const hoveredApplication = hoveredComposition && chartApplications.find((application) => application.applicationId === hoveredComposition.applicationId)
   const otherApplications = chartApplications.slice(3)
   const otherEmissions = otherApplications.reduce((sum, application) => sum + (application.emissions.value ?? 0), 0)
@@ -216,9 +221,10 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     const value = application.emissions.value ?? 0
     const share = canDrawComposition ? value / emissionSum : 0
     const color = applicationColors.get(application.applicationId) ?? compositionColor(index)
+    const barMetrics = barMetric === 'both' ? (['emissions', 'energy'] as const) : ([barMetric] as const)
     return <li key={application.applicationId} className={compositionMode === 'bars' ? styles.barRow : styles.legendRow}>
       <button type="button" className={styles.applicationButton} aria-pressed={selectedApplication?.applicationId === application.applicationId}
-        disabled={!canDrawComposition || value <= 0}
+        disabled={compositionMode === 'donut' ? !canDrawComposition || value <= 0 : barMetrics.every((metric) => application[metric].value === null)}
         onFocus={(event) => {
           if (compositionMode === 'bars' && event.currentTarget.matches(':focus-visible')) {
             const bar = event.currentTarget.querySelector<HTMLElement>('[data-bar-track]')
@@ -231,15 +237,22 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <span className={styles.legendSwatch} style={{ backgroundColor: color }} />
           <span className={styles.applicationName} title={application.name}>{application.name}</span>
         </span>
-        {compositionMode === 'bars' && <span className={styles.barTrack} data-bar-track
+        {compositionMode === 'bars' ? <span className={styles.barMetrics} data-bar-track
           onPointerEnter={(event) => {
             if (event.pointerType !== 'touch') showBarTooltip(application.applicationId, event.currentTarget)
           }}
           onPointerLeave={() => setHoveredComposition(null)}>
-          <span style={{ width: `${share * 100}%`, backgroundColor: color }} />
-        </span>}
-        <strong>{numberLabel(value, application.emissions.unit, locale, t('notAvailable'))}</strong>
-        {canDrawComposition && <span className={styles.legendShare}>{coverageLabel(share, locale)}</span>}
+          {barMetrics.map((metric) => {
+            const metricValue = application[metric].value
+            const total = metric === 'energy' ? energySum : emissionSum
+            return <span className={styles.barMetric} key={metric} data-metric={metric}>
+              <span className={styles.barMetricLabel}>{t(metric)}</span>
+              <span className={styles.barTrack}><span style={{ width: `${metricValue === null || total <= 0 ? 0 : metricValue / total * 100}%`, backgroundColor: metric === 'energy' ? '#a4c75a' : color }} /></span>
+              <span className={styles.barMetricValue}>{numberLabel(metricValue, application[metric].unit, locale, t('notAvailable'))}</span>
+            </span>
+          })}
+        </span> : <><strong>{numberLabel(value, application.emissions.unit, locale, t('notAvailable'))}</strong>
+        {canDrawComposition && <span className={styles.legendShare}>{coverageLabel(share, locale)}</span>}</>}
       </button>
     </li>
   })
@@ -401,7 +414,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
       <section className={styles.visualizations}>
-        <article data-help="dashboard-trend" className={styles.card}>
+        <article data-help="dashboard-trend" className={`${styles.card} ${styles.trendCard}`}>
           <h2><CardIcon icon={faChartLine} size="small" inline />{t('trendTitle')}</h2>
           <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
@@ -418,7 +431,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               </button>
             </div>
           </div>
-          {emissionApplications.length === 0
+          {(compositionMode === 'bars' ? barApplications.length : emissionApplications.length) === 0
             ? <p className={styles.emptyNotice}>{t('compositionEmpty')}</p>
             : <div className={`${styles.composition} ${compositionMode === 'bars' ? styles.compositionBars : ''}`}>
               {compositionMode === 'donut' && canDrawComposition && data.data.totals.emissions.value !== null && <div className={styles.donut}
@@ -501,10 +514,16 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               </div>}
               {!canDrawComposition && <p className={styles.pendingNote}>{t('compositionSharesUnavailable')}</p>}
               <div className={styles.compositionLegend}>
-                {compositionMode === 'bars' && <div className={styles.compositionSort}>
+                {compositionMode === 'bars' && <div className={styles.barControls}>
+                  <div className={styles.barFilters} role="group" aria-label={t('metricFilter')}>
+                    {(['emissions', 'energy', 'both'] as const).map((metric) => <button type="button" key={metric} aria-pressed={barMetric === metric} onClick={() => { setBarMetric(metric); setHoveredComposition(null) }}>{metric === 'both' ? t('bothMetrics') : t(metric)}</button>)}
+                  </div>
+                  <div className={styles.compositionSort}>
                   <button type="button" aria-pressed={compositionDirection === 'asc'} onClick={() => setCompositionDirection('asc')}>{t('ascending')}</button>
                   <button type="button" aria-pressed={compositionDirection === 'desc'} onClick={() => setCompositionDirection('desc')}>{t('descending')}</button>
+                  </div>
                 </div>}
+                {compositionMode === 'bars' && <p className={styles.barAxis}>{t('barAxisDescription')}</p>}
                 <ul onScroll={() => setHoveredComposition(null)}>
                   {compositionMode === 'bars' ? compositionRows : compositionRows.slice(0, 3)}
                 </ul>
@@ -529,10 +548,14 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               <span className={styles.legendSwatch} style={{ backgroundColor: applicationColors.get(hoveredApplication.applicationId) }} />
               {hoveredApplication.name}
             </span>
-            <span className={styles.compositionTooltipValues}>
-              <strong>{numberLabel(hoveredApplication.emissions.value, hoveredApplication.emissions.unit, locale, t('notAvailable'))}</strong>
-              <span>{coverageLabel((hoveredApplication.emissions.value ?? 0) / emissionSum, locale)}</span>
-            </span>
+            {(compositionMode === 'bars' && barMetric === 'energy' ? (['energy'] as const) : compositionMode === 'bars' && barMetric === 'both' ? (['emissions', 'energy'] as const) : (['emissions'] as const)).map((metric) => {
+              const total = metric === 'energy' ? energySum : emissionSum
+              const value = hoveredApplication[metric].value
+              return <span className={styles.compositionTooltipValues} key={metric}>
+                <strong>{compositionMode === 'bars' ? `${t(metric)}: ` : ''}{numberLabel(value, hoveredApplication[metric].unit, locale, t('notAvailable'))}</strong>
+                <span>{value !== null && total > 0 ? coverageLabel(value / total, locale) : t('notAvailable')}</span>
+              </span>
+            })}
           </div>}
         </article>
       </section>

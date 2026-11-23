@@ -147,6 +147,33 @@ test('dashboard renders persisted temporal results and preserves missing interva
   await expect(panel.getByRole('table')).toContainText('Sem resultado')
 })
 
+test('temporal series shows both metrics in the graph and in its hover details', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-08T12:00:00.000Z') })
+  await mockCatalog(page, [application()])
+  await mockSummary(page, url => ({ json: {
+    ...summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]),
+    series: { granularity: 'hour', points: [
+      { bucketStart: '2026-10-08T10:00:00.000Z', bucketEnd: '2026-10-08T11:00:00.000Z', period: { from: '2026-10-08T10:00:00.000Z', to: '2026-10-08T11:00:00.000Z' }, energy: { value: 2, unit: 'kWh', reasons: [] }, emissions: { value: 85, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
+      { bucketStart: '2026-10-08T11:00:00.000Z', bucketEnd: '2026-10-08T12:00:00.000Z', period: { from: '2026-10-08T11:00:00.000Z', to: '2026-10-08T12:00:00.000Z' }, energy: { value: 4, unit: 'kWh', reasons: [] }, emissions: { value: 40, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
+    ] },
+  } }))
+  await page.goto('/dashboard')
+
+  const panel = page.getByRole('region', { name: 'Série temporal', exact: true })
+  await panel.getByRole('button', { name: 'Energia + CO₂e', exact: true }).click()
+  await expect(panel.locator('svg rect[data-metric="energy"]')).toHaveCount(2)
+  await expect(panel.locator('svg rect[data-metric="emissions"]')).toHaveCount(2)
+  await panel.locator('svg rect[data-metric="energy"]').first().hover()
+  await expect(panel.getByRole('status')).toContainText('2 kWh')
+  await expect(panel.getByRole('status')).toContainText('85 gCO2e')
+
+  await panel.getByRole('button', { name: 'Tabela', exact: true }).click()
+  await expect(panel.getByRole('table').locator('thead')).toContainText('kWh')
+  await expect(panel.getByRole('table').locator('thead')).toContainText('gCO2e')
+  await expect(panel.getByRole('table')).toContainText('4 kWh')
+  await expect(panel.getByRole('table')).toContainText('40 gCO2e')
+})
+
 test('dashboard presents real summary values, separate coverage and contribution composition', async ({ page }) => {
   await mockCatalog(page, [
     application({ id: 'svc-1', name: 'api-estoque', location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, latitude: -23, longitude: -46 } }),
@@ -238,11 +265,13 @@ test('composition gives every application a distinct arc and keeps the legend co
   await expect(composition.locator('details')).toHaveCount(0)
   await expect(composition.getByText('quinta')).toBeVisible()
   await expect(composition.locator('ul').first().getByRole('button', { name: /quarta/ })).toHaveAttribute('aria-pressed', 'true')
-  const barPositions = await composition.locator('li[class*="barRow"]').evaluateAll((rows) => rows.map((row) => {
-    const track = row.querySelector('[class*="barTrack"]')?.getBoundingClientRect()
-    const value = row.querySelector('strong')?.getBoundingClientRect()
-    return { trackX: track?.left ?? 0, valueX: value?.left ?? 0, trackY: track ? track.top + track.height / 2 : 0, valueY: value ? value.top + value.height / 2 : 0 }
-  }))
+  const barPositions = await composition.locator('li[class*="barRow"]').evaluateAll((rows) => rows.flatMap((row) =>
+    [...row.querySelectorAll('[data-metric]')].map((metric) => {
+      const track = metric.querySelector('[class*="barTrack"]')?.getBoundingClientRect()
+      const value = metric.querySelector('[class*="barMetricValue"]')?.getBoundingClientRect()
+      return { trackX: track?.left ?? 0, valueX: value?.left ?? 0, trackY: track ? track.top + track.height / 2 : 0, valueY: value ? value.top + value.height / 2 : 0 }
+    }),
+  ))
   expect(Math.max(...barPositions.map((row) => row.trackX)) - Math.min(...barPositions.map((row) => row.trackX))).toBeLessThan(1)
   expect(Math.max(...barPositions.map((row) => row.valueX)) - Math.min(...barPositions.map((row) => row.valueX))).toBeLessThan(1)
   expect(barPositions.every((row) => Math.abs(row.trackY - row.valueY) < 2)).toBe(true)

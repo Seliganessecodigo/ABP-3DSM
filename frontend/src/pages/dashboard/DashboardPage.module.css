@@ -81,6 +81,7 @@
 .dataAsOf { margin: var(--space-3) 0 var(--space-6); font-size: 10px; }
 .visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
 .visualizations > .card { min-height: 282px; }
+.trendCard { height: 390px; align-self: start; }
 .compositionCard { position: relative; }
 .pendingNote, .emptyNotice, .status, .warning, .error, .partialNotice {
   border-radius: 7px;
@@ -151,13 +152,23 @@
   box-shadow: 0 8px 20px rgb(0 30 20 / 14%);
 }
 .compositionBars { grid-template-rows: auto; align-items: start; }
-.compositionBars .compositionSort { margin-bottom: 10px; }
-.compositionBars .compositionLegend > ul { grid-template-columns: minmax(0, 1.2fr) minmax(70px, 1.5fr) max-content max-content; gap: 2px 8px; max-height: 240px; overflow-y: auto; overflow-x: hidden; }
-.compositionBars .barRow, .compositionBars .applicationButton { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; }
-.compositionBars .applicationButton { min-height: 26px; padding: 3px 4px; }
-.barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: var(--control-hover); transition: height 160ms ease, box-shadow 160ms ease; }
+.barControls { display: grid; gap: 7px; margin-bottom: 8px; }
+.barFilters { display: flex; flex-wrap: wrap; gap: 6px; }
+.barFilters button { min-height: 32px; border: 1px solid var(--border-default); border-radius: 7px; padding: 5px 8px; background: var(--surface-card); color: var(--text-primary); font: inherit; font-size: 11px; cursor: pointer; }
+.barFilters button[aria-pressed='true'] { border-color: var(--accent-default); background: var(--accent-default); color: var(--accent-on-accent); }
+.barFilters button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.compositionBars .compositionSort button { min-height: 30px; font-size: 10px; }
+.barAxis { margin: 0 4px 6px; color: var(--text-secondary); font-size: 10px; }
+.compositionBars .compositionLegend > ul { max-height: 240px; overflow-y: auto; overflow-x: hidden; }
+.compositionBars .applicationButton { grid-template-columns: minmax(70px, .7fr) minmax(0, 1.8fr); gap: 8px; min-height: 27px; padding: 4px 6px; }
+.compositionBars .applicationButton[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--accent-default), 0 3px 10px rgb(0 30 20 / 17%); }
+.barMetrics { display: grid; min-width: 0; gap: 3px; }
+.barMetric { display: grid; grid-template-columns: 48px minmax(20px, 1fr) minmax(85px, auto); align-items: center; gap: 5px; min-width: 0; }
+.barMetricLabel { color: var(--text-secondary); font-size: 9px; }
+.barMetricValue { color: var(--text-primary); font-size: 9px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.barTrack { height: 10px; overflow: hidden; border-radius: 10px; background: repeating-linear-gradient(to right, var(--control-hover) 0, var(--control-hover) calc(25% - 1px), var(--border-default) calc(25% - 1px), var(--border-default) 25%); transition: height 160ms ease, box-shadow 160ms ease; }
 .barTrack span { display: block; height: 100%; min-width: 0; border-radius: inherit; transition: filter 160ms ease; }
-.compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 14px; box-shadow: 0 0 0 2px var(--accent-default), 0 3px 8px rgb(0 30 20 / 22%); }
+.compositionBars .applicationButton[aria-pressed='true'] .barTrack { height: 12px; box-shadow: 0 0 0 1px var(--accent-default), 0 3px 8px rgb(0 30 20 / 22%); }
 .compositionBars .applicationButton[aria-pressed='true'] .barTrack span { filter: saturate(1.2) brightness(1.08); }
 .compositionTooltip {
   position: absolute;
@@ -232,6 +243,7 @@
   .coverageList { width: 100%; gap: 2px; font-size: 9px; }
   .visualizations { grid-template-columns: 1fr; gap: var(--space-4); }
   .visualizations > .card { min-height: 0; }
+  .trendCard { height: auto; min-height: 282px; }
   .composition { grid-template-rows: auto auto; }
   .donut { width: min(42vw, 140px); }
   .compositionTooltipDonut { width: 110px; gap: 3px; padding: 6px 7px; font-size: 10px; }
