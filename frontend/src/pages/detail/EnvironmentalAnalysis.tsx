@@ -2,7 +2,7 @@ import { CardIcon } from '../../components/CardIcon.tsx'
 import { faBolt, faLeaf, faBookOpen, faCalculator, faChartPie, faClockRotateLeft, faEarthAmericas } from '@fortawesome/free-solid-svg-icons'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { LoadingState } from '../../components/LoadingState.tsx'
-import type { AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisComparisonSeries, AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
 import { AnalysisSeries } from './AnalysisSeries.tsx'
 import { AnalysisContributions } from './AnalysisContributions.tsx'
 import { AnalysisComposition } from './AnalysisComposition.tsx'
@@ -48,6 +48,8 @@ type Labels = Readonly<{
   focusEvent: string
   currentPeriod: string
   previousPeriod: string
+  comparisonSummary: (from: string, to: string, difference: string) => string
+  comparisonUnavailable: string
   tooltipCurrent: string
   tooltipPrevious: string
   seriesEventsHeading: string
@@ -487,7 +489,7 @@ function getSeriesStatus(status: AnalysisStatus, emptyResult: boolean): 'loading
   return status
 }
 
-export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparisonPoints, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, operationalOverview = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
+export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, formatDate, seriesPage, seriesPageSize, seriesQuery, onSeriesQueryChange, onSeriesPaginationChange, onInspectContributions, onContributionPaginationChange, contributions, comparison, contextContent, granularityContent, evidenceContent, lastAttemptAt, lastSuccessAt, lastSuccessStatus, historyMode = false, operationalOverview = false, historyRegionFallback = null, inspectionBucket, collectionHref }: Readonly<{
   data: AnalysisViewModel | null
   status: AnalysisStatus
   locale: string
@@ -502,7 +504,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   onInspectContributions?: (bucketStart: string, page?: number, pageSize?: number | 'all') => void
   onContributionPaginationChange?: (page: number, pageSize: number | 'all') => void
   contributions: Readonly<{ data: AnalysisContributionsPage | null; loading: boolean; error: boolean }> | null
-  comparisonPoints: readonly AnalysisSeriesPoint[]
+  comparison: AnalysisComparisonSeries | null
   contextContent: ReactNode
   granularityContent: ReactNode
   evidenceContent: ReactNode
@@ -633,10 +635,22 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
         formatDate={formatDate} labels={labels.freshness} compact /></aside>}
       {!operationalOverview && <div data-help="analysis-series" className={styles.seriesColumn}>
         {invalidContext && granularityContent}
+        {!invalidContext && comparison && <p role="status">{labels.comparisonSummary(
+          formatDate(comparison.period.from), formatDate(comparison.period.to),
+          (() => {
+            const current = data?.energy
+            const previous = comparison.totals.energy
+            const coverage = data?.energyCoverage
+            if (!current || current.status !== 'available' || previous.status !== 'available' || current.unit !== previous.unit ||
+              previous.value === 0 || coverage?.status !== 'available' || coverage.value !== comparison.coverage.energy) return labels.comparisonUnavailable
+            const change = ((current.value - previous.value) / previous.value) * 100
+            return `${change > 0 ? '+' : ''}${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(change)}% (${formatNumber(current.value, locale)} ${current.unit} / ${formatNumber(previous.value, locale)} ${previous.unit})`
+          })(),
+        )}</p>}
         {!invalidContext && <AnalysisSeries series={data?.series ?? (emptyResult ? { status: 'available', points: [] } : { status: 'unavailable', reason: 'seriesUnavailable' })}
           eventsHeading={labels.seriesEventsHeading} eventSummary={labels.seriesEventSummary}
           historyRegionFallback={historyRegionFallback} historyMethodologyFallback={historyMethodologyFallback}
-          state={getSeriesStatus(status, emptyResult)} locale={locale} formatDate={formatDate} comparisonPoints={comparisonPoints} labels={{
+          state={getSeriesStatus(status, emptyResult)} locale={locale} formatDate={formatDate} comparisonPoints={comparison?.points ?? []} labels={{
       heading: labels.seriesHeading, historyIntervalsHeading: labels.historyIntervalsHeading,
       regionHeading: labels.regionHeading, graph: labels.graph, table: labels.table, metricToggle: labels.metricToggle, moment: labels.moment,
       compareMetrics: labels.compareMetrics, focusEvent: labels.focusEvent,

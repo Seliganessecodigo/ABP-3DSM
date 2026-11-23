@@ -87,6 +87,13 @@ export type AnalysisSeriesResult =
   | Readonly<{ status: 'available'; points: readonly AnalysisSeriesPoint[]; events?: readonly AnalysisSeriesEvent[] }>
   | Readonly<{ status: 'unavailable'; reason: AnalysisPresentationReason }>
 
+export type AnalysisComparisonSeries = Readonly<{
+  points: readonly AnalysisSeriesPoint[]
+  period: Readonly<{ from: string; to: string }>
+  totals: Readonly<{ energy: AnalysisReading; emissions: AnalysisReading }>
+  coverage: Readonly<{ energy: number; emissions: number }>
+}>
+
 export type AnalysisGranularityOption = Readonly<{ value: string; label: string }>
 export type AnalysisGranularityCapabilities =
   | Readonly<{ status: 'available'; options: readonly AnalysisGranularityOption[]; selectedValue: string | null }>
@@ -135,7 +142,7 @@ export type AnalysisSourceResult =
 
 export interface AnalysisSource {
   load(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisSourceResult>
-  loadComparisonSeries?(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]>
+  loadComparisonSeries?(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisComparisonSeries>
   loadContributions?(applicationId: string, context: AnalysisContext, bucketStart: string, page: number,
     pageSize: number | 'all', signal: AbortSignal): Promise<AnalysisContributionsPage>
 }
@@ -198,7 +205,13 @@ function readSeries(value: unknown, applicationId: string) {
     return { id: entry.id, at: entry.at, type: entry.type as AnalysisSeriesEvent['type'],
       details: { before: entry.details.before as Record<string, unknown> | null, after: entry.details.after as Record<string, unknown> | null } }
   })
-  return { points, events }
+  assertRecord(value.period, 'analysis series period')
+  if (typeof value.period.from !== 'string' || !Number.isFinite(Date.parse(value.period.from)) ||
+    typeof value.period.to !== 'string' || !Number.isFinite(Date.parse(value.period.to))) throw new Error('Invalid analysis series period')
+  assertRecord(value.coverage, 'analysis series coverage')
+  return { points, events, period: { from: value.period.from, to: value.period.to },
+    totals: { energy: readSeriesMeasure(value.totals.energy, value.status === 'empty'), emissions: readSeriesMeasure(value.totals.emissions, value.status === 'empty') },
+    coverage: { energy: readCoverage(value.coverage.energy), emissions: readCoverage(value.coverage.emissions) } }
 }
 
 export function analysisRangeFor(period: string, now: Date, range?: Readonly<{ from: string; to: string }>) {
@@ -399,11 +412,11 @@ async function loadEnvironmentalAnalysis(applicationId: string, context: Analysi
   return summary.status === 'empty' ? { status: 'empty', data } : { status: 'available', data }
 }
 
-async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<readonly AnalysisSeriesPoint[]> {
+async function loadComparisonSeries(applicationId: string, context: AnalysisContext, signal: AbortSignal): Promise<AnalysisComparisonSeries> {
   const currentRange = analysisRangeFor(context.period, context.anchor ? new Date(context.anchor) : new Date(), context.range)
   const previousRange = { from: new Date(Date.parse(currentRange.from) - (Date.parse(currentRange.to) - Date.parse(currentRange.from))).toISOString(), to: currentRange.from }
   const response = await getJson(endpoint(applicationId, '/series', previousRange, context.granularity ?? 'hour'), signal)
-  return readSeries(response, applicationId).points
+  return readSeries(response, applicationId)
 }
 
 export const environmentalAnalysisSource: AnalysisSource = {

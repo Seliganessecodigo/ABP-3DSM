@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "Energie mit berechnetem CO₂e",
   "periods.month": "Aktueller Monat (UTC)",
   "periods.custom": "Benutzerdefiniertes Intervall",
-  "helpHistoryFilters": "Wählen Sie Anwendung, Zeitraum und Granularität. Das abgefragte Intervall und die Zeitzone stehen in den Filtern; Kennzahlen und Diagramm verwenden denselben Zeitraum."
+  "helpHistoryFilters": "Wählen Sie Anwendung, Zeitraum und Granularität. Das abgefragte Intervall und die Zeitzone stehen in den Filtern; Kennzahlen und Diagramm verwenden denselben Zeitraum.",
+  "analysisComparisonSummary": "Vorheriger Zeitraum: {{from}} – {{to}}. Energieänderung: {{difference}}.",
+  "analysisComparisonUnavailable": "Nicht vergleichbar: Wert fehlt, Referenz ist null oder Einheiten beziehungsweise Abdeckung weichen ab."
 }

@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "Energy with calculated CO₂e",
   "periods.month": "Current month (UTC)",
   "periods.custom": "Custom interval",
-  "helpHistoryFilters": "Select the application, period and granularity. The queried interval and time zone appear in the filters; the indicators and chart use that same period."
+  "helpHistoryFilters": "Select the application, period and granularity. The queried interval and time zone appear in the filters; the indicators and chart use that same period.",
+  "analysisComparisonSummary": "Previous period: {{from}} – {{to}}. Energy change: {{difference}}.",
+  "analysisComparisonUnavailable": "Not comparable: a value is missing, the reference is zero, or units or coverage differ."
 }

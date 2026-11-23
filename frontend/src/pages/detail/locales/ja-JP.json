@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "CO₂eを計算できたエネルギー",
   "periods.month": "今月（UTC）",
   "periods.custom": "期間を指定",
-  "helpHistoryFilters": "アプリケーション、期間、集計単位を選択します。照会区間とタイムゾーンはフィルターに表示され、指標とグラフには同じ期間が使われます。"
+  "helpHistoryFilters": "アプリケーション、期間、集計単位を選択します。照会区間とタイムゾーンはフィルターに表示され、指標とグラフには同じ期間が使われます。",
+  "analysisComparisonSummary": "前期間：{{from}} – {{to}}。エネルギーの変化：{{difference}}。",
+  "analysisComparisonUnavailable": "比較できません：値がない、基準値がゼロ、単位またはカバレッジが異なります。"
 }

@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "Energi dengan CO₂e yang dihitung",
   "periods.month": "Bulan berjalan (UTC)",
   "periods.custom": "Interval khusus",
-  "helpHistoryFilters": "Pilih aplikasi, periode dan granularitas. Interval kueri dan zona waktu ditampilkan di filter; indikator dan grafik memakai periode yang sama."
+  "helpHistoryFilters": "Pilih aplikasi, periode dan granularitas. Interval kueri dan zona waktu ditampilkan di filter; indikator dan grafik memakai periode yang sama.",
+  "analysisComparisonSummary": "Periode sebelumnya: {{from}} – {{to}}. Perubahan energi: {{difference}}.",
+  "analysisComparisonUnavailable": "Tidak dapat dibandingkan: nilai tidak tersedia, acuan nol, atau satuan maupun cakupan berbeda."
 }

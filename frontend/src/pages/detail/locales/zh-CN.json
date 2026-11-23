@@ -241,5 +241,7 @@
   "analysisEnergyWithEmissions": "已计算CO₂e的能耗",
   "periods.month": "本月（UTC）",
   "periods.custom": "自定义区间",
-  "helpHistoryFilters": "选择应用、时间范围和粒度。查询区间和时区显示在筛选区域，指标和图表使用相同的时间范围。"
+  "helpHistoryFilters": "选择应用、时间范围和粒度。查询区间和时区显示在筛选区域，指标和图表使用相同的时间范围。",
+  "analysisComparisonSummary": "上一周期：{{from}} – {{to}}。能源变化：{{difference}}。",
+  "analysisComparisonUnavailable": "无法比较：数值缺失、参考值为零、单位或覆盖率不同。"
 }

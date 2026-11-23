@@ -362,8 +362,8 @@ function ComparisonChart({ points, comparisonPoints, events, energyUnit, emissio
   const hasPrevious = previousEnergySegments.length > 0 || previousEmissionsSegments.length > 0
   return <div className={styles.combinedChart}>
     <div className={styles.legend}>
-      <span className={styles.energyLegend}>{labels.energy} ({energyUnit})</span>
-      <span className={styles.emissionsLegend}>{labels.emissions} ({emissionsUnit})</span>
+      <span className={styles.energyLegend}>{labels.currentPeriod}: {labels.energy} ({energyUnit})</span>
+      <span className={styles.emissionsLegend}>{labels.currentPeriod}: {labels.emissions} ({emissionsUnit})</span>
       {hasGaps && <span className={styles.gapLegend}>{labels.unavailableStatus}</span>}
       <span className={styles.axisLegend}>X · {labels.moment}</span>
       <span className={styles.axisLegend}>Y ← {labels.energy} ({energyUnit})</span>

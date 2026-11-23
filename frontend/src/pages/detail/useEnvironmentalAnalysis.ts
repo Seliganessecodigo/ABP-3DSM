@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AnalysisContributionsPage, AnalysisSeriesPoint, AnalysisSource, AnalysisSourceResult, AnalysisViewModel } from '../../features/analysis/source.ts'
+import type { AnalysisComparisonSeries, AnalysisContributionsPage, AnalysisSource, AnalysisSourceResult, AnalysisViewModel } from '../../features/analysis/source.ts'
 
 type State = Readonly<{
   key: string
@@ -18,7 +18,7 @@ type SuccessfulResult = Readonly<{
 }>
 
 type ContributionState = Readonly<{ context: string; bucketStart: string; loading: boolean; error: boolean; data: AnalysisContributionsPage | null }>
-type ComparisonState = Readonly<{ key: string; points: readonly AnalysisSeriesPoint[] }>
+type ComparisonState = Readonly<{ key: string; result: AnalysisComparisonSeries }>
 
 function emptyState(key: string): State {
   return { key, status: 'loading', data: null, lastAttemptAt: null, lastSuccessAt: null, lastSuccessStatus: null }
@@ -58,7 +58,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
       if (result.status === 'available' && data?.series.status === 'available' && source.loadComparisonSeries) {
         void source.loadComparisonSeries(applicationId, { period, anchor, ...(rangeFrom && rangeTo ? { range: { from: rangeFrom, to: rangeTo } } : {}), ...(granularity === null ? {} : { granularity }) }, controller.signal)
           .then((points) => {
-            if (active && !controller.signal.aborted) setComparisonState({ key, points })
+            if (active && !controller.signal.aborted) setComparisonState({ key, result: points })
           }).catch(() => undefined)
       }
       if (result.status === 'available') {
@@ -101,7 +101,7 @@ export function useEnvironmentalAnalysis(applicationId: string, period: string, 
     })
   }
 
-  return { ...current, comparisonPoints: comparisonState?.key === key ? comparisonState.points : [],
+  return { ...current, comparison: comparisonState?.key === key ? comparisonState.result : null,
     contributions: contributionState?.context === contributionContext ? contributionState : null,
     ...(source.loadContributions ? { loadContributions } : {}), retry: () => setAttempt((value) => value + 1) }
 }
