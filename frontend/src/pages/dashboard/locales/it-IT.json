@@ -85,5 +85,12 @@
   "trend.interval": "Intervallo (UTC)",
   "trend.note": "Valori per intervallo UTC. Le lacune indicano dati mancanti, non zero.",
   "helpFilters": "Scegli periodo, granularità, regione e stato del riepilogo. Gli stessi criteri si applicano agli indicatori e ai grafici.",
-  "helpResults": "Confronta la quota di CO₂e di ogni applicazione. Apri i dettagli dalla tabella per approfondire."
+  "helpResults": "Confronta la quota di CO₂e di ogni applicazione. Apri i dettagli dalla tabella per approfondire.",
+  "collectionSuccess.title": "Successo delle raccolte",
+  "collectionSuccess.successful": "Riuscite",
+  "collectionSuccess.total": "Tentativi registrati",
+  "collectionSuccess.empty": "Nessuna raccolta registrata nel periodo.",
+  "collectionSuccess.since": "Registrazioni dal {{date}}",
+  "collectionSuccess.help": "Percentuale dei tentativi programmati di raccolta delle metriche che hanno restituito dati validi e sono stati salvati. Ogni applicazione conta una volta per tentativo, inclusi i nuovi tentativi HTTP. Le cancellazioni sono escluse. Si contano solo i tentativi registrati nel periodo e nei filtri selezionati; non misura la copertura temporale di energia o CO₂e.",
+  "collectionSuccess.unavailable": "Tasso di successo non disponibile."
 }

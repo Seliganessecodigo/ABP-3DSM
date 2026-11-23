@@ -85,5 +85,12 @@
   "trend.interval": "Interval (UTC)",
   "trend.note": "Values per UTC interval. Gaps mean missing data, not zero.",
   "helpFilters": "Choose a period, granularity, region and state to define the summary. The same criteria apply to the indicators and charts.",
-  "helpResults": "Compare each application’s share of CO₂e. Open an application’s details from the table to investigate it."
+  "helpResults": "Compare each application’s share of CO₂e. Open an application’s details from the table to investigate it.",
+  "collectionSuccess.title": "Collection success",
+  "collectionSuccess.successful": "Successful",
+  "collectionSuccess.total": "Recorded attempts",
+  "collectionSuccess.empty": "No collections recorded in this period.",
+  "collectionSuccess.since": "Records since {{date}}",
+  "collectionSuccess.help": "Percentage of scheduled metrics collection attempts that returned valid data and were saved. Each application counts once per attempt, including its HTTP retries. Cancellations are excluded. Only recorded attempts within the selected period and filters are counted; this does not measure temporal energy or CO₂e coverage.",
+  "collectionSuccess.unavailable": "Collection success rate unavailable."
 }

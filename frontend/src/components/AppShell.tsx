@@ -72,9 +72,6 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
-  const workspaceRef = useRef<HTMLDivElement>(null)
-  const pathname = window.location.pathname
-  useEffect(() => { workspaceRef.current?.scrollTo({ top: 0, left: 0 }) }, [pathname])
   const dashboardUrl = analysisNavigationUrl('/dashboard', window.location)
   const comparisonUrl = analysisNavigationUrl('/comparison', window.location)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -168,6 +165,6 @@ export function AppShell({ children, navigate, variant = 'default', login = fals
       </section>
     </aside>
     {mobileMenuOpen && <button className="sidebar-backdrop" aria-label={t('nav.closeMenu')} onClick={closeMobileMenu} />}
-    <div ref={workspaceRef} className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}><FontAwesomeIcon icon={faBars} aria-hidden="true" /></button><a className="topbar-brand" href={dashboardUrl} aria-label={t('nav.dashboard')} onClick={(event) => { event.preventDefault(); navigate(dashboardUrl) }}><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span></a>{login && <div className="topbar-actions"><LanguageSelector /><a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
+    <div className="workspace"><header className="topbar"><button ref={menuToggleRef} className="mobile-menu-toggle" type="button" aria-label={t('nav.openMenu')} aria-expanded={mobileMenuOpen} aria-controls="shared-sidebar" onClick={() => setMobileMenuOpen(true)}><FontAwesomeIcon icon={faBars} aria-hidden="true" /></button><a className="topbar-brand" href={dashboardUrl} aria-label={t('nav.dashboard')} onClick={(event) => { event.preventDefault(); navigate(dashboardUrl) }}><img src={greenErMark} width={28} height={28} alt="" /><span className="brand-wordmark"><span className="brand-green">Green</span><span className="brand-er">ER</span></span></a>{login && <div className="topbar-actions"><LanguageSelector /><a href="/applications" onClick={(event) => { event.preventDefault(); navigate('/applications') }}>{t('nav.applications')}</a></div>}</header>{children}</div>
   </div>
 }

@@ -85,5 +85,12 @@
   "trend.interval": "Interval (UTC)",
   "trend.note": "Nilai per interval UTC. Celah berarti data tidak tersedia, bukan nol.",
   "helpFilters": "Pilih periode, granularitas, wilayah dan status untuk menentukan ringkasan. Kriteria yang sama berlaku pada indikator dan grafik.",
-  "helpResults": "Bandingkan bagian CO₂e setiap aplikasi. Buka detail aplikasi dari tabel untuk menyelidikinya."
+  "helpResults": "Bandingkan bagian CO₂e setiap aplikasi. Buka detail aplikasi dari tabel untuk menyelidikinya.",
+  "collectionSuccess.title": "Keberhasilan pengumpulan",
+  "collectionSuccess.successful": "Berhasil",
+  "collectionSuccess.total": "Percobaan tercatat",
+  "collectionSuccess.empty": "Tidak ada pengumpulan tercatat pada periode ini.",
+  "collectionSuccess.since": "Catatan sejak {{date}}",
+  "collectionSuccess.help": "Persentase percobaan pengumpulan metrik terjadwal yang menghasilkan data valid dan tersimpan. Setiap aplikasi dihitung sekali per percobaan, termasuk percobaan ulang HTTP. Pembatalan tidak dihitung. Hanya percobaan tercatat dalam periode dan filter yang dipilih yang dihitung; ini bukan cakupan waktu energi atau CO₂e.",
+  "collectionSuccess.unavailable": "Tingkat keberhasilan tidak tersedia."
 }

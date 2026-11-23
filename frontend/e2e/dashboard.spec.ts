@@ -1,4 +1,3 @@
-import { openDashboardApplications } from './support/dashboard.ts'
 import { expect, test, type Page } from '@playwright/test'
 import { application, gate, mockApi, mockCatalog } from './support/catalog.ts'
 
@@ -41,6 +40,7 @@ function summaryResponse(routeUrl: URL, applications: SummaryApplication[]) {
       emissions: { value: emissionsValue, unit: 'gCO2e', reasons: [] },
     },
     coverage: { energy: applications.length === 0 ? 0 : 0.75, emissions: emissionsValue === null ? 0 : 0.5 },
+    collectionSuccess: { successful: 18, total: 20, rate: 0.9, firstAttemptAt: routeUrl.searchParams.get('from'), lastAttemptAt: routeUrl.searchParams.get('from') },
     states: { AVAILABLE: applications.length, UNAVAILABLE: 1, NO_METRICS: 1, REMOVED: 0 },
     applications,
     provenance: { methodologies: [], factors: [], reasons: [] },
@@ -55,13 +55,15 @@ async function mockSummary(page: Page, handler: (routeUrl: URL) => Promise<{ sta
 }
 
 for (const width of [1440, 390]) {
-  test(`dashboard headings have space for their icons and distinguish period coverage at ${width}px`, async ({ page }, testInfo) => {
+  test(`dashboard headings have space for their icons and distinguish collection success at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 960 })
     await mockCatalog(page, [application()])
     await mockSummary(page, url => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
     await page.goto('/dashboard')
-    const coverage = page.getByRole('heading', { name: 'Cobertura do período', exact: true })
-    await expect(coverage.locator('svg')).toHaveAttribute('data-icon', 'calendar-check')
+    const coverage = page.getByRole('heading', { name: 'Sucesso das coletas', exact: true })
+    await expect(coverage.locator('svg')).toHaveAttribute('data-icon', 'circle-check')
+    await expect(page.locator('#dashboard-collection-success')).toContainText('90%')
+    await expect(page.locator('#dashboard-collection-success')).not.toContainText('50%')
     await expect(page.getByRole('heading', { name: 'Composição de CO₂e por aplicação', exact: true }).locator('svg')).toHaveAttribute('data-icon', 'chart-pie')
     for (const heading of await page.locator('main h2:has(svg)').all()) {
       const gap = await heading.evaluate(element => {
@@ -89,6 +91,41 @@ test('rota raiz abre o dashboard e marca sua navegação como ativa', async ({ p
   const navigation = page.getByRole('navigation', { name: 'Navegação principal' })
   await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).not.toHaveAttribute('aria-current', 'page')
+})
+
+for (const successful of [0, 20, null, undefined]) {
+  test(`collection success preserves the ${String(successful)} attempts state without borrowing temporal coverage`, async ({ page }, testInfo) => {
+    await mockCatalog(page, [application()])
+    await mockSummary(page, url => {
+      expect(url.searchParams.get('includeCollectionSuccess')).toBe('true')
+      const response = summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)])
+      return { json: { ...response, collectionSuccess: successful === undefined ? undefined : successful === null
+        ? { successful: 0, total: 0, rate: null, firstAttemptAt: null, lastAttemptAt: null }
+        : { ...response.collectionSuccess, successful, rate: successful / 20 } } }
+    })
+    await page.goto('/dashboard')
+    const card = page.locator('#dashboard-collection-success')
+    await expect(card.getByRole('heading', { name: 'Sucesso das coletas', exact: true })).toBeVisible()
+    if (successful === null || successful === undefined) {
+      await expect(card).toContainText(successful === null ? 'Sem coletas registradas no período.' : 'Taxa de sucesso indisponível.')
+      await expect(card.getByRole('img')).toHaveCount(0)
+      await expect(card).not.toContainText('0%')
+    } else {
+      await expect(card.getByRole('img')).toHaveAccessibleName(`Sucesso das coletas: ${successful === 0 ? '0%' : '100%'}`)
+      await expect(card).toContainText('Tentativas registradas')
+      await expect(card).not.toContainText('50%')
+    }
+    if (successful === 20) await page.screenshot({ path: testInfo.outputPath('sucesso-coletas.png'), fullPage: true })
+  })
+}
+
+test('collection success and its help are translated in Russian', async ({ page }) => {
+  await mockCatalog(page, [application()])
+  await mockSummary(page, url => ({ json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85)]) }))
+  await page.goto('/dashboard')
+  await page.locator('select').filter({ has: page.locator('option[value="ru-RU"]') }).selectOption('ru-RU')
+  await expect(page.locator('#dashboard-collection-success')).toContainText('Успешность сбора')
+  await expect(page.locator('#dashboard-collection-success')).toContainText('Учтённые попытки')
 })
 
 test('dashboard renders persisted temporal results and preserves missing intervals', async ({ page }, testInfo) => {
@@ -136,7 +173,6 @@ test('dashboard presents real summary values, separate coverage and contribution
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(2)
   await expect(page.locator('tbody tr').nth(0)).toContainText('api-estoque')
   await expect(page.locator('tbody tr').nth(1)).toContainText('api-checkout')
-  await openDashboardApplications(page)
   await expect(page.getByRole('link', { name: /ver detalhes: api-estoque/i })).toHaveAttribute('href', /\/services\/svc-1/)
 })
 
@@ -257,7 +293,6 @@ test('dashboard table search and pagination operate on the filtered set', async 
 
   await page.goto('/dashboard')
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(10)
-  await openDashboardApplications(page)
   await page.getByRole('searchbox', { name: 'Buscar aplicações' }).fill('sao-paulo')
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toHaveCount(1)
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toContainText('api-são-paulo')
@@ -280,7 +315,6 @@ test('mobile dashboard keeps compact indicators and readable application rows', 
   const indicators = page.getByRole('region', { name: 'Indicadores ambientais' })
   await expect(indicators.locator('article')).toHaveCount(4)
   await expect.poll(() => indicators.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(2)
-  await openDashboardApplications(page)
   await expect(page.locator('tbody tr[data-dashboard-application-id]')).toContainText('api-pagamentos')
   await expect(page.locator('tbody tr[data-dashboard-application-id]').getByText('8,4 gCO2e')).toBeVisible()
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)

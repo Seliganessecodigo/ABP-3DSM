@@ -1,10 +1,11 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
-import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf, faCalendarCheck } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { CollectionSuccessCard } from './CollectionSuccessCard.tsx'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -91,7 +92,6 @@ function pageRange(total: number, pageSize: DashboardPageSize, requestedPage: nu
 export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const personalAlerts = usePersonalAlerts()
   const personalAlertsById = new Map(personalAlerts.data?.applications.map(entry => [entry.applicationId, entry]))
-  const applicationsDisclosure = useRef<HTMLDetailsElement>(null)
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
   const { t: detailText } = useTranslation('detail')
@@ -212,11 +212,11 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     <header className={`page-heading ${styles.header}`}>
       <div>
         <Breadcrumbs navigate={navigate} />
-        <div className="heading-title"><h1>{t('title')}</h1><PageHelp onOpen={() => applicationsDisclosure.current?.removeAttribute('open')} steps={[
+        <div className="heading-title"><h1>{t('title')}</h1><PageHelp steps={[
   { title: t('filters.contextHeading'), description: [t('helpFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="dashboard-filters"]' },
   { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="dashboard-energy"]' },
   { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="dashboard-emissions"]' },
-  { title: t('coverage'), description: tCommon('help.coverage'), target: '#dashboard-coverage' },
+  { title: t('collectionSuccess.title'), description: t('collectionSuccess.help'), target: '#dashboard-collection-success' },
   { title: t('trendTitle'), description: t('trend.note'), target: '[data-help="dashboard-trend"]' },
   { title: t('compositionTitle'), description: tCommon('help.composition'), target: '[data-help="dashboard-composition"]' },
 ]} /></div>
@@ -260,7 +260,6 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
 
     </section>
 
-    <div className={styles.notices}>
     <PersonalAlertsPanel state={personalAlerts} />
     {data.status === 'loading' && <LoadingState title={t('loading')} panelTitle={t('trendTitle')} layout="dashboard" />}
     {data.status === 'error' && <div className={styles.error} role="alert">
@@ -269,42 +268,24 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     </div>}
     {data.status === 'invalid-period' && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
 
-    </div>
     {data.data && <>
-      <div className={styles.notices}>
       {data.data.status === 'available' && (data.data.coverage.energy < 1 || data.data.coverage.emissions < 1) &&
         <p className={styles.partialNotice} role="status">
           <span>{t('partialCoverage')}</span>
-          <a href="#dashboard-coverage">{t('coverage')}</a>
+          <a href="#dashboard-applications-heading">{t('coverage')}</a>
         </p>}
       {data.data.status === 'empty' && <p className={styles.emptyNotice} role="status">{t('empty')}</p>}
 
-      </div>
-      <div className={styles.overview}>
       <section className={styles.kpis} aria-label={t('indicators')}>
         <article data-help="dashboard-energy" className={styles.card}>
           <h2><CardIcon icon={faBolt} size="small" inline />{t('energy')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.energy.value, data.data.totals.energy.unit, locale, t('notAvailable'))}</p>
-          <p className={styles.coverageLine}>{t('energyCoverage')}: {coverageLabel(data.data.coverage.energy, locale)}</p>
         </article>
         <article data-help="dashboard-emissions" className={styles.card}>
           <h2><CardIcon icon={faLeaf} size="small" inline />{t('emissions')}</h2>
           <p className={styles.metricValue}>{numberLabel(data.data.totals.emissions.value, data.data.totals.emissions.unit, locale, t('notAvailable'))}</p>
-          <p className={styles.coverageLine}>{t('emissionsCoverage')}: {coverageLabel(data.data.coverage.emissions, locale)}</p>
         </article>
-        <article id="dashboard-coverage" className={`${styles.card} ${styles.coverageCard}`}>
-          <h2><CardIcon icon={faCalendarCheck} size="small" inline />{t('coverage')}</h2>
-          <div className={styles.coverageVisual}>
-            <div className={styles.coverageRing} role="img" aria-label={`${t('emissionsCoverage')}: ${coverageLabel(data.data.coverage.emissions, locale)}`}
-              style={{ background: `conic-gradient(var(--accent-default) ${data.data.coverage.emissions * 100}%, var(--control-hover) 0)` }}>
-              <strong>{coverageLabel(data.data.coverage.emissions, locale)}</strong>
-            </div>
-            <dl className={styles.coverageList}>
-              <div><dt>{t('energyCoverage')}</dt><dd>{coverageLabel(data.data.coverage.energy, locale)}</dd></div>
-              <div><dt>{t('emissionsCoverage')}</dt><dd>{coverageLabel(data.data.coverage.emissions, locale)}</dd></div>
-            </dl>
-          </div>
-        </article>
+        <CollectionSuccessCard summary={data.data.collectionSuccess} />
         <article className={styles.card}>
           <h2><CardIcon icon={faLayerGroup} size="small" inline />{t('applicationStates', { count: totalApplications })}</h2>
           <ul className={styles.stateList}>
@@ -315,12 +296,12 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       </section>
 
       <p className={styles.dataAsOf}>{data.data.dataAsOf ? t('dataAsOf', { date: timeLabel(data.data.dataAsOf, locale) }) : t('dataAsOfUnavailable')}</p>
-      {data.status === 'refreshing' && <div className={styles.refreshStatus}><LoadingState title={t('refreshing')} compact /></div>}
+      {data.status === 'refreshing' && <LoadingState title={t('refreshing')} compact />}
 
       <section className={styles.visualizations}>
         <article data-help="dashboard-trend" className={styles.card}>
           <h2><CardIcon icon={faChartLine} size="small" inline />{t('trendTitle')}</h2>
-          <EnvironmentalSeries series={data.data.series} locale={locale} compact />
+          <EnvironmentalSeries series={data.data.series} locale={locale} />
         </article>
         <article data-help="dashboard-composition" className={styles.card}>
           <div className={styles.sectionHeading}>
@@ -365,9 +346,6 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         </article>
       </section>
 
-      </div>
-      <details ref={applicationsDisclosure} id="dashboard-applications" className={styles.applicationDetails}>
-      <summary>{t('table.title', { count: table.total })}</summary>
       <section data-help="dashboard-results" className={styles.tableCard} aria-labelledby="dashboard-applications-heading">
         <div className={styles.tableHeading}>
           <div><h2 id="dashboard-applications-heading">{t('table.title', { count: table.total })}</h2></div>
@@ -452,7 +430,6 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           onPageChange={page => update({ page })} summary={t('table.range', { from: from + 1, to, total: table.total })}
           pageSize={{ value: query.pageSize, options: pageSizes, onChange: changePageSize }} />}
       </section>
-      </details>
     </>}
   </main>
 }

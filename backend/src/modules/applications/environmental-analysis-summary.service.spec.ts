@@ -51,3 +51,35 @@ describe('environmental summary domain scope', () => {
     expect(result.totals.energy.value).toBeNull()
   })
 })
+
+describe('collection success in the environmental summary', () => {
+  const from = '2026-10-01T00:00:00.000Z', to = '2026-10-02T00:00:00.000Z'
+  function fixture() {
+    const applications = { findAll: jest.fn().mockResolvedValue([{ id: 'app-1', state: ApplicationState.AVAILABLE }]) }
+    const collections = { findEnvironmentalByApplicationsAndPeriod: jest.fn().mockResolvedValue([]) }
+    const events = { findMetadataHistory: jest.fn().mockResolvedValue([]), collectionAttemptCounts: jest.fn().mockResolvedValue({
+      successful: 3, total: 4, firstAttemptAt: from, lastAttemptAt: from,
+    }) }
+    return { events, service: new EnvironmentalAnalysisSummaryService(applications as unknown as ApplicationsRepository, collections as unknown as CollectionsRepository, events as unknown as ApplicationEventsRepository) }
+  }
+  it('counts attempts in the selected period, state and recorded region independently of environmental coverage', async () => {
+    const { events, service } = fixture()
+    const result = await service.getSummary({ from, to, states: ['AVAILABLE'], regionCodes: ['br-sudeste'], includeCollectionSuccess: 'true' })
+    expect(result.collectionSuccess).toEqual({ successful: 3, total: 4, rate: 0.75, firstAttemptAt: from, lastAttemptAt: from })
+    expect(result.coverage).toEqual({ energy: 0, emissions: 0 })
+    expect(events.collectionAttemptCounts).toHaveBeenCalledWith(['app-1'], BigInt(Date.parse(from)) * 1000000n, BigInt(Date.parse(to)) * 1000000n, ['br-sudeste'])
+  })
+  it('does not fabricate a rate without attempts, and does not query it unless requested', async () => {
+    const { events, service } = fixture()
+    await service.getSummary({ from, to })
+    expect(events.collectionAttemptCounts).not.toHaveBeenCalled()
+    events.collectionAttemptCounts.mockResolvedValueOnce({ successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null })
+    expect((await service.getSummary({ from, to, includeCollectionSuccess: 'true' })).collectionSuccess?.rate).toBeNull()
+    await expect(service.getSummary({ from, to, includeCollectionSuccess: 'invalid' })).rejects.toThrow()
+  })
+  it('reports a query failure instead of presenting a zero or successful rate', async () => {
+    const { events, service } = fixture()
+    events.collectionAttemptCounts.mockRejectedValueOnce(new Error('database unavailable'))
+    await expect(service.getSummary({ from, to, includeCollectionSuccess: 'true' })).rejects.toMatchObject({ status: 503 })
+  })
+})

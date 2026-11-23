@@ -181,14 +181,3 @@
   .page { min-height: calc(100svh - 44px); }
 }
 @media (prefers-reduced-motion: reduce) { .progress::after { animation: none; width: 100%; } }
-
-@media (min-width: 1024px) {
-  .page { height: 100%; min-height: 0; }
-  .header, .controls, .disclaimer { flex-shrink: 0; margin-bottom: var(--workspace-space, 12px); }
-  .controls { grid-template-columns: minmax(0, 1.15fr) minmax(0, .9fr) minmax(0, 1.1fr) minmax(0, .75fr); }
-  .submit { grid-column: auto; justify-self: stretch; }
-  .resultSection { min-height: 260px; margin-top: 0; }
-  .resultGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); }
-  .resultCard { overflow: auto; padding: clamp(16px, 2dvh, 24px); }
-  .scenarioCard { grid-column: auto; }
-}
