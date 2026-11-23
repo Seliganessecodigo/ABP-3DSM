@@ -1,6 +1,6 @@
-# Entscheidungen und Abhängigkeiten
+# Entwicklungsprinzipien
 
-Änderungen an Umfang und Regeln halten Problem, gewünschtes Ergebnis und Abnahmekriterien in den jeweiligen Stories fest. Reviews und Nutzbarkeitstests dokumentieren Schwierigkeiten, Rückmeldungen und Verbesserungen. Aufbewahrung, Backup/Wiederherstellung, Betriebsziele und externe Quoten benötigen noch Entscheidungen.
+Epics, Stories und Aufgaben strukturieren das Produkt mit überprüfbaren Kriterien und Codeverweisen. Issues, Pull Requests und Commits verbinden Anforderungen, Implementierung und Tests; die versionierte Dokumentation vereint Architektur, Verträge, Betrieb und Nachweise.
 
 ## Produktregeln {#rules}
 
@@ -10,9 +10,9 @@
 | Explizite Lücken | Fehler, fehlende Metriken und ältere Daten bleiben von Null unterscheidbar. |
 | Öffentliche Abfrage | Kennzahlen lesen ist öffentlich; Einstellungen speichern und Konten verwalten verlangt Berechtigung. |
 
-## Aktueller Stand und Abhängigkeiten {#planned}
+## Integrierte Fähigkeiten {#planned}
 
-Vergleich, regionale Simulation, Rangliste, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung sind implementiert. Die Verwaltung erfordert Berechtigung; SSO und E-Mail-Versand benötigen Umgebungskonfiguration. CSV-Export sowie Aufbewahrungs-, Sicherungs- und Wiederherstellungsrichtlinien bleiben Produktabhängigkeiten.
+Die Plattform bietet Anwendungsvergleich, Umweltranking, regionale Simulation, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung. JWT, Google SSO und ein zweiter TOTP-Faktor schützen administrative Abläufe; Umweltabfragen bleiben öffentlich.
 
 ## Schätzmodell {#method}
 
@@ -20,7 +20,7 @@ Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte u
 
 ## Abnahmekriterien {#acceptance}
 
-Das Produkt muss Anwendungen auffindbar machen, Null von fehlenden Daten unterscheiden und Kennzahlen auf Zeitraum, Einheit, Abdeckung und Methodik zurückführen. Abfragen erhalten Navigationskontext und kennzeichnen Laden, Leere, Fehler und ältere Daten. Bewertet werden Tastatur, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte und alle 12 Sprachen.
+Die Oberfläche verknüpft Kennzahlen mit Zeitraum, Einheit, Abdeckung und Methodik und erhält Filter sowie Navigationskontext. Lade-, Leer-, Fehler- und veraltete Datenzustände werden ausdrücklich behandelt. Tastaturbedienung, sichtbarer Fokus, Text zusätzlich zu Farbe, Mobilgeräte, Themes und 12 Sprachen gehören zur Nutzungserfahrung.
 
 ## Weiterführende Seiten {#related}
 

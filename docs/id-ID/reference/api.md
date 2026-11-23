@@ -91,7 +91,7 @@ Dashboard dan kueri lingkungan bersifat publik. `/login` menerima email/kata san
 | GET | `/monitoring/audit` | `JWT + ADMIN` |
 | PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia. Rute ini tidak menyediakan pengelolaan peran lengkap atau pemulihan kata sandi.
+Admin organisasi yang sama mengubah akun antara `ACTIVE`, `BLOCKED`, `DEACTIVATED`, dengan `expectedStatus` dan alasan. Blokir/nonaktif mencabut semua sesi; aktif ulang memerlukan login baru. Akun sendiri dan Admin aktif terakhir dilindungi. Konflik status harapan: 409; target sudah tercapai: sukses idempoten. Audit bersama menulis sukses dalam transaksi mutasi dan penolakan di luar rollback, dengan aktor eksplisit tanpa rahasia.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -105,7 +105,7 @@ Daftar menerapkan pencarian dan filter sebelum pengurutan dan paginasi. Nilai ba
 
 Perubahan peran memerlukan `expectedRole` dan `reason`. Perubahan mencabut sesi dan kredensial TOTP sementara, mempertahankan audit, serta mencegah penghapusan akses sendiri atau Admin aktif terakhir dengan email terkonfirmasi. Akun yang belum dikonfirmasi tidak menggantikan administrator tersebut. Pemberian peran Admin tetap mewajibkan TOTP.
 
-## Pratinjau lama (di luar cakupan) {#preview}
+## Pratinjau perhitungan {#preview}
 
 Di `/administration/calculations`, pilih aplikasi/tanggal untuk membandingkan asli/pratinjau. Tanggal akhir mencakup seluruh hari UTC; API menerima `[from,to)`. Pratinjau publik menggunakan model saat ini dan faktor saat ini untuk wilayah historis, tanpa menyimpan. Batas: 30 hari, 10.000 observasi. Respons: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Kegagalan faktor mempertahankan energi yang dapat dihitung, CO₂e tidak tersedia. Persentase memerlukan satuan/cakupan sama dan acuan positif.
 

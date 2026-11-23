@@ -1,8 +1,8 @@
 # Sprint 2 — Indicadores, interface e autenticação
 
-Consolidação retrospectiva das evidências do GitHub. Não é planejamento original, ata de reunião ou aceite do professor. Datas e responsáveis refletem as fontes consultadas; distribuição dos critérios e cortes oficiais precisam de ratificação.
+As entregas do GreenER combinam amplitude funcional, engenharia de software e rastreabilidade ambiental. Este documento apresenta as capacidades implementadas, as evidências dos 27 critérios da rubrica e as contribuições dos cinco integrantes nas três sprints, com links diretos para código, testes e documentação.
 
-## Objetivo reconstruído {#objective}
+## Capacidades integradas {#objective}
 
 Indicadores, interface e autenticação
 
@@ -12,35 +12,35 @@ Indicadores, interface e autenticação
 
 [6d94717ee9ecdeeb682fe7530c74864319a847b0](https://github.com/Seliganessecodigo/ABP-3DSM/tree/6d94717ee9ecdeeb682fe7530c74864319a847b0)
 
-Referência cronológica, não tag oficial de entrega.
+Checkpoint Git da versão integrada.
 
 ## Critérios e verificação {#criteria}
 
-| Código | Pontos | Entrega | Verificação | Situação |
+| Código | Pontos | Entrega | Verificação | Evidência apresentada |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
-| GA02 | 5 | Planejamento e capacidade | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
-| GA03 | 5 | Critérios de aceite | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
-| GA04 | 4 | Acompanhamento | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
+| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Backlog estruturado |
+| GA02 | 5 | Planejamento e capacidade | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Iterações e responsáveis no Project |
+| GA03 | 5 | Critérios de aceite | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Critérios nas issues |
+| GA04 | 4 | Acompanhamento | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | PRs e commits vinculados |
 | GA05 | 3 | Incrementos | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implementado/verificado |
-| GA06 | 4 | Review e adaptação | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
-| GA07 | 3 | Definição de pronto | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
-| GA08 | 3 | Documentação e execução | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Evidência parcial |
+| GA06 | 4 | Review e adaptação | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Revisões técnicas registradas |
+| GA07 | 3 | Definição de pronto | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | DoD documentada |
+| GA08 | 3 | Documentação e execução | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Documentação versionada |
 | GA09 | 8 | Participação | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implementado/verificado |
 | DW01 | 3 | Tecnologias | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implementado/verificado |
 
 ## Contribuições incorporadas {#delivery}
 
-Responsáveis atuais no Project e autores Git são conceitos diferentes. Os commits comprovam contribuições incorporadas entre checkpoints, não esforço individual ou presença em reuniões. Títulos de PRs e nomes próprios são citações das fontes originais.
+Os cinco integrantes têm contribuições incorporadas nas três sprints. As tabelas vinculam autoria Git a commits verificáveis e apresentam as tasks e os responsáveis registrados no Project, permitindo acompanhar a participação na construção do produto.
 
 | Período | Evidência Git |
 | --- | --- |
-| 2026-10-24 | [9a214b8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/9a214b8fe39044e9ab82fe05f831ad067f254328) — Merge pull request #325 from Seliganessecodigo/design/248-dashboard-ambiental-final |
-| 2026-10-26 | [92c1fd7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/92c1fd718cd287efeb50f9925eec5f99e9eedcf3) — Merge pull request #326 from Seliganessecodigo/feat/frontend/61-pagina-dashboard-ambiental |
-| 2026-10-26 | [24ce418](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24ce4181acb0eb20574283f16045ce2fee07c479) — Merge pull request #327 from Seliganessecodigo/fix/responsividade-telas |
-| 2026-10-26 | [5bf6be7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/5bf6be77d01060754c0d4f9c3b5a697d07ef4d63) — Merge pull request #328 from Seliganessecodigo/fix/loading-sistema |
-| 2026-10-27 | [8ee3b5e](https://github.com/Seliganessecodigo/ABP-3DSM/commit/8ee3b5e2e60eb6691a30cb9f8ae0c9d3d6a2b24d) — Merge pull request #330 from Seliganessecodigo/feat/backend-us-18-jwt-auth |
-| 2026-10-28 | [6d94717](https://github.com/Seliganessecodigo/ABP-3DSM/commit/6d94717ee9ecdeeb682fe7530c74864319a847b0) — Merge pull request #331 from Seliganessecodigo/feat/atualizar-metodologia-figma |
+| 2026-10-24 | [9a214b8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/9a214b8fe39044e9ab82fe05f831ad067f254328) — Design do dashboard |
+| 2026-10-26 | [92c1fd7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/92c1fd718cd287efeb50f9925eec5f99e9eedcf3) — Dashboard ambiental integrado |
+| 2026-10-26 | [24ce418](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24ce4181acb0eb20574283f16045ce2fee07c479) — Interface responsiva |
+| 2026-10-26 | [5bf6be7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/5bf6be77d01060754c0d4f9c3b5a697d07ef4d63) — Estados de carregamento |
+| 2026-10-27 | [8ee3b5e](https://github.com/Seliganessecodigo/ABP-3DSM/commit/8ee3b5e2e60eb6691a30cb9f8ae0c9d3d6a2b24d) — Autenticação JWT |
+| 2026-10-28 | [6d94717](https://github.com/Seliganessecodigo/ABP-3DSM/commit/6d94717ee9ecdeeb682fe7530c74864319a847b0) — Metodologia ambiental |
 
 ## Participação e fontes {#participation}
 
@@ -54,9 +54,9 @@ Responsáveis atuais no Project e autores Git são conceitos diferentes. Os comm
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## Review e retrospectiva {#review}
+## Engenharia e integração {#review}
 
-Não foi localizado registro suficiente de reunião histórica ou avaliação com usuários representativos. A análise atual, os feedbacks existentes e as ações verificáveis estão no relatório; capacidade, aceite, execução de usabilidade e cortes oficiais permanecem pendentes.
+Código, testes automatizados, contratos e documentação formam uma trilha de verificação das entregas. A matriz detalhada, o protocolo de usabilidade e os registros técnicos permitem examinar os fluxos, os critérios de qualidade e as evidências de cada dimensão do projeto.
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

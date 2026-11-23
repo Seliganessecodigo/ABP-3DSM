@@ -1,6 +1,6 @@
-# Decisões e dependências
+# Princípios de engenharia
 
-Mudanças de escopo e regras de uso devem registrar o problema, o resultado esperado e os critérios de aceite nas histórias correspondentes. Revisões do produto e avaliações de usabilidade registram dificuldades observadas, feedback e melhorias. Retenção de dados, backup e recuperação, metas operacionais e cotas das fontes externas ainda exigem definição.
+Épicos, histórias e tasks organizam o produto com critérios verificáveis e referências ao código. Issues, pull requests e commits conectam requisitos, implementação e testes; a documentação reúne arquitetura, contratos, operação e evidências em um acervo versionado.
 
 ## Regras do produto {#rules}
 
@@ -10,9 +10,9 @@ Mudanças de escopo e regras de uso devem registrar o problema, o resultado espe
 | Ausência explícita | Falhas, falta de métricas e dados antigos permanecem distintos de zero. |
 | Consulta pública | Ler indicadores não exige login; salvar preferências e administrar contas exige acesso autorizado. |
 
-## Estado atual e dependências {#planned}
+## Capacidades integradas {#planned}
 
-Comparação, simulação regional, ranking, gestão de usuários e papéis, recuperação de senha e controles de monitoramento estão implementados. A administração exige acesso autorizado; SSO e envio de e-mails dependem da configuração do ambiente. A exportação CSV e políticas de retenção, backup e recuperação continuam dependências de produto.
+A plataforma oferece comparação entre aplicações, ranking ambiental, simulação regional, gestão de usuários e papéis, recuperação de senha e controles de monitoramento. Autenticação com JWT, Google SSO e segundo fator TOTP protege os fluxos administrativos, enquanto as consultas ambientais permanecem públicas.
 
 ## Modelo de estimativa {#method}
 
@@ -20,7 +20,7 @@ A energia é uma estimativa de um modelo simplificado, calculada a partir de CPU
 
 ## Critérios de aceite {#acceptance}
 
-O produto deve permitir localizar uma aplicação, distinguir zero de ausência e rastrear um indicador até seu período, unidade, cobertura e metodologia. As consultas precisam preservar o contexto de navegação e comunicar carregamento, vazio, falha e dados antigos. A avaliação inclui teclado, foco visível, leitura por texto além de cor, dispositivos móveis e os 12 idiomas.
+A interface conecta indicadores a período, unidade, cobertura e metodologia, preservando filtros e contexto de navegação. Estados de carregamento, vazio, falha e dados desatualizados recebem tratamento explícito. Teclado, foco visível, texto além de cor, dispositivos móveis, temas e 12 idiomas integram a experiência de uso.
 
 ## Leitura relacionada {#related}
 

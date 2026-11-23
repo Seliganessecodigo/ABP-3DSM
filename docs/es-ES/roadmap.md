@@ -22,13 +22,13 @@ Empiece por el resumen ambiental, identifique una aplicación que requiera atenc
 | Ausencia explícita | Fallos, métricas ausentes y datos antiguos se distinguen de cero. |
 | Consulta pública | Leer indicadores no requiere login; guardar preferencias y administrar cuentas requiere autorización. |
 
-## Estado actual y dependencias {#planned}
+## Capacidades integradas {#planned}
 
-La comparación, simulación regional, ranking, gestión de usuarios y roles, recuperación de contraseña y controles de monitorización están implementados. La administración exige autorización; SSO y correo dependen de la configuración del entorno. La exportación CSV y las políticas de retención, copia de seguridad y recuperación siguen siendo dependencias de producto.
+La plataforma ofrece comparación de aplicaciones, ranking ambiental, simulación regional, gestión de usuarios y roles, recuperación de contraseña y controles de monitoreo. La autenticación JWT, Google SSO y el segundo factor TOTP protegen los flujos administrativos, mientras las consultas ambientales son públicas.
 
 ## Criterios de aceptación {#acceptance}
 
-Los cambios de alcance y reglas registran problema, resultado esperado y criterios de aceptación en las historias correspondientes. Las revisiones y evaluaciones de usabilidad registran dificultades, comentarios y mejoras. Aún deben definirse retención, backup y recuperación, metas operativas y cuotas externas.
+Épicas, historias y tareas organizan el producto con criterios verificables y referencias al código. Issues, pull requests y commits conectan requisitos, implementación y pruebas; la documentación reúne arquitectura, contratos, operación y evidencias en un conjunto versionado.
 
 ## Lecturas relacionadas {#related}
 

@@ -1,6 +1,6 @@
 # Vision et périmètre
 
-GreenER aide à suivre les applications et à comprendre leur consommation d’énergie estimée et leurs émissions équivalentes de dioxyde de carbone (CO₂e). Indicateurs, localisation et historique permettent d’étudier l’impact environnemental des services numériques.
+GreenER réunit surveillance continue, estimations d’énergie et de CO₂e et analyse environnementale dans une plateforme intégrée. Catalogue dynamique, tableau de bord, historique, classement, comparaison et simulation régionale relient la vue générale à l’étude de chaque application, avec des indicateurs traçables jusqu’aux données et à la méthodologie d’origine.
 
 ## Publics concernés {#readers}
 
@@ -19,7 +19,6 @@ GreenER aide à suivre les applications et à comprendre leur consommation d’�
 | Tableau de bord environnemental | [Lire le tableau de bord](../guide/monitoring#dashboard) |
 | Détail de l’application | [Examiner le détail](../guide/monitoring#detail) |
 | Historique et composition | [Explorer l’historique](../guide/monitoring#history) |
-| Aperçu historique (hors périmètre) | [Comparer avec un aperçu de recalcul](../guide/monitoring#preview) |
 | Préférences personnelles | [Personnaliser l’analyse](../guide/monitoring#preferences) |
 | Connexion et second facteur | [Se connecter](../guide/monitoring#access) |
 | Classement environnemental | [Classement environnemental](../guide/monitoring#other) |
@@ -37,9 +36,9 @@ L’énergie est estimée par un modèle simplifié utilisant CPU, mémoire, dis
 
 La couverture est la proportion de la période étayée par des observations valides. Énergie et émissions ont des couvertures distinctes : l’énergie peut être estimée sans facteur permettant de calculer les émissions. Comparez périodes, unités et couvertures compatibles. Une faible couverture indique une analyse partielle, pas une baisse prouvée de consommation.
 
-## État actuel et dépendances {#planned}
+## Capacités intégrées {#planned}
 
-Comparaison, simulation régionale, classement, gestion des utilisateurs et rôles, récupération du mot de passe et contrôles de surveillance sont implémentés. L’administration exige une autorisation ; SSO et courriels dépendent de la configuration. Export CSV et politiques de conservation, sauvegarde et restauration restent des dépendances produit.
+La plateforme propose comparaison d’applications, classement environnemental, simulation régionale, gestion des utilisateurs et des rôles, récupération de mot de passe et contrôles de surveillance. JWT, Google SSO et le second facteur TOTP protègent les parcours administratifs, tandis que les consultations environnementales restent publiques.
 
 ## Lectures associées {#related}
 

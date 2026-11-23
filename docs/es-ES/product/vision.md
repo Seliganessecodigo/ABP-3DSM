@@ -1,6 +1,6 @@
 # Visión y alcance
 
-GreenER ayuda a monitorizar aplicaciones y comprender su consumo estimado de energía y sus emisiones equivalentes de dióxido de carbono (CO₂e). Reúne indicadores, ubicación e historial para analizar el impacto ambiental de los servicios digitales.
+GreenER reúne monitoreo continuo, estimaciones de energía y CO₂e y análisis ambiental en una plataforma integrada. El catálogo dinámico, dashboard, historial, ranking, comparación y simulación regional conectan la visión general con la investigación de cada aplicación, con indicadores trazables hasta sus datos y metodología de origen.
 
 ## Para quién {#readers}
 
@@ -19,7 +19,6 @@ GreenER ayuda a monitorizar aplicaciones y comprender su consumo estimado de ene
 | Dashboard ambiental | [Consultar el dashboard](../guide/monitoring#dashboard) |
 | Detalle de aplicación | [Investigar el detalle](../guide/monitoring#detail) |
 | Historial y composición | [Explorar el historial](../guide/monitoring#history) |
-| Vista previa heredada (fuera del alcance) | [Comparar con una vista previa de recálculo](../guide/monitoring#preview) |
 | Preferencias personales | [Personalizar el análisis](../guide/monitoring#preferences) |
 | Login y segundo factor | [Iniciar sesión](../guide/monitoring#access) |
 | Ranking ambiental | [Ranking ambiental](../guide/monitoring#other) |
@@ -37,9 +36,9 @@ La energía se estima con un modelo simplificado de CPU, memoria, disco y red du
 
 La cobertura es la proporción del período con observaciones válidas. Energía y emisiones tienen coberturas separadas: puede haber energía estimada sin factor de carbono para calcular emisiones. Compare períodos, unidades y coberturas compatibles. Una cobertura baja indica análisis parcial, no reducción demostrada del consumo.
 
-## Estado actual y dependencias {#planned}
+## Capacidades integradas {#planned}
 
-La comparación, simulación regional, ranking, gestión de usuarios y roles, recuperación de contraseña y controles de monitorización están implementados. La administración exige autorización; SSO y correo dependen de la configuración del entorno. La exportación CSV y las políticas de retención, copia de seguridad y recuperación siguen siendo dependencias de producto.
+La plataforma ofrece comparación de aplicaciones, ranking ambiental, simulación regional, gestión de usuarios y roles, recuperación de contraseña y controles de monitoreo. La autenticación JWT, Google SSO y el segundo factor TOTP protegen los flujos administrativos, mientras las consultas ambientales son públicas.
 
 ## Lecturas relacionadas {#related}
 

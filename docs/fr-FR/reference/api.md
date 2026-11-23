@@ -91,7 +91,7 @@ Tableau de bord et consultations environnementales publics. `/login` accepte e-m
 | GET | `/monitoring/audit` | `JWT + ADMIN` |
 | PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret. Cette route ne fournit pas la gestion complète des rôles ou la récupération du mot de passe.
+Admin de la même organisation change les comptes entre `ACTIVE`, `BLOCKED`, `DEACTIVATED`, avec `expectedStatus` et motif. Blocage/désactivation révoquent toutes les sessions ; réactivation impose une nouvelle connexion. Protection du propre compte et du dernier Admin actif. Conflit : 409 ; cible déjà atteinte : succès idempotent. Audit partagé : succès dans la transaction, refus hors transaction annulée, acteur explicite et aucun secret.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -105,7 +105,7 @@ La liste applique la recherche et les filtres avant le tri et la pagination. La 
 
 Modifier un rôle exige `expectedRole` et `reason`. Le changement révoque les sessions et les justificatifs TOTP temporaires, préserve l’audit et empêche de retirer son propre accès ou le dernier Admin actif dont l’e-mail est confirmé. Les comptes non confirmés ne remplacent pas cet administrateur. L’attribution du rôle Admin conserve l’exigence TOTP.
 
-## Aperçu historique (hors périmètre) {#preview}
+## Aperçu du calcul {#preview}
 
 Dans `/administration/calculations`, comparer original et aperçu par application et dates. Le dernier jour inclut la journée UTC entière ; l’API reçoit `[from,to)`. Aperçu public avec modèle actuel et facteurs actuels des régions historiques, sans sauvegarde. Limites : 30 jours et 10 000 observations. Réponse : `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Un facteur indisponible conserve l’énergie calculable. Les pourcentages exigent unités/couvertures égales et référence positive.
 

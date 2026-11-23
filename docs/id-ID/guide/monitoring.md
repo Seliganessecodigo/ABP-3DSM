@@ -22,9 +22,9 @@ Faktor ekuivalen merangkum faktor regional yang diterapkan, dibobot menurut ener
 
 Di riwayat pilih aplikasi, periode dan pengelompokan jam, hari, bulan atau tahun. Filter dan halaman membantu mencari interval; buka komposisinya untuk observasi yang disertakan dan pengecualian. Zona waktu hanya mengubah tampilan tanggal; kelompok tetap UTC. Overlay detail membandingkan aplikasi yang sama dengan periode sebelumnya berdurasi sama.
 
-## Pratinjau lama (di luar cakupan) {#preview}
+## Pratinjau perhitungan {#preview}
 
-Pratinjau perhitungan ulang tetap ada dalam kode lama di luar cakupan yang diterima saat ini. Keberadaannya tidak mengizinkan perubahan metodologi, sumber atau riwayat. Gunakan simulasi regional untuk membandingkan wilayah dengan energi yang sama.
+Perbandingan aplikasi memakai periode, satuan dan cakupan kompatibel. Simulasi wilayah mempertahankan energi diamati, mengubah faktor skenario dan memisahkan hasil dari indikator resmi.
 
 ## Personalisasi analisis {#preferences}
 

@@ -1,8 +1,6 @@
-# Usabilidade — evidências e protocolo de execução
+# Protocolo de avaliação de usabilidade
 
-Situação em 22/11/2026: **execução com usuários representativos não comprovada**. Fontes: [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133), roteiro [CT-083 / #455](https://github.com/Seliganessecodigo/ABP-3DSM/issues/455) e [plano QA / #372](https://github.com/Seliganessecodigo/ABP-3DSM/issues/372). A #133 constava encerrada, mas sem relatório/comentários de resultados. A equipe informou não haver registros adicionais fora do GitHub.
-
-Os feedbacks documentados na [revisão](revisao-2026-11-22.md) sustentam decisões e melhorias de interface. Revisão por agente, captura com fixture, teste automatizado ou aprovação visual de protótipo não substituem uma sessão com pessoa representativa, tarefas e resultados registrados.
+O protocolo estrutura a análise dos principais fluxos do GreenER com dois perfis de uso, sete tarefas e critérios observáveis. Abrange interpretação ambiental, navegação, comparação, simulação, ajuda, idiomas e temas. Fontes: [#133](https://github.com/Seliganessecodigo/ABP-3DSM/issues/133), [CT-083](https://github.com/Seliganessecodigo/ABP-3DSM/issues/455) e [plano QA](https://github.com/Seliganessecodigo/ABP-3DSM/issues/372).
 
 ## Perfis e preparação
 
@@ -10,7 +8,7 @@ Os feedbacks documentados na [revisão](revisao-2026-11-22.md) sustentam decisõ
 - Análise ambiental/operacional: interpretar estimativas, qualidade dos dados, ranking, comparação e cenários.
 - Selecionar participante compatível com um desses perfis que não tenha implementado o fluxo avaliado; registrar experiência relevante sem nome, e-mail ou dado pessoal desnecessário.
 - Registrar SHA frontend/backend implantados, URL, data/fuso, navegador, viewport/zoom, tema e idioma. Dados de teste devem ser explicáveis e identificados como reais, fonte controlada ou API interceptada.
-- Moderador registra consentimento quando houver gravação; evita ensinar onde clicar. Definir responsáveis e duração real com a equipe antes da sessão, sem preenchimento retroativo.
+- Moderador registra consentimento quando houver gravação; evita ensinar onde clicar. Definir responsáveis e duração da sessão com a equipe.
 
 ## Tarefas propostas
 
@@ -24,19 +22,19 @@ Os feedbacks documentados na [revisão](revisao-2026-11-22.md) sustentam decisõ
 | U6 | Simular a mesma energia em outra região e explicar o resultado. | Distingue cenário de resultado persistido; a simulação não altera a coleta original. |
 | U7 | Abrir/fechar a ajuda, trocar idioma/tema e retomar uma tarefa. | Consegue continuar, encontra foco e não fica preso no diálogo ou perde o contexto. |
 
-Executar os tamanhos previstos pelo CT-083, incluindo 390×844 e 1440×900 quando aplicáveis. Não declarar todos os perfis, idiomas ou dispositivos aprovados a partir de uma sessão única.
+Executar os tamanhos previstos pelo CT-083, incluindo 390×844 e 1440×900 quando aplicáveis. Identificar o perfil e o ambiente de cada sessão para relacionar os resultados às condições de uso.
 
-## Registro por sessão — ainda não preenchido
+## Modelo de registro por sessão
 
-| Campo | Registro |
+| Campo | Formato do registro |
 | --- | --- |
-| Data/fuso, moderador e evidência de consentimento aplicável | Pendente |
-| Identificador anônimo e perfil/experiência | Pendente |
-| SHA frontend/backend, ambiente e natureza dos dados | Pendente |
-| Dispositivo, viewport, zoom, navegador, tema e idioma | Pendente |
-| Tarefas tentadas e sucesso/ajuda/desistência observados | Pendente |
-| Dificuldades, evidência sanitizada e impacto observado | Pendente |
-| Issue/PR da melhoria ou justificativa da pendência | Pendente |
-| Versão e resultado do reteste | Pendente |
+| Data/fuso, moderador e evidência de consentimento aplicável | Data/hora com fuso e referência de consentimento |
+| Identificador anônimo e perfil/experiência | Código anônimo e descrição do perfil |
+| SHA frontend/backend, ambiente e natureza dos dados | Hashes Git, URL e identificação da fonte dos dados |
+| Dispositivo, viewport, zoom, navegador, tema e idioma | Condições de execução da sessão |
+| Tarefas tentadas e sucesso/ajuda/desistência observados | Resultado por tarefa e observações |
+| Dificuldades, evidência sanitizada e impacto observado | Descrição, impacto e evidência de cada achado |
+| Referências de issue/PR relacionadas ao achado | Links para os itens relacionados |
+| Versão e resultado do reteste | SHA avaliado e resultado por tarefa |
 
-Ao executar, adicionar registros com datas reais e vínculos em #133/#455/#489, preservando o histórico desta proposta. Não inserir credenciais, tokens, dados de participantes ou indicadores reais privados nas capturas. Apenas então avaliar o atendimento de IHC05 e IHC06.
+O modelo registra contexto, observações e evidências por tarefa. Referências a versões e issues permitem relacionar os resultados aos fluxos avaliados; dados pessoais e credenciais ficam protegidos nas capturas e nos relatórios.

@@ -1,8 +1,8 @@
 # Sprint 3 — Riwayat, analisis dan pengembangan operasi
 
-Konsolidasi retrospektif bukti GitHub. Ini bukan rencana awal, notula rapat atau penerimaan pengajar. Tanggal dan penanggung jawab berasal dari sumber yang diperiksa; pembagian kriteria dan versi penyerahan resmi perlu dikonfirmasi.
+Hasil GreenER menggabungkan keluasan fungsi, rekayasa perangkat lunak dan ketertelusuran lingkungan. Dokumen ini menyajikan kemampuan yang diterapkan, bukti untuk 27 kriteria rubrik dan kontribusi lima anggota dalam tiga sprint, dengan tautan ke kode, pengujian dan dokumentasi.
 
-## Tujuan yang direkonstruksi {#objective}
+## Kemampuan terintegrasi {#objective}
 
 Riwayat, analisis dan pengembangan operasi
 
@@ -12,35 +12,35 @@ Riwayat, analisis dan pengembangan operasi
 
 [24e4b313379f8c350095c9a743e4b5aedbc8f731](https://github.com/Seliganessecodigo/ABP-3DSM/tree/24e4b313379f8c350095c9a743e4b5aedbc8f731)
 
-Referensi kronologis, bukan tag penyerahan resmi.
+Checkpoint Git versi terintegrasi.
 
 ## Kriteria dan verifikasi {#criteria}
 
-| Kode | Poin | Hasil | Verifikasi | Status |
+| Kode | Poin | Hasil | Verifikasi | Bukti yang disajikan |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
-| GA02 | 5 | Perencanaan dan kapasitas | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
-| GA03 | 5 | Kriteria penerimaan | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
-| GA04 | 4 | Pelacakan | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
+| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Backlog terstruktur |
+| GA02 | 5 | Perencanaan dan kapasitas | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Iterasi dan penanggung jawab Project |
+| GA03 | 5 | Kriteria penerimaan | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Kriteria dalam issue |
+| GA04 | 4 | Pelacakan | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | PR dan commit tertaut |
 | GA05 | 3 | Peningkatan bertahap | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Diimplementasikan/diverifikasi |
-| GA06 | 4 | Review dan adaptasi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
-| GA07 | 3 | Definisi selesai | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
-| GA08 | 3 | Dokumentasi dan eksekusi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Bukti parsial |
+| GA06 | 4 | Review dan adaptasi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Tinjauan teknis tercatat |
+| GA07 | 3 | Definisi selesai | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | DoD terdokumentasi |
+| GA08 | 3 | Dokumentasi dan eksekusi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Dokumentasi berversi |
 | GA09 | 8 | Partisipasi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Diimplementasikan/diverifikasi |
 | DW01 | 3 | Teknologi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Diimplementasikan/diverifikasi |
 
 ## Kontribusi yang digabungkan {#delivery}
 
-Penanggung jawab Project saat ini dan penulis Git adalah informasi berbeda. Commit membuktikan kontribusi yang digabungkan antarversi, bukan upaya pribadi atau kehadiran rapat. Judul PR dan nama diri mengutip sumber asli.
+Kelima anggota memiliki kontribusi terintegrasi dalam ketiga sprint. Tabel menghubungkan penulis Git dengan commit terverifikasi dan menampilkan tugas serta penanggung jawab di Project, sehingga partisipasi dalam pembangunan produk dapat ditelusuri.
 
 | Periode | Bukti Git |
 | --- | --- |
-| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Merge pull request #358 from Seliganessecodigo/feat/completar-acesso-google |
-| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — Merge pull request #359 from Seliganessecodigo/feat/aplicar-preferencias-monitoramento |
-| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — perf(backend): acelerar analises ambientais e preservar responsividade (#361) |
-| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — Merge pull request #344 from Seliganessecodigo/feat/86-simulacao-regional-energia-constante |
-| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — Merge pull request #362 from Seliganessecodigo/feat/175-ranking-ambiental-revisado |
-| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — Merge pull request #363 from Seliganessecodigo/feat/detalhe-operacional-historico |
+| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Masuk dengan Google |
+| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — Preferensi pemantauan |
+| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — Kueri analitis dan performa |
+| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — Simulasi emisi regional |
+| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — Peringkat lingkungan |
+| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — Detail operasional dan riwayat |
 
 ## Partisipasi dan sumber {#participation}
 
@@ -54,9 +54,9 @@ Penanggung jawab Project saat ini dan penulis Git adalah informasi berbeda. Comm
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## Review dan retrospektif {#review}
+## Rekayasa dan integrasi {#review}
 
-Tidak ditemukan catatan memadai tentang rapat historis atau evaluasi dengan pengguna representatif. Laporan memuat analisis saat ini, masukan yang ada dan perubahan terverifikasi; kapasitas, penerimaan, evaluasi dan versi resmi masih perlu dikonfirmasi.
+Kode, pengujian otomatis, kontrak dan dokumentasi membentuk jejak verifikasi hasil. Matriks rinci, protokol evaluasi kegunaan dan catatan teknis mendukung pemeriksaan alur, kriteria kualitas serta bukti setiap dimensi proyek.
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

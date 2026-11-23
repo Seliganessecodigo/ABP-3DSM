@@ -91,7 +91,7 @@ Dashboard und Umweltabfragen sind öffentlich. `/login`: E-Mail/Passwort oder ak
 | GET | `/monitoring/audit` | `JWT + ADMIN` |
 | PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse. Keine vollständige Rollenverwaltung oder Passwortwiederherstellung durch diese Route.
+Admin derselben Organisation ändert Konten zwischen `ACTIVE`, `BLOCKED`, `DEACTIVATED`, mit `expectedStatus` und Begründung. Sperre/Deaktivierung widerruft alle Sitzungen; Reaktivierung erfordert neue Anmeldung. Eigenes Konto und letzter aktiver Admin sind geschützt. Erwartungskonflikt: 409; Ziel bereits erreicht: idempotenter Erfolg. Gemeinsames Audit speichert Erfolg in der Transaktion und Ablehnungen außerhalb des Rollbacks, mit explizitem Akteur und ohne Geheimnisse.
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -105,7 +105,7 @@ Suche und Filter werden vor Sortierung und Seiteneinteilung angewendet. Standard
 
 Rollenänderungen erfordern `expectedRole` und `reason`. Die Änderung widerruft Sitzungen und temporäre TOTP-Zugangsdaten, erhält das Audit und verhindert den Entzug des eigenen Zugriffs oder des letzten aktiven Admins mit bestätigter E-Mail. Unbestätigte Konten ersetzen diesen Administrator nicht. Die Zuweisung von Admin behält die TOTP-Pflicht bei.
 
-## Historische Vorschau (außerhalb des Umfangs) {#preview}
+## Berechnungsvorschau {#preview}
 
 Unter `/administration/calculations` Anwendung/Datum wählen und Original/Vorschau vergleichen. Enddatum umfasst den ganzen UTC-Tag; API verwendet `[from,to)`. Öffentliche Vorschau mit aktuellem Modell und aktuellen Faktoren historischer Regionen, ohne Speicherung. Grenzen: 30 Tage, 10.000 Beobachtungen. Antwort: `original`, `preview`, `warnings`, `status` (`available`, `empty`, `partial`). Faktorfehler erhält berechenbare Energie; CO₂e bleibt nicht verfügbar. Prozente verlangen gleiche Einheiten/Abdeckung und positiven Referenzwert.
 

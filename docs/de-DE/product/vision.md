@@ -1,6 +1,6 @@
 # Vision und Umfang
 
-GreenER unterstützt die Überwachung von Anwendungen und das Verständnis ihres geschätzten Energieverbrauchs und ihrer Kohlendioxidäquivalent-Emissionen (CO₂e). Kennzahlen, Standort und Verlauf helfen, die Umweltwirkung digitaler Dienste zu untersuchen.
+GreenER vereint kontinuierliche Überwachung, Energie- und CO₂e-Schätzungen sowie Umweltanalysen in einer integrierten Plattform. Dynamischer Katalog, Dashboard, Verlauf, Ranking, Vergleich und regionale Simulation verbinden den Überblick mit der Untersuchung einzelner Anwendungen; Kennzahlen lassen sich bis zu Quelldaten und Methodik zurückverfolgen.
 
 ## Zielgruppen {#readers}
 
@@ -19,7 +19,6 @@ GreenER unterstützt die Überwachung von Anwendungen und das Verständnis ihres
 | Umweltdashboard | [Dashboard lesen](../guide/monitoring#dashboard) |
 | Anwendungsdetails | [Details untersuchen](../guide/monitoring#detail) |
 | Verlauf und Zusammensetzung | [Verlauf erkunden](../guide/monitoring#history) |
-| Historische Vorschau (außerhalb des Umfangs) | [Mit einer Neuberechnungsvorschau vergleichen](../guide/monitoring#preview) |
 | Persönliche Einstellungen | [Analyse anpassen](../guide/monitoring#preferences) |
 | Anmeldung und zweiter Faktor | [Anmelden](../guide/monitoring#access) |
 | Umweltranking | [Umweltranking](../guide/monitoring#other) |
@@ -37,9 +36,9 @@ Ein vereinfachtes Modell schätzt Energie anhand von CPU, Speicher, Festplatte u
 
 Abdeckung ist der Anteil eines Zeitraums mit gültigen Beobachtungen. Energie und Emissionen haben getrennte Abdeckung: Energie kann ohne CO₂-Faktor zur Emissionsberechnung verfügbar sein. Vergleichen Sie kompatible Zeiträume, Einheiten und Abdeckung. Niedrige Abdeckung bedeutet Teilanalyse, keine nachgewiesene Verbrauchssenkung.
 
-## Aktueller Stand und Abhängigkeiten {#planned}
+## Integrierte Fähigkeiten {#planned}
 
-Vergleich, regionale Simulation, Rangliste, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung sind implementiert. Die Verwaltung erfordert Berechtigung; SSO und E-Mail-Versand benötigen Umgebungskonfiguration. CSV-Export sowie Aufbewahrungs-, Sicherungs- und Wiederherstellungsrichtlinien bleiben Produktabhängigkeiten.
+Die Plattform bietet Anwendungsvergleich, Umweltranking, regionale Simulation, Benutzer- und Rollenverwaltung, Passwortwiederherstellung und Überwachungssteuerung. JWT, Google SSO und ein zweiter TOTP-Faktor schützen administrative Abläufe; Umweltabfragen bleiben öffentlich.
 
 ## Weiterführende Seiten {#related}
 

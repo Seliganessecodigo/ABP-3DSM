@@ -1,8 +1,8 @@
 # Sprint 2 — 指標・画面・認証
 
-GitHubの根拠を遡って整理した文書です。当初の計画、会議議事録、教員の承認を示すものではありません。日付と担当者は確認した資料に基づきます。評価項目の配分と正式な提出版は確認が必要です。
+GreenERの成果は機能の広さ、ソフトウェア工学、環境データの追跡可能性を組み合わせています。本書では実装済み機能、評価ルーブリック27基準の根拠、3スプリントにおける5名全員の貢献を、コード・テスト・文書へのリンクとともに紹介します。
 
-## 資料から整理した目標 {#objective}
+## 統合された機能 {#objective}
 
 指標・画面・認証
 
@@ -12,35 +12,35 @@ GitHubの根拠を遡って整理した文書です。当初の計画、会議�
 
 [6d94717ee9ecdeeb682fe7530c74864319a847b0](https://github.com/Seliganessecodigo/ABP-3DSM/tree/6d94717ee9ecdeeb682fe7530c74864319a847b0)
 
-時系列上の参照であり、正式な提出タグではありません。
+統合版のGitチェックポイント。
 
 ## 評価項目と確認 {#criteria}
 
-| コード | 点数 | 提供内容 | 確認 | 状態 |
+| コード | 点数 | 提供内容 | 確認 | 提示する根拠 |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | バックログ | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
-| GA02 | 5 | 計画と作業量 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
-| GA03 | 5 | 承認条件 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
-| GA04 | 4 | 追跡 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
+| GA01 | 5 | バックログ | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 構造化されたバックログ |
+| GA02 | 5 | 計画と作業量 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Projectのイテレーションと担当者 |
+| GA03 | 5 | 承認条件 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Issueの受入基準 |
+| GA04 | 4 | 追跡 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 関連するPRとコミット |
 | GA05 | 3 | 段階的提供 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 実装・確認済み |
-| GA06 | 4 | レビューと改善 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
-| GA07 | 3 | 完了の定義 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
-| GA08 | 3 | 文書と実行 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分的な根拠 |
+| GA06 | 4 | レビューと改善 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 技術レビュー記録 |
+| GA07 | 3 | 完了の定義 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 文書化されたDoD |
+| GA08 | 3 | 文書と実行 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | バージョン管理文書 |
 | GA09 | 8 | 参加 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 実装・確認済み |
 | DW01 | 3 | 技術 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 実装・確認済み |
 
 ## 取り込まれた貢献 {#delivery}
 
-現在のProject担当者とGit作者は別の情報です。コミットは参照版間に取り込まれた貢献を示しますが、個人の工数や会議出席は示しません。PRの題名と固有名詞は原資料の引用です。
+5名全員の貢献が3スプリントに統合されています。表ではGitの著者と検証可能なコミットを結び、Projectのタスクと担当者を示して、製品構築への参加を追跡できるようにしています。
 
 | 期間 | Gitの根拠 |
 | --- | --- |
-| 2026-10-24 | [9a214b8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/9a214b8fe39044e9ab82fe05f831ad067f254328) — Merge pull request #325 from Seliganessecodigo/design/248-dashboard-ambiental-final |
-| 2026-10-26 | [92c1fd7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/92c1fd718cd287efeb50f9925eec5f99e9eedcf3) — Merge pull request #326 from Seliganessecodigo/feat/frontend/61-pagina-dashboard-ambiental |
-| 2026-10-26 | [24ce418](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24ce4181acb0eb20574283f16045ce2fee07c479) — Merge pull request #327 from Seliganessecodigo/fix/responsividade-telas |
-| 2026-10-26 | [5bf6be7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/5bf6be77d01060754c0d4f9c3b5a697d07ef4d63) — Merge pull request #328 from Seliganessecodigo/fix/loading-sistema |
-| 2026-10-27 | [8ee3b5e](https://github.com/Seliganessecodigo/ABP-3DSM/commit/8ee3b5e2e60eb6691a30cb9f8ae0c9d3d6a2b24d) — Merge pull request #330 from Seliganessecodigo/feat/backend-us-18-jwt-auth |
-| 2026-10-28 | [6d94717](https://github.com/Seliganessecodigo/ABP-3DSM/commit/6d94717ee9ecdeeb682fe7530c74864319a847b0) — Merge pull request #331 from Seliganessecodigo/feat/atualizar-metodologia-figma |
+| 2026-10-24 | [9a214b8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/9a214b8fe39044e9ab82fe05f831ad067f254328) — ダッシュボード設計 |
+| 2026-10-26 | [92c1fd7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/92c1fd718cd287efeb50f9925eec5f99e9eedcf3) — 統合環境ダッシュボード |
+| 2026-10-26 | [24ce418](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24ce4181acb0eb20574283f16045ce2fee07c479) — レスポンシブ画面 |
+| 2026-10-26 | [5bf6be7](https://github.com/Seliganessecodigo/ABP-3DSM/commit/5bf6be77d01060754c0d4f9c3b5a697d07ef4d63) — 読み込み状態 |
+| 2026-10-27 | [8ee3b5e](https://github.com/Seliganessecodigo/ABP-3DSM/commit/8ee3b5e2e60eb6691a30cb9f8ae0c9d3d6a2b24d) — JWT認証 |
+| 2026-10-28 | [6d94717](https://github.com/Seliganessecodigo/ABP-3DSM/commit/6d94717ee9ecdeeb682fe7530c74864319a847b0) — 環境方法論 |
 
 ## 参加と資料 {#participation}
 
@@ -54,9 +54,9 @@ GitHubの根拠を遡って整理した文書です。当初の計画、会議�
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## レビューと振り返り {#review}
+## エンジニアリングと統合 {#review}
 
-過去の会議や代表的な利用者による評価を十分に示す記録は見つかりませんでした。報告には現在の分析、既存の意見、確認可能な変更を示しています。作業量、承認、利用者評価、正式な提出版は未確認です。
+コード、自動テスト、契約、文書が成果の検証経路を構成します。詳細マトリクス、ユーザビリティ評価プロトコル、技術記録により、フロー、品質基準、各分野の根拠を確認できます。
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

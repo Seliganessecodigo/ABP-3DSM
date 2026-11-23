@@ -91,7 +91,7 @@
 | GET | `/monitoring/audit` | `JWT + ADMIN` |
 | PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-同组织Admin可提交`expectedStatus`及原因，将账户改为`ACTIVE`、`BLOCKED`或`DEACTIVATED`。封禁/停用撤销所有会话；重新激活必须重新登录。保护自身账户及最后一位活跃Admin。预期状态冲突409，已达目标为幂等成功。共享审计将成功与变更同事务写入，拒绝在回滚事务之外写入，明确操作者且不含秘密。该路由不提供完整角色管理或密码恢复。
+同组织Admin可提交`expectedStatus`及原因，将账户改为`ACTIVE`、`BLOCKED`或`DEACTIVATED`。封禁/停用撤销所有会话；重新激活必须重新登录。保护自身账户及最后一位活跃Admin。预期状态冲突409，已达目标为幂等成功。共享审计将成功与变更同事务写入，拒绝在回滚事务之外写入，明确操作者且不含秘密。
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -105,7 +105,7 @@ Admin可在同一组织内邀请账户并管理角色，须提供原因，同时
 
 更改角色需要 `expectedRole` 和 `reason`。更改会撤销会话和临时 TOTP 凭据，保留审计记录，并禁止移除自己的访问权限或最后一个邮箱已确认的有效 Admin。未确认邮箱的账户不能替代该管理员。赋予 Admin 角色后仍须完成 TOTP 验证。
 
-## 旧版预览（范围之外） {#preview}
+## 计算预览 {#preview}
 
 在`/administration/calculations`选择应用和日期，比较原始值与预览。结束日期包含完整UTC日；API接收`[from,to)`。公开预览使用当前模型及历史地区的当前因子，不保存结果。上限30天、10,000条观测。响应有`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。因子故障保留可算能源，CO₂e不可用。百分比要求单位/覆盖率一致且参考值为正。
 

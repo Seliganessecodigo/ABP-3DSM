@@ -22,9 +22,9 @@ El factor equivalente resume los factores regionales aplicados, ponderados por l
 
 En el historial, elija aplicación, período y agrupación por hora, día, mes o año. Use filtros y paginación para localizar intervalos y abra su composición para consultar observaciones incluidas y exclusiones. La zona horaria cambia la presentación de fechas; la agrupación permanece en UTC. La superposición del detalle compara la aplicación con el período anterior de igual duración.
 
-## Vista previa heredada (fuera del alcance) {#preview}
+## Vista previa del cálculo {#preview}
 
-La vista previa de recálculo permanece en código heredado, fuera del alcance aceptado actual. Su presencia no autoriza cambios de metodología, fuentes o historial. Para comparar regiones con la misma energía, use la simulación regional.
+La comparación entre aplicaciones exige períodos, unidades y coberturas compatibles. La simulación regional mantiene energía observada, cambia el factor del escenario y separa el resultado de los indicadores oficiales.
 
 ## Personalizar el análisis {#preferences}
 

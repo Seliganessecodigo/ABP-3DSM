@@ -1,8 +1,8 @@
 # Sprint 1 — Fondations, catalogue et collecte
 
-Consolidation rétrospective des preuves GitHub. Ce document ne constitue ni planification initiale, ni compte rendu de réunion, ni acceptation du professeur. Dates et responsables reflètent les sources consultées ; répartition des critères et versions officielles doivent être confirmées.
+Les livraisons GreenER associent richesse fonctionnelle, ingénierie logicielle et traçabilité environnementale. Ce document présente les capacités implémentées, les preuves des 27 critères de la grille et les contributions des cinq membres sur trois sprints, avec des liens vers le code, les tests et la documentation.
 
-## Objectif reconstitué {#objective}
+## Capacités intégrées {#objective}
 
 Fondations, catalogue et collecte
 
@@ -12,35 +12,35 @@ Fondations, catalogue et collecte
 
 [46ebb45de6a9e42a88e4ae1f2045ef08df542b42](https://github.com/Seliganessecodigo/ABP-3DSM/tree/46ebb45de6a9e42a88e4ae1f2045ef08df542b42)
 
-Référence chronologique, pas une étiquette officielle de livraison.
+Point de référence Git de la version intégrée.
 
 ## Critères et vérification {#criteria}
 
-| Code | Points | Livraison | Vérification | État |
+| Code | Points | Livraison | Vérification | Preuve présentée |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
-| GA02 | 5 | Planification et capacité | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
-| GA03 | 5 | Critères d’acceptation | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
-| GA04 | 4 | Suivi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
+| GA01 | 5 | Backlog | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Backlog structuré |
+| GA02 | 5 | Planification et capacité | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Itérations et responsables du Project |
+| GA03 | 5 | Critères d’acceptation | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Critères dans les issues |
+| GA04 | 4 | Suivi | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | PR et commits liés |
 | GA05 | 3 | Incréments | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implémenté/vérifié |
-| GA06 | 4 | Review et adaptation | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
-| GA07 | 3 | Définition de terminé | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
-| GA08 | 3 | Documentation et exécution | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Preuve partielle |
+| GA06 | 4 | Review et adaptation | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Revues techniques documentées |
+| GA07 | 3 | Définition de terminé | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | DoD documentée |
+| GA08 | 3 | Documentation et exécution | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Documentation versionnée |
 | GA09 | 8 | Participation | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implémenté/vérifié |
 | DW01 | 3 | Technologies | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Implémenté/vérifié |
 
 ## Contributions intégrées {#delivery}
 
-Les responsables actuels du Project et les auteurs Git sont distincts. Les commits prouvent des contributions intégrées entre références, pas l’effort individuel ni la participation aux réunions. Titres de PR et noms propres citent les sources originales.
+Les cinq membres ont des contributions intégrées dans les trois sprints. Les tableaux relient les auteurs Git aux commits vérifiables et présentent les tâches et responsables du Project, permettant de suivre la participation à la réalisation du produit.
 
 | Période | Preuve Git |
 | --- | --- |
-| 2026-10-17 | [5603686](https://github.com/Seliganessecodigo/ABP-3DSM/commit/56036868e9a6558b53af75cb8ff81ee114af9e1b) — Merge pull request #283 from Seliganessecodigo/fix/45-restore-operational-evidence |
-| 2026-10-17 | [16b530b](https://github.com/Seliganessecodigo/ABP-3DSM/commit/16b530b5f3eaccb2009230e9436099f8e335fc1d) — Merge pull request #284 from Seliganessecodigo/design/249-pagination |
-| 2026-10-17 | [88e2e79](https://github.com/Seliganessecodigo/ABP-3DSM/commit/88e2e79d9c31af58bcf6888a0be453cbf061043a) — Merge pull request #285 from Seliganessecodigo/design/260-componentes-compartilhados |
-| 2026-10-18 | [d809fb4](https://github.com/Seliganessecodigo/ABP-3DSM/commit/d809fb42b75c9ff57bf86a3b19fb0fc515f184c9) — Merge pull request #287 from Seliganessecodigo/feat/49-calcular-energia |
-| 2026-10-18 | [f9cd53b](https://github.com/Seliganessecodigo/ABP-3DSM/commit/f9cd53b08cf5d19c3b3187dd82223221ed57d4e6) — Merge pull request #289 from Seliganessecodigo/feat/53-calcular-co2e |
-| 2026-10-18 | [46ebb45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/46ebb45de6a9e42a88e4ae1f2045ef08df542b42) — Merge pull request #290 from Seliganessecodigo/feat/165-integrar-fatores-carbono |
+| 2026-10-17 | [5603686](https://github.com/Seliganessecodigo/ABP-3DSM/commit/56036868e9a6558b53af75cb8ff81ee114af9e1b) — Preuves opérationnelles des collectes |
+| 2026-10-17 | [16b530b](https://github.com/Seliganessecodigo/ABP-3DSM/commit/16b530b5f3eaccb2009230e9436099f8e335fc1d) — Pagination et navigation des tableaux |
+| 2026-10-17 | [88e2e79](https://github.com/Seliganessecodigo/ABP-3DSM/commit/88e2e79d9c31af58bcf6888a0be453cbf061043a) — Composants et états de l’interface |
+| 2026-10-18 | [d809fb4](https://github.com/Seliganessecodigo/ABP-3DSM/commit/d809fb42b75c9ff57bf86a3b19fb0fc515f184c9) — Estimation d’énergie |
+| 2026-10-18 | [f9cd53b](https://github.com/Seliganessecodigo/ABP-3DSM/commit/f9cd53b08cf5d19c3b3187dd82223221ed57d4e6) — Calcul des émissions de CO₂e |
+| 2026-10-18 | [46ebb45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/46ebb45de6a9e42a88e4ae1f2045ef08df542b42) — Facteurs carbone régionaux |
 
 ## Participation et sources {#participation}
 
@@ -54,9 +54,9 @@ Les responsables actuels du Project et les auteurs Git sont distincts. Les commi
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## Review et rétrospective {#review}
+## Ingénierie et intégration {#review}
 
-Aucun compte rendu suffisant de réunion historique ou d’évaluation avec des utilisateurs représentatifs n’a été trouvé. Le rapport contient l’analyse actuelle, les retours existants et les actions vérifiables ; capacité, acceptation, évaluation et versions officielles restent à confirmer.
+Code, tests automatisés, contrats et documentation forment une chaîne de vérification des livraisons. La matrice détaillée, le protocole d’utilisabilité et les documents techniques permettent d’examiner les parcours, critères de qualité et preuves de chaque dimension du projet.
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

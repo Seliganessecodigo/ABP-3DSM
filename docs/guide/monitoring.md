@@ -22,9 +22,9 @@ O fator equivalente resume os fatores regionais aplicados, ponderados pela energ
 
 No histórico, escolha uma aplicação, um período e o agrupamento por hora, dia, mês ou ano. Use os filtros e a paginação para localizar intervalos e abra a composição de um intervalo para consultar observações incluídas e exclusões. O fuso altera a apresentação das datas; o agrupamento permanece em UTC. No detalhe, a sobreposição permite comparar a aplicação com o período anterior de mesma duração.
 
-## Prévia legada (fora do escopo) {#preview}
+## Prévia de cálculo {#preview}
 
-A prévia de recálculo permanece em código legado, fora do escopo aceito atual. Sua presença não autoriza mudar metodologia, fontes ou histórico. Para comparar regiões com a mesma energia, use a simulação regional.
+A comparação entre aplicações deve usar período, unidades e coberturas compatíveis. A simulação regional mantém a energia observada, altera o fator de carbono do cenário e apresenta o resultado separado dos indicadores oficiais.
 
 ## Personalizar a análise {#preferences}
 

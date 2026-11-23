@@ -1,6 +1,6 @@
 # Visi dan cakupan
 
-GreenER membantu memantau aplikasi dan memahami estimasi konsumsi energi serta emisi setara karbon dioksida (CO₂e). Indikator, lokasi dan riwayat mendukung analisis dampak lingkungan layanan digital.
+GreenER menyatukan pemantauan berkelanjutan, estimasi energi dan CO₂e, serta analisis lingkungan dalam platform terintegrasi. Katalog dinamis, dasbor, riwayat, peringkat, perbandingan dan simulasi regional menghubungkan gambaran umum dengan penyelidikan setiap aplikasi; indikator dapat ditelusuri ke data dan metodologi asalnya.
 
 ## Untuk siapa {#readers}
 
@@ -19,7 +19,6 @@ GreenER membantu memantau aplikasi dan memahami estimasi konsumsi energi serta e
 | Dashboard lingkungan | [Baca dashboard](../guide/monitoring#dashboard) |
 | Detail aplikasi | [Selidiki detail](../guide/monitoring#detail) |
 | Riwayat dan komposisi | [Jelajahi riwayat](../guide/monitoring#history) |
-| Pratinjau lama (di luar cakupan) | [Bandingkan dengan pratinjau hitung ulang](../guide/monitoring#preview) |
 | Preferensi pribadi | [Personalisasi analisis](../guide/monitoring#preferences) |
 | Masuk dan faktor kedua | [Masuk](../guide/monitoring#access) |
 | Peringkat lingkungan | [Peringkat lingkungan](../guide/monitoring#other) |
@@ -37,9 +36,9 @@ Model sederhana mengestimasi energi dari CPU, memori, disk dan jaringan selama i
 
 Cakupan adalah proporsi periode yang didukung observasi valid. Energi dan emisi memiliki cakupan terpisah: energi dapat diestimasi tanpa faktor untuk menghitung emisi. Bandingkan periode, satuan dan cakupan yang kompatibel. Cakupan rendah berarti analisis parsial, bukan bukti konsumsi berkurang.
 
-## Status saat ini dan dependensi {#planned}
+## Kemampuan terintegrasi {#planned}
 
-Perbandingan, simulasi regional, peringkat, pengelolaan pengguna dan peran, pemulihan kata sandi serta kendali pemantauan telah diimplementasikan. Administrasi memerlukan izin; SSO dan pengiriman email bergantung pada konfigurasi lingkungan. Ekspor CSV serta kebijakan retensi, pencadangan dan pemulihan masih memerlukan keputusan produk.
+Platform menyediakan perbandingan aplikasi, peringkat lingkungan, simulasi regional, pengelolaan pengguna dan peran, pemulihan kata sandi serta kontrol pemantauan. JWT, Google SSO dan faktor kedua TOTP melindungi alur administratif, sementara kueri lingkungan tetap publik.
 
 ## Bacaan terkait {#related}
 

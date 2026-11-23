@@ -22,13 +22,13 @@ Start with the environmental summary, identify an application that needs attenti
 | Explicit missing data | Failures, missing metrics and older data remain distinct from zero. |
 | Public queries | Reading indicators requires no login; saving preferences and administering accounts requires authorized access. |
 
-## Current status and dependencies {#planned}
+## Integrated capabilities {#planned}
 
-Comparison, regional simulation, ranking, user and role management, password recovery and monitoring controls are implemented. Administration requires authorized access; SSO and email delivery depend on environment configuration. CSV export and retention, backup and recovery policies remain product dependencies.
+The platform offers application comparison, environmental ranking, regional simulation, user and role management, password recovery and monitoring controls. JWT authentication, Google SSO and a TOTP second factor protect administrative workflows, while environmental queries remain public.
 
 ## Acceptance criteria {#acceptance}
 
-Changes to scope and usage rules should record the problem, expected outcome and acceptance criteria in the relevant stories. Product reviews and usability assessments capture observed difficulties, feedback and improvements. Data retention, backup and recovery, operational targets and external source quotas still require decisions.
+Epics, stories and tasks organize the product around verifiable criteria and code references. Issues, pull requests and commits connect requirements, implementation and tests; the documentation brings architecture, contracts, operations and evidence into a versioned collection.
 
 ## Related reading {#related}
 

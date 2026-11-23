@@ -10,7 +10,7 @@ NestJS/TypeScript com TypeORM e PostgreSQL 18. O fluxo local completo é iniciad
 - `src/shared/audit/`: auditoria de mutações relevantes, compartilhando transação com mudanças bem-sucedidas e preservando autoria.
 - `test/`: harness do fluxo integrado e fontes HTTP controladas. Testes `*.spec.ts` ficam junto do código.
 
-Leituras analíticas especializadas usam SQL parametrizado pelo `EntityManager` dentro dos repositories, com schemas/migrations, inserções, atualizações e transações pelo TypeORM. Isso evita parâmetros excessivos e permite preservar intervalos/snapshots; as justificativas e limites estão em [architecture-review](../docs/design/architecture-review.md). A separação de responsabilidades e a exceção de leitura devem ser demonstradas ao avaliar DW03/DW04, sem apresentar o SQL como consulta à API auxiliar ou expô-lo nos controllers.
+Leituras analíticas especializadas usam SQL parametrizado pelo `EntityManager` dentro dos repositories, com schemas/migrations, inserções, atualizações e transações pelo TypeORM. Isso evita parâmetros excessivos e permite preservar intervalos/snapshots; as responsabilidades estão documentadas na [arquitetura](../docs/architecture.md). Os repositories concentram essas operações, mantendo a separação entre transporte HTTP, regras dos casos de uso e persistência.
 
 ## Executar e verificar
 

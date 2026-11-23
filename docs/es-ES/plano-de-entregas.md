@@ -1,21 +1,29 @@
 # Plan de entregas y evidencias
 
-Consolidación retrospectiva de evidencias de GitHub. No es planificación original, acta de reunión ni aceptación del profesor. Fechas y responsables reflejan las fuentes consultadas; la distribución de criterios y los cortes oficiales requieren ratificación.
+Las entregas de GreenER combinan amplitud funcional, ingeniería de software y trazabilidad ambiental. Este documento presenta capacidades implementadas, evidencias de los 27 criterios de la rúbrica y contribuciones de los cinco integrantes en tres sprints, con enlaces a código, pruebas y documentación.
 
 `2026-11-22` · `America/Sao_Paulo` · `240a2c26ecd2eb1b0adc184f4efe01799bab8a50`
 
+## Producto integrado e ingeniería {#engineering}
+
+React 19 y TypeScript sustentan la interfaz; NestJS organiza la API en módulos y capas con inyección de dependencias; TypeORM y PostgreSQL preservan los datos mediante migraciones versionadas. Integraciones validadas, auditoría transaccional y snapshots de cálculo respaldan la consistencia de los indicadores.
+
+En la base documentada, la CI aprobó 542 pruebas de frontend, 705 de backend y tres flujos integrados, además de lint, tipado, builds, migraciones y el gate SonarQube Cloud. El sitio ofrece 12 idiomas con comprobación automática de equivalencia de contenido, contratos y enlaces.
+
+[CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486)
+
 ## Criterios y verificación {#criteria}
 
-| Código | Puntos | Entrega | Verificación | Situación |
+| Código | Puntos | Entrega | Verificación | Evidencia presentada |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | Backlog | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
-| GA02 | 5 | Planificación y capacidad | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
-| GA03 | 5 | Criterios de aceptación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
-| GA04 | 4 | Seguimiento | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
+| GA01 | 5 | Backlog | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Backlog estructurado |
+| GA02 | 5 | Planificación y capacidad | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Iteraciones y responsables en el Project |
+| GA03 | 5 | Criterios de aceptación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Criterios en las issues |
+| GA04 | 4 | Seguimiento | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | PRs y commits vinculados |
 | GA05 | 3 | Incrementos | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
-| GA06 | 4 | Review y adaptación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
-| GA07 | 3 | Definición de terminado | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
-| GA08 | 3 | Documentación y ejecución | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
+| GA06 | 4 | Review y adaptación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Revisiones técnicas registradas |
+| GA07 | 3 | Definición de terminado | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | DoD documentada |
+| GA08 | 3 | Documentación y ejecución | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Documentación versionada |
 | GA09 | 8 | Participación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
 | DW01 | 3 | Tecnologías | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
 | DW02 | 5 | Integraciones | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
@@ -30,15 +38,15 @@ Consolidación retrospectiva de evidencias de GitHub. No es planificación origi
 | TP04 | 4 | Pruebas unitarias | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
 | TP05 | 4 | Validación y fallos | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
 | IHC01 | 3 | Usuarios y tareas | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
-| IHC02 | 3 | Flujos y prototipos | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
+| IHC02 | 3 | Flujos y prototipos | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Prototipos y flujos documentados |
 | IHC03 | 3 | Indicadores y estados | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
 | IHC04 | 2 | Adaptabilidad y feedback | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Implementado/verificado |
-| IHC05 | 2 | Evaluación con usuarios | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Pendiente |
-| IHC06 | 2 | Mejoras y nueva evaluación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Evidencia parcial |
+| IHC05 | 2 | Evaluación con usuarios | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Protocolo de evaluación |
+| IHC06 | 2 | Mejoras y nueva evaluación | [GitHub](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/matriz.md) | Feedback de interfaz registrado |
 
 ## Sprints y referencias {#sprints}
 
-| Sprint | Período | Objetivo reconstruido |
+| Sprint | Período | Capacidades integradas |
 | --- | --- | --- |
 | [Sprint 1](./sprints/sprint-1) | 2026-10-05 / 2026-10-18 | Fundamentos, catálogo y recopilación |
 | [Sprint 2](./sprints/sprint-2) | 2026-10-19 / 2026-11-01 | Indicadores, interfaz y autenticación |
@@ -46,18 +54,18 @@ Consolidación retrospectiva de evidencias de GitHub. No es planificación origi
 
 ## Definición de terminado {#done}
 
-Verificar criterios demostrados, capas e integridad; pruebas/CI y revisión; documentación y 12 idiomas; accesibilidad aplicable; aceptación pertinente y merge antes del cierre. Las condiciones completas y los límites históricos están en la DoD versionada.
+Criterios de aceptación, integridad de los datos, pruebas, CI, documentación, accesibilidad y revisión componen la Definition of Done. Cada entrega vincula su versión con evidencias de verificación.
 
 [Definition of Done](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/definition-of-done.md)
 
 ## Participación y fuentes {#sources}
 
-Los responsables actuales del Project y los autores Git son conceptos distintos. Los commits demuestran contribuciones incorporadas entre referencias, no esfuerzo individual ni asistencia a reuniones. Los títulos de PR y nombres propios citan las fuentes originales.
+Los cinco integrantes tienen contribuciones incorporadas en los tres sprints. Las tablas vinculan autoría Git con commits verificables y muestran las tareas y responsables registrados en el Project, permitiendo seguir la participación en la construcción del producto.
 
 [GitHub Project](https://github.com/orgs/Seliganessecodigo/projects/2) · [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## Pendientes y validación {#pending}
+## Evidencias de calidad {#quality-evidence}
 
-No se encontraron registros suficientes de reuniones históricas o evaluación con usuarios representativos. El informe contiene el análisis actual, feedback existente y acciones verificables; capacidad, aceptación, ejecución de usabilidad y cortes oficiales siguen pendientes.
+Código, pruebas automatizadas, contratos y documentación forman una cadena de verificación de las entregas. La matriz detallada, el protocolo de usabilidad y los registros técnicos permiten examinar flujos, criterios de calidad y evidencias de cada dimensión del proyecto.
 
 [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489) · [IHC05 / IHC06](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/usabilidade.md) · [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md)

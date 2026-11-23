@@ -22,9 +22,9 @@ Le facteur équivalent résume les facteurs régionaux appliqués, pondérés pa
 
 Dans l’historique, choisissez application, période et regroupement par heure, jour, mois ou année. Filtres et pagination permettent de trouver un intervalle, puis sa composition présente observations incluses et exclusions. Le fuseau change l’affichage des dates ; le regroupement reste UTC. La superposition du détail compare l’application à la période précédente de même durée.
 
-## Aperçu historique (hors périmètre) {#preview}
+## Aperçu du calcul {#preview}
 
-L’aperçu de recalcul reste dans le code historique, hors du périmètre accepté actuel. Sa présence n’autorise aucune modification de méthode, source ou historique. Utilisez la simulation régionale pour comparer des régions avec la même énergie.
+La comparaison entre applications exige périodes, unités et couvertures compatibles. La simulation régionale conserve l’énergie observée, change le facteur du scénario et sépare les résultats des indicateurs officiels.
 
 ## Personnaliser l’analyse {#preferences}
 

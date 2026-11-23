@@ -4,7 +4,7 @@ Questa parte si rivolge a sviluppo e operazioni: ambiente locale, contratti e ve
 
 ## Criteri di validazione {#workflow}
 
-Modifiche a perimetro e regole registrano problema, risultato atteso e criteri di accettazione nelle storie pertinenti. Review e valutazioni di usabilità raccolgono difficoltà, feedback e migliorie. Retention, backup/ripristino, obiettivi operativi e quote esterne richiedono ancora decisioni.
+Epic, storie e attività organizzano il prodotto con criteri verificabili e riferimenti al codice. Issue, pull request e commit collegano requisiti, implementazione e test; la documentazione raccoglie architettura, contratti, operazioni ed evidenze in un insieme versionato.
 
 ```text
 develop → tipo/numero-descricao / tipo/descricao → PR develop
@@ -14,7 +14,7 @@ Refs #N
 
 ## Verifiche {#quality}
 
-CI verifica documentazione, lint/test/build frontend, lint/typecheck/test PostgreSQL/copertura/build/migration backend e flusso browser integrato reale. `TEST_DATABASE_URL` deve usare PostgreSQL isolato; senza variabile Jest salta suite database e browser integrato fallisce. SonarQube obbligatorio verso `develop`: copertura nuova ≥ 80%, duplicazione ≤ 3%, rating A e hotspot tutti revisionati. Non sostituisce usabilità/accettazione.
+CI verifica documentazione, lint/test/build frontend, lint/typecheck/test PostgreSQL/copertura/build/migration backend e flusso browser integrato reale. `TEST_DATABASE_URL` deve usare PostgreSQL isolato; senza variabile Jest salta suite database e browser integrato fallisce. SonarQube obbligatorio verso `develop`: copertura nuova ≥ 80%, duplicazione ≤ 3%, rating A e hotspot tutti revisionati.
 
 ```sh
 npm ci --prefix docs
@@ -34,7 +34,7 @@ npm run test:integration --prefix frontend
 
 ## Documentazione tecnica {#documentation}
 
-Il prodotto deve permettere di trovare un’applicazione, distinguere zero da assenza e risalire da un indicatore a periodo, unità, copertura e metodo. Le consultazioni conservano contesto e comunicano caricamento, vuoto, errore e dati precedenti. Si valutano tastiera, focus visibile, testo oltre al colore, dispositivi mobili e 12 lingue.
+L’interfaccia collega gli indicatori a periodo, unità, copertura e metodologia, conservando filtri e contesto di navigazione. Caricamento, vuoto, errore e dati obsoleti sono gestiti esplicitamente. Tastiera, focus visibile, testo oltre al colore, dispositivi mobili, temi e 12 lingue fanno parte dell’esperienza.
 
 ```sh
 npm ci --prefix docs

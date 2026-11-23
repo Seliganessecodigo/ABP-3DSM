@@ -22,9 +22,9 @@ The equivalent factor summarizes the applied regional factors, weighted by energ
 
 In history, choose an application, a period and hourly, daily, monthly or yearly grouping. Use filters and pagination to find intervals, then open an interval's composition to inspect included observations and exclusions. The timezone changes date display; grouping remains UTC. The detail overlay compares the application with the preceding period of equal duration.
 
-## Legacy preview (out of scope) {#preview}
+## Calculation preview {#preview}
 
-The recalculation preview remains in legacy code outside the currently accepted scope. Its presence does not authorize changes to methodology, sources or history. Use regional simulation to compare regions with the same energy.
+Cross-application comparison must use compatible periods, units and coverage. Regional simulation keeps observed energy, changes the scenario carbon factor and presents results separately from official indicators.
 
 ## Personalize analysis {#preferences}
 

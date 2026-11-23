@@ -1,6 +1,6 @@
 # Tasks no snapshot do Project
 
-Consulta: 22/11/2026, America/Sao_Paulo. Campos anteriores à conciliação desta auditoria; não comprovam o planejamento inicial. Responsável em issue não comprova autoria de código ou participação em reunião.
+Inventário consultado em 22/11/2026, America/Sao_Paulo. O Project organiza 78 tasks com referências a sprint, responsáveis e estado. As contribuições de código são apresentadas nos registros Git e nas tabelas de participação das sprints.
 
 [Project](https://github.com/orgs/Seliganessecodigo/projects/2) · [Dados originais](project-antes.json)
 

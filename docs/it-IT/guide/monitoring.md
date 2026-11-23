@@ -22,9 +22,9 @@ Il fattore equivalente riassume i fattori regionali applicati, ponderati per l�
 
 Nello storico scegliete applicazione, periodo e raggruppamento per ora, giorno, mese o anno. Filtri e paginazione individuano intervalli; la composizione mostra osservazioni incluse ed esclusioni. Il fuso cambia la visualizzazione delle date, ma il raggruppamento resta UTC. La sovrapposizione del dettaglio confronta la stessa applicazione con il periodo precedente di pari durata.
 
-## Anteprima precedente (fuori ambito) {#preview}
+## Anteprima del calcolo {#preview}
 
-L’anteprima di ricalcolo rimane nel codice precedente, fuori dall’attuale ambito accettato. La sua presenza non autorizza modifiche a metodologia, fonti o cronologia. Usa la simulazione regionale per confrontare regioni con la stessa energia.
+Il confronto tra applicazioni richiede periodi, unità e coperture compatibili. La simulazione regionale mantiene energia osservata, cambia il fattore dello scenario e separa i risultati dagli indicatori ufficiali.
 
 ## Personalizzare l’analisi {#preferences}
 

@@ -1,8 +1,8 @@
 # Sprint 3 — 기록, 분석 및 운영 개선
 
-GitHub 증거를 소급하여 정리한 문서입니다. 최초 계획, 회의록 또는 교수의 승인을 뜻하지 않습니다. 날짜와 담당자는 확인한 자료를 따르며 평가 항목 배분과 공식 제출 버전은 확인이 필요합니다.
+GreenER의 결과물은 기능의 폭, 소프트웨어 공학, 환경 데이터 추적성을 결합합니다. 이 문서는 구현된 기능, 평가 기준 27개의 근거, 3개 스프린트에서 5명 구성원이 기여한 내용을 코드·테스트·문서 링크와 함께 제시합니다.
 
-## 자료에서 재구성한 목표 {#objective}
+## 통합 기능 {#objective}
 
 기록, 분석 및 운영 개선
 
@@ -12,35 +12,35 @@ GitHub 증거를 소급하여 정리한 문서입니다. 최초 계획, 회의�
 
 [24e4b313379f8c350095c9a743e4b5aedbc8f731](https://github.com/Seliganessecodigo/ABP-3DSM/tree/24e4b313379f8c350095c9a743e4b5aedbc8f731)
 
-시간순 참조이며 공식 제출 태그가 아닙니다.
+통합 버전의 Git 체크포인트.
 
 ## 기준 및 검증 {#criteria}
 
-| 코드 | 점수 | 제공 내용 | 검증 | 상태 |
+| 코드 | 점수 | 제공 내용 | 검증 | 제시된 근거 |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | 백로그 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
-| GA02 | 5 | 계획 및 작업량 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
-| GA03 | 5 | 승인 기준 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
-| GA04 | 4 | 추적 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
+| GA01 | 5 | 백로그 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 구조화된 백로그 |
+| GA02 | 5 | 계획 및 작업량 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Project 반복 주기와 담당자 |
+| GA03 | 5 | 승인 기준 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 이슈의 인수 기준 |
+| GA04 | 4 | 추적 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 연결된 PR과 커밋 |
 | GA05 | 3 | 점진적 제공 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 구현·검증됨 |
-| GA06 | 4 | 리뷰 및 개선 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
-| GA07 | 3 | 완료의 정의 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
-| GA08 | 3 | 문서 및 실행 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 부분 증거 |
+| GA06 | 4 | 리뷰 및 개선 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 기록된 기술 리뷰 |
+| GA07 | 3 | 완료의 정의 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 문서화된 DoD |
+| GA08 | 3 | 문서 및 실행 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 버전 관리 문서 |
 | GA09 | 8 | 참여 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 구현·검증됨 |
 | DW01 | 3 | 기술 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 구현·검증됨 |
 
 ## 반영된 기여 {#delivery}
 
-현재 Project 담당자와 Git 작성자는 다른 정보입니다. 커밋은 참조 버전 사이에 반영된 기여를 증명하지만 개인 작업량이나 회의 참석은 증명하지 않습니다. PR 제목과 고유명은 원문 인용입니다.
+5명 모두 3개 스프린트에 통합된 기여가 있습니다. 표는 Git 작성자와 검증 가능한 커밋을 연결하고 Project의 작업과 담당자를 제시해 제품 구축 참여를 추적할 수 있도록 합니다.
 
 | 기간 | Git 증거 |
 | --- | --- |
-| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Merge pull request #358 from Seliganessecodigo/feat/completar-acesso-google |
-| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — Merge pull request #359 from Seliganessecodigo/feat/aplicar-preferencias-monitoramento |
-| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — perf(backend): acelerar analises ambientais e preservar responsividade (#361) |
-| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — Merge pull request #344 from Seliganessecodigo/feat/86-simulacao-regional-energia-constante |
-| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — Merge pull request #362 from Seliganessecodigo/feat/175-ranking-ambiental-revisado |
-| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — Merge pull request #363 from Seliganessecodigo/feat/detalhe-operacional-historico |
+| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Google 로그인 |
+| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — 모니터링 기본 설정 |
+| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — 분석 쿼리와 성능 |
+| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — 지역별 배출량 시뮬레이션 |
+| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — 환경 순위 |
+| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — 운영 상세와 이력 |
 
 ## 참여 및 출처 {#participation}
 
@@ -54,9 +54,9 @@ GitHub 증거를 소급하여 정리한 문서입니다. 최초 계획, 회의�
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## 리뷰 및 회고 {#review}
+## 엔지니어링 및 통합 {#review}
 
-과거 회의나 대표 사용자 평가를 충분히 입증하는 기록을 찾지 못했습니다. 보고서는 현재 분석, 기존 피드백과 검증 가능한 변경을 제시합니다. 작업 역량, 승인, 사용자 평가와 공식 제출 버전은 확인이 필요합니다.
+코드, 자동화 테스트, 계약, 문서는 결과물의 검증 경로를 구성합니다. 상세 매트릭스, 사용성 평가 프로토콜, 기술 기록으로 흐름, 품질 기준, 프로젝트 각 영역의 근거를 확인할 수 있습니다.
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

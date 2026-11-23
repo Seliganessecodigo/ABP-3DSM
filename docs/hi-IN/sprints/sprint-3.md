@@ -1,8 +1,8 @@
 # Sprint 3 — इतिहास, विश्लेषण और संचालन विकास
 
-GitHub प्रमाणों का पूर्वव्यापी संकलन। यह मूल योजना, बैठक विवरण या शिक्षक की स्वीकृति नहीं है। तारीख और जिम्मेदार जाँचे गए स्रोतों से हैं; मानदंड वितरण और आधिकारिक डिलीवरी संस्करण की पुष्टि आवश्यक है।
+GreenER की डिलीवरी कार्यात्मक विस्तार, सॉफ़्टवेयर इंजीनियरिंग और पर्यावरण डेटा की खोजयोग्यता को जोड़ती है। यह दस्तावेज़ लागू क्षमताएँ, रूब्रिक के 27 मानदंडों के प्रमाण और तीन स्प्रिंट में पाँचों सदस्यों का योगदान कोड, परीक्षण और दस्तावेज़ लिंक के साथ प्रस्तुत करता है।
 
-## स्रोतों से पुनर्निर्मित उद्देश्य {#objective}
+## एकीकृत क्षमताएँ {#objective}
 
 इतिहास, विश्लेषण और संचालन विकास
 
@@ -12,35 +12,35 @@ GitHub प्रमाणों का पूर्वव्यापी सं�
 
 [24e4b313379f8c350095c9a743e4b5aedbc8f731](https://github.com/Seliganessecodigo/ABP-3DSM/tree/24e4b313379f8c350095c9a743e4b5aedbc8f731)
 
-कालानुक्रमिक संदर्भ, आधिकारिक डिलीवरी टैग नहीं।
+एकीकृत संस्करण का Git चेकपॉइंट।
 
 ## मानदंड और सत्यापन {#criteria}
 
-| कोड | अंक | डिलीवरी | सत्यापन | स्थिति |
+| कोड | अंक | डिलीवरी | सत्यापन | प्रस्तुत प्रमाण |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | बैकलॉग | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
-| GA02 | 5 | योजना और क्षमता | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
-| GA03 | 5 | स्वीकृति मानदंड | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
-| GA04 | 4 | ट्रैकिंग | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
+| GA01 | 5 | बैकलॉग | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | संरचित बैकलॉग |
+| GA02 | 5 | योजना और क्षमता | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Project के पुनरावर्तन और उत्तरदायी |
+| GA03 | 5 | स्वीकृति मानदंड | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | इश्यू में स्वीकृति मानदंड |
+| GA04 | 4 | ट्रैकिंग | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | जुड़े PR और कमिट |
 | GA05 | 3 | क्रमिक डिलीवरी | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | लागू/सत्यापित |
-| GA06 | 4 | समीक्षा और सुधार | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
-| GA07 | 3 | पूर्णता की परिभाषा | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
-| GA08 | 3 | दस्तावेज़ और निष्पादन | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | आंशिक प्रमाण |
+| GA06 | 4 | समीक्षा और सुधार | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | दर्ज तकनीकी समीक्षाएँ |
+| GA07 | 3 | पूर्णता की परिभाषा | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | दस्तावेज़ित DoD |
+| GA08 | 3 | दस्तावेज़ और निष्पादन | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | संस्करणित दस्तावेज़ |
 | GA09 | 8 | भागीदारी | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | लागू/सत्यापित |
 | DW01 | 3 | तकनीक | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | लागू/सत्यापित |
 
 ## शामिल योगदान {#delivery}
 
-मौजूदा Project जिम्मेदार और Git लेखक अलग जानकारी हैं। कमिट संदर्भ संस्करणों के बीच शामिल योगदान साबित करते हैं, व्यक्तिगत प्रयास या बैठक उपस्थिति नहीं। PR शीर्षक और व्यक्तिवाचक नाम मूल स्रोतों से उद्धृत हैं।
+पाँचों सदस्यों के योगदान तीनों स्प्रिंट में एकीकृत हैं। तालिकाएँ Git लेखक को सत्यापन योग्य कमिट से जोड़ती हैं तथा Project में दर्ज कार्य और उत्तरदायी दिखाती हैं, जिससे उत्पाद निर्माण में भागीदारी खोजी जा सकती है।
 
 | अवधि | Git प्रमाण |
 | --- | --- |
-| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Merge pull request #358 from Seliganessecodigo/feat/completar-acesso-google |
-| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — Merge pull request #359 from Seliganessecodigo/feat/aplicar-preferencias-monitoramento |
-| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — perf(backend): acelerar analises ambientais e preservar responsividade (#361) |
-| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — Merge pull request #344 from Seliganessecodigo/feat/86-simulacao-regional-energia-constante |
-| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — Merge pull request #362 from Seliganessecodigo/feat/175-ranking-ambiental-revisado |
-| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — Merge pull request #363 from Seliganessecodigo/feat/detalhe-operacional-historico |
+| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Google से प्रवेश |
+| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — निगरानी प्राथमिकताएँ |
+| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — विश्लेषणात्मक क्वेरी और प्रदर्शन |
+| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — क्षेत्रीय उत्सर्जन सिमुलेशन |
+| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — पर्यावरण रैंकिंग |
+| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — परिचालन विवरण और इतिहास |
 
 ## भागीदारी और स्रोत {#participation}
 
@@ -54,9 +54,9 @@ GitHub प्रमाणों का पूर्वव्यापी सं�
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## समीक्षा और पूर्वावलोकन {#review}
+## इंजीनियरिंग और एकीकरण {#review}
 
-ऐतिहासिक बैठकों या प्रतिनिधि उपयोगकर्ता मूल्यांकन के पर्याप्त रिकॉर्ड नहीं मिले। रिपोर्ट वर्तमान विश्लेषण, उपलब्ध प्रतिक्रिया और सत्यापन योग्य बदलाव दिखाती है; क्षमता, स्वीकृति, उपयोगिता परीक्षण और आधिकारिक संस्करण लंबित हैं।
+कोड, स्वचालित परीक्षण, अनुबंध और दस्तावेज़ डिलीवरी के सत्यापन की श्रृंखला बनाते हैं। विस्तृत मैट्रिक्स, उपयोगिता मूल्यांकन प्रोटोकॉल और तकनीकी रिकॉर्ड प्रवाह, गुणवत्ता मानदंड और परियोजना के हर आयाम के प्रमाण देखने देते हैं।
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 

@@ -22,13 +22,13 @@ Commencez par le résumé environnemental, repérez une application à examiner 
 | Absence explicite | Pannes, métriques manquantes et données anciennes se distinguent de zéro. |
 | Consultation publique | Lire les indicateurs est public ; sauvegarder des préférences et administrer des comptes exige une autorisation. |
 
-## État actuel et dépendances {#planned}
+## Capacités intégrées {#planned}
 
-Comparaison, simulation régionale, classement, gestion des utilisateurs et rôles, récupération du mot de passe et contrôles de surveillance sont implémentés. L’administration exige une autorisation ; SSO et courriels dépendent de la configuration. Export CSV et politiques de conservation, sauvegarde et restauration restent des dépendances produit.
+La plateforme propose comparaison d’applications, classement environnemental, simulation régionale, gestion des utilisateurs et des rôles, récupération de mot de passe et contrôles de surveillance. JWT, Google SSO et le second facteur TOTP protègent les parcours administratifs, tandis que les consultations environnementales restent publiques.
 
 ## Critères d’acceptation {#acceptance}
 
-Les changements de périmètre et de règles consignent problème, résultat attendu et critères d’acceptation dans les récits concernés. Revues et évaluations d’utilisabilité enregistrent difficultés, retours et améliorations. Rétention, sauvegarde/reprise, objectifs opérationnels et quotas externes restent à définir.
+Épopées, récits et tâches structurent le produit avec des critères vérifiables et des références au code. Issues, pull requests et commits relient exigences, implémentation et tests ; la documentation rassemble architecture, contrats, exploitation et preuves dans un ensemble versionné.
 
 ## Lectures associées {#related}
 

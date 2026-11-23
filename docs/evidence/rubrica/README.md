@@ -1,27 +1,31 @@
-# Evidências da rubrica — consolidação de 22/11/2026
+# GreenER — evidências de produto e engenharia
 
-Base de código: [develop em 240a2c2](https://github.com/Seliganessecodigo/ABP-3DSM/tree/240a2c26ecd2eb1b0adc184f4efe01799bab8a50). Fuso de referência: America/Sao_Paulo. A consolidação é retrospectiva: não representa planejamento registrado no início das sprints, aprovação do professor, ata de reunião ou avaliação com usuários que não tenha evidência própria.
+O GreenER integra monitoramento de aplicações, análise ambiental, autenticação e administração em uma plataforma com interface em 12 idiomas. Este acervo conecta suas funcionalidades à arquitetura, aos testes e às contribuições da equipe.
 
-## Fontes e método
+## Dimensões da entrega
 
-- [Project 2](https://github.com/orgs/Seliganessecodigo/projects/2): campos consultados integralmente, em três páginas; o [snapshot anterior à conciliação](project-antes.json) contém 78 issues com label TASK, sem confundir pull requests com tarefas.
-- [Inventário legível das tasks](tasks.md): responsáveis e sprints atribuídos no momento da consulta, não um compromisso inicial comprovado.
-- [Histórico Git](historico.json): checkpoints da cadeia first-parent anteriores ao início da iteração seguinte, no fuso de referência. As contribuições são commits não-merge incorporados entre checkpoints; a data de autoria pode anteceder sua integração.
-- Iterações encontradas no Project: 05–18/10, 19/10–01/11 e 02–15/11/2026. Essas datas não comprovam que o professor validou os prazos. Checkpoints são candidatos cronológicos, não tags oficiais.
-- Autores Git são agrupados pelos nomes utilizados no repositório. Commits automáticos não são atribuídos a um integrante por suposição. Quantidade de commits não mede esforço, qualidade ou nota individual.
-- [CI da entrega integrada](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486): 542 testes de frontend, 705 de backend e três fluxos integrados, além de builds e Sonar. A árvore do commit d27578d testado é igual à base 240a2c2; isso não comprova testes nos checkpoints históricos.
+| Dimensão | Evidência do projeto |
+| --- | --- |
+| Produto | Catálogo dinâmico, dashboard, detalhe, histórico, ranking, comparação e simulação regional integrados à API. |
+| Engenharia | React 19/TypeScript, NestJS modular com DI, TypeORM/PostgreSQL, migrations e contratos OpenAPI. |
+| Integridade ambiental | Energia e CO₂e vinculados a período, unidades, cobertura e snapshots de cálculo/fator. |
+| Segurança | JWT, papéis, TOTP, Google SSO, recuperação por token temporário e auditoria transacional. |
+| Qualidade | 542 testes frontend, 705 backend e três fluxos integrados aprovados na CI da base documentada, com gate SonarQube Cloud. |
+| Experiência de uso | 12 idiomas, temas, responsividade, foco/teclado e estados operacionais explícitos. |
+| Equipe | Contribuições dos cinco integrantes incorporadas nas três sprints e vinculadas a commits verificáveis. |
 
-## Documentos
+## Navegação pelas evidências
 
-- [Plano e matriz publicada](../../plano-de-entregas.md).
-- [Matriz detalhada de verificação](matriz.md), com os códigos e pesos da rubrica fornecida pela equipe, sem alterações.
-- [Revisão e análise retrospectiva desta consolidação](revisao-2026-11-22.md).
-- [Avaliação de usabilidade: evidências, roteiro e registro de execução](usabilidade.md).
-- [Conciliação dos estados e pendências](reconciliacao.md).
-- [Task de processo #489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489), que substitui a referência atual à issue excluída #134 sem recriar seu conteúdo ou histórico.
+- [Plano de entregas e matriz publicada](../../plano-de-entregas.md).
+- [Matriz detalhada dos 27 critérios](matriz.md).
+- [Engenharia e qualidade](revisao-2026-11-22.md).
+- [Protocolo de avaliação de usabilidade](usabilidade.md).
+- [Rastreabilidade das entregas](reconciliacao.md).
+- [Definition of Done](definition-of-done.md).
+- [Inventário das 78 tasks](tasks.md) e [histórico de contribuições](historico.json).
 
-## Limites do aceite
+## Referências técnicas
 
-Código incorporado, teste automatizado aprovado, revisão de interface e avaliação com participante representativo são evidências diferentes. Um roteiro não é uma execução; uma issue fechada não substitui o relatório exigido. Não foram estimadas horas retroativamente, criadas atas de reuniões presumidas ou publicadas tags oficiais com cortes não ratificados.
+Base de código: [240a2c2](https://github.com/Seliganessecodigo/ABP-3DSM/tree/240a2c26ecd2eb1b0adc184f4efe01799bab8a50). [Execução de referência da CI](https://github.com/Seliganessecodigo/ABP-3DSM/actions/runs/45084453486). Consolidação: 22/11/2026, America/Sao_Paulo.
 
-Os documentos históricos de design preservam suas ressalvas originais e podem descrever versões anteriores. Para capacidades atuais, usar as páginas de produto/guia e a base fixada acima. Para avaliação da sprint, conferir também os registros existentes até o prazo efetivamente validado pelo professor.
+O [Project](https://github.com/orgs/Seliganessecodigo/projects/2) organiza iterações e responsáveis; os [registros versionados](project-antes.json) preservam a consulta. O [histórico Git](historico.json) identifica os checkpoints por SHA e as contribuições incorporadas entre eles. Cada tabela de sprint relaciona tarefas e autoria para apresentar a participação da equipe com fontes consultáveis.

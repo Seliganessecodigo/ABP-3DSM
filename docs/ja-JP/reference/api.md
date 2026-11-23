@@ -91,7 +91,7 @@ GreenER API連携の参照です。完全な型、任意項目、上限は環境
 | GET | `/monitoring/audit` | `JWT + ADMIN` |
 | PATCH | `/monitoring/control` | `JWT + ADMIN` |
 
-同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。役割管理全体やパスワード復旧はこのAPIの範囲外です。
+同じ組織のAdminは`expectedStatus`と理由を指定し`ACTIVE`、`BLOCKED`、`DEACTIVATED`を変更可能。ブロック/無効化で全セッションを失効、再有効化後は新規ログイン。自分自身と最後の有効Adminを保護。期待状態の不一致は409、目標状態到達済みは冪等成功。共通監査は成功を変更と同じトランザクション、拒否をロールバック外で記録し、実行主体を明記、秘密を除外。
 
 ```json
 { "status": "BLOCKED", "expectedStatus": "ACTIVE", "reason": "Example" }
@@ -105,7 +105,7 @@ Adminは同じ組織のアカウントを招待し、理由を記録してロー
 
 ロール変更には `expectedRole` と `reason` が必要です。変更時はセッションと一時 TOTP 資格情報を失効させ、監査を保持し、自分自身のアクセスやメール確認済みの最後の有効な Admin を失う変更を防ぎます。メール未確認のアカウントはその管理者の代わりにはなりません。Admin を割り当てても TOTP は必須です。
 
-## 従来のプレビュー（対象外） {#preview}
+## 計算プレビュー {#preview}
 
 `/administration/calculations`でアプリと日付を選び原本とプレビューを比較。終了日はUTCの一日全体を含み、APIは`[from,to)`。公開操作で現行モデルと過去地域の現在係数を使用し、保存しません。上限30日・10,000観測。応答は`original`、`preview`、`warnings`、`status`（`available`、`empty`、`partial`）。係数障害でも算出可能なエネルギーを保持。百分率は同じ単位・カバー率と正の基準値が必要です。
 

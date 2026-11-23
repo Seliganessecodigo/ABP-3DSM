@@ -22,13 +22,13 @@ Mulai dari ringkasan lingkungan, cari aplikasi yang perlu perhatian dan buka det
 | Ketiadaan eksplisit | Kegagalan, metrik hilang dan data lama dibedakan dari nol. |
 | Kueri publik | Membaca indikator tidak perlu masuk; menyimpan preferensi dan mengelola akun memerlukan izin. |
 
-## Status saat ini dan dependensi {#planned}
+## Kemampuan terintegrasi {#planned}
 
-Perbandingan, simulasi regional, peringkat, pengelolaan pengguna dan peran, pemulihan kata sandi serta kendali pemantauan telah diimplementasikan. Administrasi memerlukan izin; SSO dan pengiriman email bergantung pada konfigurasi lingkungan. Ekspor CSV serta kebijakan retensi, pencadangan dan pemulihan masih memerlukan keputusan produk.
+Platform menyediakan perbandingan aplikasi, peringkat lingkungan, simulasi regional, pengelolaan pengguna dan peran, pemulihan kata sandi serta kontrol pemantauan. JWT, Google SSO dan faktor kedua TOTP melindungi alur administratif, sementara kueri lingkungan tetap publik.
 
 ## Kriteria penerimaan {#acceptance}
 
-Perubahan cakupan/aturan mencatat masalah, hasil yang diharapkan dan kriteria penerimaan pada cerita terkait. Review produk dan evaluasi kegunaan mencatat kesulitan, masukan dan perbaikan. Retensi, backup/pemulihan, target operasi dan kuota eksternal masih memerlukan keputusan.
+Epic, cerita dan tugas mengatur produk dengan kriteria terverifikasi dan referensi kode. Issue, pull request dan commit menghubungkan persyaratan, implementasi dan pengujian; dokumentasi berversi menghimpun arsitektur, kontrak, operasi dan bukti.
 
 ## Bacaan terkait {#related}
 

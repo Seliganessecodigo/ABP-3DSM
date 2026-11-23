@@ -22,9 +22,9 @@ Der äquivalente Faktor fasst die angewendeten regionalen Faktoren zusammen, gew
 
 Wählen Sie im Verlauf Anwendung, Zeitraum und stündliche, tägliche, monatliche oder jährliche Gruppierung. Filter und Seiten helfen beim Finden von Intervallen; deren Zusammensetzung zeigt einbezogene Beobachtungen und Ausschlüsse. Die Zeitzone ändert die Datumsanzeige, die Gruppierung bleibt UTC. Die Detailüberlagerung vergleicht dieselbe Anwendung mit dem gleich langen Vorzeitraum.
 
-## Historische Vorschau (außerhalb des Umfangs) {#preview}
+## Berechnungsvorschau {#preview}
 
-Die Neuberechnungsvorschau bleibt als Altcode außerhalb des derzeit akzeptierten Umfangs erhalten. Ihre Existenz erlaubt keine Änderung von Methodik, Quellen oder Verlauf. Verwenden Sie die regionale Simulation für Vergleiche mit gleicher Energie.
+Anwendungsvergleiche erfordern kompatible Zeiträume, Einheiten und Abdeckung. Regionale Simulation erhält beobachtete Energie, ändert den Szenariofaktor und trennt Ergebnisse von offiziellen Kennzahlen.
 
 ## Analyse anpassen {#preferences}
 

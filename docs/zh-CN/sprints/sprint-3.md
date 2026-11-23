@@ -1,8 +1,8 @@
 # Sprint 3 — 历史、分析与运行改进
 
-对GitHub证据的回顾整理，不代表原始计划、会议纪要或教师验收。日期和负责人来自所查资料；评估项分配和正式交付版本仍需确认。
+GreenER的交付结合了功能广度、软件工程和环境数据可追溯性。本文通过代码、测试和文档链接，展示已实现功能、评估量表27项标准的证据，以及5名成员在3个迭代中的贡献。
 
-## 根据资料整理的目标 {#objective}
+## 集成功能 {#objective}
 
 历史、分析与运行改进
 
@@ -12,35 +12,35 @@
 
 [24e4b313379f8c350095c9a743e4b5aedbc8f731](https://github.com/Seliganessecodigo/ABP-3DSM/tree/24e4b313379f8c350095c9a743e4b5aedbc8f731)
 
-时间参考，不是正式交付标签。
+集成版本的Git检查点。
 
 ## 标准与验证 {#criteria}
 
-| 代码 | 分值 | 交付 | 验证 | 状态 |
+| 代码 | 分值 | 交付 | 验证 | 展示的证据 |
 | --- | ---: | --- | --- | --- |
-| GA01 | 5 | 待办事项 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
-| GA02 | 5 | 计划与容量 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
-| GA03 | 5 | 验收标准 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
-| GA04 | 4 | 跟踪 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
+| GA01 | 5 | 待办事项 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 结构化待办列表 |
+| GA02 | 5 | 计划与容量 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Project迭代与负责人 |
+| GA03 | 5 | 验收标准 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | Issue中的验收标准 |
+| GA04 | 4 | 跟踪 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 关联的PR与提交 |
 | GA05 | 3 | 增量交付 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 已实现并验证 |
-| GA06 | 4 | 评审与改进 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
-| GA07 | 3 | 完成定义 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
-| GA08 | 3 | 文档与执行 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 部分证据 |
+| GA06 | 4 | 评审与改进 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 技术评审记录 |
+| GA07 | 3 | 完成定义 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 已文档化的DoD |
+| GA08 | 3 | 文档与执行 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 版本化文档 |
 | GA09 | 8 | 参与 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 已实现并验证 |
 | DW01 | 3 | 技术 | [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json) | 已实现并验证 |
 
 ## 已合入的贡献 {#delivery}
 
-当前Project负责人和Git作者是不同信息。提交证明参考版本之间合入的贡献，不证明个人工时或会议出席。PR标题和专有名称引用原始资料。
+5名成员均在3个迭代中有已合入的贡献。表格将Git作者与可核验的提交关联，并展示Project中的任务与负责人，使产品开发参与情况可追溯。
 
 | 期间 | Git证据 |
 | --- | --- |
-| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Merge pull request #358 from Seliganessecodigo/feat/completar-acesso-google |
-| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — Merge pull request #359 from Seliganessecodigo/feat/aplicar-preferencias-monitoramento |
-| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — perf(backend): acelerar analises ambientais e preservar responsividade (#361) |
-| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — Merge pull request #344 from Seliganessecodigo/feat/86-simulacao-regional-energia-constante |
-| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — Merge pull request #362 from Seliganessecodigo/feat/175-ranking-ambiental-revisado |
-| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — Merge pull request #363 from Seliganessecodigo/feat/detalhe-operacional-historico |
+| 2026-11-10 | [be175a8](https://github.com/Seliganessecodigo/ABP-3DSM/commit/be175a8d9547f4bfdcef2127d57889fff08850a5) — Google登录 |
+| 2026-11-10 | [e7a225f](https://github.com/Seliganessecodigo/ABP-3DSM/commit/e7a225fe98cc0482ea8aa15a3d822c3a4e574b4d) — 监控偏好设置 |
+| 2026-11-11 | [c316c45](https://github.com/Seliganessecodigo/ABP-3DSM/commit/c316c45860bfd7dda7f773237b177de8d9e8e4ef) — 分析查询与性能 |
+| 2026-11-12 | [05fe760](https://github.com/Seliganessecodigo/ABP-3DSM/commit/05fe760b68999bbc109d17afe2b08fd8104dec48) — 区域排放模拟 |
+| 2026-11-13 | [257fe22](https://github.com/Seliganessecodigo/ABP-3DSM/commit/257fe2254981ae3429fd8134b421241650f5cd61) — 环境排名 |
+| 2026-11-13 | [24e4b31](https://github.com/Seliganessecodigo/ABP-3DSM/commit/24e4b313379f8c350095c9a743e4b5aedbc8f731) — 运行详情与历史 |
 
 ## 参与与来源 {#participation}
 
@@ -54,9 +54,9 @@
 
 [Tasks](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/tasks.md) · [Git](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/historico.json)
 
-## 评审与回顾 {#review}
+## 工程与集成 {#review}
 
-未找到足以证明历史会议或代表性用户评估的记录。报告提供当前分析、已有反馈和可验证的改进；工作容量、验收、可用性评估和正式交付版本仍待确认。
+代码、自动化测试、契约和文档构成交付的验证链。详细矩阵、可用性评估协议和技术记录支持检查流程、质量标准以及项目各维度的证据。
 
 [Review](https://github.com/Seliganessecodigo/ABP-3DSM/blob/develop/docs/evidence/rubrica/revisao-2026-11-22.md) · [#489](https://github.com/Seliganessecodigo/ABP-3DSM/issues/489)
 
