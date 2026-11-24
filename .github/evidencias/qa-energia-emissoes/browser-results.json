@@ -1,0 +1,19 @@
+{
+  "productionSha": "f282e3cfa9dd75dee04756215dee8607480a576f",
+  "browser": "Chromium 156.0.8078.4 / Playwright 1.64.0",
+  "at": "2026-11-24T13:00:44.747Z",
+  "tests": [
+    {
+      "title": "CT-023/024 unidades e metodologia registradas em 390px",
+      "status": "passed",
+      "durationMs": 28234,
+      "errors": []
+    },
+    {
+      "title": "CT-023/024 unidades e metodologia registradas em 1440px",
+      "status": "passed",
+      "durationMs": 25243,
+      "errors": []
+    }
+  ]
+}
