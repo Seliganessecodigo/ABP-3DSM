@@ -1,0 +1,117 @@
+{
+  "passed": 22,
+  "failed": 0,
+  "started": 1795406480796,
+  "tests": [
+    {
+      "title": "CT-014 S1–S4: descobre, mantém identidade e preserva evidências após mudar nome/localização",
+      "status": "passed",
+      "duration": 9146
+    },
+    {
+      "title": "CT-015 S1–S5: confirma ausência com 404, preserva histórico e não duplica remoção",
+      "status": "passed",
+      "duration": 11519
+    },
+    {
+      "title": "CT-015 variação 500: falha individual não remove e continua coletando",
+      "status": "passed",
+      "duration": 9824
+    },
+    {
+      "title": "CT-015 variação payload inválido: falha individual não remove e continua coletando",
+      "status": "passed",
+      "duration": 4554
+    },
+    {
+      "title": "CT-015 variação timeout: falha individual não remove e continua coletando",
+      "status": "passed",
+      "duration": 34547
+    },
+    {
+      "title": "CT-015 cancelamento: confirmação parcial não grava nenhuma remoção",
+      "status": "passed",
+      "duration": 4526
+    },
+    {
+      "title": "mantém o serviço omitido da lista quando a consulta individual ainda o encontra",
+      "status": "passed",
+      "duration": 7
+    },
+    {
+      "title": "não confirma remoção se a consulta individual falhar: IntegrationError: UPSTREAM_UNAVAILABLE",
+      "status": "passed",
+      "duration": 4
+    },
+    {
+      "title": "não confirma remoção se a consulta individual falhar: IntegrationError: UPSTREAM_TIMEOUT",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "não confirma remoção se a consulta individual falhar: IntegrationError: INVALID_UPSTREAM_RESPONSE",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "confirma remoção com ausência na lista e 404 individual, consultando antes da transação",
+      "status": "passed",
+      "duration": 6
+    },
+    {
+      "title": "não consulta individualmente serviços presentes na lista válida",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "não transforma cancelamento em remoção nem abre uma transação",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "consulta a lista quando não recebe snapshot e rejeita uma falha sem confirmar ausências",
+      "status": "passed",
+      "duration": 2
+    },
+    {
+      "title": "preserva uma aplicação sem confirmação enquanto remove outra confirmada",
+      "status": "passed",
+      "duration": 3
+    },
+    {
+      "title": "revalida os candidatos sob lock e não duplica uma remoção já persistida",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "não grava remoções se o ciclo for cancelado depois da confirmação",
+      "status": "passed",
+      "duration": 1
+    },
+    {
+      "title": "inserts over one batch and makes a stable catalog cost two inserts with no new events",
+      "status": "passed",
+      "duration": 942
+    },
+    {
+      "title": "preserves the first duplicate and the metadata of an existing identity",
+      "status": "passed",
+      "duration": 45
+    },
+    {
+      "title": "handles concurrent snapshots in opposite order without duplicate events or deadlock",
+      "status": "passed",
+      "duration": 591
+    },
+    {
+      "title": "rolls back all application batches when an event cannot reference its cycle",
+      "status": "passed",
+      "duration": 445
+    },
+    {
+      "title": "does not insert anything for an empty validated snapshot",
+      "status": "passed",
+      "duration": 31
+    }
+  ]
+}
