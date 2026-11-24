@@ -1,0 +1,1827 @@
+{
+  "at": "2026-11-24T12:59:12.859Z",
+  "model": {
+    "key": "simplified-energy",
+    "version": "1",
+    "cpuWattsAt100Percent": 100,
+    "memoryWattsPerGb": 0.375,
+    "diskWattsPerGb": 0.01,
+    "networkWattsPerGb": 0.02
+  },
+  "captures": {
+    "energy60s": {
+      "id": "c1666192-de58-4019-875e-23828be10d8f",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:58:06.052Z",
+      "intervalEnd": "2026-11-24T12:59:06.052Z",
+      "collectedAt": "2026-11-24T12:59:06.052Z",
+      "metrics": {
+        "diskGb": 10,
+        "memoryGb": 2,
+        "networkGb": 1,
+        "cpuPercent": 50,
+        "collectionIntervalSeconds": 60
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00084783",
+      "carbonGrams": "0.08478333",
+      "carbonFactor": "100.00000000",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "6cc7ba41-4354-4913-afdf-77b431b8a454",
+      "carbonRegionId": "63c6c964-0853-440f-a87e-e00d09230be5",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 0.0008478333333333335,
+          "factorSnapshot": {
+            "id": "63c6c964-0853-440f-a87e-e00d09230be5",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "6cc7ba41-4354-4913-afdf-77b431b8a454",
+            "intensity": 100,
+            "queriedAt": "2026-11-24T12:59:06.083Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 0.08478333333333335,
+          "emissionsKilogramsCo2e": 0.00008478333333333335
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0.0008478333333333335,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 50.870000000000005,
+          "observationId": "c1666192-de58-4019-875e-23828be10d8f",
+          "durationSeconds": 60,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0.1,
+            "memoryGb": 0.75,
+            "networkGb": 0.02,
+            "cpuPercent": 50
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:06.120Z"
+    },
+    "energy120s": {
+      "id": "762f42a3-3d30-4b66-abf7-35dd05bb89a7",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:57:06.989Z",
+      "intervalEnd": "2026-11-24T12:59:06.989Z",
+      "collectedAt": "2026-11-24T12:59:06.989Z",
+      "metrics": {
+        "diskGb": 10,
+        "memoryGb": 2,
+        "networkGb": 1,
+        "cpuPercent": 50,
+        "collectionIntervalSeconds": 120
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00169567",
+      "carbonGrams": "0.16956667",
+      "carbonFactor": "100.00000000",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "ba1dc118-0b98-4488-a834-49010c4521fc",
+      "carbonRegionId": "b91d5849-76cf-4e3f-bc34-caf28981ae76",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 0.001695666666666667,
+          "factorSnapshot": {
+            "id": "b91d5849-76cf-4e3f-bc34-caf28981ae76",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "ba1dc118-0b98-4488-a834-49010c4521fc",
+            "intensity": 100,
+            "queriedAt": "2026-11-24T12:59:07.009Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 0.1695666666666667,
+          "emissionsKilogramsCo2e": 0.0001695666666666667
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0.001695666666666667,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 50.870000000000005,
+          "observationId": "762f42a3-3d30-4b66-abf7-35dd05bb89a7",
+          "durationSeconds": 120,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0.1,
+            "memoryGb": 0.75,
+            "networkGb": 0.02,
+            "cpuPercent": 50
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:07.114Z"
+    },
+    "zero": {
+      "id": "af7ae2ba-9a62-4e96-9b4e-80d075bf2e5f",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:58:07.975Z",
+      "intervalEnd": "2026-11-24T12:59:07.975Z",
+      "collectedAt": "2026-11-24T12:59:07.975Z",
+      "metrics": {
+        "diskGb": 0,
+        "memoryGb": 0,
+        "networkGb": 0,
+        "cpuPercent": 0,
+        "collectionIntervalSeconds": 60
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00000000",
+      "carbonGrams": "0.00000000",
+      "carbonFactor": "100.00000000",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "3237ebe8-ccff-4a49-9585-7fb4e41fef56",
+      "carbonRegionId": "ab42ba89-0024-4289-a4b6-76e4388d7152",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 0,
+          "factorSnapshot": {
+            "id": "ab42ba89-0024-4289-a4b6-76e4388d7152",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "3237ebe8-ccff-4a49-9585-7fb4e41fef56",
+            "intensity": 100,
+            "queriedAt": "2026-11-24T12:59:08.003Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 0,
+          "emissionsKilogramsCo2e": 0
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 0,
+          "observationId": "af7ae2ba-9a62-4e96-9b4e-80d075bf2e5f",
+          "durationSeconds": 60,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0,
+            "memoryGb": 0,
+            "networkGb": 0,
+            "cpuPercent": 0
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:08.072Z"
+    },
+    "zeroFactor": {
+      "id": "38321457-19f3-43df-87fc-75f602226db6",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:58:08.775Z",
+      "intervalEnd": "2026-11-24T12:59:08.775Z",
+      "collectedAt": "2026-11-24T12:59:08.775Z",
+      "metrics": {
+        "diskGb": 0,
+        "memoryGb": 0,
+        "networkGb": 0,
+        "cpuPercent": 100,
+        "collectionIntervalSeconds": 60
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00166667",
+      "carbonGrams": "0.00000000",
+      "carbonFactor": "0.00000000",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "0a25ab9a-728e-437a-a284-f4e0f402a078",
+      "carbonRegionId": "dba2bc32-42c3-433a-b43c-0c835a655d97",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 0.0016666666666666668,
+          "factorSnapshot": {
+            "id": "dba2bc32-42c3-433a-b43c-0c835a655d97",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "0a25ab9a-728e-437a-a284-f4e0f402a078",
+            "intensity": 0,
+            "queriedAt": "2026-11-24T12:59:08.790Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 0,
+          "emissionsKilogramsCo2e": 0
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0.0016666666666666668,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 100,
+          "observationId": "38321457-19f3-43df-87fc-75f602226db6",
+          "durationSeconds": 60,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0,
+            "memoryGb": 0,
+            "networkGb": 0,
+            "cpuPercent": 100
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:08.849Z"
+    },
+    "zeroWithoutFactor": {
+      "id": "853def79-806d-41aa-944d-b3173aefbb2a",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:58:09.214Z",
+      "intervalEnd": "2026-11-24T12:59:09.214Z",
+      "collectedAt": "2026-11-24T12:59:09.214Z",
+      "metrics": {
+        "diskGb": 0,
+        "memoryGb": 0,
+        "networkGb": 0,
+        "cpuPercent": 0,
+        "collectionIntervalSeconds": 60
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00000000",
+      "carbonGrams": null,
+      "carbonFactor": null,
+      "calculationVersion": "1",
+      "carbonRegionVersion": null,
+      "carbonRegionId": null,
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [
+            {
+              "code": "CARBON_FACTOR_UNAVAILABLE"
+            }
+          ],
+          "energyKwh": 0,
+          "factorSnapshot": null,
+          "emissionsGramsCo2e": null,
+          "emissionsKilogramsCo2e": null
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 0,
+          "observationId": "853def79-806d-41aa-944d-b3173aefbb2a",
+          "durationSeconds": 60,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0,
+            "memoryGb": 0,
+            "networkGb": 0,
+            "cpuPercent": 0
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:09.383Z"
+    },
+    "exact2kwh": {
+      "id": "e61eb25d-cd91-42a7-9099-3ca42af63f1e",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-23T16:59:10.715Z",
+      "intervalEnd": "2026-11-24T12:59:10.715Z",
+      "collectedAt": "2026-11-24T12:59:10.715Z",
+      "metrics": {
+        "diskGb": 0,
+        "memoryGb": 0,
+        "networkGb": 0,
+        "cpuPercent": 100,
+        "collectionIntervalSeconds": 72000
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "2.00000000",
+      "carbonGrams": "200.00000000",
+      "carbonFactor": "100.00000000",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+      "carbonRegionId": "802a7329-c7a1-45f2-8c06-d1b75816d079",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 2,
+          "factorSnapshot": {
+            "id": "802a7329-c7a1-45f2-8c06-d1b75816d079",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+            "intensity": 100,
+            "queriedAt": "2026-11-24T12:59:10.732Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 200,
+          "emissionsKilogramsCo2e": 0.2
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 2,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 100,
+          "observationId": "e61eb25d-cd91-42a7-9099-3ca42af63f1e",
+          "durationSeconds": 72000,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0,
+            "memoryGb": 0,
+            "networkGb": 0,
+            "cpuPercent": 100
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:10.831Z"
+    },
+    "ui": {
+      "application": {
+        "id": "quality-api",
+        "name": "Quality api",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.5505,
+          "longitude": -46.6333
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-24T12:59:10.715Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-24T12:59:05.884Z",
+        "lastCheckedAt": "2026-11-24T12:59:10.715Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-24T12:59:10.914Z"
+      },
+      "collection": {
+        "id": "e61eb25d-cd91-42a7-9099-3ca42af63f1e",
+        "applicationId": "quality-api",
+        "intervalStart": "2026-11-23T16:59:10.715Z",
+        "intervalEnd": "2026-11-24T12:59:10.715Z",
+        "collectedAt": "2026-11-24T12:59:10.715Z",
+        "collectionIntervalSeconds": 72000,
+        "isStale": false,
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastCheckedAt": "2026-11-24T12:59:10.715Z",
+        "metrics": {
+          "cpu": {
+            "value": 100,
+            "unit": "%",
+            "status": "available"
+          },
+          "memory": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          },
+          "disk": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          },
+          "network": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          }
+        },
+        "environmental": {
+          "status": "present",
+          "absenceReason": null,
+          "energy": {
+            "valueKwh": 2,
+            "calculatedValueKwh": 2,
+            "coverage": 1,
+            "durationSeconds": 72000,
+            "averagePowerW": 100,
+            "model": {
+              "key": "simplified-energy",
+              "version": "1",
+              "configId": null,
+              "configVersion": null,
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              },
+              "formula": {
+                "status": "available",
+                "expression": "averagePowerW = cpuPercent / 100 × cpuWattsAt100Percent + memoryGb × memoryWattsPerGb + diskGb × diskWattsPerGb + networkGb × networkWattsPerGb; energyKwh = averagePowerW × durationSeconds / 3600000",
+                "inputUnits": {
+                  "cpuPercent": "%",
+                  "memoryGb": "GB",
+                  "diskGb": "GB",
+                  "networkGb": "GB",
+                  "cpuWattsAt100Percent": "W",
+                  "memoryWattsPerGb": "W/GB",
+                  "diskWattsPerGb": "W/GB",
+                  "networkWattsPerGb": "W/GB",
+                  "durationSeconds": "s"
+                },
+                "outputUnit": "kWh",
+                "reason": null
+              },
+              "powerContributionsW": {
+                "diskGb": 0,
+                "memoryGb": 0,
+                "networkGb": 0,
+                "cpuPercent": 100
+              },
+              "reasons": []
+            }
+          },
+          "carbon": {
+            "valueGramsCo2e": 200,
+            "calculatedValueGramsCo2e": 200,
+            "calculatedValueKilogramsCo2e": 0.2,
+            "factor": 100,
+            "factorSnapshot": {
+              "id": "802a7329-c7a1-45f2-8c06-d1b75816d079",
+              "city": null,
+              "unit": "gCO2e/kWh",
+              "region": "Sudeste",
+              "source": null,
+              "country": "Brazil",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "intensity": 100,
+              "queriedAt": "2026-11-24T12:59:10.732Z",
+              "validFrom": null,
+              "regionCode": "br-sudeste",
+              "validUntil": null,
+              "contractVersion": "0.1.0"
+            },
+            "formula": {
+              "expression": "emissionsGramsCo2e = energyKwh × intensity; emissionsKilogramsCo2e = emissionsGramsCo2e / 1000",
+              "energyUnit": "kWh",
+              "factorUnit": "gCO2e/kWh",
+              "gramsUnit": "gCO2e",
+              "kilogramsUnit": "kgCO2e"
+            },
+            "reasons": []
+          }
+        }
+      },
+      "detail": {
+        "applicationId": "quality-api",
+        "status": "available",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "energy": {
+          "value": 1.9999999999999998,
+          "unit": "kWh",
+          "reasons": [
+            {
+              "code": "NO_OBSERVATION"
+            }
+          ]
+        },
+        "emissions": {
+          "value": 200.00000000000003,
+          "unit": "gCO2e",
+          "reasons": [
+            {
+              "code": "NO_OBSERVATION"
+            }
+          ]
+        },
+        "coverage": {
+          "energy": 0.9999722229938057,
+          "emissions": 0.9999722229938057
+        },
+        "calculation": {
+          "energyKwh": 1.9999999999999998,
+          "intensity": 100.00000000000003
+        },
+        "provenance": {
+          "methodologies": [
+            {
+              "key": "simplified-energy",
+              "version": "1",
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              }
+            }
+          ],
+          "factors": [
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.732Z",
+                "to": "2026-11-24T12:59:10.732Z"
+              }
+            }
+          ],
+          "reasons": []
+        }
+      },
+      "summary": {
+        "status": "available",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "dataAsOf": "2026-11-24T12:59:10.715Z",
+        "totals": {
+          "energy": {
+            "value": 3.9999999999999996,
+            "unit": "kWh",
+            "reasons": [
+              {
+                "code": "NO_OBSERVATION"
+              }
+            ]
+          },
+          "emissions": {
+            "value": 400,
+            "unit": "gCO2e",
+            "reasons": [
+              {
+                "code": "NO_OBSERVATION"
+              }
+            ]
+          }
+        },
+        "coverage": {
+          "energy": 0.9999722229938057,
+          "emissions": 0.9999722229938057
+        },
+        "states": {
+          "AVAILABLE": 2,
+          "UNAVAILABLE": 0,
+          "NO_METRICS": 0,
+          "REMOVED": 0
+        },
+        "applications": [
+          {
+            "applicationId": "quality-api",
+            "name": "Quality api",
+            "state": "AVAILABLE",
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 200.00000000000003,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            }
+          },
+          {
+            "applicationId": "quality-worker",
+            "name": "Quality worker",
+            "state": "AVAILABLE",
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 199.99999999999997,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            }
+          }
+        ],
+        "provenance": {
+          "methodologies": [
+            {
+              "key": "simplified-energy",
+              "version": "1",
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              }
+            }
+          ],
+          "factors": [
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.732Z",
+                "to": "2026-11-24T12:59:10.732Z"
+              }
+            },
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "749f5ca8-9688-4706-a480-f160af5d6f5f",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.736Z",
+                "to": "2026-11-24T12:59:10.736Z"
+              }
+            }
+          ],
+          "reasons": []
+        }
+      },
+      "comparison": {
+        "status": "partial",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "referenceApplicationId": "quality-api",
+        "applications": [
+          {
+            "applicationId": "quality-api",
+            "name": "Quality api",
+            "state": "AVAILABLE",
+            "locations": [
+              {
+                "from": "2026-11-23T16:59:09.715Z",
+                "to": "2026-11-24T12:59:05.884Z",
+                "location": null,
+                "reasons": [
+                  {
+                    "code": "HISTORICAL_LOCATION_UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "from": "2026-11-24T12:59:05.884Z",
+                "to": "2026-11-24T12:59:11.715Z",
+                "location": {
+                  "regionCode": "br-sudeste",
+                  "country": "Brazil",
+                  "region": "Sudeste",
+                  "city": null,
+                  "latitude": -23.5505,
+                  "longitude": -46.6333
+                },
+                "reasons": []
+              }
+            ],
+            "metrics": {
+              "cpu": {
+                "value": 100,
+                "unit": "%",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "memory": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "disk": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "network": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              }
+            },
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 200.00000000000003,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            },
+            "differences": {
+              "energy": {
+                "absolute": 0,
+                "unit": "kWh",
+                "percentage": 0,
+                "reason": null
+              },
+              "emissions": {
+                "absolute": 0,
+                "unit": "gCO2e",
+                "percentage": 0,
+                "reason": null
+              },
+              "metrics": {
+                "cpu": {
+                  "absolute": 0,
+                  "unit": "%",
+                  "percentage": 0,
+                  "reason": null
+                },
+                "memory": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "disk": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "network": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                }
+              },
+              "coverage": {
+                "energyPercentagePoints": 0,
+                "emissionsPercentagePoints": 0
+              }
+            }
+          },
+          {
+            "applicationId": "quality-worker",
+            "name": "Quality worker",
+            "state": "AVAILABLE",
+            "locations": [
+              {
+                "from": "2026-11-23T16:59:09.715Z",
+                "to": "2026-11-24T12:59:05.884Z",
+                "location": null,
+                "reasons": [
+                  {
+                    "code": "HISTORICAL_LOCATION_UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "from": "2026-11-24T12:59:05.884Z",
+                "to": "2026-11-24T12:59:11.715Z",
+                "location": {
+                  "regionCode": "br-sudeste",
+                  "country": "Brazil",
+                  "region": "Sudeste",
+                  "city": null,
+                  "latitude": -23.5505,
+                  "longitude": -46.6333
+                },
+                "reasons": []
+              }
+            ],
+            "metrics": {
+              "cpu": {
+                "value": 100,
+                "unit": "%",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "memory": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "disk": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "network": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              }
+            },
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 199.99999999999997,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            },
+            "differences": {
+              "energy": {
+                "absolute": 0,
+                "unit": "kWh",
+                "percentage": 0,
+                "reason": null
+              },
+              "emissions": {
+                "absolute": -5.684341886080802e-14,
+                "unit": "gCO2e",
+                "percentage": -2.8421709430404004e-14,
+                "reason": null
+              },
+              "metrics": {
+                "cpu": {
+                  "absolute": 0,
+                  "unit": "%",
+                  "percentage": 0,
+                  "reason": null
+                },
+                "memory": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "disk": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "network": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                }
+              },
+              "coverage": {
+                "energyPercentagePoints": 0,
+                "emissionsPercentagePoints": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    "fraction": {
+      "id": "0e768f8f-663c-496f-8a89-35f35de8d734",
+      "applicationId": "quality-api",
+      "intervalStart": "2026-11-24T12:58:12.117Z",
+      "intervalEnd": "2026-11-24T12:59:12.117Z",
+      "collectedAt": "2026-11-24T12:59:12.117Z",
+      "metrics": {
+        "diskGb": 0.12345678,
+        "memoryGb": 1.23456789,
+        "networkGb": 0.45678912,
+        "cpuPercent": 33.333333,
+        "collectionIntervalSeconds": 60
+      },
+      "metricUnits": {
+        "diskGb": "GB",
+        "memoryGb": "GB",
+        "networkGb": "GB",
+        "cpuPercent": "%"
+      },
+      "state": "AVAILABLE",
+      "reason": null,
+      "energyKwh": "0.00056344",
+      "carbonGrams": "0.04796234",
+      "carbonFactor": "85.12345679",
+      "calculationVersion": "1",
+      "carbonRegionVersion": "01883ab1-a431-4ca3-8d3c-aa4ee65688da",
+      "carbonRegionId": "60d18af3-c504-476e-8e06-87a3bfac0f4b",
+      "calculationConfigVersion": null,
+      "calculationConfigId": null,
+      "coverage": "1.0000",
+      "calculationEvidence": {
+        "carbon": {
+          "reasons": [],
+          "energyKwh": 0.0005634444384825001,
+          "factorSnapshot": {
+            "id": "60d18af3-c504-476e-8e06-87a3bfac0f4b",
+            "city": null,
+            "unit": "gCO2e/kWh",
+            "region": "Sudeste",
+            "source": null,
+            "country": "Brazil",
+            "version": "01883ab1-a431-4ca3-8d3c-aa4ee65688da",
+            "intensity": 85.123456789,
+            "queriedAt": "2026-11-24T12:59:12.140Z",
+            "validFrom": null,
+            "regionCode": "br-sudeste",
+            "validUntil": null,
+            "contractVersion": "0.1.0"
+          },
+          "emissionsGramsCo2e": 0.047962338312167466,
+          "emissionsKilogramsCo2e": 0.000047962338312167464
+        },
+        "energy": {
+          "reasons": [],
+          "modelKey": "simplified-energy",
+          "energyKwh": 0.0005634444384825001,
+          "modelVersion": "1",
+          "applicationId": "quality-api",
+          "averagePowerW": 33.80666630895,
+          "observationId": "0e768f8f-663c-496f-8a89-35f35de8d734",
+          "durationSeconds": 60,
+          "modelParameters": {
+            "diskWattsPerGb": 0.01,
+            "memoryWattsPerGb": 0.375,
+            "networkWattsPerGb": 0.02,
+            "cpuWattsAt100Percent": 100
+          },
+          "powerContributionsW": {
+            "diskGb": 0.0012345678,
+            "memoryGb": 0.46296295874999993,
+            "networkGb": 0.0091357824,
+            "cpuPercent": 33.333333
+          }
+        },
+        "version": 1
+      },
+      "createdAt": "2026-11-24T12:59:12.306Z"
+    }
+  },
+  "requests": [
+    {
+      "path": "/applications/quality-api/collections/e61eb25d-cd91-42a7-9099-3ca42af63f1e",
+      "status": 200,
+      "body": {
+        "id": "e61eb25d-cd91-42a7-9099-3ca42af63f1e",
+        "applicationId": "quality-api",
+        "intervalStart": "2026-11-23T16:59:10.715Z",
+        "intervalEnd": "2026-11-24T12:59:10.715Z",
+        "collectedAt": "2026-11-24T12:59:10.715Z",
+        "collectionIntervalSeconds": 72000,
+        "isStale": false,
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastCheckedAt": "2026-11-24T12:59:10.715Z",
+        "metrics": {
+          "cpu": {
+            "value": 100,
+            "unit": "%",
+            "status": "available"
+          },
+          "memory": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          },
+          "disk": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          },
+          "network": {
+            "value": 0,
+            "unit": "GB",
+            "status": "available"
+          }
+        },
+        "environmental": {
+          "status": "present",
+          "absenceReason": null,
+          "energy": {
+            "valueKwh": 2,
+            "calculatedValueKwh": 2,
+            "coverage": 1,
+            "durationSeconds": 72000,
+            "averagePowerW": 100,
+            "model": {
+              "key": "simplified-energy",
+              "version": "1",
+              "configId": null,
+              "configVersion": null,
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              },
+              "formula": {
+                "status": "available",
+                "expression": "averagePowerW = cpuPercent / 100 × cpuWattsAt100Percent + memoryGb × memoryWattsPerGb + diskGb × diskWattsPerGb + networkGb × networkWattsPerGb; energyKwh = averagePowerW × durationSeconds / 3600000",
+                "inputUnits": {
+                  "cpuPercent": "%",
+                  "memoryGb": "GB",
+                  "diskGb": "GB",
+                  "networkGb": "GB",
+                  "cpuWattsAt100Percent": "W",
+                  "memoryWattsPerGb": "W/GB",
+                  "diskWattsPerGb": "W/GB",
+                  "networkWattsPerGb": "W/GB",
+                  "durationSeconds": "s"
+                },
+                "outputUnit": "kWh",
+                "reason": null
+              },
+              "powerContributionsW": {
+                "diskGb": 0,
+                "memoryGb": 0,
+                "networkGb": 0,
+                "cpuPercent": 100
+              },
+              "reasons": []
+            }
+          },
+          "carbon": {
+            "valueGramsCo2e": 200,
+            "calculatedValueGramsCo2e": 200,
+            "calculatedValueKilogramsCo2e": 0.2,
+            "factor": 100,
+            "factorSnapshot": {
+              "id": "802a7329-c7a1-45f2-8c06-d1b75816d079",
+              "city": null,
+              "unit": "gCO2e/kWh",
+              "region": "Sudeste",
+              "source": null,
+              "country": "Brazil",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "intensity": 100,
+              "queriedAt": "2026-11-24T12:59:10.732Z",
+              "validFrom": null,
+              "regionCode": "br-sudeste",
+              "validUntil": null,
+              "contractVersion": "0.1.0"
+            },
+            "formula": {
+              "expression": "emissionsGramsCo2e = energyKwh × intensity; emissionsKilogramsCo2e = emissionsGramsCo2e / 1000",
+              "energyUnit": "kWh",
+              "factorUnit": "gCO2e/kWh",
+              "gramsUnit": "gCO2e",
+              "kilogramsUnit": "kgCO2e"
+            },
+            "reasons": []
+          }
+        }
+      }
+    },
+    {
+      "path": "/applications/quality-api/analysis?from=2026-11-23T16%3A59%3A09.715Z&to=2026-11-24T12%3A59%3A11.715Z",
+      "status": 200,
+      "body": {
+        "applicationId": "quality-api",
+        "status": "available",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "energy": {
+          "value": 1.9999999999999998,
+          "unit": "kWh",
+          "reasons": [
+            {
+              "code": "NO_OBSERVATION"
+            }
+          ]
+        },
+        "emissions": {
+          "value": 200.00000000000003,
+          "unit": "gCO2e",
+          "reasons": [
+            {
+              "code": "NO_OBSERVATION"
+            }
+          ]
+        },
+        "coverage": {
+          "energy": 0.9999722229938057,
+          "emissions": 0.9999722229938057
+        },
+        "calculation": {
+          "energyKwh": 1.9999999999999998,
+          "intensity": 100.00000000000003
+        },
+        "provenance": {
+          "methodologies": [
+            {
+              "key": "simplified-energy",
+              "version": "1",
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              }
+            }
+          ],
+          "factors": [
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.732Z",
+                "to": "2026-11-24T12:59:10.732Z"
+              }
+            }
+          ],
+          "reasons": []
+        }
+      }
+    },
+    {
+      "path": "/analysis/summary?from=2026-11-23T16%3A59%3A09.715Z&to=2026-11-24T12%3A59%3A11.715Z",
+      "status": 200,
+      "body": {
+        "status": "available",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "dataAsOf": "2026-11-24T12:59:10.715Z",
+        "totals": {
+          "energy": {
+            "value": 3.9999999999999996,
+            "unit": "kWh",
+            "reasons": [
+              {
+                "code": "NO_OBSERVATION"
+              }
+            ]
+          },
+          "emissions": {
+            "value": 400,
+            "unit": "gCO2e",
+            "reasons": [
+              {
+                "code": "NO_OBSERVATION"
+              }
+            ]
+          }
+        },
+        "coverage": {
+          "energy": 0.9999722229938057,
+          "emissions": 0.9999722229938057
+        },
+        "states": {
+          "AVAILABLE": 2,
+          "UNAVAILABLE": 0,
+          "NO_METRICS": 0,
+          "REMOVED": 0
+        },
+        "applications": [
+          {
+            "applicationId": "quality-api",
+            "name": "Quality api",
+            "state": "AVAILABLE",
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 200.00000000000003,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            }
+          },
+          {
+            "applicationId": "quality-worker",
+            "name": "Quality worker",
+            "state": "AVAILABLE",
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 199.99999999999997,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            }
+          }
+        ],
+        "provenance": {
+          "methodologies": [
+            {
+              "key": "simplified-energy",
+              "version": "1",
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              }
+            }
+          ],
+          "factors": [
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "65eefa00-88ad-4411-a2a8-9bf3717952f5",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.732Z",
+                "to": "2026-11-24T12:59:10.732Z"
+              }
+            },
+            {
+              "contractVersion": "0.1.0",
+              "regionCode": "br-sudeste",
+              "country": "Brazil",
+              "region": "Sudeste",
+              "city": null,
+              "intensity": 100,
+              "unit": "gCO2e/kWh",
+              "version": "749f5ca8-9688-4706-a480-f160af5d6f5f",
+              "source": null,
+              "validFrom": null,
+              "validUntil": null,
+              "queriedAt": {
+                "from": "2026-11-24T12:59:10.736Z",
+                "to": "2026-11-24T12:59:10.736Z"
+              }
+            }
+          ],
+          "reasons": []
+        }
+      }
+    },
+    {
+      "path": "/applications/quality-api",
+      "status": 200,
+      "body": {
+        "id": "quality-api",
+        "name": "Quality api",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.5505,
+          "longitude": -46.6333
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-24T12:59:10.715Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-24T12:59:05.884Z",
+        "lastCheckedAt": "2026-11-24T12:59:10.715Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-24T12:59:10.914Z"
+      }
+    },
+    {
+      "path": "/analysis/comparison?from=2026-11-23T16%3A59%3A09.715Z&to=2026-11-24T12%3A59%3A11.715Z&referenceApplicationId=quality-api&applicationIds=quality-api&applicationIds=quality-worker",
+      "status": 200,
+      "body": {
+        "status": "partial",
+        "period": {
+          "from": "2026-11-23T16:59:09.715Z",
+          "to": "2026-11-24T12:59:11.715Z"
+        },
+        "referenceApplicationId": "quality-api",
+        "applications": [
+          {
+            "applicationId": "quality-api",
+            "name": "Quality api",
+            "state": "AVAILABLE",
+            "locations": [
+              {
+                "from": "2026-11-23T16:59:09.715Z",
+                "to": "2026-11-24T12:59:05.884Z",
+                "location": null,
+                "reasons": [
+                  {
+                    "code": "HISTORICAL_LOCATION_UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "from": "2026-11-24T12:59:05.884Z",
+                "to": "2026-11-24T12:59:11.715Z",
+                "location": {
+                  "regionCode": "br-sudeste",
+                  "country": "Brazil",
+                  "region": "Sudeste",
+                  "city": null,
+                  "latitude": -23.5505,
+                  "longitude": -46.6333
+                },
+                "reasons": []
+              }
+            ],
+            "metrics": {
+              "cpu": {
+                "value": 100,
+                "unit": "%",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "memory": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "disk": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              },
+              "network": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.715000Z",
+                "reasons": []
+              }
+            },
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 200.00000000000003,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            },
+            "differences": {
+              "energy": {
+                "absolute": 0,
+                "unit": "kWh",
+                "percentage": 0,
+                "reason": null
+              },
+              "emissions": {
+                "absolute": 0,
+                "unit": "gCO2e",
+                "percentage": 0,
+                "reason": null
+              },
+              "metrics": {
+                "cpu": {
+                  "absolute": 0,
+                  "unit": "%",
+                  "percentage": 0,
+                  "reason": null
+                },
+                "memory": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "disk": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "network": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                }
+              },
+              "coverage": {
+                "energyPercentagePoints": 0,
+                "emissionsPercentagePoints": 0
+              }
+            }
+          },
+          {
+            "applicationId": "quality-worker",
+            "name": "Quality worker",
+            "state": "AVAILABLE",
+            "locations": [
+              {
+                "from": "2026-11-23T16:59:09.715Z",
+                "to": "2026-11-24T12:59:05.884Z",
+                "location": null,
+                "reasons": [
+                  {
+                    "code": "HISTORICAL_LOCATION_UNAVAILABLE"
+                  }
+                ]
+              },
+              {
+                "from": "2026-11-24T12:59:05.884Z",
+                "to": "2026-11-24T12:59:11.715Z",
+                "location": {
+                  "regionCode": "br-sudeste",
+                  "country": "Brazil",
+                  "region": "Sudeste",
+                  "city": null,
+                  "latitude": -23.5505,
+                  "longitude": -46.6333
+                },
+                "reasons": []
+              }
+            ],
+            "metrics": {
+              "cpu": {
+                "value": 100,
+                "unit": "%",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "memory": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "disk": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              },
+              "network": {
+                "value": 0,
+                "unit": "GB",
+                "status": "available",
+                "collectedAt": "2026-11-24T12:59:10.712000Z",
+                "reasons": []
+              }
+            },
+            "energy": {
+              "value": 1.9999999999999998,
+              "unit": "kWh",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "emissions": {
+              "value": 199.99999999999997,
+              "unit": "gCO2e",
+              "reasons": [
+                {
+                  "code": "NO_OBSERVATION"
+                }
+              ]
+            },
+            "coverage": {
+              "energy": 0.9999722229938057,
+              "emissions": 0.9999722229938057
+            },
+            "differences": {
+              "energy": {
+                "absolute": 0,
+                "unit": "kWh",
+                "percentage": 0,
+                "reason": null
+              },
+              "emissions": {
+                "absolute": -5.684341886080802e-14,
+                "unit": "gCO2e",
+                "percentage": -2.8421709430404004e-14,
+                "reason": null
+              },
+              "metrics": {
+                "cpu": {
+                  "absolute": 0,
+                  "unit": "%",
+                  "percentage": 0,
+                  "reason": null
+                },
+                "memory": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "disk": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                },
+                "network": {
+                  "absolute": 0,
+                  "unit": "GB",
+                  "percentage": null,
+                  "reason": "ZERO_REFERENCE"
+                }
+              },
+              "coverage": {
+                "energyPercentagePoints": 0,
+                "emissionsPercentagePoints": 0
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "upstreamRequests": [
+    "/services",
+    "/metrics/quality-api",
+    "/metrics/quality-worker",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-api",
+    "/metrics/quality-worker",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-worker",
+    "/metrics/quality-api",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-worker",
+    "/metrics/quality-api",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-api",
+    "/metrics/quality-worker",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-api",
+    "/metrics/quality-worker",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-worker",
+    "/metrics/quality-api",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity",
+    "/services",
+    "/metrics/quality-api",
+    "/metrics/quality-worker",
+    "/regions/br-sudeste/carbon-intensity",
+    "/regions/br-sudeste/carbon-intensity"
+  ]
+}
