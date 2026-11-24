@@ -1,0 +1,696 @@
+{
+  "executedAt": "2026-11-23T04:03:56.355Z",
+  "evidence": [
+    {
+      "case": "CT-014",
+      "scenarios": "S1–S4 e consultas API de S5",
+      "initial": {
+        "id": "qa-nova-nao-uuid",
+        "name": "qa-nova-nao-uuid",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:02:49.646Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:02:49.431Z",
+        "lastCheckedAt": "2026-11-23T04:02:49.646Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:02:49.818Z"
+      },
+      "renamed": {
+        "id": "qa-nova-nao-uuid",
+        "name": "Nome alterado",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:02:50.521Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:02:49.431Z",
+        "lastCheckedAt": "2026-11-23T04:02:50.521Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:02:50.664Z"
+      },
+      "moved": {
+        "id": "qa-nova-nao-uuid",
+        "name": "Nome alterado",
+        "location": {
+          "regionCode": "br-norte",
+          "country": "Brazil",
+          "region": "Norte",
+          "city": null,
+          "latitude": -3.1,
+          "longitude": -60
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:02:50.885Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:02:49.431Z",
+        "lastCheckedAt": "2026-11-23T04:02:50.885Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:02:50.951Z"
+      },
+      "events": [
+        {
+          "id": "89004b8b-4a37-40cb-ad89-abaef3ddb2a8",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "fbb95ee1-e273-481e-b28e-6649f1332ba0",
+          "kind": "discovered",
+          "occurredAt": "2026-11-23T04:02:49.431Z",
+          "actor": "system",
+          "details": null
+        },
+        {
+          "id": "afa25bad-74f7-4d1f-ac01-1bb0d4063b32",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "fbb95ee1-e273-481e-b28e-6649f1332ba0",
+          "kind": "collection_attempt",
+          "occurredAt": "2026-11-23T04:02:49.627Z",
+          "actor": "system",
+          "details": {
+            "succeeded": true,
+            "regionCode": "br-sudeste"
+          }
+        },
+        {
+          "id": "7b9c66ca-d293-40d6-82b3-60d15f1f1b7a",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "fbb95ee1-e273-481e-b28e-6649f1332ba0",
+          "kind": "status_changed",
+          "occurredAt": "2026-11-23T04:02:49.646Z",
+          "actor": "system",
+          "details": {
+            "after": {
+              "state": "AVAILABLE",
+              "reason": "METRICS_VALID",
+              "isStale": false,
+              "isCalculable": true
+            },
+            "before": {
+              "state": "AVAILABLE",
+              "reason": null,
+              "isStale": false,
+              "isCalculable": null
+            }
+          }
+        },
+        {
+          "id": "66517460-6c06-4a1f-8119-f283d521ed78",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "75eae2ff-9cf5-4a66-8468-2057ebd792c3",
+          "kind": "collection_attempt",
+          "occurredAt": "2026-11-23T04:02:50.133Z",
+          "actor": "system",
+          "details": {
+            "succeeded": true,
+            "regionCode": "br-sudeste"
+          }
+        },
+        {
+          "id": "08e5490c-7265-492b-b82a-46439355d310",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "6c2c2909-8b03-4236-b4f0-5a6c38dfd172",
+          "kind": "registration_changed",
+          "occurredAt": "2026-11-23T04:02:50.429Z",
+          "actor": "system",
+          "details": {
+            "after": {
+              "name": "Nome alterado",
+              "location": {
+                "city": null,
+                "region": "Sudeste",
+                "country": "Brazil",
+                "latitude": -23.55,
+                "longitude": -46.63,
+                "regionCode": "br-sudeste"
+              }
+            },
+            "before": {
+              "name": "qa-nova-nao-uuid",
+              "location": {
+                "city": null,
+                "region": "Sudeste",
+                "country": "Brazil",
+                "latitude": -23.55,
+                "longitude": -46.63,
+                "regionCode": "br-sudeste"
+              }
+            }
+          }
+        },
+        {
+          "id": "e924c38f-b5f8-450c-9538-f93bcefb697c",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "6c2c2909-8b03-4236-b4f0-5a6c38dfd172",
+          "kind": "collection_attempt",
+          "occurredAt": "2026-11-23T04:02:50.514Z",
+          "actor": "system",
+          "details": {
+            "succeeded": true,
+            "regionCode": "br-sudeste"
+          }
+        },
+        {
+          "id": "a66ba63a-2d8b-4652-8c79-967d39996c8a",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "a8fd98fc-c415-4653-b307-3a2dd893d410",
+          "kind": "registration_changed",
+          "occurredAt": "2026-11-23T04:02:50.817Z",
+          "actor": "system",
+          "details": {
+            "after": {
+              "name": "Nome alterado",
+              "location": {
+                "city": null,
+                "region": "Norte",
+                "country": "Brazil",
+                "latitude": -3.1,
+                "longitude": -60,
+                "regionCode": "br-norte"
+              }
+            },
+            "before": {
+              "name": "Nome alterado",
+              "location": {
+                "city": null,
+                "region": "Sudeste",
+                "country": "Brazil",
+                "latitude": -23.55,
+                "longitude": -46.63,
+                "regionCode": "br-sudeste"
+              }
+            }
+          }
+        },
+        {
+          "id": "9d61b6b0-b9c3-4fbc-904d-4083b1f96ae9",
+          "applicationId": "qa-nova-nao-uuid",
+          "cycleId": "a8fd98fc-c415-4653-b307-3a2dd893d410",
+          "kind": "collection_attempt",
+          "occurredAt": "2026-11-23T04:02:50.881Z",
+          "actor": "system",
+          "details": {
+            "succeeded": true,
+            "regionCode": "br-norte"
+          }
+        }
+      ],
+      "originalEvidence": {
+        "id": "896e7ccc-8fa5-442c-a3cc-8c73c791add9",
+        "applicationId": "qa-nova-nao-uuid",
+        "intervalStart": "2026-11-23T04:01:49.646Z",
+        "intervalEnd": "2026-11-23T04:02:49.646Z",
+        "collectedAt": "2026-11-23T04:02:49.646Z",
+        "collectionIntervalSeconds": 60,
+        "isStale": false,
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastCheckedAt": "2026-11-23T04:02:50.885Z",
+        "metrics": {
+          "cpu": {
+            "value": 50,
+            "unit": "%",
+            "status": "available"
+          },
+          "memory": {
+            "value": 2,
+            "unit": "GB",
+            "status": "available"
+          },
+          "disk": {
+            "value": 10,
+            "unit": "GB",
+            "status": "available"
+          },
+          "network": {
+            "value": 1,
+            "unit": "GB",
+            "status": "available"
+          }
+        },
+        "environmental": {
+          "status": "present",
+          "absenceReason": null,
+          "energy": {
+            "valueKwh": 0.00084783,
+            "calculatedValueKwh": 0.0008478333333333335,
+            "coverage": 1,
+            "durationSeconds": 60,
+            "averagePowerW": 50.870000000000005,
+            "model": {
+              "key": "simplified-energy",
+              "version": "1",
+              "configId": null,
+              "configVersion": null,
+              "parameters": {
+                "diskWattsPerGb": 0.01,
+                "memoryWattsPerGb": 0.375,
+                "networkWattsPerGb": 0.02,
+                "cpuWattsAt100Percent": 100
+              },
+              "formula": {
+                "status": "available",
+                "expression": "averagePowerW = cpuPercent / 100 × cpuWattsAt100Percent + memoryGb × memoryWattsPerGb + diskGb × diskWattsPerGb + networkGb × networkWattsPerGb; energyKwh = averagePowerW × durationSeconds / 3600000",
+                "inputUnits": {
+                  "cpuPercent": "%",
+                  "memoryGb": "GB",
+                  "diskGb": "GB",
+                  "networkGb": "GB",
+                  "cpuWattsAt100Percent": "W",
+                  "memoryWattsPerGb": "W/GB",
+                  "diskWattsPerGb": "W/GB",
+                  "networkWattsPerGb": "W/GB",
+                  "durationSeconds": "s"
+                },
+                "outputUnit": "kWh",
+                "reason": null
+              },
+              "powerContributionsW": {
+                "diskGb": 0.1,
+                "memoryGb": 0.75,
+                "networkGb": 0.02,
+                "cpuPercent": 50
+              },
+              "reasons": []
+            }
+          },
+          "carbon": {
+            "valueGramsCo2e": 0.07206583,
+            "calculatedValueGramsCo2e": 0.07206583333333334,
+            "calculatedValueKilogramsCo2e": 0.00007206583333333334,
+            "factor": 85,
+            "factorSnapshot": {
+              "id": "27aff15e-7b96-4c8e-8653-166433038950",
+              "city": null,
+              "unit": "gCO2e/kWh",
+              "region": "Sudeste",
+              "source": null,
+              "country": "Brazil",
+              "version": "767f6d0b-f35d-41e6-bddf-7de1195765b4",
+              "intensity": 85,
+              "queriedAt": "2026-11-23T04:02:49.665Z",
+              "validFrom": null,
+              "regionCode": "br-sudeste",
+              "validUntil": null,
+              "contractVersion": "0.1.0"
+            },
+            "formula": {
+              "expression": "emissionsGramsCo2e = energyKwh × intensity; emissionsKilogramsCo2e = emissionsGramsCo2e / 1000",
+              "energyUnit": "kWh",
+              "factorUnit": "gCO2e/kWh",
+              "gramsUnit": "gCO2e",
+              "kilogramsUnit": "kgCO2e"
+            },
+            "reasons": []
+          }
+        }
+      },
+      "collectionIds": [
+        "896e7ccc-8fa5-442c-a3cc-8c73c791add9",
+        "bfb789d8-93f4-4684-a635-be9ead0d43a1",
+        "7624bfb4-2919-4525-aee4-554571e67486",
+        "09af1979-6cf4-42f3-8def-bff7b9f6afc8"
+      ],
+      "sourceRequests": [
+        "/services",
+        "/services",
+        "/metrics/qa-nova-nao-uuid",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/metrics/qa-nova-nao-uuid",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/metrics/qa-nova-nao-uuid",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/metrics/qa-nova-nao-uuid",
+        "/regions/br-norte/carbon-intensity"
+      ]
+    },
+    {
+      "case": "CT-015",
+      "scenarios": "S1–S5",
+      "retained": {
+        "id": "qa-a",
+        "name": "qa-a",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:02:56.463Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:02:54.913Z",
+        "lastCheckedAt": "2026-11-23T04:02:56.463Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:02:56.793Z"
+      },
+      "removed": {
+        "id": "qa-a",
+        "name": "qa-a",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "REMOVED",
+        "reason": "REMOVAL_CONFIRMED",
+        "lastObservationAt": "2026-11-23T04:02:56.463Z",
+        "isStale": false,
+        "isCalculable": false,
+        "firstSeenAt": "2026-11-23T04:02:54.913Z",
+        "lastCheckedAt": "2026-11-23T04:02:57.921Z",
+        "removedAt": "2026-11-23T04:02:57.921Z",
+        "updatedAt": "2026-11-23T04:02:57.939Z"
+      },
+      "removalEvents": [
+        {
+          "id": "09cb196a-b89c-4b70-9c67-d51dfac97cdc",
+          "applicationId": "qa-a",
+          "cycleId": "2f2522eb-580f-457a-a2b1-d705709449d4",
+          "kind": "removed",
+          "occurredAt": "2026-11-23T04:02:57.921Z",
+          "actor": "system",
+          "details": {
+            "source": "metrics-aggregator",
+            "observedAt": "2026-11-23T04:02:57.921Z",
+            "confirmedAt": "2026-11-23T04:02:57.921Z",
+            "confirmation": "service-detail-404"
+          }
+        }
+      ],
+      "emptyAfterRemoval": {
+        "applicationId": "qa-a",
+        "status": "empty",
+        "period": {
+          "from": "2026-11-23T05:03:00.507Z",
+          "to": "2026-11-23T06:03:00.507Z"
+        },
+        "energy": {
+          "value": null,
+          "unit": "kWh",
+          "reasons": []
+        },
+        "emissions": {
+          "value": null,
+          "unit": "gCO2e",
+          "reasons": []
+        },
+        "coverage": {
+          "energy": 0,
+          "emissions": 0
+        },
+        "calculation": {
+          "energyKwh": null,
+          "intensity": null
+        },
+        "provenance": {
+          "methodologies": [],
+          "factors": [],
+          "reasons": []
+        }
+      },
+      "preservedCollectionId": "37e44e33-be11-4412-8bdc-938095accd39",
+      "sourceRequests": [
+        "/services",
+        "/metrics/qa-a",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-a",
+        "/metrics/qa-a",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-a",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-b"
+      ]
+    },
+    {
+      "case": "CT-015",
+      "variant": "500",
+      "current": {
+        "id": "qa-a",
+        "name": "qa-a",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:03:11.268Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:03:09.797Z",
+        "lastCheckedAt": "2026-11-23T04:03:11.268Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:03:11.484Z"
+      },
+      "incidents": [
+        {
+          "id": "f7e18784-0190-4786-97b6-740825ff97e1",
+          "source": "metrics-aggregator",
+          "applicationId": null,
+          "integration": "services",
+          "status": "OPEN",
+          "firstReason": "UPSTREAM_UNAVAILABLE",
+          "latestReason": "UPSTREAM_UNAVAILABLE",
+          "logicalFailureCount": 1,
+          "httpAttemptCount": 3,
+          "recoverySuccessCount": 0,
+          "openedAt": "2026-11-23T04:03:11.052Z",
+          "firstAttemptAt": "2026-11-23T04:03:11.052Z",
+          "latestAttemptAt": "2026-11-23T04:03:11.052Z",
+          "lastValidResponseAt": null,
+          "resolvedAt": null,
+          "lastCycleId": "f4e671fc-7a35-4afc-90c0-471cbc6d02d0",
+          "createdAt": "2026-11-23T04:03:11.163Z"
+        }
+      ],
+      "collectionCount": 2,
+      "sourceRequests": [
+        "/services",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-a",
+        "/services/qa-a",
+        "/services/qa-a",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity"
+      ]
+    },
+    {
+      "case": "CT-015",
+      "variant": "payload inválido",
+      "current": {
+        "id": "qa-a",
+        "name": "qa-a",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:03:16.795Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:03:16.336Z",
+        "lastCheckedAt": "2026-11-23T04:03:16.795Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:03:16.862Z"
+      },
+      "incidents": [
+        {
+          "id": "ba957640-7072-41f8-9da1-1c9adaf0d19b",
+          "source": "metrics-aggregator",
+          "applicationId": null,
+          "integration": "services",
+          "status": "OPEN",
+          "firstReason": "INVALID_RESPONSE",
+          "latestReason": "INVALID_RESPONSE",
+          "logicalFailureCount": 1,
+          "httpAttemptCount": 1,
+          "recoverySuccessCount": 0,
+          "openedAt": "2026-11-23T04:03:16.752Z",
+          "firstAttemptAt": "2026-11-23T04:03:16.752Z",
+          "latestAttemptAt": "2026-11-23T04:03:16.752Z",
+          "lastValidResponseAt": null,
+          "resolvedAt": null,
+          "lastCycleId": "7ea981d8-15dd-4c66-b835-607b3b7679da",
+          "createdAt": "2026-11-23T04:03:16.764Z"
+        }
+      ],
+      "collectionCount": 2,
+      "sourceRequests": [
+        "/services",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-a",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity"
+      ]
+    },
+    {
+      "case": "CT-015",
+      "variant": "timeout",
+      "current": {
+        "id": "qa-a",
+        "name": "qa-a",
+        "location": {
+          "regionCode": "br-sudeste",
+          "country": "Brazil",
+          "region": "Sudeste",
+          "city": null,
+          "latitude": -23.55,
+          "longitude": -46.63
+        },
+        "state": "AVAILABLE",
+        "reason": "METRICS_VALID",
+        "lastObservationAt": "2026-11-23T04:03:51.651Z",
+        "isStale": false,
+        "isCalculable": true,
+        "firstSeenAt": "2026-11-23T04:03:21.024Z",
+        "lastCheckedAt": "2026-11-23T04:03:51.651Z",
+        "removedAt": null,
+        "updatedAt": "2026-11-23T04:03:51.689Z"
+      },
+      "incidents": [
+        {
+          "id": "29c2407b-f7a0-4499-af68-1fe1f1163ab4",
+          "source": "metrics-aggregator",
+          "applicationId": null,
+          "integration": "services",
+          "status": "OPEN",
+          "firstReason": "TIMEOUT",
+          "latestReason": "TIMEOUT",
+          "logicalFailureCount": 1,
+          "httpAttemptCount": 3,
+          "recoverySuccessCount": 0,
+          "openedAt": "2026-11-23T04:03:51.619Z",
+          "firstAttemptAt": "2026-11-23T04:03:51.619Z",
+          "latestAttemptAt": "2026-11-23T04:03:51.619Z",
+          "lastValidResponseAt": null,
+          "resolvedAt": null,
+          "lastCycleId": "c5f8bebc-cff1-44d6-8bed-e4388de695e4",
+          "createdAt": "2026-11-23T04:03:51.623Z"
+        }
+      ],
+      "collectionCount": 2,
+      "sourceRequests": [
+        "/services",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services",
+        "/services/qa-a",
+        "/services/qa-a",
+        "/services/qa-a",
+        "/metrics/qa-a",
+        "/regions/br-sudeste/carbon-intensity"
+      ]
+    },
+    {
+      "case": "CT-015",
+      "variant": "cancelamento após primeira confirmação",
+      "current": [
+        {
+          "id": "qa-a",
+          "name": "qa-a",
+          "location": {
+            "regionCode": "br-sudeste",
+            "country": "Brazil",
+            "region": "Sudeste",
+            "city": null,
+            "latitude": -23.55,
+            "longitude": -46.63
+          },
+          "state": "AVAILABLE",
+          "reason": "METRICS_VALID",
+          "lastObservationAt": "2026-11-23T04:03:52.979Z",
+          "isStale": false,
+          "isCalculable": true,
+          "firstSeenAt": "2026-11-23T04:03:52.907Z",
+          "lastCheckedAt": "2026-11-23T04:03:52.979Z",
+          "removedAt": null,
+          "updatedAt": "2026-11-23T04:03:53.054Z"
+        },
+        {
+          "id": "qa-b",
+          "name": "qa-b",
+          "location": {
+            "regionCode": "br-sudeste",
+            "country": "Brazil",
+            "region": "Sudeste",
+            "city": null,
+            "latitude": -23.55,
+            "longitude": -46.63
+          },
+          "state": "AVAILABLE",
+          "reason": "METRICS_VALID",
+          "lastObservationAt": "2026-11-23T04:03:52.984Z",
+          "isStale": false,
+          "isCalculable": true,
+          "firstSeenAt": "2026-11-23T04:03:52.907Z",
+          "lastCheckedAt": "2026-11-23T04:03:52.984Z",
+          "removedAt": null,
+          "updatedAt": "2026-11-23T04:03:53.106Z"
+        }
+      ],
+      "sourceRequests": [
+        "/services",
+        "/metrics/qa-a",
+        "/metrics/qa-b",
+        "/regions/br-sudeste/carbon-intensity",
+        "/regions/br-sudeste/carbon-intensity",
+        "/services/qa-a",
+        "/services/qa-b"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-24T12:57:43.053Z",
+  "base": "https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net",
+  "results": [
+    {
+      "route": "/applications",
+      "status": 200,
+      "applicationCount": 8
+    }
+  ],
+  "scope": "Somente leitura do catálogo; fontes não alteradas. Cenários determinísticos executados localmente."
+}

@@ -1,0 +1,126 @@
+{
+  "version": "156.0.8078.4",
+  "startedAt": "2026-11-24T13:00:15.350Z",
+  "widths": [
+    {
+      "width": 390,
+      "height": 844,
+      "discoveryWithoutReload": true,
+      "navigationsBeforeDiscovery": 2,
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/collections/latest",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis?from=2026-11-17T13%3A01%3A27.583Z&to=2026-11-24T13%3A01%3A27.583Z",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis/series?from=2026-11-17T13%3A01%3A27.583Z&to=2026-11-24T13%3A01%3A27.583Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis/series?from=2026-11-10T13%3A01%3A27.583Z&to=2026-11-17T13%3A01%3A27.583Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/collections/latest",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis?from=2026-11-23T13%3A01%3A29.327Z&to=2026-11-24T13%3A01%3A29.327Z",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis/series?from=2026-11-23T13%3A01%3A29.327Z&to=2026-11-24T13%3A01%3A29.327Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-390/analysis/series?from=2026-11-22T13%3A01%3A29.327Z&to=2026-11-23T13%3A01%3A29.327Z&granularity=hour",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "discoveryWithoutReload": true,
+      "navigationsBeforeDiscovery": 2,
+      "responses": [
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/collections/latest",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis?from=2026-11-17T13%3A01%3A38.201Z&to=2026-11-24T13%3A01%3A38.201Z",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis/series?from=2026-11-17T13%3A01%3A38.201Z&to=2026-11-24T13%3A01%3A38.201Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis/series?from=2026-11-10T13%3A01%3A38.201Z&to=2026-11-17T13%3A01%3A38.201Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/collections/latest",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis?from=2026-11-23T13%3A01%3A40.024Z&to=2026-11-24T13%3A01%3A40.024Z",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis/series?from=2026-11-23T13%3A01%3A40.024Z&to=2026-11-24T13%3A01%3A40.024Z&granularity=hour",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:4320/api/applications/qa-ui-1440/analysis/series?from=2026-11-22T13%3A01%3A40.024Z&to=2026-11-23T13%3A01%3A40.024Z&granularity=hour",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}
