@@ -1,7 +1,7 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faDatabase, faEarthAmericas, faLeaf } from '@fortawesome/free-solid-svg-icons'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 import { selectCatalog, type CatalogSortColumn } from '../../features/applications/catalog.ts'
@@ -68,7 +68,8 @@ function SearchDialog({
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<{ column: CatalogSortColumn; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' })
-  useEffect(() => {
+  // Close before unmount so the native dialog can restore focus to its trigger.
+  useLayoutEffect(() => {
     const dialog = dialogRef.current
     if (dialog && !dialog.open) dialog.showModal()
     return () => { if (dialog?.open) dialog.close() }
@@ -128,7 +129,7 @@ function SearchDialog({
 function ClearConfirmation({ onCancel, onConfirm }: Readonly<{ onCancel: () => void; onConfirm: () => void }>) {
   const { t } = useTranslation('regionalSimulation')
   const dialogRef = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = dialogRef.current
     if (dialog && !dialog.open) dialog.showModal()
     return () => { if (dialog?.open) dialog.close() }
