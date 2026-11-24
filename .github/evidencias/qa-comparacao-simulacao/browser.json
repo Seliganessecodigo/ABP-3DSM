@@ -1,0 +1,109 @@
+﻿{
+    "productionSha":  "f282e3cfa9dd75dee04756215dee8607480a576f",
+    "started":  "2026-11-23T03:50:34.620Z",
+    "durationMs":  108958.265,
+    "tests":  [
+                  {
+                      "case":  "ct052",
+                      "viewport":  "desktop",
+                      "title":  "CT-052 S1–S5 seleção automática, cálculo, limite, paginação e histórico de URL",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  16854,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct053",
+                      "viewport":  "desktop",
+                      "title":  "CT-053 S1–S5 referência inválida, partial/empty, razões, corrida e retry",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  8957,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct055",
+                      "viewport":  "desktop",
+                      "title":  "CT-055 S1–S5 validação, ausência, pendência, cancelamento, retry e limpeza",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  14476,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct055-bug494",
+                      "viewport":  "desktop",
+                      "title":  "CT-055 bug #494: Escape devolve foco ao acionador do seletor",
+                      "expectedStatus":  "failed",
+                      "observedStatus":  "failed",
+                      "durationMs":  5227,
+                      "errors":  [
+                                     {
+                                         "location":  {
+                                                          "file":  "C:\\Users\\ealvgia\\study\\ABP-3DSM\\.worktrees\\qa-comparacao-simulacao\\frontend\\e2e\\qa-comparison-simulation.spec.ts",
+                                                          "column":  19,
+                                                          "line":  278
+                                                      },
+                                         "message":  "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"label\": \"Aplicação\",\u001b[39m\n\u001b[32m-   \"tag\": \"BUTTON\",\u001b[39m\n\u001b[31m+   \"label\": null,\u001b[39m\n\u001b[31m+   \"tag\": \"BODY\",\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  276 |   await test.info().attach(\u0027foco-observado\u0027, { body: JSON.stringify(focused), contentType: \u0027application/json\u0027 })\n  277 |   await shot(page, \u0027ct055-bug494-foco-perdido\u0027)\n\u003e 278 |   expect(focused).toEqual({ tag: \u0027BUTTON\u0027, label: \u0027Aplicação\u0027 })\n      |                   ^\n  279 | })\n  280 |\n    at C:\\Users\\ealvgia\\study\\ABP-3DSM\\.worktrees\\qa-comparacao-simulacao\\frontend\\e2e\\qa-comparison-simulation.spec.ts:278:19"
+                                     }
+                                 ]
+                  },
+                  {
+                      "case":  "ct052",
+                      "viewport":  "mobile",
+                      "title":  "CT-052 S1–S5 seleção automática, cálculo, limite, paginação e histórico de URL",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  19994,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct053",
+                      "viewport":  "mobile",
+                      "title":  "CT-053 S1–S5 referência inválida, partial/empty, razões, corrida e retry",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  8711,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct055",
+                      "viewport":  "mobile",
+                      "title":  "CT-055 S1–S5 validação, ausência, pendência, cancelamento, retry e limpeza",
+                      "expectedStatus":  "passed",
+                      "observedStatus":  "passed",
+                      "durationMs":  13960,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "case":  "ct055-bug494",
+                      "viewport":  "mobile",
+                      "title":  "CT-055 bug #494: Escape devolve foco ao acionador do seletor",
+                      "expectedStatus":  "failed",
+                      "observedStatus":  "failed",
+                      "durationMs":  6034,
+                      "errors":  [
+                                     {
+                                         "location":  {
+                                                          "file":  "C:\\Users\\ealvgia\\study\\ABP-3DSM\\.worktrees\\qa-comparacao-simulacao\\frontend\\e2e\\qa-comparison-simulation.spec.ts",
+                                                          "column":  19,
+                                                          "line":  278
+                                                      },
+                                         "message":  "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"label\": \"Aplicação\",\u001b[39m\n\u001b[32m-   \"tag\": \"BUTTON\",\u001b[39m\n\u001b[31m+   \"label\": null,\u001b[39m\n\u001b[31m+   \"tag\": \"BODY\",\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  276 |   await test.info().attach(\u0027foco-observado\u0027, { body: JSON.stringify(focused), contentType: \u0027application/json\u0027 })\n  277 |   await shot(page, \u0027ct055-bug494-foco-perdido\u0027)\n\u003e 278 |   expect(focused).toEqual({ tag: \u0027BUTTON\u0027, label: \u0027Aplicação\u0027 })\n      |                   ^\n  279 | })\n  280 |\n    at C:\\Users\\ealvgia\\study\\ABP-3DSM\\.worktrees\\qa-comparacao-simulacao\\frontend\\e2e\\qa-comparison-simulation.spec.ts:278:19"
+                                     }
+                                 ]
+                  }
+              ]
+}
