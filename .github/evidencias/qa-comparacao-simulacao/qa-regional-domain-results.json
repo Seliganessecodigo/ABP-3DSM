@@ -1,0 +1,49 @@
+﻿{
+    "productionSha":  "f282e3cfa9dd75dee04756215dee8607480a576f",
+    "startTime":  1795405886585,
+    "passed":  8,
+    "failed":  0,
+    "outsideFilter":  0,
+    "tests":  [
+                  {
+                      "fullName":  "calculateRegionalSimulation keeps energy constant and reports the destination delta using preserved and current factors",
+                      "status":  "passed",
+                      "duration":  27
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation keeps the absolute delta available when the reference emissions are zero",
+                      "status":  "passed",
+                      "duration":  4
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation keeps the destination total but hides differences when preserved reference coverage is lower",
+                      "status":  "passed",
+                      "duration":  55
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation uses each preserved reference factor in its own segment and one destination factor for the whole period",
+                      "status":  "passed",
+                      "duration":  31
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation preserves the reference when the current destination factor is unavailable",
+                      "status":  "passed",
+                      "duration":  5
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation compares only the shared calculable interval while keeping its partial coverage visible",
+                      "status":  "passed",
+                      "duration":  16
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation keeps invalid destination data unavailable instead of calculating with it",
+                      "status":  "passed",
+                      "duration":  2
+                  },
+                  {
+                      "fullName":  "calculateRegionalSimulation returns explicit unavailable reasons when there is no calculable energy",
+                      "status":  "passed",
+                      "duration":  2
+                  }
+              ]
+}

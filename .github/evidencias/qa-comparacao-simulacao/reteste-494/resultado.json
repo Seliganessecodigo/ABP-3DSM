@@ -1,0 +1,59 @@
+{
+  "responsavel": "@GianlucaAlves",
+  "sourceSha": "34091cea77663141cbd843d82812dd5014198de1",
+  "productionFixSha": "e90a15b9d0a0343f7ea2ba6a0be169d70ceee7dc",
+  "started": "2026-11-24T12:59:11.222Z",
+  "durationMs": 175236.355,
+  "webServer": {
+    "command": "npm --prefix \"C:/Users/ealvgia/study/ABP-3DSM/.worktrees/fix-494-foco-simulacao/frontend\" run dev -- --host 127.0.0.1 --port 4207 --strictPort",
+    "url": "http://127.0.0.1:4207",
+    "reuseExistingServer": false,
+    "env": {
+      "VITE_GOOGLE_SSO_ENABLED": "true"
+    }
+  },
+  "tests": [
+    {
+      "title": "CT-055 variações: região alterada durante requisição e falhas independentes das listas",
+      "viewport": "desktop",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 15914
+    },
+    {
+      "title": "CT-055 S1–S5 validação, ausência, pendência, cancelamento, retry e limpeza",
+      "viewport": "desktop",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 17352
+    },
+    {
+      "title": "CT-055 bug #494: Escape devolve foco ao acionador do seletor",
+      "viewport": "desktop",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 6129
+    },
+    {
+      "title": "CT-055 variações: região alterada durante requisição e falhas independentes das listas",
+      "viewport": "mobile",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 20336
+    },
+    {
+      "title": "CT-055 S1–S5 validação, ausência, pendência, cancelamento, retry e limpeza",
+      "viewport": "mobile",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 27891
+    },
+    {
+      "title": "CT-055 bug #494: Escape devolve foco ao acionador do seletor",
+      "viewport": "mobile",
+      "expectedStatus": "passed",
+      "status": "passed",
+      "durationMs": 7396
+    }
+  ]
+}
