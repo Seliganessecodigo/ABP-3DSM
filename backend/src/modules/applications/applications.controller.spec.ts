@@ -133,6 +133,7 @@ describe('catálogo de aplicações', () => {
     const app = moduleRef.createNestApplication()
     await app.listen(0, '127.0.0.1')
 
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(lastCheckedAt.getTime())
     try {
       const response = await fetch(new URL('/applications', await app.getUrl()))
 
@@ -153,6 +154,7 @@ describe('catálogo de aplicações', () => {
           reason: 'NO_OBSERVATION',
           lastObservationAt: null,
           isStale: false,
+          verificationOverdue: false,
           isCalculable: false,
           firstSeenAt: '2026-10-06T10:00:00.000Z',
           lastCheckedAt: '2026-10-06T10:05:00.000Z',
@@ -161,6 +163,7 @@ describe('catálogo de aplicações', () => {
         },
       ])
     } finally {
+      clock.mockRestore()
       await app.close()
     }
   })
