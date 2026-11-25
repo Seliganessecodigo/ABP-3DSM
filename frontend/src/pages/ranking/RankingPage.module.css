@@ -66,9 +66,6 @@
 .sortValue { padding: 0; border: 0; color: var(--text-primary); background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
 .metricBar { display: block; width: min(150px, 100%); height: 5px; margin-top: 5px; overflow: hidden; border-radius: 6px; background: var(--background-page); }
 .metricBar > span { display: block; height: 100%; border-radius: inherit; background: var(--accent-default); }
-.complete, .partial { font-size: 11px; }
-.tableScroll .complete, .complete { color: var(--accent-default); }
-.tableScroll .partial, .partial { color: var(--warning-foreground); }
 .detailLink { display: inline-grid; place-items: center; min-width: 28px; min-height: 28px; border-radius: 6px; color: var(--accent-default); font-size: 17px; }
 .detailLink svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
 .paginationCard { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 12px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); color: var(--text-secondary); font-size: 11px; }

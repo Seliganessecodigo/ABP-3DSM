@@ -1,7 +1,7 @@
 import { readPeriodSelection, readCustomAnalysisRange, type PeriodPreset } from '../../features/analysis/periodContext.ts'
 import type { EnvironmentalSummaryState } from '../../features/analysis/environmentalSummary.ts'
 
-export const dashboardSortColumns = ['name', 'state', 'region', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage'] as const
+export const dashboardSortColumns = ['name', 'state', 'region', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'collectionSuccessRate'] as const
 export type DashboardSortColumn = (typeof dashboardSortColumns)[number]
 export type DashboardSort = Readonly<{ column: DashboardSortColumn; direction: 'asc' | 'desc' }>
 export type DashboardPageSize = 5 | 10 | 15 | 20 | 'all'

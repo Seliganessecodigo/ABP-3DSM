@@ -1,5 +1,5 @@
 import { EnvironmentalAnalysisSeriesPointDto } from './environmental-analysis-series.dto'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import {
   EnvironmentalAnalysisCoverageDto,
   EnvironmentalAnalysisMeasureDto,
@@ -8,6 +8,9 @@ import {
 } from './environmental-analysis.dto'
 
 export class EnvironmentalAnalysisSummaryApplicationDto {
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0, maximum: 1, description: 'Share of successful scheduled collections. Null when no attempts were recorded.' })
+  collectionSuccessRate?: number | null
+
   @ApiProperty()
   applicationId!: string
 

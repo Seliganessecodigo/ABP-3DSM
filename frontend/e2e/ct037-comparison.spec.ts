@@ -41,7 +41,7 @@ async function mockComparison(page: Page, variant?: Variant) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`CT-037 S1–S3: períodos equivalentes e +50% (${viewport.width}px)`, async ({ page }) => {
+  test(`CT-037 S1–S3: períodos equivalentes e +50% (${viewport.width}px)`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport)
     const requests = await mockComparison(page)
     const content = page.locator('main')
@@ -51,7 +51,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
     await expect(content).toContainText('10/10/2026, 17:00 – 17/10/2026, 17:00')
     await expect(content).toContainText('Período anterior: 03/10/2026, 17:00 BRT – 10/10/2026, 17:00 BRT')
     await expect(content).toContainText('+50% (3 kWh / 2 kWh)')
-    await page.screenshot({ path: `test-evidence/ct037-s1-s3-${viewport.width}x${viewport.height}.png`, fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath(`ct037-s1-s3-${viewport.width}x${viewport.height}.png`), fullPage: true })
     await expect.poll(() => requests.length).toBeGreaterThanOrEqual(3)
     const previous = requests.find((range) => range.from === '2026-10-03T20:00:00.000Z')!
     const current = requests.find((range) => range.from === '2026-10-10T20:00:00.000Z')!

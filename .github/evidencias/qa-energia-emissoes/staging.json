@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-24T10:44:25.243Z",
+  "base": "https://app-greener-api-staging-brs-ecxiqsrl.azurewebsites.net",
+  "results": [
+    {
+      "route": "/applications",
+      "status": 200,
+      "body": {
+        "count": 8,
+        "firstId": "recommendation-ai"
+      },
+      "durationMs": 1704
+    },
+    {
+      "route": "/applications/recommendation-ai/collections/latest",
+      "error": "TimeoutError",
+      "durationMs": 15050
+    }
+  ]
+}

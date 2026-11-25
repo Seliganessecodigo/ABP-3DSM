@@ -6,9 +6,7 @@ Plataforma de monitoramento e análise ambiental de aplicações, desenvolvida n
 
 ## Visão geral
 
-O GreenER reúne métricas de aplicações e apresenta indicadores com período, unidade e contexto. O sistema distingue dados válidos de ausência, erro e observações desatualizadas.
-
-O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem.
+O GreenER reúne monitoramento contínuo, estimativas de energia e CO₂e e análise ambiental em uma plataforma integrada. Catálogo dinâmico, dashboard, histórico, ranking, comparação e simulação regional conectam a visão geral à investigação de cada aplicação, com indicadores rastreáveis até os dados e a metodologia de origem. Ausência, erro e observações desatualizadas são apresentados separadamente.
 
 Para conhecer o produto, consulte o [guia de uso](docs/guide/monitoring.md) e a [visão e escopo](docs/product/vision.md).
 

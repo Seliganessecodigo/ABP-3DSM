@@ -38,7 +38,8 @@ export async function createQualityFixture(port = 0, collectBeforeListening = fa
   const databaseUrl = new URL(process.env.TEST_DATABASE_URL)
   databaseUrl.pathname = `/${name}`
   const previous = new Map<string, string | undefined>()
-  const sources = { invalidSnapshot: false, failedMetrics: new Set<string>(), carbonUnavailable: false }
+  const sources = { invalidSnapshot: false, failedMetrics: new Set<string>(), carbonUnavailable: false,
+    responses: new Map<string, { status: number; body: unknown; delayMs?: number }>() }
   const requests: string[] = []
   const emails: Array<{ to: string; subject: string; text: string }> = []
   const location = { region_code: 'br-sudeste', country: 'Brazil', region: 'Sudeste', city: null,
@@ -46,6 +47,13 @@ export async function createQualityFixture(port = 0, collectBeforeListening = fa
   const upstream = createServer((request, response) => {
     const path = request.url ?? ''
     requests.push(path)
+    const override = sources.responses.get(path)
+    if (override) {
+      const send = () => response.writeHead(override.status, { 'content-type': 'application/json' }).end(JSON.stringify(override.body))
+      if (override.delayMs) setTimeout(send, override.delayMs)
+      else send()
+      return
+    }
     let body: unknown
     let status = 200
     if (path === '/services') {

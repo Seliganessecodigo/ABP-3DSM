@@ -302,6 +302,7 @@ export class EnvironmentalAnalysisSummaryService {
             energy,
             emissions,
             coverage,
+            ...(attemptCounts ? { collectionSuccessRate: attemptCounts.rates.get(application.id) ?? null } : {}),
           })
         }
       }
@@ -309,8 +310,8 @@ export class EnvironmentalAnalysisSummaryService {
       const scopeDuration = duration * filteredApplications.length
       return {
         ...(attemptCounts ? { collectionSuccess: {
-          ...attemptCounts,
-          rate: attemptCounts.total > 0 ? attemptCounts.successful / attemptCounts.total : null,
+          ...attemptCounts.counts,
+          rate: attemptCounts.counts.total > 0 ? attemptCounts.counts.successful / attemptCounts.counts.total : null,
         } } : {}),
         ...(!includeProvenance ? { provenanceIncluded: false } : {}),
         ...(granularity

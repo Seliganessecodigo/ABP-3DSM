@@ -13,6 +13,9 @@ export class EnvironmentalAnalysisRankingLocationDto {
 }
 
 export class EnvironmentalAnalysisRankingItemDto {
+  @ApiProperty({ type: Number, nullable: true, minimum: 0, maximum: 1 })
+  collectionSuccessRate!: number | null;
+
   @ApiProperty() applicationId!: string;
   @ApiProperty() name!: string;
   @ApiProperty({ enum: ["AVAILABLE", "UNAVAILABLE", "NO_METRICS", "REMOVED"] })
@@ -46,6 +49,9 @@ export class EnvironmentalAnalysisRankingScopeDto {
 }
 
 export class EnvironmentalAnalysisRankingPresentationDto {
+  @ApiProperty({ minimum: 0, description: "Maximum value of the ranking metric before pagination." })
+  maxValue!: number;
+
   @ApiProperty({ minimum: 0 }) rankedCount!: number;
   @ApiProperty({ minimum: 0 }) unrankedCount!: number;
 }

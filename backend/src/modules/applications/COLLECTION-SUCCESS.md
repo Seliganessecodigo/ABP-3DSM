@@ -2,6 +2,8 @@
 
 O Dashboard solicita `GET /analysis/summary?includeCollectionSuccess=true` para mostrar o sucesso das tentativas agendadas de **coleta de métricas**, independentemente da cobertura temporal dos resultados ambientais. A resposta ambiental, suas unidades e coberturas mantêm o comportamento anterior.
 
+O resumo com essa opção e o Ranking retornam `collectionSuccessRate` por aplicação. O valor vai de 0 a 1 e é `null` quando nenhuma tentativa foi registrada para a aplicação no recorte.
+
 Uma tentativa lógica corresponde à consulta de métricas de uma aplicação em um ciclo agendado; retries HTTP internos não multiplicam o denominador. Sucesso exige métricas válidas e observação persistida, incluindo a evidência calculada e a atualização operacional. Uma observação já persistida e reutilizada também é sucesso. Falhas de métricas ou persistência são insucessos; requisições canceladas antes da conclusão não entram na taxa. Erros de catálogo que impedem o início das consultas de métricas não são tentativas de métricas. Falhas de carbono permanecem independentes: não impedem o sucesso de uma coleta de métricas válidas e salvas.
 
 O runner acrescenta um evento de sistema `collection_attempt` em `application_events`, com aplicação, ciclo, instante de início da tentativa e `details: { succeeded: boolean, regionCode: string | null }`. A região é a da aplicação no momento da tentativa. São registros operacionais; não são alterações de usuários e não entram na auditoria administrativa. Falha ao registrar a tentativa marca o ciclo como parcial e registra um erro seguro; a taxa descreve **somente tentativas registradas**, sem inferir tentativas ausentes.

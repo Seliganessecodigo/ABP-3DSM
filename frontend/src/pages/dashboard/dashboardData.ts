@@ -50,6 +50,7 @@ function matchesSearch(row: DashboardRow, stateLabel: string, query: string): bo
   if (!query) return true
   return [row.name, stateLabel, row.regionCode ?? '', row.energy.value === null ? '' : `${row.energy.value} ${row.energy.unit}`,
     row.emissions.value === null ? '' : `${row.emissions.value} ${row.emissions.unit}`,
+    row.collectionSuccessRate == null ? '' : `${row.collectionSuccessRate * 100}%`,
     `${row.coverage.energy * 100}`, `${row.coverage.emissions * 100}`].some((value) => normalizedIncludes(value, query))
 }
 
@@ -87,6 +88,7 @@ export function selectDashboardRows(
       case 'emissions': return row.emissions.value
       case 'energyCoverage': return row.coverage.energy
       case 'emissionsCoverage': return row.coverage.emissions
+      case 'collectionSuccessRate': return row.collectionSuccessRate ?? null
     }
   }
   const items = [...filtered].sort((left, right) =>

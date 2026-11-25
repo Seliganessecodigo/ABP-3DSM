@@ -5,7 +5,7 @@ Capturas de Chromium em 1366×900 e 390×844, com `pt-BR` e `America/Sao_Paulo`.
 ## Capturas
 
 - Catálogo (capturas preliminares): `catalog-desktop-claro-preliminar.png`, `catalog-desktop-escuro-preliminar.png`, `catalog-mobile-claro-preliminar.png`, `catalog-mobile-dark-preliminar.png`.
-- Detalhe antes do ajuste: `detail-desktop-light-preliminar.png`, `detail-desktop-dark-preliminar.png`, `detail-mobile-light-preliminar.png`, `detail-mobile-dark-preliminar.png`.
+- Detalhe antes do ajuste: `detail-desktop-light-preliminar.png`, `detail-desktop-dark-preliminar.png`. No mobile, os arquivos antes/depois são idênticos. Veja as [capturas preliminares arquivadas](../README.md#arquivos-arquivados).
 - Detalhe depois do ajuste: `detail-desktop-light-pos-ajuste.png`, `detail-desktop-dark-pos-ajuste.png`, `detail-mobile-light-pos-ajuste.png`, `detail-mobile-dark-pos-ajuste.png`.
 - Detalhe alinhado ao frame anexado: `detail-desktop-light-figma-alinhado.png` (996×619) e `detail-mobile-light-figma-alinhado.png` (390×844).
 - Medidas antes/depois: `medidas-preliminares.json` e `medidas-pos-ajuste.json`.
