@@ -58,7 +58,7 @@ npm run lint
 npm run build
 ```
 
-Na raiz, `node .github/evidencias/qa-energia-emissoes/export.cjs` preserva o relatório reduzido e copia capturas/vídeos. Os horários precisos estão nos JSON de resultados. `backend/test/qa-energy-staging.cjs` reproduz apenas as leituras de staging.
+Na raiz, `node .github/evidencias/qa-energia-emissoes/export.cjs` preserva o relatório reduzido e copia capturas e vídeos. Os [vídeos desta rodada](../README.md#arquivos-arquivados) estão no índice. Os horários precisos estão nos JSON de resultados. `backend/test/qa-energy-staging.cjs` reproduz apenas as leituras de staging.
 
 Lint, typecheck e build do backend e lint/build do frontend passaram. Permanecem avisos preexistentes do ranking no lint e do tamanho do bundle Vite. Cobertura completa e demais navegadores não executados. CI e SonarQube Cloud Quality Gate da PR são obrigatórios antes do merge.
 

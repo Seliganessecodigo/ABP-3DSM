@@ -25,6 +25,10 @@ frontend/playwright-report/
 .DS_Store
 Thumbs.db
 
+# Local worktrees and scratch artifacts
+/.worktrees/
+/.artifacts/
+
 # Local planning notes
 /specs/
 /tickets/
