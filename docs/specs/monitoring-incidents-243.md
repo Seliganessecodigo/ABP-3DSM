@@ -1,5 +1,7 @@
 # Issue #243 — Monitoring failure and recovery
 
+> Registro histórico do escopo original da issue #243. Para os endpoints e permissões vigentes, consulte a [referência da API](../reference/api.md).
+
 ## Problem Statement
 
 Operators and public dashboard consumers cannot distinguish failures in GreenER's external monitoring integrations from valid empty or stale data, and the backend does not retain a queryable history of those failures. Collection retries, recovery, and persistence errors also need consistent semantics across startup and scheduled collection cycles.

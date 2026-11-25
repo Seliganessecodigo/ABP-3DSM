@@ -10,8 +10,8 @@ O frontend usou **API interceptada no navegador** para cenários determinístico
 
 | Caso | Resultado original | Evidência |
 | --- | --- | --- |
-| CT-052 / #424 | APROVADO | `ct052-*.png`, `ct052-desktop.webm`, `ct052-mobile.webm`, `browser.json` e testes HTTP |
-| CT-053 / #425 | APROVADO | `ct053-*.png`, `ct053-desktop.webm`, `ct053-mobile.webm`, `browser.json` e testes HTTP |
+| CT-052 / #424 | APROVADO | `ct052-*.png`, [vídeos arquivados](../README.md#arquivos-arquivados), `browser.json` e testes HTTP |
+| CT-053 / #425 | APROVADO | `ct053-*.png`, [vídeos arquivados](../README.md#arquivos-arquivados), `browser.json` e testes HTTP |
 | CT-055 / #427 | REPROVADO — foco após Escape | `ct055-bug494-*`, `browser.json` e [bug #494](https://github.com/Seliganessecodigo/ABP-3DSM/issues/494) |
 
 ### CT-052
@@ -74,4 +74,4 @@ Correção na [PR #497](https://github.com/Seliganessecodigo/ABP-3DSM/pull/497),
 - Falha de catálogo preserva seleção de região disponível; retry do catálogo recupera aplicação. Lista de regiões vazia mantém o envio bloqueado e não aparece como erro de integração. Falha/retry da lista de regiões também foi exercitada no fluxo principal.
 - S1–S5 novamente aprovados: URL inválida, fator ausente, sem energia, referência zero, pendência, voltar/avançar, cancelamento, 503/retry e cancelamento/confirmação da limpeza.
 
-Resultados, capturas e vídeos novos ficam em `reteste-494/`. A rodada original reprovada foi preservada. A aprovação corresponde à revisão corrigida local; não se afirma implantação do fix em staging ou merge da PR.
+Resultados e capturas ficam em `reteste-494/`. Os [vídeos do reteste](../README.md#arquivos-arquivados) estão no índice. A rodada original reprovada foi preservada. A aprovação corresponde à revisão corrigida local; não se afirma implantação do fix em staging ou merge da PR.

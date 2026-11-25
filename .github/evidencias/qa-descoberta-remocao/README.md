@@ -7,7 +7,7 @@ As três suítes de backend executadas em 23/11/2026 passaram: **22 testes, zero
 - `observado.json`: respostas HTTP, coletas, eventos e incidentes da rodada.
 - `testes.json`: títulos, resultados e duração dos 22 testes.
 - `browser-observado.json`: navegador, respostas reais e descoberta sem reload em cada viewport concluído em 24/11/2026.
-- `ct014-*.png` e `ct014-jornada-*.webm`: capturas e vídeos dos fluxos efetivamente concluídos.
+- `ct014-*.png` e [vídeos arquivados](../README.md#arquivos-arquivados): capturas e vídeos dos fluxos efetivamente concluídos.
 - `staging.json`: consulta pública adicional do catálogo; nenhum dado ou serviço auxiliar foi alterado em staging.
 
 ## Resultado por cenário
