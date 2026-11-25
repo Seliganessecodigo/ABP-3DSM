@@ -199,7 +199,7 @@ test('history intervals match the reference card layout and apply column filters
   await expect(intervals.getByRole('searchbox')).toBeVisible()
   await expect(intervals.getByRole('button', { name: 'Filtros por coluna', exact: true })).toBeVisible()
   await expect(intervals.getByRole('table').locator('tbody tr')).toHaveCount(3)
-  await expect(intervals.getByRole('table')).toContainText('100%')
+  await expect(intervals.getByRole('table')).toContainText('Sucesso das coletas 50%')
   await expect(intervals.locator('.state-badge')).toHaveCount(3)
   await expect(intervals.locator('.state-no_metrics')).toContainText('Sem métricas')
   await expect(intervals.getByLabel('Momento')).toHaveCount(0)
