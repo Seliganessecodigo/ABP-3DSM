@@ -347,7 +347,6 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           historyNoContributions: tDetail('historyNoContributions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
           equivalentFactor: tDetail('analysisEquivalentFactor'), factorExplanation: tDetail('analysisFactorExplanation'), energyWithEmissions: tDetail('analysisEnergyWithEmissions'),
-          energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {
             heading: tDetail('analysisCompositionHeading'),

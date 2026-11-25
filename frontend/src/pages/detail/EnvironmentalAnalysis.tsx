@@ -32,8 +32,6 @@ type Labels = Readonly<{
   historyNoContributions: string
   columnFilters: string
   coverage: string
-  energyCoverage: string
-  emissionsCoverage: string
   factorsHeading: string
   methodologyHeading: string
   composition: AnalysisCompositionLabels
@@ -165,11 +163,6 @@ function Reading({ reading, locale, notCalculable, metricUnavailable, reasons }:
 
 function formatAnalysisNumber(value: number, locale: string) {
   return formatNumber(value, locale)
-}
-
-function partialCoverageLabel(reading: AnalysisReading | null | undefined, locale: string) {
-  if (reading?.status !== 'available' || reading.unit !== 'fraction' || reading.value >= 1) return null
-  return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(reading.value)
 }
 
 function contributionLabels(labels: Labels, historyLayout = false) {
@@ -489,16 +482,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   const methodologyVersions = data?.methodology.status === 'available'
     ? [...new Set(data.methodology.entries.map(({ version }) => version))] : []
   const historyMethodologyFallback = methodologyVersions.length === 1 ? methodologyVersions[0] : null
-  const historyHasMetrics = historyMode && showData && data !== null
-  const energyCoverage = partialCoverageLabel(data?.energyCoverage, locale)
-  const emissionsCoverage = partialCoverageLabel(data?.emissionsCoverage, locale)
-  const partialCoverage = historyHasMetrics && data
-    ? energyCoverage !== null && energyCoverage === emissionsCoverage
-      ? energyCoverage
-      : [[labels.energyCoverage, energyCoverage], [labels.emissionsCoverage, emissionsCoverage]]
-        .map(([label, value]) => value === null ? null : `${label} ${value}`)
-        .filter((value): value is string => value !== null).join(' · ')
-    : ''
+  const partialCoverage = historyMode && showData && data &&
+    [data.energyCoverage, data.emissionsCoverage].some(reading =>
+      reading.status === 'available' && reading.unit === 'fraction' && reading.value < 1)
   if (historyMode && inspectionBucket !== null) {
     const inspection = contributions?.data
     return <section className={styles.historyInspection} aria-label={labels.contributionHeading}>
@@ -533,7 +519,6 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {status === 'unavailable' && <output>{labels.unavailable}</output>}
       {status === 'unavailable' && data && <output>{labels.previousPreserved}</output>}
       {partialCoverage && <div className={styles.coverageNotice} role="status">
-        <strong>{labels.coverage}: {partialCoverage}</strong>
         <p>{labels.gapsNote}</p>
       </div>}
       {!operationalOverview && data?.series.status === 'available' && data.series.events && data.series.events.length > 0 && <ul className={styles.screenReaderOnly} aria-label={labels.seriesEventsHeading}>

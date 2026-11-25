@@ -14,7 +14,6 @@
 .analysisNotice p, .analysisNotice output { margin: 0; font-size: inherit; }
 .analysisNotice :global(.action-button) { min-height: 28px; padding: 4px 12px; }
 .coverageNotice { box-sizing: border-box; display: grid; flex: 1 0 100%; gap: 4px; border: 1px solid var(--warning-foreground); border-radius: 8px; padding: 10px 12px; color: var(--warning-foreground); background: var(--warning-background); }
-.coverageNotice strong { font-size: 13px; }
 .coverageNotice p { font-size: 12px; }
 .analysisError { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; }
 .seriesColumn, .evidenceColumn, .coverageColumn, .freshnessColumn, .contextColumn { min-width: 0; min-height: 0; }
@@ -166,7 +165,6 @@
   .historyLayout { gap: 8px; }
   .historyLayout .analysisNotice { margin-bottom: 4px; }
   .historyLayout .coverageNotice { gap: 0; padding: 2px 8px; }
-  .historyLayout .coverageNotice strong { font-size: 11px; }
   .historyLayout .coverageNotice p { font-size: 10px; line-height: 12px; }
   .historyLayout .metric { box-sizing: border-box; height: auto; min-height: 64px; padding: 7px 10px; }
   .historyLayout .metric h3 { margin-bottom: 3px; font-size: 10px; }

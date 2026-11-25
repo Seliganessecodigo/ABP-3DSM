@@ -111,7 +111,7 @@ test('history selection shows the environmental series and keeps its context', a
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('group', { name: 'Sucesso das coletas', exact: true })).toContainText('80%')
-  await expect(page.getByRole('status').filter({ hasText: '75%' })).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Lacunas não representam zero' })).toBeVisible()
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390)
   await expect(series.locator('table')).toHaveJSProperty('scrollWidth',
     await series.locator('table').evaluate(table => table.clientWidth))
