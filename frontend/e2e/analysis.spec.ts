@@ -150,9 +150,9 @@ test('preserva fatores originais separados com proveniência da fonte', async ({
 
 test('trocar idioma mantém o fuso selecionado nas datas operacional, ambiental e da série', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.route(/\/applications\/svc-0142\/collections\/collection-history$/, async (route) => {
+  await page.route(/\/applications\/svc-0142\/collections\/704d58f1-81ba-4326-93ce-c09028ef1cd1$/, async (route) => {
     await route.fulfill({ json: {
-      id: 'collection-history', applicationId: 'svc-0142', intervalStart: '2026-10-17T17:00:00.000Z',
+      id: '704d58f1-81ba-4326-93ce-c09028ef1cd1', applicationId: 'svc-0142', intervalStart: '2026-10-17T17:00:00.000Z',
       intervalEnd: '2026-10-17T17:30:00.000Z', collectedAt: '2026-10-17T17:32:00.000Z',
       collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
       lastCheckedAt: '2026-10-17T17:32:00.000Z', isCalculable: true,
@@ -165,7 +165,7 @@ test('trocar idioma mantém o fuso selecionado nas datas operacional, ambiental 
       environmental: { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null },
     } })
   })
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&seriesTimeZone=America%2FSao_Paulo&fixture=provenance')
   await page.locator('#analysis-details summary').click()
 
   const factors = page.getByRole('region', { name: 'Fatores aplicados' })
@@ -183,7 +183,7 @@ test('trocar idioma mantém o fuso selecionado nas datas operacional, ambiental 
   const params = new URL(page.url()).searchParams
   expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
 })
 
 test('preserva metodologia de energia mesmo sem fator de carbono calculável', async ({ page }) => {
@@ -283,7 +283,7 @@ test('alternar gráfico e tabela mantém os pontos acessíveis e os KPIs', async
 
 test('página a série em dez pontos por padrão e preserva o contexto da aplicação', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
@@ -304,20 +304,20 @@ test('página a série em dez pontos por padrão e preserva o contexto da aplica
   expect(params.get('seriesPage')).toBe('2')
   expect(params.get('seriesSize')).toBe('10')
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
 
   await series.getByRole('button', { name: 'Página anterior', exact: true }).click()
   await expect(table.getByRole('row')).toHaveCount(11)
   await expect(series.getByRole('button', { name: 'Página 1 de 2', exact: true })).toHaveAttribute('aria-current', 'page')
   params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/120\s*kWh/)
 })
 
 test('mostra a faixa e permite ir diretamente para uma página da série', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
@@ -331,13 +331,13 @@ test('mostra a faixa e permite ir diretamente para uma página da série', async
   await expect(series.getByText('Exibindo 11–12 de 12', { exact: true })).toBeVisible()
   expect(new URL(page.url()).searchParams.get('seriesPage')).toBe('2')
   expect(new URL(page.url()).searchParams.get('period')).toBe('7d')
-  expect(new URL(page.url()).searchParams.get('collectionId')).toBe('collection-history')
+  expect(new URL(page.url()).searchParams.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/120\s*kWh/)
 })
 
 test('busca a série nos valores exibidos e combina estados dos dois indicadores antes da página', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesPage=2&seriesSize=5&fixture=series-filters')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&seriesPage=2&seriesSize=5&fixture=series-filters')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
@@ -367,7 +367,7 @@ test('busca a série nos valores exibidos e combina estados dos dois indicadores
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/120\s*kWh/)
   const params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   expect(params.has('seriesPage')).toBe(false)
   expect(params.get('seriesSize')).toBe('5')
   expect(params.get('seriesSearch')).toBe('0,5 KG CO₂E')
@@ -391,7 +391,7 @@ test('mantém valores ambientais positivos pequenos em vez de exibi-los como zer
 
 test('filtra pontos por instante local em AND com status e reinicia a paginação', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesPage=2&seriesSize=5&fixture=series-dates')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&seriesPage=2&seriesSize=5&fixture=series-dates')
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
@@ -415,7 +415,7 @@ test('filtra pontos por instante local em AND com status e reinicia a paginaçã
 
   const params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   expect(params.get('seriesSize')).toBe('5')
   expect(params.has('seriesPage')).toBe(false)
   expect(params.get('seriesFrom')).toBe('2026-10-17T13:00:00.000Z')
@@ -426,7 +426,7 @@ test('filtra pontos por instante local em AND com status e reinicia a paginaçã
 
 test('filtra e ordena valores numéricos por unidade e mantém ausências no fim', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-numeric')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=series-numeric')
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
@@ -467,7 +467,7 @@ test('filtra e ordena valores numéricos por unidade e mantém ausências no fim
 
   const params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   expect(params.get('seriesEnergyUnit')).toBe('kWh')
   expect(params.has('seriesEnergyMin')).toBe(false)
   expect(params.has('seriesEnergyMax')).toBe(false)
@@ -475,7 +475,7 @@ test('filtra e ordena valores numéricos por unidade e mantém ausências no fim
 
 test('mantém pontos com unidades mistas e libera a faixa numérica após escolher a unidade', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-mixed-units')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=series-mixed-units')
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
@@ -511,14 +511,14 @@ test('mantém pontos com unidades mistas e libera a faixa numérica após escolh
   const params = new URL(page.url()).searchParams
   expect(params.get('seriesEnergyUnit')).toBe('Wh')
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
 })
 
 test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o ponto após o limite', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ baseURL, locale: 'pt-BR', timezoneId: 'UTC' })
   const page = await context.newPage()
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesFrom=2026-10-17T13%3A00%3A00.000Z&seriesTo=2026-10-17T15%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&seriesFrom=2026-10-17T13%3A00%3A00.000Z&seriesTo=2026-10-17T15%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&fixture=series-dates')
 
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões' })
   await series.getByRole('button', { name: 'Tabela', exact: true }).click()
@@ -541,7 +541,7 @@ test('restaura instantes ISO no fuso salvo ao reabrir em outro fuso e exclui o p
   expect(params.get('seriesTo')).toBe('2026-10-17T15:00:00.000Z')
   expect(params.get('seriesTimeZone')).toBe('America/Sao_Paulo')
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
   await context.close()
 })
 

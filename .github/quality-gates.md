@@ -5,7 +5,7 @@
 - Documentation site production build, with dead-link validation and cross-locale content/contract checks.
 - Frontend lint, Playwright tests, and production build.
 - Backend lint, typecheck, unit/integration tests, production build, and database migrations against a temporary PostgreSQL service. This job also runs the browser flow against the real backend with local HTTP sources and a separate database created by real migrations (`frontend/npm run test:integration`; see `backend/test/README.md`).
-- SonarQube Cloud Quality Gate on pull requests to `develop`, with backend LCOV coverage, and main-branch analysis on pushes to `main`.
+- SonarQube Cloud Quality Gate on pull requests to `develop` and `main`, with backend LCOV coverage, and main-branch analysis on pushes to `main`. The release PR checks the complete diff against `main` before merge.
 
 The `Deploy staging` workflow calls this same CI workflow as a required job. On pushes to `develop`, it skips SonarQube branch analysis because the current SonarQube plan only exposes analysis results for the main branch. Frontend/backend checks still gate staging deployment. Pull request analysis remains part of the merge checks, and pushes to `main` run SonarQube against the main branch.
 

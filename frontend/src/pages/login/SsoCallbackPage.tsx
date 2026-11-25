@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { type TotpProvisioning } from '../../features/authentication/api.ts'
-import { redirectToGoogleSso, ssoInvitationStorageKey, ssoVerifierStorageKey } from '../../features/authentication/sso.ts'
+import { readSsoInvitation, redirectToGoogleSso, ssoInvitationStorageKey, ssoVerifierStorageKey } from '../../features/authentication/sso.ts'
 import { TotpAuthenticationStep } from '../../components/TotpAuthenticationStep.tsx'
 import styles from './LoginPage.module.css'
 
@@ -62,7 +62,7 @@ export function SsoCallbackPage({ navigate }: Readonly<{ navigate: (url: string)
 
   async function retry() {
     setCallback((current) => current ? { ...current, failed: false } : current)
-    try { await redirectToGoogleSso(sessionStorage.getItem(ssoInvitationStorageKey) ?? undefined) }
+    try { await redirectToGoogleSso(readSsoInvitation(sessionStorage.getItem(ssoInvitationStorageKey))) }
     catch { setCallback((current) => current ? { ...current, failed: true } : current) }
   }
 

@@ -3,6 +3,10 @@ import { googleSsoStartUrl } from './api.ts'
 export const ssoInvitationStorageKey = 'greener.sso.invite'
 export const ssoVerifierStorageKey = 'greener.sso.verifier'
 
+export function readSsoInvitation(value: string | null): string | undefined {
+  return value?.match(/^[A-Za-z0-9_-]{64}$/)?.[0]
+}
+
 export async function redirectToGoogleSso(invitation?: string): Promise<void> {
   const bytes = crypto.getRandomValues(new Uint8Array(32))
   const verifier = base64Url(bytes)
