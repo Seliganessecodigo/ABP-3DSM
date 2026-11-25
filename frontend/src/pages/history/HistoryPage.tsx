@@ -11,6 +11,7 @@ import { ApplicationDetailPage } from '../detail/ApplicationDetailPage.tsx'
 import { PeriodSelector } from '../detail/PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, urlWithPeriod } from '../../features/analysis/periodContext.ts'
 import { stateLabel } from '../../features/applications/presentation.ts'
+import { currentApplicationState } from '../../features/applications/catalog.ts'
 import styles from './HistoryPage.module.css'
 
 function applicationIdFromLocation() {
@@ -90,7 +91,7 @@ export function HistoryPage({ navigate }: Readonly<{ navigate: (url: string) => 
         className={styles.applicationRow} onClick={() => selectApplication(application.id)}>
         <span className={styles.applicationIdentity}><span className={styles.applicationName}>{application.name}</span><span className={styles.applicationId}>{application.id}</span></span>
         <span className={styles.applicationLocation}>{application.location ? [application.location.country, application.location.region].join(' · ') : tCommon('location.unknown')}</span>
-        <span className={styles.applicationState}><span className={`state-badge state-${application.state.toLowerCase()}`} aria-label={t('currentState', { state: stateLabel(application.state, tCommon) })}>{stateLabel(application.state, tCommon)}</span></span>
+        <span className={styles.applicationState}><span className={`state-badge state-${currentApplicationState(application).toLowerCase()}`} aria-label={t('currentState', { state: stateLabel(currentApplicationState(application), tCommon) })}>{stateLabel(currentApplicationState(application), tCommon)}</span></span>
         <span className={styles.applicationAction}>{t('openHistory')}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg></span>
       </button>)}</div>
     </section>}

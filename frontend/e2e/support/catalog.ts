@@ -15,6 +15,7 @@ export interface ApplicationResponse {
   reason: 'NO_OBSERVATION' | 'METRICS_VALID' | 'METRICS_MISSING' | 'SOURCE_TIMEOUT' | 'SOURCE_ERROR' | 'REQUIRED_FIELD_MISSING' | 'INVALID_FIELD' | 'MONITORING_CYCLE_DELAYED' | 'CARBON_FACTOR_UNAVAILABLE' | 'REMOVAL_CONFIRMED'
   lastObservationAt: string | null
   isStale: boolean
+  verificationOverdue?: boolean
   isCalculable: boolean
   firstSeenAt: string
   lastCheckedAt: string | null

@@ -35,6 +35,7 @@ select.form-control { appearance: none; padding-inline-end: 36px; background-ima
 .identifier { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 10px; }
 .state-badge { display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; border-radius: 99px; padding: 4px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .state-available { border-color: var(--success-foreground); color: var(--success-foreground); background: var(--success-background); }
+.state-unverified { border-color: var(--warning-foreground); color: var(--warning-foreground); background: var(--warning-background); white-space: normal; }
 .state-unavailable { border-color: var(--error-foreground); color: var(--error-foreground); background: var(--error-background); }
 .state-no_metrics { border-color: var(--warning-foreground); color: var(--warning-foreground); background: var(--warning-background); }
 .state-removed { border-color: var(--neutral-foreground); color: var(--neutral-foreground); background: var(--neutral-background); }

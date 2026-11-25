@@ -1,6 +1,23 @@
 import { expect, test } from '@playwright/test'
 import { application, gate, largeCatalog, mixedCatalog, mockApi, mockCatalog, row, search, unavailable } from './support/catalog.ts'
 
+test('distingue disponibilidade confirmada, falha registrada e verificação vencida', async ({ page }) => {
+  await mockCatalog(page, [
+    application(),
+    application({ id: 'expired', name: 'app-sem-verificacao', verificationOverdue: true, isStale: true }),
+    application({ id: 'failed', name: 'app-com-falha', state: 'UNAVAILABLE', reason: 'SOURCE_TIMEOUT', isStale: true }),
+  ])
+  await page.goto('/applications')
+  await expect(row(page, 'svc-0142')).toContainText('Disponível')
+  await expect(row(page, 'expired')).toContainText('Sem verificação recente')
+  await expect(row(page, 'expired').locator('.state-available')).toHaveCount(0)
+  await expect(row(page, 'failed')).toContainText('Indisponível')
+  await page.getByRole('button', { name: 'Disponível (1)', exact: true }).click()
+  await expect(row(page, 'expired')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Sem verificação recente (1)', exact: true }).click()
+  await expect(row(page, 'expired')).toBeVisible()
+})
+
 test('gestor consulta uma aplicação reconhecida pelo nome e ID sem login', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/applications', { waitUntil: 'domcontentloaded' })

@@ -1,7 +1,7 @@
-import type { ApplicationState as State, CatalogColumnFilters, CatalogQuery, CatalogSortColumn, CatalogSortDirection } from '../../features/applications/catalog.ts'
+import type { CatalogState as State, CatalogColumnFilters, CatalogQuery, CatalogSortColumn, CatalogSortDirection } from '../../features/applications/catalog.ts'
 
 export const states: Array<{ value: State | 'ALL' }> = [
-  { value: 'ALL' }, { value: 'AVAILABLE' }, { value: 'UNAVAILABLE' }, { value: 'NO_METRICS' }, { value: 'REMOVED' },
+  { value: 'ALL' }, { value: 'AVAILABLE' }, { value: 'UNAVAILABLE' }, { value: 'NO_METRICS' }, { value: 'REMOVED' }, { value: 'UNVERIFIED' },
 ]
 const pageSizes = ['5', '10', '15', '20', 'all'] as const
 const sortColumns: CatalogSortColumn[] = ['name', 'country', 'regionCode', 'city', 'state', 'lastCheckedAt']

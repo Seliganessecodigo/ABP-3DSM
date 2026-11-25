@@ -41,7 +41,7 @@ test.beforeEach(async ({ page }) => {
         coverage: { energy: 0.75, emissions: 0.75 },
         points: [
           { bucketStart: '2026-10-27T00:00:00.000Z', bucketEnd: '2026-10-27T01:00:00.000Z',
-            energy: { value: 1, unit: 'kWh', reasons: [] }, emissions: { value: 400, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 } },
+            energy: { value: 1, unit: 'kWh', reasons: [] }, emissions: { value: 400, unit: 'gCO2e', reasons: [] }, coverage: { energy: 1, emissions: 1 }, collectionSuccessRate: 0.5 },
           { bucketStart: '2026-10-27T01:00:00.000Z', bucketEnd: '2026-10-27T02:00:00.000Z',
             energy: { value: null, unit: 'kWh', reasons: [{ code: 'NO_OBSERVATION' }] },
             emissions: { value: null, unit: 'gCO2e', reasons: [{ code: 'NO_OBSERVATION' }] }, coverage: { energy: 0, emissions: 0 } },
@@ -56,6 +56,7 @@ test.beforeEach(async ({ page }) => {
     await route.fulfill({ json: {
       status: 'available', applicationId: 'svc-0142', period,
       energy: { value: 3, unit: 'kWh', reasons: [] },
+      collectionSuccessRate: 0.8,
       emissions: { value: 1200, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 0.75, emissions: 0.75 },
       provenance: { methodologies: [], factors: [], reasons: [] },
@@ -73,7 +74,7 @@ test('history selection shows the environmental series and keeps its context', a
   await expect(page.getByRole('combobox', { name: 'Período de análise', exact: true })).toHaveValue('7d')
   await expect(page.getByText('Intervalos do histórico', { exact: true })).toBeVisible()
   await expect(page.locator('main [class*="metrics"] > fieldset > h3'))
-    .toHaveText(['Energia', 'CO₂e', 'Cobertura', 'Contexto do cálculo'])
+    .toHaveText(['Energia', 'CO₂e', 'Sucesso das coletas', 'Contexto do cálculo'])
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
   await expect(series.getByRole('button', { name: 'Comparar métricas', exact: true })).toBeVisible()
   await expect(series.getByRole('figure')).toHaveCount(1)
@@ -96,6 +97,8 @@ test('history selection shows the environmental series and keeps its context', a
   await expect(series.getByRole('button', { name: /Energia.*kWh/ }).first()).toBeVisible()
   await expect(series.getByRole('button', { name: /CO₂e.*gCO2e/ }).first()).toBeVisible()
   await expect(series.getByRole('table')).toContainText('Sem observações disponíveis')
+  await expect(series.getByRole('columnheader', { name: 'Sucesso das coletas' })).toBeVisible()
+  await expect(series.getByRole('cell', { name: '50%', exact: true })).toBeVisible()
 
   await expect(series.getByRole('region', { name: 'Eventos do período', exact: true })).toHaveCount(0)
   expect(new URL(page.url()).pathname).toBe('/history')
@@ -107,7 +110,7 @@ test('history selection shows the environmental series and keeps its context', a
   await series.getByRole('combobox', { name: 'Itens por página', exact: true }).selectOption('5')
 
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.getByRole('heading', { name: 'Cobertura', exact: true })).toBeVisible()
+  await expect(page.getByRole('group', { name: 'Sucesso das coletas', exact: true })).toContainText('80%')
   await expect(page.getByRole('status').filter({ hasText: '75%' })).toBeVisible()
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390)
   await expect(series.locator('table')).toHaveJSProperty('scrollWidth',

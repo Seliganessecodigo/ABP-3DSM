@@ -72,6 +72,7 @@ export class EnvironmentalAnalysisRankingController {
       "emissions",
       "energyCoverage",
       "emissionsCoverage",
+      "collectionSuccessRate",
       "rankability",
       "position",
       "participation",
@@ -164,6 +165,9 @@ export class EnvironmentalAnalysisRankingController {
     maximum: 1,
   })
   @ApiQuery({ name: "positionMin", required: false, type: Number, minimum: 1 })
+  @ApiQuery({ name: "collectionSuccessRateMin", required: false, type: Number, minimum: 0, maximum: 1 })
+  @ApiQuery({ name: "collectionSuccessRateMax", required: false, type: Number, minimum: 0, maximum: 1 })
+  @ApiQuery({ name: "collectionSuccessRateMissing", required: false, enum: ["true", "false"] })
   @ApiQuery({ name: "positionMax", required: false, type: Number, minimum: 1 })
   @ApiQuery({
     name: "positionMissing",

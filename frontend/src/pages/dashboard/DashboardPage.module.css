@@ -83,7 +83,7 @@
 .stateBadge strong { font: inherit; }
 .stateAVAILABLE { color: var(--success-foreground); background: var(--success-background); }
 .stateUNAVAILABLE { color: var(--error-foreground); background: var(--error-background); }
-.stateNO_METRICS { color: var(--warning-foreground); background: var(--warning-background); }
+.stateNO_METRICS, .stateUNVERIFIED { color: var(--warning-foreground); background: var(--warning-background); }
 .stateREMOVED { color: var(--neutral-foreground); background: var(--neutral-background); }
 .dataAsOf { margin: var(--space-3) 0 var(--space-6); font-size: 10px; }
 .visualizations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }

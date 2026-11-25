@@ -1,5 +1,5 @@
 import { readPeriodSelection, readCustomAnalysisRange, type PeriodPreset } from '../../features/analysis/periodContext.ts'
-import type { EnvironmentalSummaryState } from '../../features/analysis/environmentalSummary.ts'
+import type { CatalogState } from '../../features/applications/catalog.ts'
 
 export const dashboardSortColumns = ['name', 'state', 'region', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'collectionSuccessRate'] as const
 export type DashboardSortColumn = (typeof dashboardSortColumns)[number]
@@ -7,7 +7,7 @@ export type DashboardSort = Readonly<{ column: DashboardSortColumn; direction: '
 export type DashboardPageSize = 5 | 10 | 15 | 20 | 'all'
 export type DashboardTableFilters = Readonly<{
   name: string
-  state: EnvironmentalSummaryState | 'ALL'
+  state: CatalogState | 'ALL'
   region: string
   energyMin: string
   energyMax: string
@@ -19,6 +19,8 @@ export type DashboardTableFilters = Readonly<{
   energyCoverageMax: string
   emissionsCoverageMin: string
   emissionsCoverageMax: string
+  collectionSuccessMin: string
+  collectionSuccessMax: string
 }>
 export type DashboardQuery = Readonly<{
   period: PeriodPreset | null
@@ -26,7 +28,7 @@ export type DashboardQuery = Readonly<{
   granularity?: 'hour' | 'day' | 'month' | 'year'
   range?: Readonly<{ from: string; to: string }>
   regionCode: string
-  state: EnvironmentalSummaryState | 'ALL'
+  state: CatalogState | 'ALL'
   search: string
   page: number
   pageSize: DashboardPageSize
@@ -36,12 +38,12 @@ export type DashboardQuery = Readonly<{
 
 const defaultSort: DashboardSort = { column: 'emissions', direction: 'desc' }
 const pageSizes: readonly (string | number)[] = [5, 10, 15, 20, 'all']
-const states: readonly (EnvironmentalSummaryState | 'ALL')[] = ['ALL', 'AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
+const states: readonly (CatalogState | 'ALL')[] = ['ALL', 'AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED', 'UNVERIFIED']
 const managedParameters = [
   'period', 'granularity', 'from', 'to', 'regionCode', 'dashboardState', 'q', 'page', 'size', 'sort', 'direction',
   'tableName', 'tableState', 'tableRegion', 'energyMin', 'energyMax', 'energyMissing',
   'emissionsMin', 'emissionsMax', 'emissionsMissing', 'energyCoverageMin', 'energyCoverageMax',
-  'emissionsCoverageMin', 'emissionsCoverageMax',
+  'emissionsCoverageMin', 'emissionsCoverageMax', 'collectionSuccessMin', 'collectionSuccessMax',
 ]
 
 function positiveInteger(value: string | null, fallback: number): number {
@@ -50,7 +52,7 @@ function positiveInteger(value: string | null, fallback: number): number {
 }
 
 function readFilters(params: URLSearchParams): DashboardTableFilters {
-  const state = params.get('tableState') as EnvironmentalSummaryState | null
+  const state = params.get('tableState') as CatalogState | null
   return {
     name: params.get('tableName') ?? '',
     state: states.includes(state ?? 'ALL') ? state ?? 'ALL' : 'ALL',
@@ -65,13 +67,15 @@ function readFilters(params: URLSearchParams): DashboardTableFilters {
     energyCoverageMax: params.get('energyCoverageMax') ?? '',
     emissionsCoverageMin: params.get('emissionsCoverageMin') ?? '',
     emissionsCoverageMax: params.get('emissionsCoverageMax') ?? '',
+    collectionSuccessMin: params.get('collectionSuccessMin') ?? '',
+    collectionSuccessMax: params.get('collectionSuccessMax') ?? '',
   }
 }
 
 export function readDashboardQuery(search: string): DashboardQuery {
   const params = new URLSearchParams(search)
   const period = readPeriodSelection(search)
-  const state = params.get('dashboardState') as EnvironmentalSummaryState | null
+  const state = params.get('dashboardState') as CatalogState | null
   const sortColumn = params.get('sort') as DashboardSortColumn | null
   const direction = params.get('direction')
   const size = params.get('size') ?? '10'
@@ -111,7 +115,7 @@ export function dashboardQueryUrl(query: DashboardQuery): string {
   if (filters.name) params.set('tableName', filters.name)
   if (filters.state !== 'ALL') params.set('tableState', filters.state)
   if (filters.region) params.set('tableRegion', filters.region)
-  for (const key of ['energyMin', 'energyMax', 'emissionsMin', 'emissionsMax', 'energyCoverageMin', 'energyCoverageMax', 'emissionsCoverageMin', 'emissionsCoverageMax'] as const) {
+  for (const key of ['energyMin', 'energyMax', 'emissionsMin', 'emissionsMax', 'energyCoverageMin', 'energyCoverageMax', 'emissionsCoverageMin', 'emissionsCoverageMax', 'collectionSuccessMin', 'collectionSuccessMax'] as const) {
     if (filters[key]) params.set(key, filters[key])
   }
   for (const key of ['energyMissing', 'emissionsMissing'] as const) {

@@ -1,9 +1,15 @@
 export type ApplicationState = 'AVAILABLE' | 'UNAVAILABLE' | 'NO_METRICS' | 'REMOVED'
+export type CatalogState = ApplicationState | 'UNVERIFIED'
+
+export function currentApplicationState(application: { state: ApplicationState; verificationOverdue?: boolean }): CatalogState {
+  return application.state === 'AVAILABLE' && application.verificationOverdue ? 'UNVERIFIED' : application.state
+}
 
 export interface CatalogEntry {
   id: string
   name: string
   state: ApplicationState
+  verificationOverdue?: boolean
   location: {
     regionCode: string
     region: string
@@ -25,14 +31,14 @@ export interface CatalogColumnFilters {
   regionCode?: string
   city?: string
   cityIsMissing?: boolean
-  state?: ApplicationState | 'ALL'
+  state?: CatalogState | 'ALL'
   lastCheckedFrom?: string
   lastCheckedTo?: string
 }
 
 export interface CatalogQuery {
   search: string
-  state: ApplicationState | 'ALL'
+  state: CatalogState | 'ALL'
   regionCode: string
   page: number
   pageSize: number | 'all'
@@ -50,7 +56,7 @@ export interface CatalogPage<T extends CatalogEntry> {
 export interface CatalogPresentation {
   locale: string
   timeZone: string
-  stateLabels: Record<ApplicationState, string>
+  stateLabels: Record<ApplicationState, string> & Partial<Record<'UNVERIFIED', string>>
 }
 
 function normalize(value: string): string {
@@ -84,6 +90,7 @@ export function selectCatalog<T extends CatalogEntry>(
     timeZone: 'UTC',
     stateLabels: {
       AVAILABLE: 'Available',
+      UNVERIFIED: 'No recent check',
       UNAVAILABLE: 'Unavailable',
       NO_METRICS: 'No metrics',
       REMOVED: 'Removed',
@@ -102,6 +109,7 @@ export function selectCatalog<T extends CatalogEntry>(
   const collator = new Intl.Collator(presentation.locale, { sensitivity: 'base', numeric: true })
 
   const filtered = applications.filter((application) => {
+    const state = currentApplicationState(application)
     const country = application.location?.country
     const regionCode = application.location?.regionCode
     const city = application.location?.city
@@ -113,7 +121,7 @@ export function selectCatalog<T extends CatalogEntry>(
       country,
       regionCode,
       city,
-      presentation.stateLabels[application.state],
+      presentation.stateLabels[state],
       checkedAt && new Intl.DateTimeFormat(presentation.locale, {
         day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
         timeZone: presentation.timeZone, timeZoneName: 'short',
@@ -125,8 +133,8 @@ export function selectCatalog<T extends CatalogEntry>(
     const matchesCity = filters.cityIsMissing
       ? city === null || city === undefined || city === ''
       : matchesText(city, cityTerm)
-    const matchesGlobalState = query.state === 'ALL' || application.state === query.state
-    const matchesColumnState = columnState === undefined || columnState === 'ALL' || application.state === columnState
+    const matchesGlobalState = query.state === 'ALL' || state === query.state
+    const matchesColumnState = columnState === undefined || columnState === 'ALL' || state === columnState
     const matchesFrom = from === undefined || (checkedInstant !== undefined && checkedInstant >= from)
     const matchesTo = to === undefined || (checkedInstant !== undefined && checkedInstant <= to)
 
@@ -142,13 +150,13 @@ export function selectCatalog<T extends CatalogEntry>(
       : sort.column === 'country' ? left.location?.country
         : sort.column === 'regionCode' ? left.location?.regionCode
           : sort.column === 'city' ? left.location?.city
-            : sort.column === 'state' ? presentation.stateLabels[left.state]
+            : sort.column === 'state' ? presentation.stateLabels[currentApplicationState(left)]
               : parseInstant(left.lastCheckedAt ?? undefined)
     const rightValue = sort.column === 'name' ? right.name
       : sort.column === 'country' ? right.location?.country
         : sort.column === 'regionCode' ? right.location?.regionCode
           : sort.column === 'city' ? right.location?.city
-            : sort.column === 'state' ? presentation.stateLabels[right.state]
+            : sort.column === 'state' ? presentation.stateLabels[currentApplicationState(right)]
               : parseInstant(right.lastCheckedAt ?? undefined)
 
     if (leftDateMissing !== rightDateMissing) return leftDateMissing ? 1 : -1

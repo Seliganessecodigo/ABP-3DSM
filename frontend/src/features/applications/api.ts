@@ -53,6 +53,7 @@ export function parseApplication(value: unknown): Application {
     !['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'].includes(String(value.state)) ||
     !reasons.has(value.reason as ApplicationStateReason) || !(value.lastObservationAt === null || isDate(value.lastObservationAt)) ||
     typeof value.isStale !== 'boolean' || typeof value.isCalculable !== 'boolean' ||
+    (value.verificationOverdue !== undefined && typeof value.verificationOverdue !== 'boolean') ||
     !isDate(value.firstSeenAt) || !isDate(value.updatedAt) ||
     !(value.lastCheckedAt === null || isDate(value.lastCheckedAt)) || !(value.removedAt === null || isDate(value.removedAt))) {
     throw new Error('Resposta incompatível com o catálogo')
@@ -67,6 +68,7 @@ export function parseApplication(value: unknown): Application {
       city: raw.city as string | null, latitude: raw.latitude, longitude: raw.longitude }
   }
   return { id: value.id, name: value.name, state: value.state as State, reason: value.reason as ApplicationStateReason,
+    ...(value.verificationOverdue !== undefined ? { verificationOverdue: value.verificationOverdue } : {}),
     lastObservationAt: value.lastObservationAt as string | null, isStale: value.isStale, isCalculable: value.isCalculable, location,
     firstSeenAt: value.firstSeenAt, lastCheckedAt: value.lastCheckedAt, removedAt: value.removedAt, updatedAt: value.updatedAt }
 }

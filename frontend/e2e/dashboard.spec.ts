@@ -345,7 +345,7 @@ test('summary filter preserves the period and applies the historical region filt
   await mockSummary(page, (url) => {
     requests.push(url)
     const selectedRegion = url.searchParams.get('regionCodes')
-    const selectedState = url.searchParams.get('states')
+    const selectedState = url.searchParams.get('currentStates')
     const results = [
       contribution('svc-1', 'api-sao-paulo', 8.4, { state: 'AVAILABLE' }),
       contribution('svc-2', 'api-virginia', 4.2, { state: 'UNAVAILABLE' }),
@@ -361,7 +361,7 @@ test('summary filter preserves the period and applies the historical region filt
   await page.getByLabel('Estado atual').selectOption('UNAVAILABLE')
   await page.getByLabel('Região histórica').selectOption('US-VA')
 
-  await expect.poll(() => requests.at(-1)?.searchParams.get('states')).toBe('UNAVAILABLE')
+  await expect.poll(() => requests.at(-1)?.searchParams.get('currentStates')).toBe('UNAVAILABLE')
   await expect.poll(() => requests.at(-1)?.searchParams.get('regionCodes')).toBe('US-VA')
   await expect.poll(() => requests.at(-1)?.searchParams.get('from')).toBeTruthy()
   await expect(page).toHaveURL(/dashboard\?.*period=90d.*regionCode=US-VA.*dashboardState=UNAVAILABLE/)

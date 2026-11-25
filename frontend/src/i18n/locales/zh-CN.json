@@ -37,6 +37,7 @@
   "date.noObservation": "暂无观测记录",
   "state.ALL": "全部",
   "state.AVAILABLE": "可用",
+  "state.UNVERIFIED": "近期未验证",
   "state.UNAVAILABLE": "不可用",
   "state.NO_METRICS": "无指标",
   "state.REMOVED": "已移除",

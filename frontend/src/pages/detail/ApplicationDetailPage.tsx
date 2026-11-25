@@ -11,6 +11,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate, formatDateRangeBoundary } from '../../utils/formatDate.ts'
 import { reasonLabel, stateLabel } from '../../features/applications/presentation.ts'
+import { currentApplicationState } from '../../features/applications/catalog.ts'
 import { useApplicationDetail } from './useApplicationDetail.ts'
 import { PeriodSelector } from './PeriodSelector.tsx'
 import { periodPresets, readPeriodSelection, readCustomAnalysisRange, urlWithPeriod, type PeriodPreset } from '../../features/analysis/periodContext.ts'
@@ -68,6 +69,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
   const { t: tDetail, i18n } = useTranslation('detail')
   const personalAlerts = usePersonalAlerts()
   const { t: tCommon } = useTranslation('common')
+  const { t: tDashboard } = useTranslation('dashboard')
   const analysisDefaultsReady = useAnalysisDefaults()
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
   const selectedCollectionId = new URLSearchParams(window.location.search).get('collectionId')
@@ -196,7 +198,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
         filteredCount: (count, total) => tDetail('evidenceFilteredCount', { count, total }),
         metrics: { cpu: tDetail('metricCpu'), memory: tDetail('metricMemory'), disk: tDetail('metricDisk'), network: tDetail('metricNetwork') } }} />
   const contextContent = !historyOnly && application && <>
-      <section data-help="detail-identity" className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(application.state, tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
+      <section data-help="detail-identity" className={styles['detail-card']}><h2>{tDetail('identity')}</h2><dl><div><dt>{tDetail('id')}</dt><dd>{application.id}</dd></div><div><dt>{tCommon('state.label')}</dt><dd>{stateLabel(currentApplicationState(application), tCommon)}</dd></div><div><dt>{tDetail('firstSeen')}</dt><dd>{formatDate(application.firstSeenAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>{application.removedAt && <div><dt>{tDetail('removedAt')}</dt><dd>{formatDate(application.removedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div>}</dl></section>
       <section className={styles['detail-card']}><h2>{tDetail('operationalCondition')}</h2><dl><div><dt>{tDetail('reason')}</dt><dd>{reasonLabel(application.reason, tCommon)}</dd></div><div><dt>{tCommon('date.lastCheck')}</dt><dd>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tCommon('date.lastObservation')}</dt><dd>{formatDate(application.lastObservationAt, locale, tCommon('date.noObservation'), displayTimeZone)}</dd></div><div><dt>{tDetail('freshness')}</dt><dd>{freshnessLabel(application, { removed: tDetail('freshnessRemoved'), noObservation: tCommon('date.noObservation'), stale: tCommon('freshness.stale'), current: tCommon('freshness.current') })}</dd></div><div><dt>{tDetail('calculability')}</dt><dd>{application.isCalculable ? tCommon('calculability.available') : tCommon('calculability.unavailable')}</dd></div></dl><NavigationLink className={styles.methodologyLink} href={methodologyUrl} navigate={navigate}>{tDetail('methodologyFullPage')} <span aria-hidden="true">↗</span></NavigationLink></section>
     <section className={styles['detail-card']}><h2>{tDetail('location')}</h2>{application.location ? <dl><div><dt>{tDetail('regionCode')}</dt><dd>{application.location.regionCode}</dd></div><div><dt>{tCommon('location.country')}</dt><dd>{application.location.country}</dd></div><div><dt>{tCommon('location.region')}</dt><dd>{application.location.region}</dd></div><div><dt>{tCommon('location.city')}</dt><dd>{application.location.city ?? tCommon('location.cityUnknown')}</dd></div><div><dt>{tDetail('latitude')}</dt><dd>{application.location.latitude.toLocaleString(locale)}</dd></div><div><dt>{tDetail('longitude')}</dt><dd>{application.location.longitude.toLocaleString(locale)}</dd></div></dl> : <p>{tCommon('location.unknown')}</p>}</section>
   </>
@@ -229,7 +231,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     { title: tDetail('periodTitle'), description: [tDetail('helpHistoryFilters'), tCommon('help.period')].join("\n\n"), target: '[data-help="history-filters"]' },
     { title: tCommon('help.energyTitle'), description: tCommon('help.energy'), target: '[data-help="analysis-energy"]' },
     { title: tCommon('help.emissionsTitle'), description: tCommon('help.emissions'), target: '[data-help="analysis-emissions"]' },
-    { title: tCommon('help.coverageTitle'), description: tCommon('help.coverage'), target: '[data-help="analysis-coverage"]' },
+    { title: tDashboard('collectionSuccess.title'), description: tDashboard('collectionSuccess.help'), target: '[data-help="analysis-collection-success"]' },
     { title: tDetail('analysisSeriesHeading'), description: tDetail('analysisSeriesGapsNote'), target: '[data-help="analysis-chart"]' },
     { title: tDetail('analysisHistoryIntervals'), description: [tDetail('historyContributionsDescription'), tDetail('historyTableNote')].join("\n\n"), target: '[data-help="history-intervals"]' },
     { title: tDetail('historyContextHeading'), description: tCommon('help.factor'), target: '[data-help="analysis-context"]' },
@@ -237,7 +239,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     { title: tDetail('identity'), description: tCommon('help.states'), target: '[data-help="detail-identity"]' },
     { title: tCommon('help.energyTitle'), description: tCommon('help.energy'), target: '[data-help="analysis-energy"]' },
     { title: tCommon('help.emissionsTitle'), description: tCommon('help.emissions'), target: '[data-help="analysis-emissions"]' },
-    { title: tCommon('help.coverageTitle'), description: tCommon('help.coverage'), target: '[data-help="analysis-coverage"]' },
+    { title: tDashboard('collectionSuccess.title'), description: tDashboard('collectionSuccess.help'), target: '[data-help="analysis-collection-success"]' },
     { title: tDetail('evidenceTitle'), description: tCommon('help.metrics'), target: '[data-help="detail-evidence"]' },
   ]} />
   return <main ref={historyRoot} className={`content ${styles['detail-content']} ${!historyOnly && operationalOverview ? styles.overviewContent : ''} ${historyOnly ? styles.historyContent : ''} ${inspectionBucket ? styles.historyInspectionContent : ''}`} data-application-loaded={Boolean(application)} tabIndex={-1}>
@@ -288,7 +290,7 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
     {notFound && <RequestFeedback state="empty"><h1>{tDetail('notFound')}</h1><p>{tDetail('notFoundHint')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h1>{tDetail('error')}</h1><p>{tDetail('errorHint')}</p><ActionButton onClick={retry} disabled={loading || refreshing}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {application && <>{!historyOnly && <Breadcrumbs className={styles.breadcrumb} navigate={navigate} items={[{ label: tCommon('nav.applications'), href: backUrl, ariaLabel: tDetail('back') }, { label: application.name }]} />}{!historyOnly && <div className={styles.detailTop}>
-      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1>{pageHelp}<span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
+      <div className={styles['detail-heading']}><div className={styles.titleLine}><h1>{application.name}</h1>{pageHelp}<span className={`state-badge state-${currentApplicationState(application).toLowerCase()}`}>{stateLabel(currentApplicationState(application), tCommon)}</span></div><p className={styles.locationSummary}>{locationSummary}</p></div>
         <div className={styles.detailActions}>{periodSelector}
           <a className="button secondary" href={exploreHistoryUrl} onClick={(event) => { event.preventDefault(); navigate(exploreHistoryUrl) }}>{tDetail('exploreHistory')} <span aria-hidden="true">↗</span></a>
         </div>
@@ -345,7 +347,6 @@ export function ApplicationDetailPage({ id, navigate, analysisSource = environme
           historyNoContributions: tDetail('historyNoContributions'),
           factor: tDetail('analysisFactor'), coverage: tDetail('analysisCoverage'),
           equivalentFactor: tDetail('analysisEquivalentFactor'), factorExplanation: tDetail('analysisFactorExplanation'), energyWithEmissions: tDetail('analysisEnergyWithEmissions'),
-          validDataInPeriod: tDetail('analysisValidDataInPeriod'),
           energyCoverage: tDetail('analysisEnergyCoverage'), emissionsCoverage: tDetail('analysisEmissionsCoverage'),
           factorsHeading: tDetail('analysisFactorsHeading'), methodologyHeading: tDetail('analysisMethodologyHeading'),
           composition: {

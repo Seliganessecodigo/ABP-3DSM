@@ -37,6 +37,7 @@
   "date.noObservation": "確認データなし",
   "state.ALL": "すべて",
   "state.AVAILABLE": "利用可能",
+  "state.UNVERIFIED": "最近の確認なし",
   "state.UNAVAILABLE": "利用不可",
   "state.NO_METRICS": "メトリクスなし",
   "state.REMOVED": "削除済み",

@@ -1,5 +1,6 @@
 import { CardIcon } from '../../components/CardIcon.tsx'
-import { faBolt, faLeaf, faBookOpen, faCalculator, faChartPie, faClockRotateLeft, faEarthAmericas } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faLeaf, faBookOpen, faCalculator, faCircleCheck, faClockRotateLeft, faEarthAmericas } from '@fortawesome/free-solid-svg-icons'
+import { useTranslation } from 'react-i18next'
 import { ActionButton } from '../../components/ActionButton.tsx'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import type { AnalysisComparisonSeries, AnalysisContributionsPage, AnalysisFactor, AnalysisFactorResult, AnalysisMethodology, AnalysisMethodologyResult, AnalysisPresentationReason, AnalysisReading, AnalysisSeriesEvent, AnalysisSeriesPoint, AnalysisViewModel } from '../../features/analysis/source.ts'
@@ -142,7 +143,6 @@ type Labels = Readonly<{
   previousPreserved: string
   retry: string
   reasons: Readonly<Record<AnalysisPresentationReason, string>>
-  validDataInPeriod: string
 }>
 
 function Reading({ reading, locale, notCalculable, metricUnavailable, reasons }: Readonly<{
@@ -200,14 +200,13 @@ function summaryReading(reading: AnalysisReading, locale: string, labels: Labels
   return `${labels.metricUnavailable}: ${labels.reasons[reading.reason]}`
 }
 
-function MetricCard({ id, title, reading, locale, labels, empty = false, coverage, seriesPoints = [], metric }: Readonly<{
+function MetricCard({ id, title, reading, locale, labels, empty = false, seriesPoints = [], metric }: Readonly<{
   id: string
   title: string
   reading: AnalysisReading | null
   locale: string
   labels: Labels
   empty?: boolean
-  coverage?: AnalysisReading | null
   seriesPoints?: readonly AnalysisSeriesPoint[]
   metric?: 'energy' | 'emissions'
 }>) {
@@ -222,9 +221,6 @@ function MetricCard({ id, title, reading, locale, labels, empty = false, coverag
   return <fieldset data-help={id} className={styles.metric} aria-labelledby={id}>
     <h3 id={id}>{metric && <CardIcon icon={metric === 'energy' ? faBolt : faLeaf} size="small" inline />}{title}</h3>
     <div className={styles.metricValueRow}>{content}{metric && <Sparkline points={seriesPoints} metric={metric} />}</div>
-    {coverage?.status === 'available' && coverage.unit === 'fraction' && <p className={styles.metricCoverage}>
-      {labels.coverage} {new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(coverage.value)}
-    </p>}
   </fieldset>
 }
 
@@ -283,53 +279,16 @@ function ContextCard({ data, locale, labels, children }: Readonly<{ data: Analys
   </fieldset>
 }
 
-function CoverageCard({ data, locale, labels, empty = false, compact = false }: Readonly<{
-  data: Pick<AnalysisViewModel, 'energyCoverage' | 'emissionsCoverage'> | null
-  locale: string
-  labels: Labels
-  empty?: boolean
-  compact?: boolean
-}>) {
-  const energyContent = getCoverageContent(empty, data?.energyCoverage ?? null, locale, labels)
-  const emissionsContent = getCoverageContent(empty, data?.emissionsCoverage ?? null, locale, labels)
-  const energyValue = data?.energyCoverage.status === 'available' && data.energyCoverage.unit === 'fraction' ? data.energyCoverage.value : null
-  const emissionsValue = data?.emissionsCoverage.status === 'available' && data.emissionsCoverage.unit === 'fraction' ? data.emissionsCoverage.value : null
-  const sharedCoverage = energyValue !== null && emissionsValue !== null && energyValue === emissionsValue ? energyValue : null
-
-  return <fieldset data-help="analysis-coverage" className={`${styles.metric} ${styles.coverage}`} aria-labelledby="analysis-coverage-heading">
-    <h3 id="analysis-coverage-heading"><CardIcon icon={faChartPie} size="small" inline />{labels.coverage}</h3>
-    {sharedCoverage !== null && !empty && compact ? <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</p>
-    : sharedCoverage !== null && !empty ? <div className={styles.coverageGauge}>
-      <svg data-coverage-ring="true" className={styles.coverageRing} viewBox="0 0 60 60" role="img"
-        aria-label={`${labels.coverage}: ${new Intl.NumberFormat(locale, { style: 'percent' }).format(sharedCoverage)}. ${labels.validDataInPeriod}`}>
-        <circle className={styles.coverageTrack} cx="30" cy="30" r="25" />
-        <circle className={styles.coverageValue} cx="30" cy="30" r="25" strokeDasharray={`${sharedCoverage * 157.08} 157.08`} />
-        <text x="30" y="31" textAnchor="middle" dominantBaseline="central">{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(sharedCoverage)}</text>
-      </svg>
-      <p>{labels.validDataInPeriod}</p>
-    </div> : <div className={styles.coverageMetrics}>
-      <fieldset aria-labelledby="analysis-energy-coverage-heading">
-        <h4 id="analysis-energy-coverage-heading">{labels.energyCoverage}</h4>
-        {energyContent}
-      </fieldset>
-      <fieldset aria-labelledby="analysis-emissions-coverage-heading">
-        <h4 id="analysis-emissions-coverage-heading">{labels.emissionsCoverage}</h4>
-        {emissionsContent}
-      </fieldset>
-    </div>}
+function CollectionSuccessMetric({ rate, locale }: Readonly<{ rate?: number | null; locale: string }>) {
+  const { t } = useTranslation('dashboard')
+  const title = t('collectionSuccess.title')
+  return <fieldset data-help="analysis-collection-success" className={`${styles.metric} ${styles.coverage}`}>
+    <legend className={styles.screenReaderOnly}>{title}</legend>
+    <h3><CardIcon icon={faCircleCheck} size="small" inline />{title}</h3>
+    {rate == null ? <p className={styles.unavailableValue}>{t(rate === null ? 'collectionSuccess.empty' : 'collectionSuccess.unavailable')}</p>
+      : <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(rate)}</p>}
   </fieldset>
 }
-
-function getCoverageContent(empty: boolean, reading: AnalysisReading | null, locale: string, labels: Labels) {
-  if (empty) return null
-  if (!reading) return <p className={styles.unavailableValue}>{labels.metricUnavailable}</p>
-  if (reading.status === 'available' && reading.unit === 'fraction') {
-    return <p className={styles.value}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(reading.value)}</p>
-  }
-  return <Reading reading={reading} locale={locale} notCalculable={labels.notCalculable}
-    metricUnavailable={labels.metricUnavailable} reasons={labels.reasons} />
-}
-
 function calculationValue(reading: AnalysisReading | null, locale: string, labels: Labels) {
   if (reading?.status === 'available') return `${formatAnalysisNumber(reading.value, locale)} ${reading.unit}`
   if (reading) return `${labels.metricUnavailable}: ${labels.reasons[reading.reason]}`
@@ -518,6 +477,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   collectionHref?: (collectionId: string) => string
 }>) {
   const [contextOpen, setContextOpen] = useState(false)
+  const { t: tDashboard } = useTranslation('dashboard')
   const inspectContributions = onInspectContributions
     ? (bucketStart: string) => {
         if (!historyMode) setContextOpen(true)
@@ -589,12 +549,12 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       {(invalidContext || emptyResult) && <EmptySlots labels={labels} overview={operationalOverview} />}
       {showData && data && <div className={styles.metrics}>
         <MetricCard id="analysis-energy" title={labels.energy} reading={data.energy} locale={locale} labels={labels}
-          coverage={data.energyCoverage} seriesPoints={seriesPoints} metric="energy" />
+          seriesPoints={seriesPoints} metric="energy" />
         <MetricCard id="analysis-emissions" title={labels.emissions} reading={data.emissions} locale={locale} labels={labels}
-          coverage={data.emissionsCoverage} seriesPoints={seriesPoints} metric="emissions" />
+          seriesPoints={seriesPoints} metric="emissions" />
         {historyMode
           ? <>
-            <CoverageCard data={data} locale={locale} labels={labels} compact />
+            <CollectionSuccessMetric rate={data.collectionSuccessRate} locale={locale} />
             <ContextCard data={data} locale={locale} labels={labels}>
               <details id="analysis-details" className={styles.historyMethodology}>
                 <summary>{labels.methodologyHeading} · {labels.factorsHeading}</summary>
@@ -610,9 +570,9 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
           : !operationalOverview && <FactorCard factor={data.factor} calculation={data.calculation} locale={locale} labels={labels} />}
       </div>}
     </section>
-    <aside className={operationalOverview ? styles.overviewCoverage : styles.coverageColumn} aria-label={labels.coverage}>
-      <CoverageCard data={showData ? data : null} locale={locale} labels={labels} empty={emptyResult || invalidContext} />
-    </aside>
+    {(!historyMode || !showData) && <aside className={operationalOverview ? styles.overviewCoverage : styles.coverageColumn}>
+      <CollectionSuccessMetric rate={invalidContext ? undefined : data?.collectionSuccessRate} locale={locale} />
+    </aside>}
     {operationalOverview && <>
       <div data-help="detail-evidence" className={styles.overviewEvidence}>{evidenceContent}</div>
       <div data-help="detail-context" className={styles.overviewContext}>{contextContent}</div>
@@ -674,7 +634,7 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
       invalidNumericRange: labels.invalidNumericRange, invalidUnit: labels.invalidUnit,
       clearFilters: labels.clearFilters,
       applyFilters: labels.applyFilters, closeFilters: labels.closeFilters,
-      coverage: labels.coverage, region: labels.region, methodology: labels.methodologyHeading,
+      collectionSuccess: tDashboard('collectionSuccess.title'), region: labels.region, methodology: labels.methodologyHeading,
       inspectContributions: labels.inspectContributions,
       emissionsStatus: labels.emissionsStatus, allStatuses: labels.allStatuses, availableStatus: labels.availableStatus,
       unavailableStatus: labels.unavailableStatus, notCalculableStatus: labels.notCalculableStatus, noMatches: labels.noMatches,

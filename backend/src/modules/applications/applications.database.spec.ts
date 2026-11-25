@@ -1028,7 +1028,7 @@ describeWithDatabase('catálogo com PostgreSQL', () => {
     const classifier = app.get(StatusClassificationService)
     const validAt = new Date('2026-10-07T10:00:00.000Z')
     const failedAt = new Date('2026-10-07T10:01:00.000Z')
-    const recoveredAt = new Date('2026-10-07T10:02:00.000Z')
+    const recoveredAt = new Date()
 
     await classifier.record('catalog-test-app', {
       kind: 'metrics',

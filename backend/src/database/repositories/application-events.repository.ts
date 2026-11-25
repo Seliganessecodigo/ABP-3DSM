@@ -53,6 +53,19 @@ export class ApplicationEventsRepository {
     return { counts: { successful, total, firstAttemptAt, lastAttemptAt }, rates }
   }
 
+  async collectionSuccessByBucket(applicationId: string, from: bigint, to: bigint, granularity: string) {
+    const rows = await this.repository.manager.query<{ bucketStart: string; rate: number }[]>(
+      `SELECT to_char(date_trunc($4, "occurredAt" AT TIME ZONE 'UTC'), 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "bucketStart",
+        COUNT(*) FILTER (WHERE details->>'succeeded' = 'true')::float8 / COUNT(*) AS rate
+      FROM application_events
+      WHERE kind = 'collection_attempt' AND "applicationId" = $1
+        AND "occurredAt" >= $2::timestamptz AND "occurredAt" < $3::timestamptz
+      GROUP BY date_trunc($4, "occurredAt" AT TIME ZONE 'UTC')`,
+      [applicationId, formatUtcTimestamp(floorToMicrosecond(from)), formatUtcTimestamp(ceilToMicrosecond(to)), granularity],
+    )
+    return new Map(rows.map(({ bucketStart, rate }) => [Date.parse(bucketStart), rate]))
+  }
+
   async append(
     event: Partial<ApplicationEventEntity>,
   ): Promise<ApplicationEventEntity> {

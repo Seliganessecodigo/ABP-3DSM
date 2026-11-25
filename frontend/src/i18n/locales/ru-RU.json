@@ -33,6 +33,7 @@
   "date.noObservation": "Нет наблюдений",
   "state.ALL": "Все",
   "state.AVAILABLE": "Доступно",
+  "state.UNVERIFIED": "Нет недавней проверки",
   "state.UNAVAILABLE": "Недоступно",
   "state.NO_METRICS": "Нет метрик",
   "state.REMOVED": "Удалено",

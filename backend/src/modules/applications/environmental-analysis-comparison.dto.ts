@@ -124,6 +124,12 @@ export class EnvironmentalComparisonDifferencesDto {
 
 export class EnvironmentalAnalysisComparisonApplicationDto {
   @ApiProperty()
+  verificationOverdue!: boolean
+
+  @ApiProperty({ type: Number, nullable: true, minimum: 0, maximum: 1 })
+  collectionSuccessRate!: number | null
+
+  @ApiProperty()
   applicationId!: string
 
   @ApiProperty()

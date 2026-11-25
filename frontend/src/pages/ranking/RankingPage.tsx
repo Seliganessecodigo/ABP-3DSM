@@ -16,12 +16,12 @@ const columnLabelKeys: Record<string, string> = { energy: 'energyUnit', emission
 const states: readonly RankingState[] = ['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
 const pageSizes = [5, 10, 15, 20, 'all'] as const
 const textFilters = ['filterApplicationId', 'filterName', 'filterRegionCode', 'filterCountry', 'filterRegion', 'filterCity', 'filterStateReason', 'filterEnergyReason', 'filterEmissionsReason'] as const
-const numericFilters = ['energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'position', 'participation'] as const
+const numericFilters = ['energy', 'emissions', 'collectionSuccessRate', 'position', 'participation'] as const
 const columnFilterKeys = [
   ...textFilters, 'filterState', 'filterRankability',
-  ...numericFilters.flatMap(field => [`${field}Min`, `${field}Max`, `${field}Missing`]),
+  ...[...numericFilters, 'energyCoverage', 'emissionsCoverage'].flatMap(field => [`${field}Min`, `${field}Max`, `${field}Missing`]),
 ]
-const sortableColumns = ['position', 'name', 'applicationId', 'state', 'stateReason', 'regionCode', 'country', 'region', 'city', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'rankability', 'participation'] as const
+const sortableColumns = ['position', 'name', 'applicationId', 'state', 'stateReason', 'regionCode', 'country', 'region', 'city', 'energy', 'emissions', 'energyCoverage', 'emissionsCoverage', 'collectionSuccessRate', 'rankability', 'participation'] as const
 type SortColumn = (typeof sortableColumns)[number]
 
 function dateInput(value: string | null): string {
@@ -212,7 +212,13 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
     ? t('notAvailable')
     : `${new Intl.NumberFormat(i18n.resolvedLanguage).format(value)} ${unit}`
   const percent = (value: number | null) => value === null ? t('notAvailable') : new Intl.NumberFormat(i18n.resolvedLanguage, { style: 'percent' }).format(value)
-  const fieldLabel = (field: string) => t(`field.${field}`)
+  const fieldLabel = (field: string) => {
+    if (field === 'collectionSuccessRate') return `${tDashboard('collectionSuccess.title')} (0–1)`
+    if (field === 'collectionSuccessRateMin') return `${tDashboard('collectionSuccess.title')} · ${t('minimum')}`
+    if (field === 'collectionSuccessRateMax') return `${tDashboard('collectionSuccess.title')} · ${t('maximum')}`
+    if (field === 'collectionSuccessRateMissing') return `${tDashboard('collectionSuccess.title')} · ${t('missingValue')}`
+    return t(`field.${field}`)
+  }
   const rankedItems = data?.items.filter(item => item.rankability === 'ranked') ?? []
   const unrankedItems = data?.items.filter(item => item.rankability === 'unranked') ?? []
   const measureFor = (item: (typeof rankedItems)[number]) => metric === 'energy' ? item.energy : item.emissions
@@ -345,7 +351,10 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
                   <SortButton state={sort.ariaSort} onClick={() => sortColumn(key)}>{t(columnLabelKeys[label] ?? label)}</SortButton>
                 </th>
               })}
-              <th scope="col">{tDashboard('collectionSuccess.title')}</th>
+              <th scope="col" aria-sort={tableSortPresentation('collectionSuccessRate', sortBy, sortDirection).ariaSort}>
+                <SortButton state={tableSortPresentation('collectionSuccessRate', sortBy, sortDirection).ariaSort}
+                  onClick={() => sortColumn('collectionSuccessRate')}>{tDashboard('collectionSuccess.title')}</SortButton>
+              </th>
               <th scope="col">{t('detail')}</th>
             </tr></thead>
             <tbody>{rankedItems.map(item => {

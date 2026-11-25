@@ -1,4 +1,4 @@
-import { ApiExtraModels, ApiProperty, getSchemaPath, OmitType } from '@nestjs/swagger'
+import { ApiExtraModels, ApiProperty, ApiPropertyOptional, getSchemaPath, OmitType } from '@nestjs/swagger'
 import {
   EnvironmentalAnalysisCoverageDto as EnvironmentalAnalysisSeriesCoverageDto,
   EnvironmentalAnalysisFactorProvenanceDto,
@@ -106,6 +106,9 @@ export class EnvironmentalAnalysisSeriesEventDto {
 }
 
 export class EnvironmentalAnalysisSeriesPointDto {
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0, maximum: 1 })
+  collectionSuccessRate?: number | null
+
   @ApiProperty({ type: String, format: 'date-time' })
   bucketStart!: string
 

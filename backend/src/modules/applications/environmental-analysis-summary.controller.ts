@@ -19,6 +19,7 @@ export class EnvironmentalAnalysisSummaryController {
   @PublicRoute()
   @Get()
   @ApiQuery({ name: 'includeCollectionSuccess', required: false, enum: ['true', 'false'], description: 'Include scheduled metrics collection success counts in the requested period and scope.' })
+  @ApiQuery({ name: 'currentStates', required: false, enum: ['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED', 'UNVERIFIED'], isArray: true })
   @ApiOperation({ summary: 'Consultar resumo ambiental agregado por período' })
   @ApiQuery({ name: 'from', required: true, type: String, format: 'date-time' })
   @ApiQuery({ name: 'to', required: true, type: String, format: 'date-time' })
@@ -72,6 +73,7 @@ export class EnvironmentalAnalysisSummaryController {
       from: scalar(query.from),
       to: scalar(query.to),
       states: query.states,
+      currentStates: query.currentStates,
       regionCodes: query.regionCodes,
       applicationIds: query.applicationIds,
     })

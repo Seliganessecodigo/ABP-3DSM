@@ -33,6 +33,7 @@
   "date.noObservation": "Tidak ada observasi",
   "state.ALL": "Semua",
   "state.AVAILABLE": "Tersedia",
+  "state.UNVERIFIED": "Belum ada pemeriksaan terbaru",
   "state.UNAVAILABLE": "Tidak tersedia",
   "state.NO_METRICS": "Tidak ada metrik",
   "state.REMOVED": "Dihapus",
