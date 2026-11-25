@@ -5,6 +5,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common'
 import { ApplicationsRepository } from './applications.repository'
+import { isVerificationOverdue, verificationDeadline } from './application-verification'
 import {
   ApplicationEventsRepository,
   PersistedApplicationMetadataEvent,
@@ -93,8 +94,9 @@ export class EnvironmentalAnalysisComparisonService {
     >
     let metricRows: ComparisonMetricRow[]
     let metadataHistory: PersistedApplicationMetadataEvent[]
+    let successRates: ReadonlyMap<string, number>
     try {
-      ;[applications, environmentalRows, metricRows, metadataHistory] =
+      ;[applications, environmentalRows, metricRows, metadataHistory, { rates: successRates }] =
         await Promise.all([
           this.applications.findByIds(ids),
           this.collections.findEnvironmentalByApplicationsAndPeriod(
@@ -108,6 +110,7 @@ export class EnvironmentalAnalysisComparisonService {
             end,
           ),
           this.applicationEvents.findMetadataHistory(ids),
+          this.applicationEvents.collectionAttemptCounts(ids, start, end),
         ])
     } catch {
       throw new ServiceUnavailableException({
@@ -131,6 +134,7 @@ export class EnvironmentalAnalysisComparisonService {
       metadataHistory,
       (event) => event.applicationId,
     )
+    const deadline = verificationDeadline()
     const rows = ids.map((id) => {
       const application = applicationsById.get(id)!
       const rows = environmentalByApplication.get(id) ?? []
@@ -150,6 +154,8 @@ export class EnvironmentalAnalysisComparisonService {
         applicationId: id,
         name: application.name,
         state: application.state,
+        verificationOverdue: isVerificationOverdue(application, deadline),
+        collectionSuccessRate: successRates.get(id) ?? null,
         locations,
         metrics,
         energy: summary.energy,

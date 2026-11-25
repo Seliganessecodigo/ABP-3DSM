@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class EnvironmentalAnalysisPeriodDto {
   @ApiProperty({ type: String, format: 'date-time', description: 'Período normalizado para UTC.' })
@@ -112,6 +112,9 @@ export class EnvironmentalAnalysisCalculationDto {
 }
 
 export class EnvironmentalAnalysisDto {
+  @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0, maximum: 1 })
+  collectionSuccessRate?: number | null
+
   @ApiProperty({ type: EnvironmentalAnalysisCalculationDto })
   calculation!: EnvironmentalAnalysisCalculationDto
 

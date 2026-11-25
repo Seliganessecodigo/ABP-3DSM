@@ -24,7 +24,7 @@ type Labels = Readonly<{
   moment: string
   energy: string
   emissions: string
-  coverage: string
+  collectionSuccess: string
   region: string
   methodology: string
   energyChart: string
@@ -86,11 +86,9 @@ function hasNoObservation(reading: AnalysisReading) {
   return reading.status !== 'available' && reading.reason === 'noObservation'
 }
 
-function coverageText(point: AnalysisSeriesPoint, locale: string) {
-  if (!point.coverage) return '—'
-  const energy = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(point.coverage.energy)
-  const emissions = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(point.coverage.emissions)
-  return energy === emissions ? energy : `E ${energy} · CO₂e ${emissions}`
+function collectionSuccessText(point: AnalysisSeriesPoint, locale: string) {
+  return point.collectionSuccessRate == null ? '—' :
+    new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(point.collectionSuccessRate)
 }
 
 function formatAnalysisNumber(value: number, locale: string) {
@@ -645,7 +643,7 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
         <th scope="col" aria-sort={sortState('moment')}><SortButton state={sortState('moment')} onClick={() => onSort('moment')}>{historyMode ? t('historyStart') : labels.moment}</SortButton></th>
         <th scope="col" aria-sort={sortState('energy')}><SortButton state={sortState('energy')} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}</SortButton></th>
         <th scope="col" aria-sort={sortState('emissions')}><SortButton state={sortState('emissions')} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}</SortButton></th>
-        {historyMode && <><th scope="col">{labels.coverage}</th><th scope="col">{labels.region}</th><th scope="col">{t('historyMethodology')}</th></>}
+        {historyMode && <><th scope="col">{labels.region}</th><th scope="col">{t('historyMethodology')}</th><th scope="col">{labels.collectionSuccess}</th></>}
         {historyMode && <th scope="col">{tCommon('state.label')}</th>}
         {historyMode && onInspectContributions && <th scope="col">{t('historyAction')}</th>}
       </tr></thead>
@@ -657,10 +655,10 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
           <td data-label={labels.emissions}>{historyMode && hasNoObservation(point.emissions) ? '—' : readingText(point.emissions, locale, labels)}</td>
                     {historyMode && <><td className={styles.desktopMetadata} data-label={labels.region}>{metadataAt(point, 'region_changed', 'regionCode')}</td>
             <td className={styles.desktopMetadata} data-label={labels.methodology}>{metadataAt(point, 'methodology_changed', 'version')}</td>
-            <td className={styles.desktopMetadata} data-label={labels.coverage}>{coverageText(point, locale)}</td>
+            <td className={styles.desktopMetadata} data-label={labels.collectionSuccess}>{collectionSuccessText(point, locale)}</td>
             <td className={styles.mobileMetrics}>{hasNoObservation(point.energy) && hasNoObservation(point.emissions)
               ? t('historyViewGap') : `${readingText(point.energy, locale, labels)} · ${readingText(point.emissions, locale, labels)}`}</td>
-            <td className={styles.mobileContext}>{metadataAt(point, 'region_changed', 'regionCode')} · {metadataAt(point, 'methodology_changed', 'version')} · {coverageText(point, locale)}</td></>}
+            <td className={styles.mobileContext}>{metadataAt(point, 'region_changed', 'regionCode')} · {metadataAt(point, 'methodology_changed', 'version')} · {labels.collectionSuccess} {collectionSuccessText(point, locale)}</td></>}
           {historyMode && <td className={styles.intervalState}><details className={styles.stateDetails}><summary><span className={`state-badge state-${stateFor(point).toLowerCase()}`}><span aria-hidden="true">{stateIcons[stateFor(point)]}</span>{stateLabel(stateFor(point), tCommon)}</span></summary><span className={styles.stateMetadata}>{stateFor(point) === 'AVAILABLE' ? tCommon('reason.METRICS_VALID') : statusReason(point)}</span></details></td>}
           {historyMode && onInspectContributions && <td className={styles.intervalAction}><button type="button" aria-label={point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : t('historyInspect')} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? <>{t('historyViewGap')} →</> : <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>}</button></td>}
         </tr>)}</tbody>

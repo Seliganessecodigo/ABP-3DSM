@@ -17,7 +17,7 @@ for (const width of [1366, 390]) {
     const original = new URL(page.url()).searchParams.getAll('applicationIds')
     await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
     const dialog = page.getByRole('dialog')
-    const targets = ['comparison-selection', 'comparison-period', 'comparison-reference', 'comparison-energy', 'comparison-emissions', 'comparison-energyCoverage']
+    const targets = ['comparison-selection', 'comparison-period', 'comparison-reference', 'comparison-energy', 'comparison-emissions', 'comparison-collectionSuccess']
     for (const [index, target] of targets.entries()) {
       await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-width', '3px')
       await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-style', 'solid')
@@ -26,8 +26,8 @@ for (const width of [1366, 390]) {
     }
     await page.screenshot({ path: testInfo.outputPath('comparison-help.png'), fullPage: true })
     await page.setViewportSize({ width: width === 390 ? 1366 : 390, height: 844 })
-    await expect(page.locator('[data-help="comparison-energyCoverage"]:visible')).toHaveCSS('outline-style', 'solid')
-    await expect(page.locator('[data-help="comparison-energyCoverage"]').filter({ visible: false })).toHaveCSS('outline-style', 'none')
+    await expect(page.locator('[data-help="comparison-collectionSuccess"]:visible')).toHaveCSS('outline-style', 'solid')
+    await expect(page.locator('[data-help="comparison-collectionSuccess"]').filter({ visible: false })).toHaveCSS('outline-style', 'none')
     await dialog.getByRole('button', { name: 'Concluir', exact: true }).click()
     expect(new URL(page.url()).searchParams.getAll('applicationIds')).toEqual(original)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -55,12 +55,14 @@ function comparisonApplication(
     emissionsReasons?: { code: string }[]
     energyDifference?: DifferenceFixture
     emissionsDifference?: DifferenceFixture
+    collectionSuccessRate?: number | null
   }> = {},
 ) {
   return {
     applicationId,
     name,
     state: 'AVAILABLE',
+    collectionSuccessRate: overrides.collectionSuccessRate,
     locations: [{
       from: period.from, to: period.to,
       location: { regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo', latitude: -23.55, longitude: -46.63 },
@@ -107,8 +109,9 @@ test('restores selected applications and presents the backend comparison', async
       period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') },
       referenceApplicationId: url.searchParams.get('referenceApplicationId'),
       applications: [
-        comparisonApplication('svc-0142', 'app-pagamentos', 3, 1200),
+        comparisonApplication('svc-0142', 'app-pagamentos', 3, 1200, { collectionSuccessRate: 1 }),
         comparisonApplication('svc-0121', 'app-checkout', 2, 600, {
+          collectionSuccessRate: 0.5,
           energyDifference: { absolute: -1, unit: 'kWh', percentage: -33.33, reason: null },
           emissionsDifference: { absolute: -600, unit: 'gCO2e', percentage: -50, reason: null },
         }),
@@ -129,6 +132,10 @@ test('restores selected applications and presents the backend comparison', async
   await page.keyboard.press('Enter')
   await expect(page.getByRole('combobox', { name: 'Aplicação de referência' })).toHaveValue('svc-0142')
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toContainText('app-pagamentos')
+  const collectionSuccess = page.getByRole('table', { name: 'Comparação no período' }).locator('[data-help="comparison-collectionSuccess"]')
+  await expect(collectionSuccess).toContainText('100%')
+  await expect(collectionSuccess).toContainText('50%')
+  await expect(collectionSuccess).toContainText('-50 pp')
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toContainText('0,6 kgCO₂e')
   await expect(page.getByRole('table', { name: 'Comparação no período' }).getByRole('row', { name: /^Energia / })).toContainText('-1 kWh')
   await expect(page.getByRole('table', { name: 'Comparação no período' }).getByRole('row', { name: /^Emissões estimadas / })).toContainText('-0,6 kgCO₂e')

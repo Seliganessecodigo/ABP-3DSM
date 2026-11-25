@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { stateLabel } from '../../features/applications/presentation.ts'
+import { currentApplicationState } from '../../features/applications/catalog.ts'
 import { periodPresets } from '../../features/analysis/periodContext.ts'
 import { validDashboardFilters, activeDashboardFilterCount, selectDashboardRows } from './dashboardData.ts'
 import {
@@ -42,6 +43,7 @@ const filterDefaults: DashboardTableFilters = {
   emissionsMin: '', emissionsMax: '', emissionsMissing: false,
   energyCoverageMin: '', energyCoverageMax: '',
   emissionsCoverageMin: '', emissionsCoverageMax: '',
+  collectionSuccessMin: '', collectionSuccessMax: '',
 }
 
 function numberLabel(value: number | null, unit: string, locale: string, missing: string): string {
@@ -117,6 +119,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
 
   const labels = useMemo(() => ({
     AVAILABLE: stateLabel('AVAILABLE', tCommon),
+    UNVERIFIED: stateLabel('UNVERIFIED', tCommon),
     UNAVAILABLE: stateLabel('UNAVAILABLE', tCommon),
     NO_METRICS: stateLabel('NO_METRICS', tCommon),
     REMOVED: stateLabel('REMOVED', tCommon),
@@ -259,6 +262,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     </li>
   })
   const totalApplications = data.data ? Object.values(data.data.states).reduce((sum, count) => sum + count, 0) : 0
+  const unverifiedCount = data.data?.unverifiedAvailableCount ?? 0
   const summaryMeta = data.data && dateRangeLabel(data.data.period.from, data.data.period.to, locale)
 
   useEffect(() => {
@@ -409,7 +413,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       <label>{t('state')}
         <select className="form-control" aria-label={t('state')} value={query.state} onChange={(event) => update({ state: event.target.value as DashboardQuery['state'] })}>
           <option value="ALL">{tCommon('state.ALL')}</option>
-          {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) =>
+          {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED', 'UNVERIFIED'] as const).map((state) =>
             <option key={state} value={state}>{labels[state]}</option>)}
         </select>
       </label>
@@ -444,7 +448,8 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <h2><CardIcon icon={faLayerGroup} size="small" inline />{t('applicationStates', { count: totalApplications })}</h2>
           <ul className={styles.stateList}>
             {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) =>
-              <li key={state}><span className={`${styles.stateBadge} ${styles[`state${state}`]}`}>{labels[state]} <strong>{data.data?.states[state]}</strong></span></li>)}
+              <li key={state}><span className={`${styles.stateBadge} ${styles[`state${state}`]}`}>{labels[state]} <strong>{state === 'AVAILABLE' ? data.data!.states[state] - unverifiedCount : data.data?.states[state]}</strong></span></li>)}
+            {unverifiedCount > 0 && <li><span className={`${styles.stateBadge} ${styles.stateNO_METRICS}`}>{stateLabel('UNVERIFIED', tCommon)} <strong>{unverifiedCount}</strong></span></li>}
           </ul>
         </article>
       </section>
@@ -622,7 +627,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
             <fieldset><legend>{t('filters.state')}</legend>
               <label><span>{t('state')}</span><select className="form-control" value={draftFilters.state} onChange={(event) => updateDraft('state', event.target.value as DashboardTableFilters['state'])}>
                 <option value="ALL">{tCommon('state.ALL')}</option>
-                {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'] as const).map((state) => <option key={state} value={state}>{labels[state]}</option>)}
+                {(['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED', 'UNVERIFIED'] as const).map((state) => <option key={state} value={state}>{labels[state]}</option>)}
               </select></label>
               <button type="button" onClick={() => clearDraft(['state'])}>{t('filters.clearColumn')}</button>
             </fieldset>
@@ -642,15 +647,10 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               <label className={styles.checkbox}><input type="checkbox" checked={draftFilters.emissionsMissing} onChange={(event) => updateDraft('emissionsMissing', event.target.checked)} />{t('filters.includeMissing')}</label>
               <button type="button" onClick={() => clearDraft(['emissionsMin', 'emissionsMax', 'emissionsMissing'])}>{t('filters.clearColumn')}</button>
             </fieldset>
-            <fieldset><legend>{t('filters.energyCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input placeholder={t('filters.minimumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMin} onChange={(event) => updateDraft('energyCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input placeholder={t('filters.maximumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.energyCoverageMax} onChange={(event) => updateDraft('energyCoverageMax', normalizeNumberInput(event.target.value))} /></label>
-              <button type="button" onClick={() => clearDraft(['energyCoverageMin', 'energyCoverageMax'])}>{t('filters.clearColumn')}</button>
-            </fieldset>
-            <fieldset><legend>{t('filters.emissionsCoverage')}</legend>
-              <label>{t('filters.minimumPercent')}<input placeholder={t('filters.minimumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMin} onChange={(event) => updateDraft('emissionsCoverageMin', normalizeNumberInput(event.target.value))} /></label>
-              <label>{t('filters.maximumPercent')}<input placeholder={t('filters.maximumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.emissionsCoverageMax} onChange={(event) => updateDraft('emissionsCoverageMax', normalizeNumberInput(event.target.value))} /></label>
-              <button type="button" onClick={() => clearDraft(['emissionsCoverageMin', 'emissionsCoverageMax'])}>{t('filters.clearColumn')}</button>
+            <fieldset><legend>{t('collectionSuccess.title')} (%)</legend>
+              <label>{t('filters.minimumPercent')}<input placeholder={t('filters.minimumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.collectionSuccessMin} onChange={(event) => updateDraft('collectionSuccessMin', normalizeNumberInput(event.target.value))} /></label>
+              <label>{t('filters.maximumPercent')}<input placeholder={t('filters.maximumPercent')} className="form-control" type="number" min="0" max="100" step="any" value={draftFilters.collectionSuccessMax} onChange={(event) => updateDraft('collectionSuccessMax', normalizeNumberInput(event.target.value))} /></label>
+              <button type="button" onClick={() => clearDraft(['collectionSuccessMin', 'collectionSuccessMax', 'energyCoverageMin', 'energyCoverageMax', 'emissionsCoverageMin', 'emissionsCoverageMax'])}>{t('filters.clearColumn')}</button>
             </fieldset>
           </div>
           {!validDashboardFilters(draftFilters) && <p className={styles.error} role="alert">{t('filters.invalidRange')}</p>}
@@ -670,7 +670,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
                 <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlertsById.get(row.applicationId)} /></th>
-                <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${row.state}`]}`}>{labels[row.state]}</span></td>
+                <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${currentApplicationState(row)}`]}`}>{labels[currentApplicationState(row)]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
                 <td data-label={`${t('table.emissions')} (${row.emissions.unit})`}>{numberLabel(row.emissions.value, row.emissions.unit, locale, t('notAvailable'))}</td>

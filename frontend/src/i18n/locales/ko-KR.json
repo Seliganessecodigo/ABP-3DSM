@@ -33,6 +33,7 @@
   "date.noObservation": "관측 없음",
   "state.ALL": "전체",
   "state.AVAILABLE": "사용 가능",
+  "state.UNVERIFIED": "최근 확인 없음",
   "state.UNAVAILABLE": "사용 불가",
   "state.NO_METRICS": "지표 없음",
   "state.REMOVED": "제거됨",

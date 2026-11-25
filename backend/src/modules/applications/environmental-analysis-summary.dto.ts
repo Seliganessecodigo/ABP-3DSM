@@ -8,6 +8,9 @@ import {
 } from './environmental-analysis.dto'
 
 export class EnvironmentalAnalysisSummaryApplicationDto {
+  @ApiProperty()
+  verificationOverdue!: boolean
+
   @ApiPropertyOptional({ type: Number, nullable: true, minimum: 0, maximum: 1, description: 'Share of successful scheduled collections. Null when no attempts were recorded.' })
   collectionSuccessRate?: number | null
 
@@ -78,6 +81,9 @@ export class CollectionSuccessDto {
 }
 
 export class EnvironmentalAnalysisSummaryDto {
+  @ApiProperty({ description: 'Aplicações incluídas em states.AVAILABLE cuja última verificação está atrasada.' })
+  unverifiedAvailableCount!: number
+
   @ApiProperty({ type: CollectionSuccessDto, required: false })
   collectionSuccess?: CollectionSuccessDto
   @ApiProperty({ type: Boolean, required: false, description: 'False when provenance was explicitly excluded from this response.' })

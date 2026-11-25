@@ -30,6 +30,8 @@ export type ComparisonLocationSnapshot = Readonly<{
   reasons: readonly ComparisonReason[]
 }>
 export type ComparisonApplication = Readonly<{
+  verificationOverdue?: boolean
+  collectionSuccessRate?: number | null
   applicationId: string
   name: string
   state: ApplicationState
@@ -184,17 +186,22 @@ function differenceSet(value: unknown, name: string): Record<'cpu' | 'memory' | 
 
 function comparisonApplication(value: unknown): ComparisonApplication {
   const item = record(value, 'application')
-  if (!['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'].includes(String(item.state)) || !Array.isArray(item.locations)) {
+  if (!['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'].includes(String(item.state)) || !Array.isArray(item.locations) ||
+    (item.verificationOverdue !== undefined && typeof item.verificationOverdue !== 'boolean')) {
     throw new Error('Invalid comparison application')
   }
   const coverage = record(item.coverage, 'coverage')
   const differences = record(item.differences, 'differences')
   const coverageDifference = record(differences.coverage, 'coverage differences')
   const metricsDifferences = record(differences.metrics, 'metric differences')
+  const successRate = item.collectionSuccessRate === undefined ? undefined : nullableFinite(item.collectionSuccessRate, 'collection success')
+  if (successRate != null && (successRate < 0 || successRate > 1)) throw new Error('Invalid collection success rate')
   return {
     applicationId: text(item.applicationId, 'application id'),
     name: text(item.name, 'application name'),
     state: item.state as ApplicationState,
+    ...(item.verificationOverdue !== undefined ? { verificationOverdue: item.verificationOverdue } : {}),
+    ...(successRate !== undefined ? { collectionSuccessRate: successRate } : {}),
     locations: item.locations.map(locationSnapshot),
     metrics: metricSet(item.metrics, 'metrics'),
     energy: measure(item.energy, 'energy'),

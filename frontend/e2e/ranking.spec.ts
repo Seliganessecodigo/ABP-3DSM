@@ -82,7 +82,7 @@ test('ranking applies domain and presentation filters through the documented que
   await expect(page.getByRole('table')).toContainText('app-estoque')
   const breadcrumb = page.getByRole('navigation', { name: 'Trilha de navegação' })
   await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText('Ranking por impacto')
-  await expect(page.locator('thead [data-sort-state]')).toHaveCount(4)
+  await expect(page.locator('thead [data-sort-state]')).toHaveCount(5)
   const help = page.getByRole('button', { name: 'Ajuda desta tela', exact: true })
   await help.click()
   const dialog = page.getByRole('dialog')
@@ -165,7 +165,7 @@ test('sorting CO₂e updates the rows in place with a single paginated request',
   const sort = page.getByRole('table').getByRole('button', { name: 'CO₂e (kg)', exact: true })
   await expect(rows.first()).toContainText(first.name)
   await expect(rows.first()).toContainText('0%')
-  await expect(page.getByRole('columnheader', { name: 'Sucesso das coletas' })).toBeVisible()
+  await expect(page.getByRole('table').getByRole('button', { name: 'Sucesso das coletas' })).toBeVisible()
   const documentLoadedAt = await page.evaluate(() => performance.timeOrigin)
   const priorRequests = requests.length
   await sort.click()

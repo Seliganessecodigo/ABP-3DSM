@@ -37,6 +37,7 @@
   "date.noObservation": "No observation",
   "state.ALL": "All",
   "state.AVAILABLE": "Available",
+  "state.UNVERIFIED": "No recent check",
   "state.UNAVAILABLE": "Unavailable",
   "state.NO_METRICS": "No metrics",
   "state.REMOVED": "Removed",

@@ -23,6 +23,7 @@ import {
 } from '../calculations/persisted-environmental-series'
 import type { PersistedEnvironmentalInterval } from '../calculations/persisted-environmental-period'
 import type { EnvironmentalAnalysisSummaryDto } from './environmental-analysis-summary.dto'
+import { isVerificationOverdue, verificationDeadline } from './application-verification'
 
 export interface EnvironmentalAnalysisSummaryFilters {
   readonly includeCollectionSuccess?: string
@@ -31,6 +32,7 @@ export interface EnvironmentalAnalysisSummaryFilters {
   readonly from?: string
   readonly to?: string
   readonly states?: string | readonly string[]
+  readonly currentStates?: string | readonly string[]
   readonly regionCodes?: string | readonly string[]
   readonly applicationIds?: string | readonly string[]
 }
@@ -55,7 +57,7 @@ export class EnvironmentalAnalysisSummaryService {
     private readonly applicationEvents: ApplicationEventsRepository,
   ) {}
 
-  private async loadApplicationsInScope(states: readonly string[] | undefined, applicationIds: readonly string[] | undefined) {
+  private async loadApplicationsInScope(applicationIds: readonly string[] | undefined) {
     const allApplications = applicationIds
       ? await this.applications.findByIds(applicationIds)
       : await this.applications.findAll()
@@ -63,7 +65,6 @@ export class EnvironmentalAnalysisSummaryService {
     const selectedApplications = allApplications
       .filter(
         (application) =>
-          (!states || states.includes(application.state)) &&
           (!selectedIds || selectedIds.has(application.id)),
       )
       .sort((left, right) => left.id.localeCompare(right.id))
@@ -113,6 +114,7 @@ export class EnvironmentalAnalysisSummaryService {
       })
     }
     const states = parseValues(filters.states, 'INVALID_ANALYSIS_STATE_FILTER')
+    const currentStates = parseValues(filters.currentStates, 'INVALID_ANALYSIS_STATE_FILTER')
     const regionCodes = parseValues(
       filters.regionCodes,
       'INVALID_ANALYSIS_REGION_FILTER',
@@ -122,13 +124,18 @@ export class EnvironmentalAnalysisSummaryService {
       'INVALID_ANALYSIS_APPLICATION_FILTER',
     )
     if (
-      states?.some((state) => !stateValues.includes(state as ApplicationState))
+      states?.some((state) => !stateValues.includes(state as ApplicationState)) ||
+      currentStates?.some((state) => state !== 'UNVERIFIED' && !stateValues.includes(state as ApplicationState))
     ) {
       throw new BadRequestException({ code: 'INVALID_ANALYSIS_STATE_FILTER' })
     }
 
     try {
-      const selectedApplications = await this.loadApplicationsInScope(states, applicationIds)
+      const deadline = verificationDeadline()
+      const selectedApplications = (await this.loadApplicationsInScope(applicationIds)).filter(application =>
+        (!states || states.includes(application.state)) &&
+        (!currentStates || currentStates.includes(isVerificationOverdue(application, deadline) ? 'UNVERIFIED' : application.state)),
+      )
       const ids = selectedApplications.map(({ id }) => id)
       const [rows, history, attemptCounts] = await Promise.all([
         this.collections.findEnvironmentalByApplicationsAndPeriod(
@@ -166,6 +173,7 @@ export class EnvironmentalAnalysisSummaryService {
       const periodFrom = formatUtcTimestamp(start)
       const periodTo = formatUtcTimestamp(end)
       const duration = Number(end - start)
+      let unverifiedAvailableCount = 0
       const statesCount: EnvironmentalAnalysisSummaryDto['states'] = {
         AVAILABLE: 0,
         UNAVAILABLE: 0,
@@ -207,6 +215,8 @@ export class EnvironmentalAnalysisSummaryService {
         []
       for await (const application of scheduledApplications(filteredApplications)) {
         statesCount[application.state] += 1
+        const verificationOverdue = isVerificationOverdue(application, deadline)
+        if (verificationOverdue) unverifiedAvailableCount += 1
         const observations = (
           rowsByApplication.get(application.id) ?? []
         ).filter((row) => {
@@ -299,6 +309,7 @@ export class EnvironmentalAnalysisSummaryService {
             applicationId: application.id,
             name: application.name,
             state: application.state,
+            verificationOverdue,
             energy,
             emissions,
             coverage,
@@ -350,6 +361,7 @@ export class EnvironmentalAnalysisSummaryService {
           emissions: scopeDuration === 0 ? 0 : emissionsCovered / scopeDuration,
         },
         states: statesCount,
+        unverifiedAvailableCount,
         applications,
         provenance: {
           methodologies: [...methodologies.values()],

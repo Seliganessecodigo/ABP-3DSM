@@ -6,8 +6,9 @@ import {
 import { ApplicationEntity } from '../../database/entities/application.entity'
 import { ApplicationStateReason } from '../../database/entities/application-state-reason'
 import { ApplicationsRepository } from './applications.repository'
+import { isVerificationOverdue, verificationDeadline } from './application-verification'
 
-function toResponse(application: ApplicationEntity) {
+function toResponse(application: ApplicationEntity, deadline: number) {
   const { regionCode, country, region, city, latitude, longitude } = application
   const location =
     regionCode !== null &&
@@ -18,6 +19,7 @@ function toResponse(application: ApplicationEntity) {
       ? { regionCode, country, region, city, latitude, longitude }
       : null
 
+  const verificationOverdue = isVerificationOverdue(application, deadline)
   return {
     id: application.id,
     name: application.name,
@@ -29,7 +31,8 @@ function toResponse(application: ApplicationEntity) {
         ? ApplicationStateReason.METRICS_VALID
         : ApplicationStateReason.NO_OBSERVATION),
     lastObservationAt: application.lastObservationAt ?? null,
-    isStale: application.isStale ?? false,
+    isStale: verificationOverdue || (application.isStale ?? false),
+    verificationOverdue,
     isCalculable: application.isCalculable ?? false,
     firstSeenAt: application.firstSeenAt,
     lastCheckedAt: application.lastCheckedAt,
@@ -45,7 +48,8 @@ export class ApplicationsService {
   async list() {
     try {
       const applications = await this.applications.findAll()
-      return applications.map(toResponse)
+      const deadline = verificationDeadline()
+      return applications.map(application => toResponse(application, deadline))
     } catch {
       throw new ServiceUnavailableException({
         code: 'CATALOG_UNAVAILABLE',
@@ -72,6 +76,6 @@ export class ApplicationsService {
       })
     }
 
-    return toResponse(application)
+    return toResponse(application, verificationDeadline())
   }
 }

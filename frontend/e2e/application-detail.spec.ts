@@ -37,6 +37,7 @@ test('detail prioritizes operational evidence and links to historical investigat
     await route.fulfill({ json: { status: 'available', applicationId: 'svc-0142', period: { from, to },
       energy: { value: 0.59873637, unit: 'kWh', reasons: [] }, emissions: { value: 278.41230959, unit: 'gCO2e', reasons: [] },
       coverage: { energy: 0.96, emissions: 0.96 },
+      collectionSuccessRate: 0.85,
       provenance: { methodologies: [{ key: 'estimate', version: '2.1', parameters: {} }], factors: [{
         contractVersion: '1', regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: 'São Paulo',
         intensity: 100, unit: 'gCO2e/kWh', version: '2026.1', source: 'fixture', validFrom: from,
@@ -69,7 +70,8 @@ test('detail prioritizes operational evidence and links to historical investigat
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: test.info().outputPath('detail-operational.png') })
   await page.setViewportSize({ width: 1366, height: 844 })
-  const desktopCards = await Promise.all(['Energia', 'CO₂e', 'Cobertura'].map(name => page.getByRole('group', { name, exact: true }).boundingBox()))
+  await expect(page.getByRole('group', { name: 'Sucesso das coletas', exact: true })).toContainText('85%')
+  const desktopCards = await Promise.all(['Energia', 'CO₂e', 'Sucesso das coletas'].map(name => page.getByRole('group', { name, exact: true }).boundingBox()))
   for (const card of desktopCards) {
     expect(Math.abs(card!.y - desktopCards[0]!.y)).toBeLessThanOrEqual(1)
     expect(Math.abs(card!.height - desktopCards[0]!.height)).toBeLessThanOrEqual(1)

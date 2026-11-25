@@ -7,13 +7,14 @@ import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRightArrowLeft, faBolt, faCalendarDays, faChevronDown, faCrosshairs, faLayerGroup, faLeaf, faBatteryHalf, faChartSimple, faMicrochip, faMemory, faHardDrive, faNetworkWired, faLocationDot, faHeartPulse } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRightArrowLeft, faBolt, faCalendarDays, faChevronDown, faCrosshairs, faLayerGroup, faLeaf, faCircleCheck, faMicrochip, faMemory, faHardDrive, faNetworkWired, faLocationDot, faHeartPulse } from '@fortawesome/free-solid-svg-icons'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { useApplicationCatalog } from '../../features/applications/useApplicationCatalog.ts'
 import {
   selectCatalog,
-  type ApplicationState,
+  currentApplicationState,
+  type CatalogState as ApplicationState,
   type CatalogColumnFilters,
   type CatalogQuery,
   type CatalogSortColumn,
@@ -33,7 +34,7 @@ import { formatDate } from '../../utils/formatDate.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import styles from './ComparisonPage.module.css'
 
-const states: readonly (ApplicationState | 'ALL')[] = ['ALL', 'AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
+const states: readonly (ApplicationState | 'ALL')[] = ['ALL', 'AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED', 'UNVERIFIED']
 const sortColumns: readonly CatalogSortColumn[] = ['name', 'country', 'regionCode', 'city', 'state', 'lastCheckedAt']
 const pageSizes: readonly (number | 'all')[] = [5, 10, 15, 20, 'all']
 type PageState = Readonly<{
@@ -157,6 +158,7 @@ function differenceText(
 
 export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t, i18n } = useTranslation('comparison')
+  const { t: tDashboard } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
   const { t: tCatalog } = useTranslation('catalog')
   const { t: tDetail } = useTranslation('detail')
@@ -276,9 +278,13 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
     const shownUnit = emissions && unit === 'gCO2e' ? 'kgCO₂e' : unit
     return `${formatNumber(shown, locale)} ${shownUnit}`
   }
-  const coverageText = (value: number) => `${formatNumber(value * 100, locale)}%`
-  const coverageDifference = (value: number | null) => value === null
-    ? t('unavailable') : `${value > 0 ? '+' : ''}${formatNumber(value, locale)} pp`
+  const rateFormat = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 })
+  const referenceRate = selectedApplications.find(item => item.applicationId === referenceApplicationId)?.collectionSuccessRate
+  const rateDifference = (rate: number | null | undefined) => {
+    if (rate == null || referenceRate == null) return t('unavailable')
+    const points = (rate - referenceRate) * 100
+    return `${points > 0 ? '+' : ''}${formatNumber(points, locale)} pp`
+  }
   const metricText = (value: ComparisonApplication['metrics']['cpu']) =>
     measureText(value.value, value.unit ?? '', value.reasons)
   const locationText = (application: ComparisonApplication) => application.locations.length
@@ -295,14 +301,15 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
   const rows: ComparisonRow[] = [
     { key: 'energy', primary: true, icon: faBolt, label: t('energy'), value: (application) => measureText(application.energy.value, application.energy.unit, application.energy.reasons), difference: (application) => differenceText(application.differences.energy, locale, t, reasonLabel) },
     { key: 'emissions', primary: true, icon: faLeaf, label: t('emissions'), value: (application) => measureText(application.emissions.value, application.emissions.unit, application.emissions.reasons, true), difference: (application) => differenceText(application.differences.emissions, locale, t, reasonLabel, true) },
-    { key: 'energyCoverage', icon: faBatteryHalf, label: t('energyCoverage'), value: (application) => coverageText(application.coverage.energy), difference: (application) => coverageDifference(application.differences.coverage.energyPercentagePoints) },
-    { key: 'emissionsCoverage', icon: faChartSimple, label: t('emissionsCoverage'), value: (application) => coverageText(application.coverage.emissions), difference: (application) => coverageDifference(application.differences.coverage.emissionsPercentagePoints) },
+    { key: 'collectionSuccess', icon: faCircleCheck, label: tDashboard('collectionSuccess.title'), value: (application) =>
+      application.collectionSuccessRate == null ? t('unavailable') : rateFormat.format(application.collectionSuccessRate),
+    difference: (application) => rateDifference(application.collectionSuccessRate) },
     ...(['cpu', 'memory', 'disk', 'network'] as const).map((metric): ComparisonRow => ({
       key: metric, icon: { cpu: faMicrochip, memory: faMemory, disk: faHardDrive, network: faNetworkWired }[metric], label: t(metric), value: (application) => metricText(application.metrics[metric]),
       difference: (application) => differenceText(application.differences.metrics[metric], locale, t, reasonLabel),
     })),
     { key: 'location', icon: faLocationDot, label: t('locations'), value: locationText },
-    { key: 'state', icon: faHeartPulse, label: t('applicationState'), value: (application) => stateLabel(application.state, tCommon) },
+    { key: 'state', icon: faHeartPulse, label: t('applicationState'), value: (application) => stateLabel(currentApplicationState(application), tCommon) },
   ]
 
   const periodOptions = [...periodPresets, ...(pageState.period === 'month' || pageState.period === 'custom' ? [pageState.period] : [])]
@@ -318,7 +325,7 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
       { title: t('reference'), description: t('helpReference'), target: '[data-help="comparison-reference"]' },
       { title: t('energy'), description: tCommon('help.energy'), target: '[data-help="comparison-energy"]' },
       { title: t('emissions'), description: tCommon('help.emissions'), target: '[data-help="comparison-emissions"]' },
-      { title: t('energyCoverage'), description: tCommon('help.coverage'), target: '[data-help="comparison-energyCoverage"]' },
+      { title: tDashboard('collectionSuccess.title'), description: tDashboard('collectionSuccess.help'), target: '[data-help="comparison-collectionSuccess"]' },
     ]} /></div></div>
     </header>
     {catalogError && <RequestFeedback state="error"><p>{t('catalogError')}</p><button className="button secondary" type="button" onClick={retryCatalog}>{tCommon('actions.retry')}</button></RequestFeedback>}
@@ -397,7 +404,7 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
               <td>{application.location?.country ?? tCommon('location.unknown')}</td>
               <td>{application.location?.regionCode ?? tCommon('location.unknown')}</td>
               <td>{application.location?.city ?? tCommon('location.cityUnknown')}</td>
-              <td><span className={`state-badge state-${application.state.toLowerCase()}`}>{stateLabel(application.state, tCommon)}</span></td>
+              <td><span className={`state-badge state-${currentApplicationState(application).toLowerCase()}`}>{stateLabel(currentApplicationState(application), tCommon)}</span></td>
               <td>{formatDate(application.lastCheckedAt, locale, tCommon('date.noObservation'), listPresentation.timeZone)}</td>
             </tr>
           })}</tbody>

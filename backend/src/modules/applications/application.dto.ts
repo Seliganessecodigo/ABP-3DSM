@@ -44,6 +44,9 @@ export class ApplicationDto {
   @ApiProperty({ description: 'Indica se o último estado foi mantido com dados stale.' })
   isStale!: boolean
 
+  @ApiProperty({ description: 'O último estado foi AVAILABLE, mas não há verificação dentro do intervalo de monitoramento.' })
+  verificationOverdue!: boolean
+
   @ApiProperty({ type: Boolean, description: 'Calculabilidade das métricas; false quando ainda não há evidência suficiente.' })
   isCalculable!: boolean
 

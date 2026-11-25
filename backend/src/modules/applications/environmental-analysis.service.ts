@@ -368,13 +368,13 @@ export class EnvironmentalAnalysisService {
       if (!application) {
         throw new NotFoundException({ code: 'APPLICATION_NOT_FOUND' })
       }
-      const observations = await this.collections.findEnvironmentalByApplicationAndPeriod(
-        applicationId,
-        start,
-        end,
-      )
+      const [observations, attempts] = await Promise.all([
+        this.collections.findEnvironmentalByApplicationAndPeriod(applicationId, start, end),
+        this.applicationEvents.collectionAttemptCounts([applicationId], start, end),
+      ])
       return {
         applicationId,
+        collectionSuccessRate: attempts.rates.get(applicationId) ?? null,
         ...summarizePersistedEnvironmentalPeriod(from, to, observations),
       }
     } catch (error) {
@@ -412,14 +412,20 @@ export class EnvironmentalAnalysisService {
       if (!application) {
         throw new NotFoundException({ code: 'APPLICATION_NOT_FOUND' })
       }
-      const [observations, history, persistedEvents] = await Promise.all([
+      const [observations, history, persistedEvents, successByBucket] = await Promise.all([
         this.collections.findEnvironmentalByApplicationAndPeriod(applicationId, start, end),
         this.collections.findEnvironmentalHistoryByCollectedAt(applicationId, start, end),
         this.applicationEvents.findAnalysisEventsByApplicationAndPeriod(applicationId, start, end),
+        this.applicationEvents.collectionSuccessByBucket(applicationId, start, end, selectedGranularity),
       ])
+      const series = aggregatePersistedEnvironmentalSeries(from, to, selectedGranularity, observations)
       return {
         applicationId,
-        ...aggregatePersistedEnvironmentalSeries(from, to, selectedGranularity, observations),
+        ...series,
+        points: series.points.map(point => ({
+          ...point,
+          collectionSuccessRate: successByBucket.get(Date.parse(point.bucketStart)) ?? null,
+        })),
         events: buildEnvironmentalAnalysisSeriesEvents(from, to, history, persistedEvents),
       }
     } catch (error) {

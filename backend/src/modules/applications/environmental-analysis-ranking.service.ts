@@ -40,6 +40,7 @@ const sortFields = [
   "emissions",
   "energyCoverage",
   "emissionsCoverage",
+  "collectionSuccessRate",
   "rankability",
   "position",
   "participation",
@@ -60,6 +61,7 @@ const numericFields = [
   "emissions",
   "energyCoverage",
   "emissionsCoverage",
+  "collectionSuccessRate",
   "position",
   "participation",
 ] as const;
@@ -427,6 +429,8 @@ function sortPresentation(
         return row.coverage.energy;
       case "emissionsCoverage":
         return row.coverage.emissions;
+      case "collectionSuccessRate":
+        return row.collectionSuccessRate;
       case "rankability":
         return row.rankability;
       case "position":
@@ -466,6 +470,8 @@ function numericValue(row: RankingRow, field: NumericField): number | null {
       return row.coverage.energy;
     case "emissionsCoverage":
       return row.coverage.emissions;
+    case "collectionSuccessRate":
+      return row.collectionSuccessRate;
     case "position":
       return row.position;
     case "participation":
@@ -545,6 +551,7 @@ function numericQuery(
   const upperBound = [
     "energyCoverage",
     "emissionsCoverage",
+    "collectionSuccessRate",
     "participation",
   ].includes(field)
     ? 1

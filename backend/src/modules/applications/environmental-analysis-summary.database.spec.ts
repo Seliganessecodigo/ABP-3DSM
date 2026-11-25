@@ -195,6 +195,31 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
           VALUES ($1, 'collection_attempt', $2, 'system', $3)`, [id, at, { succeeded, regionCode }])
       }
       expect((await request()).collectionSuccess).toMatchObject({ successful: 4, total: 5, rate: 0.8 })
+      const available = await fetch(new URL(`/applications/${ids[0]}`, await app.getUrl()))
+      expect(available.status).toBe(200)
+      expect(await available.json()).toMatchObject({ state: 'AVAILABLE', verificationOverdue: true, isStale: true })
+      query.set('currentStates', 'UNVERIFIED')
+      expect(await request()).toMatchObject({
+        unverifiedAvailableCount: 1,
+        collectionSuccess: { successful: 3, total: 4, rate: 0.75 },
+      })
+      query.set('currentStates', 'AVAILABLE')
+      expect((await request()).collectionSuccess?.rate).toBeNull()
+      query.delete('currentStates')
+      const detailUrl = new URL(`/applications/${ids[0]}/analysis`, await app.getUrl())
+      detailUrl.search = new URLSearchParams({ from, to }).toString()
+      const detail = await fetch(detailUrl)
+      expect(detail.status).toBe(200)
+      expect(await detail.json()).toMatchObject({ collectionSuccessRate: 0.75, coverage: { energy: 0, emissions: 0 } })
+      const comparisonUrl = new URL('/analysis/comparison', await app.getUrl())
+      comparisonUrl.search = new URLSearchParams({ from, to, referenceApplicationId: ids[0] }).toString()
+      ids.forEach(id => comparisonUrl.searchParams.append('applicationIds', id))
+      const comparison = await fetch(comparisonUrl)
+      expect(comparison.status).toBe(200)
+      expect(await comparison.json()).toMatchObject({ applications: [
+        { applicationId: ids[0], collectionSuccessRate: 0.75 },
+        { applicationId: ids[1], collectionSuccessRate: 1 },
+      ] })
       const rankingQuery = new URLSearchParams(query)
       rankingQuery.delete('includeCollectionSuccess')
       rankingQuery.set('metric', 'emissions')
@@ -208,6 +233,12 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
           expect.objectContaining({ applicationId: ids[1], collectionSuccessRate: 1 }),
         ]),
       })
+      rankingQuery.set('collectionSuccessRateMin', '0.9')
+      rankingQuery.set('sortBy', 'collectionSuccessRate')
+      rankingQuery.set('sortDirection', 'desc')
+      const filteredRanking = await fetch(new URL(`/analysis/ranking?${rankingQuery}`, await app.getUrl()))
+      expect(filteredRanking.status).toBe(200)
+      expect(await filteredRanking.json()).toMatchObject({ items: [{ applicationId: ids[1], collectionSuccessRate: 1 }] })
       query.set('states', 'AVAILABLE')
       expect((await request()).collectionSuccess).toMatchObject({ successful: 3, total: 4, rate: 0.75 })
       query.set('regionCodes', 'br-sudeste')

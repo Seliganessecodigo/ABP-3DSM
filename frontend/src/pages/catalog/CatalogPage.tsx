@@ -12,7 +12,7 @@ import { RequestFeedback } from '../../components/RequestFeedback.tsx'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { selectCatalog, type ApplicationState as State, type CatalogQuery, type CatalogSortColumn } from '../../features/applications/catalog.ts'
+import { currentApplicationState, selectCatalog, type CatalogState as State, type CatalogQuery, type CatalogSortColumn } from '../../features/applications/catalog.ts'
 import { reasonLabel, stateLabel, stateIcons } from '../../features/applications/presentation.ts'
 import { formatDate } from '../../utils/formatDate.ts'
 import { readQuery, makeUrl, states } from './query.ts'
@@ -106,7 +106,7 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
       requestAnimationFrame(() => { window.scrollTo(0, returnState.scrollY as number); link.focus({ preventScroll: true }) })
     } catch { window.sessionStorage.removeItem(catalogReturnKey) }
   }, [hasSnapshot, loading, result.items])
-  const counts = useMemo(() => Object.fromEntries(states.map(({ value }) => [value, value === 'ALL' ? applications.length : applications.filter((item) => item.state === value).length])) as Record<State | 'ALL', number>, [applications])
+  const counts = useMemo(() => Object.fromEntries(states.map(({ value }) => [value, value === 'ALL' ? applications.length : applications.filter((item) => currentApplicationState(item) === value).length])) as Record<State | 'ALL', number>, [applications])
   const update = (patch: Partial<CatalogQuery>) => setQuery((current) => ({ ...current, ...patch, dateRangeInvalid: false, page: patch.page ?? 1 }))
   const updateFilter = (patch: Partial<NonNullable<CatalogQuery['filters']>>) => setDraftFilters((current) => ({ ...current, ...patch }))
   const toggleSort = (column: CatalogSortColumn) => update({ sort: { column, direction: query.sort?.column === column && query.sort.direction === 'asc' ? 'desc' : 'asc' } })
@@ -150,7 +150,8 @@ export function CatalogPage({ navigate }: Readonly<{ navigate: (url: string) => 
     if (column === 'regionCode') return region(item)
     if (column === 'city') return item.location ? item.location.city ?? tCommon('location.cityUnknown') : tCommon('location.unknown')
     if (column === 'lastCheckedAt') return formatDate(item.lastCheckedAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'), query.timeZone)
-    return <><details className={styles['state-details']}><summary><span className={`state-badge state-${item.state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[item.state]}</span>{stateLabel(item.state, tCommon)}</span></summary><div className={styles['state-metadata']}><small>{reasonLabel(item.reason, tCommon)}</small><small>{tCommon('date.lastObservation')}: {formatDate(item.lastObservationAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'))}</small>{!item.isCalculable && <small>{tCommon('calculability.unavailable')}</small>}</div></details>{item.isStale && <small className={styles['stale-label']}>{tCommon('freshness.stale')}</small>}</>
+    const state = currentApplicationState(item)
+    return <><details className={styles['state-details']}><summary><span className={`state-badge state-${state.toLowerCase()}`}><span aria-hidden="true">{stateIcons[state]}</span>{stateLabel(state, tCommon)}</span></summary><div className={styles['state-metadata']}><small>{reasonLabel(item.reason, tCommon)}</small><small>{tCommon('date.lastObservation')}: {formatDate(item.lastObservationAt, i18n.resolvedLanguage ?? 'pt-BR', tCommon('date.noObservation'))}</small>{!item.isCalculable && <small>{tCommon('calculability.unavailable')}</small>}</div></details>{item.isStale && state !== 'UNVERIFIED' && <small className={styles['stale-label']}>{tCommon('freshness.stale')}</small>}</>
   }
   const historyLink = (item: (typeof applications)[number]) => {
     const url = new URL(analysisNavigationUrl('/history', window.location), window.location.origin)

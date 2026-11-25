@@ -30,6 +30,7 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
       period: { from: '2026-10-10T20:00:00.000Z', to: '2026-10-17T20:00:00.000Z' },
       energy: { value: 12.5, unit: 'kWh', reasons: [] },
       emissions: { value: 4250, unit: 'gCO2e', reasons: [] },
+      collectionSuccessRate: 0.9,
       coverage: { energy: 0.75, emissions: 0.5 },
       provenance: {
         methodologies: [{ key: 'energy-estimate', version: '2.1', parameters: { cpuWattsAt100Percent: 100 } }],
@@ -48,8 +49,7 @@ test('detalhe consulta resumo e série no mesmo período e mostra os dados ambie
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('group', { name: 'Energia', exact: true })).toContainText(/12,5\s*kWh/)
   await expect(analysis.getByRole('group', { name: 'CO₂e', exact: true })).toContainText(/4[.,]250\s*gCO2e/)
-  await expect(page.getByRole('group', { name: 'Cobertura de energia', exact: true })).toContainText(/75\s*%/)
-  await expect(page.getByRole('group', { name: 'Cobertura de emissões', exact: true })).toContainText(/50\s*%/)
+  await expect(page.getByRole('group', { name: 'Sucesso das coletas', exact: true })).toHaveText(/90\s*%/)
   await expect(page.getByRole('figure')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Explorar histórico' })).toBeVisible()
   expect(requests.map((url) => [url.searchParams.get('from'), url.searchParams.get('to')]).sort()).toEqual([

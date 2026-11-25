@@ -2,7 +2,9 @@
 
 O Dashboard solicita `GET /analysis/summary?includeCollectionSuccess=true` para mostrar o sucesso das tentativas agendadas de **coleta de métricas**, independentemente da cobertura temporal dos resultados ambientais. A resposta ambiental, suas unidades e coberturas mantêm o comportamento anterior.
 
-O resumo com essa opção e o Ranking retornam `collectionSuccessRate` por aplicação. O valor vai de 0 a 1 e é `null` quando nenhuma tentativa foi registrada para a aplicação no recorte.
+O resumo com essa opção, o Ranking, a Comparação e a análise ambiental de uma aplicação retornam `collectionSuccessRate` por aplicação no período. A série individual também retorna a taxa por intervalo UTC, contando somente as tentativas dentro do recorte solicitado. O valor vai de 0 a 1 e é `null` quando nenhuma tentativa foi registrada no recorte.
+
+O catálogo e as análises que mostram estado atual retornam `verificationOverdue` quando a última verificação de uma aplicação registrada como disponível passou do intervalo configurado de monitoramento ou está ausente. O estado persistido continua disponível para histórico e para o filtro `states`. O resumo expõe a contagem `unverifiedAvailableCount` e aceita `currentStates=UNVERIFIED` para filtrar a situação atual.
 
 Uma tentativa lógica corresponde à consulta de métricas de uma aplicação em um ciclo agendado; retries HTTP internos não multiplicam o denominador. Sucesso exige métricas válidas e observação persistida, incluindo a evidência calculada e a atualização operacional. Uma observação já persistida e reutilizada também é sucesso. Falhas de métricas ou persistência são insucessos; requisições canceladas antes da conclusão não entram na taxa. Erros de catálogo que impedem o início das consultas de métricas não são tentativas de métricas. Falhas de carbono permanecem independentes: não impedem o sucesso de uma coleta de métricas válidas e salvas.
 

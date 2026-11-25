@@ -1,4 +1,5 @@
 import type { Application } from '../../features/applications/api.ts'
+import { currentApplicationState, type CatalogState } from '../../features/applications/catalog.ts'
 import type { EnvironmentalSummaryApplication } from '../../features/analysis/environmentalSummary.ts'
 import type { DashboardQuery, DashboardTableFilters } from './query.ts'
 
@@ -21,7 +22,8 @@ export function validDashboardFilters(filters: DashboardTableFilters): boolean {
     validRange(filters.emissionsMin, filters.emissionsMax) &&
     validRange(filters.energyCoverageMin, filters.energyCoverageMax) &&
     validRange(filters.emissionsCoverageMin, filters.emissionsCoverageMax) &&
-    [filters.energyCoverageMin, filters.energyCoverageMax, filters.emissionsCoverageMin, filters.emissionsCoverageMax]
+    validRange(filters.collectionSuccessMin, filters.collectionSuccessMax) &&
+    [filters.energyCoverageMin, filters.energyCoverageMax, filters.emissionsCoverageMin, filters.emissionsCoverageMax, filters.collectionSuccessMin, filters.collectionSuccessMax]
       .every((value) => value === '' || Number(value) <= 100)
 }
 
@@ -50,16 +52,16 @@ function matchesSearch(row: DashboardRow, stateLabel: string, query: string): bo
   if (!query) return true
   return [row.name, stateLabel, row.regionCode ?? '', row.energy.value === null ? '' : `${row.energy.value} ${row.energy.unit}`,
     row.emissions.value === null ? '' : `${row.emissions.value} ${row.emissions.unit}`,
-    row.collectionSuccessRate == null ? '' : `${row.collectionSuccessRate * 100}%`,
-    `${row.coverage.energy * 100}`, `${row.coverage.emissions * 100}`].some((value) => normalizedIncludes(value, query))
+    row.collectionSuccessRate == null ? '' : `${row.collectionSuccessRate * 100}%`].some((value) => normalizedIncludes(value, query))
 }
 
 function matchesFilters(row: DashboardRow, filters: DashboardTableFilters): boolean {
   return (!filters.name || normalizedIncludes(row.name, filters.name)) &&
-    (filters.state === 'ALL' || filters.state === row.state) &&
+    (filters.state === 'ALL' || filters.state === currentApplicationState(row)) &&
     (!filters.region || row.regionCode !== null && normalizedIncludes(row.regionCode, filters.region)) &&
     passesRange(row.energy.value, filters.energyMin, filters.energyMax, filters.energyMissing) &&
     passesRange(row.emissions.value, filters.emissionsMin, filters.emissionsMax, filters.emissionsMissing) &&
+    passesRange(row.collectionSuccessRate == null ? null : row.collectionSuccessRate * 100, filters.collectionSuccessMin, filters.collectionSuccessMax, false) &&
     passesRange(row.coverage.energy * 100, filters.energyCoverageMin, filters.energyCoverageMax, false) &&
     passesRange(row.coverage.emissions * 100, filters.emissionsCoverageMin, filters.emissionsCoverageMax, false)
 }
@@ -69,20 +71,20 @@ export function selectDashboardRows(
   applications: readonly Pick<Application, 'id' | 'location'>[],
   query: DashboardQuery,
   locale: string,
-  labelForState: (state: EnvironmentalSummaryApplication['state']) => string,
+  labelForState: (state: CatalogState) => string,
 ): Readonly<{ items: readonly DashboardRow[]; total: number }> {
   const currentRegions = new Map(applications.map((application) => [application.id, application.location?.regionCode ?? null]))
   const rows = contributions.map((item): DashboardRow => ({ ...item, regionCode: currentRegions.get(item.applicationId) ?? null }))
   const filtered = validDashboardFilters(query.filters)
     ? rows.filter((row) => {
-      const stateLabel = labelForState(row.state)
+      const stateLabel = labelForState(currentApplicationState(row))
       return matchesSearch(row, stateLabel, query.search) && matchesFilters(row, query.filters)
     })
     : []
   const getValue = (row: DashboardRow): string | number | null => {
     switch (query.sort.column) {
       case 'name': return row.name
-      case 'state': return labelForState(row.state)
+      case 'state': return labelForState(currentApplicationState(row))
       case 'region': return row.regionCode
       case 'energy': return row.energy.value
       case 'emissions': return row.emissions.value

@@ -33,6 +33,7 @@
   "date.noObservation": "कोई अवलोकन नहीं",
   "state.ALL": "सभी",
   "state.AVAILABLE": "उपलब्ध",
+  "state.UNVERIFIED": "हाल की जाँच उपलब्ध नहीं",
   "state.UNAVAILABLE": "अनुपलब्ध",
   "state.NO_METRICS": "कोई मेट्रिक नहीं",
   "state.REMOVED": "हटाया गया",

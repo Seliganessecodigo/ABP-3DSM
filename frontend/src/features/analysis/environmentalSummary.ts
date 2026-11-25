@@ -1,5 +1,6 @@
 import { analysisRangeFor } from './source.ts'
 import type { PeriodPreset } from './periodContext.ts'
+import type { CatalogState } from '../applications/catalog.ts'
 
 export type EnvironmentalSummaryState = 'AVAILABLE' | 'UNAVAILABLE' | 'NO_METRICS' | 'REMOVED'
 export type EnvironmentalSummaryMeasure = Readonly<{ value: number | null; unit: string }>
@@ -9,6 +10,7 @@ export type CollectionSuccess = Readonly<{
 }>
 export type EnvironmentalSummaryApplication = Readonly<{
   collectionSuccessRate?: number | null
+  verificationOverdue?: boolean
   applicationId: string
   name: string
   state: EnvironmentalSummaryState
@@ -18,6 +20,7 @@ export type EnvironmentalSummaryApplication = Readonly<{
 }>
 export type EnvironmentalSummary = Readonly<{
   collectionSuccess?: CollectionSuccess
+  unverifiedAvailableCount?: number
   status: 'available' | 'empty'
   period: Readonly<{ from: string; to: string }>
   series?: Readonly<{ granularity: string; points: readonly EnvironmentalSummaryPoint[] }>
@@ -40,7 +43,7 @@ export type EnvironmentalSummaryFilters = Readonly<{
   granularity?: 'hour' | 'day' | 'month' | 'year'
   range?: Readonly<{ from: string; to: string }>
   anchor: string
-  state: EnvironmentalSummaryState | null
+  state: CatalogState | null
   regionCode: string
 }>
 
@@ -118,9 +121,13 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
   }
 
   const ids = new Set<string>()
+  const unverified = value.unverifiedAvailableCount
+  if (unverified !== undefined && (typeof unverified !== 'number' || !Number.isSafeInteger(unverified) ||
+    unverified < 0 || unverified > states.AVAILABLE)) throw new Error('Invalid overdue verification count')
   const applications = value.applications.map((entry): EnvironmentalSummaryApplication => {
     if (!isRecord(entry) || typeof entry.applicationId !== 'string' || !entry.applicationId ||
-      typeof entry.name !== 'string' || !entry.name || !isRecord(entry.coverage)) {
+      typeof entry.name !== 'string' || !entry.name || !isRecord(entry.coverage) ||
+      (entry.verificationOverdue !== undefined && typeof entry.verificationOverdue !== 'boolean')) {
       throw new Error('Invalid application in environmental summary')
     }
     if (ids.has(entry.applicationId)) throw new Error('Duplicate application in environmental summary')
@@ -129,6 +136,7 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
       applicationId: entry.applicationId,
       name: entry.name,
       state: readState(entry.state),
+      ...(entry.verificationOverdue !== undefined ? { verificationOverdue: entry.verificationOverdue } : {}),
       energy: readMeasure(entry.energy, 'application energy'),
       emissions: readMeasure(entry.emissions, 'application emissions'),
       ...(entry.collectionSuccessRate !== undefined ? {
@@ -156,6 +164,7 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
       emissions: readCoverage(value.coverage.emissions, 'emissions coverage'),
     },
     states,
+    ...(unverified !== undefined ? { unverifiedAvailableCount: unverified } : {}),
     applications,
   }
 }
@@ -193,7 +202,7 @@ export async function getEnvironmentalSummary(filters: EnvironmentalSummaryFilte
   const range = analysisRangeFor(filters.period, new Date(filters.anchor), filters.range)
   const params = new URLSearchParams({ ...range, includeProvenance: 'false', granularity: filters.granularity ?? (filters.period === '24h' ? 'hour' : 'day') })
   if (filters.includeCollectionSuccess) params.set('includeCollectionSuccess', 'true')
-  if (filters.state) params.append('states', filters.state)
+  if (filters.state) params.append('currentStates', filters.state)
   if (filters.regionCode) params.append('regionCodes', filters.regionCode)
   const base = (import.meta.env.VITE_API_URL as string | undefined ?? '/api').replace(/\/+$/, '')
   const response = await fetch(`${base}/analysis/summary?${params}`, { signal, headers: { Accept: 'application/json' } })

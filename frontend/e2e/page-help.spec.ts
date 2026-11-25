@@ -114,8 +114,8 @@ for (const width of [1366, 390]) {
       await page.getByRole('button', { name: 'Ajuda desta tela', exact: true }).click()
       const dialog = page.getByRole('dialog')
       const targets = history
-        ? ['history-filters', 'analysis-energy', 'analysis-emissions', 'analysis-coverage', 'analysis-chart', 'history-intervals', 'analysis-context']
-        : ['detail-identity', 'analysis-energy', 'analysis-emissions', 'analysis-coverage', 'detail-evidence']
+        ? ['history-filters', 'analysis-energy', 'analysis-emissions', 'analysis-collection-success', 'analysis-chart', 'history-intervals', 'analysis-context']
+        : ['detail-identity', 'analysis-energy', 'analysis-emissions', 'analysis-collection-success', 'detail-evidence']
       for (const [index, target] of targets.entries()) {
         await expect(page.locator(`[data-help="${target}"]:visible`)).toHaveCSS('outline-style', 'solid')
         if (index < targets.length - 1) await dialog.getByRole('button', { name: 'Próximo', exact: true }).click()
@@ -155,7 +155,7 @@ for (const width of [1366, 996, 390]) {
     if (width > 900) expect(Math.abs(actions[0]!.y - actions[1]!.y)).toBeLessThanOrEqual(1)
     await expect(page.getByRole('group', { name: 'Energia', exact: true })).toContainText('4 kWh')
     await expect(page.getByRole('figure').first()).toBeVisible()
-    const cards = await Promise.all(['Energia', 'CO₂e', 'Cobertura', 'Contexto do cálculo'].map(name => page.getByRole('group', { name, exact: true }).boundingBox()))
+    const cards = await Promise.all(['Energia', 'CO₂e', 'Sucesso das coletas', 'Contexto do cálculo'].map(name => page.getByRole('group', { name, exact: true }).boundingBox()))
     for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) {
       if (Math.abs(cards[i]!.y - cards[j]!.y) <= 1) expect(Math.abs(cards[i]!.height - cards[j]!.height)).toBeLessThanOrEqual(1)
     }

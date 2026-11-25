@@ -1,24 +1,21 @@
 import { expect, test } from '@playwright/test'
 import { application, mockCatalog } from './support/catalog.ts'
 
-test('mostra energia e cobertura zero separadas de CO₂e e cobertura indisponíveis', async ({ page }) => {
+test('mostra energia e sucesso das coletas iguais a zero com CO₂e indisponível', async ({ page }) => {
   await mockCatalog(page, [application()])
   await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&fixture=zero-without-factor')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const energy = analysis.getByRole('group', { name: 'Energia', exact: true })
   const emissions = analysis.getByRole('group', { name: 'CO₂e', exact: true })
-  const energyCoverage = page.getByRole('group', { name: 'Cobertura de energia', exact: true })
-  const emissionsCoverage = page.getByRole('group', { name: 'Cobertura de emissões', exact: true })
+  const success = page.getByRole('group', { name: 'Sucesso das coletas', exact: true })
 
   await expect(analysis).toBeVisible()
   await expect(energy).toContainText(/0\s*kWh/)
-  await expect(energyCoverage).toContainText(/0\s*%/)
+  await expect(success).toContainText(/0\s*%/)
   await expect(emissions).toContainText('Não calculável')
   await expect(emissions).toContainText('Fator de carbono indisponível')
-  await expect(emissionsCoverage).toContainText('Cobertura de emissões indisponível')
   await expect(energy).not.toContainText(/indisponível|não calculável/i)
-  await expect(emissionsCoverage).not.toContainText(/0\s*%/)
 })
 
 test('não apresenta resultados para período inválido até a seleção de um período válido', async ({ page }) => {
@@ -43,10 +40,11 @@ test('mantém a indisponibilidade ambiental no runtime quando a consulta do resu
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   await expect(analysis.getByRole('alert')).toContainText('Não foi possível consultar os dados ambientais para este período')
-  for (const name of ['Energia', 'CO₂e', 'Cobertura de energia', 'Cobertura de emissões']) {
-    const metric = name.startsWith('Cobertura') ? page.getByRole('group', { name, exact: true }) : analysis.getByRole('group', { name, exact: true })
+  for (const name of ['Energia', 'CO₂e']) {
+    const metric = analysis.getByRole('group', { name, exact: true })
     await expect(metric).toContainText('Indispon\u00edvel')
   }
+  await expect(page.getByRole('group', { name: 'Sucesso das coletas', exact: true })).toContainText('Taxa de sucesso indisponível.')
   await expect(analysis).not.toContainText(/0\s*kWh|0\s*%/)
 })
 

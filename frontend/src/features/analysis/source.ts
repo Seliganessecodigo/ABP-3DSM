@@ -6,6 +6,7 @@ export type AnalysisReading =
   | Readonly<{ status: 'unavailable' | 'not-calculable'; reason: AnalysisPresentationReason }>
 
 export type AnalysisViewModel = Readonly<{
+  collectionSuccessRate?: number | null
   calculation?: Readonly<{ energyKwh: number | null; intensity: number | null }>
   energy: AnalysisReading
   emissions: AnalysisReading
@@ -50,6 +51,7 @@ export type AnalysisSeriesPoint = Readonly<{
   timestamp: string
   bucketEnd?: string
   coverage?: Readonly<{ energy: number; emissions: number }>
+  collectionSuccessRate?: number | null
   energy: AnalysisReading
   emissions: AnalysisReading
 }>
@@ -191,6 +193,9 @@ function readSeries(value: unknown, applicationId: string) {
       typeof entry.bucketEnd !== 'string' || !Number.isFinite(Date.parse(entry.bucketEnd))) throw new Error('Invalid analysis point')
     assertRecord(entry.coverage, 'analysis point coverage')
     return { id: entry.bucketStart, timestamp: entry.bucketStart, bucketEnd: entry.bucketEnd,
+      ...(entry.collectionSuccessRate !== undefined ? {
+        collectionSuccessRate: entry.collectionSuccessRate === null ? null : readCoverage(entry.collectionSuccessRate),
+      } : {}),
       coverage: { energy: readCoverage(entry.coverage.energy), emissions: readCoverage(entry.coverage.emissions) },
       energy: readSeriesMeasure(entry.energy, value.status === 'empty'), emissions: readSeriesMeasure(entry.emissions, value.status === 'empty') }
   })
@@ -400,6 +405,9 @@ async function loadEnvironmentalAnalysis(applicationId: string, context: Analysi
   }
   const data: AnalysisViewModel = {
     calculation,
+    ...(summary.collectionSuccessRate !== undefined ? {
+      collectionSuccessRate: summary.collectionSuccessRate === null ? null : readCoverage(summary.collectionSuccessRate),
+    } : {}),
     energy: readMeasure(summary.energy, summary.status === 'empty'), emissions: readMeasure(summary.emissions, summary.status === 'empty'),
     energyCoverage: { status: 'available', value: readCoverage(summary.coverage.energy), unit: 'fraction' },
     emissionsCoverage: { status: 'available', value: readCoverage(summary.coverage.emissions), unit: 'fraction' },
