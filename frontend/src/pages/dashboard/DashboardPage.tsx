@@ -385,8 +385,10 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           <label>{preferencesText('periodTo')}<input className="form-control" type="datetime-local" step="1" required aria-describedby="dashboard-custom-period-help"
             aria-invalid={Boolean(customDraft.from && customDraft.to && !validCustomPeriod)}
             value={customDraft.to} onChange={event => setCustomDraft({ ...customDraft, to: event.target.value })} /></label>
-          <button type="button" onClick={closeCustomPeriod}>{t('filters.cancel')}</button>
-          <button type="submit" disabled={!validCustomPeriod}>{tRanking('apply')}</button>
+          <div className={styles.customPeriodActions}>
+            <button type="button" onClick={closeCustomPeriod}>{t('filters.cancel')}</button>
+            <button type="submit" disabled={!validCustomPeriod}>{tRanking('apply')}</button>
+          </div>
           <small id="dashboard-custom-period-help">{preferencesText('periodBoundaries')}</small>
         </form>}
       </div>

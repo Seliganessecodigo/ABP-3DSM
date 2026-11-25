@@ -37,6 +37,7 @@
 .customPeriod form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
 .customPeriod label { min-width: 0; }
 .customPeriod input { max-width: 100%; }
+.customPeriodActions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .customPeriod button:disabled { cursor: not-allowed; opacity: .65; }
 .customPeriod small { flex-basis: 100%; color: var(--text-secondary); }
 .controls button { font-size: var(--control-font-size); line-height: 20px; }
@@ -235,6 +236,7 @@
   .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
   .periods button { min-height: 44px; }
   .customPeriodButton { grid-column: 1 / -1; }
+  .customPeriod form { flex-direction: column; align-items: stretch; }
   .controls > label { min-width: 0; }
   .controls select { width: 100%; }
   .comparisonNote { grid-column: 1 / -1; margin: 0 0 8px; }
