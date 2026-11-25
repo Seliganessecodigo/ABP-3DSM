@@ -482,7 +482,8 @@ export function EnvironmentalAnalysis({ data, status, locale, labels, onRetry, f
   const methodologyVersions = data?.methodology.status === 'available'
     ? [...new Set(data.methodology.entries.map(({ version }) => version))] : []
   const historyMethodologyFallback = methodologyVersions.length === 1 ? methodologyVersions[0] : null
-  const partialCoverage = historyMode && showData && data &&
+  const historyHasMetrics = historyMode && showData && data !== null
+  const partialCoverage = historyHasMetrics &&
     [data.energyCoverage, data.emissionsCoverage].some(reading =>
       reading.status === 'available' && reading.unit === 'fraction' && reading.value < 1)
   if (historyMode && inspectionBucket !== null) {
