@@ -16,6 +16,7 @@ for (const partial of [false, true]) {
         energy: { value: partial ? 10 : 4, unit: 'kWh', reasons: [] },
         emissions: { value: 430, unit: 'gCO2e', reasons: [] },
         coverage: { energy: 1, emissions: partial ? 0.5 : 1 },
+        collectionSuccessRate: 0.75,
         calculation: { energyKwh: 4, intensity: 107.5 },
         provenance: { methodologies: [], reasons: [], factors: [85, 115].map((intensity) => ({
           contractVersion: '1', regionCode: 'BR-SP', country: 'Brasil', region: 'São Paulo', city: null, intensity,
@@ -39,8 +40,9 @@ for (const partial of [false, true]) {
     await expect(page.getByRole('region', { name: 'Fatores aplicados' })).toContainText('115 gCO2e/kWh')
     expect(await card.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true)
     expect(await card.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true)
-    const coverage = page.getByRole('group', { name: 'Cobertura', exact: true })
-    expect(await coverage.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true)
+    const success = page.getByRole('group', { name: 'Sucesso das coletas', exact: true })
+    await expect(success).toContainText('75%')
+    expect(await success.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true)
     await page.locator('#analysis-details > summary').click()
     await expect(card).toBeHidden()
     await page.screenshot({ path: testInfo.outputPath(`factor-${partial ? 'partial' : 'full'}.png`) })
