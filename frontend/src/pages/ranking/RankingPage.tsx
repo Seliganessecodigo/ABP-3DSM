@@ -46,9 +46,7 @@ function validPageSize(value: string | null): number | 'all' {
   return pageSizes.find(size => String(size) === value) ?? 10
 }
 
-function rankingRequest(params: URLSearchParams): EnvironmentalRankingQuery | null {
-  const from = params.get('from')
-  const to = params.get('to')
+function rankingRequest(params: URLSearchParams, { from, to }: ReturnType<typeof defaultPeriod>): EnvironmentalRankingQuery | null {
   if (!from || !to || !Number.isFinite(Date.parse(from)) || !Number.isFinite(Date.parse(to)) || Date.parse(to) <= Date.parse(from)) return null
   const metric: RankingMetric = params.get('metric') === 'energy' ? 'energy' : 'emissions'
   const direction: RankingDirection = params.get('direction') === 'asc' ? 'asc' : 'desc'
@@ -80,15 +78,16 @@ function stateKey(state: RankingState) {
 export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => void }>) {
   const { t, i18n } = useTranslation('ranking')
   const { t: tCommon } = useTranslation('common')
+  const { t: tDashboard } = useTranslation('dashboard')
   const search = window.location.search
   const params = useMemo(() => new URLSearchParams(search), [search])
-  const from = params.get('from') ?? ''
-  const to = params.get('to') ?? ''
+  const [initialPeriod] = useState(defaultPeriod)
+  const from = params.get('from') ?? initialPeriod.from
+  const to = params.get('to') ?? initialPeriod.to
   const metric: RankingMetric = params.get('metric') === 'energy' ? 'energy' : 'emissions'
   const direction: RankingDirection = params.get('direction') === 'asc' ? 'asc' : 'desc'
-  const request = useMemo(() => rankingRequest(params), [params])
+  const request = useMemo(() => rankingRequest(params, { from, to }), [params, from, to])
   const [data, setData] = useState<EnvironmentalRanking | null>(null)
-  const [chartData, setChartData] = useState<EnvironmentalRanking | null>(null)
   const [applications, setApplications] = useState<readonly Application[]>([])
   const [catalogError, setCatalogError] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -97,10 +96,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [scopeFiltersOpen, setScopeFiltersOpen] = useState(false)
   const [periodExpanded, setPeriodExpanded] = useState(false)
-  const [dateDraft, setDateDraft] = useState(() => {
-    const period = defaultPeriod()
-    return { from: dateInput(from || period.from), to: dateInput(to || period.to) }
-  })
+  const [dateDraft, setDateDraft] = useState(() => ({ from: dateInput(from), to: dateInput(to) }))
   const [regionDraft, setRegionDraft] = useState(params.getAll('regionCodes').join(', '))
   const [searchDraft, setSearchDraft] = useState(params.get('search') ?? '')
   const [filtersDraft, setFiltersDraft] = useState<Record<string, string>>(() => Object.fromEntries(columnFilterKeys.map(key => [key, params.get(key) ?? ''])))
@@ -117,7 +113,6 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
   useEffect(() => {
     if (!request) {
       setData(null)
-      setChartData(null)
       setLoading(false)
       setError(false)
       return
@@ -125,13 +120,8 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
     const controller = new AbortController()
     setLoading(true)
     setError(false)
-    const completeQuery = { ...request, page: 1, pageSize: 'all' as const }
-    const tableRequest = getEnvironmentalRanking(request, controller.signal)
-    void Promise.all([
-      tableRequest,
-      request.pageSize === 'all' ? tableRequest : getEnvironmentalRanking(completeQuery, controller.signal),
-    ]).then(([table, chart]) => {
-      if (!controller.signal.aborted) { setData(table); setChartData(chart) }
+    void getEnvironmentalRanking(request, controller.signal).then(table => {
+      if (!controller.signal.aborted) setData(table)
     }).catch(() => {
       if (!controller.signal.aborted) setError(true)
     }).finally(() => {
@@ -142,25 +132,16 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
 
   useEffect(() => {
     const nextParams = new URLSearchParams(search)
-    const period = defaultPeriod()
-    setDateDraft({ from: dateInput(nextParams.get('from') || period.from), to: dateInput(nextParams.get('to') || period.to) })
+    setDateDraft({ from: dateInput(from), to: dateInput(to) })
     setRegionDraft(nextParams.getAll('regionCodes').join(', '))
     setSearchDraft(nextParams.get('search') ?? '')
     setFiltersDraft(Object.fromEntries(columnFilterKeys.map(key => [key, nextParams.get(key) ?? ''])))
-  }, [search])
+  }, [search, from, to])
 
   const navigateQuery = (next: URLSearchParams, resetPage = true) => {
     if (resetPage) next.delete('page')
     navigate(`/ranking${next.size ? `?${next.toString()}` : ''}`)
   }
-  useEffect(() => {
-    if (params.has('from') && params.has('to')) return
-    const period = defaultPeriod()
-    const next = new URLSearchParams(search)
-    next.set('from', period.from)
-    next.set('to', period.to)
-    navigateQuery(next)
-  }, [search])
   const changeParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(search)
     setParam(next, key, value)
@@ -235,7 +216,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const rankedItems = data?.items.filter(item => item.rankability === 'ranked') ?? []
   const unrankedItems = data?.items.filter(item => item.rankability === 'unranked') ?? []
   const measureFor = (item: (typeof rankedItems)[number]) => metric === 'energy' ? item.energy : item.emissions
-  const maxValue = Math.max(0, ...(chartData?.items ?? rankedItems).map(item => measureFor(item).value ?? 0))
+  const maxValue = data?.presentation.maxValue ?? rankedItems.reduce((max, item) => Math.max(max, measureFor(item).value ?? 0), 0)
   const toggleSelection = (applicationId: string, name: string, checked: boolean) => {
     setSelected(current => {
       const next = new Map(current)
@@ -344,7 +325,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       <button type="button" onClick={() => { const next = new URLSearchParams(search); for (const key of columnFilterKeys) next.delete(key); navigateQuery(next) }}>{t('clearAll')}</button>
     </div>}
 
-    {loading && <RequestFeedback state="loading"><p>{t('loading')}</p></RequestFeedback>}
+    {loading && !data && <RequestFeedback state="loading"><p>{t('loading')}</p></RequestFeedback>}
     {error && <RequestFeedback state="error"><h2>{t('error')}</h2><ActionButton onClick={() => setRetry(value => value + 1)}>{tCommon('actions.retry')}</ActionButton></RequestFeedback>}
     {!request && <p className={styles.hint}>{t('choosePeriod')}</p>}
 
@@ -353,22 +334,22 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
       {data.status === 'empty' && <RequestFeedback state="empty"><p>{t('empty')}</p></RequestFeedback>}
       {data.pagination.totalItems === 0 && data.status !== 'empty' && <RequestFeedback state="empty"><p>{t('noMatches')}</p></RequestFeedback>}
 
-      {rankedItems.length > 0 && <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title">
+      {rankedItems.length > 0 && <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title" aria-busy={loading}>
           <div className={styles.tableHeading}><h2 id="ranking-table-title"><CardIcon icon={faRankingStar} size="small" inline />{t('rankedApplications', { count: data.presentation.rankedCount })}</h2><span>{t('relativeToMaximum')}</span></div>
           <div className={styles.tableScroll}><table>
             <thead><tr>
               <th scope="col" aria-label={t('select')} />
-              {([{ label: 'position', key: 'position' }, { label: 'application', key: 'name' }, { label: 'region', key: 'region' }, { label: metric, key: metric }, { label: 'coverage', key: metric === 'energy' ? 'energyCoverage' : 'emissionsCoverage' }] as const).map(({ label, key }) => {
+              {([{ label: 'position', key: 'position' }, { label: 'application', key: 'name' }, { label: 'region', key: 'region' }, { label: metric, key: metric }] as const).map(({ label, key }) => {
                 const sort = tableSortPresentation(key, sortBy, sortDirection)
                 return <th scope="col" key={key} aria-sort={sort.ariaSort}>
                   <SortButton state={sort.ariaSort} onClick={() => sortColumn(key)}>{t(columnLabelKeys[label] ?? label)}</SortButton>
                 </th>
               })}
+              <th scope="col">{tDashboard('collectionSuccess.title')}</th>
               <th scope="col">{t('detail')}</th>
             </tr></thead>
             <tbody>{rankedItems.map(item => {
               const measure = measureFor(item)
-              const coverage = metric === 'energy' ? item.coverage.energy : item.coverage.emissions
               const valueInDesignUnit = measure.value === null ? null : metric === 'emissions' ? measure.value / 1000 : measure.value
               const shownUnit = metric === 'emissions' ? t('kgCO2e') : measure.unit
               const barWidth = valueInDesignUnit === null || maxValue === 0 ? 0 : Math.max(2, valueInDesignUnit / (metric === 'emissions' ? maxValue / 1000 : maxValue) * 100)
@@ -380,7 +361,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
                 <td><a href={detailHref} onClick={event => { event.preventDefault(); navigate(detailHref) }}>{item.name}</a><small>{item.applicationId}</small></td>
                 <td>{item.location.regionCode ?? t('notAvailable')}<small>{[item.location.region, item.location.country, item.location.city].filter(Boolean).join(' · ')}</small></td>
                 <td><strong>{valueInDesignUnit === null ? t('notAvailable') : `${number(valueInDesignUnit, shownUnit)}`}</strong><span className={styles.metricBar} aria-hidden="true"><span style={{ width: `${Math.min(barWidth, 100)}%` }} /></span></td>
-                <td><strong>{percent(coverage)}</strong><small className={coverage < 1 ? styles.partial : styles.complete}>{coverage < 1 ? t('partial') : t('complete')}</small></td>
+                <td>{percent(item.collectionSuccessRate ?? null)}</td>
                 <td><a className={styles.detailLink} href={detailHref} aria-label={t('openDetails', { name: item.name })} onClick={event => { event.preventDefault(); navigate(detailHref) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M2 10s2.8-5 8-5 8 5 8 5-2.8 5-8 5-8-5-8-5Z" /><circle cx="10" cy="10" r="2.2" /></svg></a></td>
               </tr>
             })}</tbody>
@@ -388,7 +369,6 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
           <div className={styles.mobileRankedList}>
             {rankedItems.map(item => {
               const measure = measureFor(item)
-              const coverage = metric === 'energy' ? item.coverage.energy : item.coverage.emissions
               const valueInDesignUnit = measure.value === null ? null : metric === 'emissions' ? measure.value / 1000 : measure.value
               const shownUnit = metric === 'emissions' ? t('kgCO2e') : measure.unit
               const barWidth = valueInDesignUnit === null || maxValue === 0 ? 0 : Math.max(2, valueInDesignUnit / (metric === 'emissions' ? maxValue / 1000 : maxValue) * 100)
@@ -402,7 +382,7 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
                 <p className={styles.mobileRankRegion}>{[item.location.regionCode, item.location.region, item.location.country].filter(Boolean).join(' · ')}</p>
                 <strong className={styles.mobileRankValue}>{number(valueInDesignUnit, shownUnit)}</strong>
                 <span className={styles.metricBar} aria-hidden="true"><span style={{ width: `${Math.min(barWidth, 100)}%` }} /></span>
-                <small className={coverage < 1 ? styles.partial : styles.complete}>{coverage < 1 ? '△ ' : '✓ '}{coverage < 1 ? t('partial') : t('complete')} · {t('coverage')}: {percent(coverage)}</small>
+                <small>{tDashboard('collectionSuccess.title')}: {percent(item.collectionSuccessRate ?? null)}</small>
               </article>
             })}
           </div>

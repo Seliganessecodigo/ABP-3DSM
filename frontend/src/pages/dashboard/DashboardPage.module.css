@@ -33,6 +33,13 @@
   margin-bottom: var(--space-4);
 }
 .periods { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.customPeriod { flex-basis: 100%; grid-column: 1 / -1; }
+.customPeriod form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.customPeriod label { min-width: 0; }
+.customPeriod input { max-width: 100%; }
+.customPeriodActions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.customPeriod button:disabled { cursor: not-allowed; opacity: .65; }
+.customPeriod small { flex-basis: 100%; color: var(--text-secondary); }
 .controls button { font-size: var(--control-font-size); line-height: 20px; }
 .periods button[aria-pressed='true'], .modeButtons button[aria-pressed='true'], .compositionSort button[aria-pressed='true']{
   color: var(--accent-on-accent);
@@ -91,8 +98,7 @@
 }
 .pendingNote { margin-top: 18px; }
 .partialNotice, .warning { color: var(--warning-foreground); background: var(--warning-background); }
-.partialNotice { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 10px 0; border: 1px solid var(--warning-foreground); font-size: 12px; font-weight: 600; }
-.partialNotice a { flex: 0 0 auto; color: inherit; text-decoration: underline; }
+.partialNotice { margin: 10px 0; border: 1px solid var(--warning-foreground); font-size: 12px; font-weight: 600; }
 .error { color: var(--error-foreground); background: var(--error-background); }
 .emptyNotice { text-align: center; }
 .sectionHeading { align-items: flex-start; }
@@ -229,10 +235,11 @@
   .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
   .periods { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
   .periods button { min-height: 44px; }
+  .customPeriodButton { grid-column: 1 / -1; }
+  .customPeriod form { flex-direction: column; align-items: stretch; }
   .controls > label { min-width: 0; }
   .controls select { width: 100%; }
   .comparisonNote { grid-column: 1 / -1; margin: 0 0 8px; }
-  .partialNotice { align-items: flex-start; flex-direction: column; gap: 6px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
   .kpis > .card { min-height: 142px; padding: 12px; }
   .kpis > .card h2 { font-size: 12px; }

@@ -58,7 +58,8 @@ describe('collection success in the environmental summary', () => {
     const applications = { findAll: jest.fn().mockResolvedValue([{ id: 'app-1', state: ApplicationState.AVAILABLE }]) }
     const collections = { findEnvironmentalByApplicationsAndPeriod: jest.fn().mockResolvedValue([]) }
     const events = { findMetadataHistory: jest.fn().mockResolvedValue([]), collectionAttemptCounts: jest.fn().mockResolvedValue({
-      successful: 3, total: 4, firstAttemptAt: from, lastAttemptAt: from,
+      counts: { successful: 3, total: 4, firstAttemptAt: from, lastAttemptAt: from },
+      rates: new Map([['app-1', 0.75]]),
     }) }
     return { events, service: new EnvironmentalAnalysisSummaryService(applications as unknown as ApplicationsRepository, collections as unknown as CollectionsRepository, events as unknown as ApplicationEventsRepository) }
   }
@@ -68,12 +69,17 @@ describe('collection success in the environmental summary', () => {
     expect(result.collectionSuccess).toEqual({ successful: 3, total: 4, rate: 0.75, firstAttemptAt: from, lastAttemptAt: from })
     expect(result.coverage).toEqual({ energy: 0, emissions: 0 })
     expect(events.collectionAttemptCounts).toHaveBeenCalledWith(['app-1'], BigInt(Date.parse(from)) * 1000000n, BigInt(Date.parse(to)) * 1000000n, ['br-sudeste'])
+    const summary = await service.getSummary({ from, to, includeCollectionSuccess: 'true' }, { includeMissingApplications: true })
+    expect(summary.applications).toMatchObject([{ applicationId: 'app-1', collectionSuccessRate: 0.75 }])
   })
   it('does not fabricate a rate without attempts, and does not query it unless requested', async () => {
     const { events, service } = fixture()
     await service.getSummary({ from, to })
     expect(events.collectionAttemptCounts).not.toHaveBeenCalled()
-    events.collectionAttemptCounts.mockResolvedValueOnce({ successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null })
+    events.collectionAttemptCounts.mockResolvedValueOnce({
+      counts: { successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null },
+      rates: new Map(),
+    })
     expect((await service.getSummary({ from, to, includeCollectionSuccess: 'true' })).collectionSuccess?.rate).toBeNull()
     await expect(service.getSummary({ from, to, includeCollectionSuccess: 'invalid' })).rejects.toThrow()
   })

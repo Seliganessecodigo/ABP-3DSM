@@ -195,6 +195,19 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
           VALUES ($1, 'collection_attempt', $2, 'system', $3)`, [id, at, { succeeded, regionCode }])
       }
       expect((await request()).collectionSuccess).toMatchObject({ successful: 4, total: 5, rate: 0.8 })
+      const rankingQuery = new URLSearchParams(query)
+      rankingQuery.delete('includeCollectionSuccess')
+      rankingQuery.set('metric', 'emissions')
+      rankingQuery.set('direction', 'desc')
+      const rankingResponse = await fetch(new URL(`/analysis/ranking?${rankingQuery}`, await app.getUrl()))
+      expect(rankingResponse.status).toBe(200)
+      expect(await rankingResponse.json()).toMatchObject({
+        presentation: { rankedCount: 0, unrankedCount: 2, maxValue: 0 },
+        items: expect.arrayContaining([
+          expect.objectContaining({ applicationId: ids[0], collectionSuccessRate: 0.75 }),
+          expect.objectContaining({ applicationId: ids[1], collectionSuccessRate: 1 }),
+        ]),
+      })
       query.set('states', 'AVAILABLE')
       expect((await request()).collectionSuccess).toMatchObject({ successful: 3, total: 4, rate: 0.75 })
       query.set('regionCodes', 'br-sudeste')
@@ -340,6 +353,7 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
       }
       expect(body).toMatchObject({
         status: 'available',
+        presentation: { maxValue: 4 },
         scope: { applicationCount: 3, rankedCount: 2, unrankedCount: 1, energy: { value: 8 } },
         pagination: { page: 1, pageSize: 'all', totalItems: 3 },
       })
@@ -348,7 +362,7 @@ describeWithDatabase('GET /analysis/summary com PostgreSQL', () => {
         expect.objectContaining({ rankability: 'ranked', position: 1, participation: 0.5, energy: expect.objectContaining({ value: 4 }) }),
       ])
       expect(body.items[2]).toMatchObject({
-        applicationId: ids[2], rankability: 'unranked', position: null, participation: null,
+        applicationId: ids[2], rankability: 'unranked', position: null, participation: null, collectionSuccessRate: null,
         energy: { value: null, reasons: [{ code: 'NO_OBSERVATION' }] },
       })
       expect(body.scope).toMatchObject({

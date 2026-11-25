@@ -12,6 +12,7 @@ export type RankingItem = Readonly<{
   energy: RankingMeasure
   emissions: RankingMeasure
   coverage: Readonly<{ energy: number; emissions: number }>
+  collectionSuccessRate?: number | null
   rankability: 'ranked' | 'unranked'
   position: number | null
   participation: number | null
@@ -29,7 +30,7 @@ export type EnvironmentalRanking = Readonly<{
     emissions: RankingMeasure
     coverage: Readonly<{ energy: number; emissions: number }>
   }>
-  presentation: Readonly<{ rankedCount: number; unrankedCount: number }>
+  presentation: Readonly<{ rankedCount: number; unrankedCount: number; maxValue?: number }>
   pagination: Readonly<{ page: number; pageSize: number | 'all'; totalItems: number; totalPages: number }>
   items: readonly RankingItem[]
 }>
@@ -89,6 +90,7 @@ function readItem(value: unknown): RankingItem {
     !['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED'].includes(String(value.state)) ||
     !(value.stateReason === null || typeof value.stateReason === 'string') ||
     !isRecord(value.coverage) || !readCoverage(value.coverage.energy) || !readCoverage(value.coverage.emissions) ||
+    !(value.collectionSuccessRate == null || readCoverage(value.collectionSuccessRate)) ||
     !(value.rankability === 'ranked' || value.rankability === 'unranked') ||
     !(value.position === null || Number.isSafeInteger(value.position) && Number(value.position) >= 1) ||
     !(value.participation === null || typeof value.participation === 'number' && Number.isFinite(value.participation) && value.participation >= 0 && value.participation <= 1)) {
@@ -107,6 +109,7 @@ function readItem(value: unknown): RankingItem {
     energy,
     emissions,
     coverage: { energy: value.coverage.energy, emissions: value.coverage.emissions },
+    ...(value.collectionSuccessRate !== undefined ? { collectionSuccessRate: value.collectionSuccessRate } : {}),
     rankability: value.rankability,
     position: value.position as number | null,
     participation: value.participation as number | null,
@@ -123,6 +126,8 @@ export function parseEnvironmentalRanking(value: unknown, query: EnvironmentalRa
     !isRecord(value.scope) || !isCount(value.scope.applicationCount) || !isCount(value.scope.rankedCount) || !isCount(value.scope.unrankedCount) ||
     !isRecord(value.scope.coverage) || !readCoverage(value.scope.coverage.energy) || !readCoverage(value.scope.coverage.emissions) ||
     !isRecord(value.presentation) || !isCount(value.presentation.rankedCount) || !isCount(value.presentation.unrankedCount) ||
+    !(value.presentation.maxValue === undefined || typeof value.presentation.maxValue === 'number' &&
+      Number.isFinite(value.presentation.maxValue) && value.presentation.maxValue >= 0) ||
     !isRecord(value.pagination) || !isCount(value.pagination.totalItems) || !isCount(value.pagination.totalPages) ||
     !Number.isSafeInteger(value.pagination.page) || Number(value.pagination.page) < 1 ||
     !(value.pagination.pageSize === 'all' || [5, 10, 15, 20].includes(Number(value.pagination.pageSize))) ||
@@ -151,7 +156,11 @@ export function parseEnvironmentalRanking(value: unknown, query: EnvironmentalRa
       emissions: readMeasure(value.scope.emissions),
       coverage: { energy: value.scope.coverage.energy, emissions: value.scope.coverage.emissions },
     },
-    presentation: { rankedCount: value.presentation.rankedCount, unrankedCount: value.presentation.unrankedCount },
+    presentation: {
+      rankedCount: value.presentation.rankedCount,
+      unrankedCount: value.presentation.unrankedCount,
+      ...(value.presentation.maxValue !== undefined ? { maxValue: value.presentation.maxValue } : {}),
+    },
     pagination: {
       page: value.pagination.page as number,
       pageSize: value.pagination.pageSize as number | 'all',
