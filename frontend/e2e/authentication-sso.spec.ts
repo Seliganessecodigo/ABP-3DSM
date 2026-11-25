@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+const invitation = 'demo_invitation-'.repeat(4)
+
 test('pessoa inicia login Google sem convite e mantém o login local disponível', async ({ page }) => {
   await page.goto('/login')
   await page.getByRole('combobox').selectOption('pt-BR')
@@ -22,7 +24,7 @@ test('pessoa inicia login Google sem convite e mantém o login local disponível
 })
 
 test('pessoa aceita convite explicitamente e o fragmento não permanece na URL', async ({ page }) => {
-  await page.goto('/login#sso_invite=invitation-secret')
+  await page.goto(`/login#sso_invite=${invitation}`)
   await page.getByRole('combobox').selectOption('pt-BR')
   await expect(page.getByLabel('E-mail institucional')).toBeVisible()
   await expect(page).toHaveURL(/\/login$/)
@@ -34,8 +36,15 @@ test('pessoa aceita convite explicitamente e o fragmento não permanece na URL',
   })
   await page.getByRole('button', { name: 'Aceitar convite e continuar com Google' }).click({ noWaitAfter: true })
 
-  await expect.poll(() => startUrl?.searchParams.get('invite')).toBe('invitation-secret')
+  await expect.poll(() => startUrl?.searchParams.get('invite')).toBe(invitation)
   expect(startUrl?.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]{43}$/)
+})
+
+test('ignora convite fora do formato e remove o fragmento da URL', async ({ page }) => {
+  await page.goto('/login#sso_invite=convite-incompleto')
+  await expect(page).toHaveURL(/\/login$/)
+  await expect(page.getByRole('button', { name: 'Entrar com Google' })).toBeVisible()
+  expect(await page.evaluate(() => sessionStorage.getItem('greener.sso.invite'))).toBeNull()
 })
 
 test('pessoa troca o handoff por sessão e o código some da URL', async ({ page }) => {
@@ -103,7 +112,7 @@ test('pessoa conclui desafio TOTP recebido no handoff SSO antes de ganhar sessã
 test('callback recusado mostra erro genérico e permite repetir com convite na mesma aba', async ({ page }) => {
   await page.goto('/login')
   await page.getByRole('combobox').selectOption('en-US')
-  await page.evaluate(() => sessionStorage.setItem('greener.sso.invite', 'invitation-secret'))
+  await page.evaluate(value => sessionStorage.setItem('greener.sso.invite', value), invitation)
   await page.goto('/sso/callback?error=SSO_AUTHENTICATION_FAILED')
   await expect(page.getByRole('alert')).toBeVisible()
   await expect(page).toHaveURL(/\/sso\/callback$/)
@@ -115,7 +124,7 @@ test('callback recusado mostra erro genérico e permite repetir com convite na m
   })
   await page.getByRole('button', { name: 'Try Google again' }).click({ noWaitAfter: true })
 
-  await expect.poll(() => retryUrl?.searchParams.get('invite')).toBe('invitation-secret')
+  await expect.poll(() => retryUrl?.searchParams.get('invite')).toBe(invitation)
   expect(retryUrl?.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]{43}$/)
 })
 

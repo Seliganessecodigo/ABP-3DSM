@@ -243,7 +243,7 @@ test('retorno do detalhe restaura posição e foco no serviço selecionado', asy
 
 test('detalhe exibe evidência atual, valores parciais e intervalo selecionado', async ({ page }) => {
   const current = {
-    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    id: '704d58f1-81ba-4326-93ce-c09028ef1cd2', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
     intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
     collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
     lastCheckedAt: '2026-10-09T17:32:00.000Z', isCalculable: true,
@@ -258,11 +258,11 @@ test('detalhe exibe evidência atual, valores parciais e intervalo selecionado',
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
     if (pathname.endsWith('/collections/latest')) return route.fulfill({ json: current })
-    if (pathname.endsWith('/collections/collection-history')) return route.fulfill({ json: { ...current, id: 'collection-history', isStale: true } })
+    if (pathname.endsWith('/collections/704d58f1-81ba-4326-93ce-c09028ef1cd1')) return route.fulfill({ json: { ...current, id: '704d58f1-81ba-4326-93ce-c09028ef1cd1', isStale: true } })
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142?collectionId=collection-history')
+  await page.goto('/services/svc-0142?collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1')
   const evidence = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidence).toContainText(/CPU/i)
   await expect(evidence).toContainText('38 %')
@@ -277,7 +277,7 @@ test('detalhe exibe evidência atual, valores parciais e intervalo selecionado',
 
 test('busca operacional encontra métricas e valores sem depender de acento ou caixa', async ({ page }) => {
   const evidence = {
-    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    id: '704d58f1-81ba-4326-93ce-c09028ef1cd2', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
     intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
     collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
@@ -291,11 +291,11 @@ test('busca operacional encontra métricas e valores sem depender de acento ou c
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
-    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/collections/704d58f1-81ba-4326-93ce-c09028ef1cd2') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+  await page.goto('/services/svc-0142?collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2&period=7d')
 
   const region = page.getByRole('region', { name: /evidências operacionais/i })
   const table = region.getByRole('table')
@@ -312,13 +312,13 @@ test('busca operacional encontra métricas e valores sem depender de acento ou c
   await expect(table.getByRole('row')).toHaveCount(2)
   await expect(table.getByRole('row').nth(1)).toContainText('Disco')
   await expect(table.getByRole('row').nth(1)).toContainText(/0 GB\/s/i)
-  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2/)
   await expect(page).toHaveURL(/period=7d/)
 })
 
 test('combina busca, métrica e situação e limpa os filtros sem indexar o placeholder', async ({ page }) => {
   const evidence = {
-    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    id: '704d58f1-81ba-4326-93ce-c09028ef1cd2', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
     intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
     collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
@@ -332,11 +332,11 @@ test('combina busca, métrica e situação e limpa os filtros sem indexar o plac
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
-    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/collections/704d58f1-81ba-4326-93ce-c09028ef1cd2') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+  await page.goto('/services/svc-0142?collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2&period=7d')
 
   const region = page.getByRole('region', { name: /evidências operacionais/i })
   const table = region.getByRole('table')
@@ -366,13 +366,13 @@ test('combina busca, métrica e situação e limpa os filtros sem indexar o plac
   await expect(table.getByRole('row')).toHaveCount(5)
   await expect(region.getByText('4 de 4 métricas', { exact: true })).toBeVisible()
   await expect(searchField).toHaveValue('')
-  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2/)
   await expect(page).toHaveURL(/period=7d/)
 })
 
 test('ordena os rótulos de métrica e situação sem comparar unidades numéricas', async ({ page }) => {
   const evidence = {
-    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    id: '704d58f1-81ba-4326-93ce-c09028ef1cd2', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
     intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
     collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
@@ -386,11 +386,11 @@ test('ordena os rótulos de métrica e situação sem comparar unidades numéric
   }
   await page.route(/\/applications(?:\/[^/?]+)?(?:\/collections(?:\/[^/?]+)?)?$/, async (route) => {
     const pathname = new URL(route.request().url()).pathname
-    if (pathname.endsWith('/collections/collection-current') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
+    if (pathname.endsWith('/collections/704d58f1-81ba-4326-93ce-c09028ef1cd2') || pathname.endsWith('/collections/latest')) return route.fulfill({ json: evidence })
     if (pathname.endsWith('/svc-0142')) return route.fulfill({ json: application() })
     await route.continue()
   })
-  await page.goto('/services/svc-0142?collectionId=collection-current&period=7d')
+  await page.goto('/services/svc-0142?collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2&period=7d')
 
   const region = page.getByRole('region', { name: /evidências operacionais/i })
   const table = region.getByRole('table')
@@ -410,7 +410,7 @@ test('ordena os rótulos de métrica e situação sem comparar unidades numéric
   await situationHeader.getByRole('button', { name: 'Situação', exact: true }).click()
   await expect(situationHeader).toHaveAttribute('aria-sort', 'ascending')
   await expect(table.getByRole('rowheader')).toHaveText(['Memória', 'CPU', 'Rede de saída', 'Disco'])
-  await expect(page).toHaveURL(/collectionId=collection-current/)
+  await expect(page).toHaveURL(/collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd2/)
   await expect(page).toHaveURL(/period=7d/)
 })
 
@@ -427,7 +427,7 @@ test('volta do navegador conserva o contexto da lista', async ({ page }) => {
 
 test('falha ao atualizar preserva evidência e permite nova tentativa', async ({ page }) => {
   const evidence = {
-    id: 'collection-current', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
+    id: '704d58f1-81ba-4326-93ce-c09028ef1cd2', applicationId: 'svc-0142', intervalStart: '2026-10-09T17:00:00.000Z',
     intervalEnd: '2026-10-09T17:30:00.000Z', collectedAt: '2026-10-09T17:32:00.000Z',
     collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
     lastCheckedAt: '2026-10-09T17:32:00.000Z',
@@ -469,7 +469,7 @@ test('evidência inexistente e intervalo selecionado indisponível não usam fal
   await page.goto('/services/svc-0142', { waitUntil: 'domcontentloaded' })
   const evidence = page.getByRole('region', { name: /evidências operacionais/i })
   await expect(evidence).toContainText(/nenhuma evidência disponível/i)
-  await page.goto('/services/svc-0142?collectionId=collection-missing', { waitUntil: 'domcontentloaded' })
+  await page.goto('/services/svc-0142?collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd3', { waitUntil: 'domcontentloaded' })
   await expect(evidence).toContainText(/evidência selecionada não está disponível/i)
   await expect(evidence.getByRole('table')).toHaveCount(0)
 })

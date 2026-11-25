@@ -3,7 +3,8 @@ import { application, mockCatalog } from './support/catalog.ts'
 
 test('limpar filtros da série preserva ordenação e preferência de página', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&seriesPage=2&seriesSize=5&seriesSort=energy&seriesDirection=desc&seriesSearch=5&seriesEnergyStatus=available&seriesFrom=2026-10-17T00%3A00%3A00.000Z&seriesTo=2026-10-18T00%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&seriesEnergyUnit=kWh&seriesEnergyMin=1&seriesEnergyMax=9&fixture=series-filters')
+  const collectionId = '704d58f1-81ba-4326-93ce-c09028ef1cd1'
+  await page.goto(`/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=${collectionId}&seriesPage=2&seriesSize=5&seriesSort=energy&seriesDirection=desc&seriesSearch=5&seriesEnergyStatus=available&seriesFrom=2026-10-17T00%3A00%3A00.000Z&seriesTo=2026-10-18T00%3A00%3A00.000Z&seriesTimeZone=America%2FSao_Paulo&seriesEnergyUnit=kWh&seriesEnergyMin=1&seriesEnergyMax=9&fixture=series-filters`)
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const energy = analysis.getByRole('group', { name: 'Energia', exact: true })
@@ -22,7 +23,7 @@ test('limpar filtros da série preserva ordenação e preferência de página', 
 
   const params = new URL(page.url()).searchParams
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe(collectionId)
   expect(params.get('seriesSize')).toBe('5')
   expect(params.get('seriesSort')).toBe('energy')
   expect(params.get('seriesDirection')).toBe('desc')

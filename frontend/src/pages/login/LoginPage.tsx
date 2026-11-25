@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { AuthenticationError, type TotpProvisioning } from '../../features/authentication/api.ts'
 import { useAuthentication } from '../../app/useAuthentication.ts'
 import { TotpAuthenticationStep } from '../../components/TotpAuthenticationStep.tsx'
-import { redirectToGoogleSso, ssoInvitationStorageKey, ssoVerifierStorageKey } from '../../features/authentication/sso.ts'
+import { readSsoInvitation, redirectToGoogleSso, ssoInvitationStorageKey, ssoVerifierStorageKey } from '../../features/authentication/sso.ts'
 
 const ssoEnabled = import.meta.env.VITE_GOOGLE_SSO_ENABLED === 'true'
 
@@ -52,12 +52,14 @@ export function LoginPage({ navigate }: Readonly<{ navigate: (url: string) => vo
   const [submitting, setSubmitting] = useState(false)
   const [totpState, setTotpState] = useState<TotpState | null>(null)
   const [invitation, setInvitation] = useState(() =>
-    new URLSearchParams(window.location.hash.slice(1)).get('sso_invite') ?? sessionStorage.getItem(ssoInvitationStorageKey) ?? '',
+    readSsoInvitation(new URLSearchParams(window.location.hash.slice(1)).get('sso_invite')) ??
+      readSsoInvitation(sessionStorage.getItem(ssoInvitationStorageKey)) ?? '',
   )
   useEffect(() => {
     const fromFragment = new URLSearchParams(window.location.hash.slice(1)).get('sso_invite')
-    if (fromFragment) {
-      sessionStorage.setItem(ssoInvitationStorageKey, fromFragment)
+    if (fromFragment !== null) {
+      const token = readSsoInvitation(fromFragment)
+      if (token) sessionStorage.setItem(ssoInvitationStorageKey, token)
       window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`)
     }
   }, [])

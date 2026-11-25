@@ -3,7 +3,7 @@ import { application, mockCatalog } from './support/catalog.ts'
 
 test('aplica filtro antes da paginação e Todos mostra todos os pontos filtrados', async ({ page }) => {
   await mockCatalog(page, [application()])
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=series-pagination')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=series-pagination')
 
   const analysis = page.getByRole('region', { name: 'Impacto ambiental', exact: true })
   const series = page.getByRole('region', { name: 'Evolução do consumo e emissões', exact: true })
@@ -35,7 +35,7 @@ test('aplica filtro antes da paginação e Todos mostra todos os pontos filtrado
   expect(params.get('seriesTo')).toBe('2026-10-17T09:15:00.000Z')
   expect(params.get('seriesPage')).toBe('1')
   expect(params.get('period')).toBe('7d')
-  expect(params.get('collectionId')).toBe('collection-history')
+  expect(params.get('collectionId')).toBe('704d58f1-81ba-4326-93ce-c09028ef1cd1')
 })
 
 test('refresh que reduz a série remove a página que deixou de existir', async ({ page }) => {
@@ -98,9 +98,9 @@ test('distingue série vazia de uma busca sem correspondências', async ({ page 
 
 test('mantém análise histórica disponível para uma aplicação removida', async ({ page }) => {
   await mockCatalog(page, [application({ state: 'REMOVED', reason: 'REMOVAL_CONFIRMED', removedAt: '2026-10-18T17:00:00.000Z' })])
-  await page.route(/\/applications\/svc-0142\/collections\/collection-history$/, async (route) => {
+  await page.route(/\/applications\/svc-0142\/collections\/704d58f1-81ba-4326-93ce-c09028ef1cd1$/, async (route) => {
     await route.fulfill({ json: {
-      id: 'collection-history', applicationId: 'svc-0142', intervalStart: '2026-10-17T17:00:00.000Z',
+      id: '704d58f1-81ba-4326-93ce-c09028ef1cd1', applicationId: 'svc-0142', intervalStart: '2026-10-17T17:00:00.000Z',
       intervalEnd: '2026-10-17T17:30:00.000Z', collectedAt: '2026-10-17T17:32:00.000Z',
       collectionIntervalSeconds: 1800, isStale: false, state: 'AVAILABLE', reason: 'METRICS_VALID',
       lastCheckedAt: '2026-10-17T17:32:00.000Z', isCalculable: true,
@@ -113,7 +113,7 @@ test('mantém análise histórica disponível para uma aplicação removida', as
       environmental: { status: 'absent', absenceReason: 'ENVIRONMENTAL_EVIDENCE_UNAVAILABLE', energy: null, carbon: null },
     } })
   })
-  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=collection-history&fixture=design-review')
+  await page.goto('/e2e/analysis-harness.html?applicationId=svc-0142&period=7d&collectionId=704d58f1-81ba-4326-93ce-c09028ef1cd1&fixture=design-review')
 
   await expect(page.getByRole('main')).toContainText('Removida')
   await expect(page.getByRole('region', { name: 'Impacto ambiental', exact: true })

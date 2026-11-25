@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { getCollectionEvidence } from '../../src/features/applications/api.ts'
 import {
   selectCatalog,
   type CatalogEntry,
@@ -14,6 +15,13 @@ const applications: CatalogEntry[] = [
 ]
 
 const query: CatalogQuery = { search: '', state: 'ALL', regionCode: '', page: 1, pageSize: 10 }
+
+test('rejeita ID de coleta fora do formato UUID antes de consultar a API', async () => {
+  await expect(getCollectionEvidence('svc-001', 'id-incompleto', AbortSignal.abort())).rejects.toMatchObject({
+    status: 400,
+    code: 'INVALID_COLLECTION_ID',
+  })
+})
 
 test('catálogo vazio retorna zero itens e zero páginas', () => {
   expect(selectCatalog([], query)).toEqual({ items: [], total: 0, page: 1, pageCount: 0 })

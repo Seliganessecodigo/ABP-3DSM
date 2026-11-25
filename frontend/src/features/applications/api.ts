@@ -159,6 +159,9 @@ export async function getLatestCollectionEvidence(id: string, signal: AbortSigna
 }
 
 export async function getCollectionEvidence(id: string, collectionId: string, signal: AbortSignal): Promise<CollectionEvidence> {
+  if (!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(collectionId)) {
+    throw new ApplicationRequestError(400, 'INVALID_COLLECTION_ID')
+  }
   return parseCollectionEvidence(await getJson(collectionEndpoint(id, collectionId), signal))
 }
 
