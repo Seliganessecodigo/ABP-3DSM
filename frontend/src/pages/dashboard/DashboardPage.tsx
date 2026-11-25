@@ -5,7 +5,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingState } from '../../components/LoadingState.tsx'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -33,8 +33,7 @@ const tableColumns: ReadonlyArray<Readonly<{ key: DashboardSortColumn; label: st
   { key: 'region', label: 'table.currentRegion' },
   { key: 'energy', label: 'table.energy' },
   { key: 'emissions', label: 'table.emissions' },
-  { key: 'energyCoverage', label: 'table.energyCoverage' },
-  { key: 'emissionsCoverage', label: 'table.emissionsCoverage' },
+  { key: 'collectionSuccessRate', label: 'collectionSuccess.title' },
 ]
 const pageSizes: readonly DashboardPageSize[] = [5, 10, 15, 20, 'all']
 const compositionColors = ['#0b7658', '#36a87c', '#70c4a1', '#91bda9', '#557d6c', '#aacb58', '#22965e', '#6e9b94'] as const
@@ -95,6 +94,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const personalAlertsById = new Map(personalAlerts.data?.applications.map(entry => [entry.applicationId, entry]))
   const { t, i18n } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: tRanking } = useTranslation('ranking')
   const { t: detailText } = useTranslation('detail')
   const { t: preferencesText } = useTranslation('methodology', { keyPrefix: 'preferences' })
   const locale = i18n.resolvedLanguage ?? 'pt-BR'
@@ -109,6 +109,8 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
   const [hoveredComposition, setHoveredComposition] = useState<{ applicationId: string; left: number; top: number; below: boolean } | null>(null)
   const period = query.period
+  const [customDraft, setCustomDraft] = useState<{ from: string; to: string } | null>(null)
+  const customPeriodButton = useRef<HTMLButtonElement>(null)
   const data = useDashboard(summaryFilters(query))
   const refresh = data.refresh
   const pending = ['loading', 'refreshing'].includes(data.status)
@@ -273,6 +275,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
       const next = readDashboardQuery(window.location.search)
       setQuery(next)
       setDraftFilters(next.filters)
+      setCustomDraft(null)
       refresh()
     }
     window.addEventListener('popstate', syncQuery)
@@ -298,8 +301,30 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
     return next
   })
   const changePeriod = (next: typeof periodPresets[number]) => {
+    setCustomDraft(null)
     if (pending && period === next) return
     update({ period: next, explicitPeriod: true, range: undefined })
+    refresh()
+  }
+  const toggleCustomPeriod = () => {
+    const range = query.range ?? data.data?.period
+    setCustomDraft(customDraft ? null : {
+      from: range ? new Date(range.from).toISOString().slice(0, 19) : '',
+      to: range ? new Date(range.to).toISOString().slice(0, 19) : '',
+    })
+  }
+  const closeCustomPeriod = () => {
+    setCustomDraft(null)
+    customPeriodButton.current?.focus()
+  }
+  const draftStart = customDraft?.from ? Date.parse(`${customDraft.from}Z`) : NaN
+  const draftEnd = customDraft?.to ? Date.parse(`${customDraft.to}Z`) : NaN
+  const validCustomPeriod = Number.isFinite(draftStart) && Number.isFinite(draftEnd) && draftStart < draftEnd
+  const applyCustomPeriod = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!validCustomPeriod) return
+    update({ period: 'custom', explicitPeriod: true, range: { from: new Date(draftStart).toISOString(), to: new Date(draftEnd).toISOString() } })
+    closeCustomPeriod()
     refresh()
   }
   const changePageSize = (value: string) => {
@@ -349,9 +374,24 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
           aria-disabled={period === preset && pending}
           className={period === preset ? styles.selected : ''}
           onClick={() => changePeriod(preset)}>{t(`period.${preset}`)}</button>)}
+        <button ref={customPeriodButton} type="button" className={styles.customPeriodButton} aria-pressed={period === 'custom'}
+          aria-expanded={customDraft !== null} aria-controls="dashboard-custom-period"
+          onClick={toggleCustomPeriod}>{preferencesText('evaluationPeriod.custom')}</button>
+      </div>
+      <div id="dashboard-custom-period" className={styles.customPeriod} hidden={!customDraft}>
+        {customDraft && <form onSubmit={applyCustomPeriod}>
+          <label>{preferencesText('periodFrom')}<input className="form-control" type="datetime-local" step="1" required aria-describedby="dashboard-custom-period-help"
+            value={customDraft.from} onChange={event => setCustomDraft({ ...customDraft, from: event.target.value })} /></label>
+          <label>{preferencesText('periodTo')}<input className="form-control" type="datetime-local" step="1" required aria-describedby="dashboard-custom-period-help"
+            aria-invalid={Boolean(customDraft.from && customDraft.to && !validCustomPeriod)}
+            value={customDraft.to} onChange={event => setCustomDraft({ ...customDraft, to: event.target.value })} /></label>
+          <button type="button" onClick={closeCustomPeriod}>{t('filters.cancel')}</button>
+          <button type="submit" disabled={!validCustomPeriod}>{tRanking('apply')}</button>
+          <small id="dashboard-custom-period-help">{preferencesText('periodBoundaries')}</small>
+        </form>}
       </div>
       {period === null && <p className={styles.error} role="alert">{t('invalidPeriod')}</p>}
-      {(period === 'custom' || period === 'month') && <p>{preferencesText(`evaluationPeriod.${period}`)}{query.range && ` · ${dateRangeLabel(query.range.from, query.range.to, locale)} UTC`}</p>}
+      {period === 'month' && <p>{preferencesText('evaluationPeriod.month')}</p>}
       <label>{preferencesText('granularityEditing')}<select className="form-control" aria-label={preferencesText('granularityEditing')} value={query.granularity ?? (period === '24h' ? 'hour' : 'day')} onChange={event => {
         const granularity = (['hour', 'day', 'month', 'year'] as const).find(value => value === event.target.value)
         if (granularity) update({ granularity })
@@ -385,10 +425,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
 
     {data.data && <>
       {data.data.status === 'available' && (data.data.coverage.energy < 1 || data.data.coverage.emissions < 1) &&
-        <p className={styles.partialNotice} role="status">
-          <span>{t('partialCoverage')}</span>
-          <a href="#dashboard-applications-heading">{t('coverage')}</a>
-        </p>}
+        <p className={styles.partialNotice} role="status">{t('partialCoverage')}</p>}
       {data.data.status === 'empty' && <p className={styles.emptyNotice} role="status">{t('empty')}</p>}
 
       <section className={styles.kpis} aria-label={t('indicators')}>
@@ -635,8 +672,7 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
                 <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
                 <td data-label={`${t('table.emissions')} (${row.emissions.unit})`}>{numberLabel(row.emissions.value, row.emissions.unit, locale, t('notAvailable'))}</td>
-                <td data-label={t('table.energyCoverage')}>{coverageLabel(row.coverage.energy, locale)}</td>
-                <td data-label={t('table.emissionsCoverage')}>{coverageLabel(row.coverage.emissions, locale)}</td>
+                <td data-label={t('collectionSuccess.title')}>{row.collectionSuccessRate == null ? t('notAvailable') : coverageLabel(row.collectionSuccessRate, locale)}</td>
               </tr>)}</tbody>
             </table>
           </div>}

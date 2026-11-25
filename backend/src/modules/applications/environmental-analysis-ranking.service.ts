@@ -97,7 +97,7 @@ export class EnvironmentalAnalysisRankingService {
     try {
       const result = await Promise.all([
         this.summary.getSummary(
-          { ...filters, includeProvenance: "false" },
+          { ...filters, includeProvenance: "false", includeCollectionSuccess: "true" },
           { includeMissingApplications: true },
         ),
         this.applications.findAll(),
@@ -132,7 +132,7 @@ export class EnvironmentalAnalysisRankingService {
       ...rank,
     }));
     const presentationRows = applyPresentationFilters(fullRows, query);
-    const presentationCounts = countRankability(presentationRows);
+    const presentation = summarizePresentation(presentationRows, metric);
     const sortedRows = sortPresentation(presentationRows, query);
     const page = integerQuery(query.page, 1, "INVALID_ANALYSIS_RANKING_PAGE");
     const pageSizeValue = scalar(query.pageSize) ?? "10";
@@ -175,7 +175,7 @@ export class EnvironmentalAnalysisRankingService {
         emissions: source.totals.emissions,
         coverage: source.coverage,
       },
-      presentation: presentationCounts,
+      presentation,
       pagination: { page: effectivePage, pageSize, totalItems, totalPages },
       items,
     };
@@ -211,6 +211,7 @@ function toRankingRow(
       ? { ...source.emissions, reasons: [{ code: "NO_OBSERVATION" }] }
       : source.emissions,
     coverage: source.coverage,
+    collectionSuccessRate: source.collectionSuccessRate ?? null,
     rankability: "unranked",
     position: null,
     participation: null,
@@ -491,14 +492,15 @@ function getRowValue(row: RankingRow, field: TextField): string | null {
   }
 }
 
-function countRankability(rows: readonly RankingRow[]) {
+function summarizePresentation(rows: readonly RankingRow[], metric: EnvironmentalRankingMetric) {
   return rows.reduce(
     (counts, row) => {
       counts[row.rankability === "ranked" ? "rankedCount" : "unrankedCount"] +=
         1;
+      counts.maxValue = Math.max(counts.maxValue, row[metric].value ?? 0);
       return counts;
     },
-    { rankedCount: 0, unrankedCount: 0 },
+    { rankedCount: 0, unrankedCount: 0, maxValue: 0 },
   );
 }
 

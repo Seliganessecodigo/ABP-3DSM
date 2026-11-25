@@ -29,21 +29,28 @@ export class ApplicationEventsRepository {
   ) {}
 
   async collectionAttemptCounts(applicationIds: readonly string[], from: bigint, to: bigint, regionCodes?: readonly string[]) {
-    if (applicationIds.length === 0) return { successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null }
-    const [counts] = await this.repository.manager.query<{
-      successful: number; total: number; firstAttemptAt: string | null; lastAttemptAt: string | null
+    const rates = new Map<string, number>()
+    if (applicationIds.length === 0) return { counts: { successful: 0, total: 0, firstAttemptAt: null, lastAttemptAt: null }, rates }
+    const [overall, ...byApplication] = await this.repository.manager.query<{
+      applicationId: string | null; successful: number; total: number; firstAttemptAt: string | null; lastAttemptAt: string | null
     }[]>(
-      `SELECT COUNT(*)::int AS total,
+      `SELECT "applicationId", COUNT(*)::int AS total,
         COUNT(*) FILTER (WHERE details->>'succeeded' = 'true')::int AS successful,
         to_char(MIN("occurredAt") AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "firstAttemptAt",
         to_char(MAX("occurredAt") AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "lastAttemptAt"
       FROM application_events
       WHERE kind = 'collection_attempt' AND "applicationId" = ANY($1::text[])
         AND "occurredAt" >= $2::timestamptz AND "occurredAt" < $3::timestamptz
-        AND ($4::text[] IS NULL OR details->>'regionCode' = ANY($4::text[]))`,
+        AND ($4::text[] IS NULL OR details->>'regionCode' = ANY($4::text[]))
+      GROUP BY GROUPING SETS ((), ("applicationId"))
+      ORDER BY GROUPING("applicationId") DESC`,
       [applicationIds, formatUtcTimestamp(floorToMicrosecond(from)), formatUtcTimestamp(ceilToMicrosecond(to)), regionCodes ?? null],
     )
-    return counts
+    for (const row of byApplication) {
+      if (row.applicationId !== null) rates.set(row.applicationId, row.successful / row.total)
+    }
+    const { successful, total, firstAttemptAt, lastAttemptAt } = overall
+    return { counts: { successful, total, firstAttemptAt, lastAttemptAt }, rates }
   }
 
   async append(

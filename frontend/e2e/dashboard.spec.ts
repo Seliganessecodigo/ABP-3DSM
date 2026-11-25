@@ -8,6 +8,7 @@ type SummaryApplication = {
   energy: { value: number | null; unit: string; reasons: { code: string }[] }
   emissions: { value: number | null; unit: string; reasons: { code: string }[] }
   coverage: { energy: number; emissions: number }
+  collectionSuccessRate?: number | null
 }
 
 function contribution(
@@ -91,6 +92,49 @@ test('rota raiz abre o dashboard e marca sua navegação como ativa', async ({ p
   const navigation = page.getByRole('navigation', { name: 'Navegação principal' })
   await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(navigation.getByRole('link', { name: 'Aplicações', exact: true })).not.toHaveAttribute('aria-current', 'page')
+})
+
+test('dashboard starts on a preset and allows a shareable custom UTC range', async ({ page }, testInfo) => {
+  const requests: URL[] = []
+  await page.setViewportSize({ width: 390, height: 900 })
+  await mockCatalog(page, [application()])
+  await mockSummary(page, url => {
+    requests.push(url)
+    return { json: summaryResponse(url, [contribution('svc-0142', 'app-pagamentos', 85, { collectionSuccessRate: 0.2 })]) }
+  })
+  await page.goto('/dashboard')
+  const preset = page.getByRole('button', { name: '7 dias', exact: true })
+  const custom = page.getByRole('button', { name: 'Intervalo personalizado', exact: true })
+  const apply = page.getByRole('button', { name: 'Aplicar período', exact: true })
+  await expect(preset).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByText('20%', { exact: true })).toBeVisible()
+  await custom.click()
+  const start = page.getByLabel('Início (UTC)', { exact: true })
+  const end = page.getByLabel('Fim exclusivo (UTC)', { exact: true })
+  await start.fill('2026-10-01T06:00')
+  await end.fill('2026-10-01T05:59')
+  await expect(apply).toBeDisabled()
+  await expect(preset).toHaveAttribute('aria-pressed', 'true')
+  await end.fill('2026-10-08T14:15')
+  await expect(apply).toBeEnabled()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390)
+  await page.screenshot({ path: testInfo.outputPath('dashboard-intervalo-personalizado.png'), fullPage: true })
+  await apply.click()
+  await expect(custom).toHaveAttribute('aria-pressed', 'true')
+  await expect(start).toBeHidden()
+  await expect.poll(() => requests.at(-1)?.searchParams.get('from')).toBe('2026-10-01T06:00:00.000Z')
+  expect(requests.at(-1)?.searchParams.get('to')).toBe('2026-10-08T14:15:00.000Z')
+  expect(new URL(page.url()).searchParams.get('period')).toBe('custom')
+
+  await page.reload()
+  await expect(custom).toHaveAttribute('aria-pressed', 'true')
+  await custom.click()
+  await expect(start).toHaveValue('2026-10-01T06:00')
+  await page.getByRole('button', { name: 'Cancelar', exact: true }).click()
+  await expect(custom).toHaveAttribute('aria-pressed', 'true')
+  await preset.click()
+  await expect(preset).toHaveAttribute('aria-pressed', 'true')
+  await expect.poll(() => new URL(page.url()).searchParams.has('from')).toBe(false)
 })
 
 for (const successful of [0, 20, null, undefined]) {

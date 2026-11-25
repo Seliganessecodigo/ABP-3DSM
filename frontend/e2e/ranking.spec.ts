@@ -82,7 +82,7 @@ test('ranking applies domain and presentation filters through the documented que
   await expect(page.getByRole('table')).toContainText('app-estoque')
   const breadcrumb = page.getByRole('navigation', { name: 'Trilha de navegação' })
   await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText('Ranking por impacto')
-  await expect(page.locator('thead [data-sort-state]')).toHaveCount(5)
+  await expect(page.locator('thead [data-sort-state]')).toHaveCount(4)
   const help = page.getByRole('button', { name: 'Ajuda desta tela', exact: true })
   await help.click()
   const dialog = page.getByRole('dialog')
@@ -127,4 +127,56 @@ test('ranking applies domain and presentation filters through the documented que
   await expect(page.locator('#ranking-column-filters')).toBeVisible()
   await mobileFilters.click()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+})
+
+test('sorting CO₂e updates the rows in place with a single paginated request', async ({ page }) => {
+  const requests: URL[] = []
+  const energy = { value: 2, unit: 'kWh', reasons: [] }
+  const emissions = { value: 8000, unit: 'gCO2e', reasons: [] }
+  const coverage = { energy: 1, emissions: 1 }
+  const first = {
+    applicationId: 'large', name: 'maior-emissão', state: 'AVAILABLE', stateReason: null,
+    location: { regionCode: null, country: null, region: null, city: null },
+    energy, emissions, coverage, collectionSuccessRate: 0, rankability: 'ranked', position: 1, participation: 0.8,
+  }
+  const second = {
+    ...first, applicationId: 'small', name: 'menor-emissão', emissions: { ...emissions, value: 2000 },
+    collectionSuccessRate: null, position: 2, participation: 0.2,
+  }
+  await page.route(/\/analysis\/ranking(?:\?.*)?$/, async route => {
+    const url = new URL(route.request().url())
+    requests.push(url)
+    if (url.searchParams.get('pageSize') === 'all') {
+      await route.fulfill({ status: 503 })
+      return
+    }
+    await route.fulfill({ json: {
+      status: 'available', metric: 'emissions', direction: 'desc',
+      period: { from: url.searchParams.get('from'), to: url.searchParams.get('to') },
+      scope: { applicationCount: 2, rankedCount: 2, unrankedCount: 0, energy: { ...energy, value: 4 }, emissions: { ...emissions, value: 10000 }, coverage },
+      presentation: { rankedCount: 2, unrankedCount: 0, maxValue: 8000 },
+      pagination: { page: 1, pageSize: 10, totalItems: 2, totalPages: 1 },
+      items: url.searchParams.get('sortDirection') === 'asc' ? [second, first] : [first, second],
+    } })
+  })
+  await page.route(/\/applications(?:\?.*)?$/, route => route.fulfill({ json: [] }))
+  await page.goto('/ranking')
+  const rows = page.getByRole('table').locator('tbody tr')
+  const sort = page.getByRole('table').getByRole('button', { name: 'CO₂e (kg)', exact: true })
+  await expect(rows.first()).toContainText(first.name)
+  await expect(rows.first()).toContainText('0%')
+  await expect(page.getByRole('columnheader', { name: 'Sucesso das coletas' })).toBeVisible()
+  const documentLoadedAt = await page.evaluate(() => performance.timeOrigin)
+  const priorRequests = requests.length
+  await sort.click()
+  await expect(rows.first()).toContainText(second.name)
+  await expect(sort.locator('..')).toHaveAttribute('aria-sort', 'ascending')
+  expect(requests.slice(priorRequests).map(url => [url.searchParams.get('pageSize'), url.searchParams.get('sortBy')])).toEqual([['10', 'emissions']])
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentLoadedAt)
+  expect(new URL(page.url()).searchParams.has('from')).toBe(false)
+  await sort.click()
+  await expect(rows.first()).toContainText(first.name)
+  await expect(sort.locator('..')).toHaveAttribute('aria-sort', 'descending')
+  await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
+  await expect(page.getByRole('button', { name: '7 dias', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })

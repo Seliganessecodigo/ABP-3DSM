@@ -8,6 +8,7 @@ export type CollectionSuccess = Readonly<{
   firstAttemptAt: string | null; lastAttemptAt: string | null
 }>
 export type EnvironmentalSummaryApplication = Readonly<{
+  collectionSuccessRate?: number | null
   applicationId: string
   name: string
   state: EnvironmentalSummaryState
@@ -130,6 +131,9 @@ export function parseEnvironmentalSummary(value: unknown, expectedPeriod: Readon
       state: readState(entry.state),
       energy: readMeasure(entry.energy, 'application energy'),
       emissions: readMeasure(entry.emissions, 'application emissions'),
+      ...(entry.collectionSuccessRate !== undefined ? {
+        collectionSuccessRate: entry.collectionSuccessRate === null ? null : readCoverage(entry.collectionSuccessRate, 'application collection success'),
+      } : {}),
       coverage: {
         energy: readCoverage(entry.coverage.energy, 'application energy coverage'),
         emissions: readCoverage(entry.coverage.emissions, 'application emissions coverage'),
