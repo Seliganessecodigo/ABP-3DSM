@@ -80,7 +80,10 @@ export class MonitoringAuditQueryDto {
   @ApiPropertyOptional({ enum: ['success', 'denied', 'failed'] }) outcome?: 'success' | 'denied' | 'failed'
   @ApiPropertyOptional({ format: 'date-time' }) createdAtFrom?: string
   @ApiPropertyOptional({ format: 'date-time' }) createdAtTo?: string
-  @ApiPropertyOptional({ enum: ['id', 'actor', 'actorType', 'actorLabel', 'createdAt', 'action', 'entityType', 'entityId', 'reason', 'outcome'] as AuditSortColumn[] }) sortBy?: AuditSortColumn
+  @ApiPropertyOptional({
+    enum: ['id', 'actor', 'actorType', 'actorLabel', 'createdAt', 'action', 'entityType', 'entityId', 'reason', 'outcome'] as AuditSortColumn[],
+    description: 'Ao ordenar por actorLabel, usa actor quando o nome do autor não está registrado.',
+  }) sortBy?: AuditSortColumn
   @ApiPropertyOptional({ enum: ['asc', 'desc'] }) sortDirection?: 'asc' | 'desc'
   @ApiPropertyOptional({ default: '1' }) page?: string
   @ApiPropertyOptional({ enum: ['5', '10', '15', '20', 'all'], default: '10' }) pageSize?: string

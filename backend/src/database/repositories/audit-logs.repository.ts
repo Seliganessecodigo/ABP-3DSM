@@ -83,11 +83,15 @@ export class AuditLogsRepository {
     const totalPages = filters.pageSize === 'all' ? Number(totalItems > 0) : Math.ceil(totalItems / filters.pageSize)
     const page = Math.min(filters.pageSize === 'all' ? 1 : filters.page, Math.max(1, totalPages))
     const sortColumns: Record<typeof filters.sortBy, string> = {
-      id: 'audit.id', actor: 'audit.actor', actorType: 'audit.actorType', actorLabel: 'audit.actorLabel', createdAt: 'audit.createdAt',
+      id: 'audit.id', actor: 'audit.actor', actorType: 'audit.actorType', actorLabel: 'display_actor', createdAt: 'audit.createdAt',
       action: 'audit.action', entityType: 'audit.entityType', entityId: 'audit.entityId',
       reason: 'audit.reason', outcome: 'audit.outcome',
     }
-    const itemsQuery = query.clone().orderBy(sortColumns[filters.sortBy], filters.sortDirection.toUpperCase() as 'ASC' | 'DESC', 'NULLS LAST').addOrderBy('audit.id', 'ASC')
+    const itemsQuery = query.clone()
+    if (filters.sortBy === 'actorLabel') {
+      itemsQuery.addSelect('COALESCE(audit.actorLabel, audit.actor)', 'display_actor')
+    }
+    itemsQuery.orderBy(sortColumns[filters.sortBy], filters.sortDirection.toUpperCase() as 'ASC' | 'DESC', 'NULLS LAST').addOrderBy('audit.id', 'ASC')
     if (filters.pageSize !== 'all') itemsQuery.skip((page - 1) * filters.pageSize).take(filters.pageSize)
     const items = await itemsQuery.getMany()
     return {
