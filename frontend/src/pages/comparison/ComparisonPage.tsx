@@ -429,7 +429,10 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
       <section className={styles.results} aria-labelledby="comparison-results-heading">
         <div className={styles.resultHeading}>
           <div className={styles.resultTitle}><CardIcon icon={faArrowRightArrowLeft} size="small" /><h2 id="comparison-results-heading">{t('resultsHeading')}</h2></div>
-          <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
+          <div className={styles.resultActions}>
+            <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
+            {comparison && <TableExportButton tableId="comparison-results" disabled={comparisonLoading} />}
+          </div>
         </div>
         {comparisonLoading && <LoadingState title={t('loadingComparison')} compact />}
         {comparisonError && <RequestFeedback state="error">
@@ -442,7 +445,6 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
         {comparison && <>
           {comparison.status === 'empty' && <RequestFeedback state="empty"><p>{t('emptyComparison')}</p></RequestFeedback>}
           {comparison.status === 'partial' && <p className={styles.partial} role="status">{t('partialComparison')}</p>}
-          <TableExportButton tableId="comparison-results" disabled={comparisonLoading} />
           <div className={styles.desktopResults}>
             <table id="comparison-results" className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>

@@ -132,6 +132,8 @@ test('restores selected applications and presents the backend comparison', async
   await page.keyboard.press('Enter')
   await expect(page.getByRole('combobox', { name: 'Aplicação de referência' })).toHaveValue('svc-0142')
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toContainText('app-pagamentos')
+  const exportResults = page.getByRole('button', { name: 'Exportar para Excel' })
+  await expect(exportResults).toBeVisible()
   const collectionSuccess = page.getByRole('table', { name: 'Comparação no período' }).locator('[data-help="comparison-collectionSuccess"]')
   await expect(collectionSuccess).toContainText('100%')
   await expect(collectionSuccess).toContainText('50%')
@@ -146,6 +148,7 @@ test('restores selected applications and presents the backend comparison', async
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('table', { name: 'Comparação no período' })).toBeHidden()
+  await expect(exportResults).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Energia', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Emissões estimadas', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
