@@ -1,3 +1,4 @@
+import { TableExportButton } from './TableExportButton.tsx'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { EnvironmentalSummary, EnvironmentalSummaryPoint } from '../features/analysis/environmentalSummary.ts'
@@ -43,14 +44,17 @@ export function EnvironmentalSeries({ series, locale }: Readonly<{ series: Envir
       </div>
     </div>
     <p className={styles.note}>{t('trend.note')}</p>
-    {mode === 'table' ? <div className={styles.tableWrap}><table>
+    {mode === 'table' ? <>
+      <TableExportButton tableId="environmental-trend" disabled={series.points.length === 0} />
+      <div className={styles.tableWrap}><table id="environmental-trend">
       <caption>{t('trendTitle')} · UTC</caption>
       <thead><tr><th scope="col">{t('trend.interval')}</th>{metrics.map((metric) => <th scope="col" key={metric}><span className={styles.columnHeading} data-metric={metric}><i className={styles.swatch} aria-hidden="true" /><span>{t(metric)} <small>{series.points[0]?.[metric].unit}</small></span></span></th>)}</tr></thead>
       <tbody>{series.points.map((point) => <tr key={point.bucketStart}>
         <th scope="row"><span className={styles.interval}>{date(point.period.from)}<span>→</span>{date(point.period.to)}</span></th>
-        {metrics.map((metric) => <td key={metric} data-metric={metric} data-missing={point[metric].value === null}><span className={styles.tableValue}>{measure(point, metric)}</span></td>)}
+        {metrics.map((metric) => <td key={metric} data-metric={metric} data-missing={point[metric].value === null}
+          data-export-number={point[metric].value ?? ''}><span className={styles.tableValue}>{measure(point, metric)}</span></td>)}
       </tr>)}</tbody>
-    </table></div> : !hasData ? <p>{t('empty')}</p> : <>
+    </table></div></> : !hasData ? <p>{t('empty')}</p> : <>
       <div className={styles.legend} aria-label={t('trend.metricFilter')}>
         {metrics.map((metric) => <span key={metric} className={styles.legendItem} data-metric={metric}><span className={styles.swatch} />{t(metric)} <small>{series.points[0]?.[metric].unit}</small></span>)}
       </div>

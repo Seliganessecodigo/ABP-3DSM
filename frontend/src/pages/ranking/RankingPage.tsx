@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { tableSortPresentation } from '../../utils/tableSortPresentation.ts'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { PageHelp } from '../../components/PageHelp.tsx'
@@ -12,7 +13,6 @@ import { getApplications, type Application } from '../../features/applications/a
 import { getEnvironmentalRanking, type EnvironmentalRanking, type EnvironmentalRankingQuery, type RankingDirection, type RankingMetric, type RankingState } from '../../features/analysis/environmentalRanking.ts'
 import styles from './RankingPage.module.css'
 
-const columnLabelKeys: Record<string, string> = { energy: 'energyUnit', emissions: 'emissionsUnit' }
 const states: readonly RankingState[] = ['AVAILABLE', 'UNAVAILABLE', 'NO_METRICS', 'REMOVED']
 const pageSizes = [5, 10, 15, 20, 'all'] as const
 const textFilters = ['filterApplicationId', 'filterName', 'filterRegionCode', 'filterCountry', 'filterRegion', 'filterCity', 'filterStateReason', 'filterEnergyReason', 'filterEmissionsReason'] as const
@@ -145,6 +145,10 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
   const changeParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(search)
     setParam(next, key, value)
+    if (key === 'metric' || key === 'direction') {
+      next.delete('sortBy')
+      next.delete('sortDirection')
+    }
     navigateQuery(next)
   }
   const changeMulti = (key: 'states' | 'regionCodes' | 'applicationIds', value: string, checked: boolean) => {
@@ -191,8 +195,15 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
     navigateQuery(next)
   }
 
-  const sortBy = params.get('sortBy')
-  const sortDirection = params.get('sortDirection')
+  const sortBy = request?.sortBy ?? metric
+  const sortDirection = request?.sortDirection ?? direction
+  const tableColumns = [
+    { key: 'position', label: t('position') },
+    { key: 'name', label: t('application') },
+    { key: 'regionCode', label: t('region') },
+    { key: metric, label: t(metric === 'energy' ? 'energyUnit' : 'emissionsUnit') },
+    { key: 'collectionSuccessRate', label: tDashboard('collectionSuccess.title') },
+  ] as const
   const sortColumn = (column: SortColumn) => {
     const next = new URLSearchParams(search)
     const nextDirection = sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
@@ -342,20 +353,18 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
 
       {rankedItems.length > 0 && <section data-help="ranking-results" className={styles.tableCard} aria-labelledby="ranking-table-title" aria-busy={loading}>
           <div className={styles.tableHeading}><h2 id="ranking-table-title"><CardIcon icon={faRankingStar} size="small" inline />{t('rankedApplications', { count: data.presentation.rankedCount })}</h2><span>{t('relativeToMaximum')}</span></div>
-          <div className={styles.tableScroll}><table>
+          <TableExportButton tableId="ranking" disabled={loading || error} />
+          <div className={styles.tableScroll}><table id="ranking">
             <thead><tr>
-              <th scope="col" aria-label={t('select')} />
-              {([{ label: 'position', key: 'position' }, { label: 'application', key: 'name' }, { label: 'region', key: 'region' }, { label: metric, key: metric }] as const).map(({ label, key }) => {
+              <th scope="col" aria-label={t('select')} data-export-ignore />
+              {tableColumns.map(({ label, key }) => {
                 const sort = tableSortPresentation(key, sortBy, sortDirection)
-                return <th scope="col" key={key} aria-sort={sort.ariaSort}>
-                  <SortButton state={sort.ariaSort} onClick={() => sortColumn(key)}>{t(columnLabelKeys[label] ?? label)}</SortButton>
+                return <th scope="col" key={key} aria-sort={sort.ariaSort}
+                  data-export-text={key === 'collectionSuccessRate' ? `${label} (%)` : undefined}>
+                  <SortButton state={sort.ariaSort} onClick={() => sortColumn(key)}>{label}</SortButton>
                 </th>
               })}
-              <th scope="col" aria-sort={tableSortPresentation('collectionSuccessRate', sortBy, sortDirection).ariaSort}>
-                <SortButton state={tableSortPresentation('collectionSuccessRate', sortBy, sortDirection).ariaSort}
-                  onClick={() => sortColumn('collectionSuccessRate')}>{tDashboard('collectionSuccess.title')}</SortButton>
-              </th>
-              <th scope="col">{t('detail')}</th>
+              <th scope="col" data-export-ignore>{t('detail')}</th>
             </tr></thead>
             <tbody>{rankedItems.map(item => {
               const measure = measureFor(item)
@@ -365,16 +374,22 @@ export function RankingPage({ navigate }: Readonly<{ navigate: (url: string) => 
               const selectedRow = selected.has(item.applicationId)
               const detailHref = `/services/${encodeURIComponent(item.applicationId)}?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}&period=custom&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
               return <tr key={item.applicationId} className={selectedRow ? styles.selectedRow : undefined}>
-                <td><input aria-label={t('selectApplication', { name: item.name })} type="checkbox" checked={selectedRow} disabled={!selectedRow && selected.size >= 5} onChange={event => toggleSelection(item.applicationId, item.name, event.target.checked)} /></td>
-                <td><button className={styles.sortValue} type="button" onClick={() => sortColumn('position')}>{item.position}</button></td>
+                <td data-export-ignore><input aria-label={t('selectApplication', { name: item.name })} type="checkbox" checked={selectedRow} disabled={!selectedRow && selected.size >= 5} onChange={event => toggleSelection(item.applicationId, item.name, event.target.checked)} /></td>
+                <td data-export-number={item.position ?? ''}><button className={styles.sortValue} type="button" onClick={() => sortColumn('position')}>{item.position}</button></td>
                 <td><a href={detailHref} onClick={event => { event.preventDefault(); navigate(detailHref) }}>{item.name}</a><small>{item.applicationId}</small></td>
                 <td>{item.location.regionCode ?? t('notAvailable')}<small>{[item.location.region, item.location.country, item.location.city].filter(Boolean).join(' · ')}</small></td>
-                <td><strong>{valueInDesignUnit === null ? t('notAvailable') : `${number(valueInDesignUnit, shownUnit)}`}</strong><span className={styles.metricBar} aria-hidden="true"><span style={{ width: `${Math.min(barWidth, 100)}%` }} /></span></td>
-                <td>{percent(item.collectionSuccessRate ?? null)}</td>
-                <td><a className={styles.detailLink} href={detailHref} aria-label={t('openDetails', { name: item.name })} onClick={event => { event.preventDefault(); navigate(detailHref) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M2 10s2.8-5 8-5 8 5 8 5-2.8 5-8 5-8-5-8-5Z" /><circle cx="10" cy="10" r="2.2" /></svg></a></td>
+                <td data-export-number={valueInDesignUnit ?? ''}><strong>{valueInDesignUnit === null ? t('notAvailable') : `${number(valueInDesignUnit, shownUnit)}`}</strong><span className={styles.metricBar} aria-hidden="true"><span style={{ width: `${Math.min(barWidth, 100)}%` }} /></span></td>
+                <td data-export-number={item.collectionSuccessRate == null ? '' : item.collectionSuccessRate * 100}>{percent(item.collectionSuccessRate ?? null)}</td>
+                <td data-export-ignore><a className={styles.detailLink} href={detailHref} aria-label={t('openDetails', { name: item.name })} onClick={event => { event.preventDefault(); navigate(detailHref) }}><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M2 10s2.8-5 8-5 8 5 8 5-2.8 5-8 5-8-5-8-5Z" /><circle cx="10" cy="10" r="2.2" /></svg></a></td>
               </tr>
             })}</tbody>
           </table></div>
+          <div className={styles.mobileSort} role="group" aria-labelledby="ranking-table-title">
+            {tableColumns.map(({ key, label }) => <SortButton key={key}
+              state={tableSortPresentation(key, sortBy, sortDirection).ariaSort}
+              aria-pressed={sortBy === key}
+              onClick={() => sortColumn(key)}>{label}</SortButton>)}
+          </div>
           <div className={styles.mobileRankedList}>
             {rankedItems.map(item => {
               const measure = measureFor(item)

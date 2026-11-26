@@ -1,4 +1,7 @@
 {
+  "excel.download": "Exportar para Excel",
+  "excel.scope": "Exporta as linhas da página atual, na ordem exibida.",
+  "excel.error": "Não foi possível gerar a planilha. Tente novamente.",
   "language.label": "Idioma",
   "theme.darkMode": "Modo escuro",
   "account": "Conta",

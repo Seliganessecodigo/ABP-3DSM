@@ -1,4 +1,7 @@
 {
+  "excel.download": "Ekspor ke Excel",
+  "excel.scope": "Mengekspor baris di halaman saat ini sesuai urutan tampilan.",
+  "excel.error": "Spreadsheet gagal dibuat. Coba lagi.",
   "language.label": "Bahasa",
   "theme.darkMode": "Mode gelap",
   "account": "Akun",

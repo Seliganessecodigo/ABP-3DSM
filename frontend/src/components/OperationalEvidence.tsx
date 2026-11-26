@@ -1,3 +1,4 @@
+import { TableExportButton } from './TableExportButton.tsx'
 import { tableSortPresentation } from '../utils/tableSortPresentation.ts'
 import { CardIcon } from './CardIcon.tsx'
 import { faMicrochip } from '@fortawesome/free-solid-svg-icons'
@@ -98,7 +99,8 @@ export function OperationalEvidence({ evidence, loading, notFound, selected, err
       </div>
       <div className={styles.filteredCount}><output aria-live="polite">{labels.filteredCount(rows.length, metricKeys.length)}</output></div>
       </details>
-      <table className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><SortButton state={metricSort.ariaSort} onClick={() => toggleSort('metric')}>{labels.metric}</SortButton></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><SortButton state={statusSort.ariaSort} onClick={() => toggleSort('status')}>{labels.status}</SortButton></th></tr></thead>
+      <TableExportButton tableId="operational-evidence" disabled={rows.length === 0} />
+      <table id="operational-evidence" className={styles.table}><thead><tr><th scope="col" aria-sort={metricSort.ariaSort}><SortButton state={metricSort.ariaSort} onClick={() => toggleSort('metric')}>{labels.metric}</SortButton></th><th scope="col">{labels.value}</th><th scope="col" aria-sort={statusSort.ariaSort}><SortButton state={statusSort.ariaSort} onClick={() => toggleSort('status')}>{labels.status}</SortButton></th></tr></thead>
         <tbody>{rows.map((key) => {
           const metric = evidence.metrics[key]
           const status = statusLabel(key)

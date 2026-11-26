@@ -1,4 +1,7 @@
 {
+  "excel.download": "Export to Excel",
+  "excel.scope": "Exports the rows on the current page in the displayed order.",
+  "excel.error": "Could not create the spreadsheet. Try again.",
   "language.label": "Language",
   "theme.darkMode": "Dark mode",
   "account": "Account",

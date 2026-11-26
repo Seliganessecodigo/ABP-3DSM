@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faChartPie, faFilter } from '@fortawesome/free-solid-svg-icons'
 import { Pagination } from '../../components/Pagination.tsx'
@@ -135,15 +136,17 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
         <p>{labels.emissions}: {data.totals.emissions.status === 'available' ? number(data.totals.emissions.value, data.totals.emissions.unit) : '—'}</p>
         <p>{labels.coverage}: {coverage(data.coverage.energy)} / {coverage(data.coverage.emissions)}</p>
       </section>}
-      {historyLayout && <div className={styles.historyTableScroll}>
-        <table className={styles.historyTable} aria-label={labels.heading}>
+      {historyLayout && <>
+        <TableExportButton tableId="history-contributions" disabled={loading || data.contributions.length === 0} />
+        <div className={styles.historyTableScroll}>
+        <table id="history-contributions" className={styles.historyTable} aria-label={labels.heading}>
           <thead><tr>
             <th scope="col">{labels.countedInterval}</th>
             <th scope="col">{labels.energy}</th>
             <th scope="col">{labels.emissions}</th>
             <th scope="col">{labels.durationRatio}</th>
             <th scope="col">{labels.methodology}</th>
-            <th scope="col">{labels.detailsHeading}</th>
+            <th scope="col" data-export-ignore>{labels.detailsHeading}</th>
           </tr></thead>
           <tbody>{data.contributions.length === 0
             ? <tr><td colSpan={6}>{labels.emptyContributions}</td></tr>
@@ -158,13 +161,14 @@ export function AnalysisContributions({ data, loading, error, locale, formatDate
                 <td data-label={labels.emissions}>{compactNumber(contribution.emissions.value, contribution.emissions.unit)}</td>
                 <td data-label={labels.durationRatio}>{new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 2 }).format(contribution.durationRatio)}</td>
                 <td data-label={labels.methodology}>{contribution.methodology?.version ?? '—'}</td>
-                <td data-label={labels.detailsHeading}><button type="button" aria-pressed={selected}
+                <td data-label={labels.detailsHeading} data-export-ignore><button type="button" aria-pressed={selected}
                   onClick={() => setSelectedKey(key)}>{labels.openContribution}</button></td>
               </tr>
             })}
           </tbody>
         </table>
-      </div>}
+        </div>
+      </>}
       {historyLayout && selectedContribution && <section className={styles.historyDetails} aria-label={labels.detailsHeading}>
         <h3>{t('historyContribution')} · {interval(selectedContribution.countedInterval.from, selectedContribution.countedInterval.to)}</h3>
         <div className={styles.selectedSummary}>

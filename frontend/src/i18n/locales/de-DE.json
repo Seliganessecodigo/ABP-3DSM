@@ -1,4 +1,7 @@
 {
+  "excel.download": "Nach Excel exportieren",
+  "excel.scope": "Exportiert die Zeilen der aktuellen Seite in der angezeigten Reihenfolge.",
+  "excel.error": "Die Tabelle konnte nicht erstellt werden. Versuchen Sie es erneut.",
   "language.label": "Sprache",
   "theme.darkMode": "Dunkelmodus",
   "account": "Konto",

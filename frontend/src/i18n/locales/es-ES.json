@@ -1,4 +1,7 @@
 {
+  "excel.download": "Exportar a Excel",
+  "excel.scope": "Exporta las filas de la página actual en el orden mostrado.",
+  "excel.error": "No se pudo crear la hoja de cálculo. Inténtalo de nuevo.",
   "language.label": "Idioma",
   "theme.darkMode": "Modo oscuro",
   "account": "Cuenta",

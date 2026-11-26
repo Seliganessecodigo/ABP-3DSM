@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faClockRotateLeft, faGaugeHigh, faPlug } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useRef, useState } from 'react'
@@ -44,7 +45,7 @@ export function MonitoringSettings() {
           <strong>{t(`source.${source.integration}`)}</strong><span>{t(`sourceState.${source.status}`)}</span><div><p>{t('lastAttempt')}: {date(source.lastAttemptAt)}</p><p>{t('lastSuccess')}: {date(source.lastSuccessAt)}</p><p>{t('lastFailure')}: {date(source.lastFailureAt)}</p><p>{t('openIncidents', { count: source.openIncidentCount })}</p></div>
         </div>)}</div>
       </section>
-      <section className={styles.section}><h2><CardIcon icon={faClockRotateLeft} size="small" inline />{t('latestCycle')}</h2>{health.latestCycle ? <div className={styles.tableScroll}><table className={styles.table}><thead><tr>{['startedAt', 'result', 'processed', 'failures'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody><tr><td>{date(health.latestCycle.startedAt)}</td><td>{t(`cycle.${health.latestCycle.status}`)}</td><td>{number.format(health.latestCycle.processedCount)}</td><td>{number.format(health.latestCycle.failedCount)}</td></tr></tbody></table></div> : <p>{t('noCycles')}</p>}</section>
+      <section className={styles.section}><h2><CardIcon icon={faClockRotateLeft} size="small" inline />{t('latestCycle')}</h2>{health.latestCycle ? <><TableExportButton tableId="monitoring-cycle" /><div className={styles.tableScroll}><table id="monitoring-cycle" className={styles.table}><thead><tr>{['startedAt', 'result', 'processed', 'failures'].map(key => <th key={key} scope="col">{t(key)}</th>)}</tr></thead><tbody><tr><td>{date(health.latestCycle.startedAt)}</td><td>{t(`cycle.${health.latestCycle.status}`)}</td><td data-export-number={health.latestCycle.processedCount}>{number.format(health.latestCycle.processedCount)}</td><td data-export-number={health.latestCycle.failedCount}>{number.format(health.latestCycle.failedCount)}</td></tr></tbody></table></div></> : <p>{t('noCycles')}</p>}</section>
     </>}
     {saved && <output>{t('saved')}</output>}
     <dialog ref={dialog} className={styles.dialog} aria-labelledby="monitoring-confirmation-title" onCancel={e => { e.preventDefault(); if (!saving) setConfirming(null) }}>

@@ -1,4 +1,7 @@
 {
+  "excel.download": "Esporta in Excel",
+  "excel.scope": "Esporta le righe della pagina corrente nell’ordine visualizzato.",
+  "excel.error": "Impossibile creare il foglio di calcolo. Riprova.",
   "language.label": "Lingua",
   "theme.darkMode": "Modalità scura",
   "account": "Account",

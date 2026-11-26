@@ -1,4 +1,7 @@
 {
+  "excel.download": "Exporter vers Excel",
+  "excel.scope": "Exporte les lignes de la page actuelle dans l’ordre affiché.",
+  "excel.error": "Impossible de créer la feuille de calcul. Réessayez.",
   "language.label": "Langue",
   "theme.darkMode": "Mode sombre",
   "account": "Compte",

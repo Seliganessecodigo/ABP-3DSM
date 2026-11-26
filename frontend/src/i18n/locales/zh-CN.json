@@ -1,4 +1,7 @@
 {
+  "excel.download": "导出到 Excel",
+  "excel.scope": "按显示顺序导出当前页的行。",
+  "excel.error": "无法生成电子表格，请重试。",
   "language.label": "语言",
   "theme.darkMode": "深色模式",
   "account": "账户",

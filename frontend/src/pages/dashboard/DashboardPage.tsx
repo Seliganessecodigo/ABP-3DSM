@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { faBolt, faChartLine, faChartPie, faLayerGroup, faLeaf } from '@fortawesome/free-solid-svg-icons'
 import { CollectionSuccessCard } from './CollectionSuccessCard.tsx'
@@ -664,20 +665,23 @@ export function DashboardPage({ navigate }: Readonly<{ navigate: (url: string) =
         {data.data.applications.length > 0 && <p className={styles.scopeNote}>{t('table.contributorsOnly')}</p>}
         {table.total === 0
           ? <p className={styles.emptyNotice} role="status">{data.data.applications.length === 0 ? t('table.noContributors') : t('table.noMatches')}</p>
-          : <div className={styles.tableScroll}>
-            <table>
-              <thead><tr>{tableColumns.map(({ key, label }) => <th key={key} scope="col" aria-sort={sortState(key)}><SortButton state={sortState(key)} onClick={() => toggleSort(key)}>{t(label)}</SortButton>
+          : <>
+          <TableExportButton tableId="dashboard-applications" />
+          <div className={styles.tableScroll}>
+            <table id="dashboard-applications">
+              <thead><tr>{tableColumns.map(({ key, label }) => <th key={key} scope="col" aria-sort={sortState(key)}
+                data-export-text={key === 'energy' || key === 'emissions' ? `${t(label)} (${data.data?.totals[key].unit})` : key === 'collectionSuccessRate' ? `${t(label)} (%)` : undefined}><SortButton state={sortState(key)} onClick={() => toggleSort(key)}>{t(label)}</SortButton>
               </th>)}</tr></thead>
               <tbody>{visibleRows.map((row) => <tr key={row.applicationId} data-dashboard-application-id={row.applicationId}>
-                <th scope="row" data-label={t('table.application')}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlertsById.get(row.applicationId)} /></th>
+                <th scope="row" data-label={t('table.application')} data-export-text={row.name}>{detailsLink(row.applicationId, row.name)}<PersonalAlertBadges application={personalAlertsById.get(row.applicationId)} /></th>
                 <td data-label={t('table.state')}><span className={`${styles.stateBadge} ${styles[`state${currentApplicationState(row)}`]}`}>{labels[currentApplicationState(row)]}</span></td>
                 <td data-label={t('table.currentRegion')}>{row.regionCode ?? tCommon('location.unknown')}</td>
-                <td data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
-                <td data-label={`${t('table.emissions')} (${row.emissions.unit})`}>{numberLabel(row.emissions.value, row.emissions.unit, locale, t('notAvailable'))}</td>
-                <td data-label={t('collectionSuccess.title')}>{row.collectionSuccessRate == null ? t('notAvailable') : coverageLabel(row.collectionSuccessRate, locale)}</td>
+                <td data-export-number={row.energy.value ?? ''} data-label={`${t('table.energy')} (${row.energy.unit})`}>{numberLabel(row.energy.value, row.energy.unit, locale, t('notAvailable'))}</td>
+                <td data-export-number={row.emissions.value ?? ''} data-label={`${t('table.emissions')} (${row.emissions.unit})`}>{numberLabel(row.emissions.value, row.emissions.unit, locale, t('notAvailable'))}</td>
+                <td data-export-number={row.collectionSuccessRate == null ? '' : row.collectionSuccessRate * 100} data-label={t('collectionSuccess.title')}>{row.collectionSuccessRate == null ? t('notAvailable') : coverageLabel(row.collectionSuccessRate, locale)}</td>
               </tr>)}</tbody>
             </table>
-          </div>}
+          </div></>}
         {table.total > 0 && <Pagination page={page} pageCount={pageCount} label={t('table.pagination')}
           onPageChange={page => update({ page })} summary={t('table.range', { from: from + 1, to, total: table.total })}
           pageSize={{ value: query.pageSize, options: pageSizes, onChange: changePageSize }} />}

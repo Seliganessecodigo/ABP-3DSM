@@ -16,6 +16,7 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@fortawesome/react-fontawesome": "^3.5.0",
+    "fflate": "^0.8.3",
     "i18next": "^26.4.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

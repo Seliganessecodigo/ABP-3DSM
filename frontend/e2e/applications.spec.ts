@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { strFromU8, unzipSync } from 'fflate'
 import { application, gate, largeCatalog, mixedCatalog, mockApi, mockCatalog, row, search, unavailable } from './support/catalog.ts'
 
 test('distingue disponibilidade confirmada, falha registrada e verificação vencida', async ({ page }) => {
@@ -457,6 +459,25 @@ test('filtros de coluna, ordenação e tamanho de página são refletidos na URL
   await page.getByRole('combobox', { name: /itens por página/i }).selectOption('5')
   await expect(page).toHaveURL(/size=5/)
   await expect(page.getByText(/exibindo 1–5 de 21 aplicações/i)).toBeVisible()
+
+  const rows = page.getByRole('table').locator('tbody tr td:first-child')
+  const firstPage = await rows.allTextContents()
+  await page.getByRole('button', { name: /próxima página/i }).click()
+  await expect(page.getByText(/exibindo 6–10 de 21 aplicações/i)).toBeVisible()
+  const secondPage = await rows.allTextContents()
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Exportar para Excel' }).click(),
+  ])
+  const path = test.info().outputPath(download.suggestedFilename())
+  await download.saveAs(path)
+  const sheet = strFromU8(unzipSync(await readFile(path))['xl/worksheets/sheet1.xml'])
+  expect(download.suggestedFilename()).toBe('greener-catalog.xlsx')
+  expect(sheet.match(/<row>/g)).toHaveLength(6)
+  const namePositions = secondPage.map(name => sheet.indexOf(`>${name}</t>`))
+  expect(namePositions).toEqual(namePositions.filter(index => index >= 0).sort((a, b) => a - b))
+  expect(firstPage.some(name => sheet.includes(`>${name}</t>`))).toBe(false)
+  expect(sheet).not.toContain('Ações')
 })
 
 test('filtros carregam diretamente da URL e podem ser restaurados pelo histórico', async ({ page }) => {

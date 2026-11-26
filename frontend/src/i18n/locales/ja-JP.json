@@ -1,4 +1,7 @@
 {
+  "excel.download": "Excel にエクスポート",
+  "excel.scope": "現在のページの行を表示順にエクスポートします。",
+  "excel.error": "スプレッドシートを作成できませんでした。もう一度お試しください。",
   "language.label": "言語",
   "theme.darkMode": "ダークモード",
   "account": "アカウント",
