@@ -50,6 +50,8 @@
 .resultHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--border-default); padding: 16px 24px; }
 .resultTitle { display: flex; min-width: 0; align-items: center; gap: 12px; }
 .resultHeading h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.02em; }
+.resultActions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.resultActions > :global(.table-export) { padding-block: 0; }
 .periodBadge { flex: 0 0 auto; border: 1px solid var(--border-default); border-radius: 6px; padding: 5px 9px; color: var(--text-secondary); font-size: 11px; font-weight: 550; }
 .results > .partial, .results > [role='alert'], .results > [role='status'] { margin: 16px 24px; }
 .desktopResults { min-width: 0; overflow-x: auto; border-radius: 0 0 16px 16px; }

@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
 import { Pagination } from '../../components/Pagination.tsx'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -638,29 +639,30 @@ function SeriesTable({ points, filteredPoints, visiblePoints, page, pageCount, p
     .flatMap(reading => reading.status === 'available' ? [] : [labels.reasons[reading.reason]]))].join(' · ')
   return <>
     {historyMode && <p className={styles.intervalStatus}>{filteredPoints.length} {t('historyIntervalsUnit')} · {activeFilterCount === 0 ? t('historyNoFilters') : t('historyActiveFilters', { count: activeFilterCount })}</p>}
-    <table className={styles.table}>
+    <TableExportButton tableId="analysis-intervals" disabled={visiblePoints.length === 0} />
+    <table id="analysis-intervals" className={styles.table}>
       <thead><tr>
         <th scope="col" aria-sort={sortState('moment')}><SortButton state={sortState('moment')} onClick={() => onSort('moment')}>{historyMode ? t('historyStart') : labels.moment}</SortButton></th>
         <th scope="col" aria-sort={sortState('energy')}><SortButton state={sortState('energy')} disabled={energyUnitRequired || invalidEnergyUnit || energyUnits.length === 0} onClick={() => onSort('energy')}>{labels.energy}</SortButton></th>
         <th scope="col" aria-sort={sortState('emissions')}><SortButton state={sortState('emissions')} disabled={emissionsUnitRequired || invalidEmissionsUnit || emissionsUnits.length === 0} onClick={() => onSort('emissions')}>{labels.emissions}</SortButton></th>
         {historyMode && <><th scope="col">{labels.region}</th><th scope="col">{t('historyMethodology')}</th><th scope="col">{labels.collectionSuccess}</th></>}
         {historyMode && <th scope="col">{tCommon('state.label')}</th>}
-        {historyMode && onInspectContributions && <th scope="col">{t('historyAction')}</th>}
+        {historyMode && onInspectContributions && <th scope="col" data-export-ignore>{t('historyAction')}</th>}
       </tr></thead>
       <tbody>{filteredPoints.length === 0
         ? <tr><td colSpan={historyMode ? onInspectContributions ? 8 : 7 : 3}>{emptyMessage}</td></tr>
         : visiblePoints.map(point => <tr key={point.id}>
-          <td><time dateTime={point.timestamp}>{formatDate(point.timestamp)}</time>{historyMode && point.bucketEnd && <span className={styles.intervalEnd}> → {formatDate(point.bucketEnd)}</span>}{!historyMode && onInspectContributions && <button type="button" data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{labels.inspectContributions}</button>}</td>
+          <td><time dateTime={point.timestamp}>{formatDate(point.timestamp)}</time>{historyMode && point.bucketEnd && <span className={styles.intervalEnd}> → {formatDate(point.bucketEnd)}</span>}{!historyMode && onInspectContributions && <button type="button" data-export-ignore data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{labels.inspectContributions}</button>}</td>
           <td data-label={labels.energy}>{historyMode && hasNoObservation(point.energy) ? '—' : readingText(point.energy, locale, labels)}</td>
           <td data-label={labels.emissions}>{historyMode && hasNoObservation(point.emissions) ? '—' : readingText(point.emissions, locale, labels)}</td>
                     {historyMode && <><td className={styles.desktopMetadata} data-label={labels.region}>{metadataAt(point, 'region_changed', 'regionCode')}</td>
             <td className={styles.desktopMetadata} data-label={labels.methodology}>{metadataAt(point, 'methodology_changed', 'version')}</td>
             <td className={styles.desktopMetadata} data-label={labels.collectionSuccess}>{collectionSuccessText(point, locale)}</td>
-            <td className={styles.mobileMetrics}>{hasNoObservation(point.energy) && hasNoObservation(point.emissions)
+            <td className={styles.mobileMetrics} data-export-ignore>{hasNoObservation(point.energy) && hasNoObservation(point.emissions)
               ? t('historyViewGap') : `${readingText(point.energy, locale, labels)} · ${readingText(point.emissions, locale, labels)}`}</td>
-            <td className={styles.mobileContext}>{metadataAt(point, 'region_changed', 'regionCode')} · {metadataAt(point, 'methodology_changed', 'version')} · {labels.collectionSuccess} {collectionSuccessText(point, locale)}</td></>}
+            <td className={styles.mobileContext} data-export-ignore>{metadataAt(point, 'region_changed', 'regionCode')} · {metadataAt(point, 'methodology_changed', 'version')} · {labels.collectionSuccess} {collectionSuccessText(point, locale)}</td></>}
           {historyMode && <td className={styles.intervalState}><details className={styles.stateDetails}><summary><span className={`state-badge state-${stateFor(point).toLowerCase()}`}><span aria-hidden="true">{stateIcons[stateFor(point)]}</span>{stateLabel(stateFor(point), tCommon)}</span></summary><span className={styles.stateMetadata}>{stateFor(point) === 'AVAILABLE' ? tCommon('reason.METRICS_VALID') : statusReason(point)}</span></details></td>}
-          {historyMode && onInspectContributions && <td className={styles.intervalAction}><button type="button" aria-label={point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : t('historyInspect')} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? <>{t('historyViewGap')} →</> : <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>}</button></td>}
+          {historyMode && onInspectContributions && <td className={styles.intervalAction} data-export-ignore><button type="button" aria-label={point.energy.status !== 'available' && point.emissions.status !== 'available' ? t('historyViewGap') : t('historyInspect')} data-history-bucket={point.timestamp} onClick={() => onInspectContributions(point.timestamp)}>{point.energy.status !== 'available' && point.emissions.status !== 'available' ? <>{t('historyViewGap')} →</> : <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>}</button></td>}
         </tr>)}</tbody>
     </table>
     <Pagination page={page} pageCount={pageCount} onPageChange={page => onPaginationChange(page, pageSize)}

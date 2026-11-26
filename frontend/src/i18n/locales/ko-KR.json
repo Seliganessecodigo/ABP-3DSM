@@ -1,4 +1,7 @@
 {
+  "excel.download": "Excel로 내보내기",
+  "excel.scope": "현재 페이지의 행을 표시된 순서대로 내보냅니다.",
+  "excel.error": "스프레드시트를 만들 수 없습니다. 다시 시도하세요.",
   "language.label": "언어",
   "theme.darkMode": "다크 모드",
   "account": "계정",

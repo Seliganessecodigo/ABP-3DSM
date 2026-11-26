@@ -1,3 +1,4 @@
+import { TableExportButton } from '../../components/TableExportButton.tsx'
 import { CardIcon } from '../../components/CardIcon.tsx'
 import { Breadcrumbs } from '../../components/Breadcrumbs.tsx'
 import { SortButton } from '../../components/SortButton.tsx'
@@ -385,10 +386,12 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
       </div>}
       {applications.length === 0 && hasSnapshot && <RequestFeedback state="empty"><h3>{tCatalog('emptyTitle')}</h3><p>{tCatalog('empty')}</p></RequestFeedback>}
       {applications.length > 0 && result.total === 0 && <RequestFeedback state="empty"><h3>{tCatalog('noResults')}</h3><p>{tCatalog('adjustFilters')}</p></RequestFeedback>}
-      {result.total > 0 && <div className={styles.tableWrap}>
-        <table className={styles.applicationTable}>
+      {result.total > 0 && <>
+        <TableExportButton tableId="comparison-applications" />
+        <div className={styles.tableWrap}>
+        <table id="comparison-applications" className={styles.applicationTable}>
           <thead><tr>
-            <th scope="col">{t('selectColumn')}</th>
+            <th scope="col" data-export-ignore>{t('selectColumn')}</th>
             {sortColumns.map((column) => {
               const sort = tableSortPresentation(column, query.sort?.column ?? null, query.sort?.direction ?? null)
               return <th key={column} scope="col" aria-sort={sort.ariaSort}><SortButton state={sort.ariaSort} onClick={() => toggleSort(column)}>{sortLabels[column]}</SortButton></th>
@@ -398,7 +401,7 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
             const checked = selectedIds.includes(application.id)
             const disabled = !checked && selectedIds.length >= 5
             return <tr key={application.id} data-selected={checked}>
-              <td><label className={styles.selectionControl}><input type="checkbox" aria-label={t('selectApplication', { name: application.name, id: application.id })} checked={checked} disabled={disabled}
+              <td data-export-ignore><label className={styles.selectionControl}><input type="checkbox" aria-label={t('selectApplication', { name: application.name, id: application.id })} checked={checked} disabled={disabled}
                 onChange={(event) => toggleApplication(application.id, event.target.checked)} /></label></td>
               <td><strong>{application.name}</strong><small>{application.id}</small></td>
               <td>{application.location?.country ?? tCommon('location.unknown')}</td>
@@ -409,7 +412,8 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
             </tr>
           })}</tbody>
         </table>
-      </div>}
+        </div>
+      </>}
       {result.total > 0 && <Pagination page={result.page} pageCount={result.pageCount} label={t('pagination')}
         onPageChange={page => updateQuery({ ...query, page })} summary={tCatalog('range', { start: firstItem, end: lastItem, count: total })}
         pageSize={{ value: query.pageSize, options: pageSizes, onChange: value => updateQuery({ ...query, page: 1, pageSize: value === 'all' ? 'all' : Number(value) }) }} />}
@@ -425,7 +429,10 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
       <section className={styles.results} aria-labelledby="comparison-results-heading">
         <div className={styles.resultHeading}>
           <div className={styles.resultTitle}><CardIcon icon={faArrowRightArrowLeft} size="small" /><h2 id="comparison-results-heading">{t('resultsHeading')}</h2></div>
-          <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
+          <div className={styles.resultActions}>
+            <span className={styles.periodBadge}>{tDetail(`periods.${pageState.period}`)}</span>
+            {comparison && <TableExportButton tableId="comparison-results" disabled={comparisonLoading} />}
+          </div>
         </div>
         {comparisonLoading && <LoadingState title={t('loadingComparison')} compact />}
         {comparisonError && <RequestFeedback state="error">
@@ -439,7 +446,7 @@ export function ComparisonPage({ navigate }: Readonly<{ navigate: (url: string) 
           {comparison.status === 'empty' && <RequestFeedback state="empty"><p>{t('emptyComparison')}</p></RequestFeedback>}
           {comparison.status === 'partial' && <p className={styles.partial} role="status">{t('partialComparison')}</p>}
           <div className={styles.desktopResults}>
-            <table className={styles.comparisonTable} aria-label={t('tableLabel')}>
+            <table id="comparison-results" className={styles.comparisonTable} aria-label={t('tableLabel')}>
               <thead><tr><th scope="col">{t('indicator')}</th>{selectedApplications.map((application) =>
                 <th scope="col" key={application.applicationId} data-reference={application.applicationId === referenceApplicationId}><div className={styles.applicationHeading}><span className={styles.applicationMarker} aria-hidden="true">{String.fromCodePoint(65 + selectedIds.indexOf(application.applicationId))}</span><div>{application.name}{application.applicationId === referenceApplicationId && <small className={styles.referenceBadge}>{t('reference')}</small>}</div></div></th>)}</tr></thead>
               <tbody>{rows.map((row) => <tr key={row.key} data-primary={Boolean(row.primary)} data-help={`comparison-${row.key}`}><th scope="row"><span className={styles.indicatorLabel}><CardIcon icon={row.icon} />{row.label}</span></th>{selectedApplications.map((application) =>

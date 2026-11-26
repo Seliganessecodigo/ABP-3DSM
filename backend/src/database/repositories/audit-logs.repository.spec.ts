@@ -4,7 +4,7 @@ describe('AuditLogsRepository.listChanges', () => {
   function createRepository(totalItems = 1) {
     const builder = {
       innerJoin: jest.fn(), where: jest.fn(), andWhere: jest.fn(), getCount: jest.fn(), clone: jest.fn(),
-      orderBy: jest.fn(), addOrderBy: jest.fn(), skip: jest.fn(), take: jest.fn(), getMany: jest.fn(),
+      addSelect: jest.fn(), orderBy: jest.fn(), addOrderBy: jest.fn(), skip: jest.fn(), take: jest.fn(), getMany: jest.fn(),
     }
     for (const method of ['innerJoin', 'where', 'andWhere', 'orderBy', 'addOrderBy', 'skip', 'take'] as const) {
       builder[method].mockReturnValue(builder)
@@ -28,7 +28,8 @@ describe('AuditLogsRepository.listChanges', () => {
     expect(builder.andWhere).toHaveBeenCalledWith('audit.actorType = :actorType', { actorType: 'user' })
     expect(builder.andWhere).toHaveBeenCalledWith('audit.action IN (:...changeActions)', { changeActions: expect.arrayContaining(['account.role.changed', 'auth.password.changed', 'preference.saved']) })
     expect(builder.andWhere.mock.calls.length).toBeGreaterThan(12)
-    expect(builder.orderBy).toHaveBeenCalledWith('audit.actorLabel', 'ASC', 'NULLS LAST')
+    expect(builder.addSelect).toHaveBeenCalledWith('COALESCE(audit.actorLabel, audit.actor)', 'display_actor')
+    expect(builder.orderBy).toHaveBeenCalledWith('display_actor', 'ASC', 'NULLS LAST')
     expect(builder.addOrderBy).toHaveBeenCalledWith('audit.id', 'ASC')
     expect(builder.skip).toHaveBeenCalledWith(5)
     expect(builder.take).toHaveBeenCalledWith(5)
@@ -42,6 +43,8 @@ describe('AuditLogsRepository.listChanges', () => {
     })
     expect(all.builder.skip).not.toHaveBeenCalled()
     expect(all.builder.take).not.toHaveBeenCalled()
+    expect(all.builder.addSelect).not.toHaveBeenCalled()
+    expect(all.builder.orderBy).toHaveBeenCalledWith('audit.createdAt', 'DESC', 'NULLS LAST')
     expect(allResult.pagination).toEqual({ page: 1, pageSize: 'all', totalItems: 3, totalPages: 1, hasNextPage: false })
 
     const empty = createRepository(0)

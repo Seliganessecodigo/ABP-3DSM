@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+import { strFromU8, unzipSync } from 'fflate'
 
 const period = {
   from: '2026-11-01T00:00:00.000Z',
@@ -136,11 +138,12 @@ test('sorting CO₂e updates the rows in place with a single paginated request',
   const coverage = { energy: 1, emissions: 1 }
   const first = {
     applicationId: 'large', name: 'maior-emissão', state: 'AVAILABLE', stateReason: null,
-    location: { regionCode: null, country: null, region: null, city: null },
+    location: { regionCode: 'BR-SP', country: 'Brasil', region: 'Alfa', city: null },
     energy, emissions, coverage, collectionSuccessRate: 0, rankability: 'ranked', position: 1, participation: 0.8,
   }
   const second = {
     ...first, applicationId: 'small', name: 'menor-emissão', emissions: { ...emissions, value: 2000 },
+    location: { ...first.location, regionCode: 'BR-RJ', region: 'Zulu' },
     collectionSuccessRate: null, position: 2, participation: 0.2,
   }
   await page.route(/\/analysis\/ranking(?:\?.*)?$/, async route => {
@@ -156,7 +159,7 @@ test('sorting CO₂e updates the rows in place with a single paginated request',
       scope: { applicationCount: 2, rankedCount: 2, unrankedCount: 0, energy: { ...energy, value: 4 }, emissions: { ...emissions, value: 10000 }, coverage },
       presentation: { rankedCount: 2, unrankedCount: 0, maxValue: 8000 },
       pagination: { page: 1, pageSize: 10, totalItems: 2, totalPages: 1 },
-      items: url.searchParams.get('sortDirection') === 'asc' ? [second, first] : [first, second],
+      items: (url.searchParams.get('sortDirection') ?? url.searchParams.get('direction')) === 'asc' ? [second, first] : [first, second],
     } })
   })
   await page.route(/\/applications(?:\?.*)?$/, route => route.fulfill({ json: [] }))
@@ -164,6 +167,7 @@ test('sorting CO₂e updates the rows in place with a single paginated request',
   const rows = page.getByRole('table').locator('tbody tr')
   const sort = page.getByRole('table').getByRole('button', { name: 'CO₂e (kg)', exact: true })
   await expect(rows.first()).toContainText(first.name)
+  await expect(sort.locator('..')).toHaveAttribute('aria-sort', 'descending')
   await expect(rows.first()).toContainText('0%')
   await expect(page.getByRole('table').getByRole('button', { name: 'Sucesso das coletas' })).toBeVisible()
   const documentLoadedAt = await page.evaluate(() => performance.timeOrigin)
@@ -177,6 +181,32 @@ test('sorting CO₂e updates the rows in place with a single paginated request',
   await sort.click()
   await expect(rows.first()).toContainText(first.name)
   await expect(sort.locator('..')).toHaveAttribute('aria-sort', 'descending')
+
+  await page.getByRole('table').getByRole('button', { name: 'Região', exact: true }).click()
+  await expect(rows.first()).toContainText('BR-RJ')
+  expect(requests.at(-1)?.searchParams.get('sortBy')).toBe('regionCode')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('button', { name: 'Região', exact: true }).click()
+  await expect(page.locator('article').filter({ hasText: first.name })).toBeVisible()
+  await expect.poll(() => requests.at(-1)?.searchParams.get('sortDirection')).toBe('desc')
+  const exported = page.getByRole('button', { name: 'Exportar para Excel' })
+  await expect(exported).toBeEnabled()
+  const [download] = await Promise.all([page.waitForEvent('download'), exported.click()])
+  expect(download.suggestedFilename()).toBe('greener-ranking.xlsx')
+  const path = test.info().outputPath(download.suggestedFilename())
+  await download.saveAs(path)
+  const sheet = strFromU8(unzipSync(await readFile(path))['xl/worksheets/sheet1.xml'])
+  expect(sheet).toContain('<c><v>8</v></c><c><v>0</v></c>')
+  expect(sheet).toContain('<c><v>2</v></c><c/>')
+  expect(sheet.indexOf(first.name)).toBeLessThan(sheet.indexOf(second.name))
+  expect(sheet).not.toContain('Detalhes')
+  await page.screenshot({ path: test.info().outputPath('ranking-excel-mobile.png'), fullPage: true })
+
+  await page.getByRole('button', { name: 'Sentido da classificação' }).click()
+  await expect.poll(() => requests.at(-1)?.searchParams.get('sortDirection')).toBeNull()
+  expect(requests.at(-1)?.searchParams.get('direction')).toBe('asc')
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.getByRole('navigation', { name: 'Navegação principal' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
   await expect(page.getByRole('button', { name: '7 dias', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })

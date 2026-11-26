@@ -52,7 +52,7 @@
 .tableScroll td a { color: var(--text-primary); font-weight: 700; text-decoration: none; }
 .tableScroll td small { display: block; margin-top: 3px; color: var(--text-secondary); font-size: 10px; }
 .tableScroll input[type="checkbox"] { accent-color: var(--accent-default); }
-.mobileRankedList { display: none; }
+.mobileRankedList, .mobileSort { display: none; }
 .mobileRankCard { display: grid; gap: 8px; min-width: 0; padding: 16px 0; border-bottom: 1px solid var(--border-default); }
 .mobileSelected { background: color-mix(in srgb, var(--accent-default) 12%, var(--surface-card)); }
 .mobileRankTitle { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
@@ -123,6 +123,7 @@
   .tableHeading > span { max-width: 45%; text-align: right; }
   .tableCard .tableHeading > span { display: none; }
   .tableScroll { display: none; }
+  .mobileSort { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-block: 8px; }
   .mobileRankedList { display: grid; gap: 0; }
   .selectionBar { flex-wrap: wrap; gap: 8px; }
   .selectionBar > div { flex-basis: 100%; }

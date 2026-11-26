@@ -217,6 +217,26 @@ describeDatabase('monitoring operations through protected HTTP and PostgreSQL', 
     expect(await fixture.database.getRepository(AuditLogEntity).countBy({ actorUserId: admin.user.id })).toBe(2)
   })
 
+  it('orders paged audit rows by the name or identifier shown for the author', async () => {
+    const admin = await createPrincipal(UserRole.ADMIN)
+    const logs = fixture.database.getRepository(AuditLogEntity)
+    const entry = { actorType: 'user' as const, actorUserId: admin.user.id, action: 'account.role.changed',
+      entityType: 'user', entityId: admin.user.id, outcome: 'success' as const }
+    await logs.save([
+      { ...entry, actor: 'zeta', actorLabel: 'Alfa' },
+      { ...entry, actor: 'Beta', actorLabel: null },
+    ])
+
+    for (const [direction, expected] of [['asc', ['Alfa', 'Beta']], ['desc', ['Beta', 'Alfa']]] as const) {
+      const response = await fetch(`${fixture.url}/monitoring/audit?sortBy=actorLabel&sortDirection=${direction}&pageSize=5`, {
+        headers: { authorization: `Bearer ${admin.token}` },
+      })
+      expect(response.status).toBe(200)
+      const { items } = await response.json()
+      expect(items.map((item: { actorLabel: string | null; actor: string }) => item.actorLabel ?? item.actor)).toEqual(expected)
+    }
+  })
+
   it('searches authorized audit rows without accents and excludes other organizations and system actors', async () => {
     const admin = await createPrincipal(UserRole.ADMIN)
     const other = await createPrincipal(UserRole.ADMIN)
